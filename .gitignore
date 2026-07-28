@@ -1,0 +1,22 @@
+# autosync runtime files (never committed)
+.autosync/*.log
+.autosync/*.lock
+.autosync/state/
+
+# OS / editor cruft
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+
+# common build/dependency dirs
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+.env
+.env.local
