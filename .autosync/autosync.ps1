@@ -14,12 +14,19 @@
 
 [CmdletBinding()]
 param(
-    [string] $RepoPath        = (Split-Path $PSScriptRoot -Parent),
+    [string] $RepoPath,
     [int]    $IntervalSeconds = 5,
     [string] $Branch          = 'main'
 )
 
 $ErrorActionPreference = 'Continue'
+
+# $PSScriptRoot is not populated while param defaults are evaluated under
+# Windows PowerShell 5.1, so the repo root is resolved here instead.
+if (-not $RepoPath) {
+    $scriptDir = Split-Path -Parent $PSCommandPath
+    $RepoPath  = Split-Path -Parent $scriptDir
+}
 
 $syncDir  = Join-Path $RepoPath '.autosync'
 $logFile  = Join-Path $syncDir 'autosync.log'
