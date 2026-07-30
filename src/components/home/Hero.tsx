@@ -79,7 +79,10 @@ export function Hero() {
               growing EV community — all in one platform.
             </p>
 
-            <div className="delay-[400ms] mb-12 flex animate-fade-up flex-col gap-4 opacity-0 sm:flex-row">
+            {/* delay-400 comes from globals.css (animation-delay). Tailwind's
+                own delay-* utility sets transition-delay and would not stagger
+                the fade-up animation. */}
+            <div className="delay-400 mb-12 flex animate-fade-up flex-col gap-4 opacity-0 sm:flex-row">
               <Button
                 href="/map"
                 size="lg"
