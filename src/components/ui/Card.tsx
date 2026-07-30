@@ -4,22 +4,16 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-export interface CardProps {
-  children: React.ReactNode
-  className?: string
-  hover?: boolean
-  clickable?: boolean
-  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
-  shadow?: 'none' | 'sm' | 'md' | 'lg'
-  border?: boolean
-  radius?: 'md' | 'lg' | 'xl' | '2xl'
-  onClick?: () => void
-  style?: React.CSSProperties
-  animationDelay?: number
-}
-
-const cardVariants = cva('bg-white', {
+const cardVariants = cva('rounded-2xl', {
   variants: {
+    variant: {
+      default: 'border border-slate-200 bg-white shadow-card',
+      hoverable:
+        'border border-slate-200 bg-white shadow-card transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
+      flat: 'border border-slate-200 bg-white',
+      elevated: 'bg-white shadow-xl',
+      dark: 'border border-white/8 bg-dark-card',
+    },
     padding: {
       none: 'p-0',
       sm: 'p-4',
@@ -27,58 +21,38 @@ const cardVariants = cva('bg-white', {
       lg: 'p-6',
       xl: 'p-8',
     },
-    shadow: {
-      none: 'shadow-none',
-      sm: 'shadow-sm',
-      md: 'shadow-card',
-      lg: 'shadow-card-hover',
-    },
-    radius: {
-      md: 'rounded-xl',
-      lg: 'rounded-2xl',
-      xl: 'rounded-3xl',
-      '2xl': 'rounded-[24px]',
-    },
-    border: {
-      true: 'border border-slate-200',
-      false: '',
-    },
-    hover: {
-      true: 'cursor-pointer transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
-      false: '',
-    },
   },
   defaultVariants: {
+    variant: 'default',
     padding: 'md',
-    shadow: 'md',
-    radius: 'lg',
-    border: true,
-    hover: false,
   },
 })
 
+export interface CardProps {
+  variant?: 'default' | 'hoverable' | 'flat' | 'elevated' | 'dark'
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
+  className?: string
+  children: React.ReactNode
+  onClick?: () => void
+  animationDelay?: number
+}
+
 export function Card({
-  children,
-  className,
-  hover = false,
-  clickable = false,
+  variant = 'default',
   padding = 'md',
-  shadow = 'md',
-  border = true,
-  radius = 'lg',
+  className,
+  children,
   onClick,
-  style,
   animationDelay,
 }: CardProps) {
-  const mergedStyle =
-    animationDelay !== undefined ? { ...style, animationDelay: `${animationDelay}ms` } : style
-
-  // Only attached when an onClick is supplied, which means the caller is inside
-  // a client component — a Server Component cannot pass a handler at all, so
-  // Card stays usable as a plain server-rendered container.
+  // Handlers are attached only when onClick is supplied. A Server Component
+  // cannot pass a function at all, so Card stays usable as a zero-JS container
+  // without needing 'use client'.
   const interactiveProps = onClick
     ? {
         onClick,
+        role: 'button',
+        tabIndex: 0,
         onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault()
@@ -91,15 +65,12 @@ export function Card({
   return (
     <div
       className={cn(
-        cardVariants({ padding, shadow, radius, border, hover }),
-        clickable && 'cursor-pointer',
-        clickable &&
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+        cardVariants({ variant, padding }),
+        onClick &&
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
         className,
       )}
-      style={mergedStyle}
-      role={clickable ? 'button' : undefined}
-      tabIndex={clickable ? 0 : undefined}
+      style={animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined}
       {...interactiveProps}
     >
       {children}
