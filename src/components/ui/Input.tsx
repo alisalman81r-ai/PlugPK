@@ -176,11 +176,10 @@ export function SearchInput({
 
       <input
         type="search"
-        role="searchbox"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in via prop, used for the map search overlay
+        // Opt-in only; intended for the map search overlay, never on page load.
         autoFocus={autoFocus}
         className={cn(
           'h-13 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-[15px] text-slate-900 shadow-lg transition-all duration-150',
