@@ -58,14 +58,16 @@ export function HowItWorks() {
             className="absolute left-[12.5%] right-[12.5%] top-[120px] z-0 hidden border-t border-dashed border-blue-200 lg:block"
           />
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
             {STEPS.map((step) => {
               const Icon = step.icon
 
               return (
                 <div
                   key={step.number}
-                  className="group relative z-10 flex flex-col items-center p-8 text-center"
+                  // p-4 at 375px: two cards plus the gap leave ~131px of
+                  // content each, which the 72px icon and copy still fit.
+                  className="group relative z-10 flex flex-col items-center p-4 text-center sm:p-8"
                 >
                   <span className="mb-6 flex h-7 w-7 items-center justify-center rounded-full border border-blue-100 bg-blue-50 font-mono text-sm font-bold tracking-widest text-plug-blue-600">
                     {step.number}
