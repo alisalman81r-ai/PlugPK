@@ -90,17 +90,22 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   // never overlap: loading, then caller-supplied element, then clear, then the
   // success tick, then a plain icon.
   let rightSlot: React.ReactNode = null
+  // Interactive slots must keep pointer events; decorative ones let clicks fall
+  // through to the input underneath.
+  let rightSlotIsInteractive = false
   if (isLoading) {
     rightSlot = <Spinner size={ICON_SIZE} className="text-slate-400" />
   } else if (rightElement) {
     rightSlot = rightElement
+    rightSlotIsInteractive = true
   } else if (showClearButton) {
+    rightSlotIsInteractive = true
     rightSlot = (
       <button
         type="button"
         onClick={onClear}
         aria-label="Clear input"
-        className="pointer-events-auto inline-flex text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+        className="inline-flex text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
       >
         <X size={16} />
       </button>
@@ -159,7 +164,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
         />
 
         {rightSlot ? (
-          <span className="pointer-events-none absolute right-[14px] top-1/2 flex -translate-y-1/2 items-center">
+          <span
+            className={cn(
+              'absolute right-[14px] top-1/2 flex -translate-y-1/2 items-center',
+              !rightSlotIsInteractive && 'pointer-events-none',
+            )}
+          >
             {rightSlot}
           </span>
         ) : null}
