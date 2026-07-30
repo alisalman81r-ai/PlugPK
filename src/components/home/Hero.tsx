@@ -18,13 +18,13 @@ const QUICK_STATS: QuickStat[] = [
   { value: '5,000+', label: 'EV Owners' },
 ]
 
-interface MapPin {
+interface MockPin {
   /** Percentage offsets so pins stay put as the mock map resizes. */
   top: string
   left: string
 }
 
-const MAP_PINS: MapPin[] = [
+const MAP_PINS: MockPin[] = [
   { top: '22%', left: '24%' },
   { top: '62%', left: '68%' },
   { top: '74%', left: '30%' },
