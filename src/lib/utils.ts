@@ -1,94 +1,261 @@
 // src/lib/utils.ts
-import { clsx, type ClassValue } from 'clsx'
+// ═══════════════════════════════════════════════════
+// PLUG.PK — UTILITY FUNCTIONS
+// ═══════════════════════════════════════════════════
+
+import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import type {
+  ConnectorType,
+  StationStatus,
+  AmenityType,
+  PostCategory
+} from './types'
 
-import type { ConnectorStatus, ConnectorType, StationStatus } from './types'
-
-/**
- * Merge conditional class names and de-duplicate conflicting Tailwind utilities.
- */
-export function cn(...inputs: ClassValue[]): string {
+// ─── Class Name Utility ──────────────────────────────
+export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/**
- * Format a raw distance in metres for display.
- *
- * Under 1 km resolves to whole metres, under 10 km keeps one decimal,
- * and anything beyond rounds to whole kilometres.
- */
-export function formatDistance(meters: number): string {
-  if (!Number.isFinite(meters) || meters < 0) return '—'
-
-  if (meters < 1000) {
-    return `${Math.round(meters)} m`
+// ─── Status Utilities ────────────────────────────────
+export function getStatusConfig(status: StationStatus) {
+  const configs = {
+    available: {
+      label: 'Available',
+      color: '#22C55E',
+      bgClass: 'bg-green-50',
+      textClass: 'text-green-700',
+      borderClass: 'border-green-200',
+      pulse: true,
+    },
+    limited: {
+      label: 'Limited',
+      color: '#F59E0B',
+      bgClass: 'bg-amber-50',
+      textClass: 'text-amber-700',
+      borderClass: 'border-amber-200',
+      pulse: false,
+    },
+    offline: {
+      label: 'Offline',
+      color: '#EF4444',
+      bgClass: 'bg-red-50',
+      textClass: 'text-red-700',
+      borderClass: 'border-red-200',
+      pulse: false,
+    },
+    unknown: {
+      label: 'Unknown',
+      color: '#94A3B8',
+      bgClass: 'bg-slate-50',
+      textClass: 'text-slate-600',
+      borderClass: 'border-slate-200',
+      pulse: false,
+    },
   }
-
-  const km = meters / 1000
-
-  if (km < 10) {
-    return `${km.toFixed(1).replace(/\.0$/, '')} km`
-  }
-
-  return `${Math.round(km).toLocaleString('en-PK')} km`
+  return configs[status]
 }
 
-/**
- * Format a 0–5 rating to a single decimal place, e.g. `4` -> `"4.0"`.
- * Unrated stations return an em dash so cards never render `0.0`.
- */
+// ─── Connector Utilities ─────────────────────────────
+export function getConnectorConfig(type: ConnectorType) {
+  const configs = {
+    CCS2: {
+      label: 'CCS2',
+      bgClass: 'bg-blue-50',
+      textClass: 'text-blue-700',
+      borderClass: 'border-blue-200',
+      description: 'DC Fast Charging',
+    },
+    CHAdeMO: {
+      label: 'CHAdeMO',
+      bgClass: 'bg-amber-50',
+      textClass: 'text-amber-700',
+      borderClass: 'border-amber-200',
+      description: 'DC Fast Charging',
+    },
+    Type2: {
+      label: 'Type 2',
+      bgClass: 'bg-cyan-50',
+      textClass: 'text-cyan-700',
+      borderClass: 'border-cyan-200',
+      description: 'AC Charging',
+    },
+    GBT: {
+      label: 'GB/T',
+      bgClass: 'bg-green-50',
+      textClass: 'text-green-700',
+      borderClass: 'border-green-200',
+      description: 'DC/AC Charging',
+    },
+    Type1: {
+      label: 'Type 1',
+      bgClass: 'bg-slate-50',
+      textClass: 'text-slate-700',
+      borderClass: 'border-slate-200',
+      description: 'AC Charging',
+    },
+  }
+  return configs[type]
+}
+
+// ─── Speed Utilities ─────────────────────────────────
+enum ChargingSpeedEnum {
+  slow = 'slow',
+  fast = 'fast',
+  rapid = 'rapid',
+  ultra = 'ultra',
+}
+
+export function getSpeedConfig(speedKw: number) {
+  if (speedKw >= 150) {
+    return {
+      label: 'Ultra Rapid',
+      speed: ChargingSpeedEnum.ultra,
+      bgClass: 'bg-blue-50',
+      textClass: 'text-blue-700',
+    }
+  }
+  if (speedKw >= 50) {
+    return {
+      label: 'Rapid',
+      speed: ChargingSpeedEnum.rapid,
+      bgClass: 'bg-amber-50',
+      textClass: 'text-amber-700',
+    }
+  }
+  if (speedKw >= 7) {
+    return {
+      label: 'Fast',
+      speed: ChargingSpeedEnum.fast,
+      bgClass: 'bg-green-50',
+      textClass: 'text-green-700',
+    }
+  }
+  return {
+    label: 'Slow',
+    speed: ChargingSpeedEnum.slow,
+    bgClass: 'bg-slate-50',
+    textClass: 'text-slate-600',
+  }
+}
+
+// ─── Format Utilities ────────────────────────────────
+export function formatDistance(km: number): string {
+  if (km < 1) return `${Math.round(km * 1000)}m`
+  return `${km.toFixed(1)}km`
+}
+
 export function formatRating(rating: number): string {
-  if (!Number.isFinite(rating) || rating <= 0) return '—'
-
-  return Math.min(rating, 5).toFixed(1)
+  return rating.toFixed(1)
 }
 
-const STATUS_COLORS: Record<StationStatus | ConnectorStatus, string> = {
-  available: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  limited: 'bg-amber-50 text-amber-700 border-amber-200',
-  'in-use': 'bg-plug-blue-50 text-plug-blue-700 border-plug-blue-200',
-  offline: 'bg-red-50 text-red-700 border-red-200',
-  unknown: 'bg-plug-slate-100 text-plug-slate-600 border-plug-slate-200',
+export function formatPrice(pkr: number): string {
+  return `PKR ${pkr.toLocaleString()}`
 }
 
-/**
- * Badge classes (background, text, border) for a station or connector status.
- */
-export function getStatusColor(status: StationStatus | ConnectorStatus): string {
-  return STATUS_COLORS[status] ?? STATUS_COLORS.unknown
+export function formatPricePerKwh(pkr: number): string {
+  return `PKR ${pkr}/kWh`
 }
 
-const CONNECTOR_COLORS: Record<ConnectorType, string> = {
-  CCS2: 'bg-plug-blue-50 text-plug-blue-700 border-plug-blue-200',
-  CHAdeMO: 'bg-plug-cyan-50 text-plug-cyan-700 border-plug-cyan-200',
-  Type2: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  Type1: 'bg-amber-50 text-amber-700 border-amber-200',
-  GBT: 'bg-violet-50 text-violet-700 border-violet-200',
+export function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (mins === 0) return `${hours}h`
+  return `${hours}h ${mins}m`
 }
 
-/**
- * Badge classes for a connector type, keeping each standard visually distinct
- * across maps, filters and station cards.
- */
-export function getConnectorColor(type: ConnectorType): string {
-  return CONNECTOR_COLORS[type] ?? CONNECTOR_COLORS.CCS2
+export function formatBattery(percent: number): string {
+  return `${Math.round(percent)}%`
 }
 
-/**
- * Format an amount in Pakistani rupees.
- *
- * Fractional amounts (per-kWh tariffs) keep two decimals; whole amounts
- * (session totals) stay clean. Pass `withDecimals` to force either behaviour.
- */
-export function formatPrice(amount: number, withDecimals?: boolean): string {
-  if (!Number.isFinite(amount)) return '—'
-
-  const showDecimals = withDecimals ?? !Number.isInteger(amount)
-
-  const value = amount.toLocaleString('en-PK', {
-    minimumFractionDigits: showDecimals ? 2 : 0,
-    maximumFractionDigits: showDecimals ? 2 : 0,
+// ─── Date Utilities ──────────────────────────────────
+export function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-PK', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   })
+}
 
-  return `Rs ${value}`
+export function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMins / 60)
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins} min ago`
+  if (diffHours < 24) return `${diffHours} hours ago`
+  if (diffDays < 7) return `${diffDays} days ago`
+  return formatDate(dateString)
+}
+
+// ─── Station Utilities ───────────────────────────────
+export function getMaxPower(station: { connectors: Array<{ maxPowerKw: number }> }): number {
+  return Math.max(...station.connectors.map(c => c.maxPowerKw))
+}
+
+export function getAvailableConnectors(
+  station: { connectors: Array<{ status: string }> }
+): number {
+  return station.connectors.filter(c => c.status === 'available').length
+}
+
+// ─── Amenity Utilities ───────────────────────────────
+export function getAmenityConfig(type: AmenityType) {
+  const configs: Record<AmenityType, { label: string; icon: string }> = {
+    restaurant: { label: 'Restaurant', icon: 'utensils' },
+    hotel:      { label: 'Hotel',      icon: 'bed' },
+    parking:    { label: 'Parking',    icon: 'square-parking' },
+    washroom:   { label: 'Washroom',   icon: 'door-open' },
+    wifi:       { label: 'WiFi',       icon: 'wifi' },
+    shopping:   { label: 'Shopping',   icon: 'shopping-bag' },
+    prayer:     { label: 'Prayer',     icon: 'star' },
+    cafe:       { label: 'Café',       icon: 'coffee' },
+  }
+  return configs[type]
+}
+
+// ─── Post Category Utilities ─────────────────────────
+export function getPostCategoryConfig(category: PostCategory) {
+  const configs: Record<PostCategory, { label: string; color: string }> = {
+    'general':            { label: 'General EV Talk',       color: 'blue' },
+    'charging-experience':{ label: 'Charging Experience',   color: 'green' },
+    'trip-report':        { label: 'Trip Report',           color: 'purple' },
+    'vehicle-review':     { label: 'Vehicle Review',        color: 'amber' },
+    'buying-advice':      { label: 'Buying Advice',         color: 'cyan' },
+    'ev-news':            { label: 'EV News Pakistan',      color: 'red' },
+  }
+  return configs[category]
+}
+
+// ─── Slug Utility ────────────────────────────────────
+export function createSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
+// ─── Coordinate Utilities ────────────────────────────
+export function calculateDistance(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number
+): number {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
 }
