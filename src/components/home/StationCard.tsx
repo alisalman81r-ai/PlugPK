@@ -114,11 +114,15 @@ export function StationCard({
     </span>
   )
 
-  const navigateButton = (
+  const renderNavigateButton = (sizing: string) => (
     <button
       type="button"
       onClick={handleNavigate}
-      className="group/nav inline-flex items-center justify-center gap-2 rounded-xl bg-plug-blue-600 font-semibold text-white transition-all duration-200 hover:bg-plug-blue-700 hover:shadow-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+      className={cn(
+        'group/nav inline-flex items-center justify-center gap-2 rounded-xl bg-plug-blue-600 font-semibold text-white transition-all duration-200',
+        'hover:bg-plug-blue-700 hover:shadow-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+        sizing,
+      )}
     >
       Navigate
       <Navigation2
