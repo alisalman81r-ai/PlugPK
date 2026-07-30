@@ -175,6 +175,8 @@ const config: Config = {
         container: '1280px',
       },
       spacing: {
+        // 3.25rem / 52px — the `lg` button and SearchInput height.
+        '13': '3.25rem',
         '18': '4.5rem',
         '22': '5.5rem',
         '26': '6.5rem',
