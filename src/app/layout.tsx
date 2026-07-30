@@ -1,40 +1,71 @@
 // src/app/layout.tsx
-import type { Metadata, Viewport } from 'next'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-import '@fontsource/inter/400.css'
-import '@fontsource/inter/500.css'
-import '@fontsource/inter/600.css'
-import '@fontsource/inter/700.css'
-import '@fontsource/jetbrains-mono/400.css'
-import '@fontsource/jetbrains-mono/500.css'
-
-import '@/styles/globals.css'
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  weight: ['400', '500', '600', '700', '800', '900'],
+})
 
 export const metadata: Metadata = {
   title: {
-    default: 'Plug.pk — EV charging stations across Pakistan',
+    default: "Plug.pk — Pakistan's EV Ecosystem Platform",
     template: '%s | Plug.pk',
   },
-  description:
-    'Find, compare and plan around every public EV charging station in Pakistan — live status, connector types, tariffs and amenities.',
-  metadataBase: new URL('https://plug.pk'),
+  description: 'Find EV charging stations, plan long-distance routes, and connect with EV owners across Pakistan. The complete EV platform for Pakistan.',
+  keywords: [
+    'EV charging Pakistan',
+    'electric vehicle charging',
+    'charging stations Pakistan',
+    'EV route planner Pakistan',
+    'BYD charging Pakistan',
+    'MG ZS EV charging',
+    'Lahore EV charging',
+    'Islamabad EV charging',
+    'Karachi EV charging',
+  ],
+  authors: [{ name: 'Plug.pk' }],
+  creator: 'Plug.pk',
   openGraph: {
     type: 'website',
     locale: 'en_PK',
+    url: 'https://plug.pk',
     siteName: 'Plug.pk',
+    title: "Plug.pk — Pakistan's EV Ecosystem Platform",
+    description: 'Find EV charging stations, plan routes, and connect with EV owners across Pakistan.',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Plug.pk — Pakistan's EV Ecosystem Platform",
+    description: 'Find EV charging stations, plan routes, and connect with EV owners across Pakistan.',
+    images: ['/og-image.jpg'],
+    creator: '@plugpk',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 }
 
-export const viewport: Viewport = {
-  themeColor: '#0F172A',
-  width: 'device-width',
-  initialScale: 1,
-}
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans antialiased bg-white text-slate-900">
+        {children}
+      </body>
     </html>
   )
 }
