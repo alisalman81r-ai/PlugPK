@@ -34,7 +34,10 @@ const STATUS_DOT_COLOR: Record<StationStatus, string> = {
   unknown: 'bg-slate-400',
 }
 
-const BASE = 'inline-flex items-center rounded-full border align-middle leading-none'
+// No `leading-*` here: tailwind-merge treats font-size and line-height as one
+// conflict group, so the `text-*` class in SIZE_CLASSES would strip it anyway.
+// The line-height that ships with each text size gives the right pill height.
+const BASE = 'inline-flex items-center rounded-full border align-middle'
 
 export function Badge({
   variant = 'default',
