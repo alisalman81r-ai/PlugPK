@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
@@ -10,12 +10,20 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800', '900'],
 })
 
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+})
+
 export const metadata: Metadata = {
   title: {
     default: "Plug.pk — Pakistan's EV Ecosystem Platform",
     template: '%s | Plug.pk',
   },
   description: 'Find EV charging stations, plan long-distance routes, and connect with EV owners across Pakistan. The complete EV platform for Pakistan.',
+  metadataBase: new URL('https://plug.pk'),
   keywords: [
     'EV charging Pakistan',
     'electric vehicle charging',
@@ -62,7 +70,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans antialiased bg-white text-slate-900">
         {children}
       </body>
