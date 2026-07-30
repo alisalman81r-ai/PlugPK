@@ -152,7 +152,7 @@ export function StationCard({
             {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
           </div>
         </div>
-        {React.cloneElement(navigateButton, { className: cn(navigateButton.props.className, 'h-9 shrink-0 px-4 text-sm') })}
+        {renderNavigateButton('h-9 shrink-0 px-4 text-sm')}
       </article>
     )
   }
@@ -187,7 +187,7 @@ export function StationCard({
           </div>
           <div className="mt-3 flex items-center justify-between">
             {rating}
-            {React.cloneElement(navigateButton, { className: cn(navigateButton.props.className, 'h-9 px-4 text-sm') })}
+            {renderNavigateButton('h-9 px-4 text-sm')}
           </div>
         </div>
       </article>
@@ -249,7 +249,7 @@ export function StationCard({
           ) : null}
         </div>
 
-        {React.cloneElement(navigateButton, { className: cn(navigateButton.props.className, 'h-11 w-full text-sm') })}
+        {renderNavigateButton('h-11 w-full text-sm')}
       </div>
     </article>
   )
