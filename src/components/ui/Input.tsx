@@ -1,11 +1,61 @@
 // src/components/ui/Input.tsx
 'use client'
 
-import { Check, Search, X } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Loader2, Search, X } from 'lucide-react'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
-import { Spinner } from './Spinner'
+
+const FIELD_BASE =
+  'w-full rounded-xl border-[1.5px] bg-white text-[15px] text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
+
+const FIELD_FOCUS = 'border-slate-200 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+
+const FIELD_ERROR =
+  'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
+
+const FIELD_SUCCESS = 'border-green-500 focus:border-green-500'
+
+/** Shared label / message block so Input and Textarea stay visually identical. */
+function FieldMessage({
+  id,
+  error,
+  success,
+  hint,
+}: {
+  id: string
+  error?: string
+  success?: string
+  hint?: string
+}) {
+  if (error) {
+    return (
+      <p id={id} className="mt-1.5 flex items-start gap-1 text-sm text-red-600">
+        <AlertCircle size={15} className="mt-0.5 shrink-0" aria-hidden="true" />
+        {error}
+      </p>
+    )
+  }
+
+  if (success) {
+    return (
+      <p id={id} className="mt-1.5 flex items-start gap-1 text-sm text-green-600">
+        <CheckCircle2 size={15} className="mt-0.5 shrink-0" aria-hidden="true" />
+        {success}
+      </p>
+    )
+  }
+
+  if (hint) {
+    return (
+      <p id={id} className="mt-1.5 text-sm text-slate-500">
+        {hint}
+      </p>
+    )
+  }
+
+  return null
+}
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -14,27 +64,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   hint?: string
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
-  rightElement?: React.ReactNode
-  variant?: 'default' | 'search' | 'filled'
-  inputSize?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
-  onClear?: () => void
-  showClear?: boolean
 }
-
-const SIZE_CLASSES: Record<NonNullable<InputProps['inputSize']>, string> = {
-  sm: 'h-10 rounded-[6px] text-sm',
-  md: 'h-12 rounded-[8px] text-[15px]',
-  lg: 'h-14 rounded-[10px] text-base',
-}
-
-const VARIANT_CLASSES: Record<NonNullable<InputProps['variant']>, string> = {
-  default: 'border-[1.5px] border-slate-200 bg-white',
-  search: 'border-[1.5px] border-slate-200 bg-slate-50 focus:shadow-lg',
-  filled: 'border-[1.5px] border-transparent bg-slate-100 focus:bg-white',
-}
-
-const ICON_SIZE = 18
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
   {
@@ -44,152 +75,180 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     hint,
     leftIcon,
     rightIcon,
-    rightElement,
-    variant = 'default',
-    inputSize = 'md',
     isLoading = false,
-    onClear,
-    showClear = false,
     className,
     id,
     disabled,
-    value,
-    defaultValue,
-    onChange,
-    ...props
+    ...rest
   },
   ref,
 ) {
   const generatedId = React.useId()
   const inputId = id ?? generatedId
   const messageId = `${inputId}-message`
+  const hasMessage = Boolean(error ?? success ?? hint)
 
-  // The clear button needs to know whether the field has content in both
-  // controlled and uncontrolled usage.
-  const isControlled = value !== undefined
-  const [uncontrolledHasValue, setUncontrolledHasValue] = React.useState(
-    () => defaultValue !== undefined && String(defaultValue).length > 0,
+  // Loading takes the right slot, so it and rightIcon can never collide.
+  const rightSlot = isLoading ? (
+    <Loader2 size={18} className="animate-spin text-slate-400" aria-hidden="true" />
+  ) : (
+    rightIcon
   )
-  const hasValue = isControlled ? String(value).length > 0 : uncontrolledHasValue
-
-  const handleChange = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!isControlled) {
-        setUncontrolledHasValue(event.target.value.length > 0)
-      }
-      onChange?.(event)
-    },
-    [isControlled, onChange],
-  )
-
-  const isDisabled = disabled || isLoading
-  const resolvedLeftIcon = leftIcon ?? (variant === 'search' ? <Search size={ICON_SIZE} /> : null)
-  const showClearButton = showClear && hasValue && !isDisabled
-
-  // A single right-hand slot with a fixed precedence, so two indicators can
-  // never overlap: loading, then caller-supplied element, then clear, then the
-  // success tick, then a plain icon.
-  let rightSlot: React.ReactNode = null
-  // Interactive slots must keep pointer events; decorative ones let clicks fall
-  // through to the input underneath.
-  let rightSlotIsInteractive = false
-  if (isLoading) {
-    rightSlot = <Spinner size={ICON_SIZE} className="text-slate-400" />
-  } else if (rightElement) {
-    rightSlot = rightElement
-    rightSlotIsInteractive = true
-  } else if (showClearButton) {
-    rightSlotIsInteractive = true
-    rightSlot = (
-      <button
-        type="button"
-        onClick={onClear}
-        aria-label="Clear input"
-        className="inline-flex text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-      >
-        <X size={16} />
-      </button>
-    )
-  } else if (success) {
-    rightSlot = <Check size={ICON_SIZE} className="text-green-500" />
-  } else if (rightIcon) {
-    rightSlot = rightIcon
-  }
-
-  const message = error ?? success ?? hint
 
   return (
     <div className="w-full">
       {label ? (
-        <label htmlFor={inputId} className="mb-2 block text-sm font-medium text-slate-700">
+        <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-slate-700">
           {label}
         </label>
       ) : null}
 
       <div className="relative">
-        {resolvedLeftIcon ? (
-          <span className="pointer-events-none absolute left-[14px] top-1/2 flex -translate-y-1/2 items-center text-slate-400">
-            {resolvedLeftIcon}
+        {leftIcon ? (
+          <span className="pointer-events-none absolute left-4 top-1/2 flex -translate-y-1/2 items-center text-slate-400">
+            {leftIcon}
           </span>
         ) : null}
 
         <input
+          {...rest}
           ref={ref}
           id={inputId}
-          disabled={isDisabled}
-          value={value}
-          defaultValue={defaultValue}
-          onChange={handleChange}
+          disabled={disabled || isLoading}
           aria-invalid={error ? true : undefined}
-          aria-describedby={message ? messageId : undefined}
+          aria-describedby={hasMessage ? messageId : undefined}
           className={cn(
-            'w-full text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:outline-none',
-            'disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400',
-            SIZE_CLASSES[inputSize],
-            VARIANT_CLASSES[variant],
-            variant === 'search' && 'rounded-xl',
-            'px-4',
-            resolvedLeftIcon && 'pl-11',
+            FIELD_BASE,
+            'h-12 px-4',
+            FIELD_FOCUS,
+            error && FIELD_ERROR,
+            !error && success && FIELD_SUCCESS,
+            leftIcon && 'pl-11',
             rightSlot && 'pr-11',
-            // Focus ring, then error / success which must win over it.
-            'focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]',
-            error &&
-              'border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]',
-            !error &&
-              success &&
-              'border-green-400 focus:border-green-400 focus:shadow-[0_0_0_3px_rgba(34,197,94,0.12)]',
             className,
           )}
-          {...props}
         />
 
         {rightSlot ? (
-          <span
-            className={cn(
-              'absolute right-[14px] top-1/2 flex -translate-y-1/2 items-center',
-              !rightSlotIsInteractive && 'pointer-events-none',
-            )}
-          >
+          <span className="pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center text-slate-400">
             {rightSlot}
           </span>
         ) : null}
       </div>
 
-      {message ? (
-        <p
-          id={messageId}
-          className={cn(
-            'mt-1.5',
-            error
-              ? 'text-sm text-red-600'
-              : success
-                ? 'text-sm text-green-600'
-                : 'text-xs text-slate-500',
-          )}
+      <FieldMessage id={messageId} error={error} success={success} hint={hint} />
+    </div>
+  )
+})
+
+export interface SearchInputProps {
+  value: string
+  onChange: (value: string) => void
+  onClear?: () => void
+  placeholder?: string
+  isLoading?: boolean
+  className?: string
+  autoFocus?: boolean
+}
+
+export function SearchInput({
+  value,
+  onChange,
+  onClear,
+  placeholder = 'Search city or station...',
+  isLoading = false,
+  className,
+  autoFocus = false,
+}: SearchInputProps) {
+  const handleClear = () => {
+    if (onClear) {
+      onClear()
+      return
+    }
+    onChange('')
+  }
+
+  return (
+    <div className={cn('relative w-full', className)}>
+      <span className="pointer-events-none absolute left-4 top-1/2 flex -translate-y-1/2 items-center text-slate-400">
+        <Search size={20} aria-hidden="true" />
+      </span>
+
+      <input
+        type="search"
+        role="searchbox"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in via prop, used for the map search overlay
+        autoFocus={autoFocus}
+        className={cn(
+          'h-13 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-[15px] text-slate-900 shadow-lg transition-all duration-150',
+          'placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]',
+          // Hide the browser's own clear affordance so it cannot sit beside ours.
+          '[&::-webkit-search-cancel-button]:appearance-none',
+        )}
+      />
+
+      {isLoading ? (
+        <span className="pointer-events-none absolute right-4 top-1/2 flex -translate-y-1/2 items-center text-slate-400">
+          <Loader2 size={20} className="animate-spin" aria-hidden="true" />
+        </span>
+      ) : value.length > 0 ? (
+        <button
+          type="button"
+          onClick={handleClear}
+          aria-label="Clear search"
+          className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center rounded-full text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
-          {message}
-        </p>
+          <X size={18} />
+        </button>
       ) : null}
+    </div>
+  )
+}
+
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label?: string
+  error?: string
+  success?: string
+  hint?: string
+}
+
+export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { label, error, success, hint, className, id, ...rest },
+  ref,
+) {
+  const generatedId = React.useId()
+  const textareaId = id ?? generatedId
+  const messageId = `${textareaId}-message`
+  const hasMessage = Boolean(error ?? success ?? hint)
+
+  return (
+    <div className="w-full">
+      {label ? (
+        <label htmlFor={textareaId} className="mb-1.5 block text-sm font-medium text-slate-700">
+          {label}
+        </label>
+      ) : null}
+
+      <textarea
+        {...rest}
+        ref={ref}
+        id={textareaId}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={hasMessage ? messageId : undefined}
+        className={cn(
+          FIELD_BASE,
+          'min-h-[120px] resize-y p-4',
+          FIELD_FOCUS,
+          error && FIELD_ERROR,
+          !error && success && FIELD_SUCCESS,
+          className,
+        )}
+      />
+
+      <FieldMessage id={messageId} error={error} success={success} hint={hint} />
     </div>
   )
 })
