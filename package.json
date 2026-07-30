@@ -9,9 +9,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/mapbox-gl": "^3.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.400.0",
+    "mapbox-gl": "^3.27.0",
     "next": "14.2.0",
     "react": "^18",
     "react-dom": "^18",
