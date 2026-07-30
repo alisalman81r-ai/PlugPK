@@ -12,7 +12,9 @@ const cardVariants = cva('rounded-2xl', {
         'border border-slate-200 bg-white shadow-card transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
       flat: 'border border-slate-200 bg-white',
       elevated: 'bg-white shadow-xl',
-      dark: 'border border-white/8 bg-dark-card',
+      // `border-white/8` cannot be generated — 8 is not on Tailwind's default
+      // opacity scale — so the 8% tint is expressed as an arbitrary value.
+      dark: 'border border-white/[0.08] bg-dark-card',
     },
     padding: {
       none: 'p-0',
