@@ -2,9 +2,6 @@
 import type { Metadata } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
-import { BottomTabBar } from '@/components/layout/BottomTabBar'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,6 +58,11 @@ export const metadata: Metadata = {
   },
 }
 
+/**
+ * Only html/body live here. Site chrome (navbar, footer, tab bar) belongs to
+ * the (main) route group, so the (auth) group and the onboarding flow render
+ * without it — a route-group layout nests inside the root, it cannot replace it.
+ */
 export default function RootLayout({
   children,
 }: {
@@ -68,12 +70,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased bg-white text-slate-900">
-        <Navbar />
-        <main className="min-h-screen pt-[72px]">{children}</main>
-        <Footer />
-        <BottomTabBar />
-      </body>
+      <body className="bg-white font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )
 }
