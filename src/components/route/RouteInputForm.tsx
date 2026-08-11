@@ -160,9 +160,11 @@ export function RouteInputForm({
           onChange={onOriginChange}
         />
 
+        {/* Both fields are the same height, so the container's vertical centre
+            is always the gap between them — no pixel offsets to keep in sync. */}
         <span
           aria-hidden="true"
-          className="absolute left-[22px] top-[92px] h-6 border-l-2 border-dashed border-slate-200"
+          className="absolute left-[22px] top-1/2 h-6 -translate-y-1/2 border-l-2 border-dashed border-slate-200"
         />
 
         <button
@@ -172,7 +174,7 @@ export function RouteInputForm({
             onSwapLocations()
           }}
           aria-label="Swap origin and destination"
-          className="absolute right-4 top-[86px] z-10 flex h-9 w-9 items-center justify-center rounded-xl border-[1.5px] border-slate-200 bg-white shadow-sm transition-all duration-150 hover:border-blue-300 hover:bg-blue-50"
+          className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border-[1.5px] border-slate-200 bg-white shadow-sm transition-all duration-150 hover:border-blue-300 hover:bg-blue-50"
         >
           <ArrowUpDown
             size={16}
