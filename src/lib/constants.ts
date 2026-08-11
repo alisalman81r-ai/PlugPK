@@ -3,7 +3,7 @@
 // PLUG.PK — CONSTANTS
 // ═══════════════════════════════════════════════════
 
-import type { NavLink, ConnectorType, AmenityType, ServiceCategory } from './types'
+import type { NavLink, ConnectorType, AmenityType, ServiceCategory, PostCategory } from './types'
 
 export const SITE_CONFIG = {
   name: 'Plug.pk',
@@ -262,6 +262,76 @@ export const SERVICE_OFFERINGS: Record<ServiceCategory, string[]> = {
     'Tyre Assistance',
   ],
 }
+
+export interface PostCategoryMeta {
+  id: PostCategory
+  label: string
+  color: string
+  /** lucide-react icon name, resolved to a component by the UI. */
+  icon: 'MessageCircle' | 'Zap' | 'Map' | 'Car' | 'ShoppingCart' | 'Newspaper'
+  /** Tailwind classes for the unselected pill badge. */
+  badge: string
+  /** Tailwind background for the selected tab. */
+  active: string
+}
+
+export const POST_CATEGORIES: PostCategoryMeta[] = [
+  {
+    id: 'general',
+    label: 'General EV Talk',
+    color: 'blue',
+    icon: 'MessageCircle',
+    badge: 'border-blue-200 bg-blue-50 text-blue-700',
+    active: 'bg-blue-600 text-white',
+  },
+  {
+    id: 'charging-experience',
+    label: 'Charging',
+    color: 'green',
+    icon: 'Zap',
+    badge: 'border-green-200 bg-green-50 text-green-700',
+    active: 'bg-green-600 text-white',
+  },
+  {
+    id: 'trip-report',
+    label: 'Trip Reports',
+    color: 'purple',
+    icon: 'Map',
+    badge: 'border-purple-200 bg-purple-50 text-purple-700',
+    active: 'bg-purple-600 text-white',
+  },
+  {
+    id: 'vehicle-review',
+    label: 'Vehicle Reviews',
+    color: 'amber',
+    icon: 'Car',
+    badge: 'border-amber-200 bg-amber-50 text-amber-700',
+    active: 'bg-amber-600 text-white',
+  },
+  {
+    id: 'buying-advice',
+    label: 'Buying Advice',
+    color: 'cyan',
+    icon: 'ShoppingCart',
+    badge: 'border-cyan-200 bg-cyan-50 text-cyan-700',
+    active: 'bg-cyan-600 text-white',
+  },
+  {
+    id: 'ev-news',
+    label: 'EV News',
+    color: 'red',
+    icon: 'Newspaper',
+    badge: 'border-red-200 bg-red-50 text-red-700',
+    active: 'bg-red-600 text-white',
+  },
+]
+
+/** Keyed lookup for the list above. */
+export const POST_CATEGORY_META: Record<PostCategory, PostCategoryMeta> =
+  POST_CATEGORIES.reduce<Record<string, PostCategoryMeta>>((accumulator, category) => {
+    accumulator[category.id] = category
+    return accumulator
+  }, {}) as Record<PostCategory, PostCategoryMeta>
 
 export const DEFAULT_MAP_CENTER = {
   lat: 30.3753,

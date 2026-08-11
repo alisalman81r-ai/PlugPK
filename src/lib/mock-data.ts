@@ -11,6 +11,7 @@ import type {
   OperatingHours,
   PlatformStats,
   Station,
+  EVClub,
 } from './types'
 
 // ─── Shared Operating-Hour Presets ───────────────────
@@ -1296,6 +1297,396 @@ export const MOCK_POSTS: CommunityPost[] = [
         createdAt: '2026-07-09T10:10:00+05:00',
       },
     ],
+  },
+  {
+    id: 'post-004',
+    slug: 'best-fast-charger-in-karachi-right-now',
+    userId: 'usr-119',
+    userName: 'Omar Faridi',
+    userVehicle: 'Nissan Leaf e+',
+    title: 'Best fast charger in Karachi right now?',
+    content:
+      'Moved to DHA last month and still working out where to charge reliably. So far DHA Charging Hub has been the only one I trust — six ports, never queued, and the CHAdeMO actually works, which matters because my Leaf cannot use anything else.\n\nClifton Fast Charge is closer to my office but one of its two ports has been dead for weeks and 50 kW is slow for a 62 kWh pack.\n\nAnyone found something better on the far side of the city? Ideally somewhere near Korangi or SITE. Happy to pay more per unit for something that is actually working when I arrive.',
+    category: 'charging-experience',
+    likeCount: 45,
+    commentCount: 28,
+    createdAt: '2026-07-27T09:20:00+05:00',
+    updatedAt: '2026-07-27T09:20:00+05:00',
+    comments: [
+      {
+        id: 'cmt-008',
+        postId: 'post-004',
+        userId: 'usr-120',
+        userName: 'Nida Aslam',
+        content:
+          'DHA is the right answer for CHAdeMO, full stop. Nothing else in Karachi is reliable for it. For CCS2 I would add the new site off Shahrah-e-Faisal but it only opened three weeks ago so treat it as unproven.',
+        likeCount: 19,
+        createdAt: '2026-07-27T11:45:00+05:00',
+      },
+      {
+        id: 'cmt-009',
+        postId: 'post-004',
+        userId: 'usr-123',
+        userName: 'Waqas Ahmed',
+        content:
+          'Clifton has been half-broken since June. I reported it twice through the app. Worth calling ahead rather than driving there on faith.',
+        likeCount: 14,
+        createdAt: '2026-07-27T15:10:00+05:00',
+      },
+      {
+        id: 'cmt-010',
+        postId: 'post-004',
+        userId: 'usr-121',
+        userName: 'Junaid Sattar',
+        content:
+          'Nothing usable near Korangi or SITE yet as far as I know. The industrial areas are a real gap — plenty of EVs going in and out for work and no public charging at all.',
+        likeCount: 11,
+        createdAt: '2026-07-28T08:30:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-005',
+    slug: 'mg-zs-ev-vs-byd-atto-3-which-should-i-buy',
+    userId: 'usr-107',
+    userName: 'Hassan Ali',
+    userVehicle: 'MG ZS EV',
+    title: 'MG ZS EV vs BYD Atto 3 — Which should I buy?',
+    content:
+      'I own the ZS EV and my brother is about to buy his first EV, so I have spent a lot of time comparing these two lately. Here is my honest take having driven both.\n\nThe Atto 3 wins on battery. 60.5 kWh against the ZS EV 50.3 kWh is a real difference on intercity runs — roughly one fewer stop between Lahore and Islamabad. Build quality inside is also a step up.\n\nThe ZS EV wins on price and on service network. MG has more workshops in more cities, and when something needs fixing that matters more than people expect.\n\nCharging speed is closer than the spec sheets suggest. The Atto 3 peaks higher but both taper hard past 60 percent on the chargers we actually have here.\n\nIf you drive mostly in-city and want the lower price, ZS EV. If you regularly do long runs, Atto 3.',
+    category: 'buying-advice',
+    likeCount: 124,
+    commentCount: 67,
+    createdAt: '2026-07-25T14:00:00+05:00',
+    updatedAt: '2026-07-25T14:00:00+05:00',
+    comments: [
+      {
+        id: 'cmt-011',
+        postId: 'post-005',
+        userId: 'usr-101',
+        userName: 'Ahmed Raza',
+        content:
+          'Atto 3 owner here and I agree with all of this. The one thing I would add is boot space — the Atto 3 is noticeably more practical if you carry anything regularly.',
+        likeCount: 38,
+        createdAt: '2026-07-25T16:20:00+05:00',
+      },
+      {
+        id: 'cmt-012',
+        postId: 'post-005',
+        userId: 'usr-115',
+        userName: 'Tahir Mehmood',
+        content:
+          'The service network point is underrated. I waited eleven days for a part on a less common brand. Whatever you buy, check where the nearest authorised workshop actually is.',
+        likeCount: 44,
+        createdAt: '2026-07-26T09:05:00+05:00',
+      },
+      {
+        id: 'cmt-013',
+        postId: 'post-005',
+        userId: 'usr-113',
+        userName: 'Saad Rehman',
+        content:
+          'Would also factor in resale. Neither has a long track record here yet, so whatever you buy, assume the first few years of depreciation are unknown.',
+        likeCount: 21,
+        createdAt: '2026-07-26T13:40:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-006',
+    slug: 'new-ev-policy-announced-by-government',
+    userId: 'usr-106',
+    userName: 'Zainab Malik',
+    userVehicle: 'BYD Han',
+    title: 'New EV policy announced by Government',
+    content:
+      'The updated policy landed this week and there are a few things worth reading carefully rather than from the headlines.\n\nDuty relief on imported EVs has been extended, which should hold prices roughly where they are rather than pushing them down much further.\n\nMore interesting is the charging infrastructure clause — new commercial buildings above a certain size will need to provision for EV charging at the design stage. That is the sort of thing that takes three years to show up but changes the map permanently.\n\nWhat is still missing is anything meaningful on grid capacity. Every operator I have spoken to says the transformer, not the charger, is the bottleneck.',
+    category: 'ev-news',
+    likeCount: 203,
+    commentCount: 89,
+    createdAt: '2026-07-29T08:00:00+05:00',
+    updatedAt: '2026-07-29T10:15:00+05:00',
+    comments: [
+      {
+        id: 'cmt-014',
+        postId: 'post-006',
+        userId: 'usr-116',
+        userName: 'Adeel Hussain',
+        content:
+          'The building provision clause is the real story here. Right now retrofitting a charger into an existing plaza is the single biggest cost for any operator.',
+        likeCount: 57,
+        createdAt: '2026-07-29T09:30:00+05:00',
+      },
+      {
+        id: 'cmt-015',
+        postId: 'post-006',
+        userId: 'usr-117',
+        userName: 'Sadia Iqbal',
+        content:
+          'Agreed on grid capacity. Blue Area has been offline for weeks for a transformer upgrade — that is the constraint, not the number of chargers.',
+        likeCount: 41,
+        createdAt: '2026-07-29T12:00:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-007',
+    slug: 'my-first-month-with-byd-atto-3',
+    userId: 'usr-104',
+    userName: 'Ayesha Siddiqui',
+    userVehicle: 'BYD Seal',
+    title: 'My first month with BYD Atto 3',
+    content:
+      'Thirty days and about 1,400 km in. Short version: I would buy it again, with two caveats.\n\nWhat works. The ride is genuinely comfortable on bad roads, which matters more here than any performance figure. Charging at home overnight has completely removed the fuel-station routine from my week. Consumption has settled at 16.2 kWh/100km in mixed driving.\n\nWhat does not. The infotainment rotates the screen as a party trick and is slower than it should be. And the regenerative braking has two settings, neither of which is proper one-pedal driving.\n\nThe caveats: you need home charging for this to make sense, and you need to accept that long trips still require planning.',
+    category: 'vehicle-review',
+    likeCount: 67,
+    commentCount: 23,
+    createdAt: '2026-07-22T18:30:00+05:00',
+    updatedAt: '2026-07-22T18:30:00+05:00',
+    comments: [
+      {
+        id: 'cmt-016',
+        postId: 'post-007',
+        userId: 'usr-102',
+        userName: 'Fatima Khan',
+        content:
+          'The one-pedal point is fair. Coming from a ZS EV I found the Atto 3 regen weaker than expected. You adapt but it is not the same.',
+        likeCount: 15,
+        createdAt: '2026-07-23T08:10:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-008',
+    slug: 'home-charger-installation-what-it-actually-costs',
+    userId: 'usr-113',
+    userName: 'Saad Rehman',
+    userVehicle: 'BYD Atto 3',
+    title: 'Home charger installation — what it actually costs',
+    content:
+      'Just had a 7.4 kW wallbox installed in Lahore and there is very little honest information about pricing, so here are my real numbers.\n\nCharger unit: 148,000. Installation labour: 22,000. Dedicated 40A breaker and cabling for an 18 metre run: 31,000. Earthing rod, because the existing one was not adequate: 9,000.\n\nTotal: 210,000 rupees.\n\nThe thing nobody warned me about is the earthing. Two of the three installers I got quotes from did not even mention it. Ask about it explicitly — a wallbox on poor earthing is a genuine safety problem, not a technicality.',
+    category: 'general',
+    likeCount: 156,
+    commentCount: 41,
+    createdAt: '2026-07-20T11:00:00+05:00',
+    updatedAt: '2026-07-20T11:00:00+05:00',
+    comments: [
+      {
+        id: 'cmt-017',
+        postId: 'post-008',
+        userId: 'usr-111',
+        userName: 'Kamran Aslam',
+        content:
+          'This matches my costs in Karachi almost exactly, within about 15,000. And yes on earthing — my installer replaced the rod as a matter of course and I did not understand why until later.',
+        likeCount: 33,
+        createdAt: '2026-07-20T14:25:00+05:00',
+      },
+      {
+        id: 'cmt-018',
+        postId: 'post-008',
+        userId: 'usr-109',
+        userName: 'Imran Sheikh',
+        content:
+          'Worth adding: check your meter capacity before ordering the charger. Mine needed upgrading first and that added three weeks.',
+        likeCount: 27,
+        createdAt: '2026-07-21T09:50:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-009',
+    slug: 'karachi-to-hyderabad-and-back-on-one-charge',
+    userId: 'usr-120',
+    userName: 'Nida Aslam',
+    userVehicle: 'BYD Seal',
+    title: 'Karachi to Hyderabad and back on one charge',
+    content:
+      'Did the round trip on Sunday — 162 km each way on the M-9, so 324 km total — without stopping to charge. Left at 96 percent, got home on 19 percent.\n\nThe motorway is flat and the surface is good, so consumption was better than I expected at 17.1 kWh/100km sitting at 110 km/h with the AC running properly.\n\nIf you have a smaller pack this is comfortably a one-stop trip. There is nothing usable in Hyderabad itself yet, so plan on charging before you leave Karachi either way.',
+    category: 'trip-report',
+    likeCount: 78,
+    commentCount: 19,
+    createdAt: '2026-07-19T20:00:00+05:00',
+    updatedAt: '2026-07-19T20:00:00+05:00',
+    comments: [
+      {
+        id: 'cmt-019',
+        postId: 'post-009',
+        userId: 'usr-110',
+        userName: 'Hina Butt',
+        content:
+          'Confirming there is still nothing public in Hyderabad. I did this trip in a ZS EV and had to charge at a hotel on a 3-pin, which took most of the afternoon.',
+        likeCount: 22,
+        createdAt: '2026-07-20T07:15:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-010',
+    slug: 'charging-etiquette-we-need-to-talk-about-it',
+    userId: 'usr-105',
+    userName: 'Usman Tariq',
+    userVehicle: 'KIA EV6',
+    title: 'Charging etiquette — we need to talk about it',
+    content:
+      'Three times this month I have arrived at a charger to find a car sitting at 100 percent with the owner nowhere nearby. Once for over an hour.\n\nWe are a small enough community that this is still fixable by norms rather than rules. A few suggestions.\n\nMove your car when it is done, or at least be reachable. Do not use a 150 kW bay for a top-up you could do on AC. If someone is waiting and you are past 80 percent, the taper means you are giving up very little by unplugging.\n\nNone of this is difficult and it stops being a problem entirely if we all just do it.',
+    category: 'general',
+    likeCount: 189,
+    commentCount: 52,
+    createdAt: '2026-07-17T16:45:00+05:00',
+    updatedAt: '2026-07-17T16:45:00+05:00',
+    comments: [
+      {
+        id: 'cmt-020',
+        postId: 'post-010',
+        userId: 'usr-103',
+        userName: 'Bilal Ahmad',
+        content:
+          'Strongly agree on the 80 percent point. Past that the curve is so flat you are holding a bay hostage for almost no added range.',
+        likeCount: 48,
+        createdAt: '2026-07-17T19:20:00+05:00',
+      },
+      {
+        id: 'cmt-021',
+        postId: 'post-010',
+        userId: 'usr-122',
+        userName: 'Sarah Ashraf',
+        content:
+          'Some operators abroad charge an idle fee after the session ends. Might be worth suggesting to the networks here before it becomes a bigger problem.',
+        likeCount: 35,
+        createdAt: '2026-07-18T10:05:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-011',
+    slug: 'winter-range-loss-what-to-expect-in-northern-pakistan',
+    userId: 'usr-118',
+    userName: 'Farhan Qureshi',
+    userVehicle: 'BMW iX',
+    title: 'Winter range loss — what to expect in northern Pakistan',
+    content:
+      'With Murree and Naran trips coming up for a lot of people, worth setting expectations on cold weather.\n\nIn Islamabad at around 5 degrees I lose roughly 15 percent against my summer average. Above Murree, closer to freezing, it has been nearer 25 percent — and that is before the climbing, which costs more again.\n\nThe practical advice: precondition the cabin while still plugged in, use seat heating rather than blasting the cabin heater, and treat the trip computer as optimistic until you are back below the snow line.',
+    category: 'trip-report',
+    likeCount: 94,
+    commentCount: 31,
+    createdAt: '2026-07-14T12:30:00+05:00',
+    updatedAt: '2026-07-14T12:30:00+05:00',
+    comments: [
+      {
+        id: 'cmt-022',
+        postId: 'post-011',
+        userId: 'usr-106',
+        userName: 'Zainab Malik',
+        content:
+          'The regen also weakens noticeably when the pack is cold, which catches people out on the descent. Do not assume you will recover as much coming back down as you spent going up.',
+        likeCount: 29,
+        createdAt: '2026-07-14T17:00:00+05:00',
+      },
+    ],
+  },
+  {
+    id: 'post-012',
+    slug: 'first-public-charger-in-faisalabad-is-live',
+    userId: 'usr-114',
+    userName: 'Rabia Anwar',
+    userVehicle: 'MG HS PHEV',
+    title: 'First public charger in Faisalabad is live',
+    content:
+      'It finally happened. A 60 kW CCS2 unit went live near the Kohinoor area this week — as far as I know the first public DC charger in Faisalabad.\n\nTried it yesterday. Pulled 54 kW steady, card payment worked, and the site is lit and staffed in the evening. Tariff is 72 per unit, which is in line with Lahore.\n\nSmall thing nationally, big thing here. Up to now the honest answer to anyone in Faisalabad asking about an EV was that they needed home charging and no intercity plans.',
+    category: 'ev-news',
+    likeCount: 142,
+    commentCount: 37,
+    createdAt: '2026-07-12T15:00:00+05:00',
+    updatedAt: '2026-07-12T15:00:00+05:00',
+    comments: [
+      {
+        id: 'cmt-023',
+        postId: 'post-012',
+        userId: 'usr-115',
+        userName: 'Tahir Mehmood',
+        content:
+          'This is genuinely good news. Faisalabad to Lahore is only 127 km so this makes that route trivial in almost anything now.',
+        likeCount: 31,
+        createdAt: '2026-07-12T18:20:00+05:00',
+      },
+    ],
+  },
+]
+
+// ─── EV Clubs ────────────────────────────────────────
+
+export const MOCK_CLUBS: EVClub[] = [
+  {
+    id: 'club-001',
+    name: 'Lahore EV Owners Club',
+    city: 'Lahore',
+    memberCount: 234,
+    description:
+      'The largest EV community in Punjab. Monthly meetups, group charging trips and a very active parts-and-service recommendation thread.',
+    isJoined: false,
+  },
+  {
+    id: 'club-002',
+    name: 'Islamabad EV Community',
+    city: 'Islamabad',
+    memberCount: 178,
+    description:
+      'Capital-region owners covering Islamabad and Rawalpindi. Organises northern-areas convoys through the summer.',
+    isJoined: false,
+  },
+  {
+    id: 'club-003',
+    name: 'Karachi Electric Riders',
+    city: 'Karachi',
+    memberCount: 156,
+    description:
+      'Karachi-wide group with a strong imported-EV contingent. Good place to ask about CHAdeMO and grey-import servicing.',
+    isJoined: false,
+  },
+  {
+    id: 'club-004',
+    name: 'Rawalpindi EV Circle',
+    city: 'Rawalpindi',
+    memberCount: 89,
+    description:
+      'Smaller, practical group focused on home charging installs and shared workshop recommendations around the Pindi area.',
+    isJoined: false,
+  },
+  {
+    id: 'club-005',
+    name: 'Faisalabad EV Group',
+    city: 'Faisalabad',
+    memberCount: 67,
+    description:
+      'Growing fast since the first public charger opened. Mostly first-time EV owners helping each other through the early months.',
+    isJoined: false,
+  },
+  {
+    id: 'club-006',
+    name: 'Peshawar EV Drivers',
+    city: 'Peshawar',
+    memberCount: 45,
+    description:
+      'KP-based owners coordinating on the limited charging available and running an informal roadside-help roster.',
+    isJoined: false,
+  },
+  {
+    id: 'club-007',
+    name: 'Multan EV Connect',
+    city: 'Multan',
+    memberCount: 38,
+    description:
+      'South Punjab group covering Multan and Bahawalpur. Focused on making the long runs north genuinely practical.',
+    isJoined: false,
+  },
+  {
+    id: 'club-008',
+    name: 'Quetta EV Network',
+    city: 'Quetta',
+    memberCount: 29,
+    description:
+      'The newest club on Plug.pk. Small but determined, and the best source of information on charging in Balochistan.',
+    isJoined: false,
   },
 ]
 
