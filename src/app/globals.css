@@ -242,6 +242,67 @@
   animation: floatAnim 4s ease-in-out infinite;
 }
 
+/* Battery slider (BatterySlider.tsx)
+   --fill is set inline as a percentage; the track paints filled/unfilled from
+   it, and .is-high / .is-mid / .is-low pick the colour. */
+.plug-range {
+  --range-color: #22C55E;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--range-color) 0%,
+    var(--range-color) var(--fill, 0%),
+    #E2E8F0 var(--fill, 0%),
+    #E2E8F0 100%
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.plug-range.is-high { --range-color: #22C55E; }
+.plug-range.is-mid  { --range-color: #F59E0B; }
+.plug-range.is-low  { --range-color: #EF4444; }
+
+.plug-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  border: 2px solid var(--range-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.plug-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.plug-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #FFFFFF;
+  border: 2px solid var(--range-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.plug-range::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+.plug-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
 /* Stagger animation delays */
 .delay-0   { animation-delay: 0ms; }
 .delay-100 { animation-delay: 100ms; }
