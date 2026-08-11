@@ -11,6 +11,7 @@ import type {
   OperatingHours,
   PlatformStats,
   Station,
+  Business,
   User,
   Review,
   ActivityItem,
@@ -1825,3 +1826,119 @@ export const MOCK_ACTIVITY: ActivityItem[] = [
     date: '2024-10-15T00:00:00+05:00',
   },
 ]
+
+// ─── Business Portal ─────────────────────────────────
+
+export const MOCK_BUSINESS: Business = {
+  id: 'biz-001',
+  userId: 'user-biz-001',
+  name: 'Mall Road Premium Hotel',
+  type: 'hotel',
+  description:
+    'A premium hotel in the heart of Lahore offering luxury accommodations and EV charging for guests. Covered bays, 24-hour security and a driver lounge with complimentary Wi-Fi.',
+  address: {
+    street: '24 Mall Road',
+    area: 'Gulberg',
+    city: 'Lahore',
+    province: 'Punjab',
+    country: 'Pakistan',
+    postalCode: '54660',
+  },
+  coordinates: { lat: 31.5204, lng: 74.3587 },
+  phone: '0300-1234567',
+  email: 'info@mallroadhotel.pk',
+  website: 'https://www.mallroadhotel.pk',
+  photos: [],
+  stations: [MOCK_STATIONS[0] as Station],
+  rating: 4.7,
+  reviewCount: 45,
+  isVerified: true,
+  isPremium: false,
+  operatingHours: HOURS_24_7,
+  createdAt: '2024-06-15T00:00:00+05:00',
+}
+
+export interface BusinessAnalyticsPeriod {
+  profileViews: number
+  navigateClicks: number
+  reviewsReceived: number
+  avgRating: number
+}
+
+export interface BusinessChartPoint {
+  date: string
+  views: number
+  clicks: number
+}
+
+export interface BusinessReferrer {
+  source: string
+  count: number
+  percent: number
+}
+
+export interface BusinessAnalytics {
+  thisMonth: BusinessAnalyticsPeriod
+  lastMonth: BusinessAnalyticsPeriod
+  chartData: BusinessChartPoint[]
+  topReferrers: BusinessReferrer[]
+}
+
+export const MOCK_BUSINESS_ANALYTICS: BusinessAnalytics = {
+  thisMonth: {
+    profileViews: 1240,
+    navigateClicks: 89,
+    reviewsReceived: 12,
+    avgRating: 4.8,
+  },
+  lastMonth: {
+    profileViews: 1002,
+    navigateClicks: 74,
+    reviewsReceived: 8,
+    avgRating: 4.6,
+  },
+  // Fixed values, not Math.random() — a random module-scope array would
+  // differ between the server and client renders and break hydration.
+  chartData: [
+  { date: '2026-07-01', views: 55, clicks: 4 },
+  { date: '2026-07-02', views: 75, clicks: 6 },
+  { date: '2026-07-03', views: 65, clicks: 5 },
+  { date: '2026-07-04', views: 51, clicks: 3 },
+  { date: '2026-07-05', views: 22, clicks: 1 },
+  { date: '2026-07-06', views: 37, clicks: 4 },
+  { date: '2026-07-07', views: 63, clicks: 5 },
+  { date: '2026-07-08', views: 42, clicks: 3 },
+  { date: '2026-07-09', views: 26, clicks: 2 },
+  { date: '2026-07-10', views: 71, clicks: 7 },
+  { date: '2026-07-11', views: 47, clicks: 3 },
+  { date: '2026-07-12', views: 71, clicks: 4 },
+  { date: '2026-07-13', views: 66, clicks: 6 },
+  { date: '2026-07-14', views: 69, clicks: 4 },
+  { date: '2026-07-15', views: 40, clicks: 3 },
+  { date: '2026-07-16', views: 23, clicks: 1 },
+  { date: '2026-07-17', views: 50, clicks: 4 },
+  { date: '2026-07-18', views: 36, clicks: 3 },
+  { date: '2026-07-19', views: 20, clicks: 2 },
+  { date: '2026-07-20', views: 53, clicks: 4 },
+  { date: '2026-07-21', views: 62, clicks: 6 },
+  { date: '2026-07-22', views: 69, clicks: 4 },
+  { date: '2026-07-23', views: 70, clicks: 5 },
+  { date: '2026-07-24', views: 75, clicks: 4 },
+  { date: '2026-07-25', views: 71, clicks: 5 },
+  { date: '2026-07-26', views: 21, clicks: 2 },
+  { date: '2026-07-27', views: 21, clicks: 1 },
+  { date: '2026-07-28', views: 77, clicks: 5 },
+  { date: '2026-07-29', views: 39, clicks: 3 },
+  { date: '2026-07-30', views: 64, clicks: 5 },
+  ],
+  topReferrers: [
+    { source: 'Map Search', count: 456, percent: 37 },
+    { source: 'Direct URL', count: 312, percent: 25 },
+    { source: 'Google', count: 248, percent: 20 },
+    { source: 'Community', count: 136, percent: 11 },
+    { source: 'Other', count: 88, percent: 7 },
+  ],
+}
+
+/** Reviews shown in the business portal — the flagship station's reviews. */
+export const MOCK_BUSINESS_REVIEWS: Review[] = MOCK_STATIONS[0]?.reviews ?? []
