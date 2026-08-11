@@ -3,7 +3,7 @@
 // PLUG.PK — CONSTANTS
 // ═══════════════════════════════════════════════════
 
-import type { NavLink, ConnectorType, AmenityType } from './types'
+import type { NavLink, ConnectorType, AmenityType, ServiceCategory } from './types'
 
 export const SITE_CONFIG = {
   name: 'Plug.pk',
@@ -140,6 +140,128 @@ export const SERVICE_CATEGORIES = [
     color: 'red',
   },
 ]
+
+/**
+ * Typed companion to SERVICE_CATEGORIES, whose `id` infers as plain `string`.
+ * Keyed by ServiceCategory so every consumer is exhaustive by construction.
+ */
+export interface ServiceCategoryMeta {
+  label: string
+  description: string
+  /** lucide-react icon name, resolved to a component by the UI. */
+  icon: 'Car' | 'Wrench' | 'Home' | 'Package' | 'Shield' | 'LifeBuoy'
+  /** Tailwind classes for the icon chip. */
+  tone: string
+  /** Tailwind gradient for card cover placeholders. */
+  cover: string
+}
+
+export const SERVICE_CATEGORY_META: Record<ServiceCategory, ServiceCategoryMeta> = {
+  dealership: {
+    label: 'Dealerships',
+    description: 'Authorized EV dealers across Pakistan',
+    icon: 'Car',
+    tone: 'bg-blue-50 text-blue-600',
+    cover: 'from-blue-50 to-blue-100',
+  },
+  'service-center': {
+    label: 'Service Centers',
+    description: 'Certified EV service and repair',
+    icon: 'Wrench',
+    tone: 'bg-green-50 text-green-600',
+    cover: 'from-green-50 to-green-100',
+  },
+  'home-charger-installer': {
+    label: 'Home Charger Install',
+    description: 'Professional home charging setup',
+    icon: 'Home',
+    tone: 'bg-purple-50 text-purple-600',
+    cover: 'from-purple-50 to-purple-100',
+  },
+  accessories: {
+    label: 'Accessories',
+    description: 'EV cables, adapters and accessories',
+    icon: 'Package',
+    tone: 'bg-amber-50 text-amber-600',
+    cover: 'from-amber-50 to-amber-100',
+  },
+  insurance: {
+    label: 'Insurance',
+    description: 'EV-specific insurance providers',
+    icon: 'Shield',
+    tone: 'bg-cyan-50 text-cyan-600',
+    cover: 'from-cyan-50 to-cyan-100',
+  },
+  'roadside-assistance': {
+    label: 'Roadside Assistance',
+    description: '24/7 EV roadside support',
+    icon: 'LifeBuoy',
+    tone: 'bg-red-50 text-red-600',
+    cover: 'from-red-50 to-red-100',
+  },
+}
+
+/** Ordered category keys — drives tab order and static route generation. */
+export const SERVICE_CATEGORY_KEYS: ServiceCategory[] = [
+  'dealership',
+  'service-center',
+  'home-charger-installer',
+  'accessories',
+  'insurance',
+  'roadside-assistance',
+]
+
+/** Services offered, listed on each provider's detail page. */
+export const SERVICE_OFFERINGS: Record<ServiceCategory, string[]> = {
+  dealership: [
+    'New EV Sales',
+    'Test Drives',
+    'Finance',
+    'Trade-in',
+    'Extended Warranty',
+    'Accessories',
+  ],
+  'service-center': [
+    'EV Diagnostics',
+    'Battery Health Check',
+    'Software Updates',
+    'Brake Service',
+    'Tyre Rotation',
+    'Roadside Recovery',
+  ],
+  'home-charger-installer': [
+    'Site Survey',
+    'Charger Supply',
+    'Installation',
+    'Certification',
+    'Smart Charger Setup',
+    'Post-install Support',
+  ],
+  accessories: [
+    'Charging Cables',
+    'Adapters',
+    'Car Covers',
+    'Seat Covers',
+    'Dash Cams',
+    'EV Accessories',
+  ],
+  insurance: [
+    'Comprehensive Cover',
+    'Third Party',
+    'Battery Cover',
+    'Roadside Assistance',
+    'No Claims Discount',
+    'Online Claims',
+  ],
+  'roadside-assistance': [
+    '24/7 Response',
+    'Jump Start',
+    'Towing Service',
+    'Mobile Charging',
+    'Lockout Service',
+    'Tyre Assistance',
+  ],
+}
 
 export const DEFAULT_MAP_CENTER = {
   lat: 30.3753,
