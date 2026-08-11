@@ -1,7 +1,8 @@
 // src/app/services/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
 
 import { ServiceCategoryTabs } from '@/components/services/ServiceCategoryTabs'
 import { ServiceFilters } from '@/components/services/ServiceFilters'
@@ -10,7 +11,13 @@ import { ServiceHero } from '@/components/services/ServiceHero'
 import { useServices } from '@/hooks/useServices'
 import { MOCK_SERVICES } from '@/lib/mock-data'
 
-export default function ServicesPage() {
+/**
+ * Owns all filter state. The tabs, filter bar and grid must share it, so they
+ * all live here — inside the Suspense boundary useSearchParams requires.
+ */
+function ServicesDirectory() {
+  const searchParams = useSearchParams()
+
   const {
     filteredServices,
     isLoading,
@@ -23,7 +30,10 @@ export default function ServicesPage() {
     sortBy,
     setSortBy,
     categoryCount,
-  } = useServices()
+  } = useServices({
+    initialQuery: searchParams.get('q') ?? '',
+    initialCity: searchParams.get('city') ?? 'all',
+  })
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -35,8 +45,6 @@ export default function ServicesPage() {
 
   return (
     <>
-      <ServiceHero totalServices={MOCK_SERVICES.length} />
-
       <ServiceCategoryTabs
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
@@ -79,6 +87,25 @@ export default function ServicesPage() {
           <div className="mb-20" />
         )}
       </div>
+    </>
+  )
+}
+
+export default function ServicesPage() {
+  return (
+    <>
+      <ServiceHero totalServices={MOCK_SERVICES.length} />
+
+      {/* useSearchParams needs a Suspense boundary during static rendering. */}
+      <Suspense
+        fallback={
+          <div className="container-plug py-20 text-center text-sm text-slate-400">
+            Loading services...
+          </div>
+        }
+      >
+        <ServicesDirectory />
+      </Suspense>
     </>
   )
 }

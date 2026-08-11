@@ -47,8 +47,9 @@ export function ServiceHero({ totalServices }: ServiceHeroProps) {
           From dealerships to home charger installation — find every EV service across Pakistan.
         </p>
 
-        {/* Anchors to the live filter bar below, which owns the real query state. */}
-        <form action="#service-results" className="relative mx-auto max-w-2xl">
+        {/* A plain GET back to /services. The page reads q and city from the
+            URL and seeds the filter state, so this stays a server component. */}
+        <form action="/services" method="get" className="relative mx-auto max-w-2xl">
           <Search
             size={20}
             className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"

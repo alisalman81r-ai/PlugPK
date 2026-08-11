@@ -26,10 +26,16 @@ export interface UseServicesReturn {
 
 const LOADING_MS = 300
 
-export function useServices(): UseServicesReturn {
+export interface UseServicesOptions {
+  /** Seeds from the URL so the hero's search form actually drives results. */
+  initialQuery?: string
+  initialCity?: string
+}
+
+export function useServices(options: UseServicesOptions = {}): UseServicesReturn {
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCity, setSelectedCity] = useState('all')
+  const [searchQuery, setSearchQuery] = useState(options.initialQuery ?? '')
+  const [selectedCity, setSelectedCity] = useState(options.initialCity ?? 'all')
   const [sortBy, setSortBy] = useState<ServiceSort>('rating')
   const [isLoading, setIsLoading] = useState(false)
 
