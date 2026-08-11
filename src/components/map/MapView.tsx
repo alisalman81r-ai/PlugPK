@@ -3,12 +3,19 @@
 
 import { MapPinOff, Zap } from 'lucide-react'
 import * as React from 'react'
-import { GeolocateControl, Map, Marker, NavigationControl, type MapRef } from 'react-map-gl/mapbox'
+import {
+  AttributionControl,
+  GeolocateControl,
+  Map,
+  Marker,
+  NavigationControl,
+  type MapRef,
+} from 'react-map-gl/maplibre'
 
 import type { Coordinates, Station, StationStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-import 'mapbox-gl/dist/mapbox-gl.css'
+import 'maplibre-gl/dist/maplibre-gl.css'
 
 export interface MapViewProps {
   stations: Station[]
@@ -21,6 +28,13 @@ export interface MapViewProps {
 
 const PAKISTAN_CENTER = { longitude: 69.3451, latitude: 30.3753, zoom: 5 }
 
+/**
+ * OpenFreeMap serves OpenStreetMap-based vector tiles with no API key, no
+ * account and no usage cap. `positron` is the light, low-contrast style, which
+ * keeps the station pins as the loudest thing on the map.
+ */
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron'
+
 const PIN_COLOR: Record<StationStatus, string> = {
   available: 'bg-plug-blue-600',
   limited: 'bg-amber-500',
@@ -28,14 +42,12 @@ const PIN_COLOR: Record<StationStatus, string> = {
   unknown: 'bg-slate-300',
 }
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
-
 /**
- * Shown when the map cannot render — no token configured, or Mapbox rejected
- * the one supplied. The sidebar station list stays fully usable either way, so
- * a bad credential degrades one panel rather than the whole page.
+ * Shown only if the tile server cannot be reached. The sidebar station list
+ * stays fully usable either way, so a network failure degrades one panel
+ * rather than the whole page.
  */
-function MapFallback({ reason, className }: { reason: string; className?: string }) {
+function MapFallback({ className }: { className?: string }) {
   return (
     <div
       className={cn(
@@ -47,10 +59,10 @@ function MapFallback({ reason, className }: { reason: string; className?: string
         <MapPinOff size={24} className="text-slate-400" aria-hidden="true" />
       </span>
       <p className="text-sm font-semibold text-slate-700">Map unavailable</p>
-      <p className="max-w-xs text-xs leading-relaxed text-slate-500">{reason}</p>
-      <code className="rounded-lg bg-white px-3 py-1.5 font-mono text-[11px] text-slate-500">
-        NEXT_PUBLIC_MAPBOX_TOKEN
-      </code>
+      <p className="max-w-xs text-xs leading-relaxed text-slate-500">
+        The map tiles could not be loaded. Check your connection — the station list on the left
+        still works.
+      </p>
     </div>
   )
 }
@@ -85,37 +97,25 @@ export function MapView({
     })
   }, [userLocation])
 
-  if (!MAPBOX_TOKEN) {
-    return (
-      <MapFallback
-        className={className}
-        reason="No Mapbox access token is configured. Add a public token to .env.local and restart the dev server."
-      />
-    )
-  }
-
   if (hasMapError) {
-    return (
-      <MapFallback
-        className={className}
-        reason="Mapbox rejected the access token. Replace it with a valid public token from account.mapbox.com and restart the dev server."
-      />
-    )
+    return <MapFallback className={className} />
   }
 
   return (
     <div className={cn('h-full w-full', className)}>
       <Map
         ref={mapRef}
-        mapboxAccessToken={MAPBOX_TOKEN}
         initialViewState={PAKISTAN_CENTER}
-        mapStyle="mapbox://styles/mapbox/light-v11"
+        mapStyle={MAP_STYLE}
         reuseMaps
         attributionControl={false}
         onClick={onMapClick}
         onError={() => setHasMapError(true)}
         style={{ width: '100%', height: '100%' }}
       >
+        {/* OpenStreetMap data is ODbL-licensed, so the credit is required.
+            `compact` collapses it to an (i) that expands on click. */}
+        <AttributionControl compact position="bottom-left" />
         <GeolocateControl position="bottom-right" trackUserLocation />
         <NavigationControl position="bottom-right" showCompass={false} />
 
