@@ -1,6 +1,7 @@
-// src/app/community/post/[slug]/page.tsx
+// src/app/(main)/community/post/[slug]/page.tsx
 import { Bookmark, ChevronLeft, Heart, Link as LinkIcon, Share2, Twitter } from 'lucide-react'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -94,6 +95,31 @@ export default function CommunityPostPage({ params }: PageProps) {
             <div className="whitespace-pre-wrap text-[16px] leading-[1.8] text-slate-700">
               {post.content}
             </div>
+
+            {post.photos && post.photos.length > 0 ? (
+              // Single photo spans the column; two or more sit in a pair grid.
+              <div
+                className={cn(
+                  'mt-8 grid gap-3',
+                  post.photos.length > 1 ? 'sm:grid-cols-2' : 'grid-cols-1',
+                )}
+              >
+                {post.photos.map((photo, index) => (
+                  <span
+                    key={photo}
+                    className="relative block aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100"
+                  >
+                    <Image
+                      src={photo}
+                      alt={`${post.title} — photo ${index + 1}`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 380px"
+                      className="object-cover"
+                    />
+                  </span>
+                ))}
+              </div>
+            ) : null}
           </article>
 
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-4">

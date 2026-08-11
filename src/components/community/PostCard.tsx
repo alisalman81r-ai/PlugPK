@@ -1,7 +1,8 @@
 // src/components/community/PostCard.tsx
 'use client'
 
-import { Car, Clock, Heart, MessageSquare, Share2, Zap } from 'lucide-react'
+import { Car, Clock, Heart, Images, MessageSquare, Share2, Zap } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -65,6 +66,10 @@ export function PostCard({
   const href = `/community/post/${post.slug}`
   const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
   const likes = likeCount ?? post.likeCount
+  // Bound once: noUncheckedIndexedAccess types post.photos[0] as possibly
+  // undefined, and narrowing a const carries into the JSX below.
+  const coverPhoto = post.photos?.[0]
+  const photoCount = post.photos?.length ?? 0
 
   const handleLike = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -170,12 +175,24 @@ export function PostCard({
           className,
         )}
       >
-        <span
-          aria-hidden="true"
-          className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 lg:h-auto lg:w-[200px]"
-        >
-          <Zap size={48} className="text-blue-200" />
-        </span>
+        {coverPhoto ? (
+          <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-blue-50 lg:h-auto lg:w-[200px]">
+            <Image
+              src={coverPhoto}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 200px"
+              className="object-cover"
+            />
+          </span>
+        ) : (
+          <span
+            aria-hidden="true"
+            className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 lg:h-auto lg:w-[200px]"
+          >
+            <Zap size={48} className="text-blue-200" />
+          </span>
+        )}
 
         <div className="min-w-0 flex-1">
           <div className="mb-4 flex items-start justify-between gap-4">
@@ -244,12 +261,23 @@ export function PostCard({
 
       <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
 
-      {post.photos && post.photos.length > 0 ? (
-        <span
-          aria-hidden="true"
-          className="mb-5 flex h-[180px] items-center justify-center overflow-hidden rounded-xl bg-blue-50"
-        >
-          <Zap size={40} className="text-blue-200" />
+      {coverPhoto ? (
+        // Empty alt: the heading above already names the post, so announcing
+        // the image again would just repeat it.
+        <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-blue-50">
+          <Image
+            src={coverPhoto}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover transition-transform duration-300 group-hover/post:scale-[1.03]"
+          />
+          {photoCount > 1 ? (
+            <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[11px] font-medium text-white backdrop-blur-md">
+              <Images size={11} aria-hidden="true" />
+              {photoCount}
+            </span>
+          ) : null}
         </span>
       ) : null}
 

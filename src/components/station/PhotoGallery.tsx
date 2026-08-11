@@ -2,6 +2,7 @@
 'use client'
 
 import { Camera, ChevronLeft, ChevronRight, Images, X, Zap } from 'lucide-react'
+import Image from 'next/image'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -14,39 +15,32 @@ export interface PhotoGalleryProps {
 const MAX_THUMBS = 5
 
 /**
- * No station photography ships with the project (`public/images/` does not
- * exist), so each photo slot renders a deterministic gradient rather than an
- * <Image> that would 404. Swap this for next/image once real assets land.
+ * `fill` rather than fixed dimensions: every slot is sized by its parent
+ * (16:9 hero, 88x64 thumb, lightbox frame), so the intrinsic size of the
+ * source never needs to be known here.
  */
-const PLACEHOLDER_GRADIENTS = [
-  'from-blue-100 via-blue-50 to-cyan-50',
-  'from-cyan-100 via-sky-50 to-blue-50',
-  'from-slate-100 via-blue-50 to-slate-50',
-  'from-sky-100 via-cyan-50 to-white',
-  'from-blue-50 via-white to-cyan-100',
-]
-
 function PhotoSlot({
-  index,
+  src,
   label,
+  sizes,
+  priority = false,
   className,
-  iconSize = 64,
 }: {
-  index: number
+  src: string
   label: string
+  sizes: string
+  priority?: boolean
   className?: string
-  iconSize?: number
 }) {
-  const gradient = PLACEHOLDER_GRADIENTS[index % PLACEHOLDER_GRADIENTS.length]
-
   return (
-    <div
-      role="img"
-      aria-label={label}
-      className={cn('flex h-full w-full items-center justify-center bg-gradient-to-br', gradient, className)}
-    >
-      <Zap size={iconSize} className="text-blue-200" aria-hidden="true" />
-    </div>
+    <Image
+      src={src}
+      alt={label}
+      fill
+      sizes={sizes}
+      priority={priority}
+      className={cn('object-cover', className)}
+    />
   )
 }
 
@@ -54,7 +48,8 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false)
 
-  const hasPhotos = photos.length > 0
+  // Bound once so noUncheckedIndexedAccess narrowing carries into the JSX.
+  const currentPhoto = photos[selectedIndex]
   const visibleThumbs = photos.slice(0, MAX_THUMBS)
   const remaining = photos.length - MAX_THUMBS
 
@@ -88,14 +83,19 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
     <>
       <div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 lg:aspect-video">
-          {hasPhotos ? (
+          {currentPhoto ? (
             <button
               type="button"
               onClick={() => setIsLightboxOpen(true)}
               aria-label={`Open ${stationName} photo ${selectedIndex + 1} full screen`}
-              className="h-full w-full cursor-zoom-in"
+              className="relative h-full w-full cursor-zoom-in"
             >
-              <PhotoSlot index={selectedIndex} label={`${stationName} photo ${selectedIndex + 1}`} />
+              <PhotoSlot
+                src={currentPhoto}
+                label={`${stationName} photo ${selectedIndex + 1}`}
+                sizes="(max-width: 1024px) 100vw, 720px"
+                priority
+              />
             </button>
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -141,7 +141,7 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
                       : 'opacity-70 hover:opacity-100',
                   )}
                 >
-                  <PhotoSlot index={index} label={`Photo ${index + 1}`} iconSize={20} />
+                  <PhotoSlot src={photo} label={`Photo ${index + 1}`} sizes="88px" />
                   {isLastVisible ? (
                     <span className="absolute inset-0 flex items-center justify-center bg-black/[0.65] text-lg font-bold text-white">
                       +{remaining}
@@ -154,7 +154,7 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
         ) : null}
       </div>
 
-      {isLightboxOpen ? (
+      {isLightboxOpen && currentPhoto ? (
         <div
           role="dialog"
           aria-modal="true"
@@ -199,13 +199,14 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
           ) : null}
 
           <div
-            className="aspect-video w-full max-w-4xl overflow-hidden rounded-2xl"
+            className="relative aspect-video w-full max-w-4xl overflow-hidden rounded-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <PhotoSlot
-              index={selectedIndex}
+              src={currentPhoto}
               label={`${stationName} photo ${selectedIndex + 1}`}
-              iconSize={96}
+              sizes="(max-width: 896px) 100vw, 896px"
+              className="object-contain"
             />
           </div>
 
@@ -220,11 +221,11 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
                 onClick={() => setSelectedIndex(index)}
                 aria-label={`View photo ${index + 1}`}
                 className={cn(
-                  'h-12 w-16 shrink-0 overflow-hidden rounded-lg transition-all duration-150',
+                  'relative h-12 w-16 shrink-0 overflow-hidden rounded-lg transition-all duration-150',
                   selectedIndex === index ? 'ring-2 ring-white' : 'opacity-50 hover:opacity-90',
                 )}
               >
-                <PhotoSlot index={index} label={`Photo ${index + 1}`} iconSize={16} />
+                <PhotoSlot src={photo} label={`Photo ${index + 1}`} sizes="64px" />
               </button>
             ))}
           </div>
