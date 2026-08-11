@@ -366,6 +366,19 @@ export interface NavLink {
   icon?: string
 }
 
+// ─── Activity ───────────────────────────────────────
+
+export type ActivityType = 'review' | 'save' | 'route' | 'join'
+
+export interface ActivityItem {
+  id: string
+  type: ActivityType
+  text: string
+  /** Bolded inside the feed — usually a station or route name. */
+  highlight?: string
+  date: string
+}
+
 // ─── Stats ──────────────────────────────────────────
 
 export interface PlatformStats {

@@ -33,6 +33,9 @@ function isActivePath(pathname: string, href: string): boolean {
 export function BottomTabBar() {
   const pathname = usePathname()
 
+  // The dashboard ships its own mobile tab bar; two fixed bars would stack.
+  if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) return null
+
   return (
     <nav
       aria-label="Primary"

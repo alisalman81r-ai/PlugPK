@@ -11,6 +11,9 @@ import type {
   OperatingHours,
   PlatformStats,
   Station,
+  User,
+  Review,
+  ActivityItem,
   EVClub,
 } from './types'
 
@@ -1698,3 +1701,127 @@ export const MOCK_PLATFORM_STATS: PlatformStats = {
   totalUsers: 5000,
   totalReviews: 1200,
 }
+
+// ─── Signed-in User ──────────────────────────────────
+
+export const MOCK_USER: User = {
+  id: 'user-001',
+  email: 'ahmed@example.com',
+  name: 'Ahmed Khan',
+  role: 'user',
+  city: 'Lahore',
+  joinedAt: '2024-10-15T00:00:00+05:00',
+  vehicles: [
+    {
+      id: 'vehicle-001',
+      userId: 'user-001',
+      // BYD Atto 3 — the first entry in MOCK_EV_MODELS.
+      evModel: MOCK_EV_MODELS[0] as EVModel,
+      customName: 'My BYD',
+      color: 'Pearl White',
+      licensePlate: 'LEB-2481',
+      isDefault: true,
+    },
+  ],
+  // These must match real MOCK_STATIONS ids ('stn-…'), not 'station-…'.
+  savedStations: ['stn-001', 'stn-002', 'stn-006'],
+  savedRoutes: [],
+}
+
+export const MOCK_USER_REVIEWS: Review[] = [
+  {
+    id: 'urev-001',
+    userId: 'user-001',
+    userName: 'Ahmed Khan',
+    userVehicle: 'BYD Atto 3',
+    rating: 5,
+    comment:
+      'Pulled a genuine 142 kW on the main unit — 20 to 80 percent in just under half an hour. Attendant helped me line up the cable. Easily the best hub in Lahore right now.',
+    date: '2026-07-24T14:20:00+05:00',
+    helpfulCount: 31,
+    isVerified: true,
+  },
+  {
+    id: 'urev-002',
+    userId: 'user-001',
+    userName: 'Ahmed Khan',
+    userVehicle: 'BYD Atto 3',
+    rating: 4,
+    comment:
+      'Solid stop on the way back from Islamabad. The 120 kW unit held about 105 kW which is fine for a market break, though the bays are tight for anything longer than a hatchback.',
+    date: '2026-07-08T17:45:00+05:00',
+    helpfulCount: 12,
+    isVerified: true,
+  },
+  {
+    id: 'urev-003',
+    userId: 'user-001',
+    userName: 'Ahmed Khan',
+    userVehicle: 'BYD Atto 3',
+    rating: 5,
+    comment:
+      'Left the car on the 22 kW bay while I did the weekly shop and came back to 40 percent more. Cheapest per-unit rate I have found in Lahore and the bays are always free.',
+    date: '2026-06-19T11:30:00+05:00',
+    helpfulCount: 18,
+    isVerified: false,
+  },
+]
+
+export const MOCK_ACTIVITY: ActivityItem[] = [
+  {
+    id: 'act-001',
+    type: 'review',
+    text: 'You reviewed',
+    highlight: 'Mall Road EV Hub',
+    date: '2026-07-24T14:20:00+05:00',
+  },
+  {
+    id: 'act-002',
+    type: 'save',
+    text: 'You saved',
+    highlight: 'DHA Charging Hub',
+    date: '2026-07-21T09:10:00+05:00',
+  },
+  {
+    id: 'act-003',
+    type: 'route',
+    text: 'You planned a route from',
+    highlight: 'Lahore to Islamabad',
+    date: '2026-07-18T16:40:00+05:00',
+  },
+  {
+    id: 'act-004',
+    type: 'save',
+    text: 'You saved',
+    highlight: 'F-10 Charging Point',
+    date: '2026-07-14T08:25:00+05:00',
+  },
+  {
+    id: 'act-005',
+    type: 'review',
+    text: 'You reviewed',
+    highlight: 'F-10 Charging Point',
+    date: '2026-07-08T17:45:00+05:00',
+  },
+  {
+    id: 'act-006',
+    type: 'join',
+    text: 'You joined',
+    highlight: 'Lahore EV Owners Club',
+    date: '2026-06-28T12:00:00+05:00',
+  },
+  {
+    id: 'act-007',
+    type: 'review',
+    text: 'You reviewed',
+    highlight: 'Gulberg Charging Station',
+    date: '2026-06-19T11:30:00+05:00',
+  },
+  {
+    id: 'act-008',
+    type: 'join',
+    text: 'You joined Plug.pk as an',
+    highlight: 'EV owner',
+    date: '2024-10-15T00:00:00+05:00',
+  },
+]
