@@ -171,16 +171,19 @@ export function ProfileEditForm({ user, onSave }: ProfileEditFormProps) {
         </p>
       ) : null}
 
-      <Button
-        size="lg"
-        fullWidth
-        className="mt-8 h-12 bg-gradient-brand"
-        isLoading={isLoading}
-        disabled={!hasChanges}
-        onClick={handleSave}
-      >
-        Save Changes
-      </Button>
+      {/* Sticky above the dashboard's mobile tab bar; inline from lg up. */}
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] -mx-6 mt-8 border-t border-slate-200 bg-white px-6 py-4 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
+        <Button
+          size="lg"
+          fullWidth
+          className="h-12 bg-gradient-brand"
+          isLoading={isLoading}
+          disabled={!hasChanges}
+          onClick={handleSave}
+        >
+          Save Changes
+        </Button>
+      </div>
 
       {confirmDelete ? (
         <div
