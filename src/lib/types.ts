@@ -162,6 +162,9 @@ export interface Station {
   status: StationStatus
   isVerified: boolean
   network: string
+  /** Operator contact details, surfaced in the station detail sidebar. */
+  phone?: string
+  website?: string
   businessId?: string
   createdAt: string
   updatedAt: string

@@ -137,6 +137,7 @@ const config: Config = {
         shimmer: 'shimmer 1.5s ease-in-out infinite',
         float: 'float 4s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
+        'grow-x': 'growX 800ms cubic-bezier(0, 0, 0.2, 1) both',
       },
       keyframes: {
         fadeUp: {
@@ -166,6 +167,12 @@ const config: Config = {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-12px)' },
+        },
+        // Horizontal fill for progress/rating bars. Pairs with `origin-left`
+        // so a server-rendered bar can animate on mount without any JS.
+        growX: {
+          '0%': { transform: 'scaleX(0)' },
+          '100%': { transform: 'scaleX(1)' },
         },
       },
       screens: {
