@@ -107,10 +107,16 @@ export function MapView({
         ref={mapRef}
         initialViewState={PAKISTAN_CENTER}
         mapStyle={MAP_STYLE}
-        reuseMaps
+        // No `reuseMaps`: with reactStrictMode the component mounts, unmounts
+        // and remounts, and the reused instance keeps a canvas detached from
+        // the new container — the map then reports a 0x0 viewport, so tiles
+        // never paint and every Marker projects to the same point.
         attributionControl={false}
         onClick={onMapClick}
         onError={() => setHasMapError(true)}
+        // The panel beside it settles after the map mounts; resizing on load
+        // makes sure the canvas matches its final size.
+        onLoad={(event) => event.target.resize()}
         style={{ width: '100%', height: '100%' }}
       >
         {/* OpenStreetMap data is ODbL-licensed, so the credit is required.
