@@ -1,21 +1,12 @@
 // src/components/map/MapView.tsx
 'use client'
 
+import { APIProvider, AdvancedMarker, Map, useMap } from '@vis.gl/react-google-maps'
 import { MapPinOff, Zap } from 'lucide-react'
 import * as React from 'react'
-import {
-  AttributionControl,
-  GeolocateControl,
-  Map,
-  Marker,
-  NavigationControl,
-  type MapRef,
-} from 'react-map-gl/maplibre'
 
 import type { Coordinates, Station, StationStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
-
-import 'maplibre-gl/dist/maplibre-gl.css'
 
 export interface MapViewProps {
   stations: Station[]
@@ -26,14 +17,20 @@ export interface MapViewProps {
   className?: string
 }
 
-const PAKISTAN_CENTER = { longitude: 69.3451, latitude: 30.3753, zoom: 5 }
+const PAKISTAN_CENTER = { lat: 30.3753, lng: 69.3451 }
+const DEFAULT_ZOOM = 5
+
+const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
 /**
- * OpenFreeMap serves OpenStreetMap-based vector tiles with no API key, no
- * account and no usage cap. `positron` is the light, low-contrast style, which
- * keeps the station pins as the loudest thing on the map.
+ * Advanced Markers require a Map ID — without one Google silently renders no
+ * markers at all. DEMO_MAP_ID works for development; create a real styled ID
+ * in the Cloud console for production and set NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID.
+ *
+ * `||` not `??`: an env var declared but left empty is '', which is not
+ * nullish, so `??` would pass the empty string straight through.
  */
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/positron'
+const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
 const PIN_COLOR: Record<StationStatus, string> = {
   available: 'bg-plug-blue-600',
@@ -43,9 +40,9 @@ const PIN_COLOR: Record<StationStatus, string> = {
 }
 
 /**
- * Shown only if the tile server cannot be reached. The sidebar station list
- * stays fully usable either way, so a network failure degrades one panel
- * rather than the whole page.
+ * Shown when no API key is configured. The sidebar station list stays fully
+ * usable either way, so a missing credential degrades one panel rather than
+ * the whole page.
  */
 function MapFallback({ className }: { className?: string }) {
   return (
@@ -60,11 +57,39 @@ function MapFallback({ className }: { className?: string }) {
       </span>
       <p className="text-sm font-semibold text-slate-700">Map unavailable</p>
       <p className="max-w-xs text-xs leading-relaxed text-slate-500">
-        The map tiles could not be loaded. Check your connection — the station list on the left
-        still works.
+        No Google Maps API key is configured. Add one to .env.local and restart the dev server —
+        the station list on the left still works.
       </p>
+      <code className="rounded-lg bg-white px-3 py-1.5 font-mono text-[11px] text-slate-500">
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+      </code>
     </div>
   )
+}
+
+/** Lives inside <Map> so it can reach the map instance via useMap(). */
+function CameraController({
+  selectedStation,
+  userLocation,
+}: {
+  selectedStation: Station | null
+  userLocation: Coordinates | null
+}) {
+  const map = useMap()
+
+  React.useEffect(() => {
+    if (!map || !selectedStation) return
+    map.panTo({ lat: selectedStation.coordinates.lat, lng: selectedStation.coordinates.lng })
+    map.setZoom(12)
+  }, [map, selectedStation])
+
+  React.useEffect(() => {
+    if (!map || !userLocation) return
+    map.panTo({ lat: userLocation.lat, lng: userLocation.lng })
+    map.setZoom(11)
+  }, [map, userLocation])
+
+  return null
 }
 
 export function MapView({
@@ -75,112 +100,82 @@ export function MapView({
   userLocation,
   className,
 }: MapViewProps) {
-  const mapRef = React.useRef<MapRef>(null)
-  const [hasMapError, setHasMapError] = React.useState(false)
-
-  // Recentre when a station is picked from the list or a pin is tapped.
-  React.useEffect(() => {
-    if (!selectedStation || !mapRef.current) return
-    mapRef.current.flyTo({
-      center: [selectedStation.coordinates.lng, selectedStation.coordinates.lat],
-      zoom: 12,
-      duration: 900,
-    })
-  }, [selectedStation])
-
-  React.useEffect(() => {
-    if (!userLocation || !mapRef.current) return
-    mapRef.current.flyTo({
-      center: [userLocation.lng, userLocation.lat],
-      zoom: 11,
-      duration: 900,
-    })
-  }, [userLocation])
-
-  if (hasMapError) {
+  if (!API_KEY) {
     return <MapFallback className={className} />
   }
 
   return (
     <div className={cn('h-full w-full', className)}>
-      <Map
-        ref={mapRef}
-        initialViewState={PAKISTAN_CENTER}
-        mapStyle={MAP_STYLE}
-        // No `reuseMaps`: with reactStrictMode the component mounts, unmounts
-        // and remounts, and the reused instance keeps a canvas detached from
-        // the new container — the map then reports a 0x0 viewport, so tiles
-        // never paint and every Marker projects to the same point.
-        attributionControl={false}
-        onClick={onMapClick}
-        onError={() => setHasMapError(true)}
-        // The panel beside it settles after the map mounts; resizing on load
-        // makes sure the canvas matches its final size.
-        onLoad={(event) => event.target.resize()}
-        style={{ width: '100%', height: '100%' }}
-      >
-        {/* OpenStreetMap data is ODbL-licensed, so the credit is required.
-            `compact` collapses it to an (i) that expands on click. */}
-        <AttributionControl compact position="bottom-left" />
-        <GeolocateControl position="bottom-right" trackUserLocation />
-        <NavigationControl position="bottom-right" showCompass={false} />
+      <APIProvider apiKey={API_KEY}>
+        <Map
+          mapId={MAP_ID}
+          defaultCenter={PAKISTAN_CENTER}
+          defaultZoom={DEFAULT_ZOOM}
+          gestureHandling="greedy"
+          disableDefaultUI={false}
+          mapTypeControl={false}
+          streetViewControl={false}
+          fullscreenControl={false}
+          onClick={onMapClick}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <CameraController selectedStation={selectedStation} userLocation={userLocation} />
 
-        {stations.map((station) => {
-          const isSelected = selectedStation?.id === station.id
+          {stations.map((station) => {
+            const isSelected = selectedStation?.id === station.id
 
-          return (
-            <Marker
-              key={station.id}
-              longitude={station.coordinates.lng}
-              latitude={station.coordinates.lat}
-              anchor="bottom"
-              onClick={(event) => {
-                // Keep the click from reaching the map and clearing selection.
-                event.originalEvent.stopPropagation()
-                onStationSelect(station)
-              }}
-            >
-              <span
-                className={cn(
-                  'relative flex cursor-pointer items-center justify-center transition-transform duration-200 ease-spring',
-                  isSelected ? 'h-11 w-11 scale-125 rounded-full bg-plug-blue-600/15' : 'h-9 w-9',
-                )}
+            return (
+              <AdvancedMarker
+                key={station.id}
+                position={{ lat: station.coordinates.lat, lng: station.coordinates.lng }}
+                title={station.name}
+                onClick={() => onStationSelect(station)}
               >
-                {station.status === 'available' ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-0 animate-pulse-ring rounded-full bg-plug-blue-600/30"
-                  />
-                ) : null}
-
                 <span
                   className={cn(
-                    'relative flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-[0_4px_12px_rgba(0,0,0,0.20)]',
-                    PIN_COLOR[station.status],
-                    isSelected
-                      ? 'border-blue-300 shadow-[0_8px_25px_rgba(37,99,235,0.40)]'
-                      : 'border-white',
+                    'relative flex cursor-pointer items-center justify-center transition-transform duration-200 ease-spring',
+                    isSelected ? 'h-11 w-11 scale-125 rounded-full bg-plug-blue-600/15' : 'h-9 w-9',
                   )}
                 >
-                  <Zap size={16} className="fill-white text-white" aria-hidden="true" />
-                </span>
-              </span>
-            </Marker>
-          )
-        })}
+                  {station.status === 'available' ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 animate-pulse-ring rounded-full bg-plug-blue-600/30"
+                    />
+                  ) : null}
 
-        {userLocation ? (
-          <Marker longitude={userLocation.lng} latitude={userLocation.lat} anchor="center">
-            <span className="relative flex h-6 w-6 items-center justify-center">
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 animate-ping rounded-full bg-blue-200 opacity-75"
-              />
-              <span className="relative h-3 w-3 rounded-full border-2 border-white bg-plug-blue-600" />
-            </span>
-          </Marker>
-        ) : null}
-      </Map>
+                  <span
+                    className={cn(
+                      'relative flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-[0_4px_12px_rgba(0,0,0,0.20)]',
+                      PIN_COLOR[station.status],
+                      isSelected
+                        ? 'border-blue-300 shadow-[0_8px_25px_rgba(37,99,235,0.40)]'
+                        : 'border-white',
+                    )}
+                  >
+                    <Zap size={16} className="fill-white text-white" aria-hidden="true" />
+                  </span>
+                </span>
+              </AdvancedMarker>
+            )
+          })}
+
+          {userLocation ? (
+            <AdvancedMarker
+              position={{ lat: userLocation.lat, lng: userLocation.lng }}
+              title="Your location"
+            >
+              <span className="relative flex h-6 w-6 items-center justify-center">
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 animate-ping rounded-full bg-blue-200 opacity-75"
+                />
+                <span className="relative h-3 w-3 rounded-full border-2 border-white bg-plug-blue-600" />
+              </span>
+            </AdvancedMarker>
+          ) : null}
+        </Map>
+      </APIProvider>
     </div>
   )
 }
