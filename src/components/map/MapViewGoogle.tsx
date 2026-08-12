@@ -5,6 +5,7 @@ import { APIProvider, AdvancedMarker, Map, useMap } from '@vis.gl/react-google-m
 import * as React from 'react'
 
 import type { Coordinates, Station } from '@/lib/types'
+import { getStationBounds } from '@/lib/utils'
 
 import { STATUS_LABEL, StationPin, UserLocationPin } from './StationPin'
 
@@ -32,13 +33,33 @@ const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
 /** Lives inside <Map> so it can reach the map instance via useMap(). */
 function CameraController({
+  stations,
   selectedStation,
   userLocation,
 }: {
+  stations: Station[]
   selectedStation: Station | null
   userLocation: Coordinates | null
 }) {
   const map = useMap()
+  const hasFramed = React.useRef(false)
+
+  /**
+   * Frame the stations once the map exists, so a small catalogue fills the
+   * view instead of sitting as specks inside a country-wide zoom. Guarded by
+   * a ref so it never fights the selection pan below.
+   */
+  React.useEffect(() => {
+    if (!map || hasFramed.current || selectedStation) return
+    const bounds = getStationBounds(stations)
+    if (!bounds) return
+
+    hasFramed.current = true
+    map.fitBounds(
+      { north: bounds.north, south: bounds.south, east: bounds.east, west: bounds.west },
+      96,
+    )
+  }, [map, stations, selectedStation])
 
   React.useEffect(() => {
     if (!map || !selectedStation) return
@@ -77,7 +98,11 @@ export function MapViewGoogle({
         onClick={onMapClick}
         style={{ width: '100%', height: '100%' }}
       >
-        <CameraController selectedStation={selectedStation} userLocation={userLocation} />
+        <CameraController
+          stations={stations}
+          selectedStation={selectedStation}
+          userLocation={userLocation}
+        />
 
         {stations.map((station) => (
           <AdvancedMarker

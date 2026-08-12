@@ -223,6 +223,36 @@ export function getPortAvailability(
 }
 
 /**
+ * Bounding box around a set of stations, or null when there are none.
+ *
+ * Used to frame the map on what actually exists rather than on a fixed
+ * country-wide zoom — with a handful of stations a static zoom leaves them
+ * as specks in an empty frame, and the same call keeps working unchanged as
+ * coverage grows.
+ */
+export function getStationBounds(
+  stations: Array<{ coordinates: { lat: number; lng: number } }>
+): { north: number; south: number; east: number; west: number } | null {
+  const first = stations[0]
+  if (!first) return null
+
+  let north = first.coordinates.lat
+  let south = first.coordinates.lat
+  let east = first.coordinates.lng
+  let west = first.coordinates.lng
+
+  for (const station of stations) {
+    const { lat, lng } = station.coordinates
+    if (lat > north) north = lat
+    if (lat < south) south = lat
+    if (lng > east) east = lng
+    if (lng < west) west = lng
+  }
+
+  return { north, south, east, west }
+}
+
+/**
  * Cheapest per-kWh rate at the station, or 0 when any connector is free.
  * Returns null only if the station lists no connectors at all.
  */
