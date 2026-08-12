@@ -205,6 +205,35 @@ export function getAvailableConnectors(
   return station.connectors.filter(c => c.status === 'available').length
 }
 
+/**
+ * Ports free right now, across every connector at the station. This is the
+ * number a driver actually decides on — "2 of 6 free" says far more than a
+ * status pill does.
+ */
+export function getPortAvailability(
+  station: { connectors: Array<{ ports: number; availablePorts: number }> }
+): { available: number; total: number } {
+  return station.connectors.reduce(
+    (totals, connector) => ({
+      available: totals.available + connector.availablePorts,
+      total: totals.total + connector.ports,
+    }),
+    { available: 0, total: 0 }
+  )
+}
+
+/**
+ * Cheapest per-kWh rate at the station, or 0 when any connector is free.
+ * Returns null only if the station lists no connectors at all.
+ */
+export function getLowestPrice(
+  station: { connectors: Array<{ pricePerKwh: number; isFree: boolean }> }
+): number | null {
+  if (station.connectors.length === 0) return null
+  if (station.connectors.some(c => c.isFree)) return 0
+  return Math.min(...station.connectors.map(c => c.pricePerKwh))
+}
+
 // ─── Amenity Utilities ───────────────────────────────
 export function getAmenityConfig(type: AmenityType) {
   const configs: Record<AmenityType, { label: string; icon: string }> = {

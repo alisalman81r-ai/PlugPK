@@ -1,9 +1,15 @@
 // src/components/map/StationPreviewCard.tsx
 'use client'
 
-import { MapPin, Navigation2, ShieldCheck, X, Zap } from 'lucide-react'
+import { MapPin, Navigation2, ShieldCheck, X } from 'lucide-react'
 
-import { ConnectorBadgeGroup, RatingStars, SpeedBadge, StatusBadge } from '@/components/ui'
+import {
+  ConnectorBadgeGroup,
+  PhotoFrame,
+  RatingStars,
+  SpeedBadge,
+  StatusBadge,
+} from '@/components/ui'
 import type { Station } from '@/lib/types'
 import { cn, formatDistance, getMaxPower } from '@/lib/utils'
 
@@ -48,11 +54,12 @@ export function StationPreviewCard({
       </button>
 
       <div className="flex items-start gap-4">
-        <span
-          aria-hidden="true"
-          className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50"
-        >
-          <Zap size={32} className="text-blue-300" />
+        <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
+          <PhotoFrame
+            src={station.coverPhoto}
+            alt={`${station.name} charging station`}
+            sizes="80px"
+          />
         </span>
 
         <div className="min-w-0 flex-1 pr-8">

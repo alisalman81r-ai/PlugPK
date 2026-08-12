@@ -1,7 +1,7 @@
 // src/components/map/index.ts
 export { MapView } from './MapView'
 export { FilterPanel, FilterSections } from './FilterPanel'
-export { StationList, StationListItem, StationListSkeleton } from './StationList'
+export { NoResults, StationList, StationListItem, StationListSkeleton } from './StationList'
 export { StationPreviewCard } from './StationPreviewCard'
 export { MapSearchBar } from './MapSearchBar'
 export { MapControls } from './MapControls'

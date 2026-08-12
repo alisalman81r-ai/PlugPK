@@ -3,7 +3,7 @@
 
 import type { Station } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { StationListItem, StationListSkeleton } from './StationList'
+import { NoResults, StationListItem, StationListSkeleton } from './StationList'
 import { StationPreviewCard } from './StationPreviewCard'
 
 export interface MobileStationSheetProps {
@@ -14,6 +14,7 @@ export interface MobileStationSheetProps {
   isLoading: boolean
   onViewDetails: (station: Station) => void
   onNavigate: (station: Station) => void
+  onResetFilters?: () => void
 }
 
 export function MobileStationSheet({
@@ -24,6 +25,7 @@ export function MobileStationSheet({
   isLoading,
   onViewDetails,
   onNavigate,
+  onResetFilters,
 }: MobileStationSheetProps) {
   // Sits above the 64px BottomTabBar plus the device safe area.
   const offset = 'bottom-[calc(4rem+env(safe-area-inset-bottom))]'
@@ -66,7 +68,7 @@ export function MobileStationSheet({
         {isLoading ? (
           <StationListSkeleton count={3} />
         ) : stations.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-400">No stations match these filters.</p>
+          <NoResults onClearFilters={onResetFilters} />
         ) : (
           stations.map((station) => (
             <StationListItem

@@ -1,12 +1,19 @@
 // src/components/home/StationCard.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star, Zap } from 'lucide-react'
+import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { ConnectorBadgeGroup, SpeedBadge } from '@/components/ui'
+import { ConnectorBadgeGroup, PhotoFrame, SpeedBadge } from '@/components/ui'
 import type { Station, StationStatus } from '@/lib/types'
-import { cn, formatRating, getMaxPower } from '@/lib/utils'
+import {
+  cn,
+  formatPricePerKwh,
+  formatRating,
+  getLowestPrice,
+  getMaxPower,
+  getPortAvailability,
+} from '@/lib/utils'
 
 export interface StationCardProps {
   station: Station
@@ -34,8 +41,10 @@ const STATUS_LABEL: Record<StationStatus, string> = {
   unknown: 'Unknown',
 }
 
+// `group` so the photo can react to a hover anywhere on the card.
+// motion-reduce keeps the lift off for users who ask for less movement.
 const HOVER =
-  'transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.10)]'
+  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.10)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
 
 function StatusPill({ status }: { status: StationStatus }) {
   return (
@@ -54,19 +63,12 @@ function StatusPill({ status }: { status: StationStatus }) {
   )
 }
 
-/** Stations have no real photography yet, so every card uses this placeholder. */
-function PhotoPlaceholder({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        'flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50',
-        className,
-      )}
-    >
-      <Zap size={48} className="text-blue-200" />
-    </div>
-  )
+/**
+ * Cards show the station's own photograph. `coverPhoto` is optional on the
+ * type, so PhotoFrame falls back rather than rendering a broken image.
+ */
+function stationPhotoAlt(station: Station) {
+  return `${station.name} charging station`
 }
 
 export function StationCard({
@@ -82,6 +84,8 @@ export function StationCard({
 }: StationCardProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
   const location = `${station.address.area}, ${station.address.city}`
+  const ports = getPortAvailability(station)
+  const price = getLowestPrice(station)
 
   const handleNavigate = React.useCallback(
     (event: React.MouseEvent) => {
@@ -168,9 +172,14 @@ export function StationCard({
           className,
         )}
       >
-        <div className="relative w-2/5 shrink-0">
-          <PhotoPlaceholder className="h-full w-full" />
-          <span className="absolute left-3 top-3">
+        <div className="relative w-2/5 shrink-0 overflow-hidden">
+          <PhotoFrame
+            src={station.coverPhoto}
+            alt={stationPhotoAlt(station)}
+            sizes="(max-width: 640px) 40vw, 220px"
+            zoomOnHover
+          />
+          <span className="absolute left-3 top-3 z-10">
             <StatusPill status={station.status} />
           </span>
         </div>
@@ -205,18 +214,31 @@ export function StationCard({
       )}
     >
       <div className="relative h-[200px] overflow-hidden bg-slate-100">
-        <PhotoPlaceholder className="h-full w-full" />
+        <PhotoFrame
+          src={station.coverPhoto}
+          alt={stationPhotoAlt(station)}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+          zoomOnHover
+          overlay
+        />
 
-        <span className="absolute left-3 top-3">
+        <span className="absolute left-3 top-3 z-10">
           <StatusPill status={station.status} />
         </span>
+
+        {/* Over the scrim: the one number a driver scans for. */}
+        {ports.total > 0 ? (
+          <span className="absolute bottom-3 left-3 z-10 font-mono text-[13px] font-semibold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
+            {ports.available} of {ports.total} free
+          </span>
+        ) : null}
 
         <button
           type="button"
           onClick={handleSave}
           aria-label={isSaved ? `Remove ${station.name} from saved` : `Save ${station.name}`}
           aria-pressed={isSaved}
-          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.65] backdrop-blur-md transition-all duration-150 hover:scale-110 hover:bg-black/[0.85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.65] backdrop-blur-md transition-all duration-150 hover:scale-110 hover:bg-black/[0.85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white motion-reduce:transition-none"
         >
           {isSaved ? (
             <BookmarkCheck size={18} className="text-blue-400" aria-hidden="true" />
@@ -239,14 +261,21 @@ export function StationCard({
           {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
         </div>
 
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-5 flex items-center justify-between border-t border-slate-100 pt-4">
           {rating}
-          {showDistance && distanceKm !== undefined ? (
-            <span className="flex items-center gap-1 font-mono text-[13px] text-slate-500">
-              <MapPin size={12} className="shrink-0" aria-hidden="true" />
-              {distanceKm.toFixed(1)} km
-            </span>
-          ) : null}
+          <span className="flex items-center gap-3">
+            {showDistance && distanceKm !== undefined ? (
+              <span className="flex items-center gap-1 font-mono text-[13px] text-slate-500">
+                <MapPin size={12} className="shrink-0" aria-hidden="true" />
+                {distanceKm.toFixed(1)} km
+              </span>
+            ) : null}
+            {price !== null ? (
+              <span className="font-mono text-[13px] font-semibold text-slate-900">
+                {price === 0 ? 'Free' : formatPricePerKwh(price)}
+              </span>
+            ) : null}
+          </span>
         </div>
 
         {renderNavigateButton('h-11 w-full text-sm')}

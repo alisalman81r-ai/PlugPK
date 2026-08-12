@@ -8,6 +8,8 @@ export { ConnectorBadge, ConnectorBadgeGroup } from './ConnectorBadge'
 export { SpeedBadge } from './SpeedBadge'
 export { RatingStars } from './RatingStars'
 export { Skeleton, StationCardSkeleton, NavSkeleton, TextSkeleton } from './Skeleton'
+export { PhotoFrame } from './PhotoFrame'
+export { Reveal } from './Reveal'
 export { SectionHeader } from './SectionHeader'
 export { Container, Section } from './Container'
 
@@ -25,5 +27,7 @@ export type {
   NavSkeletonProps,
   TextSkeletonProps,
 } from './Skeleton'
+export type { PhotoFrameProps } from './PhotoFrame'
+export type { RevealProps } from './Reveal'
 export type { SectionHeaderProps } from './SectionHeader'
 export type { ContainerProps, SectionProps } from './Container'

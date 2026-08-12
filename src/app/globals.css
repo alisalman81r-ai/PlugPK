@@ -322,3 +322,32 @@
 .animate-on-scroll.is-visible {
   animation: fadeUp 0.6s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
+
+/* ── Reduced motion ──────────────────────────────────────────────
+   Entrance animations here start from `opacity: 0` and are made
+   visible by the animation itself. Simply switching animations off
+   would leave that content permanently invisible, so this restores
+   the finished state as well as removing the movement.
+
+   Purely decorative loops (the pulsing status rings, the float, the
+   scroll chevron) are stopped outright — they convey nothing that
+   the accompanying label does not already say. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Land on the visible end state rather than the hidden start state. */
+  .animate-fade-up,
+  .animate-on-scroll,
+  .animate-on-scroll.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

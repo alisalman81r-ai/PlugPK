@@ -18,7 +18,7 @@ import * as React from 'react'
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import type { AmenityType, ChargingSpeed, ConnectorType, Station, StationFilters } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { StationListItem, StationListSkeleton } from './StationList'
+import { NoResults, StationListItem, StationListSkeleton } from './StationList'
 
 type SortKey = 'nearest' | 'rating' | 'recent'
 
@@ -309,9 +309,7 @@ export function FilterPanel({
         {isLoading ? (
           <StationListSkeleton count={4} />
         ) : sorted.length === 0 ? (
-          <p className="py-8 text-center text-sm text-slate-400">
-            No stations match these filters.
-          </p>
+          <NoResults onClearFilters={onResetFilters} />
         ) : (
           sorted.map((station) => (
             <StationListItem

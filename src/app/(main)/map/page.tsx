@@ -170,6 +170,7 @@ export default function MapPage() {
         isLoading={isLoading}
         onViewDetails={handleViewDetails}
         onNavigate={handleNavigate}
+        onResetFilters={resetFilters}
       />
 
       <MobileFilterSheet
