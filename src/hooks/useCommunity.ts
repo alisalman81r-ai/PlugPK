@@ -1,7 +1,7 @@
 // src/hooks/useCommunity.ts
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { MOCK_CLUBS, MOCK_POSTS } from '@/lib/mock-data'
 import type { CommunityPost, EVClub, PostCategory } from '@/lib/types'
@@ -27,22 +27,20 @@ export interface UseCommunityReturn {
   featuredPost: CommunityPost | null
 }
 
-const LOADING_MS = 300
-
 export function useCommunity(): UseCommunityReturn {
   const [selectedCategory, setSelectedCategory] = useState<PostCategory | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<CommunitySort>('latest')
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set())
-  const [isLoading, setIsLoading] = useState(false)
+  /**
+   * Local, synchronous filtering — nothing to wait on. This used to flash a
+   * 300ms skeleton on every keystroke, which reads as lag. The flag stays in
+   * the return type so a real fetch can set it later without touching any
+   * consuming component.
+   */
+  const isLoading = false
 
   const posts = MOCK_POSTS
-
-  useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), LOADING_MS)
-    return () => clearTimeout(timer)
-  }, [selectedCategory, searchQuery, sortBy])
 
   const toggleLike = useCallback((postId: string) => {
     setLikedPosts((current) => {

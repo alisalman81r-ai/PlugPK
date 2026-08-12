@@ -1,7 +1,7 @@
 // src/hooks/useServices.ts
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { MOCK_SERVICES } from '@/lib/mock-data'
 import type { EVService, ServiceCategory } from '@/lib/types'
@@ -24,8 +24,6 @@ export interface UseServicesReturn {
   categoryCount: Record<string, number>
 }
 
-const LOADING_MS = 300
-
 export interface UseServicesOptions {
   /** Seeds from the URL so the hero's search form actually drives results. */
   initialQuery?: string
@@ -37,17 +35,17 @@ export function useServices(options: UseServicesOptions = {}): UseServicesReturn
   const [searchQuery, setSearchQuery] = useState(options.initialQuery ?? '')
   const [selectedCity, setSelectedCity] = useState(options.initialCity ?? 'all')
   const [sortBy, setSortBy] = useState<ServiceSort>('rating')
-  const [isLoading, setIsLoading] = useState(false)
+  /**
+   * Filtering happens locally and synchronously, so there is nothing to wait
+   * for. This previously flashed a 300ms skeleton on every keystroke and
+   * every filter change, which read as lag rather than as feedback.
+   *
+   * The flag stays in the return type: when this becomes a real fetch, set it
+   * around the request and no consuming component needs to change.
+   */
+  const isLoading = false
 
   const services = MOCK_SERVICES
-
-  // Brief skeleton pass whenever the query changes, so swapping this for a
-  // real fetch later needs no other change.
-  useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => setIsLoading(false), LOADING_MS)
-    return () => clearTimeout(timer)
-  }, [selectedCategory, searchQuery, selectedCity])
 
   /** Counts come from the unfiltered list so tab badges never change. */
   const categoryCount = useMemo(() => {
