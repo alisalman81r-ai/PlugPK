@@ -75,16 +75,12 @@ const UNDERLINE_CLASS =
  */
 function SegmentedRule() {
   return (
-    <span aria-hidden="true" className="flex h-1 w-full items-center gap-1">
-      {Array.from({ length: 24 }, (_, index) => (
-        <span
-          key={index}
-          className={cn(
-            'h-full flex-1 rounded-full',
-            index < 7 ? 'bg-plug-blue-500/70' : 'bg-white/10',
-          )}
-        />
-      ))}
+    <span aria-hidden="true" className="relative block h-px w-full bg-white/[0.09]">
+      {/* A charged leading run rather than 24 loose dashes. The first pass
+          split the full width into equal segments, which read as a broken
+          line instead of a level. Keeping the rule continuous and letting
+          one bright run sit at its head says the same thing quietly. */}
+      <span className="absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-plug-blue-500 to-cyan-400" />
     </span>
   )
 }
@@ -104,7 +100,7 @@ export function Footer() {
 
       <div className="container-plug relative z-10">
         {/* ── Closing CTA ───────────────────────────────────────── */}
-        <section className="grid gap-8 py-16 sm:py-20 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-24">
+        <section className="grid gap-10 py-14 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-20">
           <div>
             <span className="mb-5 inline-flex items-center gap-2 text-ui-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">
               <Zap size={13} className="fill-cyan-300 text-cyan-300" aria-hidden="true" />
@@ -138,7 +134,7 @@ export function Footer() {
         {/* ── Navigation ────────────────────────────────────────── */}
         <nav
           aria-label="Footer"
-          className="grid grid-cols-2 gap-x-6 gap-y-10 py-14 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:gap-x-10"
+          className="grid grid-cols-2 gap-x-6 gap-y-10 pb-10 pt-12 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:gap-x-10"
         >
           {FOOTER_COLUMNS.map((column) => (
             <div key={column.heading}>
@@ -180,16 +176,29 @@ export function Footer() {
       </div>
 
       {/* ── Brand moment ──────────────────────────────────────────
-          The closing frame. Sized in vw so it fills the width at every
-          breakpoint and clipped at the baseline so it reads as a mark
-          rather than a heading. aria-hidden because the accessible name
-          is already carried by the copyright line below. */}
-      <div className="relative z-10 select-none overflow-hidden px-4">
+          The closing frame.
+
+          Three things this has to get right, all of which the first pass got
+          wrong. `leading-none` plus bottom padding, because a line box
+          shorter than the glyphs cuts the descenders off `p` and `g`. A
+          filled gradient rather than a hairline stroke, because a 1px stroke
+          simply disappears at this size. And a much wider clamp, so the mark
+          actually spans the frame instead of floating in the middle of it.
+
+          aria-hidden: the accessible name is already carried by the
+          copyright line directly below, so this would only repeat it. */}
+      <div className="relative z-10 px-4 pb-2">
         <p
           aria-hidden="true"
-          className="translate-y-[0.14em] whitespace-nowrap text-center text-[clamp(3.5rem,17vw,13rem)] font-black leading-[0.8] tracking-[-0.055em] text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.13)]"
+          className={cn(
+            'select-none whitespace-nowrap pb-[0.12em] text-center font-black leading-none tracking-[-0.055em]',
+            'text-[clamp(4rem,25vw,21rem)]',
+            // Fades top-to-bottom so the mark reads as rising out of the
+            // floor rather than sitting flat on it.
+            'bg-gradient-to-b from-white/[0.17] via-white/[0.09] to-white/[0.02] bg-clip-text text-transparent',
+          )}
         >
-          plug.pk
+          {SITE_CONFIG.name.toLowerCase()}
         </p>
       </div>
 
