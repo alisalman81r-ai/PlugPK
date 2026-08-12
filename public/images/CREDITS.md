@@ -42,6 +42,26 @@ traced back to its source at `https://www.pexels.com/photo/<id>/`.
 | `community/m2-trip-2.jpg` | 12737898 | Magda Ehlers |
 | `community/zs-ev-costs-1.jpg` | 27355830 | Andersen EV |
 
+## Services
+
+One photograph per listing, so paired cards in the same category never
+repeat the same image.
+
+| File | Pexels ID | Photographer |
+| --- | --- | --- |
+| `services/byd-pakistan-official-dealer.jpg` | 18108314 | dextarstudio |
+| `services/mg-motors-pakistan.jpg` | 164634 | Pixabay |
+| `services/ev-care-workshop.jpg` | 7807035 | Imtiaz Ahmed |
+| `services/green-auto-services.jpg` | 33814734 | Renee Razumov |
+| `services/homecharge-pakistan.jpg` | 27355824 | Andersen EV |
+| `services/ev-install-pro.jpg` | 27355826 | Andersen EV |
+| `services/plug-store-pk.jpg` | 3846205 | bank |
+| `services/ev-gadgets-pakistan.jpg` | 110844 | mikebird |
+| `services/ev-shield-insurance.jpg` | 7734574 | Mikhail Nilov |
+| `services/green-cover-insurance.jpg` | 8441780 | Kampus |
+| `services/ev-rescue-pakistan.jpg` | 17429097 | Jonathan Reynaga |
+| `services/24-7-ev-assist.jpg` | 28447796 | Helen1 |
+
 ## Replacing these
 
 These are stand-ins for real Pakistani locations. When actual photography of

@@ -45,7 +45,10 @@ export function ServicesPreview() {
             return (
               <Link
                 key={category.id}
-                href="/services"
+                // SERVICE_CATEGORIES ids are the same strings as the route
+                // segments in SERVICE_CATEGORY_KEYS, so each tile can land on
+                // its own listing rather than dumping everyone on /services.
+                href={`/services/${category.id}`}
                 title={category.description}
                 className="flex cursor-pointer flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center transition-all duration-200 hover:-translate-y-1 hover:border-blue-200 hover:bg-blue-50 hover:shadow-card"
               >

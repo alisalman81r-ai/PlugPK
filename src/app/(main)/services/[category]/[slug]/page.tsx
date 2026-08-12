@@ -1,4 +1,4 @@
-// src/app/services/[category]/[slug]/page.tsx
+// src/app/(main)/services/[category]/[slug]/page.tsx
 import {
   Car,
   CheckCircle2,
@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -100,6 +101,22 @@ export default function ServiceDetailPage({ params }: PageProps) {
   return (
     <>
       <section className="relative overflow-hidden bg-gradient-hero py-16">
+        {/* The business's own photograph, held well back so the breadcrumb
+            and heading keep their contrast against it. */}
+        {service.coverPhoto ? (
+          <div aria-hidden="true" className="absolute inset-0">
+            <Image
+              src={service.coverPhoto}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-20"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/40" />
+          </div>
+        ) : null}
+
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]"

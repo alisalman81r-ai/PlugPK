@@ -4,7 +4,7 @@
 import { MapPin, Package, Phone, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
-import { RatingStars } from '@/components/ui'
+import { PhotoFrame, RatingStars } from '@/components/ui'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -18,7 +18,7 @@ export interface ServiceCardProps {
 }
 
 const HOVER =
-  'transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover'
+  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover'
 
 export function ServiceCard({
   service,
@@ -63,14 +63,24 @@ export function ServiceCard({
           className,
         )}
       >
-        <span
-          className={cn(
-            'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl',
-            meta.tone,
-          )}
-        >
-          <Icon size={28} aria-hidden="true" />
-        </span>
+        {service.coverPhoto ? (
+          <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-2xl">
+            <PhotoFrame
+              src={service.coverPhoto}
+              alt={`${service.name} — ${meta.label}`}
+              sizes="64px"
+            />
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl',
+              meta.tone,
+            )}
+          >
+            <Icon size={28} aria-hidden="true" />
+          </span>
+        )}
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -121,23 +131,34 @@ export function ServiceCard({
       )}
     >
       <div className="relative h-40 overflow-hidden">
-        <span
-          aria-hidden="true"
-          className={cn(
-            'flex h-full w-full items-center justify-center bg-gradient-to-br',
-            meta.cover,
-          )}
-        >
-          <Icon size={64} className={cn('opacity-30', meta.tone.split(' ')[1])} />
-        </span>
+        {/* The category gradient stays as the fallback, so a service without
+            its own photograph still lands on brand rather than on grey. */}
+        {service.coverPhoto ? (
+          <PhotoFrame
+            src={service.coverPhoto}
+            alt={`${service.name} — ${meta.label}`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
+            zoomOnHover
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className={cn(
+              'flex h-full w-full items-center justify-center bg-gradient-to-br',
+              meta.cover,
+            )}
+          >
+            <Icon size={64} className={cn('opacity-30', meta.tone.split(' ')[1])} />
+          </span>
+        )}
 
-        <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm">
+        <span className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 shadow-sm">
           <Icon size={14} className={meta.tone.split(' ')[1]} aria-hidden="true" />
           <span className="text-xs font-semibold text-slate-700">{meta.label}</span>
         </span>
 
         {service.isVerified ? (
-          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-plug-blue-600 px-2.5 py-1.5">
+          <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-plug-blue-600 px-2.5 py-1.5">
             <ShieldCheck size={12} className="text-white" aria-hidden="true" />
             <span className="text-[10px] font-semibold text-white">Verified</span>
           </span>
