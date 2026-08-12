@@ -161,7 +161,7 @@ export function CommunitySidebar({ clubs, topPosts }: CommunitySidebarProps) {
             name="email"
             placeholder="Your email"
             aria-label="Email address"
-            className="h-10 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none placeholder:text-white/40"
+            className="h-10 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-cyan-400 focus-visible:bg-white/[0.15]"
           />
           <button
             type="submit"

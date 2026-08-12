@@ -61,14 +61,14 @@ export function ServiceHero({ totalServices }: ServiceHeroProps) {
             name="q"
             placeholder="Search services, dealers, installers..."
             aria-label="Search services"
-            className="h-[60px] w-full rounded-2xl border-none bg-white pl-14 pr-4 text-[15px] text-slate-900 shadow-[0_8px_32px_rgba(0,0,0,0.15)] outline-none placeholder:text-slate-400 sm:pr-48"
+            className="h-[60px] w-full rounded-2xl border-none bg-white pl-14 pr-4 text-[15px] text-slate-900 shadow-[0_8px_32px_rgba(0,0,0,0.15)] outline-none transition-shadow placeholder:text-slate-400 focus-visible:shadow-[0_0_0_3px_rgba(59,130,246,0.45),0_8px_32px_rgba(0,0,0,0.15)] sm:pr-48"
           />
 
           <span className="absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-2 sm:flex">
             <select
               name="city"
               aria-label="Filter by city"
-              className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-600 outline-none"
+              className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-600 outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/40"
             >
               <option value="all">All Cities</option>
               {PAKISTAN_CITIES.map((city) => (

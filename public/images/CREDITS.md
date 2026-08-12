@@ -28,6 +28,12 @@ traced back to its source at `https://www.pexels.com/photo/<id>/`.
 | `stations/dha-charging-hub-2.jpg` | 9800029 | Kindel Media |
 | `stations/dha-charging-hub-3.jpg` | 37576213 | giantasparagus |
 
+## Hero
+
+| File | Pexels ID | Photographer |
+| --- | --- | --- |
+| `hero/charging-hub-night.jpg` | 12860663 | solyartphotos |
+
 ## Community
 
 | File | Pexels ID | Photographer |

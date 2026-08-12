@@ -6,7 +6,7 @@ import { MapPinOff, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import type { Coordinates, Station, StationStatus } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { cn, getMaxPower } from '@/lib/utils'
 
 export interface MapViewProps {
   stations: Station[]
@@ -31,6 +31,14 @@ const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
  * nullish, so `??` would pass the empty string straight through.
  */
 const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
+
+/** Reaches assistive tech and native tooltips via the marker's title. */
+const STATUS_LABEL: Record<StationStatus, string> = {
+  available: 'Available',
+  limited: 'Limited availability',
+  offline: 'Offline',
+  unknown: 'Status unknown',
+}
 
 const PIN_COLOR: Record<StationStatus, string> = {
   available: 'bg-plug-blue-600',
@@ -123,38 +131,55 @@ export function MapView({
 
           {stations.map((station) => {
             const isSelected = selectedStation?.id === station.id
+            const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
 
             return (
               <AdvancedMarker
                 key={station.id}
                 position={{ lat: station.coordinates.lat, lng: station.coordinates.lng }}
-                title={station.name}
+                title={`${station.name} — ${STATUS_LABEL[station.status]}`}
+                // Selected pin rides above its neighbours rather than being
+                // overlapped by whatever the map happens to draw later.
+                zIndex={isSelected ? 20 : 1}
                 onClick={() => onStationSelect(station)}
               >
-                <span
-                  className={cn(
-                    'relative flex cursor-pointer items-center justify-center transition-transform duration-200 ease-spring',
-                    isSelected ? 'h-11 w-11 scale-125 rounded-full bg-plug-blue-600/15' : 'h-9 w-9',
-                  )}
-                >
+                {/* A pin that carries the peak power reads at a glance, so the
+                    map answers "how fast" without opening anything. */}
+                <span className="relative flex cursor-pointer flex-col items-center">
                   {station.status === 'available' ? (
                     <span
                       aria-hidden="true"
-                      className="absolute inset-0 animate-pulse-ring rounded-full bg-plug-blue-600/30"
+                      className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 animate-pulse-ring rounded-full bg-plug-blue-600/25 motion-reduce:animate-none"
                     />
                   ) : null}
 
                   <span
                     className={cn(
-                      'relative flex h-9 w-9 items-center justify-center rounded-full border-2 shadow-[0_4px_12px_rgba(0,0,0,0.20)]',
+                      'relative flex items-center gap-1 rounded-full border-2 py-1 pl-1.5 pr-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.28)]',
+                      'transition-transform duration-200 ease-spring motion-reduce:transition-none',
                       PIN_COLOR[station.status],
                       isSelected
-                        ? 'border-blue-300 shadow-[0_8px_25px_rgba(37,99,235,0.40)]'
+                        ? 'scale-110 border-white ring-2 ring-plug-blue-500/60'
                         : 'border-white',
                     )}
                   >
-                    <Zap size={16} className="fill-white text-white" aria-hidden="true" />
+                    <Zap size={13} className="shrink-0 fill-white text-white" aria-hidden="true" />
+                    {maxPower > 0 ? (
+                      <span className="font-mono text-[11px] font-bold leading-none text-white">
+                        {maxPower}
+                        <span className="ml-px text-[9px] font-semibold opacity-80">kW</span>
+                      </span>
+                    ) : null}
                   </span>
+
+                  {/* Stem, so the pill points at its coordinate. */}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'h-1.5 w-0.5 -translate-y-px rounded-b',
+                      PIN_COLOR[station.status],
+                    )}
+                  />
                 </span>
               </AdvancedMarker>
             )

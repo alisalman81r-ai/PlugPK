@@ -51,7 +51,7 @@ function PrivacyTab() {
           id="visibility"
           value={visibility}
           onChange={(event) => setVisibility(event.target.value)}
-          className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none"
+          className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/40"
         >
           <option value="public">Public</option>
           <option value="members">Members only</option>

@@ -95,7 +95,9 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
       {isOpen ? (
         <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
           <div className="border-b border-slate-100 p-3">
-            <div className="flex h-11 items-center gap-2 rounded-xl bg-slate-50 px-3">
+            {/* The input clears its own outline, so the ring lives on the
+                container that visually reads as the field. */}
+            <div className="flex h-11 items-center gap-2 rounded-xl bg-slate-50 px-3 ring-blue-500/40 transition-shadow focus-within:ring-2">
               <Search size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
               <input
                 type="text"
