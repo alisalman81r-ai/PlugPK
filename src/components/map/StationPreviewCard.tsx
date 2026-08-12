@@ -6,12 +6,13 @@ import { MapPin, Navigation2, ShieldCheck, X } from 'lucide-react'
 import {
   ConnectorBadgeGroup,
   PhotoFrame,
+  PortMeter,
   RatingStars,
   SpeedBadge,
   StatusBadge,
 } from '@/components/ui'
 import type { Station } from '@/lib/types'
-import { cn, formatDistance, getMaxPower } from '@/lib/utils'
+import { cn, formatDistance, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 export interface StationPreviewCardProps {
   station: Station
@@ -31,11 +32,12 @@ export function StationPreviewCard({
   className,
 }: StationPreviewCardProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
+  const ports = getPortAvailability(station)
 
   return (
     <div
       className={cn(
-        'relative rounded-3xl bg-white p-5 shadow-[0_-4px_40px_rgba(0,0,0,0.12)]',
+        'relative rounded-3xl bg-white p-5 shadow-e3',
         className,
       )}
     >
@@ -104,6 +106,15 @@ export function StationPreviewCard({
           </div>
         </div>
       </div>
+
+      {ports.total > 0 ? (
+        <PortMeter
+          available={ports.available}
+          total={ports.total}
+          size="md"
+          className="mt-4"
+        />
+      ) : null}
 
       <div className="mt-5 flex gap-3">
         <button

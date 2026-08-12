@@ -51,7 +51,7 @@ function ReviewCard({ review, isLast }: { review: Review; isLast: boolean }) {
           </span>
 
           <span>
-            <span className="block text-[15px] font-bold text-slate-900">{review.userName}</span>
+            <span className="block text-ui font-bold text-slate-900">{review.userName}</span>
             <span className="mt-0.5 flex items-center gap-1 text-sm text-slate-400">
               <Car size={12} aria-hidden="true" />
               {review.userVehicle}
@@ -65,7 +65,7 @@ function ReviewCard({ review, isLast }: { review: Review; isLast: boolean }) {
         </div>
       </div>
 
-      <p className="mt-4 text-[15px] leading-relaxed text-slate-700">{review.comment}</p>
+      <p className="mt-4 text-ui leading-relaxed text-slate-700">{review.comment}</p>
 
       <div className="mt-4 flex items-center justify-between">
         <button

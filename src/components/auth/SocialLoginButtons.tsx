@@ -50,7 +50,7 @@ export function SocialLoginButtons({ mode, className }: SocialLoginButtonsProps)
       onClick={handleGoogle}
       disabled={isGoogleLoading}
       className={cn(
-        'flex h-12 w-full items-center justify-center gap-3 rounded-xl border-[1.5px] border-slate-200 bg-white text-[15px] font-semibold text-slate-700 shadow-sm transition-all duration-200',
+        'flex h-12 w-full items-center justify-center gap-3 rounded-xl border-[1.5px] border-slate-200 bg-white text-ui font-semibold text-slate-700 shadow-sm transition-all duration-200',
         'hover:border-slate-300 hover:bg-slate-50 hover:shadow-md',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
         isGoogleLoading && 'pointer-events-none opacity-70',

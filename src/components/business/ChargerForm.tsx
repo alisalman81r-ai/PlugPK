@@ -23,7 +23,7 @@ const ALL_VEHICLES = EV_MAKES.flatMap((make) =>
 )
 
 const FIELD =
-  'h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-all focus:border-plug-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+  'h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition-all focus:border-plug-blue-500 focus:shadow-focus'
 
 export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: ChargerFormProps) {
   const [type, setType] = React.useState<ConnectorType>(initialData?.type ?? 'CCS2')

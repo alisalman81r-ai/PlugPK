@@ -1,24 +1,14 @@
 // src/components/home/Hero.tsx
 'use client'
 
-import { ArrowRight, ChevronDown, MapPin, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ChevronDown, ShieldCheck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Button, ConnectorBadgeGroup, PhotoFrame, SpeedBadge } from '@/components/ui'
+import { HeroSearch } from '@/components/home/HeroSearch'
+import { ConnectorBadgeGroup, PhotoFrame, PortMeter, SpeedBadge } from '@/components/ui'
 import { MOCK_STATIONS } from '@/lib/mock-data'
 import { cn, formatPricePerKwh, getLowestPrice, getMaxPower, getPortAvailability } from '@/lib/utils'
-
-interface QuickStat {
-  value: string
-  label: string
-}
-
-const QUICK_STATS: QuickStat[] = [
-  { value: '250+', label: 'Stations' },
-  { value: '18', label: 'Cities' },
-  { value: '5,000+', label: 'EV Owners' },
-]
 
 /**
  * The hero card shows a real station from the catalogue rather than an
@@ -91,53 +81,31 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="delay-300 mb-10 max-w-lg animate-fade-up text-lg leading-relaxed text-white/65 opacity-0">
-              Live port availability, real per-unit pricing and reviews from drivers who
-              actually charged there — plus route planning that works around your car&apos;s
-              real range, not the brochure figure.
+            <p className="delay-300 mb-9 max-w-md animate-fade-up text-lg leading-relaxed text-white/65 opacity-0">
+              Live port availability, real prices, and reviews from drivers who actually
+              charged there.
             </p>
 
             {/* delay-400 comes from globals.css (animation-delay). Tailwind's
                 own delay-* utility sets transition-delay and would not stagger
                 the fade-up animation. */}
-            <div className="delay-400 mb-12 flex animate-fade-up flex-col gap-4 opacity-0 sm:flex-row">
-              <Button
-                href="/map"
-                size="lg"
-                rightIcon={<MapPin size={18} />}
-                className="h-14 rounded-xl px-8 text-base hover:shadow-[0_12px_35px_rgba(37,99,235,0.40)]"
-              >
-                Find a charger
-              </Button>
-              <Button
-                href="/routes"
-                variant="outline-white"
-                size="lg"
-                rightIcon={<ArrowRight size={18} />}
-                className="h-14 rounded-xl border-[1.5px] border-white/20 bg-white/10 px-8 text-base hover:-translate-y-0.5 hover:border-white/35 hover:bg-white/[0.18]"
-              >
-                Plan a route
-              </Button>
+            <div className="delay-400 animate-fade-up opacity-0">
+              <HeroSearch />
             </div>
 
-            <dl className="delay-500 flex animate-fade-up items-center gap-8 border-t border-white/10 pt-8 opacity-0">
-              {QUICK_STATS.map((stat, index) => (
-                <div key={stat.label} className="flex items-center gap-8">
-                  {index > 0 ? <span aria-hidden="true" className="h-8 w-px bg-white/10" /> : null}
-                  <div>
-                    <dt className="sr-only">{stat.label}</dt>
-                    <dd>
-                      <span className="block font-mono text-2xl font-bold tracking-tight text-white">
-                        {stat.value}
-                      </span>
-                      <span className="mt-0.5 block text-xs uppercase tracking-wider text-white/45">
-                        {stat.label}
-                      </span>
-                    </dd>
-                  </div>
-                </div>
-              ))}
-            </dl>
+            <div className="delay-500 mt-8 animate-fade-up border-t border-white/10 pt-6 opacity-0">
+              <Link
+                href="/routes"
+                className="group/link inline-flex items-center gap-2 text-sm font-medium text-white/60 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
+              >
+                Driving between cities? Plan a route with charging stops
+                <ArrowRight
+                  size={15}
+                  className="shrink-0 transition-transform duration-200 group-hover/link:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
           </div>
 
           {/* ── Right column — a real station, not a mock ────────── */}
@@ -145,7 +113,7 @@ export function Hero() {
             <div className="delay-600 hidden animate-fade-up opacity-0 lg:block">
               <Link
                 href={`/station/${FEATURED.slug}`}
-                className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-[0_40px_90px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-transform duration-300 ease-out hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-e4 backdrop-blur-xl transition-transform duration-300 ease-out hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <PhotoFrame
@@ -156,16 +124,6 @@ export function Hero() {
                     zoomOnHover
                     overlay
                   />
-
-                  <span className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-md">
-                    <span aria-hidden="true" className="relative flex h-2 w-2">
-                      <span className="absolute inset-0 animate-pulse-ring rounded-full bg-green-400" />
-                      <span className="relative h-2 w-2 rounded-full bg-green-400" />
-                    </span>
-                    <span className="text-xs font-semibold text-white">
-                      {ports.available} of {ports.total} ports free
-                    </span>
-                  </span>
 
                   {FEATURED.isVerified ? (
                     <span className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-md">
@@ -182,21 +140,33 @@ export function Hero() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 px-5 py-4">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
-                    <ConnectorBadgeGroup connectors={FEATURED.connectors} max={2} size="sm" />
-                    {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
+                <div className="px-5 py-4">
+                  {/* The signature availability read, shown here at the largest
+                      size it appears anywhere in the product. */}
+                  <PortMeter
+                    available={ports.available}
+                    total={ports.total}
+                    size="lg"
+                    onDark
+                    className="mb-4"
+                  />
+
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <ConnectorBadgeGroup connectors={FEATURED.connectors} max={2} size="sm" />
+                      {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
+                    </div>
+                    {price !== null ? (
+                      <span className="shrink-0 font-mono text-sm font-semibold text-white">
+                        {price === 0 ? 'Free' : formatPricePerKwh(price)}
+                      </span>
+                    ) : null}
                   </div>
-                  {price !== null ? (
-                    <span className="shrink-0 font-mono text-sm font-semibold text-white">
-                      {price === 0 ? 'Free' : formatPricePerKwh(price)}
-                    </span>
-                  ) : null}
                 </div>
               </Link>
 
               <p className="mt-4 text-center text-xs text-white/35">
-                Live from the Plug.pk network
+                A live listing from the network
               </p>
             </div>
           ) : null}

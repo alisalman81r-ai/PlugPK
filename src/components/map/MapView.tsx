@@ -68,7 +68,7 @@ function MapFallback({ className }: { className?: string }) {
         No Google Maps API key is configured. Add one to .env.local and restart the dev server —
         the station list on the left still works.
       </p>
-      <code className="rounded-lg bg-white px-3 py-1.5 font-mono text-[11px] text-slate-500">
+      <code className="rounded-lg bg-white px-3 py-1.5 font-mono text-ui-xs text-slate-500">
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
       </code>
     </div>
@@ -155,7 +155,7 @@ export function MapView({
 
                   <span
                     className={cn(
-                      'relative flex items-center gap-1 rounded-full border-2 py-1 pl-1.5 pr-2.5 shadow-[0_4px_14px_rgba(0,0,0,0.28)]',
+                      'relative flex items-center gap-1 rounded-full border-2 py-1 pl-1.5 pr-2.5 shadow-e2',
                       'transition-transform duration-200 ease-spring motion-reduce:transition-none',
                       PIN_COLOR[station.status],
                       isSelected
@@ -165,7 +165,7 @@ export function MapView({
                   >
                     <Zap size={13} className="shrink-0 fill-white text-white" aria-hidden="true" />
                     {maxPower > 0 ? (
-                      <span className="font-mono text-[11px] font-bold leading-none text-white">
+                      <span className="font-mono text-ui-xs font-bold leading-none text-white">
                         {maxPower}
                         <span className="ml-px text-[9px] font-semibold opacity-80">kW</span>
                       </span>

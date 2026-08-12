@@ -26,7 +26,7 @@ const CURRENT_ABBREVIATION: Record<Connector['type'], string> = {
 function Spec({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+      <p className="mb-2 text-ui-xs font-semibold uppercase tracking-widest text-slate-400">
         {label}
       </p>
       <p className="font-mono text-2xl font-bold text-slate-900">

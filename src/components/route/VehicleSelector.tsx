@@ -61,7 +61,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
         className={cn(
           'flex h-[52px] w-full items-center gap-3 rounded-xl border-[1.5px] bg-white px-4 text-left transition-all duration-150',
           isOpen
-            ? 'border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+            ? 'border-blue-500 shadow-focus'
             : 'border-slate-200 hover:border-slate-300',
         )}
       >
@@ -70,7 +70,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
         <span className="min-w-0 flex-1">
           {selectedVehicle ? (
             <>
-              <span className="block truncate text-[15px] font-medium text-slate-900">
+              <span className="block truncate text-ui font-medium text-slate-900">
                 {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})
               </span>
               <span className="block text-xs text-slate-400">
@@ -78,7 +78,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
               </span>
             </>
           ) : (
-            <span className="text-[15px] text-slate-400">Select your EV</span>
+            <span className="text-ui text-slate-400">Select your EV</span>
           )}
         </span>
 
@@ -93,7 +93,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
       </button>
 
       {isOpen ? (
-        <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+        <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-e3">
           <div className="border-b border-slate-100 p-3">
             {/* The input clears its own outline, so the ring lives on the
                 container that visually reads as the field. */}

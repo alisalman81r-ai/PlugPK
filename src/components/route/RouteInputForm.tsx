@@ -90,11 +90,11 @@ function CityField({
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
           autoComplete="off"
-          className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-[15px] text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] focus:outline-none"
+          className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:shadow-focus focus:outline-none"
         />
 
         {showSuggestions ? (
-          <div className="absolute inset-x-0 top-full z-40 mt-2 max-h-[220px] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+          <div className="absolute inset-x-0 top-full z-40 mt-2 max-h-[220px] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-e3">
             {suggestions.map((city) => (
               <button
                 key={city}

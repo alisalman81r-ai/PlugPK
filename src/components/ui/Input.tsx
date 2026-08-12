@@ -7,9 +7,9 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const FIELD_BASE =
-  'w-full rounded-xl border-[1.5px] bg-white text-[15px] text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
+  'w-full rounded-xl border-[1.5px] bg-white text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
 
-const FIELD_FOCUS = 'border-slate-200 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+const FIELD_FOCUS = 'border-slate-200 focus:border-blue-500 focus:shadow-focus'
 
 const FIELD_ERROR =
   'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
@@ -182,8 +182,8 @@ export function SearchInput({
         // Opt-in only; intended for the map search overlay, never on page load.
         autoFocus={autoFocus}
         className={cn(
-          'h-13 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-[15px] text-slate-900 shadow-lg transition-all duration-150',
-          'placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]',
+          'h-13 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-ui text-slate-900 shadow-lg transition-all duration-150',
+          'placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:shadow-focus',
           // Hide the browser's own clear affordance so it cannot sit beside ours.
           '[&::-webkit-search-cancel-button]:appearance-none',
         )}

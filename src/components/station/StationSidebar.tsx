@@ -218,7 +218,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
             )}
             <span
               className={cn(
-                'text-[11px] font-medium',
+                'text-ui-xs font-medium',
                 isSaved ? 'text-plug-blue-600' : 'text-slate-500',
               )}
             >
@@ -236,7 +236,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
               className="text-slate-500 group-hover/act:text-plug-blue-600"
               aria-hidden="true"
             />
-            <span className="text-[11px] font-medium text-slate-500">Share</span>
+            <span className="text-ui-xs font-medium text-slate-500">Share</span>
           </button>
 
           <button
@@ -248,7 +248,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
               className="text-slate-500 group-hover/act:text-plug-blue-600"
               aria-hidden="true"
             />
-            <span className="text-[11px] font-medium text-slate-500">Report</span>
+            <span className="text-ui-xs font-medium text-slate-500">Report</span>
           </button>
         </div>
       </div>

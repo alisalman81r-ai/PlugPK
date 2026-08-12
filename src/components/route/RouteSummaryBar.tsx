@@ -53,7 +53,7 @@ export function RouteSummaryBar({ route }: RouteSummaryBarProps) {
               <p className="font-mono text-2xl font-bold tracking-[-0.02em] text-white">
                 {stat.value}
               </p>
-              <p className="text-[11px] font-medium uppercase tracking-widest text-white/40">
+              <p className="text-ui-xs font-medium uppercase tracking-widest text-white/40">
                 {stat.label}
               </p>
             </div>

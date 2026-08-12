@@ -50,7 +50,7 @@ export function CategoryTabs({
   onSortChange,
 }: CategoryTabsProps) {
   return (
-    <div className="sticky top-[72px] z-30 border-b border-slate-100 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
+    <div className="sticky top-[72px] z-30 border-b border-slate-100 bg-white shadow-e1">
       <div className="container-plug scrollbar-hide flex items-center justify-between overflow-x-auto">
         <div className="flex min-w-max items-center gap-1 py-3">
           <button

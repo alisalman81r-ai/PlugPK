@@ -52,7 +52,7 @@ export function BusinessHero() {
               <Button
                 href="/business/signup"
                 rightIcon={<ArrowRight size={18} />}
-                className="h-14 rounded-xl bg-white px-8 text-base font-bold text-plug-blue-600 shadow-[0_8px_32px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-xl"
+                className="h-14 rounded-xl bg-white px-8 text-base font-bold text-plug-blue-600 shadow-e3 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-xl"
               >
                 List Your Business Free
               </Button>
@@ -78,7 +78,7 @@ export function BusinessHero() {
               &#10003; Live on Plug.pk
             </span>
 
-            <div className="animate-float rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.40)] backdrop-blur-xl">
+            <div className="animate-float rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-e4 backdrop-blur-xl">
               <div className="mb-5 flex items-start justify-between gap-4">
                 <span className="min-w-0">
                   <span className="block truncate font-bold text-white">

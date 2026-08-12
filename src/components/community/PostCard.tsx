@@ -255,7 +255,7 @@ export function PostCard({
         {categoryBadge}
       </div>
 
-      <h3 className="mb-2 line-clamp-2 text-[17px] font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
+      <h3 className="mb-2 line-clamp-2 text-ui-lg font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
         {post.title}
       </h3>
 
@@ -273,7 +273,7 @@ export function PostCard({
             className="object-cover transition-transform duration-300 group-hover/post:scale-[1.03]"
           />
           {photoCount > 1 ? (
-            <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-[11px] font-medium text-white backdrop-blur-md">
+            <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-ui-xs font-medium text-white backdrop-blur-md">
               <Images size={11} aria-hidden="true" />
               {photoCount}
             </span>

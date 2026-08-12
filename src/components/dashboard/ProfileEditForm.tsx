@@ -16,7 +16,7 @@ export interface ProfileEditFormProps {
 }
 
 const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white pl-11 pr-4 text-[15px] text-slate-900 outline-none transition-all duration-150 focus:border-plug-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white pl-11 pr-4 text-ui text-slate-900 outline-none transition-all duration-150 focus:border-plug-blue-500 focus:shadow-focus'
 
 export function ProfileEditForm({ user, onSave }: ProfileEditFormProps) {
   const [name, setName] = React.useState(user.name)

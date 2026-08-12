@@ -84,7 +84,7 @@ export function ServiceCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="line-clamp-1 text-[17px] font-bold text-slate-900">{service.name}</h3>
+            <h3 className="line-clamp-1 text-ui-lg font-bold text-slate-900">{service.name}</h3>
             {service.isVerified ? (
               <ShieldCheck
                 size={15}
@@ -94,7 +94,7 @@ export function ServiceCard({
             ) : null}
           </div>
 
-          <p className="mt-1 flex items-center gap-1.5 text-[13px] text-slate-500">
+          <p className="mt-1 flex items-center gap-1.5 text-ui-sm text-slate-500">
             <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
             <span className="line-clamp-1">{location}</span>
           </p>
@@ -166,11 +166,11 @@ export function ServiceCard({
       </div>
 
       <div className="p-5">
-        <h3 className="mb-1.5 line-clamp-1 text-[17px] font-bold text-slate-900">{service.name}</h3>
+        <h3 className="mb-1.5 line-clamp-1 text-ui-lg font-bold text-slate-900">{service.name}</h3>
 
         <p className="mb-3 flex items-center gap-1.5">
           <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <span className="line-clamp-1 text-[13px] text-slate-500">{location}</span>
+          <span className="line-clamp-1 text-ui-sm text-slate-500">{location}</span>
         </p>
 
         <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-slate-500">

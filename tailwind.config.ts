@@ -63,6 +63,22 @@ const config: Config = {
         mono: ['var(--font-jetbrains)', 'monospace'],
       },
       fontSize: {
+        /**
+         * The UI micro-scale. These sizes were already in use as one-off
+         * arbitrary values (text-[15px] and friends, 82 occurrences across
+         * nine distinct sizes) which meant the interface had a type scale
+         * nobody could see or reuse. Naming them makes it a real scale:
+         *   ui-xs   labels, badge text, table meta
+         *   ui-sm   secondary lines, captions, distances
+         *   ui      the default body size for dense product UI
+         *   ui-lg   card titles
+         * Prefer these over new bracket values.
+         */
+        'ui-xs': ['0.6875rem', { lineHeight: '1rem' }],
+        'ui-sm': ['0.8125rem', { lineHeight: '1.125rem' }],
+        ui: ['0.9375rem', { lineHeight: '1.375rem' }],
+        'ui-lg': ['1.0625rem', { lineHeight: '1.5rem' }],
+
         'display-2xl': [
           '4.5rem',
           {
@@ -105,6 +121,26 @@ const config: Config = {
         ],
       },
       boxShadow: {
+        /**
+         * Elevation scale. Before this there were 27 distinct one-off
+         * shadow-[...] values across the app against 7 named tokens, so
+         * surfaces at the same conceptual height rendered differently.
+         *
+         *   e1  resting card
+         *   e2  raised / hovered card
+         *   e3  floating panel: dropdown, popover, map overlay
+         *   e4  modal, sheet, hero card
+         * Reach for these first; a bracket value should be a deliberate
+         * exception, not the default.
+         */
+        e1: '0 1px 2px rgba(15,23,42,0.04), 0 2px 8px rgba(15,23,42,0.05)',
+        e2: '0 8px 16px rgba(15,23,42,0.06), 0 16px 32px rgba(15,23,42,0.08)',
+        e3: '0 8px 32px rgba(15,23,42,0.12)',
+        e4: '0 24px 64px rgba(15,23,42,0.20)',
+
+        /** Focus ring used by every text input. */
+        focus: '0 0 0 3px rgba(59,130,246,0.12)',
+
         blue: '0 8px 25px rgba(37, 99, 235, 0.25)',
         'blue-lg': '0 16px 40px rgba(37, 99, 235, 0.35)',
         cyan: '0 8px 25px rgba(6, 182, 212, 0.20)',

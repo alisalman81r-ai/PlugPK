@@ -61,7 +61,7 @@ export function ServiceHero({ totalServices }: ServiceHeroProps) {
             name="q"
             placeholder="Search services, dealers, installers..."
             aria-label="Search services"
-            className="h-[60px] w-full rounded-2xl border-none bg-white pl-14 pr-4 text-[15px] text-slate-900 shadow-[0_8px_32px_rgba(0,0,0,0.15)] outline-none transition-shadow placeholder:text-slate-400 focus-visible:shadow-[0_0_0_3px_rgba(59,130,246,0.45),0_8px_32px_rgba(0,0,0,0.15)] sm:pr-48"
+            className="h-[60px] w-full rounded-2xl border-none bg-white pl-14 pr-4 text-ui text-slate-900 shadow-e3 outline-none transition-shadow placeholder:text-slate-400 focus-visible:shadow-[0_0_0_3px_rgba(59,130,246,0.45),0_8px_32px_rgba(0,0,0,0.15)] sm:pr-48"
           />
 
           <span className="absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-2 sm:flex">

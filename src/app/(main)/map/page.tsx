@@ -1,9 +1,9 @@
-// src/app/map/page.tsx
+// src/app/(main)/map/page.tsx
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useCallback, useState } from 'react'
 
 import { FilterPanel } from '@/components/map/FilterPanel'
 import { MapControls } from '@/components/map/MapControls'
@@ -14,7 +14,20 @@ import { StationPreviewCard } from '@/components/map/StationPreviewCard'
 import { useStations } from '@/hooks/useStations'
 import type { Station } from '@/lib/types'
 
-// Dynamic import prevents SSR issues with Mapbox GL, which needs `window`.
+/** Holds the split layout while the client subtree mounts, so the panel and
+ *  map area do not pop in at different moments. */
+function MapExplorerFallback() {
+  return (
+    <div className="flex h-[calc(100vh-72px)] overflow-hidden">
+      <div className="hidden w-[400px] shrink-0 border-r border-slate-200 bg-white lg:block" />
+      <div className="flex flex-1 items-center justify-center bg-slate-100">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
+      </div>
+    </div>
+  )
+}
+
+// Dynamic import prevents SSR issues: the Google Maps SDK needs `window`.
 const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => mod.MapView), {
   ssr: false,
   loading: () => (
@@ -27,8 +40,14 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
   ),
 })
 
-export default function MapPage() {
+/**
+ * useSearchParams forces this subtree to render on the client, so it lives
+ * inside its own Suspense boundary rather than opting the whole route out
+ * of static rendering.
+ */
+function MapExplorer() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const {
     filters,
     isLoading,
@@ -42,7 +61,7 @@ export default function MapPage() {
     userLocation,
     stationsWithDistance,
     filteredStations,
-  } = useStations()
+  } = useStations({ initialQuery: searchParams.get('q') ?? '' })
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
@@ -183,5 +202,13 @@ export default function MapPage() {
         resultCount={filteredStations.length}
       />
     </div>
+  )
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<MapExplorerFallback />}>
+      <MapExplorer />
+    </Suspense>
   )
 }

@@ -100,7 +100,7 @@ export function CommunityPreview() {
                     </Badge>
                   </div>
 
-                  <h3 className="mb-2 mt-3 line-clamp-2 text-[15px] font-semibold text-slate-900">
+                  <h3 className="mb-2 mt-3 line-clamp-2 text-ui font-semibold text-slate-900">
                     {post.title}
                   </h3>
                   <p className="line-clamp-2 text-sm leading-relaxed text-slate-500">

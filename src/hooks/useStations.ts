@@ -49,10 +49,15 @@ function matchesSpeed(maxPowerKw: number, speed: NonNullable<StationFilters['cha
   }
 }
 
-export function useStations(): UseStationsReturn {
+export interface UseStationsOptions {
+  /** Seeds the search box from the URL, so a /map?q=... link lands filtered. */
+  initialQuery?: string
+}
+
+export function useStations(options: UseStationsOptions = {}): UseStationsReturn {
   const [filters, setFilters] = useState<StationFilters>(defaultFilters)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(options.initialQuery ?? '')
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

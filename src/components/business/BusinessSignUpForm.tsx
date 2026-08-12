@@ -62,7 +62,7 @@ const TYPE_OPTIONS: { value: BusinessType; label: string; icon: LucideIcon; note
 ]
 
 const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-[15px] text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
 
 const MAX_CHARGERS = 10
 

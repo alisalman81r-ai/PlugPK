@@ -128,7 +128,7 @@ export function MapSearchBar({
       <div
         className={cn(
           'flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 transition-shadow duration-200',
-          'shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
+          'shadow-e3',
           'focus-within:border-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
         )}
       >
@@ -147,7 +147,7 @@ export function MapSearchBar({
           aria-controls={LISTBOX_ID}
           aria-autocomplete="list"
           aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
-          className="min-w-0 flex-1 border-none bg-transparent text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
+          className="min-w-0 flex-1 border-none bg-transparent text-ui text-slate-900 outline-none placeholder:text-slate-400"
         />
 
         {value.length > 0 ? (
@@ -181,7 +181,7 @@ export function MapSearchBar({
           id={LISTBOX_ID}
           role="listbox"
           aria-label="Station suggestions"
-          className="absolute inset-x-0 top-full z-50 mt-2 max-h-[320px] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+          className="absolute inset-x-0 top-full z-50 mt-2 max-h-[320px] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-e3"
         >
           {suggestions.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-slate-400">

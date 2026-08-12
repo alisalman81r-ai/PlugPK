@@ -4,7 +4,7 @@
 import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { ConnectorBadgeGroup, PhotoFrame, SpeedBadge } from '@/components/ui'
+import { ConnectorBadgeGroup, PhotoFrame, PortMeter, SpeedBadge } from '@/components/ui'
 import type { Station, StationStatus } from '@/lib/types'
 import {
   cn,
@@ -44,7 +44,7 @@ const STATUS_LABEL: Record<StationStatus, string> = {
 // `group` so the photo can react to a hover anywhere on the card.
 // motion-reduce keeps the lift off for users who ask for less movement.
 const HOVER =
-  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.10)] motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-e2 motion-reduce:transition-none motion-reduce:hover:translate-y-0'
 
 function StatusPill({ status }: { status: StationStatus }) {
   return (
@@ -114,7 +114,7 @@ export function StationCard({
     <span className="flex items-center gap-1.5">
       <Star size={14} className="shrink-0 fill-amber-400 text-amber-400" aria-hidden="true" />
       <span className="text-[14px] font-semibold text-slate-900">{formatRating(station.rating)}</span>
-      <span className="text-[13px] text-slate-400">({station.reviewCount})</span>
+      <span className="text-ui-sm text-slate-400">({station.reviewCount})</span>
     </span>
   )
 
@@ -149,8 +149,8 @@ export function StationCard({
         )}
       >
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-1 text-[15px] font-bold text-slate-900">{station.name}</h3>
-          <p className="mt-0.5 line-clamp-1 text-[13px] text-slate-500">{location}</p>
+          <h3 className="line-clamp-1 text-ui font-bold text-slate-900">{station.name}</h3>
+          <p className="mt-0.5 line-clamp-1 text-ui-sm text-slate-500">{location}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
             {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
@@ -185,8 +185,8 @@ export function StationCard({
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col justify-center p-5">
-          <h3 className="line-clamp-1 text-[17px] font-bold text-slate-900">{station.name}</h3>
-          <p className="mt-1 flex items-center gap-1.5 text-[13px] text-slate-500">
+          <h3 className="line-clamp-1 text-ui-lg font-bold text-slate-900">{station.name}</h3>
+          <p className="mt-1 flex items-center gap-1.5 text-ui-sm text-slate-500">
             <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
             <span className="line-clamp-1">{location}</span>
           </p>
@@ -226,11 +226,15 @@ export function StationCard({
           <StatusPill status={station.status} />
         </span>
 
-        {/* Over the scrim: the one number a driver scans for. */}
+        {/* Over the scrim: the signature availability read. */}
         {ports.total > 0 ? (
-          <span className="absolute bottom-3 left-3 z-10 font-mono text-[13px] font-semibold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-            {ports.available} of {ports.total} free
-          </span>
+          <PortMeter
+            available={ports.available}
+            total={ports.total}
+            size="sm"
+            onDark
+            className="absolute inset-x-3 bottom-3 z-10"
+          />
         ) : null}
 
         <button
@@ -249,9 +253,9 @@ export function StationCard({
       </div>
 
       <div className="p-5">
-        <h3 className="mb-1.5 line-clamp-1 text-[17px] font-bold text-slate-900">{station.name}</h3>
+        <h3 className="mb-1.5 line-clamp-1 text-ui-lg font-bold text-slate-900">{station.name}</h3>
 
-        <p className="mb-4 flex items-center gap-1.5 text-[13px] text-slate-500">
+        <p className="mb-4 flex items-center gap-1.5 text-ui-sm text-slate-500">
           <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
           <span className="line-clamp-1">{location}</span>
         </p>
@@ -265,13 +269,13 @@ export function StationCard({
           {rating}
           <span className="flex items-center gap-3">
             {showDistance && distanceKm !== undefined ? (
-              <span className="flex items-center gap-1 font-mono text-[13px] text-slate-500">
+              <span className="flex items-center gap-1 font-mono text-ui-sm text-slate-500">
                 <MapPin size={12} className="shrink-0" aria-hidden="true" />
                 {distanceKm.toFixed(1)} km
               </span>
             ) : null}
             {price !== null ? (
-              <span className="font-mono text-[13px] font-semibold text-slate-900">
+              <span className="font-mono text-ui-sm font-semibold text-slate-900">
                 {price === 0 ? 'Free' : formatPricePerKwh(price)}
               </span>
             ) : null}

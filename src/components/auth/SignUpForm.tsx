@@ -18,10 +18,10 @@ export const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
 /** Shared field classes so every auth input looks identical. */
 export const FIELD_CLASS =
-  'h-12 w-full rounded-xl border-[1.5px] bg-white pl-11 pr-11 text-[15px] text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400'
+  'h-12 w-full rounded-xl border-[1.5px] bg-white pl-11 pr-11 text-ui text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400'
 
 export const FIELD_OK =
-  'border-slate-200 focus:border-plug-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]'
+  'border-slate-200 focus:border-plug-blue-500 focus:shadow-focus'
 
 export const FIELD_ERROR =
   'border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]'

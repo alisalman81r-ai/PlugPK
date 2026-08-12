@@ -175,7 +175,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 maxLength={MAX_TITLE}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="What's your question or topic?"
-                className="h-12 w-full rounded-xl border-[1.5px] border-slate-200 px-4 text-base font-semibold text-slate-900 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]"
+                className="h-12 w-full rounded-xl border-[1.5px] border-slate-200 px-4 text-base font-semibold text-slate-900 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 focus:border-blue-500 focus:shadow-focus"
               />
               <p className="mt-1 text-right text-xs text-slate-400">
                 {title.length}/{MAX_TITLE}
@@ -192,7 +192,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 maxLength={MAX_CONTENT}
                 onChange={(event) => setContent(event.target.value)}
                 placeholder="Share your experience, question, or news with the community..."
-                className="min-h-[160px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)]"
+                className="min-h-[160px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:shadow-focus"
               />
               <p className="mt-1 text-right text-xs text-slate-400">
                 {content.length}/{MAX_CONTENT}

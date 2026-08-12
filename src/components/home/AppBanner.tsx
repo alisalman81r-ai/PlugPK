@@ -50,7 +50,7 @@ export function AppBanner() {
           {/* ── Right — phone mockup ─────────────────────────────── */}
           <div
             aria-hidden="true"
-            className="relative h-[360px] w-[200px] shrink-0 rounded-[32px] border border-white/10 bg-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.40)]"
+            className="relative h-[360px] w-[200px] shrink-0 rounded-[32px] border border-white/10 bg-white/5 shadow-e4"
           >
             <span className="absolute left-1/2 top-3 flex -translate-x-1/2 items-center gap-1">
               <span className="h-1 w-1 rounded-full bg-white/25" />

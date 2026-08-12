@@ -73,7 +73,7 @@ export function Navbar() {
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative rounded-lg px-4 py-2 text-[15px] font-medium transition-all duration-150',
+                    'relative rounded-lg px-4 py-2 text-ui font-medium transition-all duration-150',
                     active ? 'text-plug-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                   )}
                 >

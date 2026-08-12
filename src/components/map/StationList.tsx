@@ -4,7 +4,14 @@
 import { MapPin, Navigation2, SearchX, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { ConnectorBadgeGroup, PhotoFrame, Skeleton, SpeedBadge, StatusDot } from '@/components/ui'
+import {
+  ConnectorBadgeGroup,
+  PhotoFrame,
+  PortMeter,
+  Skeleton,
+  SpeedBadge,
+  StatusDot,
+} from '@/components/ui'
 import type { Station } from '@/lib/types'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
 
@@ -66,7 +73,7 @@ export function StationListItem({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 flex-1 text-[15px] font-bold text-slate-900">
+            <h3 className="line-clamp-1 flex-1 text-ui font-bold text-slate-900">
               {station.name}
             </h3>
             <span className="flex shrink-0 items-center gap-1">
@@ -80,7 +87,7 @@ export function StationListItem({
           <div className="mt-1 flex items-center justify-between gap-2">
             <span className="flex min-w-0 items-center gap-1.5">
               <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-              <span className="line-clamp-1 text-[13px] text-slate-500">
+              <span className="line-clamp-1 text-ui-sm text-slate-500">
                 {station.address.area}, {station.address.city}
               </span>
             </span>
@@ -93,14 +100,13 @@ export function StationListItem({
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <StatusDot status={station.status} size="sm" showLabel />
-            {ports.total > 0 ? (
-              <span className="font-mono text-xs text-slate-500">
-                {ports.available}/{ports.total} free
-              </span>
-            ) : null}
           </div>
         </div>
       </div>
+
+      {ports.total > 0 ? (
+        <PortMeter available={ports.available} total={ports.total} size="sm" className="mb-3" />
+      ) : null}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
@@ -180,8 +186,8 @@ export function NoResults({ onClearFilters }: { onClearFilters?: () => void }) {
       <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
         <SearchX size={24} className="text-slate-400" aria-hidden="true" />
       </span>
-      <p className="text-[15px] font-semibold text-slate-900">No stations match</p>
-      <p className="mt-1.5 max-w-[240px] text-[13px] leading-relaxed text-slate-500">
+      <p className="text-ui font-semibold text-slate-900">No stations match</p>
+      <p className="mt-1.5 max-w-[240px] text-ui-sm leading-relaxed text-slate-500">
         Nothing here fits every filter you have set. Widening the connector or speed filter
         usually brings results back.
       </p>
