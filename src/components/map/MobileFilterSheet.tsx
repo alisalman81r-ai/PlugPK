@@ -50,7 +50,7 @@ export function MobileFilterSheet({
       <div
         aria-hidden={!isOpen}
         className={cn(
-          'scrollbar-hide fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white transition-transform duration-[350ms] ease-decelerate lg:hidden',
+          'scrollbar-hide fixed inset-x-0 bottom-0 z-50 max-h-sheet overflow-y-auto rounded-t-3xl bg-white transition-transform duration-[350ms] ease-decelerate lg:hidden',
           isOpen ? 'translate-y-0' : 'pointer-events-none translate-y-full',
         )}
       >
@@ -90,7 +90,7 @@ export function MobileFilterSheet({
           </div>
         </div>
 
-        <div className="pb-8">
+        <div className="pb-safe">
           <FilterSections filters={filters} onUpdateFilter={onUpdateFilter} />
 
           <p className="px-5 pt-4 text-sm font-semibold text-slate-700">

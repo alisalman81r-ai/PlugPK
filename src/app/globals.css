@@ -211,9 +211,55 @@
   background: #94A3B8;
 }
 
+/* ── Viewport height below the fixed 72px navbar ─────────────────
+   On phones, 100vh is the height with the browser chrome RETRACTED, so a
+   100vh box is taller than what is actually on screen while the URL bar is
+   showing. On the map that pushed the bottom of the canvas — and the station
+   sheet docked above the tab bar — below the fold.
+
+   100dvh tracks the visible area as the chrome collapses. The 100vh line
+   stays first as the fallback: browsers that do not understand dvh ignore
+   the second declaration and keep the first. Desktop is unaffected, where
+   the two units are identical. */
+.h-below-nav {
+  height: calc(100vh - 72px);
+  height: calc(100dvh - 72px);
+}
+
+.min-h-below-nav {
+  min-height: calc(100vh - 72px);
+  min-height: calc(100dvh - 72px);
+}
+
+/* Same reasoning for full-height shells such as the auth split layout. */
+.min-h-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Bottom sheets and centred modals cap their height against the viewport, so
+   they need the same dvh treatment or they overflow behind mobile chrome. */
+.max-h-sheet {
+  max-height: 85vh;
+  max-height: 85dvh;
+}
+
+.max-h-modal {
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+
+/* Keeps the last row of a bottom-anchored panel clear of the iOS home
+   indicator. Adds to whatever padding the element already has, and resolves
+   to 0 on hardware without an inset, so nothing changes on desktop. */
+.pb-safe {
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+}
+
 /* Map page — remove footer */
 .map-page main {
   height: calc(100vh - 72px);
+  height: calc(100dvh - 72px);
   overflow: hidden;
 }
 

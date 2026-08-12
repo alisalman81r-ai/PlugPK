@@ -18,7 +18,7 @@ import type { Station } from '@/lib/types'
  *  map area do not pop in at different moments. */
 function MapExplorerFallback() {
   return (
-    <div className="flex h-[calc(100vh-72px)] overflow-hidden">
+    <div className="flex h-below-nav overflow-hidden">
       <div className="hidden w-[400px] shrink-0 border-r border-slate-200 bg-white lg:block" />
       <div className="flex flex-1 items-center justify-center bg-slate-100">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
@@ -97,7 +97,7 @@ function MapExplorer() {
     : undefined
 
   return (
-    <div className="relative flex h-[calc(100vh-72px)] overflow-hidden">
+    <div className="relative flex h-below-nav overflow-hidden">
       {/* ── Desktop left panel ───────────────────────────────── */}
       <div className="hidden lg:flex">
         <FilterPanel

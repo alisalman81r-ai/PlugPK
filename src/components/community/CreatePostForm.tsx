@@ -81,7 +81,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="max-h-[90vh] w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-8 shadow-modal"
+        className="max-h-modal w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-8 shadow-modal"
       >
         {isSuccess ? (
           <div className="animate-scale-in text-center">

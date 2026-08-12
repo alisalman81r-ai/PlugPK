@@ -37,7 +37,7 @@ export function DashboardLayout({ children, title, subtitle, action }: Dashboard
   const { user, stats } = useDashboard()
 
   return (
-    <div className="flex min-h-[calc(100vh-72px)] bg-slate-50">
+    <div className="flex min-h-below-nav bg-slate-50">
       <div className="hidden lg:flex">
         <DashboardSidebar user={user} stats={stats} />
       </div>

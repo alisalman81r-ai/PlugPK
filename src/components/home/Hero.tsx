@@ -23,7 +23,7 @@ export function Hero() {
   const price = FEATURED ? getLowestPrice(FEATURED) : null
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden bg-slate-950">
+    <section className="relative flex min-h-viewport items-center overflow-hidden bg-slate-950">
       {/* Layer 0 — photograph. Carries the depth that CSS gradients alone
           cannot; everything above it is treatment, not decoration. */}
       <div aria-hidden="true" className="absolute inset-0 z-0">
@@ -61,11 +61,11 @@ export function Hero() {
         className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[240px] bg-gradient-to-b from-transparent to-slate-950"
       />
 
-      <div className="container-plug relative z-10 w-full pb-24 pt-32 lg:pb-32 lg:pt-40">
+      <div className="container-plug relative z-10 w-full pb-14 pt-24 sm:pb-20 sm:pt-28 lg:pb-32 lg:pt-40">
         <div className="grid items-center gap-16 lg:grid-cols-[11fr_9fr]">
           {/* ── Left column ─────────────────────────────────────── */}
           <div>
-            <span className="mb-8 inline-flex animate-fade-up items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-medium uppercase tracking-widest text-white/70 opacity-0 backdrop-blur-sm">
+            <span className="mb-5 inline-flex animate-fade-up lg:mb-8 items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-medium uppercase tracking-widest text-white/70 opacity-0 backdrop-blur-sm">
               <span
                 aria-hidden="true"
                 className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-cyan-400"
@@ -81,7 +81,7 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="delay-300 mb-9 max-w-md animate-fade-up text-lg leading-relaxed text-white/65 opacity-0">
+            <p className="delay-300 mb-7 max-w-md lg:mb-9 animate-fade-up text-lg leading-relaxed text-white/65 opacity-0">
               Live port availability, real prices, and reviews from drivers who actually
               charged there.
             </p>
@@ -93,7 +93,7 @@ export function Hero() {
               <HeroSearch />
             </div>
 
-            <div className="delay-500 mt-8 animate-fade-up border-t border-white/10 pt-6 opacity-0">
+            <div className="delay-500 mt-6 animate-fade-up border-t border-white/10 pt-5 opacity-0 lg:mt-8 lg:pt-6">
               <Link
                 href="/routes"
                 className="group/link inline-flex items-center gap-2 text-sm font-medium text-white/60 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"

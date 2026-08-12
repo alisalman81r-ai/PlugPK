@@ -60,7 +60,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           isOpen ? 'translate-y-0' : 'pointer-events-none -translate-y-full',
         )}
       >
-        <div className="flex h-full flex-col px-6 pb-6 pt-8">
+        <div className="flex h-full flex-col px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-8">
           <nav>
             {NAV_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href)

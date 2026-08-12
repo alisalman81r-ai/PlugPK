@@ -63,7 +63,7 @@ export default function RoutesPage() {
   const showResults = planner.hasCalculated && planner.plannedRoute !== null
 
   return (
-    <div className="min-h-[calc(100vh-72px)] bg-slate-50">
+    <div className="min-h-below-nav bg-slate-50">
       {showResults && planner.plannedRoute ? (
         <>
           <div className="bg-gradient-hero py-12">
