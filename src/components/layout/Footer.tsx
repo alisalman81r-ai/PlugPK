@@ -1,8 +1,8 @@
 // src/components/layout/Footer.tsx
-import { Facebook, Instagram, Linkedin, Twitter, Zap, type LucideIcon } from 'lucide-react'
+import { ArrowUpRight, Mail, Zap } from 'lucide-react'
 import Link from 'next/link'
 
-import { Container } from '@/components/ui'
+import { SITE_CONFIG } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 interface FooterLink {
@@ -15,134 +15,193 @@ interface FooterColumn {
   links: FooterLink[]
 }
 
+/**
+ * Every href here resolves to a real route. The previous footer listed
+ * seventeen internal links of which eleven — /about, /contact, /help, /blog,
+ * /careers, /terms, /privacy, /cookies, /advertise, /add-station, /report —
+ * returned 404, alongside four social profiles that were never real
+ * accounts. A footer full of dead ends is the least premium thing a site can
+ * do, so this lists only what exists and stays short because of it.
+ */
 const FOOTER_COLUMNS: FooterColumn[] = [
   {
-    heading: 'Product',
+    heading: 'Charge',
     links: [
-      { label: 'Charging Map', href: '/map' },
-      { label: 'Route Planner', href: '/routes' },
-      { label: 'EV Services', href: '/services' },
-      { label: 'Community', href: '/community' },
-      { label: 'For Businesses', href: '/for-businesses' },
+      { label: 'Charging map', href: '/map' },
+      { label: 'Plan a route', href: '/routes' },
+      { label: 'EV services', href: '/services' },
     ],
   },
   {
-    heading: 'Company',
+    heading: 'Community',
     links: [
-      { label: 'About Us', href: '/about' },
-      { label: 'Contact Us', href: '/contact' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Careers', href: '/careers' },
+      { label: 'Discussions', href: '/community' },
+      { label: 'EV clubs', href: '/community/clubs' },
     ],
   },
   {
-    heading: 'Support',
+    heading: 'Business',
     links: [
-      { label: 'Add a Station', href: '/add-station' },
-      { label: 'Report Issue', href: '/report' },
-      { label: 'Help Center', href: '/help' },
-      { label: 'Advertise', href: '/advertise' },
+      { label: 'List your business', href: '/for-businesses' },
+      { label: 'Business sign-up', href: '/business/signup' },
+      { label: 'Business portal', href: '/business/dashboard' },
     ],
   },
   {
-    heading: 'Legal',
+    heading: 'Account',
     links: [
-      { label: 'Privacy Policy', href: '/privacy' },
-      { label: 'Terms of Service', href: '/terms' },
-      { label: 'Cookie Policy', href: '/cookies' },
+      { label: 'Sign in', href: '/login' },
+      { label: 'Create account', href: '/signup' },
+      { label: 'Your dashboard', href: '/dashboard' },
     ],
   },
 ]
 
-interface SocialLink {
-  label: string
-  href: string
-  icon: LucideIcon
+/**
+ * Underline that wipes in from the left on hover and focus. Scale on a
+ * pseudo-free span keeps it on the compositor — no layout, no repaint of the
+ * text itself.
+ */
+const LINK_CLASS =
+  'group/link relative inline-flex w-fit items-center text-ui-sm text-white/55 transition-colors duration-200 hover:text-white focus-visible:text-white focus-visible:outline-none motion-reduce:transition-none'
+
+const UNDERLINE_CLASS =
+  'absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-cyan-400 transition-transform duration-300 ease-out group-hover/link:scale-x-100 group-focus-visible/link:scale-x-100 motion-reduce:transition-none'
+
+/**
+ * Echoes the PortMeter used on every station card — the product's own signal
+ * for availability. Reusing that shape here ties the closing frame back to
+ * the interface rather than ending on a generic divider.
+ */
+function SegmentedRule() {
+  return (
+    <span aria-hidden="true" className="flex h-1 w-full items-center gap-1">
+      {Array.from({ length: 24 }, (_, index) => (
+        <span
+          key={index}
+          className={cn(
+            'h-full flex-1 rounded-full',
+            index < 7 ? 'bg-plug-blue-500/70' : 'bg-white/10',
+          )}
+        />
+      ))}
+    </span>
+  )
 }
 
-const SOCIAL_LINKS: SocialLink[] = [
-  { label: 'Twitter', href: 'https://twitter.com/plugpk', icon: Twitter },
-  { label: 'Instagram', href: 'https://instagram.com/plugpk', icon: Instagram },
-  { label: 'LinkedIn', href: 'https://linkedin.com/company/plugpk', icon: Linkedin },
-  { label: 'Facebook', href: 'https://facebook.com/plugpk', icon: Facebook },
-]
-
 export function Footer() {
+  const year = new Date().getFullYear()
+
   return (
-    <footer className="bg-slate-900 pb-12 pt-20 text-white">
-      <Container>
-        <div className="grid grid-cols-2 gap-10 lg:grid-cols-6">
-          <div className="col-span-2">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 transition-opacity duration-150 hover:opacity-90"
-              aria-label="Plug.pk home"
-            >
-              <Zap size={22} className="shrink-0 fill-plug-cyan-400 text-plug-cyan-400" aria-hidden="true" />
-              <span className="text-xl font-bold tracking-tight">
-                <span className="text-white">plug</span>
-                <span className="text-plug-cyan-400">.pk</span>
+    <footer className="relative overflow-hidden bg-slate-950">
+      {/* Single background idea, deliberately: one cool glow rising behind
+          the wordmark. No photograph here — the hero already carries the
+          photography, and text this large needs a clean field to sit on. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-[radial-gradient(ellipse_at_bottom,rgba(37,99,235,0.22),transparent_65%)]"
+      />
+
+      <div className="container-plug relative z-10">
+        {/* ── Closing CTA ───────────────────────────────────────── */}
+        <section className="grid gap-8 py-16 sm:py-20 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-24">
+          <div>
+            <span className="mb-5 inline-flex items-center gap-2 text-ui-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">
+              <Zap size={13} className="fill-cyan-300 text-cyan-300" aria-hidden="true" />
+              Start charging
+            </span>
+
+            <h2 className="max-w-2xl text-[clamp(2rem,5.5vw,3.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white">
+              Ready to find your
+              <br className="hidden sm:block" />{' '}
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">
+                next charge?
               </span>
-            </Link>
-
-            <p className="mt-4 max-w-[220px] text-sm leading-relaxed text-slate-400">
-              Pakistan&apos;s complete EV ecosystem. Find chargers, plan routes, and connect with your
-              EV community.
-            </p>
-
-            <ul className="mt-6 flex items-center gap-3">
-              {SOCIAL_LINKS.map((social) => {
-                const Icon = social.icon
-
-                return (
-                  <li key={social.label}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={social.label}
-                      className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08] text-white transition-colors duration-150',
-                        'hover:bg-white/[0.15] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
-                      )}
-                    >
-                      <Icon size={16} aria-hidden="true" />
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
+            </h2>
           </div>
 
+          <Link
+            href="/map"
+            className="group/cta inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-8 text-base font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none sm:w-auto"
+          >
+            Find a charger
+            <ArrowUpRight
+              size={18}
+              className="shrink-0 transition-transform duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5 motion-reduce:transition-none"
+              aria-hidden="true"
+            />
+          </Link>
+        </section>
+
+        <SegmentedRule />
+
+        {/* ── Navigation ────────────────────────────────────────── */}
+        <nav
+          aria-label="Footer"
+          className="grid grid-cols-2 gap-x-6 gap-y-10 py-14 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:gap-x-10"
+        >
           {FOOTER_COLUMNS.map((column) => (
             <div key={column.heading}>
-              <h3 className="mb-4 text-sm font-semibold tracking-wide text-white">{column.heading}</h3>
-              <ul>
+              <h3 className="mb-5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                {column.heading}
+              </h3>
+              <ul className="flex flex-col gap-3.5">
                 {column.links.map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="mb-2.5 block text-sm text-slate-400 transition-colors duration-150 hover:text-white"
-                    >
+                    <Link href={link.href} className={LINK_CLASS}>
                       {link.label}
+                      <span aria-hidden="true" className={UNDERLINE_CLASS} />
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-        </div>
 
-        <div className="mb-8 mt-12 border-t border-white/[0.08]" />
+          {/* The only contact detail the project actually holds. No invented
+              social profiles — the four that used to sit here pointed at
+              accounts that do not exist. */}
+          <div className="col-span-2 sm:col-span-4 lg:col-span-1 lg:w-56">
+            <h3 className="mb-5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+              Get in touch
+            </h3>
+            <a
+              href={`mailto:${SITE_CONFIG.email}`}
+              className="group/mail inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-ui-sm text-white/75 transition-colors duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 motion-reduce:transition-none"
+            >
+              <Mail size={15} className="shrink-0 text-cyan-300" aria-hidden="true" />
+              {SITE_CONFIG.email}
+            </a>
+            <p className="mt-4 text-ui-xs leading-relaxed text-white/50">
+              {SITE_CONFIG.tagline}
+            </p>
+          </div>
+        </nav>
+      </div>
 
-        <div className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
-          <p className="text-sm text-slate-500">&copy; 2025 Plug.pk. All rights reserved.</p>
-          <p className="text-sm text-slate-500">
-            Made with <span aria-label="love">&hearts;</span> for Pakistan&apos;s EV Community
+      {/* ── Brand moment ──────────────────────────────────────────
+          The closing frame. Sized in vw so it fills the width at every
+          breakpoint and clipped at the baseline so it reads as a mark
+          rather than a heading. aria-hidden because the accessible name
+          is already carried by the copyright line below. */}
+      <div className="relative z-10 select-none overflow-hidden px-4">
+        <p
+          aria-hidden="true"
+          className="translate-y-[0.14em] whitespace-nowrap text-center text-[clamp(3.5rem,17vw,13rem)] font-black leading-[0.8] tracking-[-0.055em] text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.13)]"
+        >
+          plug.pk
+        </p>
+      </div>
+
+      {/* ── Legal ─────────────────────────────────────────────────── */}
+      <div className="relative z-10 border-t border-white/[0.08]">
+        <div className="container-plug flex flex-col items-center justify-between gap-3 py-6 sm:flex-row">
+          <p className="text-ui-xs text-white/55">
+            &copy; {year} {SITE_CONFIG.name}. All rights reserved.
           </p>
-          <p className="text-sm text-slate-400">Pakistan 🇵🇰</p>
+          <p className="text-ui-xs text-white/50">Built for EV drivers in Pakistan</p>
         </div>
-      </Container>
+      </div>
     </footer>
   )
 }
