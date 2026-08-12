@@ -80,7 +80,7 @@ function SegmentedRule() {
           split the full width into equal segments, which read as a broken
           line instead of a level. Keeping the rule continuous and letting
           one bright run sit at its head says the same thing quietly. */}
-      <span className="absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-plug-blue-500 to-cyan-400" />
+      <span className="footer-charge absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-plug-blue-500 to-cyan-400" />
     </span>
   )
 }
@@ -100,7 +100,7 @@ export function Footer() {
 
       <div className="container-plug relative z-10">
         {/* ── Closing CTA ───────────────────────────────────────── */}
-        <section className="grid gap-10 py-14 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-20">
+        <section className="footer-rise grid gap-10 py-14 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-20">
           <div>
             <span className="mb-5 inline-flex items-center gap-2 text-ui-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">
               <Zap size={13} className="fill-cyan-300 text-cyan-300" aria-hidden="true" />
@@ -134,10 +134,10 @@ export function Footer() {
         {/* ── Navigation ────────────────────────────────────────── */}
         <nav
           aria-label="Footer"
-          className="grid grid-cols-2 gap-x-6 gap-y-10 pb-10 pt-12 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:gap-x-10"
+          className="footer-rise-stagger grid grid-cols-2 gap-x-6 gap-y-10 pb-10 pt-12 sm:grid-cols-4 lg:grid-cols-[repeat(4,minmax(0,1fr))_auto] lg:gap-x-10"
         >
           {FOOTER_COLUMNS.map((column) => (
-            <div key={column.heading}>
+            <div key={column.heading} className="footer-rise">
               <h3 className="mb-5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/60">
                 {column.heading}
               </h3>
@@ -157,7 +157,7 @@ export function Footer() {
           {/* The only contact detail the project actually holds. No invented
               social profiles — the four that used to sit here pointed at
               accounts that do not exist. */}
-          <div className="col-span-2 sm:col-span-4 lg:col-span-1 lg:w-56">
+          <div className="footer-rise col-span-2 sm:col-span-4 lg:col-span-1 lg:w-56">
             <h3 className="mb-5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/60">
               Get in touch
             </h3>
@@ -195,7 +195,7 @@ export function Footer() {
             'text-[clamp(4rem,25vw,21rem)]',
             // Fades top-to-bottom so the mark reads as rising out of the
             // floor rather than sitting flat on it.
-            'bg-gradient-to-b from-white/[0.17] via-white/[0.09] to-white/[0.02] bg-clip-text text-transparent',
+            'footer-wordmark bg-gradient-to-b from-white/[0.17] via-white/[0.09] to-white/[0.02] bg-clip-text text-transparent',
           )}
         >
           {SITE_CONFIG.name.toLowerCase()}

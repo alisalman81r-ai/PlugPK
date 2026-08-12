@@ -369,6 +369,113 @@
   animation: fadeUp 0.6s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
+/* ── Footer entrance ─────────────────────────────────────────────
+   A scroll-driven reveal with no JavaScript. `animation-timeline: view()`
+   ties progress to the element crossing the viewport, which is what an
+   IntersectionObserver would otherwise be doing — except the browser runs
+   it off the main thread and the footer stays a server component.
+
+   Safety comes from the ordering. The resting state below is fully
+   visible; the hidden start frame only ever exists inside the @supports
+   block. A browser without scroll-driven animations simply shows the
+   footer, and so does anyone who has asked for reduced motion, because
+   the whole thing sits behind no-preference. There is no path where this
+   leaves content stuck at opacity 0. */
+.footer-rise {
+  opacity: 1;
+}
+
+@keyframes footerRise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .footer-rise {
+      animation: footerRise linear both;
+      animation-timeline: view();
+      /* Finishes well before the element reaches the middle of the screen,
+         so it is settled by the time it is being read. */
+      animation-range: entry 0% cover 18%;
+    }
+
+    /* Columns resolve left to right rather than all at once. Each one
+       finishes a little later than the last. */
+    .footer-rise-stagger > *:nth-child(2) {
+      animation-range: entry 0% cover 22%;
+    }
+    .footer-rise-stagger > *:nth-child(3) {
+      animation-range: entry 0% cover 26%;
+    }
+    .footer-rise-stagger > *:nth-child(4) {
+      animation-range: entry 0% cover 30%;
+    }
+    .footer-rise-stagger > *:nth-child(5) {
+      animation-range: entry 0% cover 34%;
+    }
+  }
+}
+
+/* The charged run at the head of the footer rule draws itself in as the
+   rule arrives, which is the one place a literal "charging" gesture earns
+   its place in this product. */
+@keyframes footerCharge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.footer-charge {
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .footer-charge {
+      animation: footerCharge cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 20%;
+    }
+  }
+}
+
+/* Wordmark: the gradient drifts upward as the mark scrolls in, so it reads
+   as lighting up rather than fading in. Background position is a paint-only
+   change on an element with no children. */
+@keyframes footerWordmark {
+  from {
+    background-position: 0% 100%;
+  }
+  to {
+    background-position: 0% 0%;
+  }
+}
+
+.footer-wordmark {
+  background-size: 100% 260%;
+  background-position: 0% 0%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .footer-wordmark {
+      animation: footerWordmark linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+  }
+}
+
 /* ── Reduced motion ──────────────────────────────────────────────
    Entrance animations here start from `opacity: 0` and are made
    visible by the animation itself. Simply switching animations off
