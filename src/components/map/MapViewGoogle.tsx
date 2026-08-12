@@ -19,7 +19,10 @@ export interface MapViewGoogleProps {
 }
 
 const PAKISTAN_CENTER = { lat: 30.3753, lng: 69.3451 }
-const DEFAULT_ZOOM = 5
+const DEFAULT_ZOOM = 5.2
+
+/** Matches the MapLibre engine: never let the camera reach world zoom. */
+const MIN_ZOOM = 3.5
 
 /**
  * Advanced Markers require a Map ID — without one Google silently renders no
@@ -90,6 +93,7 @@ export function MapViewGoogle({
         mapId={MAP_ID}
         defaultCenter={PAKISTAN_CENTER}
         defaultZoom={DEFAULT_ZOOM}
+        minZoom={MIN_ZOOM}
         gestureHandling="greedy"
         disableDefaultUI={false}
         mapTypeControl={false}
