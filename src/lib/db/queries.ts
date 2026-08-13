@@ -160,3 +160,31 @@ export async function getConnectors(): Promise<ConnectorWithStation[]> {
     city: row.station.city,
   }))
 }
+
+export interface ConnectorDetail {
+  connector: import('@/lib/types').Connector
+  stationId: string
+  stationName: string
+}
+
+export async function getConnectorById(id: string): Promise<ConnectorDetail | null> {
+  const row = await prisma.connector.findUnique({
+    where: { id },
+    include: { station: { select: { id: true, name: true } } },
+  })
+  if (!row) return null
+
+  return {
+    connector: toConnector(row),
+    stationId: row.station.id,
+    stationName: row.station.name,
+  }
+}
+
+/** Just enough to populate the station picker on the connector form. */
+export async function getStationOptions(): Promise<{ id: string; name: string; city: string }[]> {
+  return prisma.station.findMany({
+    select: { id: true, name: true, city: true },
+    orderBy: { name: 'asc' },
+  })
+}

@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/connectors/page.tsx
-import { Pencil } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
@@ -23,6 +23,15 @@ export default async function AdminConnectorsPage() {
       <AdminHeader
         title="Connectors"
         description={`${freePorts} of ${totalPorts} ports free across ${rows.length} connectors.`}
+        action={
+          <Link
+            href="/admin/connectors/new"
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-plug-blue-600 px-4 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          >
+            <Plus size={16} aria-hidden="true" />
+            Add connector
+          </Link>
+        }
       />
 
       <div className="px-4 py-6 lg:px-8 lg:py-8">
@@ -30,7 +39,7 @@ export default async function AdminConnectorsPage() {
           <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
             <p className="text-ui font-semibold text-slate-900">No connectors yet</p>
             <p className="mt-1 text-ui-sm text-slate-500">
-              Connectors are added from a station&apos;s own page.
+              Add one to publish it to a station.
             </p>
           </div>
         ) : (
@@ -93,8 +102,8 @@ export default async function AdminConnectorsPage() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-1">
                           <Link
-                            href={`/admin/stations/${stationId}`}
-                            aria-label={`Edit connectors at ${stationName}`}
+                            href={`/admin/connectors/${connector.id}`}
+                            aria-label={`Edit the ${connector.type} connector at ${stationName}`}
                             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
                           >
                             <Pencil size={15} />
@@ -154,7 +163,7 @@ export default async function AdminConnectorsPage() {
                     </div>
                   </dl>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="mb-3">
                     <PortStepper
                       available={connector.availablePorts}
                       total={connector.ports}
@@ -164,6 +173,16 @@ export default async function AdminConnectorsPage() {
                         return setConnectorAvailability(connector.id, next)
                       }}
                     />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/admin/connectors/${connector.id}`}
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+                    >
+                      <Pencil size={14} aria-hidden="true" />
+                      Edit
+                    </Link>
                     <DeleteButton
                       label={`the ${connector.type} connector at ${stationName}`}
                       action={async () => {
