@@ -10,7 +10,7 @@ import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
-import { getPlatformStats } from '@/lib/db/queries'
+import { getPlatformStats, getStations } from '@/lib/db/queries'
 
 /**
  * Reads live counts, so the page cannot be baked at build time — adding a
@@ -20,7 +20,11 @@ import { getPlatformStats } from '@/lib/db/queries'
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const stats = await getPlatformStats()
+  const [stats, stations] = await Promise.all([getPlatformStats(), getStations()])
+
+  // Ranked, so "highest-rated" describes the selection rather than the
+  // order rows happen to sit in.
+  const topRated = [...stations].sort((a, b) => b.rating - a.rating).slice(0, 3)
 
   return (
     <>
@@ -36,7 +40,7 @@ export default async function HomePage() {
         <RoutePlannerPromo />
       </Reveal>
       <Reveal>
-        <FeaturedStations />
+        <FeaturedStations stations={topRated} />
       </Reveal>
       <Reveal>
         <FreeBanner />

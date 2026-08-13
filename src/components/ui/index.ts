@@ -11,6 +11,7 @@ export { Skeleton, StationCardSkeleton, NavSkeleton, TextSkeleton } from './Skel
 export { PhotoFrame } from './PhotoFrame'
 export { PortMeter } from './PortMeter'
 export { Reveal } from './Reveal'
+export { TiltCard } from './TiltCard'
 export { SectionHeader } from './SectionHeader'
 export { Container, Section } from './Container'
 
@@ -31,5 +32,6 @@ export type {
 export type { PhotoFrameProps } from './PhotoFrame'
 export type { PortMeterProps } from './PortMeter'
 export type { RevealProps } from './Reveal'
+export type { TiltCardProps } from './TiltCard'
 export type { SectionHeaderProps } from './SectionHeader'
 export type { ContainerProps, SectionProps } from './Container'
