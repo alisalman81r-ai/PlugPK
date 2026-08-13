@@ -94,7 +94,7 @@ export function Hero() {
           className="absolute inset-0 -z-10 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
         >
           <Image
-            src="/images/stations/dha-charging-hub-1.jpg"
+            src="/images/stations/gulberg-charging-station-1.jpg"
             alt=""
             fill
             priority
