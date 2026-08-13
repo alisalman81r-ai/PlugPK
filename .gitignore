@@ -26,3 +26,7 @@ dist/
 build/
 .env
 .env.local
+
+# Local SQLite database
+prisma/dev.db
+prisma/dev.db-journal

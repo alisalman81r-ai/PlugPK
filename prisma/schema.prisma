@@ -1,0 +1,179 @@
+// prisma/schema.prisma
+//
+// Mirrors the interfaces in src/lib/types.ts so the mapping layer in
+// src/lib/db/ can hand components exactly the shapes they already expect —
+// no component had to change to move off mock-data.ts.
+//
+// Two shape decisions worth stating:
+//
+//   Connector and Review are real tables, not embedded JSON, because the
+//   admin edits them individually — a port count changing is the single most
+//   common write this product will ever do.
+//
+//   amenities, operatingHours, photos and compatibleVehicles are stored as
+//   JSON text. They are always read and written whole, never queried into,
+//   so normalising them would buy nothing and cost four more joins per
+//   station. The helpers in src/lib/db/serialize.ts are the only place that
+//   parses them.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  id          String  @id
+  slug        String  @unique
+  name        String
+  description String?
+
+  // Address, flattened. Queried by city on the map and services pages.
+  street     String
+  area       String
+  city       String
+  province   String
+  country    String
+  postalCode String?
+
+  lat Float
+  lng Float
+
+  // JSON text — see the note at the top of this file.
+  amenities      String @default("[]")
+  operatingHours String @default("{}")
+  photos         String @default("[]")
+
+  coverPhoto  String?
+  rating      Float   @default(0)
+  reviewCount Int     @default(0)
+  status      String  @default("unknown")
+  isVerified  Boolean @default(false)
+  network     String  @default("")
+  phone       String?
+  website     String?
+  businessId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connectors Connector[]
+  reviews    Review[]
+
+  @@index([city])
+  @@index([status])
+}
+
+model Connector {
+  id                 String  @id
+  stationId          String
+  type               String
+  maxPowerKw         Float
+  ports              Int
+  availablePorts     Int
+  pricePerKwh        Float
+  pricePerHour       Float?
+  isFree             Boolean @default(false)
+  status             String  @default("available")
+  compatibleVehicles String  @default("[]")
+
+  // Deleting a station takes its connectors with it. A connector without a
+  // station is meaningless, and leaving orphans would corrupt every port
+  // count the product displays.
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@index([stationId])
+}
+
+model Review {
+  id           String   @id
+  stationId    String
+  userId       String
+  userName     String
+  userAvatar   String?
+  userVehicle  String
+  rating       Int
+  comment      String
+  photos       String   @default("[]")
+  date         DateTime @default(now())
+  helpfulCount Int      @default(0)
+  isVerified   Boolean  @default(false)
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+
+  @@index([stationId])
+}
+
+model EVService {
+  id          String @id
+  slug        String @unique
+  name        String
+  category    String
+  description String
+
+  street     String
+  area       String
+  city       String
+  province   String
+  country    String
+  postalCode String?
+
+  lat Float
+  lng Float
+
+  phone      String
+  email      String?
+  website    String?
+  photos     String  @default("[]")
+  coverPhoto String?
+
+  rating         Float   @default(0)
+  reviewCount    Int     @default(0)
+  operatingHours String  @default("{}")
+  isVerified     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([category])
+  @@index([city])
+}
+
+model CommunityPost {
+  id           String   @id
+  slug         String   @unique
+  userId       String
+  userName     String
+  userAvatar   String?
+  userVehicle  String?
+  title        String
+  content      String
+  category     String
+  photos       String   @default("[]")
+  likeCount    Int      @default(0)
+  commentCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  comments Comment[]
+
+  @@index([category])
+}
+
+model Comment {
+  id         String   @id
+  postId     String
+  userId     String
+  userName   String
+  userAvatar String?
+  content    String
+  likeCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
