@@ -22,13 +22,6 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Community', href: '/community' },
 ]
 
-export const PLATFORM_STATS = {
-  totalStations: 250,
-  totalCities: 18,
-  totalUsers: 5000,
-  totalReviews: 1200,
-}
-
 export const PAKISTAN_CITIES = [
   'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi',
   'Faisalabad', 'Multan', 'Peshawar', 'Quetta',

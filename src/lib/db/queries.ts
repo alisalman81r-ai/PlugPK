@@ -188,3 +188,30 @@ export async function getStationOptions(): Promise<{ id: string; name: string; c
     orderBy: { name: 'asc' },
   })
 }
+
+// ─── Live platform stats ────────────────────────────
+
+export interface PlatformStats {
+  stations: number
+  cities: number
+  owners: number
+}
+
+/**
+ * The figures shown on the homepage, counted from the database rather than
+ * typed into a constant.
+ *
+ * These were hardcoded as 250 stations / 18 cities / 5,000 owners — numbers
+ * that could never move and did not describe anything. Now adding a station
+ * in the admin moves the first, adding one in a new city moves the second,
+ * and a sign-up moves the third.
+ */
+export async function getPlatformStats(): Promise<PlatformStats> {
+  const [stations, cityRows, owners] = await Promise.all([
+    prisma.station.count(),
+    prisma.station.findMany({ select: { city: true }, distinct: ['city'] }),
+    prisma.user.count(),
+  ])
+
+  return { stations, cities: cityRows.length, owners }
+}

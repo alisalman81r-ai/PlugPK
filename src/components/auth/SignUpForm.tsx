@@ -8,6 +8,7 @@ import * as React from 'react'
 
 import { Button } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { registerUser } from '@/lib/db/auth-actions'
 
 export interface SignUpFormProps {
   onSuccess?: () => void
@@ -121,6 +122,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [fullName, setFullName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [submitError, setSubmitError] = React.useState<string | null>(null)
   const [showPassword, setShowPassword] = React.useState(false)
   const [agreed, setAgreed] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -163,9 +165,23 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     if (Object.keys(found).length > 0) return
 
     setIsLoading(true)
-    // Stands in for the sign-up API.
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setSubmitError(null)
+
+    // A real record now, not a timer. The homepage owner count reads this
+    // table, so a sign-up here is what moves that number.
+    const payload = new FormData()
+    payload.set('name', fullName)
+    payload.set('email', email)
+    payload.set('password', password)
+
+    const result = await registerUser(payload)
     setIsLoading(false)
+
+    if (!result.ok) {
+      setSubmitError(result.message ?? 'Could not create your account.')
+      return
+    }
+
     onSuccess?.()
     router.push('/onboarding/vehicle')
   }
@@ -271,6 +287,17 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       </div>
 
       {errors.general ? <FieldError message={errors.general} /> : null}
+
+      {/* Server-side failures — a duplicate email is the common one, and it
+          cannot be caught by the client validation above. */}
+      {submitError ? (
+        <p
+          role="alert"
+          className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          {submitError}
+        </p>
+      ) : null}
 
       <Button
         type="submit"

@@ -177,3 +177,24 @@ model Comment {
 
   @@index([postId])
 }
+
+/**
+ * A registered EV owner.
+ *
+ * Exists so the "EV owners" figure on the homepage counts something real. It
+ * is a registration record, not a full auth system — there are no sessions,
+ * roles or password resets here yet. What it does guarantee is that a
+ * password never touches the database in readable form: signUp stores a
+ * scrypt hash with a per-user salt and nothing else.
+ */
+model User {
+  id           String   @id
+  email        String   @unique
+  name         String
+  city         String?
+  vehicle      String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
