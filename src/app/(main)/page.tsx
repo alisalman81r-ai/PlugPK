@@ -13,11 +13,23 @@ import { Reveal } from '@/components/ui'
 import { getPlatformStats, getStations } from '@/lib/db/queries'
 
 /**
- * Reads live counts, so the page cannot be baked at build time — adding a
- * station in the admin or a visitor signing up has to move the figures
- * without a redeploy.
+ * Cached, not dynamic.
+ *
+ * This was force-dynamic so the live figures could move, which meant every
+ * visit re-queried the database and re-rendered the whole page — the slowest
+ * public route by a wide margin, and the one people land on first.
+ *
+ * It does not need to be. Every write that changes what this page shows
+ * already calls revalidatePath('/'): the admin station, service and connector
+ * actions, and registerUser. So the page can be served from cache and
+ * regenerated the moment something actually changes, rather than rebuilt on
+ * the chance that it might have.
+ *
+ * The interval below is a backstop, not the mechanism — it only matters if a
+ * row is ever changed outside those actions, such as directly in the
+ * database.
  */
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export default async function HomePage() {
   const [stats, stations] = await Promise.all([getPlatformStats(), getStations()])
