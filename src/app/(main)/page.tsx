@@ -33,13 +33,13 @@ export default async function HomePage() {
         <HowItWorks />
       </Reveal>
       <Reveal>
+        <RoutePlannerPromo />
+      </Reveal>
+      <Reveal>
         <FeaturedStations />
       </Reveal>
       <Reveal>
         <FreeBanner />
-      </Reveal>
-      <Reveal>
-        <RoutePlannerPromo />
       </Reveal>
       <Reveal>
         <ServicesPreview />
