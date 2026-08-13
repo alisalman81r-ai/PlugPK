@@ -215,3 +215,35 @@ export async function getPlatformStats(): Promise<PlatformStats> {
 
   return { stations, cities: cityRows.length, owners }
 }
+
+// ─── Meeting requests ───────────────────────────────
+
+export interface MeetingRow {
+  id: string
+  name: string
+  company: string
+  email: string
+  phone: string | null
+  preferredDate: string | null
+  preferredTime: string | null
+  note: string | null
+  status: string
+  createdAt: string
+}
+
+/** New requests first, then handled ones, newest within each group. */
+export async function getMeetingRequests(): Promise<MeetingRow[]> {
+  const rows = await prisma.meetingRequest.findMany({
+    orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+  })
+
+  return rows.map((row) => ({
+    ...row,
+    // A Prisma Date cannot cross into a Server Component payload unserialised.
+    createdAt: row.createdAt.toISOString(),
+  }))
+}
+
+export async function getNewMeetingCount(): Promise<number> {
+  return prisma.meetingRequest.count({ where: { status: 'new' } })
+}

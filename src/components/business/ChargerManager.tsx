@@ -169,10 +169,10 @@ export function ChargerManager({
                 </div>
                 <div className="rounded-xl bg-slate-50 p-4 text-center">
                   <p className="font-mono text-xl font-bold text-slate-900">
-                    {charger.isFree ? 'Free' : charger.pricePerKwh}
+                    {charger.availablePorts}
                   </p>
                   <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">
-                    {charger.isFree ? 'To use' : 'PKR per kWh'}
+                    Free now
                   </p>
                 </div>
               </div>

@@ -40,7 +40,6 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
   // as it is typed, rather than only on submit.
   const [ports, setPorts] = React.useState(connector?.ports ?? 1)
   const [availablePorts, setAvailablePorts] = React.useState(connector?.availablePorts ?? 0)
-  const [isFree, setIsFree] = React.useState(connector?.isFree ?? false)
 
   const portsExceeded = availablePorts > ports
 
@@ -198,38 +197,6 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
             </select>
           </AdminField>
         </div>
-      </section>
-
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-5 font-semibold text-slate-900">Pricing</h2>
-
-        <label className="mb-5 flex cursor-pointer items-center gap-3 text-ui text-slate-700">
-          <input
-            type="checkbox"
-            name="isFree"
-            checked={isFree}
-            onChange={(event) => setIsFree(event.target.checked)}
-            className="h-5 w-5 cursor-pointer rounded border-slate-300 text-plug-blue-600 focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-          />
-          Free to use
-        </label>
-
-        <AdminField
-          label="Price per kWh"
-          htmlFor="pricePerKwh"
-          hint="Rupees. Ignored while the connector is marked free."
-        >
-          <input
-            id="pricePerKwh"
-            name="pricePerKwh"
-            type="number"
-            min="0"
-            step="0.01"
-            disabled={isFree}
-            defaultValue={connector?.pricePerKwh ?? 0}
-            className={cn(FIELD_CLASS, 'font-mono')}
-          />
-        </AdminField>
       </section>
 
       {error ? (

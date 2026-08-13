@@ -29,9 +29,6 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
   const [type, setType] = React.useState<ConnectorType>(initialData?.type ?? 'CCS2')
   const [maxPowerKw, setMaxPowerKw] = React.useState(initialData?.maxPowerKw ?? 50)
   const [ports, setPorts] = React.useState(initialData?.ports ?? 1)
-  const [isFree, setIsFree] = React.useState(initialData?.isFree ?? false)
-  const [pricePerKwh, setPricePerKwh] = React.useState(initialData?.pricePerKwh ?? 70)
-  const [pricePerHour, setPricePerHour] = React.useState(initialData?.pricePerHour ?? 0)
   const [vehicles, setVehicles] = React.useState<string[]>(
     initialData?.compatibleVehicles ?? [],
   )
@@ -47,9 +44,6 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
       maxPowerKw,
       ports,
       availablePorts: ports,
-      pricePerKwh: isFree ? 0 : pricePerKwh,
-      pricePerHour: isFree || pricePerHour === 0 ? undefined : pricePerHour,
-      isFree,
       status: 'available',
       compatibleVehicles: allVehicles ? ALL_VEHICLES : vehicles,
     })
@@ -149,65 +143,6 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
             <Plus size={16} />
           </button>
         </div>
-      </div>
-
-      <div className="mb-6">
-        <span className="mb-2 block text-sm font-semibold text-slate-700">Pricing</span>
-        <div className="mb-3 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setIsFree(true)}
-            aria-pressed={isFree}
-            className={cn(
-              'h-9 flex-1 rounded-xl border-[1.5px] text-sm font-medium transition-all',
-              isFree ? 'border-green-400 bg-green-50 text-green-700' : 'border-slate-200 bg-white text-slate-600',
-            )}
-          >
-            Free to use
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsFree(false)}
-            aria-pressed={!isFree}
-            className={cn(
-              'h-9 flex-1 rounded-xl border-[1.5px] text-sm font-medium transition-all',
-              !isFree ? 'border-blue-400 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600',
-            )}
-          >
-            Paid
-          </button>
-        </div>
-
-        {!isFree ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="price-kwh" className="mb-1.5 block text-xs text-slate-500">
-                Price per kWh (PKR)
-              </label>
-              <input
-                id="price-kwh"
-                type="number"
-                min={0}
-                value={pricePerKwh}
-                onChange={(event) => setPricePerKwh(Number(event.target.value))}
-                className={FIELD}
-              />
-            </div>
-            <div>
-              <label htmlFor="price-hour" className="mb-1.5 block text-xs text-slate-500">
-                Price per hour (PKR, optional)
-              </label>
-              <input
-                id="price-hour"
-                type="number"
-                min={0}
-                value={pricePerHour}
-                onChange={(event) => setPricePerHour(Number(event.target.value))}
-                className={FIELD}
-              />
-            </div>
-          </div>
-        ) : null}
       </div>
 
       <fieldset className="mb-6">

@@ -93,9 +93,6 @@ export interface Connector {
   maxPowerKw: number
   ports: number
   availablePorts: number
-  pricePerKwh: number
-  pricePerHour?: number
-  isFree: boolean
   status: ConnectorStatus
   compatibleVehicles: string[]
 }

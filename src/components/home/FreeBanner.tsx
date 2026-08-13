@@ -13,14 +13,14 @@ import * as React from 'react'
  * codebase, so "free" here is a fact rather than an introductory offer with
  * conditions attached.
  *
- * It deliberately says nothing about the price of electricity: that is set
- * by each station operator and shown per-connector on the map. Conflating
- * the two would be the kind of claim that costs trust the first time
- * somebody plugs in and gets a bill.
+ * It says nothing about the price of electricity, which the product no
+ * longer publishes at all — rates are set by each operator and change often,
+ * and a stale figure shown as fact is worse than none. Drivers confirm the
+ * rate with the operator; businesses discuss terms through a meeting.
  */
 const INCLUDED = [
   'Search every station, see live availability',
-  'Compare real per-unit prices before you drive',
+  'See connector types and peak power at a glance',
   'Plan intercity routes around your car’s range',
   'Read and write reviews from other drivers',
 ]
@@ -100,8 +100,8 @@ export function FreeBanner() {
             </p>
 
             <p className="mt-6 max-w-md text-pretty text-lg leading-relaxed text-slate-600">
-              Plug.pk does not charge drivers. You only ever pay the station operator for
-              the electricity you actually use.
+              Plug.pk does not charge drivers. You pay the station operator directly for
+              the electricity you use, at whatever rate they set.
             </p>
 
             <ul className="mt-7 flex flex-wrap gap-2">

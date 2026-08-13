@@ -33,8 +33,6 @@ interface DraftCharger {
   connectorType: ConnectorType
   maxPowerKw: number
   ports: number
-  pricePerKwh: number
-  isFree: boolean
 }
 
 interface FormData {
@@ -405,37 +403,7 @@ export function BusinessSignUpForm() {
                         className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm"
                       />
                     </label>
-
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs text-slate-500">PKR per kWh</span>
-                      <input
-                        type="number"
-                        min={0}
-                        disabled={charger.isFree}
-                        value={charger.isFree ? 0 : charger.pricePerKwh}
-                        onChange={(e) => {
-                          const next = [...data.chargers]
-                          next[index] = { ...charger, pricePerKwh: Number(e.target.value) }
-                          update('chargers', next)
-                        }}
-                        className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm disabled:opacity-50"
-                      />
-                    </label>
                   </div>
-
-                  <label className="mt-3 flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={charger.isFree}
-                      onChange={(e) => {
-                        const next = [...data.chargers]
-                        next[index] = { ...charger, isFree: e.target.checked }
-                        update('chargers', next)
-                      }}
-                      className="h-4 w-4 rounded border-slate-300 accent-blue-600"
-                    />
-                    <span className="text-sm text-slate-600">Free to use</span>
-                  </label>
                 </div>
               ))}
             </div>
@@ -446,7 +414,7 @@ export function BusinessSignUpForm() {
                 onClick={() =>
                   update('chargers', [
                     ...data.chargers,
-                    { connectorType: 'CCS2', maxPowerKw: 50, ports: 1, pricePerKwh: 70, isFree: false },
+                    { connectorType: 'CCS2', maxPowerKw: 50, ports: 1 },
                   ])
                 }
                 className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-8 transition-all hover:border-blue-300 hover:bg-blue-50"
@@ -509,7 +477,7 @@ export function BusinessSignUpForm() {
                       <span className="text-sm text-slate-500">{charger.connectorType}</span>
                       <span className="font-mono text-sm text-slate-900">
                         {charger.maxPowerKw} kW · {charger.ports} port{charger.ports === 1 ? '' : 's'} ·{' '}
-                        {charger.isFree ? 'Free' : `PKR ${charger.pricePerKwh}/kWh`}
+                        {charger.maxPowerKw} kW
                       </span>
                     </div>
                   ))

@@ -8,9 +8,7 @@ import { ConnectorBadgeGroup, PhotoFrame, PortMeter, SpeedBadge } from '@/compon
 import type { Station, StationStatus } from '@/lib/types'
 import {
   cn,
-  formatPricePerKwh,
   formatRating,
-  getLowestPrice,
   getMaxPower,
   getPortAvailability,
 } from '@/lib/utils'
@@ -85,7 +83,6 @@ export function StationCard({
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
   const location = `${station.address.area}, ${station.address.city}`
   const ports = getPortAvailability(station)
-  const price = getLowestPrice(station)
 
   const handleNavigate = React.useCallback(
     (event: React.MouseEvent) => {
@@ -272,11 +269,6 @@ export function StationCard({
               <span className="flex items-center gap-1 font-mono text-ui-sm text-slate-500">
                 <MapPin size={12} className="shrink-0" aria-hidden="true" />
                 {distanceKm.toFixed(1)} km
-              </span>
-            ) : null}
-            {price !== null ? (
-              <span className="font-mono text-ui-sm font-semibold text-slate-900">
-                {price === 0 ? 'Free' : formatPricePerKwh(price)}
               </span>
             ) : null}
           </span>

@@ -149,14 +149,6 @@ export function formatRating(rating: number): string {
   return rating.toFixed(1)
 }
 
-export function formatPrice(pkr: number): string {
-  return `PKR ${pkr.toLocaleString()}`
-}
-
-export function formatPricePerKwh(pkr: number): string {
-  return `PKR ${pkr}/kWh`
-}
-
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`
   const hours = Math.floor(minutes / 60)
@@ -252,17 +244,6 @@ export function getStationBounds(
   return { north, south, east, west }
 }
 
-/**
- * Cheapest per-kWh rate at the station, or 0 when any connector is free.
- * Returns null only if the station lists no connectors at all.
- */
-export function getLowestPrice(
-  station: { connectors: Array<{ pricePerKwh: number; isFree: boolean }> }
-): number | null {
-  if (station.connectors.length === 0) return null
-  if (station.connectors.some(c => c.isFree)) return 0
-  return Math.min(...station.connectors.map(c => c.pricePerKwh))
-}
 
 // ─── Amenity Utilities ───────────────────────────────
 export function getAmenityConfig(type: AmenityType) {

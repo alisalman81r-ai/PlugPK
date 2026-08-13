@@ -130,8 +130,8 @@ export function Hero() {
           </h1>
 
           <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/85 sm:text-lg">
-            Live port availability, real prices, and reviews from drivers who actually
-            charged there.
+            Live port availability, connector types, and reviews from drivers who
+            actually charged there.
           </p>
 
           {/* One control, shaped like a single button. Electra's hero has a

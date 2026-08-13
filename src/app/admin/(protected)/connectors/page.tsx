@@ -8,7 +8,6 @@ import { DeleteButton } from '@/components/admin/DeleteButton'
 import { PortStepper } from '@/components/admin/PortStepper'
 import { deleteConnector, setConnectorAvailability } from '@/lib/db/actions'
 import { getConnectors } from '@/lib/db/queries'
-import { formatPricePerKwh } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,7 +52,6 @@ export default async function AdminConnectorsPage() {
                     <th scope="col" className="px-5 py-3 font-semibold">Station</th>
                     <th scope="col" className="px-5 py-3 font-semibold">Type</th>
                     <th scope="col" className="px-5 py-3 font-semibold">Power</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Price</th>
                     <th scope="col" className="px-5 py-3 font-semibold">Status</th>
                     <th scope="col" className="px-5 py-3 font-semibold">Ports free</th>
                     <th scope="col" className="px-5 py-3 text-right font-semibold">
@@ -81,9 +79,6 @@ export default async function AdminConnectorsPage() {
                       </td>
                       <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
                         {connector.maxPowerKw} kW
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
-                        {connector.isFree ? 'Free' : formatPricePerKwh(connector.pricePerKwh)}
                       </td>
                       <td className="px-5 py-3.5">
                         <AdminStatusBadge status={connector.status} />
@@ -142,7 +137,7 @@ export default async function AdminConnectorsPage() {
                     <AdminStatusBadge status={connector.status} />
                   </div>
 
-                  <dl className="mb-4 grid grid-cols-3 gap-3 border-y border-slate-100 py-3">
+                  <dl className="mb-4 grid grid-cols-2 gap-3 border-y border-slate-100 py-3">
                     <div>
                       <dt className="text-ui-xs text-slate-500">Type</dt>
                       <dd className="mt-0.5 font-mono text-ui-sm text-slate-900">
@@ -153,12 +148,6 @@ export default async function AdminConnectorsPage() {
                       <dt className="text-ui-xs text-slate-500">Power</dt>
                       <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
                         {connector.maxPowerKw} kW
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-ui-xs text-slate-500">Price</dt>
-                      <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
-                        {connector.isFree ? 'Free' : formatPricePerKwh(connector.pricePerKwh)}
                       </dd>
                     </div>
                   </dl>

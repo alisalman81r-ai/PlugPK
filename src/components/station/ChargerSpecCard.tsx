@@ -82,11 +82,6 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
           value={`${connector.availablePorts}/${connector.ports}`}
           unit="free"
         />
-        <Spec
-          label="Price"
-          value={connector.isFree ? 'Free' : `PKR ${connector.pricePerKwh}`}
-          unit={connector.isFree ? undefined : '/kWh'}
-        />
       </div>
 
       <div>

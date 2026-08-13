@@ -264,8 +264,6 @@ export async function saveConnector(
     maxPowerKw: readNumber(form, 'maxPowerKw'),
     ports,
     availablePorts,
-    pricePerKwh: readNumber(form, 'pricePerKwh'),
-    isFree: form.get('isFree') === 'on',
     status: String(form.get('status') ?? 'available'),
   }
 

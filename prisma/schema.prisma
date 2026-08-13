@@ -68,6 +68,15 @@ model Station {
   @@index([status])
 }
 
+/**
+ * A physical charging unit at a station.
+ *
+ * Carries no pricing. Rates are set by each operator and change often, and a
+ * stale figure shown as fact is worse than no figure at all — a driver who
+ * arrives expecting one price and is charged another loses trust in the whole
+ * map. Businesses are asked to discuss terms through a meeting request
+ * instead.
+ */
 model Connector {
   id                 String  @id
   stationId          String
@@ -75,9 +84,6 @@ model Connector {
   maxPowerKw         Float
   ports              Int
   availablePorts     Int
-  pricePerKwh        Float
-  pricePerHour       Float?
-  isFree             Boolean @default(false)
   status             String  @default("available")
   compatibleVehicles String  @default("[]")
 
@@ -196,5 +202,29 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
 
+  @@index([createdAt])
+}
+
+/**
+ * A business asking to talk to the team.
+ *
+ * Replaces the published subscription tiers. Stored rather than emailed so
+ * requests cannot be lost in an inbox and can be worked through in the admin
+ * portal.
+ */
+model MeetingRequest {
+  id            String   @id
+  name          String
+  company       String
+  email         String
+  phone         String?
+  preferredDate String?
+  preferredTime String?
+  note          String?
+  /** new | handled — deliberately a string, not an enum, so SQLite stays simple. */
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+
+  @@index([status])
   @@index([createdAt])
 }

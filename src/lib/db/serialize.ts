@@ -57,9 +57,6 @@ export function toConnector(row: ConnectorRow): Connector {
     maxPowerKw: row.maxPowerKw,
     ports: row.ports,
     availablePorts: row.availablePorts,
-    pricePerKwh: row.pricePerKwh,
-    pricePerHour: row.pricePerHour ?? undefined,
-    isFree: row.isFree,
     status: row.status as ConnectorStatus,
     compatibleVehicles: parseJson<string[]>(row.compatibleVehicles, []),
   }

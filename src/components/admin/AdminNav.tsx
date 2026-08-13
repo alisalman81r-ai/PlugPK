@@ -5,6 +5,7 @@ import {
   ExternalLink,
   LayoutDashboard,
   LogOut,
+  CalendarClock,
   MessageSquare,
   Plug,
   Menu,
@@ -53,6 +54,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { label: 'Services', href: '/admin/services', icon: Wrench },
       { label: 'Community', href: '/admin/community', icon: MessageSquare },
+      { label: 'Meetings', href: '/admin/meetings', icon: CalendarClock },
     ],
   },
 ]
