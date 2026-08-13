@@ -1,6 +1,6 @@
 // src/components/station/RelatedStations.tsx
 import { StationCard } from '@/components/home/StationCard'
-import { MOCK_STATIONS } from '@/lib/mock-data'
+import { getStations } from '@/lib/db/queries'
 
 export interface RelatedStationsProps {
   currentStationId: string
@@ -9,8 +9,8 @@ export interface RelatedStationsProps {
 
 const RELATED_COUNT = 3
 
-export function RelatedStations({ currentStationId, city }: RelatedStationsProps) {
-  const others = MOCK_STATIONS.filter((station) => station.id !== currentStationId)
+export async function RelatedStations({ currentStationId, city }: RelatedStationsProps) {
+  const others = (await getStations()).filter((station) => station.id !== currentStationId)
   const sameCity = others.filter((station) => station.address.city === city)
 
   // Top up with stations from other cities when the current city is thin.

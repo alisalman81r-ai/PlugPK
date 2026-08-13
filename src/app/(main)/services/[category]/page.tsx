@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 
 import { ServiceCard } from '@/components/services/ServiceCard'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
-import { MOCK_SERVICES } from '@/lib/mock-data'
+import { getServices } from '@/lib/db/queries'
 import type { ServiceCategory } from '@/lib/types'
 
 interface PageProps {
@@ -34,13 +34,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default function ServiceCategoryPage({ params }: PageProps) {
+export default async function ServiceCategoryPage({ params }: PageProps) {
   const category = resolveCategory(params.category)
   if (!category) notFound()
 
   const meta = SERVICE_CATEGORY_META[category]
   const Icon = ICONS[meta.icon] ?? Package
-  const services = MOCK_SERVICES.filter((service) => service.category === category)
+  const services = (await getServices()).filter((service) => service.category === category)
   const cities = new Set(services.map((service) => service.address.city))
 
   return (

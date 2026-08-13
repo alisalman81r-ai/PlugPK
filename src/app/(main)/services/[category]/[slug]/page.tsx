@@ -25,7 +25,7 @@ import { notFound } from 'next/navigation'
 import { ReviewsSection } from '@/components/station/ReviewsSection'
 import { RatingStars } from '@/components/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META, SERVICE_OFFERINGS } from '@/lib/constants'
-import { MOCK_SERVICES } from '@/lib/mock-data'
+import { getServiceBySlug, getServiceParams } from '@/lib/db/queries'
 import type { DayHours, ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -64,16 +64,11 @@ function resolveCategory(value: string): ServiceCategory | null {
 }
 
 export async function generateStaticParams() {
-  return MOCK_SERVICES.map((service) => ({
-    category: service.category,
-    slug: service.slug,
-  }))
+  return getServiceParams()
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const service = MOCK_SERVICES.find(
-    (item) => item.slug === params.slug && item.category === params.category,
-  )
+  const service = await getServiceBySlug(params.category, params.slug)
   if (!service) return { title: 'Service Not Found' }
 
   const meta = SERVICE_CATEGORY_META[service.category]
@@ -83,11 +78,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default function ServiceDetailPage({ params }: PageProps) {
+export default async function ServiceDetailPage({ params }: PageProps) {
   const category = resolveCategory(params.category)
-  const service = MOCK_SERVICES.find(
-    (item) => item.slug === params.slug && item.category === params.category,
-  )
+  const service = await getServiceBySlug(params.category, params.slug)
 
   if (!category || !service) notFound()
 

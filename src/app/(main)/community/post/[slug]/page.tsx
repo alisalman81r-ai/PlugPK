@@ -9,7 +9,7 @@ import { CommentSection } from '@/components/community/CommentSection'
 import { Avatar, PostCard } from '@/components/community/PostCard'
 import { Button } from '@/components/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
-import { MOCK_POSTS } from '@/lib/mock-data'
+import { getPostBySlug, getPostSlugs, getPosts } from '@/lib/db/queries'
 import { cn, formatDate } from '@/lib/utils'
 
 interface PageProps {
@@ -17,11 +17,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return MOCK_POSTS.map((post) => ({ slug: post.slug }))
+  const slugs = await getPostSlugs()
+  return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = MOCK_POSTS.find((item) => item.slug === params.slug)
+  const post = await getPostBySlug(params.slug)
   if (!post) return { title: 'Post Not Found' }
 
   return {
@@ -32,14 +33,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default function CommunityPostPage({ params }: PageProps) {
-  const post = MOCK_POSTS.find((item) => item.slug === params.slug)
+export default async function CommunityPostPage({ params }: PageProps) {
+  const post = await getPostBySlug(params.slug)
   if (!post) notFound()
 
   const meta = POST_CATEGORY_META[post.category]
-  const related = MOCK_POSTS.filter(
-    (item) => item.category === post.category && item.id !== post.id,
-  ).slice(0, 3)
+  const related = (await getPosts())
+    .filter((item) => item.category === post.category && item.id !== post.id)
+    .slice(0, 3)
 
   return (
     <div className="container-plug py-10">

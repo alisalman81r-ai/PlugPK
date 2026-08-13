@@ -9,18 +9,19 @@ import { RelatedStations } from '@/components/station/RelatedStations'
 import { ReviewsSection } from '@/components/station/ReviewsSection'
 import { StationHeader } from '@/components/station/StationHeader'
 import { StationMobileBar, StationSidebar } from '@/components/station/StationSidebar'
-import { MOCK_STATIONS } from '@/lib/mock-data'
+import { getStationBySlug, getStationSlugs } from '@/lib/db/queries'
 
 interface PageProps {
   params: { slug: string }
 }
 
 export async function generateStaticParams() {
-  return MOCK_STATIONS.map((station) => ({ slug: station.slug }))
+  const slugs = await getStationSlugs()
+  return slugs.map((slug) => ({ slug }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const station = MOCK_STATIONS.find((item) => item.slug === params.slug)
+  const station = await getStationBySlug(params.slug)
 
   if (!station) return { title: 'Station Not Found' }
 
@@ -34,8 +35,8 @@ function Divider() {
   return <hr className="border-slate-100" />
 }
 
-export default function StationDetailPage({ params }: PageProps) {
-  const station = MOCK_STATIONS.find((item) => item.slug === params.slug)
+export default async function StationDetailPage({ params }: PageProps) {
+  const station = await getStationBySlug(params.slug)
 
   if (!station) notFound()
 
