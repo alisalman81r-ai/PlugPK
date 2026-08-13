@@ -1,50 +1,26 @@
 // src/components/home/Hero.tsx
 'use client'
 
-import { ArrowRight, MapPin, Search, Star } from 'lucide-react'
+import { ArrowRight, MapPin, Search } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { PAKISTAN_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
-export interface HeroProps {
-  /** Counted from the database by the page — never asserted. */
-  stations: number
-  cities: number
-  portsFree: number
-  portsTotal: number
-  /** The best-rated station, used for the strip along the bottom. */
-  topRating: number
-  topReviewCount: number
-}
+/** Enough to start from without turning the hero into a filter panel. */
+const QUICK_CITIES = PAKISTAN_CITIES.slice(0, 3)
 
-/**
- * Fixed positions, so the specks are identical on the server and the client.
- * Math.random() here would produce a different layout in each and React would
- * report a hydration mismatch.
- */
-const SPECKS = [
-  { left: '12%', top: '22%', size: 4, depth: 26 },
-  { left: '23%', top: '64%', size: 3, depth: 18 },
-  { left: '34%', top: '38%', size: 5, depth: 34 },
-  { left: '68%', top: '28%', size: 4, depth: 30 },
-  { left: '79%', top: '58%', size: 6, depth: 22 },
-  { left: '88%', top: '34%', size: 3, depth: 38 },
-  { left: '60%', top: '74%', size: 4, depth: 16 },
-]
+/** How far the layers travel, in pixels, at the far edge of the frame. */
+const DEPTH_IMAGE = 14
+const DEPTH_CONTENT = -22
 
-export function Hero({
-  stations,
-  cities,
-  portsFree,
-  portsTotal,
-  topRating,
-  topReviewCount,
-}: HeroProps) {
+export function Hero() {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
-  const stageRef = React.useRef<HTMLDivElement>(null)
+  const frameRef = React.useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
 
   const go = (value: string) => {
@@ -52,203 +28,180 @@ export function Hero({
     router.push(trimmed ? `/map?q=${encodeURIComponent(trimmed)}` : '/map')
   }
 
-  /** Same guards as every other 3D surface on the site. */
+  /**
+   * Real 3D, not a fake shadow: the frame gets a perspective, and the photo
+   * and the text sit on different Z planes, so moving the pointer parallaxes
+   * them against each other rather than sliding a flat picture around.
+   *
+   * Guarded three ways. Pointer events only fire for a real pointer, so touch
+   * devices never run it. A coarse-pointer or reduced-motion preference exits
+   * before any listener is attached. And the transform is written straight to
+   * the element rather than through state, so a mouse move never triggers a
+   * React render — the whole effect stays on the compositor.
+   */
   React.useEffect(() => {
-    const stage = stageRef.current
-    if (!stage) return
+    const frame = frameRef.current
+    if (!frame) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const coarse = window.matchMedia('(pointer: coarse)').matches
     if (reduced || coarse) return
 
     let raf = 0
+
     const onMove = (event: PointerEvent) => {
       if (event.pointerType !== 'mouse') return
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
-        const rect = stage.getBoundingClientRect()
-        setTilt({
-          x: ((event.clientX - rect.left) / rect.width - 0.5) * 2,
-          y: ((event.clientY - rect.top) / rect.height - 0.5) * 2,
-        })
+        const rect = frame.getBoundingClientRect()
+        // -1 .. 1 from the centre of the frame.
+        const x = (event.clientX - rect.left) / rect.width - 0.5
+        const y = (event.clientY - rect.top) / rect.height - 0.5
+        setTilt({ x: x * 2, y: y * 2 })
       })
     }
+
     const onLeave = () => {
       cancelAnimationFrame(raf)
       setTilt({ x: 0, y: 0 })
     }
 
-    stage.addEventListener('pointermove', onMove)
-    stage.addEventListener('pointerleave', onLeave)
+    frame.addEventListener('pointermove', onMove)
+    frame.addEventListener('pointerleave', onLeave)
+
     return () => {
       cancelAnimationFrame(raf)
-      stage.removeEventListener('pointermove', onMove)
-      stage.removeEventListener('pointerleave', onLeave)
+      frame.removeEventListener('pointermove', onMove)
+      frame.removeEventListener('pointerleave', onLeave)
     }
   }, [])
 
   return (
-    <section
-      ref={stageRef}
-      className="relative flex min-h-viewport flex-col overflow-hidden bg-[#0B0B0D] pt-[72px]"
-    >
-      {/* Warm pool under the unit, so it reads as lit rather than pasted on. */}
+    <section className="bg-white px-3 pb-6 pt-[84px] sm:px-4 sm:pb-10 lg:px-6">
+      {/* The frame is the stage. `perspective` here is what makes the
+          translateZ on the children read as depth rather than as scale. */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[46%] h-[620px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(56,189,248,0.20),rgba(37,99,235,0.10)_45%,transparent_72%)]"
-      />
-
-      {/* Specks, drifting against the pointer at their own depths. */}
-      {SPECKS.map((speck) => (
-        <span
-          key={`${speck.left}-${speck.top}`}
+        ref={frameRef}
+        className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] [perspective:1200px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]"
+      >
+        {/* Layer 1 — the photograph, pushed back and scaled slightly so its
+            edges never expose the frame as it parallaxes. */}
+        <div
           aria-hidden="true"
           style={{
-            left: speck.left,
-            top: speck.top,
-            width: speck.size,
-            height: speck.size,
-            transform: `translate3d(${tilt.x * speck.depth}px, ${tilt.y * speck.depth}px, 0)`,
+            transform: `translate3d(${tilt.x * DEPTH_IMAGE}px, ${tilt.y * DEPTH_IMAGE}px, 0) scale(1.06)`,
           }}
-          className="pointer-events-none absolute hidden rounded-full bg-cyan-200/50 blur-[1px] transition-transform duration-[500ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none lg:block"
-        />
-      ))}
-
-      <div className="container-plug relative flex flex-1 flex-col">
-        {/* ── Type + unit ──────────────────────────────────────────
-            The wordmark sits behind and the photograph in front, so the
-            unit breaks the word — the type continues either side of it.
-            The reference achieves this with a cut-out product on black;
-            no such asset exists for EV hardware in stock photography, so
-            the frame does the same job with a real photograph. */}
-        <div className="relative flex flex-1 items-center justify-center py-10 lg:py-0">
-          <h1
-            style={{ transform: `translate3d(${tilt.x * -14}px, ${tilt.y * -8}px, 0)` }}
-            className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-[58%] select-none text-center font-black leading-[0.8] tracking-[-0.045em] text-[#EDE7DA] transition-transform duration-[500ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
-          >
-            <span className="block text-[clamp(3.5rem,17vw,13rem)]">CHARGING</span>
-          </h1>
-
-          <div
-            style={{ transform: `translate3d(${tilt.x * 22}px, ${tilt.y * 14}px, 0)` }}
-            className="relative z-10 transition-transform duration-[500ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
-          >
-            <div className="relative h-[300px] w-[190px] overflow-hidden rounded-[80px] shadow-[0_40px_90px_rgba(0,0,0,0.65)] ring-1 ring-white/10 sm:h-[380px] sm:w-[240px] lg:h-[500px] lg:w-[310px]">
-              <Image
-                src="/images/stations/dha-charging-hub-3.jpg"
-                alt="A public charging pillar"
-                fill
-                priority
-                sizes="(max-width: 640px) 190px, (max-width: 1024px) 240px, 310px"
-                className="object-cover object-center"
-              />
-              {/* Feathers the base into the ground so the frame does not read
-                  as a photo pasted over the type. */}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0B0D]"
-              />
-            </div>
-          </div>
+          className="absolute inset-0 -z-10 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
+        >
+          <Image
+            src="/images/stations/dha-charging-hub-1.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
         </div>
 
-        {/* ── Copy and search ─────────────────────────────────────── */}
-        <div className="relative z-20 pb-8 lg:pb-10">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-            <div>
-              <p className="max-w-xs text-pretty text-[15px] leading-relaxed text-white/55">
-                Every public charger in Pakistan, with live port availability and reviews
-                from drivers who actually charged there.
-              </p>
+        {/* Layer 2 — legibility. Weighted to the bottom, where the text sits,
+            so the top of the photograph stays open. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950/45 via-slate-950/30 to-slate-950/80"
+        />
 
-              <form
-                role="search"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  go(query)
-                }}
-                className="mt-6 flex w-full max-w-md items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] p-1.5 pl-5 backdrop-blur-xl transition-colors duration-200 focus-within:border-cyan-300/50 focus-within:bg-white/[0.1]"
+        {/* Layer 3 — content, pulled forward. */}
+        <div
+          style={{
+            transform: `translate3d(${tilt.x * DEPTH_CONTENT}px, ${tilt.y * DEPTH_CONTENT}px, 0)`,
+          }}
+          className="relative flex min-h-[540px] flex-col items-center justify-end px-5 pb-12 text-center transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20"
+        >
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-3.5 py-1.5 text-ui-xs font-medium uppercase tracking-[0.14em] text-white/90 backdrop-blur-md">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-cyan-300 motion-reduce:animate-none"
+            />
+            Live across 18 cities
+          </span>
+
+          <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+            Every charger in Pakistan, on one map
+          </h1>
+
+          <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/85 sm:text-lg">
+            Live port availability, connector types, and reviews from drivers who
+            actually charged there.
+          </p>
+
+          {/* One control, shaped like a single button. Electra's hero has a
+              pill that goes to a search page; this is that pill with the
+              search already in it, so the visitor's intent travels with them
+              instead of being re-asked for on arrival. */}
+          <form
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault()
+              go(query)
+            }}
+            className="mt-9 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/20 bg-white/10 p-1.5 pl-5 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/45 focus-within:bg-white/[0.16]"
+          >
+            <Search size={18} className="shrink-0 text-white/70" aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search a city or station"
+              aria-label="Search for a charging station by city or name"
+              className="min-w-0 flex-1 border-none bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-white/55 [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            <button
+              type="submit"
+              className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-ui font-semibold text-slate-950 transition-colors duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 motion-reduce:transition-none"
+            >
+              <MapPin size={16} className="shrink-0" aria-hidden="true" />
+              <span className="hidden sm:inline">Find a station</span>
+              <span className="sm:hidden">Go</span>
+              <ArrowRight
+                size={15}
+                className="hidden shrink-0 transition-transform duration-200 group-hover/go:translate-x-0.5 motion-reduce:transition-none sm:block"
+                aria-hidden="true"
+              />
+            </button>
+          </form>
+
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-ui-xs text-white/55">Popular</span>
+            {QUICK_CITIES.map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => go(city)}
+                className={cn(
+                  'rounded-full border border-white/20 bg-black/20 px-3 py-1 text-ui-xs font-medium text-white/80 backdrop-blur-sm',
+                  'transition-colors duration-150 hover:border-white/40 hover:bg-black/35 hover:text-white',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
+                )}
               >
-                <Search size={17} className="shrink-0 text-white/45" aria-hidden="true" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search a city or station"
-                  aria-label="Search for a charging station by city or name"
-                  className="min-w-0 flex-1 border-none bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-white/40 [&::-webkit-search-cancel-button]:appearance-none"
-                />
-                <button
-                  type="submit"
-                  className="group/go inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#EDE7DA] px-5 text-ui font-semibold text-[#0B0B0D] transition-colors duration-200 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B0D] motion-reduce:transition-none"
-                >
-                  <MapPin size={15} className="shrink-0" aria-hidden="true" />
-                  <span className="hidden sm:inline">Find a charger</span>
-                  <span className="sm:hidden">Go</span>
-                  <ArrowRight
-                    size={14}
-                    className="hidden shrink-0 transition-transform duration-200 group-hover/go:translate-x-0.5 motion-reduce:transition-none sm:block"
-                    aria-hidden="true"
-                  />
-                </button>
-              </form>
-            </div>
+                {city}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ── Bottom strip ──────────────────────────────────────────
-          The reference runs a claim bar here. Every figure below is
-          counted from the database instead, so none of it can drift out
-          of step with the product. */}
-      <div className="relative z-20 border-t border-white/10">
-        <dl className="container-plug grid grid-cols-2 divide-x divide-white/10 lg:grid-cols-4">
-          <div className="flex items-center gap-3 py-5 pr-5">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-ui-xs font-bold text-white/70">
-              {topRating.toFixed(1)}
-            </span>
-            <div className="min-w-0">
-              <dd className="flex items-center gap-0.5" aria-hidden="true">
-                {Array.from({ length: 5 }, (_, index) => (
-                  <Star
-                    key={index}
-                    size={11}
-                    className={
-                      index < Math.round(topRating)
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-white/20'
-                    }
-                  />
-                ))}
-              </dd>
-              <dt className="mt-1 truncate text-ui-xs text-white/45">
-                {topReviewCount} driver reviews
-              </dt>
-            </div>
-          </div>
-
-          <div className="py-5 pl-5 lg:px-5">
-            <dd className="font-mono text-xl font-bold text-white">{stations}</dd>
-            <dt className="mt-0.5 text-ui-xs text-white/45">
-              Station{stations === 1 ? '' : 's'} listed
-            </dt>
-          </div>
-
-          <div className="border-t border-white/10 py-5 pr-5 lg:border-t-0 lg:px-5">
-            <dd className="font-mono text-xl font-bold text-white">{cities}</dd>
-            <dt className="mt-0.5 text-ui-xs text-white/45">
-              Cit{cities === 1 ? 'y' : 'ies'} covered
-            </dt>
-          </div>
-
-          <div className="border-t border-white/10 py-5 pl-5 lg:border-t-0 lg:px-5">
-            <dd className="font-mono text-xl font-bold text-white">
-              {portsFree}
-              <span className="text-white/30">/{portsTotal}</span>
-            </dd>
-            <dt className="mt-0.5 text-ui-xs text-white/45">Ports free now</dt>
-          </div>
-        </dl>
+      <div className="mx-auto mt-5 flex max-w-[1600px] justify-center lg:mt-6">
+        <Link
+          href="/routes"
+          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-4"
+        >
+          Driving between cities? Plan a route with charging stops
+          <ArrowRight
+            size={15}
+            className="shrink-0 transition-transform duration-200 group-hover/link:translate-x-1 motion-reduce:transition-none"
+            aria-hidden="true"
+          />
+        </Link>
       </div>
     </section>
   )
