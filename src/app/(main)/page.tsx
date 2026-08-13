@@ -8,9 +8,9 @@ import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
-import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
 import { getPlatformStats, getStations } from '@/lib/db/queries'
+import { getPortAvailability } from '@/lib/utils'
 
 /**
  * Cached, not dynamic.
@@ -38,13 +38,31 @@ export default async function HomePage() {
   // order rows happen to sit in.
   const topRated = [...stations].sort((a, b) => b.rating - a.rating).slice(0, 3)
 
+  // The hero's bottom strip quotes real figures rather than claims, so they
+  // are counted here alongside everything else the page already reads.
+  const ports = stations.reduce(
+    (totals, station) => {
+      const s = getPortAvailability(station)
+      return { available: totals.available + s.available, total: totals.total + s.total }
+    },
+    { available: 0, total: 0 },
+  )
+  const best = topRated[0]
+
   return (
     <>
-      {/* The hero animates on load; everything past the fold reveals on
-          approach so the page reads as a sequence rather than a dump.
-          StatsBar is excluded — it runs its own count-up observer. */}
-      <Hero />
-      <StatsBar stations={stats.stations} cities={stats.cities} owners={stats.owners} />
+      {/* The hero carries its own figures along the bottom, so there is no
+          separate stats band — the two were showing the same station and city
+          counts one below the other. Everything past the fold reveals on
+          approach so the page reads as a sequence rather than a dump. */}
+      <Hero
+        stations={stats.stations}
+        cities={stats.cities}
+        portsFree={ports.available}
+        portsTotal={ports.total}
+        topRating={best?.rating ?? 0}
+        topReviewCount={best?.reviewCount ?? 0}
+      />
       <Reveal>
         <HowItWorks />
       </Reveal>
