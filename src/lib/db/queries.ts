@@ -4,7 +4,7 @@ import 'server-only'
 import type { CommunityPost, EVService, Station } from '@/lib/types'
 
 import { prisma } from './client'
-import { toPost, toService, toStation } from './serialize'
+import { toConnector, toPost, toService, toStation } from './serialize'
 
 /**
  * Read side of the data layer. Every function returns the same interfaces the
@@ -126,4 +126,37 @@ export async function getContentCounts(): Promise<ContentCounts> {
     prisma.comment.count(),
   ])
   return { stations, connectors, reviews, services, posts, comments }
+}
+
+// ─── Connectors ─────────────────────────────────────
+
+export interface ConnectorWithStation {
+  connector: import('@/lib/types').Connector
+  stationId: string
+  stationName: string
+  stationSlug: string
+  city: string
+}
+
+/**
+ * Every connector on the network, with the station it belongs to.
+ *
+ * This is the operator's working view: ports free, power and price are the
+ * numbers that change during a shift, and they live on the connector rather
+ * than the station. Reading them station-by-station would mean opening six
+ * pages to answer one question.
+ */
+export async function getConnectors(): Promise<ConnectorWithStation[]> {
+  const rows = await prisma.connector.findMany({
+    include: { station: { select: { id: true, name: true, slug: true, city: true } } },
+    orderBy: [{ station: { name: 'asc' } }, { maxPowerKw: 'desc' }],
+  })
+
+  return rows.map((row) => ({
+    connector: toConnector(row),
+    stationId: row.station.id,
+    stationName: row.station.name,
+    stationSlug: row.station.slug,
+    city: row.station.city,
+  }))
 }

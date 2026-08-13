@@ -213,3 +213,94 @@ export async function deleteComment(id: string): Promise<ActionResult> {
   revalidatePath('/admin/community')
   return { ok: true }
 }
+
+// ─── Connectors ─────────────────────────────────────
+
+/**
+ * Port availability is the single most frequent write this product will take,
+ * so it is its own action rather than a field buried in a station form. It
+ * clamps rather than rejects: an operator correcting a count under pressure
+ * should not be argued with over a typo, and "6 free of 4" is not a state
+ * the product can render anyway.
+ */
+export async function setConnectorAvailability(
+  id: string,
+  availablePorts: number,
+): Promise<ActionResult> {
+  await assertAdmin()
+
+  const connector = await prisma.connector.findUnique({
+    where: { id },
+    include: { station: { select: { slug: true } } },
+  })
+  if (!connector) return { ok: false, message: 'That connector no longer exists.' }
+
+  const clamped = Math.max(0, Math.min(Math.round(availablePorts), connector.ports))
+
+  await prisma.connector.update({
+    where: { id },
+    data: { availablePorts: clamped },
+  })
+
+  revalidateStationSurfaces(connector.station.slug)
+  revalidatePath('/admin/connectors')
+  revalidatePath('/admin')
+  return { ok: true }
+}
+
+export async function saveConnector(
+  id: string | null,
+  stationId: string,
+  form: FormData,
+): Promise<ActionResult> {
+  await assertAdmin()
+
+  const ports = Math.max(1, Math.round(readNumber(form, 'ports', 1)))
+  // Free ports can never exceed the total, whichever order they were typed in.
+  const availablePorts = Math.max(0, Math.min(Math.round(readNumber(form, 'availablePorts')), ports))
+
+  const data = {
+    type: String(form.get('type') ?? 'CCS2'),
+    maxPowerKw: readNumber(form, 'maxPowerKw'),
+    ports,
+    availablePorts,
+    pricePerKwh: readNumber(form, 'pricePerKwh'),
+    isFree: form.get('isFree') === 'on',
+    status: String(form.get('status') ?? 'available'),
+  }
+
+  const station = await prisma.station.findUnique({
+    where: { id: stationId },
+    select: { slug: true },
+  })
+  if (!station) return { ok: false, message: 'That station no longer exists.' }
+
+  if (id) {
+    await prisma.connector.update({ where: { id }, data })
+  } else {
+    await prisma.connector.create({
+      data: { ...data, id: `con-${Date.now().toString(36)}`, stationId, compatibleVehicles: '[]' },
+    })
+  }
+
+  revalidateStationSurfaces(station.slug)
+  revalidatePath('/admin/connectors')
+  revalidatePath(`/admin/stations/${stationId}`)
+  revalidatePath('/admin')
+  return { ok: true }
+}
+
+export async function deleteConnector(id: string): Promise<ActionResult> {
+  await assertAdmin()
+
+  const connector = await prisma.connector.delete({
+    where: { id },
+    include: { station: { select: { slug: true, id: true } } },
+  })
+
+  revalidateStationSurfaces(connector.station.slug)
+  revalidatePath('/admin/connectors')
+  revalidatePath(`/admin/stations/${connector.station.id}`)
+  revalidatePath('/admin')
+  return { ok: true }
+}
