@@ -1,189 +1,208 @@
 // src/components/home/Hero.tsx
 'use client'
 
-import { ArrowRight, ChevronDown, ShieldCheck } from 'lucide-react'
+import { ArrowRight, MapPin, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
 
-import { HeroSearch } from '@/components/home/HeroSearch'
-import { ConnectorBadgeGroup, PhotoFrame, PortMeter, SpeedBadge } from '@/components/ui'
-import { MOCK_STATIONS } from '@/lib/mock-data'
-import { cn, formatPricePerKwh, getLowestPrice, getMaxPower, getPortAvailability } from '@/lib/utils'
+import { PAKISTAN_CITIES } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 
-/**
- * The hero card shows a real station from the catalogue rather than an
- * invented one — the same photo, status and pricing the station page shows,
- * so the first thing a visitor sees is the actual product.
- */
-const FEATURED = MOCK_STATIONS.find((station) => station.slug === 'mall-road-ev-hub-lahore')
+/** Enough to start from without turning the hero into a filter panel. */
+const QUICK_CITIES = PAKISTAN_CITIES.slice(0, 3)
+
+/** How far the layers travel, in pixels, at the far edge of the frame. */
+const DEPTH_IMAGE = 14
+const DEPTH_CONTENT = -22
 
 export function Hero() {
-  const maxPower = FEATURED ? getMaxPower(FEATURED) : 0
-  const ports = FEATURED ? getPortAvailability(FEATURED) : { available: 0, total: 0 }
-  const price = FEATURED ? getLowestPrice(FEATURED) : null
+  const router = useRouter()
+  const [query, setQuery] = React.useState('')
+  const frameRef = React.useRef<HTMLDivElement>(null)
+  const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
+
+  const go = (value: string) => {
+    const trimmed = value.trim()
+    router.push(trimmed ? `/map?q=${encodeURIComponent(trimmed)}` : '/map')
+  }
+
+  /**
+   * Real 3D, not a fake shadow: the frame gets a perspective, and the photo
+   * and the text sit on different Z planes, so moving the pointer parallaxes
+   * them against each other rather than sliding a flat picture around.
+   *
+   * Guarded three ways. Pointer events only fire for a real pointer, so touch
+   * devices never run it. A coarse-pointer or reduced-motion preference exits
+   * before any listener is attached. And the transform is written straight to
+   * the element rather than through state, so a mouse move never triggers a
+   * React render — the whole effect stays on the compositor.
+   */
+  React.useEffect(() => {
+    const frame = frameRef.current
+    if (!frame) return
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    if (reduced || coarse) return
+
+    let raf = 0
+
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerType !== 'mouse') return
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const rect = frame.getBoundingClientRect()
+        // -1 .. 1 from the centre of the frame.
+        const x = (event.clientX - rect.left) / rect.width - 0.5
+        const y = (event.clientY - rect.top) / rect.height - 0.5
+        setTilt({ x: x * 2, y: y * 2 })
+      })
+    }
+
+    const onLeave = () => {
+      cancelAnimationFrame(raf)
+      setTilt({ x: 0, y: 0 })
+    }
+
+    frame.addEventListener('pointermove', onMove)
+    frame.addEventListener('pointerleave', onLeave)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      frame.removeEventListener('pointermove', onMove)
+      frame.removeEventListener('pointerleave', onLeave)
+    }
+  }, [])
 
   return (
-    <section className="relative flex min-h-viewport items-center overflow-hidden bg-slate-950">
-      {/* Layer 0 — photograph. Carries the depth that CSS gradients alone
-          cannot; everything above it is treatment, not decoration. */}
-      <div aria-hidden="true" className="absolute inset-0 z-0">
-        <Image
-          src="/images/hero/charging-hub-night.jpg"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-[0.28]"
+    <section className="bg-white px-3 pb-6 pt-[84px] sm:px-4 sm:pb-10 lg:px-6">
+      {/* The frame is the stage. `perspective` here is what makes the
+          translateZ on the children read as depth rather than as scale. */}
+      <div
+        ref={frameRef}
+        className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] [perspective:1200px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]"
+      >
+        {/* Layer 1 — the photograph, pushed back and scaled slightly so its
+            edges never expose the frame as it parallaxes. */}
+        <div
+          aria-hidden="true"
+          style={{
+            transform: `translate3d(${tilt.x * DEPTH_IMAGE}px, ${tilt.y * DEPTH_IMAGE}px, 0) scale(1.06)`,
+          }}
+          className="absolute inset-0 -z-10 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
+        >
+          <Image
+            src="/images/stations/dha-charging-hub-1.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+
+        {/* Layer 2 — legibility. Weighted to the bottom, where the text sits,
+            so the top of the photograph stays open. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950/45 via-slate-950/30 to-slate-950/80"
         />
-      </div>
 
-      {/* Layer 1 — brand wash, keeps the photo from reading as a stock plate */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-950/80 to-blue-950/60"
-      />
+        {/* Layer 3 — content, pulled forward. */}
+        <div
+          style={{
+            transform: `translate3d(${tilt.x * DEPTH_CONTENT}px, ${tilt.y * DEPTH_CONTENT}px, 0)`,
+          }}
+          className="relative flex min-h-[540px] flex-col items-center justify-end px-5 pb-12 text-center transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20"
+        >
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-3.5 py-1.5 text-ui-xs font-medium uppercase tracking-[0.14em] text-white/90 backdrop-blur-md">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-cyan-300 motion-reduce:animate-none"
+            />
+            Live across 18 cities
+          </span>
 
-      {/* Layer 2 — dot grid */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:28px_28px]"
-      />
+          <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+            Every charger in Pakistan, on one map
+          </h1>
 
-      {/* Layer 3 — glow behind the headline, anchors the eye left */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-[120px] top-1/4 z-0 h-[520px] w-[520px] rounded-full bg-blue-600/20 blur-[130px]"
-      />
+          <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/85 sm:text-lg">
+            Live port availability, real prices, and reviews from drivers who actually
+            charged there.
+          </p>
 
-      {/* Layer 4 — floor fade into the next section */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[240px] bg-gradient-to-b from-transparent to-slate-950"
-      />
-
-      <div className="container-plug relative z-10 w-full pb-14 pt-24 sm:pb-20 sm:pt-28 lg:pb-32 lg:pt-40">
-        <div className="grid items-center gap-16 lg:grid-cols-[11fr_9fr]">
-          {/* ── Left column ─────────────────────────────────────── */}
-          <div>
-            <span className="mb-5 inline-flex animate-fade-up lg:mb-8 items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-xs font-medium uppercase tracking-widest text-white/70 opacity-0 backdrop-blur-sm">
-              <span
+          {/* One control, shaped like a single button. Electra's hero has a
+              pill that goes to a search page; this is that pill with the
+              search already in it, so the visitor's intent travels with them
+              instead of being re-asked for on arrival. */}
+          <form
+            role="search"
+            onSubmit={(event) => {
+              event.preventDefault()
+              go(query)
+            }}
+            className="mt-9 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/20 bg-white/10 p-1.5 pl-5 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/45 focus-within:bg-white/[0.16]"
+          >
+            <Search size={18} className="shrink-0 text-white/70" aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search a city or station"
+              aria-label="Search for a charging station by city or name"
+              className="min-w-0 flex-1 border-none bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-white/55 [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            <button
+              type="submit"
+              className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-ui font-semibold text-slate-950 transition-colors duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 motion-reduce:transition-none"
+            >
+              <MapPin size={16} className="shrink-0" aria-hidden="true" />
+              <span className="hidden sm:inline">Find a station</span>
+              <span className="sm:hidden">Go</span>
+              <ArrowRight
+                size={15}
+                className="hidden shrink-0 transition-transform duration-200 group-hover/go:translate-x-0.5 motion-reduce:transition-none sm:block"
                 aria-hidden="true"
-                className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-cyan-400"
               />
-              Live across 18 cities
-            </span>
+            </button>
+          </form>
 
-            <h1 className="mb-6 text-[clamp(2.75rem,7vw,4.75rem)] font-black leading-[0.98] tracking-[-0.03em] text-white">
-              <span className="block animate-fade-up opacity-0">Every charger</span>
-              <span className="delay-100 block animate-fade-up opacity-0">in Pakistan.</span>
-              <span className="delay-200 block animate-fade-up bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent opacity-0">
-                One map.
-              </span>
-            </h1>
-
-            <p className="delay-300 mb-7 max-w-md lg:mb-9 animate-fade-up text-lg leading-relaxed text-white/65 opacity-0">
-              Live port availability, real prices, and reviews from drivers who actually
-              charged there.
-            </p>
-
-            {/* delay-400 comes from globals.css (animation-delay). Tailwind's
-                own delay-* utility sets transition-delay and would not stagger
-                the fade-up animation. */}
-            <div className="delay-400 animate-fade-up opacity-0">
-              <HeroSearch />
-            </div>
-
-            <div className="delay-500 mt-6 animate-fade-up border-t border-white/10 pt-5 opacity-0 lg:mt-8 lg:pt-6">
-              <Link
-                href="/routes"
-                className="group/link inline-flex items-center gap-2 text-sm font-medium text-white/60 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span className="text-ui-xs text-white/55">Popular</span>
+            {QUICK_CITIES.map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => go(city)}
+                className={cn(
+                  'rounded-full border border-white/20 bg-black/20 px-3 py-1 text-ui-xs font-medium text-white/80 backdrop-blur-sm',
+                  'transition-colors duration-150 hover:border-white/40 hover:bg-black/35 hover:text-white',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
+                )}
               >
-                Driving between cities? Plan a route with charging stops
-                <ArrowRight
-                  size={15}
-                  className="shrink-0 transition-transform duration-200 group-hover/link:translate-x-1 motion-reduce:transition-none"
-                  aria-hidden="true"
-                />
-              </Link>
-            </div>
+                {city}
+              </button>
+            ))}
           </div>
-
-          {/* ── Right column — a real station, not a mock ────────── */}
-          {FEATURED ? (
-            <div className="delay-600 hidden animate-fade-up opacity-0 lg:block">
-              <Link
-                href={`/station/${FEATURED.slug}`}
-                className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] shadow-e4 backdrop-blur-xl transition-transform duration-300 ease-out hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <PhotoFrame
-                    src={FEATURED.coverPhoto}
-                    alt={`${FEATURED.name} charging station`}
-                    sizes="(max-width: 1024px) 0px, 460px"
-                    priority
-                    zoomOnHover
-                    overlay
-                  />
-
-                  {FEATURED.isVerified ? (
-                    <span className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-md">
-                      <ShieldCheck size={13} className="text-cyan-300" aria-hidden="true" />
-                      <span className="text-xs font-medium text-white">Verified</span>
-                    </span>
-                  ) : null}
-
-                  <div className="absolute inset-x-4 bottom-4 z-10">
-                    <p className="text-lg font-bold leading-tight text-white">{FEATURED.name}</p>
-                    <p className="mt-0.5 text-sm text-white/70">
-                      {FEATURED.address.area}, {FEATURED.address.city}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="px-5 py-4">
-                  {/* The signature availability read, shown here at the largest
-                      size it appears anywhere in the product. */}
-                  <PortMeter
-                    available={ports.available}
-                    total={ports.total}
-                    size="lg"
-                    onDark
-                    className="mb-4"
-                  />
-
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 flex-wrap items-center gap-2">
-                      <ConnectorBadgeGroup connectors={FEATURED.connectors} max={2} size="sm" />
-                      {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
-                    </div>
-                    {price !== null ? (
-                      <span className="shrink-0 font-mono text-sm font-semibold text-white">
-                        {price === 0 ? 'Free' : formatPricePerKwh(price)}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
-
-              <p className="mt-4 text-center text-xs text-white/35">
-                A live listing from the network
-              </p>
-            </div>
-          ) : null}
         </div>
       </div>
 
-      <Link
-        href="#stats"
-        aria-label="Scroll to explore"
-        className={cn(
-          'absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 lg:flex',
-          'transition-opacity duration-150 hover:opacity-80',
-        )}
-      >
-        <span className="text-xs uppercase tracking-widest text-white/40">Scroll to explore</span>
-        <ChevronDown size={16} className="animate-bounce text-white/40" aria-hidden="true" />
-      </Link>
+      <div className="mx-auto mt-5 flex max-w-[1600px] justify-center lg:mt-6">
+        <Link
+          href="/routes"
+          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-4"
+        >
+          Driving between cities? Plan a route with charging stops
+          <ArrowRight
+            size={15}
+            className="shrink-0 transition-transform duration-200 group-hover/link:translate-x-1 motion-reduce:transition-none"
+            aria-hidden="true"
+          />
+        </Link>
+      </div>
     </section>
   )
 }
