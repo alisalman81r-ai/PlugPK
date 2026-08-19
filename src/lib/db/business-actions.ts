@@ -32,6 +32,8 @@ export interface DraftCharger {
   connectorType: string
   maxPowerKw: number
   ports: number
+  /** Set once a photo has been uploaded for this charger. */
+  photo?: string
 }
 
 export interface BusinessApplication {
@@ -137,6 +139,9 @@ export async function registerBusiness(
           connectorType: charger.connectorType,
           maxPowerKw: Number(charger.maxPowerKw) || 0,
           ports: Math.max(1, Number(charger.ports) || 1),
+          ...(typeof charger.photo === 'string' && charger.photo.startsWith('/uploads/chargers/')
+            ? { photo: charger.photo }
+            : {}),
         }))
     : []
 
@@ -380,6 +385,11 @@ export async function saveMyChargers(
       connectorType: charger.connectorType,
       maxPowerKw: Math.max(0, Number(charger.maxPowerKw) || 0),
       ports: Math.min(50, Math.max(1, Number(charger.ports) || 1)),
+      // Only paths this application wrote are kept. Anything else in the field
+      // would let a saved listing point at an arbitrary URL.
+      ...(typeof charger.photo === 'string' && charger.photo.startsWith('/uploads/chargers/')
+        ? { photo: charger.photo }
+        : {}),
     }))
 
   await prisma.business.update({

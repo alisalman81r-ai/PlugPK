@@ -289,6 +289,8 @@ export interface BusinessCharger {
   connectorType: string
   maxPowerKw: number
   ports: number
+  /** Path to an uploaded photo, e.g. /uploads/chargers/<id>.jpg. */
+  photo?: string
 }
 
 export interface BusinessRow {

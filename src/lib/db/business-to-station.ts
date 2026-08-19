@@ -44,6 +44,10 @@ export function businessToStation(
   business: BusinessRow,
   rating: BusinessRating = { rating: 0, reviewCount: 0 },
 ): Station {
+  const photos = business.chargers
+    .map((charger) => charger.photo)
+    .filter((photo): photo is string => typeof photo === 'string' && photo.length > 0)
+
   const connectors = business.chargers.map((charger, index) => {
     const type = KNOWN_CONNECTORS.includes(charger.connectorType as ConnectorType)
       ? (charger.connectorType as ConnectorType)
@@ -81,8 +85,11 @@ export function businessToStation(
     connectors,
     amenities: [],
     operatingHours: HOURS_UNKNOWN,
-    photos: [],
-    coverPhoto: undefined,
+    // Whatever the owner uploaded against their chargers. Without this the
+    // upload would be a picture nobody outside the dashboard ever sees, which
+    // is not what somebody photographing their charger is trying to do.
+    photos,
+    coverPhoto: photos[0],
     // Earned from reviews on this listing. A newly approved one has none, so it
     // starts at zero rather than borrowing a score.
     rating: rating.rating,

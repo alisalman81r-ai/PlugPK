@@ -34,3 +34,6 @@ prisma/dev.db-journal
 
 # Verification builds, kept apart from the dev server output.
 .next-verify/
+
+# Uploaded charger photos — user content, not source.
+public/uploads/

@@ -1,12 +1,13 @@
 // src/components/business/ChargerManager.tsx
 'use client'
 
-import { Check, Loader2, Plus, Trash2, Zap } from 'lucide-react'
+import { Check, ImagePlus, Loader2, Plus, Trash2, X, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import { saveMyChargers, type DraftCharger } from '@/lib/db/business-actions'
+import { deleteChargerPhoto, uploadChargerPhoto } from '@/lib/db/upload-actions'
 
 /**
  * The chargers on the owner's listing.
@@ -47,6 +48,46 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
   // actually changed rather than offering to save a list nobody touched.
   const [saved, setSaved] = React.useState<string>(() => JSON.stringify(chargers))
   const isDirty = JSON.stringify(rows) !== saved
+
+  // Which row's photo is in flight. Held by index so two uploads cannot both
+  // claim the spinner.
+  const [uploading, setUploading] = React.useState<number | null>(null)
+
+  /**
+   * Uploads a photo and attaches it to one charger.
+   *
+   * The file goes up as soon as it is chosen rather than waiting for Save,
+   * because a picture needs to be visible to be worth keeping — you cannot
+   * judge a thumbnail you have not seen. The path it returns is held in the
+   * row like any other field, so it is Save that commits it to the listing.
+   */
+  const attachPhoto = async (index: number, file: File) => {
+    setUploading(index)
+    setError(null)
+
+    const form = new FormData()
+    form.set('file', file)
+
+    const result = await uploadChargerPhoto(businessId, form)
+    setUploading(null)
+
+    if (!result.ok || !result.url) {
+      setError(result.message ?? 'Could not upload that image.')
+      return
+    }
+
+    // Replacing an existing photo leaves the old file behind otherwise.
+    const previous = rows[index]?.photo
+    if (previous) void deleteChargerPhoto(businessId, previous).catch(() => {})
+
+    patch(index, { photo: result.url })
+  }
+
+  const removePhoto = async (index: number) => {
+    const url = rows[index]?.photo
+    patch(index, { photo: undefined })
+    if (url) void deleteChargerPhoto(businessId, url).catch(() => {})
+  }
 
   const patch = (index: number, next: Partial<DraftCharger>) => {
     setRows((current) =>
@@ -110,10 +151,8 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
         ) : (
           <ul className="flex flex-col gap-3">
             {rows.map((row, index) => (
-              <li
-                key={`charger-${index}`}
-                className="grid items-end gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
-              >
+              <li key={`charger-${index}`} className="rounded-xl border border-slate-200 p-4">
+                <div className="grid items-end gap-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
                 <div>
                   <label
                     htmlFor={`charger-type-${index}`}
@@ -180,8 +219,67 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                   aria-label={`Remove charger ${index + 1}`}
                   className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                 >
-                  <Trash2 size={16} aria-hidden="true" />
-                </button>
+                    <Trash2 size={16} aria-hidden="true" />
+                  </button>
+                </div>
+
+                {/* ── Photo ─────────────────────────────────────── */}
+                <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-4">
+                  {row.photo ? (
+                    <span className="relative shrink-0">
+                      {/* A plain img, not next/image: the file was uploaded a
+                          moment ago and its dimensions are unknown, and the
+                          optimizer adds nothing to a 96px thumbnail. */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={row.photo}
+                        alt={`Charger ${index + 1}`}
+                        className="h-24 w-24 rounded-xl border border-slate-200 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void removePhoto(index)}
+                        aria-label={`Remove the photo of charger ${index + 1}`}
+                        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <X size={14} aria-hidden="true" />
+                      </button>
+                    </span>
+                  ) : null}
+
+                  <label
+                    className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-dashed border-slate-300 px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:border-plug-blue-300 hover:bg-blue-50 hover:text-plug-blue-700 ${uploading === index ? 'pointer-events-none opacity-60' : ''}`}
+                  >
+                    {uploading === index ? (
+                      <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                    ) : (
+                      <ImagePlus size={16} aria-hidden="true" />
+                    )}
+                    {uploading === index
+                      ? 'Uploading…'
+                      : row.photo
+                        ? 'Replace image'
+                        : 'Add image'}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0]
+                        // Cleared so choosing the same file twice in a row
+                        // still fires a change event.
+                        event.target.value = ''
+                        if (file) void attachPhoto(index, file)
+                      }}
+                    />
+                  </label>
+
+                  {!row.photo && uploading !== index ? (
+                    <span className="text-ui-sm text-slate-500">
+                      JPEG, PNG or WebP, up to 5MB. Shown to drivers on your listing.
+                    </span>
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>
