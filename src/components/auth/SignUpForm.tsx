@@ -12,6 +12,11 @@ import { registerUser } from '@/lib/db/auth-actions'
 
 export interface SignUpFormProps {
   onSuccess?: () => void
+  /**
+   * Where to go once the account exists. Vehicle onboarding by default, but a
+   * visitor who came here to list a business is sent back to that form.
+   */
+  redirectTo?: string
 }
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -116,7 +121,7 @@ interface Errors {
   general?: string
 }
 
-export function SignUpForm({ onSuccess }: SignUpFormProps) {
+export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
   const router = useRouter()
 
   const [fullName, setFullName] = React.useState('')
@@ -183,7 +188,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     }
 
     onSuccess?.()
-    router.push('/onboarding/vehicle')
+    router.push(redirectTo ?? '/onboarding/vehicle')
   }
 
   return (

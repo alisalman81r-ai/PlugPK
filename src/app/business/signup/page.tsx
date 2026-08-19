@@ -1,13 +1,32 @@
 // src/app/business/signup/page.tsx
-'use client'
-
 import { Zap } from 'lucide-react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 import { BusinessSignUpForm } from '@/components/business/BusinessSignUpForm'
 import { EyebrowBadge } from '@/components/ui'
+import { getCurrentProfile } from '@/lib/db/session-actions'
 
-export default function BusinessSignUpPage() {
+/**
+ * Listing a business requires an account first.
+ *
+ * The form used to create the account itself, from an email and password typed
+ * into its first step. That was also a way in: an email that already had an
+ * account was accepted without checking the password, and the submitter was
+ * then signed in as its owner. Anyone who knew a registered address could take
+ * over that account by filling in this form.
+ *
+ * Taking the identity from the session removes the question entirely. There is
+ * no email or password field left to get wrong, and the listing is attached to
+ * whoever is actually signed in.
+ */
+
+export const dynamic = 'force-dynamic'
+
+export default async function BusinessSignUpPage() {
+  const profile = await getCurrentProfile()
+  if (!profile) redirect('/login?redirect=/business/signup')
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-8 py-5">
@@ -19,8 +38,11 @@ export default function BusinessSignUpPage() {
           </span>
         </Link>
 
-        <Link href="/login" className="text-sm text-plug-blue-600 hover:underline">
-          Already listed? Sign in &rarr;
+        <Link
+          href="/business/dashboard"
+          className="text-sm text-plug-blue-600 hover:underline"
+        >
+          Your listings &rarr;
         </Link>
       </header>
 
@@ -35,7 +57,9 @@ export default function BusinessSignUpPage() {
           </p>
         </div>
 
-        <BusinessSignUpForm />
+        <BusinessSignUpForm
+          account={{ name: profile.name, email: profile.email, phone: null }}
+        />
       </div>
     </div>
   )

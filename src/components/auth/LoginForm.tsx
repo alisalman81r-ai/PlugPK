@@ -173,7 +173,10 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-semibold text-plug-blue-600 hover:underline">
+        <Link
+          href={redirectTo === '/dashboard' ? '/signup' : `/signup?redirect=${encodeURIComponent(redirectTo)}`}
+          className="font-semibold text-plug-blue-600 hover:underline"
+        >
           Create one free
         </Link>
       </p>

@@ -8,9 +8,8 @@ import { revalidatePath } from 'next/cache'
 
 import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
 
-import { registerOwnerAccount } from './auth-actions'
 import { prisma } from './client'
-import { getCurrentUser, startSession } from './session-actions'
+import { getCurrentUser } from './session-actions'
 
 /**
  * Applications from businesses wanting their chargers listed.
@@ -36,18 +35,18 @@ export interface DraftCharger {
 }
 
 export interface BusinessApplication {
-  ownerName: string
-  email: string
   /**
-   * Creates the owner's account.
+   * No name, email or password.
    *
-   * Previously this action refused a password outright, because the only
-   * options were storing it in plaintext or hashing it into the wrong table.
-   * Now it is handed straight to registerOwnerAccount, which writes a scrypt
-   * hash to User and nothing to Business — the application row still never
-   * holds a credential.
+   * They used to be here, and the action created an account from them. When
+   * the email already existed it was accepted without the password being
+   * checked, and the submitter was then signed in as that account's owner —
+   * so filling in this form with somebody else's registered address handed
+   * over their account.
+   *
+   * The identity now comes from the session on the server, where it cannot be
+   * chosen by whoever is posting.
    */
-  password?: string
   phone?: string
   businessName: string
   businessType: string
@@ -105,8 +104,16 @@ const BUSINESS_TYPES = [
 export async function registerBusiness(
   application: BusinessApplication,
 ): Promise<BusinessResult> {
-  const ownerName = application.ownerName?.trim() ?? ''
-  const email = application.email?.trim().toLowerCase() ?? ''
+  // Listing requires an account. The page redirects to /login before the form
+  // is shown, but this is the check that actually enforces it — the page only
+  // decides what to render, while this is the endpoint that writes.
+  const user = await getCurrentUser()
+  if (!user) {
+    return { ok: false, message: 'Sign in to list a business.' }
+  }
+
+  const ownerName = user.name
+  const email = user.email
   const businessName = application.businessName?.trim() ?? ''
   const businessType = application.businessType?.trim() ?? ''
   const city = application.city?.trim() ?? ''
@@ -114,8 +121,6 @@ export async function registerBusiness(
   // Re-validated here rather than trusted from the client. The form checks
   // these too, but that check is a convenience for the person typing; this one
   // is the one that actually protects the table.
-  if (!ownerName) return { ok: false, message: 'Enter your full name.' }
-  if (!email.includes('@')) return { ok: false, message: 'Enter a valid email address.' }
   if (!businessName) return { ok: false, message: 'Enter your business name.' }
   if (!BUSINESS_TYPES.includes(businessType)) {
     return { ok: false, message: 'Choose a business type.' }
@@ -124,15 +129,6 @@ export async function registerBusiness(
 
   const coordinates = readCoordinates(application.lat, application.lng)
   if (!coordinates.ok) return { ok: false, message: coordinates.message }
-
-  // The account is created first: if hashing or the email check fails, no
-  // orphan application is left behind pointing at an owner who cannot sign in.
-  let userId: string | null = null
-  if (application.password) {
-    const account = await registerOwnerAccount(ownerName, email, application.password)
-    if (!account.ok) return { ok: false, message: account.message ?? 'Could not create your account.' }
-    userId = account.userId ?? null
-  }
 
   const chargers = Array.isArray(application.chargers)
     ? application.chargers
@@ -147,7 +143,7 @@ export async function registerBusiness(
   await prisma.business.create({
     data: {
       id: randomUUID(),
-      userId,
+      userId: user.id,
       ownerName,
       email,
       phone: application.phone?.trim() || null,
@@ -159,15 +155,10 @@ export async function registerBusiness(
       lat: coordinates.lat,
       lng: coordinates.lng,
       chargers: JSON.stringify(chargers),
-      // No credential is written here. The password went to
-      // registerOwnerAccount, which hashed it into User; this row holds only
-      // the link to that account.
+      // No credential is written here, and none is accepted. The owner already
+      // has an account; this row only records which one.
     },
   })
-
-  // Signed in immediately, so the owner is not asked to retype the password
-  // they chose two clicks ago before they can see their own dashboard.
-  if (userId) await startSession(userId)
 
   revalidatePath('/admin/businesses')
   revalidatePath('/admin')

@@ -39,10 +39,16 @@ interface DraftCharger {
   ports: number
 }
 
+export interface BusinessSignUpFormProps {
+  /**
+   * Who is signed in. Supplied by the page, which redirects to /login when
+   * nobody is — so this component never has to ask for an email or a password,
+   * and a listing can only ever be attached to a real, verified session.
+   */
+  account: { name: string; email: string; phone: string | null }
+}
+
 interface FormData {
-  ownerName: string
-  email: string
-  password: string
   phone: string
   businessName: string
   businessType: BusinessType | ''
@@ -54,7 +60,7 @@ interface FormData {
   chargers: DraftCharger[]
 }
 
-const STEPS = ['Account', 'Business', 'Chargers', 'Review'] as const
+const STEPS = ['Your details', 'Business', 'Chargers', 'Review'] as const
 
 const TYPE_OPTIONS: { value: BusinessType; label: string; icon: LucideIcon; note: string }[] = [
   { value: 'hotel', label: 'Hotel', icon: Hotel, note: 'Guests charge overnight' },
@@ -71,7 +77,7 @@ const FIELD =
 
 const MAX_CHARGERS = 10
 
-export function BusinessSignUpForm() {
+export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
   const [currentStep, setCurrentStep] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isComplete, setIsComplete] = React.useState(false)
@@ -80,10 +86,7 @@ export function BusinessSignUpForm() {
   const [error, setError] = React.useState<string | null>(null)
 
   const [data, setData] = React.useState<FormData>({
-    ownerName: '',
-    email: '',
-    password: '',
-    phone: '',
+    phone: account.phone ?? '',
     businessName: '',
     businessType: '',
     city: '',
@@ -111,9 +114,9 @@ export function BusinessSignUpForm() {
 
   const validateStep = (step: number): string | null => {
     if (step === 1) {
-      if (!data.ownerName.trim()) return 'Enter your full name.'
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) return 'Enter a valid email.'
-      if (data.password.length < 8) return 'Password must be at least 8 characters.'
+      // Name and email are no longer asked for — they come from the session.
+      // The phone number stays, because a business's public contact number is
+      // a different thing from the one on the account.
       if (!/^03\d{2}-?\d{7}$/.test(data.phone.replace(/\s/g, '')))
         return 'Enter a valid phone number, e.g. 0300-1234567.'
     }
@@ -160,9 +163,6 @@ export function BusinessSignUpForm() {
     // The password creates the owner's account. It is hashed with scrypt into
     // User and never written to the application row.
     const result = await registerBusiness({
-      ownerName: data.ownerName,
-      email: data.email,
-      password: data.password,
       phone: data.phone,
       businessName: data.businessName,
       businessType: data.businessType,
@@ -198,7 +198,7 @@ export function BusinessSignUpForm() {
         <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">Application received</h2>
         <p className="mb-8 text-slate-500">
           Your listing has been submitted and is waiting to be reviewed. We&apos;ll be in touch
-          at {data.email || 'the address you gave'} once it has been looked at.
+          at {account.email} once it has been looked at.
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -271,53 +271,66 @@ export function BusinessSignUpForm() {
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-8">
-        {/* ── Step 1 — Account ───────────────────────────────── */}
+        {/* ── Step 1 — Who is listing this ───────────────────── */}
         {currentStep === 1 ? (
           <>
-            <h2 className="mb-2 text-2xl font-bold text-slate-900">Create your account</h2>
-            <p className="mb-8 text-slate-500">Start with your basic details</p>
+            <h2 className="mb-2 text-2xl font-bold text-slate-900">Your details</h2>
+            <p className="mb-8 text-slate-500">
+              This listing will belong to the account you are signed in with
+            </p>
 
-            <div className="mb-5">
-              <label htmlFor="owner" className="mb-2 block text-sm font-semibold text-slate-700">
-                Full Name *
-              </label>
-              <div className="relative">
-                <UserIcon size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-                <input id="owner" type="text" value={data.ownerName} onChange={(e) => update('ownerName', e.target.value)} placeholder="Ahmed Khan" className={cn(FIELD, 'pl-11')} />
-              </div>
-            </div>
+            {/*
+              Read-only, and deliberately so.
 
-            <div className="mb-5">
-              <label htmlFor="biz-signup-email" className="mb-2 block text-sm font-semibold text-slate-700">
-                Email *
-              </label>
-              <div className="relative">
-                <Mail size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-                <input id="biz-signup-email" type="email" value={data.email} onChange={(e) => update('email', e.target.value)} placeholder="info@yourbusiness.pk" autoComplete="email" className={cn(FIELD, 'pl-11')} />
-              </div>
-            </div>
+              These fields used to be typed in, which created the account as a
+              side effect of listing a business. An email that already had an
+              account was accepted without its password being checked, and the
+              submitter was signed in as the owner — so anyone who knew a
+              registered address could take that account over from this form.
 
-            <div className="mb-5">
-              <label htmlFor="biz-signup-pass" className="mb-2 block text-sm font-semibold text-slate-700">
-                Password *
-              </label>
-              <div className="relative">
-                <Lock size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-                <input id="biz-signup-pass" type={showPassword ? 'text' : 'password'} value={data.password} onChange={(e) => update('password', e.target.value)} placeholder="At least 8 characters" autoComplete="new-password" className={cn(FIELD, 'pl-11 pr-11')} />
-                <button type="button" onClick={() => setShowPassword((s) => !s)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+              There is nothing to type here now. The identity is the session's,
+              and changing it means signing in as somebody else.
+            */}
+            <div className="mb-6 rounded-2xl border-[1.5px] border-slate-200 bg-slate-50 p-5">
+              <p className="mb-4 text-ui-xs font-semibold uppercase tracking-wide text-slate-400">
+                Signed in as
+              </p>
+
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-lg font-bold text-white"
+                >
+                  {account.name.charAt(0).toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-slate-900">{account.name}</p>
+                  <p className="mt-0.5 flex items-center gap-1.5 truncate text-ui-sm text-slate-500">
+                    <Mail size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
+                    {account.email}
+                  </p>
+                </div>
               </div>
+
+              <p className="mt-4 border-t border-slate-200 pt-3 text-ui-sm text-slate-500">
+                Not you?{' '}
+                <Link href="/login?redirect=/business/signup" className="font-semibold text-plug-blue-600 hover:underline">
+                  Sign in with a different account
+                </Link>
+              </p>
             </div>
 
             <div className="mb-6">
               <label htmlFor="biz-phone-signup" className="mb-2 block text-sm font-semibold text-slate-700">
-                Phone *
+                Business phone *
               </label>
               <div className="relative">
                 <Phone size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                 <input id="biz-phone-signup" type="tel" value={data.phone} onChange={(e) => update('phone', e.target.value)} placeholder="0300-1234567" className={cn(FIELD, 'pl-11')} />
               </div>
+              <p className="mt-1.5 text-ui-sm text-slate-500">
+                Shown on your listing, so drivers can reach you.
+              </p>
             </div>
 
             {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
@@ -325,15 +338,9 @@ export function BusinessSignUpForm() {
             <Button fullWidth size="lg" className="h-12 bg-gradient-brand" onClick={goNext}>
               Continue &rarr;
             </Button>
-
-            <p className="mt-6 text-center text-sm text-slate-500">
-              Already listed?{' '}
-              <Link href="/login" className="font-semibold text-plug-blue-600 hover:underline">
-                Sign in
-              </Link>
-            </p>
           </>
         ) : null}
+
 
         {/* ── Step 2 — Business ──────────────────────────────── */}
         {currentStep === 2 ? (
@@ -558,7 +565,7 @@ export function BusinessSignUpForm() {
 
             <div className="mb-6 rounded-2xl bg-slate-50 p-6">
               {[
-                { title: 'Account', step: 1, rows: [['Name', data.ownerName], ['Email', data.email], ['Phone', data.phone]] },
+                { title: 'Your details', step: 1, rows: [['Name', account.name], ['Email', account.email], ['Phone', data.phone]] },
                 { title: 'Business', step: 2, rows: [['Name', data.businessName], ['Type', data.businessType], ['City', data.city], ['Address', data.address]] },
               ].map((section) => (
                 <div key={section.title} className="mb-6 last:mb-0">
