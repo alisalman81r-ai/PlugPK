@@ -33,6 +33,7 @@ export default async function Page() {
           email: profile.email,
           city: profile.city,
           vehicle: profile.vehicle,
+          avatar: profile.avatar,
         }}
       />
     </DashboardLayout>

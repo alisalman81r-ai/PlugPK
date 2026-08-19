@@ -16,6 +16,7 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
+import { Avatar } from '@/components/ui'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -34,7 +35,7 @@ export interface DashboardSidebarProps {
   user: {
     name: string
     email: string
-    avatar?: string
+    avatar?: string | null
     city?: string
     joinedAt: string
   }
@@ -74,12 +75,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
     <div className="scrollbar-hide sticky top-[72px] flex h-[calc(100vh-72px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
       <div className="mb-6 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <span className="relative shrink-0">
-          <span
-            aria-hidden="true"
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-brand text-xl font-bold text-white"
-          >
-            {user.name.charAt(0)}
-          </span>
+          <Avatar name={user.name} src={user.avatar} size={48} />
           <span
             aria-label="Online"
             className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500"

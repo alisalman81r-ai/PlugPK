@@ -119,6 +119,7 @@ export interface CurrentProfile {
   email: string
   city: string | null
   vehicle: string | null
+  avatar: string | null
   createdAt: string
 }
 
@@ -128,7 +129,15 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, email: true, city: true, vehicle: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      city: true,
+      vehicle: true,
+      avatar: true,
+      createdAt: true,
+    },
   })
   if (!user) return null
 

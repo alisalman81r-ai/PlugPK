@@ -4,7 +4,7 @@
 import { MessageSquare, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { RatingStars } from '@/components/ui'
+import { Avatar, RatingStars } from '@/components/ui'
 import type { BusinessReviewRow } from '@/lib/db/queries'
 import { formatRelativeTime } from '@/lib/utils'
 
@@ -98,7 +98,10 @@ export function BusinessReviews({ reviews, isLive, listingHref }: BusinessReview
         {reviews.map((review) => (
           <li key={review.id} className="rounded-2xl border border-slate-200 bg-white p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="font-semibold text-slate-900">{review.userName}</p>
+              <span className="flex min-w-0 items-center gap-2.5">
+                <Avatar name={review.userName} src={review.userAvatar} size={32} />
+                <p className="truncate font-semibold text-slate-900">{review.userName}</p>
+              </span>
               <span className="text-ui-xs text-slate-400">{formatRelativeTime(review.date)}</span>
             </div>
             <div className="mt-1.5">

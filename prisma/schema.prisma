@@ -235,6 +235,8 @@ model User {
   name         String
   city         String?
   vehicle      String?
+  /** Path to an uploaded profile picture, e.g. /uploads/avatars/<id>.jpg. */
+  avatar       String?
   passwordHash String
   createdAt    DateTime @default(now())
 

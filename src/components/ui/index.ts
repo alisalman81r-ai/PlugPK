@@ -1,3 +1,4 @@
+export * from './Avatar'
 // src/components/ui/index.ts
 export { Button } from './Button'
 export { Badge, EyebrowBadge } from './Badge'

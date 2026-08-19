@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { Avatar } from '@/components/ui'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -18,7 +19,7 @@ import { cn } from '@/lib/utils'
  */
 
 export interface AccountMenuProps {
-  user: { name: string; email: string }
+  user: { name: string; email: string; avatar?: string | null }
 }
 
 const LINKS = [
@@ -76,12 +77,7 @@ export function AccountMenu({ user }: AccountMenuProps) {
           isOpen && 'bg-slate-50',
         )}
       >
-        <span
-          aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-white"
-        >
-          {user.name.charAt(0).toUpperCase()}
-        </span>
+        <Avatar name={user.name} src={user.avatar} size={28} />
         <span className="max-w-[120px] truncate text-sm font-semibold text-slate-700">
           {user.name}
         </span>
@@ -97,9 +93,12 @@ export function AccountMenu({ user }: AccountMenuProps) {
           role="menu"
           className="absolute right-0 top-[calc(100%+8px)] z-50 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card-hover"
         >
-          <div className="border-b border-slate-100 px-4 py-3">
-            <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
-            <p className="mt-0.5 truncate text-xs text-slate-500">{user.email}</p>
+          <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
+            <Avatar name={user.name} src={user.avatar} size={36} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
+              <p className="mt-0.5 truncate text-xs text-slate-500">{user.email}</p>
+            </div>
           </div>
 
           <div className="p-1.5">

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Avatar, Button } from '@/components/ui'
 import { NAV_LINKS } from '@/lib/constants'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ export interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
   /** The signed-in account, or null. Mirrors the desktop header. */
-  user?: { name: string; email: string } | null
+  user?: { name: string; email: string; avatar?: string | null } | null
 }
 
 /** NAV_LINKS carries no icon component, so routes are mapped to icons here. */
@@ -111,12 +111,7 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
             {user ? (
               <>
                 <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-base font-bold text-white"
-                  >
-                    {user.name.charAt(0).toUpperCase()}
-                  </span>
+                  <Avatar name={user.name} src={user.avatar} size={40} />
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold text-slate-900">{user.name}</span>
                     <span className="block truncate text-xs text-slate-500">{user.email}</span>

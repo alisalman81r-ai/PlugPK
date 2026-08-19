@@ -17,7 +17,9 @@ import { getCurrentProfile } from '@/lib/db/session-actions'
  */
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const profile = await getCurrentProfile()
-  const user = profile ? { name: profile.name, email: profile.email } : null
+  const user = profile
+    ? { name: profile.name, email: profile.email, avatar: profile.avatar }
+    : null
 
   return (
     <>

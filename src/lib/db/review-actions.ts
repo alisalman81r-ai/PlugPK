@@ -85,6 +85,14 @@ export async function submitReview(
   const already = await prisma.review.findFirst({ where })
   if (already) return { ok: false, message: 'You have already reviewed this listing.' }
 
+  // The writer's picture is copied onto the review rather than joined at read
+  // time: reviews outlive accounts here, and a deleted account should not blank
+  // out an avatar on a review that is still standing.
+  const author = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { avatar: true },
+  })
+
   await prisma.review.create({
     data: {
       id: randomUUID(),
@@ -92,6 +100,7 @@ export async function submitReview(
       businessId: target === 'business' ? targetId : null,
       userId: user.id,
       userName: user.name,
+      userAvatar: author?.avatar ?? null,
       userVehicle: vehicle.trim(),
       rating: score,
       comment: text,

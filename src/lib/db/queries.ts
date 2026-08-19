@@ -689,7 +689,7 @@ export async function getReviewsByUser(userId: string): Promise<MyReviewRow[]> {
 }
 
 export interface DashboardShell {
-  user: { name: string; email: string; city?: string; joinedAt: string }
+  user: { name: string; email: string; city?: string; joinedAt: string; avatar?: string | null }
   stats: { totalSaved: number; totalReviews: number; totalRoutes: number; memberDays: number }
 }
 
@@ -706,6 +706,7 @@ export async function getDashboardShell(profile: {
   name: string
   email: string
   city: string | null
+  avatar?: string | null
   createdAt: string
 }): Promise<DashboardShell> {
   const [totalSaved, totalReviews] = await Promise.all([
@@ -725,6 +726,7 @@ export async function getDashboardShell(profile: {
       email: profile.email,
       city: profile.city ?? undefined,
       joinedAt: profile.createdAt,
+      avatar: profile.avatar ?? null,
     },
     stats: { totalSaved, totalReviews, totalRoutes: 0, memberDays },
   }

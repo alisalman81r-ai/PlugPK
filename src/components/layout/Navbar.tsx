@@ -19,7 +19,7 @@ function isActivePath(pathname: string, href: string): boolean {
 
 export interface NavbarProps {
   /** The signed-in account, or null. Supplied by the layout. */
-  user: { name: string; email: string } | null
+  user: { name: string; email: string; avatar?: string | null } | null
 }
 
 export function Navbar({ user }: NavbarProps) {

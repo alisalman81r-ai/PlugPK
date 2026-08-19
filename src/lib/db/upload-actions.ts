@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import { join, resolve, sep } from 'node:path'
 
+import { revalidatePath } from 'next/cache'
+
 import { prisma } from './client'
 import { getCurrentUser } from './session-actions'
 
@@ -19,9 +21,21 @@ import { getCurrentUser } from './session-actions'
  * become object storage, and only this file changes.
  */
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'chargers')
-const PUBLIC_PREFIX = '/uploads/chargers/'
+const UPLOAD_ROOT = join(process.cwd(), 'public', 'uploads')
 const MAX_BYTES = 5 * 1024 * 1024
+
+/**
+ * The kinds of image this application accepts, and where each lands.
+ *
+ * Keeping them in one table means a new kind cannot quietly skip the checks
+ * below — validation, naming and deletion all read from here.
+ */
+const BUCKETS = {
+  chargers: { dir: join(UPLOAD_ROOT, 'chargers'), prefix: '/uploads/chargers/' },
+  avatars: { dir: join(UPLOAD_ROOT, 'avatars'), prefix: '/uploads/avatars/' },
+} as const
+
+type Bucket = keyof typeof BUCKETS
 
 export interface UploadResult {
   ok: boolean
@@ -71,14 +85,7 @@ async function ownsListing(businessId: string): Promise<boolean> {
   return business?.userId === user.id
 }
 
-export async function uploadChargerPhoto(
-  businessId: string,
-  form: FormData,
-): Promise<UploadResult> {
-  if (!(await ownsListing(businessId))) {
-    return { ok: false, message: 'That listing is not yours to edit.' }
-  }
-
+async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
   const file = form.get('file')
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, message: 'Choose an image to upload.' }
@@ -97,20 +104,40 @@ export async function uploadChargerPhoto(
   // filename from a form is attacker-chosen text, and one containing ../ is
   // the classic way an upload lands somewhere it should not.
   const name = `${randomUUID()}.${kind}`
+  const { dir, prefix } = BUCKETS[bucket]
 
-  await mkdir(UPLOAD_DIR, { recursive: true })
-  await writeFile(join(UPLOAD_DIR, name), bytes)
+  await mkdir(dir, { recursive: true })
+  await writeFile(join(dir, name), bytes)
 
-  return { ok: true, url: `${PUBLIC_PREFIX}${name}` }
+  return { ok: true, url: `${prefix}${name}` }
 }
 
-/**
- * Removes an uploaded photo from disk.
- *
- * The path is rebuilt from its last segment and checked to be inside the upload
- * directory before anything is unlinked, so a crafted value cannot reach a file
- * elsewhere on the machine.
- */
+async function discard(bucket: Bucket, url: string): Promise<void> {
+  const { dir, prefix } = BUCKETS[bucket]
+  if (!url.startsWith(prefix)) return
+
+  const target = resolve(dir, url.slice(prefix.length))
+  // Confirms the path stayed inside its own directory before anything is
+  // unlinked, so a crafted value cannot reach a file elsewhere on the machine.
+  if (!target.startsWith(resolve(dir) + sep)) return
+
+  try {
+    await unlink(target)
+  } catch {
+    // Already gone is the desired end state, so it is not reported as failure.
+  }
+}
+
+export async function uploadChargerPhoto(
+  businessId: string,
+  form: FormData,
+): Promise<UploadResult> {
+  if (!(await ownsListing(businessId))) {
+    return { ok: false, message: 'That listing is not yours to edit.' }
+  }
+  return store('chargers', form)
+}
+
 export async function deleteChargerPhoto(
   businessId: string,
   url: string,
@@ -118,21 +145,51 @@ export async function deleteChargerPhoto(
   if (!(await ownsListing(businessId))) {
     return { ok: false, message: 'That listing is not yours to edit.' }
   }
-  if (!url.startsWith(PUBLIC_PREFIX)) {
-    return { ok: false, message: 'That is not an uploaded charger photo.' }
-  }
+  await discard('chargers', url)
+  return { ok: true }
+}
 
-  const name = url.slice(PUBLIC_PREFIX.length)
-  const target = resolve(UPLOAD_DIR, name)
-  if (!target.startsWith(resolve(UPLOAD_DIR) + sep)) {
-    return { ok: false, message: 'That is not an uploaded charger photo.' }
-  }
+// ─── Profile pictures ───────────────────────────────────
 
-  try {
-    await unlink(target)
-  } catch {
-    // Already gone is the desired end state, so it is not reported as failure.
-  }
+/**
+ * Sets the signed-in account's profile picture.
+ *
+ * Scoped to the session rather than taking a user id: an action that accepted
+ * one would be a way to change somebody else's picture.
+ */
+export async function uploadMyAvatar(form: FormData): Promise<UploadResult> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, message: 'Sign in to set a profile picture.' }
 
+  const result = await store('avatars', form)
+  if (!result.ok || !result.url) return result
+
+  const existing = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { avatar: true },
+  })
+
+  await prisma.user.update({ where: { id: user.id }, data: { avatar: result.url } })
+
+  // The one it replaced would otherwise sit on disk forever.
+  if (existing?.avatar) await discard('avatars', existing.avatar)
+
+  revalidatePath('/', 'layout')
+  return result
+}
+
+export async function removeMyAvatar(): Promise<UploadResult> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, message: 'Sign in to change your profile picture.' }
+
+  const existing = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { avatar: true },
+  })
+
+  await prisma.user.update({ where: { id: user.id }, data: { avatar: null } })
+  if (existing?.avatar) await discard('avatars', existing.avatar)
+
+  revalidatePath('/', 'layout')
   return { ok: true }
 }

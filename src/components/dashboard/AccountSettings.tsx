@@ -1,12 +1,14 @@
 // src/components/dashboard/AccountSettings.tsx
 'use client'
 
-import { Check, Loader2 } from 'lucide-react'
+import { Check, ImagePlus, Loader2, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Avatar, Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { changeMyPassword, updateMyProfile } from '@/lib/db/session-actions'
+import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
 
 /**
  * Editing the signed-in account.
@@ -21,13 +23,58 @@ import { changeMyPassword, updateMyProfile } from '@/lib/db/session-actions'
  */
 
 export interface AccountSettingsProps {
-  user: { name: string; email: string; city: string | null; vehicle: string | null }
+  user: {
+    name: string
+    email: string
+    city: string | null
+    vehicle: string | null
+    avatar: string | null
+  }
 }
 
 const FIELD =
   'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
 
 export function AccountSettings({ user }: AccountSettingsProps) {
+  const router = useRouter()
+  const [avatar, setAvatar] = React.useState(user.avatar)
+  const [avatarBusy, setAvatarBusy] = React.useState(false)
+  const [avatarError, setAvatarError] = React.useState<string | null>(null)
+
+  /**
+   * The picture saves on its own, not with the rest of the form.
+   *
+   * It appears in the header, which is server-rendered, so the page is
+   * refreshed afterwards — otherwise the settings page would show the new
+   * picture while the header above it still showed the old one.
+   */
+  const changeAvatar = async (file: File) => {
+    setAvatarBusy(true)
+    setAvatarError(null)
+
+    const form = new FormData()
+    form.set('file', file)
+
+    const result = await uploadMyAvatar(form)
+    setAvatarBusy(false)
+
+    if (!result.ok || !result.url) {
+      setAvatarError(result.message ?? 'Could not set that picture.')
+      return
+    }
+    setAvatar(result.url)
+    router.refresh()
+  }
+
+  const clearAvatar = async () => {
+    setAvatarBusy(true)
+    setAvatarError(null)
+    await removeMyAvatar()
+    setAvatar(null)
+    setAvatarBusy(false)
+    router.refresh()
+  }
+
   const [name, setName] = React.useState(user.name)
   const [city, setCity] = React.useState(user.city ?? '')
   const [vehicle, setVehicle] = React.useState(user.vehicle ?? '')
@@ -83,6 +130,60 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     <div className="flex flex-col gap-6">
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="mb-5 text-lg font-bold text-slate-900">Profile</h2>
+
+        {/* ── Picture ──────────────────────────────────────── */}
+        <div className="mb-6 flex flex-wrap items-center gap-5 border-b border-slate-100 pb-6">
+          <Avatar name={user.name} src={avatar} size={80} />
+
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Profile picture</p>
+            <p className="mt-0.5 text-ui-sm text-slate-500">
+              JPEG, PNG or WebP, up to 5MB. Shown in the header and on your account.
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <label
+                className={`inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-slate-200 px-4 text-ui-sm font-medium text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-blue-50 ${avatarBusy ? 'pointer-events-none opacity-60' : ''}`}
+              >
+                {avatarBusy ? (
+                  <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <ImagePlus size={15} aria-hidden="true" />
+                )}
+                {avatarBusy ? 'Working…' : avatar ? 'Change picture' : 'Add a picture'}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    // Cleared so picking the same file twice still fires.
+                    event.target.value = ''
+                    if (file) void changeAvatar(file)
+                  }}
+                />
+              </label>
+
+              {avatar ? (
+                <button
+                  type="button"
+                  onClick={() => void clearAvatar()}
+                  disabled={avatarBusy}
+                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+                >
+                  <Trash2 size={15} aria-hidden="true" />
+                  Remove
+                </button>
+              ) : null}
+            </div>
+
+            {avatarError ? (
+              <p role="alert" className="mt-3 text-ui-sm text-red-600">
+                {avatarError}
+              </p>
+            ) : null}
+          </div>
+        </div>
 
         <div className="mb-5">
           <label htmlFor="acct-name" className="mb-2 block text-sm font-semibold text-slate-700">

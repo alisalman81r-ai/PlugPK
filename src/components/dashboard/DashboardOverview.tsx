@@ -2,7 +2,7 @@
 import { Bookmark, Calendar, Car, MapPin, Star } from 'lucide-react'
 import Link from 'next/link'
 
-import { RatingStars } from '@/components/ui'
+import { Avatar, RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
 import type { Station } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
@@ -21,7 +21,14 @@ import type { DashboardStats } from './DashboardSidebar'
  */
 
 export interface DashboardOverviewProps {
-  user: { name: string; email: string; city?: string; joinedAt: string; vehicle?: string }
+  user: {
+    name: string
+    email: string
+    city?: string
+    joinedAt: string
+    vehicle?: string
+    avatar?: string | null
+  }
   stats: DashboardStats
   savedStations: Station[]
   reviews: MyReviewRow[]
@@ -55,12 +62,7 @@ export function DashboardOverview({ user, stats, savedStations, reviews }: Dashb
       {/* ── Who you are ──────────────────────────────────────── */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <div className="flex flex-wrap items-center gap-4">
-          <span
-            aria-hidden="true"
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-2xl font-bold text-white"
-          >
-            {user.name.charAt(0).toUpperCase()}
-          </span>
+          <Avatar name={user.name} src={user.avatar} size={56} />
 
           <div className="min-w-0">
             <h2 className="text-xl font-bold text-slate-900">{user.name}</h2>
