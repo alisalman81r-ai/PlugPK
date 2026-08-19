@@ -31,3 +31,6 @@ build/
 prisma/dev.db
 prisma/dev.db-journal
 .probe-profiles/
+
+# Verification builds, kept apart from the dev server output.
+.next-verify/
