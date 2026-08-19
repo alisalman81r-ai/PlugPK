@@ -9,6 +9,7 @@ import * as React from 'react'
 import { Button } from '@/components/ui'
 import { NAV_LINKS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { AccountMenu } from './AccountMenu'
 import { MobileMenu } from './MobileMenu'
 
 /** True for the link's own route and anything nested beneath it. */
@@ -16,7 +17,12 @@ function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export function Navbar() {
+export interface NavbarProps {
+  /** The signed-in account, or null. Supplied by the layout. */
+  user: { name: string; email: string } | null
+}
+
+export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
@@ -90,9 +96,13 @@ export function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Button variant="ghost" size="sm" href="/login">
-              Sign In
-            </Button>
+            {user ? (
+              <AccountMenu user={user} />
+            ) : (
+              <Button variant="ghost" size="sm" href="/login">
+                Sign In
+              </Button>
+            )}
             <Button variant="primary" size="sm" href="/for-businesses">
               List Your Business
             </Button>
@@ -117,7 +127,7 @@ export function Navbar() {
         </nav>
       </header>
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} user={user} />
     </>
   )
 }

@@ -1,18 +1,21 @@
 // src/components/layout/MobileMenu.tsx
 'use client'
 
-import { ChevronRight, MapPin, Route, Users, Wrench, type LucideIcon } from 'lucide-react'
+import { ChevronRight, LogOut, MapPin, Route, Users, Wrench, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
 import { NAV_LINKS } from '@/lib/constants'
+import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
 export interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
+  /** The signed-in account, or null. Mirrors the desktop header. */
+  user?: { name: string; email: string } | null
 }
 
 /** NAV_LINKS carries no icon component, so routes are mapped to icons here. */
@@ -27,7 +30,17 @@ function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
+  const router = useRouter()
+  const [isSigningOut, setIsSigningOut] = React.useState(false)
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true)
+    await signOut()
+    onClose()
+    router.push('/')
+    router.refresh()
+  }
   const pathname = usePathname()
 
   React.useEffect(() => {
@@ -95,16 +108,55 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           <div className="flex-1" />
 
           <div className="flex flex-col gap-3 border-t border-slate-100 pt-6">
-            <Button
-              variant="secondary"
-              size="lg"
-              fullWidth
-              href="/login"
-              onClick={onClose}
-              tabIndex={isOpen ? undefined : -1}
-            >
-              Sign In
-            </Button>
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-base font-bold text-white"
+                  >
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-slate-900">{user.name}</span>
+                    <span className="block truncate text-xs text-slate-500">{user.email}</span>
+                  </span>
+                </div>
+
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  fullWidth
+                  href="/dashboard"
+                  onClick={onClose}
+                  tabIndex={isOpen ? undefined : -1}
+                >
+                  Dashboard
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                  tabIndex={isOpen ? undefined : -1}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-red-200 text-ui font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+                >
+                  <LogOut size={16} aria-hidden="true" />
+                  {isSigningOut ? 'Signing out…' : 'Sign out'}
+                </button>
+              </>
+            ) : (
+              <Button
+                variant="secondary"
+                size="lg"
+                fullWidth
+                href="/login"
+                onClick={onClose}
+                tabIndex={isOpen ? undefined : -1}
+              >
+                Sign In
+              </Button>
+            )}
             <Button
               variant="primary"
               size="lg"
