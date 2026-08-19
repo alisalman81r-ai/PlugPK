@@ -146,9 +146,15 @@ export function StationForm({ station, action }: StationFormProps) {
               id="city"
               name="city"
               required
-              defaultValue={station?.address.city ?? PAKISTAN_CITIES[0]}
+              // No default. With 103 options, pre-selecting the alphabetically
+              // first one files every hurried entry under Abbottabad; an empty
+              // required option makes the browser stop and ask instead.
+              defaultValue={station?.address.city ?? ''}
               className={cn(FIELD, 'cursor-pointer')}
             >
+              <option value="" disabled>
+                Select a city
+              </option>
               {PAKISTAN_CITIES.map((city) => (
                 <option key={city} value={city}>
                   {city}

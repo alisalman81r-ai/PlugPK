@@ -61,12 +61,38 @@ export function useStations(options: UseStationsOptions = {}): UseStationsReturn
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const stations = MOCK_STATIONS
+  // Businesses that were approved in the admin portal, fetched separately and
+  // shown alongside the seeded stations. They arrive already shaped as
+  // Stations, so every filter, pin and card below treats them identically.
+  const [partnerStations, setPartnerStations] = useState<Station[]>([])
 
-  // Mock data is synchronous; the flag exists so the list can show skeletons
-  // for one paint and so swapping in a real fetch changes nothing else.
+  const stations = useMemo(
+    () => [...MOCK_STATIONS, ...partnerStations],
+    [partnerStations],
+  )
+
   useEffect(() => {
-    setIsLoading(false)
+    let cancelled = false
+
+    fetch('/api/businesses')
+      .then((response) => (response.ok ? response.json() : { stations: [] }))
+      .then((payload: { stations?: Station[] }) => {
+        if (cancelled) return
+        setPartnerStations(Array.isArray(payload.stations) ? payload.stations : [])
+      })
+      // A failure here must not empty the map — the seeded stations are still
+      // worth showing, so this degrades to "no partner pins" rather than an
+      // error screen.
+      .catch(() => {
+        if (!cancelled) setPartnerStations([])
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {

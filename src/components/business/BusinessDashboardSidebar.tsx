@@ -18,8 +18,20 @@ import type { Business } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface BusinessDashboardSidebarProps {
-  business: Business
-  analytics: BusinessAnalytics
+  /**
+   * The signed-in owner's real listing, or undefined when the account has
+   * none.
+   *
+   * The mock business and mock analytics props that used to sit here are gone:
+   * every page in the portal now reads the database, so there is nothing left
+   * to fall back to and nothing invented to show.
+   */
+  listing?: {
+    name: string
+    type: string
+    city: string
+    status: string
+  }
 }
 
 interface BusinessNavItem {
@@ -35,7 +47,6 @@ export const BUSINESS_NAV: BusinessNavItem[] = [
   { label: 'Chargers', href: '/business/chargers', icon: Zap },
   { label: 'Reviews', href: '/business/reviews', icon: Star },
   { label: 'Analytics', href: '/business/analytics', icon: BarChart2 },
-  { label: 'Upgrade', href: '/business/upgrade', icon: TrendingUp },
 ]
 
 export function isBusinessItemActive(
@@ -46,64 +57,49 @@ export function isBusinessItemActive(
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
 }
 
-export function BusinessDashboardSidebar({ business, analytics }: BusinessDashboardSidebarProps) {
+export function BusinessDashboardSidebar({ listing }: BusinessDashboardSidebarProps) {
   const pathname = usePathname()
-  const chargerCount = business.stations[0]?.connectors.length ?? 0
 
-  const quickStats = [
-    { value: analytics.thisMonth.profileViews.toLocaleString('en-PK'), label: 'Views' },
-    { value: String(analytics.thisMonth.navigateClicks), label: 'Clicks' },
-    { value: analytics.thisMonth.avgRating.toFixed(1), label: 'Rating' },
-    { value: String(chargerCount), label: 'Chargers' },
-  ]
+  const name = listing?.name ?? 'No listing yet'
+  const type = (listing?.type ?? '').replace('-', ' ')
+  const city = listing?.city ?? ''
+  const isLive = listing?.status === 'approved'
 
   return (
     <div className="scrollbar-hide sticky top-[64px] flex h-[calc(100vh-64px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
       <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <p className="truncate font-bold text-slate-900">{business.name}</p>
+        <p className="truncate font-bold text-slate-900">{name}</p>
         <p className="mt-0.5 text-xs capitalize text-slate-400">
-          {business.type.replace('-', ' ')} · {business.address.city}
+          {type} · {city}
         </p>
 
         <span
           className={cn(
             'mt-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1',
-            business.isVerified
-              ? 'border-green-200 bg-green-50'
-              : 'border-amber-200 bg-amber-50',
+            isLive ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50',
           )}
         >
           <span
             aria-hidden="true"
-            className={cn(
-              'h-1.5 w-1.5 rounded-full',
-              business.isVerified ? 'bg-green-500' : 'bg-amber-500',
-            )}
+            className={cn('h-1.5 w-1.5 rounded-full', isLive ? 'bg-green-500' : 'bg-amber-500')}
           />
           <span
             className={cn(
               'text-[10px] font-semibold',
-              business.isVerified ? 'text-green-700' : 'text-amber-700',
+              isLive ? 'text-green-700' : 'text-amber-700',
             )}
           >
-            {business.isVerified ? 'Live on Plug.pk' : 'Under Review'}
+            {isLive ? 'Live on Plug.pk' : 'Under Review'}
           </span>
         </span>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-2">
-        {quickStats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center"
-          >
-            <p className="font-mono text-lg font-black text-slate-900">{stat.value}</p>
-            <p className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-400">
-              {stat.label}
-            </p>
-          </div>
-        ))}
-      </div>
+      {/* The quick-stats block is gone.
+          It printed 1,240 views, 89 clicks and a 4.8 rating from mock data —
+          this application records no page views, no navigate clicks and no
+          reviews for a business, so those were four invented numbers sitting
+          above the owner's real listing. They can return when something
+          measures them. */}
 
       <nav className="flex flex-1 flex-col gap-1">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
@@ -144,21 +140,11 @@ export function BusinessDashboardSidebar({ business, analytics }: BusinessDashbo
         })}
       </nav>
 
-      {!business.isPremium ? (
-        <div className="mt-6 rounded-2xl bg-gradient-brand p-4">
-          <p className="flex items-center gap-1.5 font-bold text-white">
-            <Zap size={16} aria-hidden="true" />
-            Go Premium
-          </p>
-          <p className="mt-1 text-xs text-white/70">Get priority listing and analytics</p>
-          <Link
-            href="/business/upgrade"
-            className="mt-3 flex h-9 w-full items-center justify-center rounded-xl bg-white text-xs font-bold text-plug-blue-600 transition-colors hover:bg-blue-50"
-          >
-            Upgrade Now &rarr;
-          </Link>
-        </div>
-      ) : null}
+      {/* The "Go Premium — get priority listing and analytics" card is gone.
+          Its button pointed at /business/upgrade, which does not exist, and the
+          pricing page it referenced was removed when plans were replaced with
+          meeting requests. It offered analytics that every owner now gets, in
+          exchange for a payment there was no way to make. */}
     </div>
   )
 }

@@ -8,6 +8,8 @@ import { Button, RatingStars } from '@/components/ui'
 import type { Review } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import { RatingBreakdown } from './RatingBreakdown'
+import type { ReviewTarget } from '@/lib/db/review-actions'
+
 import { WriteReviewForm } from './WriteReviewForm'
 
 export interface ReviewsSectionProps {
@@ -16,6 +18,8 @@ export interface ReviewsSectionProps {
   reviewCount: number
   stationId: string
   stationName: string
+  /** Which table this listing lives in; forwarded to the review form. */
+  target?: ReviewTarget
 }
 
 type SortKey = 'recent' | 'helpful' | 'highest' | 'lowest'
@@ -102,6 +106,7 @@ export function ReviewsSection({
   reviewCount,
   stationId,
   stationName,
+  target = 'station',
 }: ReviewsSectionProps) {
   const [visibleCount, setVisibleCount] = React.useState(3)
   const [sortBy, setSortBy] = React.useState<SortKey>('recent')
@@ -148,7 +153,7 @@ export function ReviewsSection({
       ) : null}
 
       <div className="mb-10 border-b border-slate-100 pb-10">
-        <WriteReviewForm stationId={stationId} stationName={stationName} />
+        <WriteReviewForm stationId={stationId} stationName={stationName} target={target} />
       </div>
 
       {reviews.length === 0 ? (

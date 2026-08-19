@@ -2,7 +2,6 @@
 import { AppBanner } from '@/components/home/AppBanner'
 import { BusinessCTA } from '@/components/home/BusinessCTA'
 import { CommunityPreview } from '@/components/home/CommunityPreview'
-import { FeaturedStations } from '@/components/home/FeaturedStations'
 import { FreeBanner } from '@/components/home/FreeBanner'
 import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
@@ -10,7 +9,7 @@ import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
-import { getPlatformStats, getStations } from '@/lib/db/queries'
+import { getPlatformStats } from '@/lib/db/queries'
 
 /**
  * Cached, not dynamic.
@@ -32,18 +31,14 @@ import { getPlatformStats, getStations } from '@/lib/db/queries'
 export const revalidate = 300
 
 export default async function HomePage() {
-  const [stats, stations] = await Promise.all([getPlatformStats(), getStations()])
-
-  // Ranked, so "highest-rated" describes the selection rather than the
-  // order rows happen to sit in.
-  const topRated = [...stations].sort((a, b) => b.rating - a.rating).slice(0, 3)
+  const stats = await getPlatformStats()
 
   return (
     <>
       {/* The hero animates on load; everything past the fold reveals on
           approach so the page reads as a sequence rather than a dump.
           StatsBar is excluded — it runs its own count-up observer. */}
-      <Hero />
+      <Hero cities={stats.cities} />
       <StatsBar stations={stats.stations} cities={stats.cities} owners={stats.owners} />
       <Reveal>
         <HowItWorks />
@@ -51,14 +46,12 @@ export default async function HomePage() {
       <Reveal>
         <RoutePlannerPromo />
       </Reveal>
+      {/* The services grid sits where the featured-stations rail used to. */}
       <Reveal>
-        <FeaturedStations stations={topRated} />
+        <ServicesPreview />
       </Reveal>
       <Reveal>
         <FreeBanner />
-      </Reveal>
-      <Reveal>
-        <ServicesPreview />
       </Reveal>
       <Reveal>
         <CommunityPreview />

@@ -94,7 +94,10 @@ function ServicesDirectory() {
 export default function ServicesPage() {
   return (
     <>
-      <ServiceHero totalServices={MOCK_SERVICES.length} />
+      <ServiceHero
+        totalServices={MOCK_SERVICES.length}
+        citiesCovered={new Set(MOCK_SERVICES.map((service) => service.address.city)).size}
+      />
 
       {/* useSearchParams needs a Suspense boundary during static rendering. */}
       <Suspense

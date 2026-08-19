@@ -8,7 +8,8 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force"
+    "db:reset": "prisma migrate reset --force",
+    "import:stations": "tsx scripts/import-stations.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

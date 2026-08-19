@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import {
   Checkbox,
@@ -21,9 +22,6 @@ export interface LoginFormProps {
   onSuccess?: () => void
   redirectTo?: string
 }
-
-const DEMO_EMAIL = 'demo@plug.pk'
-const DEMO_PASSWORD = 'demo123'
 
 export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormProps) {
   const router = useRouter()
@@ -52,17 +50,27 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
     setFieldError(null)
     setError(null)
     setIsLoading(true)
-    // Stands in for the sign-in API.
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    // Was a 2 second timer that accepted one hardcoded demo account and
+    // rejected every real one. This checks the password against the scrypt
+    // hash on the User row and issues a signed session cookie.
+    const form = new FormData()
+    form.set('email', email.trim())
+    form.set('password', password)
+
+    const result = await signIn(form)
     setIsLoading(false)
 
-    if (email.trim() === DEMO_EMAIL && password === DEMO_PASSWORD) {
+    if (result.ok) {
       onSuccess?.()
       router.push(redirectTo)
+      // Without this the destination renders the router's cached copy, which
+      // was produced while signed out.
+      router.refresh()
       return
     }
 
-    setError('Incorrect email or password')
+    setError(result.message ?? 'Incorrect email or password')
     setAttempts((count) => count + 1)
   }
 

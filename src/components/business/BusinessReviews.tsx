@@ -1,199 +1,115 @@
 // src/components/business/BusinessReviews.tsx
 'use client'
 
-import { Building2, Car, Star, ThumbsUp } from 'lucide-react'
+import { MessageSquare, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { RatingBreakdown } from '@/components/station/RatingBreakdown'
-import { Button, RatingStars } from '@/components/ui'
-import type { Review } from '@/lib/types'
-import { cn, formatRelativeTime } from '@/lib/utils'
+import { RatingStars } from '@/components/ui'
+import type { BusinessReviewRow } from '@/lib/db/queries'
+import { formatRelativeTime } from '@/lib/utils'
+
+/**
+ * Reviews left on the owner's listing.
+ *
+ * This page used to render MOCK_BUSINESS_REVIEWS against a 4.8 average and a
+ * count of twelve — for a listing nobody could review, because businesses had
+ * no reviews table and no public page to leave one on. Both now exist, so this
+ * shows what was actually written, and an honest empty state when nothing has
+ * been.
+ */
 
 export interface BusinessReviewsProps {
-  reviews: Review[]
-  avgRating: number
-  totalReviews: number
+  reviews: BusinessReviewRow[]
+  isLive: boolean
+  listingHref: string | null
 }
 
-type FilterKey = 'all' | 'positive' | 'negative' | 'unanswered'
+export function BusinessReviews({ reviews, isLive, listingHref }: BusinessReviewsProps) {
+  const total = reviews.length
+  const average =
+    total === 0 ? 0 : Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / total) * 10) / 10
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'positive', label: 'Positive (4-5★)' },
-  { key: 'negative', label: 'Negative (1-3★)' },
-  { key: 'unanswered', label: 'Unanswered' },
-]
+  // Five buckets, highest first, so the shape of the feedback is visible at a
+  // glance rather than needing the whole list read.
+  const spread = [5, 4, 3, 2, 1].map((score) => ({
+    score,
+    count: reviews.filter((review) => review.rating === score).length,
+  }))
 
-export function BusinessReviews({ reviews, avgRating, totalReviews }: BusinessReviewsProps) {
-  const [replyingTo, setReplyingTo] = React.useState<string | null>(null)
-  const [replyText, setReplyText] = React.useState('')
-  const [replies, setReplies] = React.useState<Record<string, string>>({})
-  const [filter, setFilter] = React.useState<FilterKey>('all')
-
-  const visible = React.useMemo(() => {
-    switch (filter) {
-      case 'positive':
-        return reviews.filter((review) => review.rating >= 4)
-      case 'negative':
-        return reviews.filter((review) => review.rating <= 3)
-      case 'unanswered':
-        return reviews.filter((review) => !replies[review.id])
-      case 'all':
-      default:
-        return reviews
-    }
-  }, [reviews, filter, replies])
-
-  const postReply = (reviewId: string) => {
-    if (replyText.trim().length === 0) return
-    setReplies((current) => ({ ...current, [reviewId]: replyText.trim() }))
-    setReplyText('')
-    setReplyingTo(null)
-  }
-
-  if (reviews.length === 0) {
+  if (total === 0) {
     return (
-      <div className="py-20 text-center">
-        <Star size={64} className="mx-auto text-slate-200" aria-hidden="true" />
-        <p className="mb-3 mt-6 text-2xl font-bold text-slate-900">No reviews yet</p>
-        <p className="text-slate-500">
-          Reviews from EV owners who visit your station will appear here
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+        <MessageSquare size={26} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
+        <p className="text-ui-lg font-semibold text-slate-900">No reviews yet</p>
+        <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
+          {isLive
+            ? 'Nobody has reviewed this listing. Reviews appear here as drivers leave them.'
+            : 'Your listing is not live yet, so drivers cannot review it. Reviews appear here once it is approved and someone visits.'}
         </p>
+        {isLive && listingHref ? (
+          <a
+            href={listingHref}
+            className="mt-6 inline-flex h-11 items-center rounded-xl border border-slate-200 px-6 text-ui font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            View your public listing
+          </a>
+        ) : null}
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6">
-        <RatingBreakdown rating={avgRating} reviewCount={totalReviews} reviews={reviews} />
-      </div>
+    <div className="flex flex-col gap-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="flex flex-wrap items-center gap-8">
+          <div>
+            <p className="text-4xl font-black text-slate-900">{average.toFixed(1)}</p>
+            <div className="mt-1.5">
+              <RatingStars rating={average} size="sm" />
+            </div>
+            <p className="mt-1 text-ui-sm text-slate-500">
+              {total} review{total === 1 ? '' : 's'}
+            </p>
+          </div>
 
-      <div className="scrollbar-hide mb-6 flex gap-2 overflow-x-auto">
-        {FILTERS.map((option) => (
-          <button
-            key={option.key}
-            type="button"
-            onClick={() => setFilter(option.key)}
-            aria-pressed={filter === option.key}
-            className={cn(
-              'h-9 shrink-0 whitespace-nowrap rounded-full px-4 text-sm font-medium transition-all duration-150',
-              filter === option.key
-                ? 'bg-plug-blue-600 text-white'
-                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      {visible.length === 0 ? (
-        <p className="py-12 text-center text-sm text-slate-400">
-          No reviews match this filter.
-        </p>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {visible.map((review) => {
-            const reply = replies[review.id]
-
-            return (
-              <article key={review.id} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-bold text-slate-900">{review.userName}</p>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-                      <Car size={12} aria-hidden="true" />
-                      {review.userVehicle}
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    <RatingStars rating={review.rating} size="sm" />
-                    <span className="text-xs text-slate-400">
-                      {formatRelativeTime(review.date)}
-                    </span>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-sm leading-relaxed text-slate-700">{review.comment}</p>
-
-                <div className="mt-4 flex flex-wrap items-center gap-4">
-                  <button
-                    type="button"
-                    className="flex items-center gap-1.5 text-xs text-slate-400 transition-colors hover:text-plug-blue-600"
-                  >
-                    <ThumbsUp size={14} aria-hidden="true" />
-                    Mark as helpful ({review.helpfulCount})
-                  </button>
-                  <button
-                    type="button"
-                    className="text-xs text-slate-400 transition-colors hover:text-red-500"
-                  >
-                    Report review
-                  </button>
-                </div>
-
-                {reply ? (
-                  <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
-                    <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-plug-blue-700">
-                      <Building2 size={12} aria-hidden="true" />
-                      Mall Road Premium Hotel
-                    </p>
-                    <p className="text-sm text-slate-700">{reply}</p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setReplyText(reply)
-                        setReplyingTo(review.id)
-                      }}
-                      className="mt-2 text-xs font-medium text-plug-blue-600 hover:underline"
-                    >
-                      Edit Reply
-                    </button>
-                  </div>
-                ) : null}
-
-                {replyingTo === review.id ? (
-                  <div className="mt-4">
-                    <textarea
-                      value={replyText}
-                      onChange={(event) => setReplyText(event.target.value)}
-                      placeholder="Write a reply to this review..."
-                      aria-label="Reply to review"
-                      className="min-h-[80px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-slate-50 p-4 text-sm text-slate-900 outline-none transition-all focus:border-plug-blue-500 focus:bg-white"
-                    />
-                    <div className="mt-3 flex justify-end gap-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setReplyingTo(null)
-                          setReplyText('')
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button size="sm" onClick={() => postReply(review.id)}>
-                        Post Reply
-                      </Button>
-                    </div>
-                  </div>
-                ) : !reply ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-3"
-                    onClick={() => setReplyingTo(review.id)}
-                  >
-                    Reply to this review
-                  </Button>
-                ) : null}
-              </article>
-            )
-          })}
+          <ul className="min-w-[220px] flex-1">
+            {spread.map((bucket) => (
+              <li key={bucket.score} className="flex items-center gap-3 py-0.5">
+                <span className="inline-flex w-8 items-center gap-0.5 text-ui-sm text-slate-500">
+                  {bucket.score}
+                  <Star size={11} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+                </span>
+                <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                  <span
+                    className="block h-full rounded-full bg-amber-400"
+                    style={{ width: `${total === 0 ? 0 : (bucket.count / total) * 100}%` }}
+                  />
+                </span>
+                <span className="w-6 text-right text-ui-sm tabular-nums text-slate-500">
+                  {bucket.count}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
+      </section>
+
+      <ul className="flex flex-col gap-4">
+        {reviews.map((review) => (
+          <li key={review.id} className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-semibold text-slate-900">{review.userName}</p>
+              <span className="text-ui-xs text-slate-400">{formatRelativeTime(review.date)}</span>
+            </div>
+            <div className="mt-1.5">
+              <RatingStars rating={review.rating} size="sm" />
+            </div>
+            <p className="mt-3 whitespace-pre-line text-ui-sm leading-relaxed text-slate-700">
+              {review.comment}
+            </p>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

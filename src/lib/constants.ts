@@ -22,12 +22,53 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Community', href: '/community' },
 ]
 
+/**
+ * The handful offered as shortcuts in the hero and the route planner.
+ *
+ * Ordered by population, not alphabetically — these are suggestions, and the
+ * first three entries of an A-to-Z list ("Abbottabad, Astore, Attock") are not
+ * what anybody means by popular.
+ */
+export const POPULAR_CITIES = [
+  'Karachi',
+  'Lahore',
+  'Islamabad',
+  'Rawalpindi',
+  'Faisalabad',
+  'Peshawar',
+] as const
+
+/**
+ * Cities and major towns across all four provinces, Azad Kashmir,
+ * Gilgit-Baltistan and the capital territory. Alphabetical, because this
+ * feeds selects where people scan for a name rather than browse by size.
+ *
+ * This is geography, which is checkable. It says nothing about whether a
+ * charger exists in any of them — a city appearing here only means somebody
+ * can pick it when adding a station.
+ */
 export const PAKISTAN_CITIES = [
-  'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi',
-  'Faisalabad', 'Multan', 'Peshawar', 'Quetta',
-  'Sialkot', 'Gujranwala', 'Hyderabad', 'Abbottabad',
-  'Bahawalpur', 'Sargodha', 'Sukkur', 'Larkana',
-  'Sheikhupura', 'Jhang',
+  'Abbottabad', 'Astore', 'Attock', 'Badin', 'Bagh',
+  'Bahawalnagar', 'Bahawalpur', 'Bannu', 'Batkhela', 'Bhakkar',
+  'Bhimber', 'Chakwal', 'Chaman', 'Charsadda', 'Chilas',
+  'Chiniot', 'Chitral', 'Dadu', 'Dera Ghazi Khan', 'Dera Ismail Khan',
+  'Dera Murad Jamali', 'Faisalabad', 'Ghotki', 'Gilgit', 'Gujranwala',
+  'Gujrat', 'Gwadar', 'Hafizabad', 'Hangu', 'Haripur',
+  'Hub', 'Hunza', 'Hyderabad', 'Islamabad', 'Jacobabad',
+  'Jamshoro', 'Jhang', 'Jhelum', 'Kalat', 'Karachi',
+  'Karak', 'Kasur', 'Khairpur', 'Khanewal', 'Kharan',
+  'Khushab', 'Khuzdar', 'Kohat', 'Kotli', 'Lahore',
+  'Lakki Marwat', 'Larkana', 'Layyah', 'Lodhran', 'Loralai',
+  'Mandi Bahauddin', 'Mansehra', 'Mardan', 'Mastung', 'Matiari',
+  'Mianwali', 'Mingora', 'Mirpur', 'Mirpur Khas', 'Multan',
+  'Muzaffarabad', 'Muzaffargarh', 'Nankana Sahib', 'Narowal', 'Nawabshah',
+  'Nowshera', 'Nushki', 'Okara', 'Pakpattan', 'Panjgur',
+  'Peshawar', 'Quetta', 'Rahim Yar Khan', 'Rajanpur', 'Rawalakot',
+  'Rawalpindi', 'Sahiwal', 'Sanghar', 'Sargodha', 'Sheikhupura',
+  'Shikarpur', 'Sialkot', 'Sibi', 'Skardu', 'Sukkur',
+  'Swabi', 'Tando Adam', 'Tando Allahyar', 'Tank', 'Thatta',
+  'Timergara', 'Toba Tek Singh', 'Turbat', 'Umerkot', 'Usta Mohammad',
+  'Vehari', 'Wah Cantonment', 'Zhob',
 ]
 
 export const CONNECTOR_TYPES: ConnectorType[] = [

@@ -113,9 +113,13 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
               id="city"
               name="city"
               required
-              defaultValue={service?.address.city ?? PAKISTAN_CITIES[0]}
+              // Deliberately unset — see the same note in StationForm.
+              defaultValue={service?.address.city ?? ''}
               className={cn(FIELD_CLASS, 'cursor-pointer')}
             >
+              <option value="" disabled>
+                Select a city
+              </option>
               {PAKISTAN_CITIES.map((city) => (
                 <option key={city} value={city}>
                   {city}

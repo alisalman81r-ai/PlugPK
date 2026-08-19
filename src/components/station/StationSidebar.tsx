@@ -18,6 +18,7 @@ import {
 import * as React from 'react'
 
 import { RatingStars, StatusBadge } from '@/components/ui'
+import { recordBusinessDirections } from '@/lib/db/business-actions'
 import type { DayHours, Station } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -26,6 +27,13 @@ export interface StationSidebarProps {
 }
 
 function openDirections(station: Station) {
+  // Counted before the tab opens, and deliberately not awaited: a driver asking
+  // for directions should never wait on a metric. Business listings only —
+  // stations entered by an operator have no owner to report to.
+  if (station.businessId) {
+    void recordBusinessDirections(station.businessId).catch(() => {})
+  }
+
   window.open(
     `https://www.google.com/maps/dir/?api=1&destination=${station.coordinates.lat},${station.coordinates.lng}`,
     '_blank',

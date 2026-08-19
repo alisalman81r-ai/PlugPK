@@ -2,6 +2,7 @@
 'use client'
 
 import {
+  Building2,
   ExternalLink,
   LayoutDashboard,
   LogOut,
@@ -54,6 +55,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { label: 'Services', href: '/admin/services', icon: Wrench },
       { label: 'Community', href: '/admin/community', icon: MessageSquare },
+      { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
       { label: 'Meetings', href: '/admin/meetings', icon: CalendarClock },
     ],
   },

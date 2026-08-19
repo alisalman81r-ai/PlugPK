@@ -9,11 +9,13 @@ import {
   Coffee,
   Eye,
   EyeOff,
+  Home as HomeIcon,
   Hotel,
   Lock,
   Mail,
   Phone,
   Plus,
+  ShieldAlert,
   ShoppingBag,
   Trash2,
   User as UserIcon,
@@ -25,7 +27,9 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import { LocationPicker } from './LocationPicker'
 import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
+import { registerBusiness } from '@/lib/db/business-actions'
 import type { BusinessType, ConnectorType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -45,6 +49,8 @@ interface FormData {
   city: string
   address: string
   website: string
+  lat: number | null
+  lng: number | null
   chargers: DraftCharger[]
 }
 
@@ -57,6 +63,7 @@ const TYPE_OPTIONS: { value: BusinessType; label: string; icon: LucideIcon; note
   { value: 'office', label: 'Office', icon: Building2, note: 'Workplace charging' },
   { value: 'dealership', label: 'Dealership', icon: Car, note: 'Showroom and service' },
   { value: 'service-center', label: 'Service Center', icon: Wrench, note: 'Repairs and servicing' },
+  { value: 'home', label: 'Home Charger', icon: HomeIcon, note: 'Share the charger at your home' },
 ]
 
 const FIELD =
@@ -82,6 +89,8 @@ export function BusinessSignUpForm() {
     city: '',
     address: '',
     website: '',
+    lat: null,
+    lng: null,
     chargers: [],
   })
 
@@ -89,6 +98,16 @@ export function BusinessSignUpForm() {
     setData((current) => ({ ...current, [key]: value }))
     setError(null)
   }
+
+  /**
+   * A home charger is not a business, and the form should not insist it is.
+   * Same fields and same record — only the words change, so somebody sharing
+   * the charger on their driveway is not asked for a "business name" or a
+   * company website.
+   */
+  const isHome = data.businessType === 'home'
+  const nameLabel = isHome ? 'Listing Name' : 'Business Name'
+  const namePlaceholder = isHome ? 'Ahmed’s home charger, DHA Phase 5' : 'Mall Road Premium Hotel'
 
   const validateStep = (step: number): string | null => {
     if (step === 1) {
@@ -99,10 +118,18 @@ export function BusinessSignUpForm() {
         return 'Enter a valid phone number, e.g. 0300-1234567.'
     }
     if (step === 2) {
-      if (!data.businessName.trim()) return 'Enter your business name.'
+      if (!data.businessName.trim())
+        return data.businessType === 'home'
+          ? 'Give your listing a name.'
+          : 'Enter your business name.'
       if (!data.businessType) return 'Select a business type.'
       if (!data.city) return 'Select your city.'
       if (!data.address.trim()) return 'Enter your full address.'
+      // Required, because the point of listing is to be found. An address
+      // without coordinates cannot be put on the map, and a listing that is
+      // not on the map does nothing for the business that submitted it.
+      if (data.lat === null || data.lng === null)
+        return 'Set your location — use the current-location button or type the coordinates.'
     }
     return null
   }
@@ -122,9 +149,42 @@ export function BusinessSignUpForm() {
       setError('Please accept the Business Terms to continue.')
       return
     }
+
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 2500))
+    setError(null)
+
+    // This used to be `await new Promise(r => setTimeout(r, 2500))` followed by
+    // the success screen — a fake delay standing in for a request that was
+    // never made. Every application was discarded on the next page load.
+    //
+    // The password creates the owner's account. It is hashed with scrypt into
+    // User and never written to the application row.
+    const result = await registerBusiness({
+      ownerName: data.ownerName,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      businessName: data.businessName,
+      businessType: data.businessType,
+      city: data.city,
+      address: data.address,
+      website: data.website,
+      lat: data.lat,
+      lng: data.lng,
+      chargers: data.chargers.map((charger) => ({
+        connectorType: charger.connectorType,
+        maxPowerKw: charger.maxPowerKw,
+        ports: charger.ports,
+      })),
+    })
+
     setIsLoading(false)
+
+    if (!result.ok) {
+      setError(result.message ?? 'Could not submit your listing. Please try again.')
+      return
+    }
+
     setIsComplete(true)
   }
 
@@ -132,10 +192,13 @@ export function BusinessSignUpForm() {
     return (
       <div className="animate-scale-in text-center">
         <CheckCircle2 size={80} className="mx-auto text-green-500" aria-hidden="true" />
-        <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">You&apos;re Live on Plug.pk!</h2>
+        {/* "You're Live on Plug.pk!" and a promised email within 24 hours —
+            neither was true. The listing is not published until an admin
+            approves it, and no mail is sent by this application at all. */}
+        <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">Application received</h2>
         <p className="mb-8 text-slate-500">
-          Your listing is under review. You&apos;ll receive an email within 24 hours once it&apos;s
-          live.
+          Your listing has been submitted and is waiting to be reviewed. We&apos;ll be in touch
+          at {data.email || 'the address you gave'} once it has been looked at.
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -305,9 +368,40 @@ export function BusinessSignUpForm() {
               </div>
             </fieldset>
 
+            {/*
+              Shown the moment "Home Charger" is picked, before a single
+              personal detail has been typed.
+
+              A shop putting its address on a map is publishing business
+              contact details. A person doing the same is publishing where they
+              live, and that is a different decision — one they should be able
+              to make before filling the form in, not after submitting it. The
+              wording names the three specific things that become public rather
+              than gesturing at "your information".
+            */}
+            {isHome ? (
+              <div
+                role="note"
+                className="mb-6 flex items-start gap-3 rounded-2xl border-[1.5px] border-amber-200 bg-amber-50 p-4"
+              >
+                <ShieldAlert size={18} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-900">
+                    This puts your home on a public map
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-amber-800">
+                    Your <strong>address</strong>, <strong>exact location</strong> and{' '}
+                    <strong>phone number</strong> will be visible to anyone using Plug.pk once
+                    your listing is approved. Only list a home charger you are happy for
+                    strangers to drive to.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
             <div className="mb-5">
-              <label htmlFor="biz-name-signup" className="mb-2 block text-sm font-semibold text-slate-700">Business Name *</label>
-              <input id="biz-name-signup" type="text" value={data.businessName} onChange={(e) => update('businessName', e.target.value)} placeholder="Mall Road Premium Hotel" className={FIELD} />
+              <label htmlFor="biz-name-signup" className="mb-2 block text-sm font-semibold text-slate-700">{nameLabel} *</label>
+              <input id="biz-name-signup" type="text" value={data.businessName} onChange={(e) => update('businessName', e.target.value)} placeholder={namePlaceholder} className={FIELD} />
             </div>
 
             <div className="mb-5">
@@ -323,6 +417,23 @@ export function BusinessSignUpForm() {
             <div className="mb-5">
               <label htmlFor="biz-addr-signup" className="mb-2 block text-sm font-semibold text-slate-700">Full Address *</label>
               <textarea id="biz-addr-signup" value={data.address} onChange={(e) => update('address', e.target.value)} placeholder="24 Mall Road, Gulberg" className="min-h-[80px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-sm text-slate-900 outline-none focus:border-plug-blue-500" />
+            </div>
+
+            <div className="mb-5">
+              <p className="mb-1 text-sm font-semibold text-slate-700">Exact location *</p>
+              <p className="mb-3 text-ui-sm text-slate-500">
+                This is the pin EV drivers will navigate to. Stand at your chargers and tap
+                the button, or type the coordinates.
+              </p>
+              <LocationPicker
+                idPrefix="biz-signup"
+                lat={data.lat}
+                lng={data.lng}
+                onChange={({ lat, lng }) => {
+                  setData((current) => ({ ...current, lat, lng }))
+                  setError(null)
+                }}
+              />
             </div>
 
             <div className="mb-6">
@@ -485,10 +596,29 @@ export function BusinessSignUpForm() {
               </div>
             </div>
 
+            {/* Repeated at the point of submission. Step 2 is where the choice
+                is made, but this is where it becomes irreversible, and by now
+                the warning has scrolled well out of sight. */}
+            {isHome ? (
+              <div
+                role="note"
+                className="mb-5 flex items-start gap-3 rounded-2xl border-[1.5px] border-amber-200 bg-amber-50 p-4"
+              >
+                <ShieldAlert size={18} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
+                <p className="text-sm leading-relaxed text-amber-800">
+                  Once approved, <strong>{data.address || 'your address'}</strong>, its exact
+                  coordinates and <strong>{data.phone || 'your phone number'}</strong> will be
+                  visible to everyone on the Plug.pk map.
+                </p>
+              </div>
+            ) : null}
+
             <label className="mb-6 flex items-start gap-3">
               <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setError(null) }} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600" />
               <span className="text-sm text-slate-600">
-                I agree to Plug.pk Business Terms and confirm my information is accurate
+                {isHome
+                  ? 'I agree to Plug.pk Business Terms, confirm my information is accurate, and understand my home address and phone number will be shown publicly'
+                  : 'I agree to Plug.pk Business Terms and confirm my information is accurate'}
               </span>
             </label>
 

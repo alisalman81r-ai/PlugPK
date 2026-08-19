@@ -96,8 +96,17 @@ model Connector {
 }
 
 model Review {
-  id           String   @id
-  stationId    String
+  id String @id
+  /**
+   * A review belongs to exactly one of a station or a business.
+   *
+   * Both are nullable because listings come from two tables: stations entered
+   * by an operator, and businesses that applied through the public form. Before
+   * this, a business could be shown on the map but never reviewed — the owner's
+   * reviews page had nowhere to read from and showed invented figures instead.
+   */
+  stationId    String?
+  businessId   String?
   userId       String
   userName     String
   userAvatar   String?
@@ -109,9 +118,36 @@ model Review {
   helpfulCount Int      @default(0)
   isVerified   Boolean  @default(false)
 
-  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  station  Station?  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([stationId])
+  @@index([businessId])
+}
+
+/**
+ * One row per business per day, counting what actually happened.
+ *
+ * The analytics page used to read a fixed array — 1,240 views and 89 clicks
+ * that never moved, for a listing that may not even have been approved. These
+ * counters are incremented by real visits to the public listing page and real
+ * presses of its directions button, so a quiet listing correctly reads zero.
+ *
+ * Stored per day rather than as a running total because the page charts a time
+ * series and compares this month against last.
+ */
+model BusinessDailyStat {
+  id         String @id
+  businessId String
+  /** Calendar day in Pakistan Standard Time, as YYYY-MM-DD. */
+  day        String
+  views      Int    @default(0)
+  clicks     Int    @default(0)
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, day])
+  @@index([businessId])
 }
 
 model EVService {
@@ -202,6 +238,8 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
 
+  businesses   Business[]
+
   @@index([createdAt])
 }
 
@@ -224,6 +262,65 @@ model MeetingRequest {
   /** new | handled — deliberately a string, not an enum, so SQLite stays simple. */
   status        String   @default("new")
   createdAt     DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+/**
+ * A business that applied to list its chargers on the platform.
+ *
+ * Before this, the sign-up form waited 2.5 seconds and showed "You're Live on
+ * Plug.pk!" without writing anything — every application was lost the moment
+ * the page was refreshed.
+ *
+ * The password the form collects is deliberately NOT stored here. Keeping a
+ * plaintext password in an application record would be indefensible, and
+ * hashing one into a table that is not the account table would just be a
+ * second, worse copy of User. Applying and holding an account are separate
+ * concerns; the account is created through registerUser.
+ */
+model Business {
+  id           String   @id
+  /**
+   * The account that submitted this listing.
+   *
+   * Nullable because an operator can enter a business directly in the admin
+   * portal, and that record has no owner account behind it. When the public
+   * form is used, a User is created and linked here — which is what lets the
+   * business dashboard show the owner their own listing rather than a mock.
+   */
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ownerName    String
+  email        String
+  phone        String?
+  businessName String
+  /** hotel | restaurant | mall | office | dealership | service-center */
+  businessType String
+  city         String
+  address      String?
+  website      String?
+  /** Free text the owner writes for their public listing. */
+  description  String?
+  /**
+   * Where the chargers actually are.
+   *
+   * Nullable because a city and a street line are not a position — an
+   * application submitted without coordinates can still be reviewed, it just
+   * cannot be put on the map. Only approved businesses that have both values
+   * become map pins.
+   */
+  lat          Float?
+  lng          Float?
+  /** JSON array of { connectorType, maxPowerKw, ports } from the form. */
+  chargers     String   @default("[]")
+  /** pending | approved | rejected — a string, not an enum, so SQLite stays simple. */
+  status       String   @default("pending")
+  createdAt    DateTime @default(now())
+
+  reviews    Review[]
+  dailyStats BusinessDailyStat[]
 
   @@index([status])
   @@index([createdAt])

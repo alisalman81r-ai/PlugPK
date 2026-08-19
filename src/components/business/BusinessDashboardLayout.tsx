@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
-import { useBusinessDashboard } from '@/hooks/useBusinessDashboard'
 import { cn } from '@/lib/utils'
 import { BUSINESS_NAV, BusinessDashboardSidebar, isBusinessItemActive } from './BusinessDashboardSidebar'
 
@@ -15,6 +14,11 @@ export interface BusinessDashboardLayoutProps {
   title: string
   subtitle?: string
   action?: React.ReactNode
+  /**
+   * The signed-in owner's listing. Absent when the account has none, which is
+   * why every field is read through it rather than from a fixture.
+   */
+  listing?: { id: string; name: string; type: string; city: string; status: string }
 }
 
 /**
@@ -26,10 +30,13 @@ export function BusinessDashboardLayout({
   title,
   subtitle,
   action,
+  listing,
 }: BusinessDashboardLayoutProps) {
   const pathname = usePathname()
-  const { business, analytics } = useBusinessDashboard()
-  const listingSlug = business.stations[0]?.slug
+  // Only an approved listing has a public page to open. This link used to
+  // point at a mock station slug that was never the owner's, and linking a
+  // pending listing would send them to a 404.
+  const listingSlug = listing && listing.status === 'approved' ? listing.id : undefined
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -58,7 +65,7 @@ export function BusinessDashboardLayout({
 
       <div className="flex">
         <div className="hidden lg:flex">
-          <BusinessDashboardSidebar business={business} analytics={analytics} />
+          <BusinessDashboardSidebar listing={listing} />
         </div>
 
         <div className="min-w-0 flex-1">

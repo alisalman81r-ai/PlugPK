@@ -7,17 +7,26 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { PAKISTAN_CITIES } from '@/lib/constants'
+import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 /** Enough to start from without turning the hero into a filter panel. */
-const QUICK_CITIES = PAKISTAN_CITIES.slice(0, 3)
+const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
 
 /** How far the layers travel, in pixels, at the far edge of the frame. */
 const DEPTH_IMAGE = 14
 const DEPTH_CONTENT = -22
 
-export function Hero() {
+interface HeroProps {
+  /**
+   * Cities that actually have a station on the platform — counted from the
+   * database, not from the list of cities somebody could pick from. This was
+   * a hardcoded "18", which was a coverage claim nothing backed up.
+   */
+  cities: number
+}
+
+export function Hero({ cities }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
   const frameRef = React.useRef<HTMLDivElement>(null)
@@ -122,7 +131,9 @@ export function Hero() {
               aria-hidden="true"
               className="h-1.5 w-1.5 rounded-full bg-cyan-300 motion-reduce:animate-none"
             />
-            Live across 18 cities
+            {cities > 0
+              ? `Live in ${cities} ${cities === 1 ? 'city' : 'cities'}`
+              : 'Mapping Pakistan, city by city'}
           </span>
 
           <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">

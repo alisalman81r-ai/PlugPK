@@ -36,7 +36,46 @@ async function hashPassword(password: string): Promise<string> {
   return `${salt}:${derived.toString('hex')}`
 }
 
-/** Exported for a future sign-in flow; unused until sessions exist. */
+/**
+ * Creates the account behind a business listing.
+ *
+ * Split out from registerUser because that one takes a FormData from the
+ * sign-up page and returns only ok/message, whereas the business flow needs
+ * the id back so the listing can be linked to it. An address that already has
+ * an account is not an error here — the same person listing a second venue
+ * should not be forced to invent a new email — so the existing id is returned
+ * and the password is left alone.
+ */
+export async function registerOwnerAccount(
+  name: string,
+  email: string,
+  password: string,
+): Promise<{ ok: boolean; userId?: string; message?: string }> {
+  const normalised = email.trim().toLowerCase()
+
+  const existing = await prisma.user.findUnique({ where: { email: normalised } })
+  if (existing) return { ok: true, userId: existing.id }
+
+  if (password.length < 8) {
+    return { ok: false, message: 'Password must be at least 8 characters.' }
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      id: randomUUID(),
+      email: normalised,
+      name: name.trim(),
+      city: null,
+      vehicle: null,
+      passwordHash: await hashPassword(password),
+    },
+  })
+
+  // The homepage owner counter reads this table.
+  revalidatePath('/')
+  return { ok: true, userId: user.id }
+}
+
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [salt, key] = stored.split(':')
   if (!salt || !key) return false

@@ -25,7 +25,9 @@ function ServiceCardSkeleton() {
       aria-label="Loading service"
       className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
     >
-      <Skeleton className="h-40 w-full rounded-none" />
+      {/* h-44 to match ServiceCard's cover exactly — a skeleton of a
+          different height moves the page the moment the data lands. */}
+      <Skeleton className="h-44 w-full rounded-none" />
       <div className="p-5">
         <Skeleton className="mb-2 h-5 w-3/4" />
         <Skeleton className="mb-3 h-4 w-1/2" />
@@ -47,7 +49,7 @@ export function ServiceGrid({
 }: ServiceGridProps) {
   if (isLoading) {
     return (
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, index) => index).map((index) => (
           <ServiceCardSkeleton key={index} />
         ))}
@@ -108,17 +110,27 @@ export function ServiceGrid({
 
           return (
             <section key={group.key}>
-              <div className={cn('mb-6 flex items-center gap-3', groupIndex === 0 ? 'mt-0' : 'mt-10')}>
-                <span className="rounded-xl bg-blue-50 p-2">
-                  <Icon size={20} className="text-plug-blue-600" aria-hidden="true" />
+              <div
+                className={cn(
+                  'mb-6 flex items-center gap-3',
+                  groupIndex === 0 ? 'mt-0' : 'mt-14',
+                )}
+              >
+                <span className={cn('rounded-xl p-2', group.meta.tone)}>
+                  <Icon size={20} aria-hidden="true" />
                 </span>
-                <h2 className="text-xl font-bold text-slate-900">{group.meta.label}</h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-500">
+                <h2 className="text-xl font-bold tracking-[-0.01em] text-slate-900">
+                  {group.meta.label}
+                </h2>
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 font-mono text-ui-xs font-bold tabular-nums text-slate-500">
                   {group.items.length}
                 </span>
+                {/* Carries the heading across the full width so each group
+                    reads as its own band rather than a floating label. */}
+                <span aria-hidden="true" className="h-px flex-1 bg-slate-200" />
               </div>
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {group.items.map((service, index) => (
                   <ServiceCard
                     key={service.id}
@@ -136,7 +148,7 @@ export function ServiceGrid({
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {services.map((service, index) => (
         <ServiceCard
           key={service.id}

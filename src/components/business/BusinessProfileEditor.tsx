@@ -1,88 +1,111 @@
 // src/components/business/BusinessProfileEditor.tsx
 'use client'
 
-import { Camera, CheckCircle2, Globe, Mail, MapPin, Phone } from 'lucide-react'
+import { Building2, Check, Loader2, MapPin } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
-import type { Business, BusinessType, DayHours } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import { updateMyBusiness } from '@/lib/db/business-actions'
+import type { BusinessRow } from '@/lib/db/queries'
+
+import { LocationPicker } from './LocationPicker'
+
+/**
+ * Edits the owner's real listing.
+ *
+ * This component used to take MOCK_BUSINESS and an onSave that set React state:
+ * every edit looked like it worked and was gone on the next page load. It now
+ * posts to a server action that checks the listing belongs to the signed-in
+ * account before writing.
+ *
+ * Only the fields the listing actually stores appear here. Opening hours,
+ * amenities and photos are not collected anywhere yet, so offering inputs for
+ * them would be collecting information into nothing.
+ */
 
 export interface BusinessProfileEditorProps {
-  business: Business
-  onSave: (data: Partial<Business>) => void
+  business: BusinessRow
 }
 
-const BUSINESS_TYPES: BusinessType[] = [
-  'hotel',
-  'restaurant',
-  'mall',
-  'office',
-  'dealership',
-  'service-center',
-  'other',
+const TYPES: { value: string; label: string }[] = [
+  { value: 'hotel', label: 'Hotel' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'mall', label: 'Shopping Mall' },
+  { value: 'office', label: 'Office' },
+  { value: 'dealership', label: 'Dealership' },
+  { value: 'service-center', label: 'Service Center' },
+  { value: 'home', label: 'Home Charger' },
 ]
-
-const DAYS = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
-] as const
 
 const FIELD =
   'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500 focus:shadow-focus'
 
-const MAX_DESCRIPTION = 500
+const AREA =
+  'w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-5 text-lg font-bold text-slate-900">{children}</h2>
 }
 
-export function BusinessProfileEditor({ business, onSave }: BusinessProfileEditorProps) {
-  const [name, setName] = React.useState(business.name)
-  const [type, setType] = React.useState<BusinessType>(business.type)
-  const [description, setDescription] = React.useState(business.description)
-  const [city, setCity] = React.useState(business.address.city)
-  const [street, setStreet] = React.useState(business.address.street)
-  const [phone, setPhone] = React.useState(business.phone)
-  const [email, setEmail] = React.useState(business.email)
+const MAX_DESCRIPTION = 600
+
+export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) {
+  const [name, setName] = React.useState(business.businessName)
+  const [type, setType] = React.useState(business.businessType)
+  const [description, setDescription] = React.useState(business.description ?? '')
+  const [city, setCity] = React.useState(business.city)
+  const [address, setAddress] = React.useState(business.address ?? '')
+  const [phone, setPhone] = React.useState(business.phone ?? '')
   const [website, setWebsite] = React.useState(business.website ?? '')
-  const [is24Hours, setIs24Hours] = React.useState(business.operatingHours.is24Hours)
-  const [isLoading, setIsLoading] = React.useState(false)
+  const [position, setPosition] = React.useState<{ lat: number | null; lng: number | null }>({
+    lat: business.lat,
+    lng: business.lng,
+  })
+
+  const [isSaving, setIsSaving] = React.useState(false)
   const [isSaved, setIsSaved] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const isHome = type === 'home'
 
   const handleSave = async () => {
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    onSave({
-      name,
-      type,
-      description,
-      phone,
-      email,
-      website: website || undefined,
-      address: { ...business.address, city, street },
-      operatingHours: { ...business.operatingHours, is24Hours },
-    })
-    setIsLoading(false)
+    setIsSaving(true)
+    setError(null)
+
+    const form = new FormData()
+    form.set('id', business.id)
+    form.set('businessName', name)
+    form.set('businessType', type)
+    form.set('description', description)
+    form.set('city', city)
+    form.set('address', address)
+    form.set('phone', phone)
+    form.set('website', website)
+    if (position.lat !== null) form.set('lat', String(position.lat))
+    if (position.lng !== null) form.set('lng', String(position.lng))
+
+    const result = await updateMyBusiness(form)
+    setIsSaving(false)
+
+    if (!result.ok) {
+      setError(result.message ?? 'Could not save your changes.')
+      return
+    }
+
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 3000)
   }
 
   return (
-    <div className="max-w-2xl">
-      {/* 1 — Basic information */}
-      <section className="mb-10">
-        <SectionTitle>Basic Information</SectionTitle>
+    <div className="flex flex-col gap-6">
+      {/* ── Identity ─────────────────────────────────────────── */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <SectionTitle>{isHome ? 'Your listing' : 'Business details'}</SectionTitle>
 
         <div className="mb-5">
           <label htmlFor="biz-name" className="mb-2 block text-sm font-semibold text-slate-700">
-            Business Name
+            {isHome ? 'Listing name' : 'Business name'}
           </label>
           <input
             id="biz-name"
@@ -95,17 +118,17 @@ export function BusinessProfileEditor({ business, onSave }: BusinessProfileEdito
 
         <div className="mb-5">
           <label htmlFor="biz-type" className="mb-2 block text-sm font-semibold text-slate-700">
-            Business Type
+            Type
           </label>
           <select
             id="biz-type"
             value={type}
-            onChange={(event) => setType(event.target.value as BusinessType)}
-            className={cn(FIELD, 'cursor-pointer capitalize')}
+            onChange={(event) => setType(event.target.value)}
+            className={`${FIELD} cursor-pointer`}
           >
-            {BUSINESS_TYPES.map((option) => (
-              <option key={option} value={option} className="capitalize">
-                {option.replace('-', ' ')}
+            {TYPES.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
@@ -120,7 +143,8 @@ export function BusinessProfileEditor({ business, onSave }: BusinessProfileEdito
             value={description}
             maxLength={MAX_DESCRIPTION}
             onChange={(event) => setDescription(event.target.value)}
-            className="min-h-[120px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-sm text-slate-900 outline-none transition-all focus:border-plug-blue-500"
+            placeholder="What should a driver know before they arrive?"
+            className={`${AREA} min-h-[120px]`}
           />
           <p className="mt-1 text-right text-xs text-slate-400">
             {description.length}/{MAX_DESCRIPTION}
@@ -128,8 +152,8 @@ export function BusinessProfileEditor({ business, onSave }: BusinessProfileEdito
         </div>
       </section>
 
-      {/* 2 — Location */}
-      <section className="mb-10">
+      {/* ── Where it is ──────────────────────────────────────── */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <SectionTitle>Location</SectionTitle>
 
         <div className="mb-5">
@@ -146,7 +170,7 @@ export function BusinessProfileEditor({ business, onSave }: BusinessProfileEdito
               id="biz-city"
               value={city}
               onChange={(event) => setCity(event.target.value)}
-              className={cn(FIELD, 'cursor-pointer pl-11')}
+              className={`${FIELD} cursor-pointer pl-11`}
             >
               {PAKISTAN_CITIES.map((option) => (
                 <option key={option} value={option}>
@@ -157,185 +181,107 @@ export function BusinessProfileEditor({ business, onSave }: BusinessProfileEdito
           </div>
         </div>
 
-        <div>
+        <div className="mb-6">
           <label htmlFor="biz-address" className="mb-2 block text-sm font-semibold text-slate-700">
-            Full Address
+            Address
           </label>
           <textarea
             id="biz-address"
-            value={street}
-            onChange={(event) => setStreet(event.target.value)}
-            className="min-h-[80px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-sm text-slate-900 outline-none transition-all focus:border-plug-blue-500"
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+            className={`${AREA} min-h-[80px]`}
           />
         </div>
+
+        {/* The pin is what puts the listing on the map at all, so it is
+            editable here rather than frozen at whatever was set on sign-up. */}
+        <LocationPicker
+          lat={position.lat}
+          lng={position.lng}
+          onChange={setPosition}
+          idPrefix="profile"
+        />
+
+        {position.lat === null || position.lng === null ? (
+          <p className="mt-3 text-ui-sm text-amber-700">
+            Without a pin this listing cannot appear on the map.
+          </p>
+        ) : null}
       </section>
 
-      {/* 3 — Contact */}
-      <section className="mb-10">
+      {/* ── How to reach you ─────────────────────────────────── */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <SectionTitle>Contact</SectionTitle>
 
-        <div className="mb-5">
-          <label htmlFor="biz-phone" className="mb-2 block text-sm font-semibold text-slate-700">
-            Phone Number
-          </label>
-          <div className="relative">
-            <Phone
-              size={18}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="biz-phone" className="mb-2 block text-sm font-semibold text-slate-700">
+              Phone
+            </label>
             <input
               id="biz-phone"
               type="tel"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              className={cn(FIELD, 'pl-11')}
+              placeholder="0300-1234567"
+              className={FIELD}
             />
           </div>
-        </div>
 
-        <div className="mb-5">
-          <label htmlFor="biz-email" className="mb-2 block text-sm font-semibold text-slate-700">
-            Email Address
-          </label>
-          <div className="relative">
-            <Mail
-              size={18}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
-            <input
-              id="biz-email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className={cn(FIELD, 'pl-11')}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label htmlFor="biz-website" className="mb-2 block text-sm font-semibold text-slate-700">
-            Website URL
-          </label>
-          <div className="relative">
-            <Globe
-              size={18}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
+          <div>
+            <label htmlFor="biz-website" className="mb-2 block text-sm font-semibold text-slate-700">
+              Website
+            </label>
             <input
               id="biz-website"
               type="url"
               value={website}
               onChange={(event) => setWebsite(event.target.value)}
-              className={cn(FIELD, 'pl-11')}
+              placeholder="https://"
+              className={FIELD}
             />
           </div>
         </div>
-      </section>
 
-      {/* 4 — Operating hours */}
-      <section className="mb-10">
-        <SectionTitle>Operating Hours</SectionTitle>
-
-        <div className="mb-4 flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4">
-          <span className="text-sm font-semibold text-slate-900">Open 24 hours</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={is24Hours}
-            aria-label="Open 24 hours"
-            onClick={() => setIs24Hours((value) => !value)}
-            className={cn(
-              'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200',
-              is24Hours ? 'bg-green-500' : 'bg-slate-200',
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                'absolute top-1/2 block h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200',
-                is24Hours ? 'translate-x-[23px]' : 'translate-x-[3px]',
-              )}
-            />
-          </button>
-        </div>
-
-        {!is24Hours ? (
-          <div className="flex flex-col gap-2">
-            {DAYS.map((day) => {
-              const hours: DayHours = business.operatingHours[day]
-
-              return (
-                <div
-                  key={day}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"
-                >
-                  <span className="text-sm font-medium capitalize text-slate-700">{day}</span>
-                  <span className="flex items-center gap-2">
-                    <input
-                      type="time"
-                      defaultValue={hours.open}
-                      aria-label={`${day} opening time`}
-                      className="h-9 rounded-lg border border-slate-200 px-2 font-mono text-sm text-slate-700"
-                    />
-                    <span className="text-slate-400">–</span>
-                    <input
-                      type="time"
-                      defaultValue={hours.close}
-                      aria-label={`${day} closing time`}
-                      className="h-9 rounded-lg border border-slate-200 px-2 font-mono text-sm text-slate-700"
-                    />
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        ) : null}
-      </section>
-
-      {/* 5 — Photos */}
-      <section className="mb-10">
-        <SectionTitle>Photos</SectionTitle>
-
-        <div className="mb-4 cursor-not-allowed opacity-50">
-          <p className="mb-2 text-sm font-semibold text-slate-700">Cover Photo</p>
-          <div className="flex h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200">
-            <Camera size={32} className="text-slate-300" aria-hidden="true" />
-            <p className="mt-3 text-sm text-slate-500">Upload cover photo</p>
-            <p className="mt-1 text-xs text-slate-400">(Coming soon)</p>
-          </div>
-        </div>
-
-        <div className="cursor-not-allowed opacity-50">
-          <p className="mb-2 text-sm font-semibold text-slate-700">Additional Photos</p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[0, 1, 2, 3].map((index) => (
-              <div
-                key={index}
-                className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-slate-200"
-              >
-                <Camera size={20} className="text-slate-300" aria-hidden="true" />
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-slate-400">(Coming soon)</p>
+        {/* Read-only on purpose: this address links the listing to the account
+            that signs in. Changing it here would break that link silently. */}
+        <div className="mt-5 rounded-xl bg-slate-50 px-4 py-3">
+          <p className="text-ui-xs font-semibold uppercase tracking-wide text-slate-400">
+            Account email
+          </p>
+          <p className="mt-0.5 text-ui-sm text-slate-700">{business.email}</p>
         </div>
       </section>
 
-      {isSaved ? (
-        <p className="mb-4 flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-          <CheckCircle2 size={16} aria-hidden="true" />
-          Profile saved
-        </p>
+      {error ? (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p>
       ) : null}
 
-      {/* Sticky above the portal's mobile tab bar; inline from lg up. */}
-      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] -mx-6 border-t border-slate-200 bg-white px-6 py-4 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
-        <Button size="lg" fullWidth className="h-12" isLoading={isLoading} onClick={handleSave}>
-          Save Profile
+      <div className="flex items-center gap-3">
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <>
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              Saving
+            </>
+          ) : (
+            'Save changes'
+          )}
         </Button>
+
+        {isSaved ? (
+          <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
+            <Check size={16} aria-hidden="true" />
+            Saved
+          </span>
+        ) : null}
+
+        {business.status !== 'approved' ? (
+          <span className="inline-flex items-center gap-1.5 text-ui-sm text-slate-500">
+            <Building2 size={14} className="text-slate-400" aria-hidden="true" />
+            Changes go live once the listing is approved.
+          </span>
+        ) : null}
       </div>
     </div>
   )

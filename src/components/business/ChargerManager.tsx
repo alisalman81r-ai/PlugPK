@@ -1,234 +1,228 @@
 // src/components/business/ChargerManager.tsx
 'use client'
 
-import { Pencil, Plus, Trash2, Zap } from 'lucide-react'
+import { Check, Loader2, Plus, Trash2, Zap } from 'lucide-react'
 import * as React from 'react'
 
-import { Button, ConnectorBadge } from '@/components/ui'
-import type { Connector, ConnectorStatus } from '@/lib/types'
-import { cn, getConnectorConfig } from '@/lib/utils'
-import { ChargerForm } from './ChargerForm'
+import { Button } from '@/components/ui'
+import { CONNECTOR_TYPES } from '@/lib/constants'
+import { saveMyChargers, type DraftCharger } from '@/lib/db/business-actions'
+
+/**
+ * The chargers on the owner's listing.
+ *
+ * Previously this edited an in-memory array seeded from MOCK_BUSINESS: adding a
+ * charger appeared to work, and refreshing put the fixture back. Edits now go
+ * to the listing itself, which is also what the map reads — so a charger added
+ * here shows up to drivers.
+ *
+ * The whole list is submitted at once rather than one row at a time. The
+ * chargers live in a single JSON column, so sending the full intended list is
+ * what keeps the column consistent with what is on screen.
+ */
 
 export interface ChargerManagerProps {
-  chargers: Connector[]
-  onAdd: (charger: Omit<Connector, 'id'>) => void
-  onUpdate: (id: string, data: Partial<Connector>) => void
-  onRemove: (id: string) => void
-  onToggleStatus: (id: string) => void
+  businessId: string
+  chargers: DraftCharger[]
+  /** Approved listings are live; anything else is not yet visible to drivers. */
+  isLive: boolean
 }
 
-const BORDER_BY_STATUS: Record<ConnectorStatus, string> = {
-  available: 'border-slate-200',
-  'in-use': 'border-amber-200',
-  offline: 'border-red-200',
+const MAX_CHARGERS = 20
+
+const FIELD =
+  'h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-3 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
+
+function blankCharger(): DraftCharger {
+  return { connectorType: 'Type2', maxPowerKw: 22, ports: 1 }
 }
 
-export function ChargerManager({
-  chargers,
-  onAdd,
-  onUpdate,
-  onRemove,
-  onToggleStatus,
-}: ChargerManagerProps) {
-  const [isAddingCharger, setIsAddingCharger] = React.useState(false)
-  const [editingChargerId, setEditingChargerId] = React.useState<string | null>(null)
-  const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null)
+export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerProps) {
+  const [rows, setRows] = React.useState<DraftCharger[]>(chargers)
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [isSaved, setIsSaved] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
-  if (chargers.length === 0 && !isAddingCharger) {
-    return (
-      <div className="py-20 text-center">
-        <Zap size={64} className="mx-auto text-slate-200" aria-hidden="true" />
-        <p className="mb-3 mt-6 text-2xl font-bold text-slate-900">No chargers added yet</p>
-        <p className="text-slate-500">Add your first charger to appear on the map</p>
-        <div className="mt-6">
-          <Button leftIcon={<Plus size={16} />} onClick={() => setIsAddingCharger(true)}>
-            Add First Charger
-          </Button>
-        </div>
-      </div>
+  // What was last written, so the save button can tell whether anything
+  // actually changed rather than offering to save a list nobody touched.
+  const [saved, setSaved] = React.useState<string>(() => JSON.stringify(chargers))
+  const isDirty = JSON.stringify(rows) !== saved
+
+  const patch = (index: number, next: Partial<DraftCharger>) => {
+    setRows((current) =>
+      current.map((row, position) => (position === index ? { ...row, ...next } : row)),
     )
+    setError(null)
   }
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    setError(null)
+
+    const result = await saveMyChargers(businessId, rows)
+    setIsSaving(false)
+
+    if (!result.ok) {
+      setError(result.message ?? 'Could not save your chargers.')
+      return
+    }
+
+    setSaved(JSON.stringify(rows))
+    setIsSaved(true)
+    setTimeout(() => setIsSaved(false), 3000)
+  }
+
+  const totalPorts = rows.reduce((sum, row) => sum + (Number(row.ports) || 0), 0)
+
   return (
-    <>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-slate-500">
-          {chargers.length} charger{chargers.length === 1 ? '' : 's'} listed
-        </p>
-
-        <Button size="sm" leftIcon={<Plus size={16} />} onClick={() => setIsAddingCharger(true)}>
-          Add Charger
-        </Button>
-      </div>
-
-      {isAddingCharger ? (
-        <div className="mb-6 animate-fade-up">
-          <ChargerForm
-            onSubmit={(charger) => {
-              onAdd(charger)
-              setIsAddingCharger(false)
-            }}
-            onCancel={() => setIsAddingCharger(false)}
-          />
-        </div>
-      ) : null}
-
-      <div className="flex flex-col gap-4">
-        {chargers.map((charger) => {
-          if (editingChargerId === charger.id) {
-            return (
-              <ChargerForm
-                key={charger.id}
-                initialData={charger}
-                onSubmit={(data) => {
-                  onUpdate(charger.id, data)
-                  setEditingChargerId(null)
-                }}
-                onCancel={() => setEditingChargerId(null)}
-              />
-            )
-          }
-
-          const config = getConnectorConfig(charger.type)
-          const isOnline = charger.status !== 'offline'
-
-          return (
-            <div
-              key={charger.id}
-              className={cn(
-                'rounded-2xl border-[1.5px] bg-white p-6 transition-all duration-200',
-                BORDER_BY_STATUS[charger.status],
-              )}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <ConnectorBadge type={charger.type} size="md" />
-                  <p className="mt-1.5 text-sm text-slate-500">{config.description}</p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={isOnline}
-                      aria-label={`${charger.type} availability`}
-                      onClick={() => onToggleStatus(charger.id)}
-                      className={cn(
-                        'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200',
-                        isOnline ? 'bg-green-500' : 'bg-slate-200',
-                      )}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          'absolute top-1/2 block h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200',
-                          isOnline ? 'translate-x-[23px]' : 'translate-x-[3px]',
-                        )}
-                      />
-                    </button>
-                    <span
-                      className={cn(
-                        'text-sm font-medium',
-                        isOnline ? 'text-green-700' : 'text-slate-500',
-                      )}
-                    >
-                      {isOnline ? 'Available' : 'Offline'}
-                    </span>
-                  </span>
-
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    leftIcon={<Pencil size={16} />}
-                    onClick={() => setEditingChargerId(charger.id)}
-                  >
-                    Edit
-                  </Button>
-
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDelete(charger.id)}
-                    aria-label={`Delete ${charger.type} charger`}
-                    className="flex h-9 items-center gap-2 rounded-xl bg-red-50 px-3 text-sm font-medium text-red-600 transition-colors hover:bg-red-100"
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-5 grid grid-cols-3 gap-4">
-                <div className="rounded-xl bg-slate-50 p-4 text-center">
-                  <p className="font-mono text-xl font-bold text-slate-900">{charger.maxPowerKw}</p>
-                  <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">kW</p>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-4 text-center">
-                  <p className="font-mono text-xl font-bold text-slate-900">{charger.ports}</p>
-                  <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">Ports</p>
-                </div>
-                <div className="rounded-xl bg-slate-50 p-4 text-center">
-                  <p className="font-mono text-xl font-bold text-slate-900">
-                    {charger.availablePorts}
-                  </p>
-                  <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">
-                    Free now
-                  </p>
-                </div>
-              </div>
-
-              {charger.compatibleVehicles.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {charger.compatibleVehicles.slice(0, 6).map((vehicle) => (
-                    <span
-                      key={vehicle}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
-                    >
-                      {vehicle}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          )
-        })}
-      </div>
-
-      {confirmDelete ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="delete-charger-title"
-          onClick={() => setConfirmDelete(null)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-        >
-          <div
-            onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-[420px] rounded-3xl bg-white p-8 shadow-modal"
-          >
-            <h2 id="delete-charger-title" className="mb-2 text-xl font-bold text-slate-900">
-              Delete this charger?
-            </h2>
-            <p className="mb-8 text-slate-500">
-              It will be removed from your listing and stop appearing on the map.
+    <div className="flex flex-col gap-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Your chargers</h2>
+            <p className="mt-0.5 text-ui-sm text-slate-500">
+              {rows.length === 0
+                ? 'None listed yet.'
+                : `${rows.length} charger${rows.length === 1 ? '' : 's'} · ${totalPorts} port${totalPorts === 1 ? '' : 's'}`}
             </p>
-            <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setConfirmDelete(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  onRemove(confirmDelete)
-                  setConfirmDelete(null)
-                }}
-              >
-                Delete
-              </Button>
-            </div>
           </div>
+
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setRows((current) => [...current, blankCharger()])
+              setError(null)
+            }}
+            disabled={rows.length >= MAX_CHARGERS}
+          >
+            <Plus size={16} aria-hidden="true" />
+            Add charger
+          </Button>
         </div>
+
+        {rows.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
+            <Zap size={24} className="mx-auto mb-2 text-slate-400" aria-hidden="true" />
+            <p className="text-ui-sm text-slate-500">
+              Add the chargers at this location so drivers can filter for them.
+            </p>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {rows.map((row, index) => (
+              <li
+                key={`charger-${index}`}
+                className="grid items-end gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
+              >
+                <div>
+                  <label
+                    htmlFor={`charger-type-${index}`}
+                    className="mb-1.5 block text-ui-xs font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Connector
+                  </label>
+                  <select
+                    id={`charger-type-${index}`}
+                    value={row.connectorType}
+                    onChange={(event) => patch(index, { connectorType: event.target.value })}
+                    className={`${FIELD} cursor-pointer`}
+                  >
+                    {CONNECTOR_TYPES.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor={`charger-kw-${index}`}
+                    className="mb-1.5 block text-ui-xs font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Power (kW)
+                  </label>
+                  <input
+                    id={`charger-kw-${index}`}
+                    type="number"
+                    min={0}
+                    max={400}
+                    value={row.maxPowerKw}
+                    onChange={(event) => patch(index, { maxPowerKw: Number(event.target.value) })}
+                    className={FIELD}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor={`charger-ports-${index}`}
+                    className="mb-1.5 block text-ui-xs font-semibold uppercase tracking-wide text-slate-500"
+                  >
+                    Ports
+                  </label>
+                  <input
+                    id={`charger-ports-${index}`}
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={row.ports}
+                    onChange={(event) => patch(index, { ports: Number(event.target.value) })}
+                    className={FIELD}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRows((current) => current.filter((_, position) => position !== index))
+                    setError(null)
+                  }}
+                  aria-label={`Remove charger ${index + 1}`}
+                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {rows.length >= MAX_CHARGERS ? (
+          <p className="mt-3 text-ui-sm text-slate-500">
+            That is the maximum of {MAX_CHARGERS} chargers on one listing.
+          </p>
+        ) : null}
+      </section>
+
+      {error ? (
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p>
       ) : null}
-    </>
+
+      <div className="flex items-center gap-3">
+        <Button onClick={handleSave} disabled={isSaving || !isDirty}>
+          {isSaving ? (
+            <>
+              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              Saving
+            </>
+          ) : (
+            'Save chargers'
+          )}
+        </Button>
+
+        {isSaved ? (
+          <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
+            <Check size={16} aria-hidden="true" />
+            Saved
+          </span>
+        ) : null}
+
+        {!isLive ? (
+          <span className="text-ui-sm text-slate-500">
+            Visible to drivers once the listing is approved.
+          </span>
+        ) : null}
+      </div>
+    </div>
   )
 }

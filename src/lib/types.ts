@@ -54,6 +54,8 @@ export type BusinessType =
   | 'office'
   | 'dealership'
   | 'service-center'
+  /** A charger at a private home, shared by whoever lives there. */
+  | 'home'
   | 'other'
 
 export type UserRole =

@@ -47,7 +47,10 @@ export function ServiceCategoryTabs({
   ]
 
   return (
-    <div className="sticky top-[72px] z-30 border-b border-slate-200 bg-white">
+    // Translucent rather than opaque: the bar sits over the listings as they
+    // scroll under it, and a solid white slab reads as a lid. The blur keeps
+    // the text legible without hiding that there is content beneath.
+    <div className="sticky top-[72px] z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
       {/*
         Wraps from lg up, scrolls below it.
 
@@ -61,7 +64,7 @@ export function ServiceCategoryTabs({
         role="tablist"
         aria-label="Service categories"
         className={cn(
-          'container-plug scrollbar-hide relative flex items-center gap-2 overflow-x-auto py-3',
+          'container-plug scrollbar-hide relative flex items-center gap-1.5 overflow-x-auto py-3',
           'lg:flex-wrap lg:overflow-visible',
         )}
       >
@@ -78,23 +81,32 @@ export function ServiceCategoryTabs({
               aria-selected={isSelected}
               onClick={() => onCategoryChange(tab.key)}
               className={cn(
-                'flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 text-ui-sm font-semibold transition-colors duration-150',
+                'group/tab flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-ui-sm font-semibold transition-colors duration-150',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+                // Ink rather than saturated blue for the selected state. Seven
+                // tabs in plug-blue-600 put a heavy brand-coloured block at the
+                // top of every listing and left nothing for the actual calls to
+                // action on the cards below to stand out against.
                 isSelected
-                  ? 'bg-plug-blue-600 text-white'
+                  ? 'bg-slate-900 text-white shadow-e1'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
               )}
             >
               <Icon
                 size={16}
-                className={cn('shrink-0', isSelected ? 'text-white' : 'text-slate-400')}
+                className={cn(
+                  'shrink-0 transition-colors duration-150',
+                  isSelected ? 'text-white' : 'text-slate-400 group-hover/tab:text-slate-600',
+                )}
                 aria-hidden="true"
               />
               {tab.label}
               <span
                 className={cn(
-                  'rounded-full px-1.5 py-0.5 font-mono text-ui-xs font-bold tabular-nums',
-                  isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500',
+                  'rounded-full px-1.5 py-0.5 font-mono text-ui-xs font-bold tabular-nums transition-colors duration-150',
+                  isSelected
+                    ? 'bg-white/20 text-white'
+                    : 'bg-slate-100 text-slate-500 group-hover/tab:bg-slate-200',
                 )}
               >
                 {count}

@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { BusinessViewTracker } from '@/components/business/BusinessViewTracker'
 import { AmenitiesGrid } from '@/components/station/AmenitiesGrid'
 import { ChargerSpecCard } from '@/components/station/ChargerSpecCard'
 import { PhotoGallery } from '@/components/station/PhotoGallery'
@@ -44,6 +45,11 @@ export default async function StationDetailPage({ params }: PageProps) {
 
   return (
     <>
+      {/* Business listings count their own visits — this is where the figures
+          on the owner's analytics page come from. Stations entered by an
+          operator have no businessId and are not tracked. */}
+      {station.businessId ? <BusinessViewTracker businessId={station.businessId} /> : null}
+
       <div className="container-plug pb-32 pt-8 lg:pb-20">
         <StationHeader station={station} />
 
@@ -54,6 +60,23 @@ export default async function StationDetailPage({ params }: PageProps) {
             </div>
 
             <Divider />
+
+            {/* The owner writes this on their profile page. Without it rendered
+                here, that field collected text no driver would ever read. */}
+            {station.description ? (
+              <>
+                <section className="mt-10">
+                  <h2 className="mb-4 text-2xl font-bold text-slate-900">About</h2>
+                  <p className="whitespace-pre-line leading-relaxed text-slate-600">
+                    {station.description}
+                  </p>
+                </section>
+
+                <div className="my-10">
+                  <Divider />
+                </div>
+              </>
+            ) : null}
 
             <section className="mt-10">
               <h2 className="mb-6 text-2xl font-bold text-slate-900">Charger Details</h2>
@@ -83,6 +106,9 @@ export default async function StationDetailPage({ params }: PageProps) {
               reviewCount={station.reviewCount}
               stationId={station.id}
               stationName={station.name}
+              // A business listing's review has to be filed against the
+              // business row, not a station id that does not exist.
+              target={station.businessId ? 'business' : 'station'}
             />
 
             <div className="my-16">

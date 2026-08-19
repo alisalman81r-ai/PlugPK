@@ -2,14 +2,22 @@
 'use client'
 
 import { CheckCircle2, Star, User } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 
 import { Button, Input, Textarea } from '@/components/ui'
+import { submitReview, type ReviewTarget } from '@/lib/db/review-actions'
 import { cn } from '@/lib/utils'
 
 export interface WriteReviewFormProps {
   stationId: string
   stationName: string
+  /**
+   * Which table the listing lives in. Business listings appear on the map
+   * alongside stations, and a review of one has to be filed against the right
+   * row or the owner never sees it.
+   */
+  target?: ReviewTarget
   onSuccess?: () => void
 }
 
@@ -24,7 +32,12 @@ const RATING_LABEL: Record<number, { text: string; className: string }> = {
   5: { text: 'Excellent', className: 'text-green-600' },
 }
 
-export function WriteReviewForm({ stationId, stationName, onSuccess }: WriteReviewFormProps) {
+export function WriteReviewForm({
+  stationId,
+  stationName,
+  target = 'station',
+  onSuccess,
+}: WriteReviewFormProps) {
   const [rating, setRating] = React.useState(0)
   const [hoverRating, setHoverRating] = React.useState<number | null>(null)
   const [comment, setComment] = React.useState('')
@@ -32,6 +45,7 @@ export function WriteReviewForm({ stationId, stationName, onSuccess }: WriteRevi
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [needsSignIn, setNeedsSignIn] = React.useState(false)
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   const reset = () => {
@@ -55,10 +69,21 @@ export function WriteReviewForm({ stationId, stationName, onSuccess }: WriteRevi
     }
 
     setError(null)
+    setNeedsSignIn(false)
     setIsSubmitting(true)
-    // Stands in for the review API until the backend exists.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // This was `await new Promise(r => setTimeout(r, 1500))` followed by the
+    // success screen — a fake delay standing in for a request never made, so
+    // every review was discarded on the next page load.
+    const result = await submitReview(target, stationId, rating, comment, vehicle)
     setIsSubmitting(false)
+
+    if (!result.ok) {
+      setNeedsSignIn(result.needsSignIn ?? false)
+      setError(result.message ?? 'Could not post your review.')
+      return
+    }
+
     setIsSuccess(true)
     onSuccess?.()
   }
@@ -162,7 +187,24 @@ export function WriteReviewForm({ stationId, stationName, onSuccess }: WriteRevi
         {comment.length}/{MAX_COMMENT}
       </p>
 
-      {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p className="mb-4 text-sm text-red-600">
+          {error}
+          {/* Signing in is the one failure the visitor can act on directly, so
+              it carries a link rather than leaving them to find the page. */}
+          {needsSignIn ? (
+            <>
+              {' '}
+              <Link
+                href={`/login?redirect=/station/${stationId}`}
+                className="font-semibold underline"
+              >
+                Sign in
+              </Link>
+            </>
+          ) : null}
+        </p>
+      ) : null}
 
       <div className="mt-6 flex items-center justify-between">
         <Button
