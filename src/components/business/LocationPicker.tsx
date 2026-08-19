@@ -1,9 +1,10 @@
 // src/components/business/LocationPicker.tsx
 'use client'
 
-import { Crosshair, Loader2, MapPin } from 'lucide-react'
+import { Check, Crosshair, Loader2, MapPin, Undo2 } from 'lucide-react'
 import * as React from 'react'
 
+import { reverseGeocode } from '@/lib/geocode-actions'
 import { cn } from '@/lib/utils'
 
 export interface LocationPickerProps {
@@ -13,6 +14,17 @@ export interface LocationPickerProps {
   className?: string
   /** Ids must be unique per page — the admin form and the wizard differ. */
   idPrefix?: string
+  /**
+   * Fills the address and city fields from the pin.
+   *
+   * Optional: the admin form has its own address inputs that an operator is
+   * typing deliberately, so it can leave this out and keep coordinates-only
+   * behaviour. When it is supplied, finding a location also proposes an
+   * address, which the person can keep or undo.
+   */
+  onAddressFound?: (next: { address: string; city: string | null }) => void
+  /** The address currently in the form, so Undo can put it back. */
+  currentAddress?: string
 }
 
 /** Roughly the bounding box of Pakistan, used only to catch obvious mistakes. */
@@ -39,9 +51,51 @@ export function LocationPicker({
   onChange,
   className,
   idPrefix = 'loc',
+  onAddressFound,
+  currentAddress = '',
 }: LocationPickerProps) {
   const [isLocating, setIsLocating] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+
+  // The suggestion that was applied, and what the field held before it, so the
+  // fill can be taken back rather than only apologised for.
+  const [filled, setFilled] = React.useState<{ address: string; previous: string } | null>(null)
+  const [isLookingUp, setIsLookingUp] = React.useState(false)
+  const [lookupNote, setLookupNote] = React.useState<string | null>(null)
+
+  /**
+   * Fills the address from a pin, then says so.
+   *
+   * The address is written into the form rather than held back behind a
+   * "use this?" prompt, because the common case is that it is right and the
+   * person wanted it filled. The panel that appears afterwards is the asking
+   * part: keep it, or undo and type your own.
+   */
+  const fillAddressFrom = async (position: { lat: number; lng: number }) => {
+    if (!onAddressFound) return
+
+    setIsLookingUp(true)
+    setLookupNote(null)
+
+    const result = await reverseGeocode(position.lat, position.lng)
+    setIsLookingUp(false)
+
+    if (!result.ok || !result.address) {
+      // Not an error worth blocking on — the pin is set, which is the part that
+      // matters, and the address can be typed.
+      setLookupNote(`${result.message ?? 'No address found for that spot.'} Type your address below.`)
+      return
+    }
+
+    setFilled({ address: result.address, previous: currentAddress })
+    onAddressFound({ address: result.address, city: result.city ?? null })
+  }
+
+  const undoFill = () => {
+    if (!filled || !onAddressFound) return
+    onAddressFound({ address: filled.previous, city: null })
+    setFilled(null)
+  }
 
   const outOfBounds =
     lat !== null &&
@@ -60,12 +114,14 @@ export function LocationPicker({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setIsLocating(false)
-        onChange({
+        const next = {
           // Six decimals is about 0.1m — beyond that is noise, and the extra
           // digits only make the field harder to read.
           lat: Number(position.coords.latitude.toFixed(6)),
           lng: Number(position.coords.longitude.toFixed(6)),
-        })
+        }
+        onChange(next)
+        void fillAddressFrom(next)
       },
       (positionError) => {
         setIsLocating(false)
@@ -155,6 +211,68 @@ export function LocationPicker({
           />
         </div>
       </div>
+
+      {isLookingUp ? (
+        <p className="inline-flex items-center gap-1.5 text-ui-sm text-slate-500">
+          <Loader2 size={14} className="shrink-0 animate-spin" aria-hidden="true" />
+          Looking up your address…
+        </p>
+      ) : null}
+
+      {/*
+        The asking part of "fill it, then ask".
+
+        It names the address that went into the field rather than just saying
+        something was filled, because the whole question is whether that
+        particular line is right — and a reverse-geocoded address in Pakistan
+        often lands on the housing society rather than the house.
+      */}
+      {filled && !isLookingUp ? (
+        <div
+          role="status"
+          className="rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 p-4"
+        >
+          <p className="flex items-start gap-2 text-ui-sm font-semibold text-emerald-900">
+            <Check size={15} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden="true" />
+            We filled your address from your location
+          </p>
+
+          <p className="mt-2 rounded-lg bg-white px-3 py-2 text-ui-sm text-slate-700">
+            {filled.address}
+          </p>
+
+          <p className="mt-2.5 text-ui-sm text-emerald-900/80">
+            Keep it if that is right, or undo and write it yourself — the address field stays
+            editable either way.
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFilled(null)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-4 text-ui-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+            >
+              <Check size={14} aria-hidden="true" />
+              Keep this address
+            </button>
+
+            <button
+              type="button"
+              onClick={undoFill}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              <Undo2 size={14} aria-hidden="true" />
+              Undo, I&apos;ll type it
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {lookupNote && !isLookingUp ? (
+        <p role="status" className="text-ui-sm text-slate-500">
+          {lookupNote}
+        </p>
+      ) : null}
 
       {lat !== null && lng !== null && !outOfBounds ? (
         <p className="inline-flex items-center gap-1.5 text-ui-sm text-emerald-700">

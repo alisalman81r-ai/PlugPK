@@ -200,6 +200,11 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
           lng={position.lng}
           onChange={setPosition}
           idPrefix="profile"
+          currentAddress={address}
+          onAddressFound={({ address: found, city: foundCity }) => {
+            setAddress(found)
+            if (foundCity) setCity(foundCity)
+          }}
         />
 
         {position.lat === null || position.lng === null ? (

@@ -7,18 +7,14 @@ import {
   Check,
   CheckCircle2,
   Coffee,
-  Eye,
-  EyeOff,
   Home as HomeIcon,
   Hotel,
-  Lock,
   Mail,
   Phone,
   Plus,
   ShieldAlert,
   ShoppingBag,
   Trash2,
-  User as UserIcon,
   Utensils,
   Wrench,
   type LucideIcon,
@@ -81,7 +77,6 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
   const [currentStep, setCurrentStep] = React.useState(1)
   const [isLoading, setIsLoading] = React.useState(false)
   const [isComplete, setIsComplete] = React.useState(false)
-  const [showPassword, setShowPassword] = React.useState(false)
   const [agreed, setAgreed] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -160,8 +155,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
     // the success screen — a fake delay standing in for a request that was
     // never made. Every application was discarded on the next page load.
     //
-    // The password creates the owner's account. It is hashed with scrypt into
-    // User and never written to the application row.
+    // No identity is sent: the action reads it from the session.
     const result = await registerBusiness({
       phone: data.phone,
       businessName: data.businessName,
@@ -438,6 +432,19 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                 lng={data.lng}
                 onChange={({ lat, lng }) => {
                   setData((current) => ({ ...current, lat, lng }))
+                  setError(null)
+                }}
+                currentAddress={data.address}
+                onAddressFound={({ address, city }) => {
+                  setData((current) => ({
+                    ...current,
+                    address,
+                    // The city moves only when the lookup matched one on our list,
+                    // and never clears a choice already made: someone who picked
+                    // their city should not have it emptied because the geocoder
+                    // returned a district name instead.
+                    city: city ?? current.city,
+                  }))
                   setError(null)
                 }}
               />
