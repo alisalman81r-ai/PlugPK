@@ -1,9 +1,9 @@
 // src/app/admin/(protected)/page.tsx
-import { MessageSquare, Plug, Star, Wrench, Zap, type LucideIcon } from 'lucide-react'
+import { MessageSquare, Plug, Star, Users, Wrench, Zap, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { getContentCounts, getPosts, getStations } from '@/lib/db/queries'
+import { getContentCounts, getMemberCount, getPosts, getStations } from '@/lib/db/queries'
 import { getPortAvailability } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -17,10 +17,11 @@ interface CountCard {
 }
 
 export default async function AdminOverviewPage() {
-  const [counts, stations, posts] = await Promise.all([
+  const [counts, stations, posts, memberCount] = await Promise.all([
     getContentCounts(),
     getStations(),
     getPosts(),
+    getMemberCount(),
   ])
 
   const cards: CountCard[] = [
@@ -29,6 +30,7 @@ export default async function AdminOverviewPage() {
     { label: 'Services', value: counts.services, href: '/admin/services', icon: Wrench, tone: 'bg-violet-50 text-violet-600' },
     { label: 'Posts', value: counts.posts, href: '/admin/community', icon: MessageSquare, tone: 'bg-amber-50 text-amber-600' },
     { label: 'Reviews', value: counts.reviews, icon: Star, tone: 'bg-emerald-50 text-emerald-600' },
+    { label: 'Members', value: memberCount, href: '/admin/members', icon: Users, tone: 'bg-rose-50 text-rose-600' },
   ]
 
   // Surfaced because it is the one number that goes stale fastest and the

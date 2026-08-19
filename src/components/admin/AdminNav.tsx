@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Plug,
   Menu,
+  Users,
   Wrench,
   X,
   Zap,
@@ -37,9 +38,10 @@ interface NavSection {
  * is the physical estate; Content is what the public reads.
  *
  * Only routes that exist appear here. The brief asked for Bookings,
- * Transactions, Revenue, Users, Notifications and Settings — none of those
- * exist in this application, and a nav entry leading to an empty screen is
- * worse than no entry at all.
+ * Transactions, Revenue, Notifications and Settings — none of those exist in
+ * this application, and a nav entry leading to an empty screen is worse than
+ * no entry at all. Members was on that list too and now has a page behind it,
+ * so it has one here.
  */
 const SECTIONS: NavSection[] = [
   {
@@ -49,6 +51,10 @@ const SECTIONS: NavSection[] = [
       { label: 'Stations', href: '/admin/stations', icon: Zap },
       { label: 'Connectors', href: '/admin/connectors', icon: Plug },
     ],
+  },
+  {
+    heading: 'People',
+    items: [{ label: 'Members', href: '/admin/members', icon: Users }],
   },
   {
     heading: 'Content',

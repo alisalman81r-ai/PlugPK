@@ -727,3 +727,122 @@ export async function getDashboardShell(profile: {
     stats: { totalSaved, totalReviews, totalRoutes: 0, memberDays },
   }
 }
+
+// ─── Members ────────────────────────────────────────────
+
+export interface MemberRow {
+  id: string
+  name: string
+  email: string
+  city: string | null
+  vehicle: string | null
+  joinedAt: string
+  /** Listings submitted from this account. */
+  businessCount: number
+  reviewCount: number
+  savedCount: number
+}
+
+/**
+ * Everyone who has registered.
+ *
+ * The counts come back with the list rather than per row on the page: a member
+ * list is the one screen certain to grow, and one query per member is how a
+ * list view quietly becomes slow at a few hundred rows.
+ *
+ * They are also what makes deletion safe to judge. Removing an account that
+ * owns a live business listing is a different decision from removing one that
+ * has done nothing, and the person deciding should be able to see which is
+ * which without opening every profile.
+ */
+export async function getMembers(): Promise<MemberRow[]> {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      city: true,
+      vehicle: true,
+      createdAt: true,
+      _count: { select: { businesses: true, saved: true } },
+    },
+  })
+  if (users.length === 0) return []
+
+  // Reviews carry a plain userId with no relation, so their counts are grouped
+  // separately rather than included above.
+  const reviewCounts = await prisma.review.groupBy({
+    by: ['userId'],
+    where: { userId: { in: users.map((user) => user.id) } },
+    _count: { _all: true },
+  })
+  const reviewsById = new Map(reviewCounts.map((row) => [row.userId, row._count._all]))
+
+  return users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    city: user.city,
+    vehicle: user.vehicle,
+    joinedAt: user.createdAt.toISOString(),
+    businessCount: user._count.businesses,
+    reviewCount: reviewsById.get(user.id) ?? 0,
+    savedCount: user._count.saved,
+  }))
+}
+
+export interface MemberDetail extends MemberRow {
+  businesses: { id: string; name: string; status: string; city: string }[]
+  reviews: MyReviewRow[]
+  saved: { id: string; name: string }[]
+}
+
+/** One member with everything held against them. Null when the id is unknown. */
+export async function getMemberById(id: string): Promise<MemberDetail | null> {
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      city: true,
+      vehicle: true,
+      createdAt: true,
+      businesses: {
+        select: { id: true, businessName: true, status: true, city: true },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  })
+  if (!user) return null
+
+  const [reviews, saved] = await Promise.all([
+    getReviewsByUser(id),
+    getSavedStationsForUser(id),
+  ])
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    city: user.city,
+    vehicle: user.vehicle,
+    joinedAt: user.createdAt.toISOString(),
+    businessCount: user.businesses.length,
+    reviewCount: reviews.length,
+    savedCount: saved.length,
+    businesses: user.businesses.map((row) => ({
+      id: row.id,
+      name: row.businessName,
+      status: row.status,
+      city: row.city,
+    })),
+    reviews,
+    saved: saved.map((station) => ({ id: station.id, name: station.name })),
+  }
+}
+
+export async function getMemberCount(): Promise<number> {
+  return prisma.user.count()
+}
