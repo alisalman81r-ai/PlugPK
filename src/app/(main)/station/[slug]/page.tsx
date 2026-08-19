@@ -11,6 +11,7 @@ import { ReviewsSection } from '@/components/station/ReviewsSection'
 import { StationHeader } from '@/components/station/StationHeader'
 import { StationMobileBar, StationSidebar } from '@/components/station/StationSidebar'
 import { getStationBySlug, getStationSlugs } from '@/lib/db/queries'
+import { isStationSaved } from '@/lib/db/session-actions'
 
 interface PageProps {
   params: { slug: string }
@@ -42,6 +43,8 @@ export default async function StationDetailPage({ params }: PageProps) {
   if (!station) notFound()
 
   const reviews = station.reviews ?? []
+  // Read on the server so the bookmark is already filled in on first paint.
+  const saved = await isStationSaved(station.id)
 
   return (
     <>
@@ -119,7 +122,7 @@ export default async function StationDetailPage({ params }: PageProps) {
           </div>
 
           <aside className="sticky top-[88px] hidden h-fit lg:block">
-            <StationSidebar station={station} />
+            <StationSidebar station={station} initiallySaved={saved} />
           </aside>
         </div>
       </div>

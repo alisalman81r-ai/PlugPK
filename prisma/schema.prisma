@@ -239,8 +239,33 @@ model User {
   createdAt    DateTime @default(now())
 
   businesses   Business[]
+  saved        SavedStation[]
 
   @@index([createdAt])
+}
+
+/**
+ * A listing somebody bookmarked.
+ *
+ * The bookmark button on a station page used to toggle React state and nothing
+ * else, so the dashboard's "Saved" tab could only ever show a fixture's three
+ * saved stations to everyone who opened it.
+ *
+ * `listingId` is a plain string rather than a foreign key because the map
+ * carries two kinds of listing — stations entered by an operator and approved
+ * businesses — and a driver saving one should not have to care which table it
+ * came from. Rows whose listing later disappears are filtered out on read.
+ */
+model SavedStation {
+  id        String   @id
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
 }
 
 /**

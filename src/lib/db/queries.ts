@@ -612,3 +612,118 @@ export async function getBusinessAsStation(id: string): Promise<Station | null> 
     })),
   }
 }
+
+// ─── A signed-in person's own data ──────────────────────
+
+/**
+ * The listings someone has saved, resolved to full Station objects.
+ *
+ * Saved rows hold a bare id because the map carries both stations and business
+ * listings. Anything that no longer resolves — a station deleted, a business
+ * un-approved — is dropped rather than rendered as a broken card.
+ */
+export async function getSavedStationsForUser(userId: string): Promise<Station[]> {
+  const rows = await prisma.savedStation.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (rows.length === 0) return []
+
+  const resolved = await Promise.all(rows.map((row) => getListingById(row.listingId)))
+  return resolved.filter((station): station is Station => station !== null)
+}
+
+/**
+ * A listing by its id, from either table.
+ *
+ * Deliberately by id and not by slug. A bookmark stores `station.id`, and a
+ * station's id and slug are different values — resolving the saved id through
+ * the slug lookup found nothing, so saved rows existed in the table and the
+ * page still showed none. Business listings use the same value for both, which
+ * is exactly why that mistake stayed invisible on the listings I tested first.
+ */
+export async function getListingById(id: string): Promise<Station | null> {
+  const station = await getStationById(id)
+  if (station) return station
+
+  return getBusinessAsStation(id)
+}
+
+export interface MyReviewRow {
+  id: string
+  listingId: string
+  listingName: string
+  rating: number
+  comment: string
+  date: string
+  helpfulCount: number
+}
+
+/**
+ * Reviews written by this account, across both kinds of listing.
+ *
+ * The dashboard used to show MOCK_USER_REVIEWS — someone else's writing, on
+ * every account that opened the page.
+ */
+export async function getReviewsByUser(userId: string): Promise<MyReviewRow[]> {
+  const rows = await prisma.review.findMany({
+    where: { userId },
+    orderBy: { date: 'desc' },
+    include: {
+      station: { select: { id: true, slug: true, name: true } },
+      business: { select: { id: true, businessName: true } },
+    },
+  })
+
+  return rows.map((row) => ({
+    id: row.id,
+    listingId: row.station?.slug ?? row.business?.id ?? '',
+    listingName: row.station?.name ?? row.business?.businessName ?? 'A listing that has since gone',
+    rating: row.rating,
+    comment: row.comment,
+    date: row.date.toISOString(),
+    helpfulCount: row.helpfulCount,
+  }))
+}
+
+export interface DashboardShell {
+  user: { name: string; email: string; city?: string; joinedAt: string }
+  stats: { totalSaved: number; totalReviews: number; totalRoutes: number; memberDays: number }
+}
+
+/**
+ * The header and sidebar figures, counted for one account.
+ *
+ * Every dashboard page needs the same shell, and each one is gated separately,
+ * so this is the single place those counts are worked out. `totalRoutes` is
+ * zero because nothing stores a planned route yet — reporting anything else
+ * would be inventing a number, which is what this whole page used to do.
+ */
+export async function getDashboardShell(profile: {
+  id: string
+  name: string
+  email: string
+  city: string | null
+  createdAt: string
+}): Promise<DashboardShell> {
+  const [totalSaved, totalReviews] = await Promise.all([
+    prisma.savedStation.count({ where: { userId: profile.id } }),
+    prisma.review.count({ where: { userId: profile.id } }),
+  ])
+
+  const joined = new Date(profile.createdAt)
+  const memberDays = Math.max(
+    0,
+    Math.floor((Date.now() - joined.getTime()) / (24 * 60 * 60 * 1000)),
+  )
+
+  return {
+    user: {
+      name: profile.name,
+      email: profile.email,
+      city: profile.city ?? undefined,
+      joinedAt: profile.createdAt,
+    },
+    stats: { totalSaved, totalReviews, totalRoutes: 0, memberDays },
+  }
+}

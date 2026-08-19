@@ -6,15 +6,25 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
-import { useDashboard } from '@/hooks/useDashboard'
 import { cn } from '@/lib/utils'
-import { DashboardSidebar, isDashboardItemActive } from './DashboardSidebar'
+import {
+  DashboardSidebar,
+  isDashboardItemActive,
+  type DashboardStats,
+} from './DashboardSidebar'
 
 export interface DashboardLayoutProps {
   children: React.ReactNode
   title: string
   subtitle?: string
   action?: React.ReactNode
+  /**
+   * The signed-in account. Passed in from the server page rather than read
+   * from a hook: this used to call useDashboard(), which returned MOCK_USER,
+   * so every visitor saw the same fixture person's name and email.
+   */
+  user: { name: string; email: string; city?: string; joinedAt: string }
+  stats: DashboardStats
 }
 
 interface MobileTab {
@@ -32,9 +42,15 @@ const MOBILE_TABS: MobileTab[] = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
-export function DashboardLayout({ children, title, subtitle, action }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  title,
+  subtitle,
+  action,
+  user,
+  stats,
+}: DashboardLayoutProps) {
   const pathname = usePathname()
-  const { user, stats } = useDashboard()
 
   return (
     <div className="flex min-h-below-nav bg-slate-50">

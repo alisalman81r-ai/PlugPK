@@ -1,181 +1,232 @@
 // src/components/dashboard/AccountSettings.tsx
 'use client'
 
-import { Download } from 'lucide-react'
+import { Check, Loader2 } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
-import type { ProfileUpdate } from '@/hooks/useDashboard'
-import type { User } from '@/lib/types'
-import { cn } from '@/lib/utils'
-import { NotificationSettings } from './NotificationSettings'
-import { ProfileEditForm } from './ProfileEditForm'
+import { PAKISTAN_CITIES } from '@/lib/constants'
+import { changeMyPassword, updateMyProfile } from '@/lib/db/session-actions'
+
+/**
+ * Editing the signed-in account.
+ *
+ * The old version had Profile, Notifications and Privacy tabs whose switches
+ * set React state and nothing else — no notification preference or privacy
+ * setting is stored anywhere, so every toggle reset itself on reload. Only the
+ * fields that persist are offered here.
+ *
+ * Changing the password lives here too, which the old page had no way to do at
+ * all.
+ */
 
 export interface AccountSettingsProps {
-  user: User
-  onUpdateProfile: (data: ProfileUpdate) => void
+  user: { name: string; email: string; city: string | null; vehicle: string | null }
 }
 
-type TabKey = 'profile' | 'notifications' | 'privacy'
+const FIELD =
+  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'profile', label: 'Profile' },
-  { key: 'notifications', label: 'Notifications' },
-  { key: 'privacy', label: 'Privacy' },
-]
+export function AccountSettings({ user }: AccountSettingsProps) {
+  const [name, setName] = React.useState(user.name)
+  const [city, setCity] = React.useState(user.city ?? '')
+  const [vehicle, setVehicle] = React.useState(user.vehicle ?? '')
+  const [savingProfile, setSavingProfile] = React.useState(false)
+  const [profileSaved, setProfileSaved] = React.useState(false)
+  const [profileError, setProfileError] = React.useState<string | null>(null)
 
-function PrivacyTab() {
-  const [showInCommunity, setShowInCommunity] = React.useState(true)
-  const [locationSharing, setLocationSharing] = React.useState(false)
-  const [visibility, setVisibility] = React.useState('members')
-  const [confirmDelete, setConfirmDelete] = React.useState(false)
+  const [currentPassword, setCurrentPassword] = React.useState('')
+  const [newPassword, setNewPassword] = React.useState('')
+  const [savingPassword, setSavingPassword] = React.useState(false)
+  const [passwordSaved, setPasswordSaved] = React.useState(false)
+  const [passwordError, setPasswordError] = React.useState<string | null>(null)
 
-  const toggleClass = (on: boolean) =>
-    cn('relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200', on ? 'bg-green-500' : 'bg-slate-200')
+  const handleProfile = async () => {
+    setSavingProfile(true)
+    setProfileError(null)
 
-  const thumbClass = (on: boolean) =>
-    cn(
-      'absolute top-1/2 block h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200',
-      on ? 'translate-x-[23px]' : 'translate-x-[3px]',
-    )
+    const form = new FormData()
+    form.set('name', name)
+    form.set('city', city)
+    form.set('vehicle', vehicle)
 
-  return (
-    <div>
-      <h2 className="mb-4 text-xl font-bold text-slate-900">Your Data</h2>
+    const result = await updateMyProfile(form)
+    setSavingProfile(false)
 
-      <div className="mb-2 flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <label htmlFor="visibility" className="text-sm font-semibold text-slate-900">
-          Profile Visibility
-        </label>
-        <select
-          id="visibility"
-          value={visibility}
-          onChange={(event) => setVisibility(event.target.value)}
-          className="h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/40"
-        >
-          <option value="public">Public</option>
-          <option value="members">Members only</option>
-          <option value="private">Private</option>
-        </select>
-      </div>
+    if (!result.ok) {
+      setProfileError(result.message ?? 'Could not save your profile.')
+      return
+    }
+    setProfileSaved(true)
+    setTimeout(() => setProfileSaved(false), 3000)
+  }
 
-      <div className="mb-2 flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-slate-900">Show in Community</span>
-          <span className="mt-0.5 block text-xs text-slate-400">
-            Show my activity in community feeds
-          </span>
-        </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={showInCommunity}
-          aria-label="Show in community"
-          onClick={() => setShowInCommunity((value) => !value)}
-          className={toggleClass(showInCommunity)}
-        >
-          <span aria-hidden="true" className={thumbClass(showInCommunity)} />
-        </button>
-      </div>
+  const handlePassword = async () => {
+    setSavingPassword(true)
+    setPasswordError(null)
 
-      <div className="mb-8 flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4">
-        <span className="min-w-0">
-          <span className="block text-sm font-semibold text-slate-900">Location Sharing</span>
-          <span className="mt-0.5 block text-xs text-slate-400">
-            Allow location for nearby stations
-          </span>
-        </span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={locationSharing}
-          aria-label="Location sharing"
-          onClick={() => setLocationSharing((value) => !value)}
-          className={toggleClass(locationSharing)}
-        >
-          <span aria-hidden="true" className={thumbClass(locationSharing)} />
-        </button>
-      </div>
+    const result = await changeMyPassword(currentPassword, newPassword)
+    setSavingPassword(false)
 
-      <Button variant="secondary" leftIcon={<Download size={16} />} className="mb-8">
-        Download My Data
-      </Button>
+    if (!result.ok) {
+      setPasswordError(result.message ?? 'Could not change your password.')
+      return
+    }
 
-      <div className="rounded-2xl border border-red-200 p-5">
-        <h3 className="mb-4 text-base font-bold text-red-600">Danger Zone</h3>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <p className="font-semibold text-slate-900">Delete Account</p>
-            <p className="mt-1 text-sm text-slate-500">
-              Permanently delete your account and all data.
-            </p>
-          </div>
-          <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)}>
-            Delete Account
-          </Button>
-        </div>
-      </div>
-
-      {confirmDelete ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="privacy-delete-title"
-          onClick={() => setConfirmDelete(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-        >
-          <div
-            onClick={(event) => event.stopPropagation()}
-            className="w-full max-w-[420px] rounded-3xl bg-white p-8 shadow-modal"
-          >
-            <h2 id="privacy-delete-title" className="mb-2 text-xl font-bold text-slate-900">
-              Delete your account?
-            </h2>
-            <p className="mb-8 text-slate-500">
-              This permanently removes your profile and all data. It cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={() => setConfirmDelete(false)}>
-                Delete Account
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-export function AccountSettings({ user, onUpdateProfile }: AccountSettingsProps) {
-  const [activeTab, setActiveTab] = React.useState<TabKey>('profile')
+    setCurrentPassword('')
+    setNewPassword('')
+    setPasswordSaved(true)
+    setTimeout(() => setPasswordSaved(false), 4000)
+  }
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-8 flex gap-1 rounded-xl bg-slate-100 p-1">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTab(tab.key)}
-            aria-pressed={activeTab === tab.key}
-            className={cn(
-              'h-9 flex-1 rounded-lg text-center text-sm font-semibold transition-all duration-150',
-              activeTab === tab.key
-                ? 'bg-white text-slate-900 shadow-sm'
-                : 'text-slate-500 hover:text-slate-700',
+    <div className="flex flex-col gap-6">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 className="mb-5 text-lg font-bold text-slate-900">Profile</h2>
+
+        <div className="mb-5">
+          <label htmlFor="acct-name" className="mb-2 block text-sm font-semibold text-slate-700">
+            Name
+          </label>
+          <input
+            id="acct-name"
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className={FIELD}
+          />
+        </div>
+
+        <div className="mb-5 grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="acct-city" className="mb-2 block text-sm font-semibold text-slate-700">
+              City
+            </label>
+            <select
+              id="acct-city"
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              className={`${FIELD} cursor-pointer`}
+            >
+              <option value="">Not set</option>
+              {PAKISTAN_CITIES.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="acct-vehicle" className="mb-2 block text-sm font-semibold text-slate-700">
+              Vehicle
+            </label>
+            <input
+              id="acct-vehicle"
+              type="text"
+              value={vehicle}
+              onChange={(event) => setVehicle(event.target.value)}
+              placeholder="e.g. BYD Atto 3"
+              className={FIELD}
+            />
+          </div>
+        </div>
+
+        {/* Read-only: this is the address the account signs in with, and the
+            link to any business listing behind it. */}
+        <div className="rounded-xl bg-slate-50 px-4 py-3">
+          <p className="text-ui-xs font-semibold uppercase tracking-wide text-slate-400">Email</p>
+          <p className="mt-0.5 text-ui-sm text-slate-700">{user.email}</p>
+        </div>
+
+        {profileError ? (
+          <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{profileError}</p>
+        ) : null}
+
+        <div className="mt-6 flex items-center gap-3">
+          <Button onClick={handleProfile} disabled={savingProfile}>
+            {savingProfile ? (
+              <>
+                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                Saving
+              </>
+            ) : (
+              'Save profile'
             )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+          </Button>
+          {profileSaved ? (
+            <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
+              <Check size={16} aria-hidden="true" />
+              Saved
+            </span>
+          ) : null}
+        </div>
+      </section>
 
-      {activeTab === 'profile' ? <ProfileEditForm user={user} onSave={onUpdateProfile} /> : null}
-      {activeTab === 'notifications' ? <NotificationSettings /> : null}
-      {activeTab === 'privacy' ? <PrivacyTab /> : null}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 className="mb-1 text-lg font-bold text-slate-900">Password</h2>
+        <p className="mb-5 text-ui-sm text-slate-500">
+          Your current password is required, so a browser left unlocked cannot be used to lock you
+          out of your own account.
+        </p>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="acct-current" className="mb-2 block text-sm font-semibold text-slate-700">
+              Current password
+            </label>
+            <input
+              id="acct-current"
+              type="password"
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              className={FIELD}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="acct-new" className="mb-2 block text-sm font-semibold text-slate-700">
+              New password
+            </label>
+            <input
+              id="acct-new"
+              type="password"
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              placeholder="At least 8 characters"
+              className={FIELD}
+            />
+          </div>
+        </div>
+
+        {passwordError ? (
+          <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{passwordError}</p>
+        ) : null}
+
+        <div className="mt-6 flex items-center gap-3">
+          <Button
+            onClick={handlePassword}
+            disabled={savingPassword || !currentPassword || !newPassword}
+          >
+            {savingPassword ? (
+              <>
+                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                Changing
+              </>
+            ) : (
+              'Change password'
+            )}
+          </Button>
+          {passwordSaved ? (
+            <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
+              <Check size={16} aria-hidden="true" />
+              Password changed
+            </span>
+          ) : null}
+        </div>
+      </section>
     </div>
   )
 }

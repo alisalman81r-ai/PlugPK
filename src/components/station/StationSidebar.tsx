@@ -15,15 +15,19 @@ import {
   Share2,
   ShieldCheck,
 } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 
 import { RatingStars, StatusBadge } from '@/components/ui'
 import { recordBusinessDirections } from '@/lib/db/business-actions'
+import { toggleSavedStation } from '@/lib/db/session-actions'
 import type { DayHours, Station } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface StationSidebarProps {
   station: Station
+  /** Whether the signed-in visitor already saved this one. */
+  initiallySaved?: boolean
 }
 
 function openDirections(station: Station) {
@@ -103,8 +107,27 @@ function formatDay(hours: DayHours): string {
   return hours.isClosed ? 'Closed' : `${hours.open} – ${hours.close}`
 }
 
-export function StationSidebar({ station }: StationSidebarProps) {
-  const [isSaved, setIsSaved] = React.useState(false)
+export function StationSidebar({ station, initiallySaved = false }: StationSidebarProps) {
+  // Seeded from the server so the button shows the truth on first paint,
+  // rather than always starting unsaved and forgetting on reload.
+  const [isSaved, setIsSaved] = React.useState(initiallySaved)
+  const [saveError, setSaveError] = React.useState<string | null>(null)
+
+  const handleSave = async () => {
+    // Flipped first so the button responds immediately, then reconciled with
+    // what the server actually recorded.
+    const optimistic = !isSaved
+    setIsSaved(optimistic)
+    setSaveError(null)
+
+    const result = await toggleSavedStation(station.id)
+    if (!result.ok) {
+      setIsSaved(!optimistic)
+      setSaveError(result.message ?? 'Could not save this listing.')
+      return
+    }
+    setIsSaved(result.saved)
+  }
   const [isCopied, setIsCopied] = React.useState(false)
   const [todayKey, setTodayKey] = React.useState<DayKey | null>(null)
 
@@ -208,7 +231,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
         <div className="mt-3 grid grid-cols-3 gap-3">
           <button
             type="button"
-            onClick={() => setIsSaved((current) => !current)}
+            onClick={handleSave}
             aria-pressed={isSaved}
             className={cn(
               'group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50',
@@ -259,6 +282,20 @@ export function StationSidebar({ station }: StationSidebarProps) {
             <span className="text-ui-xs font-medium text-slate-500">Report</span>
           </button>
         </div>
+
+        {/* Saving needs an account, and the only useful thing to say when it
+            fails is which page fixes that. */}
+        {saveError ? (
+          <p className="mt-3 text-center text-ui-sm text-red-600">
+            {saveError}{' '}
+            <Link
+              href={`/login?redirect=/station/${station.slug}`}
+              className="font-semibold underline"
+            >
+              Sign in
+            </Link>
+          </p>
+        ) : null}
       </div>
 
       {/* ── Hours ────────────────────────────────────────────── */}

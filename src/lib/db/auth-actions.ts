@@ -7,6 +7,7 @@ import { promisify } from 'node:util'
 import { revalidatePath } from 'next/cache'
 
 import { prisma } from './client'
+import { startSession } from './session-actions'
 
 const scryptAsync = promisify(scrypt) as (
   password: string,
@@ -30,7 +31,7 @@ const scryptAsync = promisify(scrypt) as (
 
 const KEY_LENGTH = 64
 
-async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16).toString('hex')
   const derived = await scryptAsync(password, salt, KEY_LENGTH)
   return `${salt}:${derived.toString('hex')}`
@@ -109,7 +110,7 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
     return { ok: false, message: 'An account already exists for that email.' }
   }
 
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       id: randomUUID(),
       email,
@@ -120,8 +121,16 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
     },
   })
 
+  // Signed in immediately, the same as the business form already did.
+  // Without this the account was created correctly and then left signed out:
+  // you would finish signing up, land on vehicle onboarding as an anonymous
+  // visitor, and see a stranger's dashboard — which reads exactly like the
+  // sign-up not having saved anything.
+  await startSession(user.id)
+
   // The homepage counter reads this table, so it has to be told to re-render.
   revalidatePath('/')
+  revalidatePath('/dashboard')
 
   return { ok: true }
 }

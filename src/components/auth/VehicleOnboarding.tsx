@@ -10,7 +10,7 @@ import type { EVModel } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface VehicleOnboardingProps {
-  onComplete: (vehicle: EVModel | null) => void
+  onComplete: (vehicle: EVModel | null) => void | Promise<void>
   onSkip: () => void
 }
 
@@ -38,9 +38,10 @@ export function VehicleOnboarding({ onComplete, onSkip }: VehicleOnboardingProps
 
   const handleConfirm = async () => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // The timer that used to sit here stood in for a save that never happened.
+    // onComplete now writes the vehicle to the account before navigating.
+    await onComplete(selectedModel)
     setIsLoading(false)
-    onComplete(selectedModel)
   }
 
   /* ── Step 2 — model ──────────────────────────────────────── */

@@ -6,14 +6,17 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { VehicleOnboarding } from '@/components/auth/VehicleOnboarding'
+import { saveMyVehicle } from '@/lib/db/session-actions'
 import type { EVModel } from '@/lib/types'
 
 export default function OnboardingVehiclePage() {
   const router = useRouter()
 
-  const handleComplete = (vehicle: EVModel | null) => {
-    // The selected vehicle will be persisted once accounts exist.
-    void vehicle
+  // Accounts exist now, so the chosen vehicle is saved against the one that
+  // just signed up rather than discarded. Stored as "Make Model" — the User
+  // row holds a single vehicle string, not a garage.
+  const handleComplete = async (vehicle: EVModel | null) => {
+    if (vehicle) await saveMyVehicle(`${vehicle.make} ${vehicle.model}`)
     router.push('/dashboard')
   }
 

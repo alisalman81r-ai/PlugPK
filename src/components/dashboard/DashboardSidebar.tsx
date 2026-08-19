@@ -16,8 +16,19 @@ import {
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 
+import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
-import type { DashboardStats } from '@/hooks/useDashboard'
+
+/**
+ * Counts shown beside the nav items. Real numbers now: the mock hook that
+ * used to supply these is gone.
+ */
+export interface DashboardStats {
+  totalSaved: number
+  totalReviews: number
+  totalRoutes: number
+  memberDays: number
+}
 
 export interface DashboardSidebarProps {
   user: {
@@ -160,7 +171,14 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
       <div className="mt-auto border-t border-slate-100 pt-6">
         <button
           type="button"
-          onClick={() => router.push('/')}
+          onClick={async () => {
+            // This used to navigate home and leave the session cookie in
+            // place, so "Sign Out" signed nobody out — the next visit to
+            // /dashboard was still logged in.
+            await signOut()
+            router.push('/')
+            router.refresh()
+          }}
           className="flex h-[42px] w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
         >
           <LogOut size={18} className="shrink-0 text-red-400" aria-hidden="true" />

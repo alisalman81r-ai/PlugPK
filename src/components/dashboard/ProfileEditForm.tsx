@@ -8,7 +8,16 @@ import { Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import type { User } from '@/lib/types'
 import { cn, formatDate } from '@/lib/utils'
-import type { ProfileUpdate } from '@/hooks/useDashboard'
+
+/**
+ * Was imported from the mock dashboard hook, which is gone now that every
+ * dashboard page reads the database. Declared here instead, where it is used.
+ */
+export interface ProfileUpdate {
+  name?: string
+  city?: string
+  avatar?: string
+}
 
 export interface ProfileEditFormProps {
   user: User

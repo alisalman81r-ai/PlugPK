@@ -106,3 +106,22 @@ export async function submitReview(
 
   return { ok: true }
 }
+
+/**
+ * Removes one of your own reviews.
+ *
+ * Scoped by userId in the same query as the id, so passing somebody else's
+ * review id deletes nothing rather than deleting theirs.
+ */
+export async function deleteMyReview(reviewId: string): Promise<ReviewResult> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, needsSignIn: true, message: 'Sign in to manage your reviews.' }
+
+  const result = await prisma.review.deleteMany({ where: { id: reviewId, userId: user.id } })
+  if (result.count === 0) return { ok: false, message: 'That review is not yours to delete.' }
+
+  revalidatePath('/dashboard/reviews')
+  revalidatePath('/business/reviews')
+  revalidatePath('/map')
+  return { ok: true }
+}
