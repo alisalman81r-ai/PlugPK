@@ -850,3 +850,70 @@ export async function getMemberById(id: string): Promise<MemberDetail | null> {
 export async function getMemberCount(): Promise<number> {
   return prisma.user.count()
 }
+
+// ─── Partners ───────────────────────────────────────────
+
+export interface PartnerRow {
+  id: string
+  name: string
+  /** hotel | restaurant | mall | office | dealership | service-center | home */
+  type: string
+  city: string
+  address: string | null
+  description: string | null
+  website: string | null
+  phone: string | null
+  /** First charger photo, if the owner uploaded one. */
+  photo: string | null
+  chargerCount: number
+  portCount: number
+  connectorTypes: string[]
+  maxPowerKw: number
+  rating: number
+  reviewCount: number
+  joinedAt: string
+}
+
+/**
+ * The businesses and homes sharing their chargers, for the public partners page.
+ *
+ * Same two conditions as the map feed and the homepage counter — approved, and
+ * a real pin. A listing failing either is not visible to drivers anywhere else,
+ * so presenting it here as a partner would be claiming a presence that does not
+ * exist.
+ */
+export async function getPartners(): Promise<PartnerRow[]> {
+  const businesses = await getMappableBusinesses()
+  if (businesses.length === 0) return []
+
+  const ratings = await getBusinessRatings(businesses.map((business) => business.id))
+
+  return businesses.map((business) => {
+    const chargers = business.chargers
+    const rating = ratings[business.id]
+
+    return {
+      id: business.id,
+      name: business.businessName,
+      type: business.businessType,
+      city: business.city,
+      address: business.address,
+      description: business.description,
+      website: business.website,
+      phone: business.phone,
+      photo: chargers.find((charger) => charger.photo)?.photo ?? null,
+      chargerCount: chargers.length,
+      portCount: chargers.reduce((total, charger) => total + (charger.ports || 0), 0),
+      // De-duplicated: a venue with three Type2 units offers one connector
+      // type, and listing it three times tells a driver nothing.
+      connectorTypes: [...new Set(chargers.map((charger) => charger.connectorType))],
+      maxPowerKw: chargers.reduce(
+        (fastest, charger) => Math.max(fastest, charger.maxPowerKw || 0),
+        0,
+      ),
+      rating: rating?.rating ?? 0,
+      reviewCount: rating?.reviewCount ?? 0,
+      joinedAt: business.createdAt,
+    }
+  })
+}

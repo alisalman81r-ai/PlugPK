@@ -1,7 +1,16 @@
 // src/components/layout/MobileMenu.tsx
 'use client'
 
-import { ChevronRight, LogOut, MapPin, Route, Users, Wrench, type LucideIcon } from 'lucide-react'
+import {
+  ChevronRight,
+  Handshake,
+  LogOut,
+  MapPin,
+  Route,
+  Users,
+  Wrench,
+  type LucideIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -24,6 +33,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/routes': Route,
   '/services': Wrench,
   '/community': Users,
+  '/partners': Handshake,
 }
 
 function isActivePath(pathname: string, href: string): boolean {

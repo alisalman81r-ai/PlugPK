@@ -42,6 +42,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   {
     heading: 'Business',
     links: [
+      { label: 'Our partners', href: '/partners' },
       { label: 'List your business', href: '/for-businesses' },
       { label: 'Business sign-up', href: '/business/signup' },
       { label: 'Business portal', href: '/business/dashboard' },
