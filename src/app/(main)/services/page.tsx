@@ -2,6 +2,9 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
+
+import { FaqSection } from '@/components/shared/FaqSection'
+import { SERVICES_FAQS } from '@/lib/faqs'
 import { Suspense, useState } from 'react'
 
 import { ServiceCategoryTabs } from '@/components/services/ServiceCategoryTabs'
@@ -109,6 +112,8 @@ export default function ServicesPage() {
       >
         <ServicesDirectory />
       </Suspense>
+
+      <FaqSection items={SERVICES_FAQS} />
     </>
   )
 }

@@ -3,6 +3,9 @@
 
 import { useState } from 'react'
 
+import { FaqSection } from '@/components/shared/FaqSection'
+import { COMMUNITY_FAQS } from '@/lib/faqs'
+
 import { CategoryTabs } from '@/components/community/CategoryTabs'
 import { CommunityHero } from '@/components/community/CommunityHero'
 import { CommunitySidebar } from '@/components/community/CommunitySidebar'
@@ -67,6 +70,8 @@ export default function CommunityPage() {
           </aside>
         </div>
       </div>
+
+      <FaqSection items={COMMUNITY_FAQS} />
 
       <CreatePostForm isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
     </>

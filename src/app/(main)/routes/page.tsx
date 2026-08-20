@@ -2,6 +2,9 @@
 'use client'
 
 import { Car, ChevronLeft, MapPin, Route, Zap, type LucideIcon } from 'lucide-react'
+
+import { FaqSection } from '@/components/shared/FaqSection'
+import { ROUTES_FAQS } from '@/lib/faqs'
 import * as React from 'react'
 
 import { RouteInputForm } from '@/components/route/RouteInputForm'
@@ -63,6 +66,7 @@ export default function RoutesPage() {
   const showResults = planner.hasCalculated && planner.plannedRoute !== null
 
   return (
+    <>
     <div className="min-h-below-nav bg-slate-50">
       {showResults && planner.plannedRoute ? (
         <>
@@ -249,5 +253,8 @@ export default function RoutesPage() {
         </div>
       ) : null}
     </div>
+
+    <FaqSection items={ROUTES_FAQS} tone="white" title="Common questions about planning" />
+    </>
   )
 }

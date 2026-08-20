@@ -7,7 +7,9 @@ import { PartnerHero } from '@/components/partners/PartnerHero'
 import { PartnerList } from '@/components/partners/PartnerList'
 import { PartnerPricing } from '@/components/partners/PartnerPricing'
 import { PartnerSteps } from '@/components/partners/PartnerSteps'
+import { FaqSection } from '@/components/shared/FaqSection'
 import { getPartners, getPlatformStats } from '@/lib/db/queries'
+import { PARTNER_FAQS } from '@/lib/faqs'
 
 /**
  * Partner Up — the page that asks people to share their charger.
@@ -86,6 +88,8 @@ export default async function PartnersPage() {
           )}
         </div>
       </section>
+
+      <FaqSection items={PARTNER_FAQS} tone="white" />
 
       {/* ── Close ──────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-hero py-20 text-center lg:py-24">

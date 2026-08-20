@@ -2,6 +2,9 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+
+import { FaqSection } from '@/components/shared/FaqSection'
+import { MAP_FAQS } from '@/lib/faqs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useState } from 'react'
 
@@ -207,8 +210,15 @@ function MapExplorer() {
 
 export default function MapPage() {
   return (
-    <Suspense fallback={<MapExplorerFallback />}>
-      <MapExplorer />
-    </Suspense>
+    <>
+      <Suspense fallback={<MapExplorerFallback />}>
+        <MapExplorer />
+      </Suspense>
+
+      {/* Below the explorer rather than inside it: the map fills the viewport
+          by design, so the questions sit one scroll further down instead of
+          competing with it for space. */}
+      <FaqSection items={MAP_FAQS} title="Common questions about the map" />
+    </>
   )
 }
