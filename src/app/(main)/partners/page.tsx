@@ -17,7 +17,7 @@ import { getPartners } from '@/lib/db/queries'
  */
 
 export const metadata: Metadata = {
-  title: 'Partners',
+  title: 'Partner Up',
   description:
     'Hotels, restaurants, malls, offices and homes across Pakistan sharing their EV chargers on Plug.pk.',
 }
@@ -38,7 +38,7 @@ export default async function PartnersPage() {
   return (
     <div className="container-plug py-14 lg:py-20">
       <SectionHeader
-        eyebrow="Partners"
+        eyebrow="Partner Up"
         title="The places that share their chargers"
         subtitle={
           partners.length === 0
