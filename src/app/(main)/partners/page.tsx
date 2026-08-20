@@ -1,105 +1,123 @@
 // src/app/(main)/partners/page.tsx
 import type { Metadata } from 'next'
-import { Building2, Handshake, MapPin, Zap } from 'lucide-react'
+import { ArrowRight, Building2 } from 'lucide-react'
 import Link from 'next/link'
 
+import { PartnerHero } from '@/components/partners/PartnerHero'
 import { PartnerList } from '@/components/partners/PartnerList'
-import { SectionHeader } from '@/components/ui'
-import { getPartners } from '@/lib/db/queries'
+import { PartnerPricing } from '@/components/partners/PartnerPricing'
+import { PartnerSteps } from '@/components/partners/PartnerSteps'
+import { getPartners, getPlatformStats } from '@/lib/db/queries'
 
 /**
- * The venues and homes sharing their chargers.
+ * Partner Up — the page that asks people to share their charger.
  *
- * These are the same records the map draws as "Partner business" pins — read
- * from the same place, under the same two conditions, so a partner listed here
- * is a partner a driver can actually navigate to. Nothing on this page is a
- * logo wall: every card links to a real listing with a real pin behind it.
+ * Composed rather than written inline: hero, how it works, what you get,
+ * plans, then the partners who have already joined. That last section is the
+ * social proof, and it is real — the same records the map draws, so nobody is
+ * being shown a wall of logos that leads nowhere. When there are none it says
+ * so instead.
  */
 
 export const metadata: Metadata = {
   title: 'Partner Up',
   description:
-    'Hotels, restaurants, malls, offices and homes across Pakistan sharing their EV chargers on Plug.pk.',
+    'List your charger on Plug.pk — hotels, restaurants, offices and homes across Pakistan. Free to list, you set your own rates.',
 }
 
 export default async function PartnersPage() {
-  const partners = await getPartners()
+  const [partners, platform] = await Promise.all([getPartners(), getPlatformStats()])
 
   const cities = new Set(partners.map((partner) => partner.city))
   const ports = partners.reduce((total, partner) => total + partner.portCount, 0)
   const homes = partners.filter((partner) => partner.type === 'home').length
 
-  const stats = [
-    { icon: Handshake, value: partners.length, label: partners.length === 1 ? 'Partner' : 'Partners' },
-    { icon: MapPin, value: cities.size, label: cities.size === 1 ? 'City' : 'Cities' },
-    { icon: Zap, value: ports, label: ports === 1 ? 'Charging port' : 'Charging ports' },
-  ]
-
   return (
-    <div className="container-plug py-14 lg:py-20">
-      <SectionHeader
-        eyebrow="Partner Up"
-        title="The places that share their chargers"
-        subtitle={
-          partners.length === 0
-            ? 'Approved listings appear here as businesses and home owners join.'
-            : `${partners.length} listing${partners.length === 1 ? '' : 's'} across ${cities.size} ${cities.size === 1 ? 'city' : 'cities'}${homes > 0 ? `, including ${homes} home charger${homes === 1 ? '' : 's'}` : ''}.`
-        }
-        align="center"
+    <>
+      <PartnerHero
+        stats={{
+          // Every charging point on the map, not just partner ones — it is the
+          // honest answer to "is anything here yet".
+          listings: platform.stations,
+          cities: platform.cities,
+          ports,
+          partners: partners.length,
+        }}
       />
 
-      {partners.length === 0 ? (
-        // An honest empty state. Inventing partner logos here would be the
-        // easiest lie on the site to tell and the hardest to walk back.
-        <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-          <Building2 size={28} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-          <p className="text-ui-lg font-semibold text-slate-900">No partners yet</p>
-          <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-            Once a listing is submitted and approved it appears here, on the map, and in the
-            homepage count.
-          </p>
-          <Link
-            href="/business/signup"
-            className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-          >
-            List your business
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="mx-auto mb-12 mt-10 grid max-w-2xl grid-cols-3 gap-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-2xl border border-slate-200 bg-white p-5 text-center"
-              >
-                <stat.icon
-                  size={18}
-                  className="mx-auto mb-2 text-plug-blue-600"
-                  aria-hidden="true"
-                />
-                <p className="font-mono text-3xl font-black text-slate-900">{stat.value}</p>
-                <p className="mt-0.5 text-ui-sm text-slate-500">{stat.label}</p>
-              </div>
-            ))}
+      <PartnerSteps />
+      <PartnerPricing />
+
+      {/* ── Who has already joined ─────────────────────────────── */}
+      <section id="directory" className="scroll-mt-24 bg-white py-20 lg:py-24">
+        <div className="container-plug">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
+              The directory
+            </span>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+              Places already sharing their chargers
+            </h2>
+            <p className="mt-4 text-lg text-slate-500">
+              {partners.length === 0
+                ? 'Approved listings appear here, on the map, and in the homepage count.'
+                : `${partners.length} listing${partners.length === 1 ? '' : 's'} across ${cities.size} ${cities.size === 1 ? 'city' : 'cities'}, ${ports} charging port${ports === 1 ? '' : 's'}${homes > 0 ? `, including ${homes} home charger${homes === 1 ? '' : 's'}` : ''}.`}
+            </p>
           </div>
 
-          <PartnerList partners={partners} />
+          {partners.length === 0 ? (
+            // An honest empty state. Inventing partner logos here would be the
+            // easiest lie on this page to tell and the hardest to walk back.
+            <div className="mx-auto max-w-lg rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
+              <Building2 size={28} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
+              <p className="text-ui-lg font-semibold text-slate-900">No partners yet</p>
+              <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
+                Be the first. Early listings are the ones drivers see when they open the map.
+              </p>
+              <Link
+                href="/business/signup"
+                className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
+              >
+                List your charger
+              </Link>
+            </div>
+          ) : (
+            <PartnerList partners={partners} />
+          )}
+        </div>
+      </section>
 
-          <div className="mt-14 rounded-3xl border border-slate-200 bg-slate-50 px-6 py-10 text-center">
-            <h2 className="text-2xl font-bold text-slate-900">Have a charger to share?</h2>
-            <p className="mx-auto mt-2 max-w-md text-slate-500">
-              List your venue or your home charger and drivers will find you on the map.
-            </p>
+      {/* ── Close ──────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-gradient-hero py-20 text-center lg:py-24">
+        <div className="container-plug relative">
+          <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight text-white sm:text-4xl">
+            Have a charger sitting idle?
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-lg text-white/60">
+            It takes a few minutes to list, costs nothing, and you decide what to charge.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/business/signup"
-              className="mt-6 inline-flex h-12 items-center rounded-xl bg-gradient-brand px-7 text-ui font-semibold text-white shadow-[0_8px_25px_rgba(37,99,235,0.25)] transition-transform hover:-translate-y-0.5"
+              className="group inline-flex h-13 items-center gap-2 rounded-xl bg-white px-8 text-ui font-bold text-plug-blue-700 transition-transform duration-200 hover:-translate-y-0.5"
             >
               List your charger
+              <ArrowRight
+                size={17}
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </Link>
+            <Link
+              href="/for-businesses#meeting"
+              className="inline-flex h-13 items-center rounded-xl border border-white/20 bg-white/5 px-8 text-ui font-semibold text-white backdrop-blur transition-colors hover:bg-white/10"
+            >
+              Ask a question first
             </Link>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </section>
+    </>
   )
 }

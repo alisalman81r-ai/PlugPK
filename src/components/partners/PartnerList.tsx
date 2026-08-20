@@ -1,7 +1,7 @@
 // src/components/partners/PartnerList.tsx
 'use client'
 
-import { Building2, Globe, MapPin, Phone, Search, Zap } from 'lucide-react'
+import { Globe, MapPin, Phone, Search, Zap } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -170,19 +170,19 @@ export function PartnerList({ partners }: PartnerListProps) {
                 href={`/station/${partner.id}`}
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-card-hover"
               >
-                {/* The charger photo the owner uploaded, when there is one. A
-                    plain img: these are user uploads of unknown dimensions and
-                    the optimizer earns little on a card thumbnail. */}
+                {/* The host's charger photo when there is one, otherwise a
+                    slim brand strip: filling the same 160px with empty grey
+                    made every unphotographed partner look like a broken card
+                    rather than a plain one.
+
+                    A plain img rather than next/image — user uploads of
+                    unknown dimensions, and the optimizer earns little on a
+                    card thumbnail. */}
                 {partner.photo ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={partner.photo} alt="" className="h-40 w-full object-cover" />
                 ) : (
-                  <span
-                    aria-hidden="true"
-                    className="flex h-40 w-full items-center justify-center bg-slate-50"
-                  >
-                    <Building2 size={28} className="text-slate-300" />
-                  </span>
+                  <span aria-hidden="true" className="block h-1.5 w-full bg-gradient-brand" />
                 )}
 
                 <div className="flex flex-1 flex-col p-5">
