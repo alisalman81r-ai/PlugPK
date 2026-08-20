@@ -165,27 +165,17 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
                 >
                   Sign In
                 </Button>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  href="/signup"
-                  onClick={onClose}
-                  tabIndex={isOpen ? undefined : -1}
-                >
-                  Sign Up
-                </Button>
               </>
             )}
             <Link
               href="/#app"
               onClick={onClose}
               tabIndex={isOpen ? undefined : -1}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 text-ui font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
             >
               <Smartphone size={16} aria-hidden="true" />
               Download App
-              <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/90">
                 Soon
               </span>
             </Link>

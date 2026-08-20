@@ -96,36 +96,28 @@ export function Navbar({ user }: NavbarProps) {
           </div>
 
           <div className="hidden shrink-0 items-center gap-2 xl:flex">
+            {user ? <AccountMenu user={user} /> : (
+              <Button variant="ghost" size="sm" href="/login">
+                Sign In
+              </Button>
+            )}
+
             {/*
               The app is not released. This goes to the Coming Soon banner on
-              the home page, and the chip says so here too, so nobody presses
-              it expecting a download to start.
+              the home page, and carries the chip so nobody presses it
+              expecting a download to start — which matters more now that it
+              looks like the header's main action.
             */}
             <Link
               href="/#app"
-              className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-plug-blue-600 px-4 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(37,99,235,0.25)] transition-all duration-200 hover:-translate-y-px hover:bg-plug-blue-700"
             >
-              <Smartphone size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
+              <Smartphone size={15} className="shrink-0" aria-hidden="true" />
               Download App
-              <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/90">
                 Soon
               </span>
             </Link>
-
-            {user ? (
-              <AccountMenu user={user} />
-            ) : (
-              <>
-                {/* Kept beside Sign Up: without it a returning visitor has to
-                    go through the sign-up page to find the way back in. */}
-                <Button variant="ghost" size="sm" href="/login">
-                  Sign In
-                </Button>
-                <Button variant="primary" size="sm" href="/signup">
-                  Sign Up
-                </Button>
-              </>
-            )}
           </div>
 
           <button
