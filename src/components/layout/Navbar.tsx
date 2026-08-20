@@ -85,7 +85,9 @@ export function Navbar({ user }: NavbarProps) {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'relative whitespace-nowrap rounded-lg px-3 py-2 text-ui font-medium transition-all duration-150',
-                    active ? 'text-plug-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                    active
+                      ? 'text-plug-blue-600'
+                      : 'text-slate-900 hover:bg-slate-50 hover:text-plug-blue-600',
                   )}
                 >
                   {link.label}
@@ -102,7 +104,12 @@ export function Navbar({ user }: NavbarProps) {
 
           <div className="hidden shrink-0 items-center gap-2 xl:flex">
             {user ? <AccountMenu user={user} /> : (
-              <Button variant="ghost" size="sm" href="/login">
+              <Button
+                variant="ghost"
+                size="sm"
+                href="/login"
+                className="text-slate-900 hover:text-plug-blue-600"
+              >
                 Sign In
               </Button>
             )}

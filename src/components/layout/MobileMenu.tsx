@@ -101,7 +101,7 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'flex h-14 items-center gap-3 border-b border-slate-100 text-lg font-medium transition-colors duration-150',
-                    active ? 'rounded-xl bg-blue-50 px-4 text-plug-blue-600' : 'text-slate-700',
+                    active ? 'rounded-xl bg-blue-50 px-4 text-plug-blue-600' : 'text-slate-900',
                   )}
                 >
                   <Icon
