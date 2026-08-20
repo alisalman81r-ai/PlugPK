@@ -4,6 +4,8 @@ import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
 
+import { FACE, FRAME, FRAME_FEATURED } from './frame'
+
 /**
  * Plans for hosts.
  *
@@ -19,6 +21,8 @@ import { cn } from '@/lib/utils'
  * processing. Every button either starts a free listing or opens the meeting
  * request that already exists, which is an honest end to the journey; a
  * "Subscribe" button that silently did nothing would not be.
+ *
+ * The card treatment comes from ./frame, shared with the rest of the page.
  */
 
 interface Plan {
@@ -81,9 +85,9 @@ const PLANS: Plan[] = [
 
 export function PartnerPricing() {
   return (
-    <section id="pricing" className="scroll-mt-24 bg-slate-50 py-20 lg:py-24">
+    <section id="pricing" className="scroll-mt-24 bg-white py-20 lg:py-28">
       <div className="container-plug">
-        <div className="mx-auto mb-14 max-w-2xl text-center">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
           <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
             Plans
           </span>
@@ -96,78 +100,92 @@ export function PartnerPricing() {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid items-start gap-6 lg:grid-cols-3 lg:gap-8">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
               className={cn(
-                'relative flex flex-col rounded-3xl border bg-white p-7 transition-shadow',
-                plan.featured
-                  ? 'border-plug-blue-500 shadow-[0_16px_45px_rgba(37,99,235,0.15)] lg:-mt-3 lg:mb-3'
-                  : 'border-slate-200 hover:shadow-card-hover',
+                plan.featured ? FRAME_FEATURED : FRAME,
+                // Lifted out of the row so the recommended plan is where the
+                // eye lands, without needing a fill to say so.
+                plan.featured && 'lg:-mt-4 lg:mb-4',
               )}
             >
-              {plan.featured ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-brand px-3.5 py-1 text-ui-xs font-bold uppercase tracking-wider text-white">
-                  Most popular
-                </span>
-              ) : null}
-
-              <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
-              <p className="mt-1 text-ui-sm text-slate-500">{plan.tagline}</p>
-
-              <p className="mt-5 flex items-end gap-1.5">
-                <span className="text-4xl font-black tracking-tight text-slate-900">
-                  {plan.price}
-                </span>
-                {plan.cadence ? (
-                  <span className="pb-1 text-ui-sm text-slate-400">{plan.cadence}</span>
+              <div className={cn(FACE, 'p-8')}>
+                {plan.featured ? (
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-brand px-3.5 py-1 text-ui-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]">
+                    Most popular
+                  </span>
                 ) : null}
-              </p>
 
-              <ul className="mt-7 flex flex-1 flex-col gap-3 border-t border-slate-100 pt-6">
-                {plan.features.map((feature) => (
-                  <li
-                    key={feature.label}
-                    className={cn(
-                      'flex items-start gap-2.5 text-ui-sm',
-                      feature.included ? 'text-slate-700' : 'text-slate-400',
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
+                <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
+                <p className="mt-1 text-ui-sm text-slate-500">{plan.tagline}</p>
+
+                <p className="mt-5 flex items-end gap-1.5">
+                  <span className="text-4xl font-black tracking-tight text-slate-900">
+                    {plan.price}
+                  </span>
+                  {plan.cadence ? (
+                    <span className="pb-1 text-ui-sm text-slate-400">{plan.cadence}</span>
+                  ) : null}
+                </p>
+
+                {/* The same ruled cap the other cards carry, so the three
+                    sections read as one system rather than three designs. */}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'mt-6 block h-0.5 origin-left rounded-full transition-all duration-300',
+                    plan.featured
+                      ? 'w-16 bg-gradient-brand'
+                      : 'w-10 bg-slate-300 group-hover:w-16 group-hover:bg-gradient-brand',
+                  )}
+                />
+
+                <ul className="mt-6 flex flex-1 flex-col gap-3">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature.label}
                       className={cn(
-                        'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full',
-                        feature.included ? 'bg-emerald-100' : 'bg-slate-100',
+                        'flex items-start gap-2.5 text-ui-sm',
+                        feature.included ? 'text-slate-700' : 'text-slate-400',
                       )}
                     >
-                      {feature.included ? (
-                        <Check size={11} className="text-emerald-600" />
-                      ) : (
-                        <Minus size={11} className="text-slate-400" />
-                      )}
-                    </span>
-                    {feature.label}
-                  </li>
-                ))}
-              </ul>
+                      {/* Outlined ticks rather than filled pills, matching the
+                          no-fill rule the rest of the page follows. */}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border',
+                          feature.included
+                            ? 'border-emerald-300 text-emerald-600'
+                            : 'border-slate-200 text-slate-300',
+                        )}
+                      >
+                        {feature.included ? <Check size={11} /> : <Minus size={11} />}
+                      </span>
+                      {feature.label}
+                    </li>
+                  ))}
+                </ul>
 
-              <Link
-                href={plan.cta.href}
-                className={cn(
-                  'group mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-xl text-ui font-semibold transition-all duration-200',
-                  plan.featured
-                    ? 'bg-gradient-brand text-white shadow-[0_8px_25px_rgba(37,99,235,0.25)] hover:-translate-y-0.5'
-                    : 'border border-slate-200 text-slate-700 hover:bg-slate-50',
-                )}
-              >
-                {plan.cta.label}
-                <ArrowRight
-                  size={16}
-                  className="transition-transform duration-200 group-hover:translate-x-0.5"
-                  aria-hidden="true"
-                />
-              </Link>
+                <Link
+                  href={plan.cta.href}
+                  className={cn(
+                    'group/cta mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-xl text-ui font-semibold transition-all duration-200',
+                    plan.featured
+                      ? 'bg-gradient-brand text-white shadow-[0_8px_25px_rgba(37,99,235,0.25)] hover:-translate-y-0.5'
+                      : 'border-[1.5px] border-slate-300 text-slate-700 hover:border-plug-blue-400 hover:text-plug-blue-700',
+                  )}
+                >
+                  {plan.cta.label}
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform duration-200 group-hover/cta:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </div>
             </div>
           ))}
         </div>
@@ -175,7 +193,7 @@ export function PartnerPricing() {
         {/* Said plainly rather than buried, because a plan page that implies a
             card will be charged when nothing charges it is the kind of detail
             people rightly get annoyed about. */}
-        <p className="mx-auto mt-10 max-w-2xl text-center text-ui-sm text-slate-500">
+        <p className="mx-auto mt-12 max-w-2xl text-center text-ui-sm text-slate-500">
           Paid plans are arranged with us directly — there is no card payment on the site yet.
           Free listings go live as soon as we have verified the details.
         </p>

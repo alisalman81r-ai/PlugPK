@@ -9,6 +9,8 @@ import { RatingStars } from '@/components/ui'
 import type { PartnerRow } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
+import { FACE, FRAME } from './frame'
+
 /**
  * The partner directory, with its filters.
  *
@@ -165,11 +167,8 @@ export function PartnerList({ partners }: PartnerListProps) {
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((partner) => (
-            <li key={partner.id}>
-              <Link
-                href={`/station/${partner.id}`}
-                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-card-hover"
-              >
+            <li key={partner.id} className={FRAME}>
+              <Link href={`/station/${partner.id}`} className={cn(FACE, 'overflow-hidden')}>
                 {/* The host's charger photo when there is one, otherwise a
                     slim brand strip: filling the same 160px with empty grey
                     made every unphotographed partner look like a broken card

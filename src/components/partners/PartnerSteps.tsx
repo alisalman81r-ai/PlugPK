@@ -1,6 +1,8 @@
 // src/components/partners/PartnerSteps.tsx
 import { BadgeCheck, Banknote, BarChart3, Home, MapPinned, Users } from 'lucide-react'
 
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from './frame'
+
 /**
  * How hosting works, and what a host is actually promised.
  *
@@ -10,6 +12,9 @@ import { BadgeCheck, Banknote, BarChart3, Home, MapPinned, Users } from 'lucide-
  * dashboard figures named are the ones BusinessDailyStat actually counts. If a
  * claim on this page ever stops being true, the code that made it true is the
  * thing to look at.
+ *
+ * Both sections share the card treatment in ./frame — see that file for why
+ * the prominence lives on the edge rather than in a fill.
  */
 
 const STEPS = [
@@ -76,7 +81,7 @@ export function PartnerSteps() {
           */}
           <ol className="relative grid gap-6 lg:grid-cols-3 lg:gap-8">
             {STEPS.map((step, index) => (
-              <li key={step.title} className="group relative">
+              <li key={step.title} className="relative">
                 {/* The rail between cards. Sits at the icon's centre line and
                     only exists between them, never trailing off the last. */}
                 {index < STEPS.length - 1 ? (
@@ -89,8 +94,8 @@ export function PartnerSteps() {
                 {/* The border is a 1px gradient frame: a wrapper carrying the
                     gradient with an inset face on top, which is how you get a
                     graded edge without painting the card. */}
-                <div className="h-full rounded-3xl bg-gradient-to-b from-slate-300 via-slate-300 to-slate-200 p-[1.5px] shadow-[0_1px_2px_rgba(15,23,42,0.04),0_14px_32px_-20px_rgba(15,23,42,0.28)] transition-all duration-300 group-hover:from-plug-blue-500 group-hover:via-plug-cyan-400 group-hover:to-plug-blue-300 group-hover:shadow-[0_10px_24px_-8px_rgba(37,99,235,0.20),0_28px_60px_-24px_rgba(37,99,235,0.35)]">
-                  <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(1.5rem-1.5px)] bg-white p-8 transition-transform duration-300 group-hover:-translate-y-0.5">
+                <div className={FRAME}>
+                  <div className={`${FACE} overflow-hidden p-8`}>
                     {/* Stroke-only numeral, large enough to anchor the corner
                         without competing with the heading. */}
                     <span
@@ -100,22 +105,13 @@ export function PartnerSteps() {
                       {index + 1}
                     </span>
 
-                    <span
-                      aria-hidden="true"
-                      className="flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-slate-300 transition-all duration-300 group-hover:border-plug-blue-400 group-hover:shadow-[0_0_0_4px_rgba(37,99,235,0.06)]"
-                    >
-                      <step.icon
-                        size={24}
-                        className="text-slate-500 transition-colors duration-300 group-hover:text-plug-blue-600"
-                      />
+                    <span aria-hidden="true" className={ICON_FRAME}>
+                      <step.icon size={24} className={ICON_GLYPH} />
                     </span>
 
                     {/* A cap rule that draws across on hover — motion with a
                         purpose, marking the card you are reading. */}
-                    <span
-                      aria-hidden="true"
-                      className="mt-8 block h-0.5 w-10 origin-left rounded-full bg-slate-300 transition-all duration-300 group-hover:w-16 group-hover:bg-gradient-brand"
-                    />
+                    <span aria-hidden="true" className={`mt-8 ${CAP_RULE}`} />
 
                     <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
                       {step.title}
@@ -129,9 +125,9 @@ export function PartnerSteps() {
         </div>
       </section>
 
-      <section className="bg-slate-50 py-20 lg:py-24">
+      <section className="bg-slate-50 py-20 lg:py-28">
         <div className="container-plug">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-16 max-w-2xl text-center">
             <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
               What you get
             </span>
@@ -140,18 +136,21 @@ export function PartnerSteps() {
             </h2>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             {BENEFITS.map((benefit) => (
-              <div key={benefit.title} className="rounded-3xl border border-slate-200 bg-white p-7">
-                <span
-                  aria-hidden="true"
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-brand"
-                >
-                  <benefit.icon size={22} className="text-white" />
-                </span>
+              <div key={benefit.title} className={FRAME}>
+                <div className={`${FACE} p-8`}>
+                  <span aria-hidden="true" className={ICON_FRAME}>
+                    <benefit.icon size={24} className={ICON_GLYPH} />
+                  </span>
 
-                <h3 className="mt-5 text-lg font-bold text-slate-900">{benefit.title}</h3>
-                <p className="mt-2 text-ui-sm leading-relaxed text-slate-500">{benefit.body}</p>
+                  <span aria-hidden="true" className={`mt-8 ${CAP_RULE}`} />
+
+                  <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+                    {benefit.title}
+                  </h3>
+                  <p className="mt-3 text-ui leading-relaxed text-slate-500">{benefit.body}</p>
+                </div>
               </div>
             ))}
           </div>

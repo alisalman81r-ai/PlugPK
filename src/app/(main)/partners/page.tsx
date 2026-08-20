@@ -49,7 +49,7 @@ export default async function PartnersPage() {
       <PartnerPricing />
 
       {/* ── Who has already joined ─────────────────────────────── */}
-      <section id="directory" className="scroll-mt-24 bg-white py-20 lg:py-24">
+      <section id="directory" className="scroll-mt-24 bg-slate-50 py-20 lg:py-28">
         <div className="container-plug">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
@@ -68,7 +68,7 @@ export default async function PartnersPage() {
           {partners.length === 0 ? (
             // An honest empty state. Inventing partner logos here would be the
             // easiest lie on this page to tell and the hardest to walk back.
-            <div className="mx-auto max-w-lg rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
+            <div className="mx-auto max-w-lg rounded-3xl border-2 border-dashed border-slate-300 bg-white px-6 py-16 text-center">
               <Building2 size={28} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
               <p className="text-ui-lg font-semibold text-slate-900">No partners yet</p>
               <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
