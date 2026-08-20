@@ -13,10 +13,6 @@ import { cn } from '@/lib/utils'
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
 
-/** How far the layers travel, in pixels, at the far edge of the frame. */
-const DEPTH_IMAGE = 14
-const DEPTH_CONTENT = -22
-
 interface HeroProps {
   /**
    * Cities that actually have a station on the platform — counted from the
@@ -29,79 +25,24 @@ interface HeroProps {
 export function Hero({ cities }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
-  const frameRef = React.useRef<HTMLDivElement>(null)
-  const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
 
   const go = (value: string) => {
     const trimmed = value.trim()
     router.push(trimmed ? `/map?q=${encodeURIComponent(trimmed)}` : '/map')
   }
 
-  /**
-   * Real 3D, not a fake shadow: the frame gets a perspective, and the photo
-   * and the text sit on different Z planes, so moving the pointer parallaxes
-   * them against each other rather than sliding a flat picture around.
-   *
-   * Guarded three ways. Pointer events only fire for a real pointer, so touch
-   * devices never run it. A coarse-pointer or reduced-motion preference exits
-   * before any listener is attached. And the transform is written straight to
-   * the element rather than through state, so a mouse move never triggers a
-   * React render — the whole effect stays on the compositor.
+  /*
+   * The pointer parallax that used to live here is gone. It tilted the photo
+   * and the headline against each other on mouse move, so the words were never
+   * quite still while you were reading them. A hero's job is to be read.
    */
-  React.useEffect(() => {
-    const frame = frameRef.current
-    if (!frame) return
-
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const coarse = window.matchMedia('(pointer: coarse)').matches
-    if (reduced || coarse) return
-
-    let raf = 0
-
-    const onMove = (event: PointerEvent) => {
-      if (event.pointerType !== 'mouse') return
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        const rect = frame.getBoundingClientRect()
-        // -1 .. 1 from the centre of the frame.
-        const x = (event.clientX - rect.left) / rect.width - 0.5
-        const y = (event.clientY - rect.top) / rect.height - 0.5
-        setTilt({ x: x * 2, y: y * 2 })
-      })
-    }
-
-    const onLeave = () => {
-      cancelAnimationFrame(raf)
-      setTilt({ x: 0, y: 0 })
-    }
-
-    frame.addEventListener('pointermove', onMove)
-    frame.addEventListener('pointerleave', onLeave)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      frame.removeEventListener('pointermove', onMove)
-      frame.removeEventListener('pointerleave', onLeave)
-    }
-  }, [])
 
   return (
     <section className="bg-white px-3 pb-6 pt-[84px] sm:px-4 sm:pb-10 lg:px-6">
-      {/* The frame is the stage. `perspective` here is what makes the
-          translateZ on the children read as depth rather than as scale. */}
-      <div
-        ref={frameRef}
-        className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] [perspective:1200px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]"
-      >
-        {/* Layer 1 — the photograph, pushed back and scaled slightly so its
-            edges never expose the frame as it parallaxes. */}
-        <div
-          aria-hidden="true"
-          style={{
-            transform: `translate3d(${tilt.x * DEPTH_IMAGE}px, ${tilt.y * DEPTH_IMAGE}px, 0) scale(1.06)`,
-          }}
-          className="absolute inset-0 -z-10 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
-        >
+      {/* The frame. Fixed layers — nothing in here moves. */}
+      <div className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]">
+        {/* Layer 1 — the photograph. */}
+        <div aria-hidden="true" className="absolute inset-0 -z-10">
           <Image
             src="/images/stations/gulberg-charging-station-1.jpg"
             alt=""
@@ -112,20 +53,23 @@ export function Hero({ cities }: HeroProps) {
           />
         </div>
 
-        {/* Layer 2 — legibility. Weighted to the bottom, where the text sits,
-            so the top of the photograph stays open. */}
+        {/*
+          Layer 2 — legibility, in two parts.
+
+          A light wash over the whole frame, then a second gradient anchored to
+          the bottom where the words actually sit. One gradient could not do
+          both: dark enough for the text meant flattening the photograph, and
+          light enough for the photograph meant the headline fighting the car's
+          reflections for contrast.
+        */}
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/25" />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-slate-950/45 via-slate-950/30 to-slate-950/80"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,6,23,0.92)_0%,rgba(2,6,23,0.80)_22%,rgba(2,6,23,0.45)_48%,rgba(2,6,23,0.12)_75%,transparent_100%)]"
         />
 
-        {/* Layer 3 — content, pulled forward. */}
-        <div
-          style={{
-            transform: `translate3d(${tilt.x * DEPTH_CONTENT}px, ${tilt.y * DEPTH_CONTENT}px, 0)`,
-          }}
-          className="relative flex min-h-[540px] flex-col items-center justify-end px-5 pb-12 text-center transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20"
-        >
+        {/* Layer 3 — content. */}
+        <div className="relative flex min-h-[540px] flex-col items-center justify-end px-5 pb-12 text-center sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20">
           <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/25 px-3.5 py-1.5 text-ui-xs font-medium uppercase tracking-[0.14em] text-white/90 backdrop-blur-md">
             <span
               aria-hidden="true"
@@ -136,13 +80,13 @@ export function Hero({ cities }: HeroProps) {
               : 'Mapping Pakistan, city by city'}
           </span>
 
-          <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
+          <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.55),0_4px_30px_rgba(0,0,0,0.45)]">
             Every charger in Pakistan, on one map
           </h1>
 
-          <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/85 sm:text-lg">
-            Live port availability, connector types, and reviews from drivers who
-            actually charged there.
+          <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.5)] sm:text-lg">
+            Connector types, charging speeds, and reviews from drivers who actually
+            charged there.
           </p>
 
           {/* One control, shaped like a single button. Electra's hero has a
