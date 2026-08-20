@@ -56,14 +56,19 @@ export function Navbar({ user }: NavbarProps) {
             : 'border-b border-slate-200/80 bg-white/[0.85]',
         )}
       >
-        <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-5 lg:px-8">
+        <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-6">
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity duration-150 hover:opacity-90"
             aria-label="Plug.pk home"
           >
-            <Zap size={22} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-            <span className="text-xl font-bold tracking-tight">
+            {/* Sized and weighted as a wordmark rather than a label: the
+                reference sets its name at around 24px in the heaviest weight
+                it has, tightened, and sits it against the left edge. The
+                lightning stays — it is the brand's mark — but shrinks so the
+                name carries the block. */}
+            <Zap size={20} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
+            <span className="text-2xl font-black leading-none tracking-[-0.03em]">
               <span className="text-slate-900">plug</span>
               <span className="text-plug-blue-600">.pk</span>
             </span>
@@ -110,11 +115,11 @@ export function Navbar({ user }: NavbarProps) {
             */}
             <Link
               href="/#app"
-              className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl bg-plug-blue-600 px-4 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(37,99,235,0.25)] transition-all duration-200 hover:-translate-y-px hover:bg-plug-blue-700"
+              className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800"
             >
               <Smartphone size={15} className="shrink-0" aria-hidden="true" />
               Download App
-              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/90">
+              <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/80">
                 Soon
               </span>
             </Link>
