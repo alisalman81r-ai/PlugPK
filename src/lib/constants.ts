@@ -21,6 +21,9 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Services',  href: '/services' },
   { label: 'Community', href: '/community' },
   { label: 'Partner Up', href: '/partners' },
+  // Partner Up is the pitch; this is the form itself, so the two are
+  // different destinations rather than a duplicate entry.
+  { label: 'List Your Business', href: '/business/signup' },
 ]
 
 /**

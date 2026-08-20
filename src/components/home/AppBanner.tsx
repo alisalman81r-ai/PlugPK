@@ -13,7 +13,7 @@ const STORES: StoreBadge[] = [
 
 export function AppBanner() {
   return (
-    <section className="bg-slate-900 py-20">
+    <section id="app" className="scroll-mt-20 bg-slate-900 py-20">
       <div className="container-plug">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:justify-between">
           {/* ── Left ─────────────────────────────────────────────── */}
@@ -35,7 +35,7 @@ export function AppBanner() {
                   type="button"
                   disabled
                   aria-label={`${store.name} — coming soon`}
-                  className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-5 py-3 transition-colors duration-150 hover:bg-white/20 disabled:cursor-not-allowed"
+                  className="flex cursor-not-allowed items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-5 py-3"
                 >
                   <Smartphone size={20} className="shrink-0 text-white" aria-hidden="true" />
                   <span className="text-left">

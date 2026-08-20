@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.tsx
 'use client'
 
-import { Menu, X, Zap } from 'lucide-react'
+import { Menu, Smartphone, X, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -56,7 +56,7 @@ export function Navbar({ user }: NavbarProps) {
             : 'border-b border-slate-200/80 bg-white/[0.85]',
         )}
       >
-        <nav className="container-plug flex h-full items-center justify-between">
+        <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-5 lg:px-8">
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity duration-150 hover:opacity-90"
@@ -69,7 +69,7 @@ export function Navbar({ user }: NavbarProps) {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-1 xl:flex">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href)
 
@@ -79,7 +79,7 @@ export function Navbar({ user }: NavbarProps) {
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative rounded-lg px-4 py-2 text-ui font-medium transition-all duration-150',
+                    'relative whitespace-nowrap rounded-lg px-3 py-2 text-ui font-medium transition-all duration-150',
                     active ? 'text-plug-blue-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
                   )}
                 >
@@ -87,7 +87,7 @@ export function Navbar({ user }: NavbarProps) {
                   {active ? (
                     <span
                       aria-hidden="true"
-                      className="absolute bottom-0.5 left-4 right-4 h-0.5 rounded-full bg-plug-blue-600"
+                      className="absolute bottom-0.5 left-3 right-3 h-0.5 rounded-full bg-plug-blue-600"
                     />
                   ) : null}
                 </Link>
@@ -95,17 +95,37 @@ export function Navbar({ user }: NavbarProps) {
             })}
           </div>
 
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden shrink-0 items-center gap-2 xl:flex">
+            {/*
+              The app is not released. This goes to the Coming Soon banner on
+              the home page, and the chip says so here too, so nobody presses
+              it expecting a download to start.
+            */}
+            <Link
+              href="/#app"
+              className="inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+            >
+              <Smartphone size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
+              Download App
+              <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                Soon
+              </span>
+            </Link>
+
             {user ? (
               <AccountMenu user={user} />
             ) : (
-              <Button variant="ghost" size="sm" href="/login">
-                Sign In
-              </Button>
+              <>
+                {/* Kept beside Sign Up: without it a returning visitor has to
+                    go through the sign-up page to find the way back in. */}
+                <Button variant="ghost" size="sm" href="/login">
+                  Sign In
+                </Button>
+                <Button variant="primary" size="sm" href="/signup">
+                  Sign Up
+                </Button>
+              </>
             )}
-            <Button variant="primary" size="sm" href="/for-businesses">
-              List Your Business
-            </Button>
           </div>
 
           <button
@@ -113,7 +133,7 @@ export function Navbar({ user }: NavbarProps) {
             onClick={() => setIsMobileMenuOpen((open) => !open)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 xl:hidden"
           >
             <span
               className={cn(
