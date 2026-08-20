@@ -917,3 +917,23 @@ export async function getPartners(): Promise<PartnerRow[]> {
     }
   })
 }
+
+/**
+ * How many services exist in each category.
+ *
+ * The homepage preview showed hardcoded figures — 24 dealerships, 38 service
+ * centres, 45 accessory shops, 140-odd in total — against a table holding
+ * twelve. Grouped in one query rather than six counts, and returned as a plain
+ * record so a category with nothing in it reads as absent rather than as a
+ * zero somebody has to interpret.
+ */
+export async function getServiceCategoryCounts(): Promise<Record<string, number>> {
+  const rows = await prisma.eVService.groupBy({
+    by: ['category'],
+    _count: { _all: true },
+  })
+
+  const out: Record<string, number> = {}
+  for (const row of rows) out[row.category] = row._count._all
+  return out
+}
