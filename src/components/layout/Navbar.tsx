@@ -74,7 +74,7 @@ export function Navbar({ user }: NavbarProps) {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-1 xl:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href)
 
@@ -102,7 +102,7 @@ export function Navbar({ user }: NavbarProps) {
             })}
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 xl:flex">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex">
             {user ? <AccountMenu user={user} /> : (
               <Button
                 variant="ghost"
@@ -137,7 +137,7 @@ export function Navbar({ user }: NavbarProps) {
             onClick={() => setIsMobileMenuOpen((open) => !open)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 xl:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 lg:hidden"
           >
             <span
               className={cn(

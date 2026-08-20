@@ -2,7 +2,6 @@
 'use client'
 
 import {
-  Building2,
   ChevronRight,
   Handshake,
   LogOut,
@@ -36,7 +35,6 @@ const NAV_ICONS: Record<string, LucideIcon> = {
   '/services': Wrench,
   '/community': Users,
   '/partners': Handshake,
-  '/business/signup': Building2,
 }
 
 function isActivePath(pathname: string, href: string): boolean {

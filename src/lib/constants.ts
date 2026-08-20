@@ -20,10 +20,13 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Routes',    href: '/routes' },
   { label: 'Services',  href: '/services' },
   { label: 'Community', href: '/community' },
+  // Partner Up covers listing a charger: it explains the offer, shows the
+  // plans and the existing partners, and carries the calls to action into the
+  // form. A second heading straight to /business/signup sat beside it doing
+  // the same job — and worse, that route redirects a signed-out visitor to
+  // login, so the one item a new business owner would click led to a wall
+  // rather than a form.
   { label: 'Partner Up', href: '/partners' },
-  // Partner Up is the pitch; this is the form itself, so the two are
-  // different destinations rather than a duplicate entry.
-  { label: 'List Your Business', href: '/business/signup' },
 ]
 
 /**
