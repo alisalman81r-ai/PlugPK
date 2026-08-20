@@ -1,7 +1,7 @@
-// src/components/partners/frame.ts
+// src/components/shared/frame.ts
 
 /**
- * The card treatment used across Partner Up.
+ * The card treatment shared by Partner Up and the home page.
  *
  * Class strings rather than a component, because these are applied to a div,
  * an li and an anchor in different sections, and a polymorphic wrapper would

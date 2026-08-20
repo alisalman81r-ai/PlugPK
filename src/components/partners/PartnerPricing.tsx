@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
 
-import { FACE, FRAME, FRAME_FEATURED } from './frame'
+import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
 
 /**
  * Plans for hosts.

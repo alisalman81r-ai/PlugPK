@@ -1,7 +1,7 @@
 // src/components/partners/PartnerSteps.tsx
 import { BadgeCheck, Banknote, BarChart3, Home, MapPinned, Users } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from './frame'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 
 /**
  * How hosting works, and what a host is actually promised.

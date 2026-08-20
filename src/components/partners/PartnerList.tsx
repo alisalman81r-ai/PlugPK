@@ -9,7 +9,7 @@ import { RatingStars } from '@/components/ui'
 import type { PartnerRow } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
-import { FACE, FRAME } from './frame'
+import { FACE, FRAME } from '@/components/shared/frame'
 
 /**
  * The partner directory, with its filters.
