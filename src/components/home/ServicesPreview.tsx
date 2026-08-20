@@ -2,7 +2,7 @@
 import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
 import { getServiceCategoryCounts } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
@@ -48,7 +48,8 @@ export async function ServicesPreview() {
           </span>
 
           <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.02] tracking-[-0.035em] text-slate-900">
-            Everything an EV driver needs.
+            Everything an EV driver{' '}
+            <span className="text-plug-blue-600">needs</span>.
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
@@ -59,13 +60,18 @@ export async function ServicesPreview() {
 
         {/* ── The cards ────────────────────────────────────────── */}
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-          {SERVICE_CATEGORIES.map((category) => {
+          {SERVICE_CATEGORIES.map((category, index) => {
             const Icon = CATEGORY_ICONS[category.id] ?? Package
             const count = counts[category.id] ?? 0
 
             return (
               <Link key={category.id} href={`/services/${category.id}`} className={FRAME}>
-                <div className={cn(FACE, 'p-8')}>
+                {/* overflow-hidden because the numeral overhangs the top edge. */}
+                <div className={cn(FACE, 'overflow-hidden p-8')}>
+                  <span aria-hidden="true" className={NUMERAL}>
+                    {index + 1}
+                  </span>
+
                   <span aria-hidden="true" className={ICON_FRAME}>
                     <Icon size={24} className={ICON_GLYPH} />
                   </span>

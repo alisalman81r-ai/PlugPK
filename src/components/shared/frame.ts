@@ -52,3 +52,18 @@ export const ICON_GLYPH =
 export const CAP_RULE =
   'block h-0.5 w-10 origin-left rounded-full bg-slate-300 transition-all duration-300 ' +
   'group-hover:w-16 group-hover:bg-gradient-brand'
+
+/**
+ * The stroke-only numeral that sits in a card's corner.
+ *
+ * Outline rather than fill, so it counts the cards without competing with the
+ * heading inside them. Both states are classes: setting the base stroke inline
+ * would outrank the hover variant and the colour could never change.
+ *
+ * Needs `overflow-hidden` on the face it sits in, since it deliberately
+ * overhangs the top edge.
+ */
+export const NUMERAL =
+  'pointer-events-none absolute -top-3 right-4 select-none font-mono text-[5.5rem] font-black ' +
+  'leading-none text-transparent transition-all duration-300 ' +
+  '[-webkit-text-stroke:2px_#CBD5E1] group-hover:[-webkit-text-stroke:2px_#60A5FA]'

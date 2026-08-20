@@ -1,7 +1,7 @@
 // src/components/partners/PartnerSteps.tsx
 import { BadgeCheck, Banknote, BarChart3, Home, MapPinned, Users } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 
 /**
  * How hosting works, and what a host is actually promised.
@@ -96,12 +96,7 @@ export function PartnerSteps() {
                     graded edge without painting the card. */}
                 <div className={FRAME}>
                   <div className={`${FACE} overflow-hidden p-8`}>
-                    {/* Stroke-only numeral, large enough to anchor the corner
-                        without competing with the heading. */}
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute -top-3 right-4 select-none font-mono text-[5.5rem] font-black leading-none text-transparent transition-all duration-300 [-webkit-text-stroke:2px_#CBD5E1] group-hover:[-webkit-text-stroke:2px_#60A5FA]"
-                    >
+                    <span aria-hidden="true" className={NUMERAL}>
                       {index + 1}
                     </span>
 
