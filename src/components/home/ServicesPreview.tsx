@@ -80,33 +80,35 @@ export async function ServicesPreview() {
 
   return (
     <section className="relative overflow-hidden bg-white py-24 lg:py-32">
-      {/* The blooms the glass refracts, kept deliberately faint. They are
-          here so a blurred card has something behind it other than paper —
-          any stronger and the section stops reading as white, which is the
-          whole point of it being white. */}
+      {/*
+        Glass is only visible when there is something behind it to distort.
+        On a white section that has to be built deliberately, so two things
+        sit under the grid: a ruled pattern the cards visibly soften, and
+        blooms placed to fall behind the cards rather than out in the open —
+        the panels pick up the colour while the section stays white.
+      */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute -left-40 top-10 h-[520px] w-[520px] rounded-full bg-plug-blue-400/[0.10] blur-[140px]"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-32 bottom-0 h-[460px] w-[460px] rounded-full bg-plug-cyan-400/[0.10] blur-[140px]"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-[30%] rounded-full bg-plug-blue-300/[0.08] blur-[150px]"
-      />
-      {/* A faint grid, masked so it fades out before the edges. */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        className="pointer-events-none absolute inset-x-0 top-[38%] h-[62%]"
         style={{
           backgroundImage:
-            'linear-gradient(to right, #E2E8F0 1px, transparent 1px), linear-gradient(to bottom, #E2E8F0 1px, transparent 1px)',
-          backgroundSize: '72px 72px',
-          maskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent)',
-          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent)',
+            'linear-gradient(to right, #CBD5E1 1px, transparent 1px), linear-gradient(to bottom, #CBD5E1 1px, transparent 1px)',
+          backgroundSize: '38px 38px',
+          maskImage: 'radial-gradient(ellipse 60% 75% at 50% 45%, black 30%, transparent 75%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 60% 75% at 50% 45%, black 30%, transparent 75%)',
         }}
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[6%] top-[42%] h-[380px] w-[380px] rounded-full bg-plug-blue-400/30 blur-[110px]"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[8%] top-[55%] h-[360px] w-[360px] rounded-full bg-plug-cyan-400/30 blur-[110px]"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[60%] h-[300px] w-[520px] -translate-x-1/2 rounded-full bg-violet-400/20 blur-[110px]"
       />
 
       <div className="container-plug relative">
@@ -143,25 +145,36 @@ export async function ServicesPreview() {
                 href={`/services/${category.id}`}
                 className={cn(
                   'group relative flex flex-col overflow-hidden rounded-3xl p-7',
-                  // Frosted rather than solid: the card is mostly-opaque white
-                  // over the blooms, with a bright inner top edge — the light
-                  // equivalent of the dark version's hairline.
-                  'border border-white/90 bg-white/65 backdrop-blur-2xl',
-                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_30px_-14px_rgba(15,23,42,0.18)]',
-                  'transition-all duration-300 hover:-translate-y-1 hover:bg-white/85',
+                  // Thin enough to see through. At 65% white over a 40px blur
+                  // the panel was opaque in practice, which is why it read as
+                  // a plain card; 42% over a 16px blur leaves the pattern and
+                  // the bloom behind it legible but soft, which is the whole
+                  // tell of glass.
+                  'border border-white/60 bg-white/[0.42] backdrop-blur-md backdrop-saturate-150',
+                  'shadow-[inset_0_1px_0_rgba(255,255,255,0.85),inset_0_-1px_0_rgba(15,23,42,0.04),0_10px_30px_-14px_rgba(15,23,42,0.20)]',
+                  'transition-all duration-300 hover:-translate-y-1 hover:border-white/80 hover:bg-white/[0.58]',
                   'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_18px_44px_-16px_rgba(15,23,42,0.28)]',
                   tone.ring,
                 )}
               >
-                {/* The category's own light, behind the glass rather than on
-                    it, so a hover warms the whole panel. */}
+                {/* The category's own light. Visible at rest now, not only on
+                    hover — it is what gives each panel its own cast rather than
+                    six identical white rectangles. */}
                 <span
                   aria-hidden="true"
                   className={cn(
-                    'pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full blur-[70px] transition-opacity duration-500',
-                    'opacity-0 group-hover:opacity-100',
+                    'pointer-events-none absolute -right-14 -top-14 h-52 w-52 rounded-full blur-[60px] transition-opacity duration-500',
+                    'opacity-70 group-hover:opacity-100',
                     tone.glow,
                   )}
+                />
+
+                {/* The sheen: light catching the top-left face of the pane.
+                    Without it a translucent rectangle reads as tracing paper
+                    rather than glass. */}
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/70 via-white/10 to-transparent"
                 />
 
                 <span
