@@ -2,9 +2,10 @@
 'use client'
 
 import { ArrowRight, MapPin, Package, Phone, ShieldCheck, Star } from 'lucide-react'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 
-import { PhotoFrame, RatingStars } from '@/components/ui'
+import { AnimatedIcon, PhotoFrame, RatingStars, hoverTrigger } from '@/components/ui'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -69,7 +70,8 @@ export function ServiceCard({
   /* ── Horizontal ──────────────────────────────────────────────── */
   if (variant === 'horizontal') {
     return (
-      <article
+      <motion.article
+        {...hoverTrigger}
         style={style}
         className={cn(
           'flex items-center gap-5 rounded-2xl border border-slate-200 bg-white p-5',
@@ -92,7 +94,9 @@ export function ServiceCard({
               meta.tone,
             )}
           >
-            <Icon size={28} aria-hidden="true" />
+            <AnimatedIcon motion="pop">
+              <Icon size={28} aria-hidden="true" />
+            </AnimatedIcon>
           </span>
         )}
 
@@ -130,7 +134,7 @@ export function ServiceCard({
           {contactButton}
           {detailsButton}
         </div>
-      </article>
+      </motion.article>
     )
   }
 
@@ -149,7 +153,8 @@ export function ServiceCard({
      * pseudo-element and the phone link is lifted above it, so there is never
      * an <a> inside an <a>.
      */
-    <article
+    <motion.article
+      {...hoverTrigger}
       style={style}
       className={cn(
         'relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white',
@@ -266,12 +271,11 @@ export function ServiceCard({
           className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-ui-sm font-semibold text-slate-400 transition-colors duration-200 group-hover:text-plug-blue-600"
         >
           Details
-          <ArrowRight
-            size={14}
-            className="shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none"
-          />
+          <AnimatedIcon motion="travel">
+            <ArrowRight size={14} className="shrink-0" />
+          </AnimatedIcon>
         </span>
       </div>
-    </article>
+    </motion.article>
   )
 }

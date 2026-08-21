@@ -1,7 +1,16 @@
 // src/components/partners/PartnerSteps.tsx
-import { BadgeCheck, Banknote, BarChart3, Home, MapPinned, Users } from 'lucide-react'
+import {
+  BadgeCheck,
+  Banknote,
+  BarChart3,
+  Home,
+  MapPinned,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
+import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
 
 /**
  * How hosting works, and what a host is actually promised.
@@ -15,39 +24,57 @@ import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/compon
  *
  * Both sections share the card treatment in ./frame — see that file for why
  * the prominence lives on the edge rather than in a fill.
+ *
+ * Each card is a HoverMotion so the glyph animates when the card is hovered
+ * rather than when the pointer happens to cross the 56px holder — the same
+ * trigger the border and shadow already use. This file stays a server
+ * component; HoverMotion is the client shim.
  */
 
-const STEPS = [
+interface Card {
+  icon: LucideIcon
+  motion: IconMotion
+  title: string
+  body: string
+}
+
+const STEPS: Card[] = [
   {
     icon: Home,
+    motion: 'lift',
     title: 'List what you have',
     body: 'A hotel forecourt, an office car park, or the single charger on your driveway. Same form, same few minutes.',
   },
   {
     icon: BadgeCheck,
+    motion: 'pop',
     title: 'We check the details',
     body: 'We confirm the address, the pin and the charger specs before publishing, so drivers who set off actually arrive.',
   },
   {
     icon: MapPinned,
+    motion: 'scan',
     title: 'Drivers find you',
     body: 'Your listing appears on the map and in search, filterable by connector and speed, with directions one tap away.',
   },
 ]
 
-const BENEFITS = [
+const BENEFITS: Card[] = [
   {
     icon: Banknote,
+    motion: 'lift',
     title: 'You set the price, you keep it',
     body: 'Plug.pk does not set your rates, process the payment or take a percentage. Whatever you charge is between you and the driver.',
   },
   {
     icon: BarChart3,
+    motion: 'slide',
     title: 'See what your listing does',
     body: 'Views, directions taken, reviews and rating — counted from real visits to your page, not estimated.',
   },
   {
     icon: Users,
+    motion: 'pulse',
     title: 'Reach drivers already looking',
     body: 'People open the map because they need a charge now. That is a narrower and warmer audience than an advert.',
   },
@@ -94,14 +121,16 @@ export function PartnerSteps() {
                 {/* The border is a 1px gradient frame: a wrapper carrying the
                     gradient with an inset face on top, which is how you get a
                     graded edge without painting the card. */}
-                <div className={FRAME}>
+                <HoverMotion className={FRAME}>
                   <div className={`${FACE} overflow-hidden p-8`}>
                     <span aria-hidden="true" className={NUMERAL}>
                       {index + 1}
                     </span>
 
                     <span aria-hidden="true" className={ICON_FRAME}>
-                      <step.icon size={24} className={ICON_GLYPH} />
+                      <AnimatedIcon motion={step.motion}>
+                        <step.icon size={24} className={ICON_GLYPH} />
+                      </AnimatedIcon>
                     </span>
 
                     {/* A cap rule that draws across on hover — motion with a
@@ -113,7 +142,7 @@ export function PartnerSteps() {
                     </h3>
                     <p className="mt-3 text-ui leading-relaxed text-slate-500">{step.body}</p>
                   </div>
-                </div>
+                </HoverMotion>
               </li>
             ))}
           </ol>
@@ -133,10 +162,12 @@ export function PartnerSteps() {
 
           <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             {BENEFITS.map((benefit) => (
-              <div key={benefit.title} className={FRAME}>
+              <HoverMotion key={benefit.title} className={FRAME}>
                 <div className={`${FACE} p-8`}>
                   <span aria-hidden="true" className={ICON_FRAME}>
-                    <benefit.icon size={24} className={ICON_GLYPH} />
+                    <AnimatedIcon motion={benefit.motion}>
+                      <benefit.icon size={24} className={ICON_GLYPH} />
+                    </AnimatedIcon>
                   </span>
 
                   <span aria-hidden="true" className={`mt-8 ${CAP_RULE}`} />
@@ -146,7 +177,7 @@ export function PartnerSteps() {
                   </h3>
                   <p className="mt-3 text-ui leading-relaxed text-slate-500">{benefit.body}</p>
                 </div>
-              </div>
+              </HoverMotion>
             ))}
           </div>
         </div>

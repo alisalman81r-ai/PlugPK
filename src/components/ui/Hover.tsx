@@ -21,11 +21,20 @@ import * as React from 'react'
  * anchor.
  */
 
-const HOVER = {
+/**
+ * Spread onto any motion element to put the AnimatedIcons beneath it into
+ * their `hover` variant. Exported because plenty of cards are already client
+ * components with their own wrapper element — an <article>, a <li> — and
+ * wrapping those in one of the components below would put a stray div between
+ * a grid and its child.
+ */
+export const hoverTrigger = {
   initial: 'rest',
   whileHover: 'hover',
   whileFocus: 'hover',
 } as const
+
+const HOVER = hoverTrigger
 
 export interface HoverMotionProps extends React.ComponentProps<typeof motion.div> {
   children: React.ReactNode

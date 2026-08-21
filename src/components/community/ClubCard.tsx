@@ -1,9 +1,11 @@
 // src/components/community/ClubCard.tsx
 'use client'
 
+import { motion } from 'framer-motion'
 import { MapPin, Users } from 'lucide-react'
 import * as React from 'react'
 
+import { AnimatedIcon, hoverTrigger } from '@/components/ui'
 import type { EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -51,7 +53,8 @@ export function ClubCard({ club, variant = 'default', animationDelay, className 
 
   if (variant === 'compact') {
     return (
-      <div
+      <motion.div
+        {...hoverTrigger}
         style={style}
         className={cn(
           'flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4',
@@ -66,7 +69,9 @@ export function ClubCard({ club, variant = 'default', animationDelay, className 
               coverGradient(club.city),
             )}
           >
-            <Users size={18} className="text-white" />
+            <AnimatedIcon motion="pulse">
+              <Users size={18} className="text-white" />
+            </AnimatedIcon>
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-semibold text-slate-900">{club.name}</span>
@@ -75,12 +80,13 @@ export function ClubCard({ club, variant = 'default', animationDelay, className 
             </span>
           </span>
         </span>
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div
+    <motion.div
+      {...hoverTrigger}
       style={style}
       className={cn(
         'rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-[250ms] hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
@@ -116,6 +122,6 @@ export function ClubCard({ club, variant = 'default', animationDelay, className 
       ) : null}
 
       {joinButton}
-    </div>
+    </motion.div>
   )
 }

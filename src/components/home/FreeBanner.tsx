@@ -6,6 +6,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { AnimatedIcon, HoverLink, HoverMotion, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 /**
@@ -39,6 +40,8 @@ import { cn } from '@/lib/utils'
 
 interface Fact {
   icon: LucideIcon
+  /** Matched to the glyph: the renewal arrow turns, the card hops, % lands. */
+  motion: IconMotion
   label: string
   detail: string
 }
@@ -53,16 +56,19 @@ interface Fact {
 const NOT_CHARGED: Fact[] = [
   {
     icon: Repeat,
+    motion: 'spin',
     label: 'No subscription',
     detail: 'Nothing to start, nothing to renew, no tier held back for later.',
   },
   {
     icon: Percent,
+    motion: 'pop',
     label: 'No commission',
     detail: 'You pay the operator directly. We take no cut of that.',
   },
   {
     icon: CreditCard,
+    motion: 'lift',
     label: 'No card details',
     detail: 'There is no payment field anywhere on Plug.pk to fill in.',
   },
@@ -155,10 +161,12 @@ export function FreeBanner() {
             const Icon = fact.icon
 
             return (
-              <div key={fact.label} className={FRAME}>
+              <HoverMotion key={fact.label} className={FRAME}>
                 <div className={cn(FACE, 'p-8')}>
                   <span aria-hidden="true" className={ICON_FRAME}>
-                    <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
+                    <AnimatedIcon motion={fact.motion}>
+                      <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
+                    </AnimatedIcon>
                   </span>
 
                   <span aria-hidden="true" className={cn('mt-7', CAP_RULE)} />
@@ -174,7 +182,7 @@ export function FreeBanner() {
                     {fact.detail}
                   </p>
                 </div>
-              </div>
+              </HoverMotion>
             )
           })}
         </div>
@@ -226,17 +234,15 @@ export function FreeBanner() {
 
               <div className="shrink-0 lg:w-[19rem]">
                 <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                  <Link
+                  <HoverLink
                     href="/map"
                     className="group/cta inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-ui font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_12px_26px_-10px_rgba(37,99,235,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                   >
                     Find a charger
-                    <ArrowRight
-                      size={16}
-                      className="shrink-0 transition-transform duration-200 group-hover/cta:translate-x-0.5 motion-reduce:transition-none"
-                      aria-hidden="true"
-                    />
-                  </Link>
+                    <AnimatedIcon motion="travel">
+                      <ArrowRight size={16} className="shrink-0" aria-hidden="true" />
+                    </AnimatedIcon>
+                  </HoverLink>
 
                   <Link
                     href="/signup"

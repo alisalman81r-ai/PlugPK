@@ -3,6 +3,7 @@ import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type LucideIc
 import Link from 'next/link'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
+import { AnimatedIcon, HoverLink, type IconMotion } from '@/components/ui'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
 import { getServiceCategoryCounts } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
@@ -23,6 +24,20 @@ import { cn } from '@/lib/utils'
  * accessory shops against a table holding twelve services in total. A category
  * with nothing in it says so rather than printing a zero.
  */
+
+/**
+ * Each glyph's motion, matched to what it depicts rather than picked for
+ * variety: the car pulls away, the wrench turns, the shield takes a beat, the
+ * ring throws itself. See AnimatedIcon for the set.
+ */
+const CATEGORY_MOTION: Record<string, IconMotion> = {
+  dealership: 'travel',
+  'service-center': 'spin',
+  'home-charger-installer': 'lift',
+  accessories: 'pop',
+  insurance: 'pulse',
+  'roadside-assistance': 'swing',
+}
 
 /** SERVICE_CATEGORIES stores its icon as a string; resolve it here. */
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -65,7 +80,14 @@ export async function ServicesPreview() {
             const count = counts[category.id] ?? 0
 
             return (
-              <Link key={category.id} href={`/services/${category.id}`} className={FRAME}>
+              /*
+               * HoverLink rather than Link: this file is an async server
+               * component, so it cannot render motion itself, and the icon's
+               * motion has to be driven by the whole card being hovered — not
+               * by the pointer finding the 56px holder — to stay in step with
+               * the border and shadow the CSS already changes.
+               */
+              <HoverLink key={category.id} href={`/services/${category.id}`} className={FRAME}>
                 {/* overflow-hidden because the numeral overhangs the top edge. */}
                 <div className={cn(FACE, 'overflow-hidden p-8')}>
                   <span aria-hidden="true" className={NUMERAL}>
@@ -73,7 +95,9 @@ export async function ServicesPreview() {
                   </span>
 
                   <span aria-hidden="true" className={ICON_FRAME}>
-                    <Icon size={24} className={ICON_GLYPH} />
+                    <AnimatedIcon motion={CATEGORY_MOTION[category.id] ?? 'pop'}>
+                      <Icon size={24} className={ICON_GLYPH} />
+                    </AnimatedIcon>
                   </span>
 
                   <span aria-hidden="true" className={cn('mt-8', CAP_RULE)} />
@@ -101,7 +125,7 @@ export async function ServicesPreview() {
                     />
                   </span>
                 </div>
-              </Link>
+              </HoverLink>
             )
           })}
         </div>

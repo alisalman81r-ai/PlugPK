@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
 import type { Amenity, AmenityType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -21,18 +22,20 @@ export interface AmenitiesGridProps {
 interface AmenityMeta {
   label: string
   icon: LucideIcon
+  /** Matched to the glyph: the kettle steams, the bed settles, wifi pulses. */
+  motion: IconMotion
   tone: string
 }
 
 const AMENITY_META: Record<AmenityType, AmenityMeta> = {
-  restaurant: { label: 'Restaurant', icon: Utensils, tone: 'bg-orange-50 text-orange-500' },
-  hotel: { label: 'Hotel', icon: Bed, tone: 'bg-purple-50 text-purple-500' },
-  parking: { label: 'Parking', icon: ParkingSquare, tone: 'bg-blue-50 text-blue-500' },
-  washroom: { label: 'Washroom', icon: DoorOpen, tone: 'bg-cyan-50 text-cyan-500' },
-  wifi: { label: 'WiFi', icon: Wifi, tone: 'bg-green-50 text-green-500' },
-  shopping: { label: 'Shopping', icon: ShoppingBag, tone: 'bg-pink-50 text-pink-500' },
-  prayer: { label: 'Prayer', icon: Star, tone: 'bg-emerald-50 text-emerald-500' },
-  cafe: { label: 'Café', icon: Coffee, tone: 'bg-amber-50 text-amber-500' },
+  restaurant: { label: 'Restaurant', icon: Utensils, motion: 'pop', tone: 'bg-orange-50 text-orange-500' },
+  hotel: { label: 'Hotel', icon: Bed, motion: 'lift', tone: 'bg-purple-50 text-purple-500' },
+  parking: { label: 'Parking', icon: ParkingSquare, motion: 'slide', tone: 'bg-blue-50 text-blue-500' },
+  washroom: { label: 'Washroom', icon: DoorOpen, motion: 'swing', tone: 'bg-cyan-50 text-cyan-500' },
+  wifi: { label: 'WiFi', icon: Wifi, motion: 'pulse', tone: 'bg-green-50 text-green-500' },
+  shopping: { label: 'Shopping', icon: ShoppingBag, motion: 'lift', tone: 'bg-pink-50 text-pink-500' },
+  prayer: { label: 'Prayer', icon: Star, motion: 'pop', tone: 'bg-emerald-50 text-emerald-500' },
+  cafe: { label: 'Café', icon: Coffee, motion: 'swing', tone: 'bg-amber-50 text-amber-500' },
 }
 
 export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
@@ -47,7 +50,7 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
         const Icon = meta.icon
 
         return (
-          <div
+          <HoverMotion
             key={amenity.type}
             title={amenity.note}
             className={cn(
@@ -63,7 +66,9 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
                 amenity.available ? meta.tone : 'bg-slate-100 text-slate-300',
               )}
             >
-              <Icon size={22} aria-hidden="true" />
+              <AnimatedIcon motion={meta.motion}>
+                <Icon size={22} aria-hidden="true" />
+              </AnimatedIcon>
             </span>
 
             <span
@@ -83,7 +88,7 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
             >
               {amenity.available ? 'Available' : 'Not available'}
             </span>
-          </div>
+          </HoverMotion>
         )
       })}
     </div>

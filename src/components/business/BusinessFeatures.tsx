@@ -11,10 +11,11 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { SectionHeader } from '@/components/ui'
+import { AnimatedIcon, HoverMotion, SectionHeader, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 interface Feature {
+  motion: IconMotion
   icon: LucideIcon
   tone: string
   title: string
@@ -24,6 +25,7 @@ interface Feature {
 const FEATURES: Feature[] = [
   {
     icon: MapPin,
+    motion: 'scan',
     tone: 'bg-blue-50 text-plug-blue-600',
     title: 'Map Visibility',
     description:
@@ -31,6 +33,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: ShieldCheck,
+    motion: 'pop',
     tone: 'bg-green-50 text-green-600',
     title: 'Verified Badge',
     description:
@@ -38,6 +41,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: Zap,
+    motion: 'pulse',
     tone: 'bg-amber-50 text-amber-600',
     title: 'Charger Management',
     description:
@@ -45,6 +49,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: Star,
+    motion: 'pop',
     tone: 'bg-purple-50 text-purple-600',
     title: 'Reviews & Ratings',
     description:
@@ -52,6 +57,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: BarChart2,
+    motion: 'slide',
     tone: 'bg-cyan-50 text-cyan-600',
     title: 'Analytics Dashboard',
     description:
@@ -59,6 +65,7 @@ const FEATURES: Feature[] = [
   },
   {
     icon: Users,
+    motion: 'pulse',
     tone: 'bg-rose-50 text-rose-600',
     title: 'Community Reach',
     description:
@@ -69,6 +76,7 @@ const FEATURES: Feature[] = [
 interface Step {
   number: string
   icon: LucideIcon
+  motion: IconMotion
   title: string
   description: string
 }
@@ -76,18 +84,21 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: '01',
+    motion: 'lift',
     icon: Building2,
     title: 'Create Profile',
     description: 'Tell us about your business — name, type, location and contact details.',
   },
   {
     number: '02',
+    motion: 'pulse',
     icon: Zap,
     title: 'Add Your Chargers',
     description: 'List each connector with its power, ports and pricing so drivers know what to expect.',
   },
   {
     number: '03',
+    motion: 'scan',
     icon: MapPin,
     title: 'Go Live',
     description: 'We verify your listing and put you on the map, usually within 24 hours.',
@@ -112,7 +123,7 @@ export function BusinessFeatures() {
               const Icon = feature.icon
 
               return (
-                <div
+                <HoverMotion
                   key={feature.title}
                   className="rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-[250ms] hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover"
                 >
@@ -122,12 +133,14 @@ export function BusinessFeatures() {
                       feature.tone,
                     )}
                   >
-                    <Icon size={26} aria-hidden="true" />
+                    <AnimatedIcon motion={feature.motion}>
+                      <Icon size={26} aria-hidden="true" />
+                    </AnimatedIcon>
                   </span>
 
                   <h3 className="mb-2 text-lg font-bold text-slate-900">{feature.title}</h3>
                   <p className="text-sm leading-relaxed text-slate-500">{feature.description}</p>
-                </div>
+                </HoverMotion>
               )
             })}
           </div>
@@ -145,7 +158,7 @@ export function BusinessFeatures() {
               const Icon = step.icon
 
               return (
-                <div key={step.number} className="relative text-center">
+                <HoverMotion key={step.number} className="relative text-center">
                   {index < STEPS.length - 1 ? (
                     <ArrowRight
                       size={24}
@@ -159,12 +172,14 @@ export function BusinessFeatures() {
                   </p>
 
                   <span className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-brand">
-                    <Icon size={28} className="text-white" aria-hidden="true" />
+                    <AnimatedIcon motion={step.motion}>
+                      <Icon size={28} className="text-white" aria-hidden="true" />
+                    </AnimatedIcon>
                   </span>
 
                   <h3 className="mb-2 font-bold text-slate-900">{step.title}</h3>
                   <p className="mx-auto max-w-[260px] text-sm text-slate-500">{step.description}</p>
-                </div>
+                </HoverMotion>
               )
             })}
           </div>
