@@ -1,8 +1,7 @@
 // src/components/home/FreeBanner.tsx
 'use client'
 
-import { ArrowRight, Check, CreditCard, Percent, Repeat, type LucideIcon } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowRight, CreditCard, Percent, Repeat, type LucideIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
@@ -22,11 +21,18 @@ import { cn } from '@/lib/utils'
  * and a stale figure shown as fact is worse than none. Drivers confirm the
  * rate with the operator; businesses discuss terms through a meeting.
  *
- * Structure now matches the ecosystem band and the four steps: a centred
- * eyebrow, one heading at the same clamp as its siblings, a lead paragraph,
- * then the cards. Before this the section had no h2 at all — the word "Free"
- * was a paragraph, so the page jumped from the services heading straight to
- * the community one and the band read as a loose aside rather than a section.
+ * Structure matches the ecosystem band and the four steps: a centred eyebrow,
+ * one heading at the same clamp as its siblings, a lead paragraph, the three
+ * cards, one button. Before this the section had no h2 at all — the word
+ * "Free" was a paragraph, so the page jumped from the services heading
+ * straight to the community one and the band read as a loose aside rather
+ * than a section.
+ *
+ * The "everything included" card that sat below the three facts is gone. Its
+ * four lines repeated what the four steps, the ecosystem grid and the route
+ * promo each already demonstrate further up the page, and the second button
+ * beside it gave a section about costing nothing two competing asks. One
+ * claim, one action.
  *
  * Colour follows its siblings now rather than staying in ink: a blue eyebrow,
  * one word of the heading in blue, and the shared card frame — whose edge
@@ -72,13 +78,6 @@ const NOT_CHARGED: Fact[] = [
     label: 'No card details',
     detail: 'There is no payment field anywhere on Plug.pk to fill in.',
   },
-]
-
-const INCLUDED = [
-  'Search every station, see live availability',
-  'See connector types and peak power at a glance',
-  'Plan intercity routes around your car’s range',
-  'Read and write reviews from other drivers',
 ]
 
 export function FreeBanner() {
@@ -187,77 +186,29 @@ export function FreeBanner() {
           })}
         </div>
 
-        {/* ── What it includes ─────────────────────────────────── */}
+        {/* ── The one action ───────────────────────────────────── */}
         <div
           style={{ transform: `translate3d(0, ${tilt.y * 8}px, 0)` }}
-          className="mx-auto mt-6 max-w-5xl transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none lg:mt-8"
+          className="mt-12 flex justify-center transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none lg:mt-14"
         >
-          {/* The tilt lives on the wrapper above, not here: FRAME already
-              carries `transition-all`, and a second transition declaration on
-              the same element would only fight it over source order. */}
-          <div className={FRAME}>
-            <div
-              className={cn(
-                FACE,
-                'gap-10 p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-14 lg:p-10',
-              )}
-            >
-              <div className="lg:flex-1">
-                {/* Was slate-400 at 11px — the combination that made the old
-                    version look like it had no headings at all. Brand blue
-                    now, the same eyebrow as the section's own. */}
-                <p className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
-                  Everything included
-                </p>
+          {/*
+            One button, and nothing beside it.
 
-                {/* Two columns of two on the wide layout, so the list reads as
-                    a block beside the buttons rather than a tall ladder above
-                    them. */}
-                <ul className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
-                  {INCLUDED.map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <span
-                        aria-hidden="true"
-                        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] border-slate-300 transition-colors duration-300 group-hover:border-plug-blue-400"
-                      >
-                        <Check
-                          size={11}
-                          strokeWidth={3}
-                          className="text-slate-500 transition-colors duration-300 group-hover:text-plug-blue-600"
-                        />
-                      </span>
-                      <span className="text-ui leading-relaxed text-slate-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="shrink-0 lg:w-[19rem]">
-                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-                  <HoverLink
-                    href="/map"
-                    className="group/cta inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-ui font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_12px_26px_-10px_rgba(37,99,235,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-                  >
-                    Find a charger
-                    <AnimatedIcon motion="travel">
-                      <ArrowRight size={16} className="shrink-0" aria-hidden="true" />
-                    </AnimatedIcon>
-                  </HoverLink>
-
-                  <Link
-                    href="/signup"
-                    className="inline-flex h-13 flex-1 items-center justify-center rounded-xl border-[1.5px] border-slate-300 px-6 text-ui font-semibold text-slate-800 transition-colors duration-200 hover:border-plug-blue-400 hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none"
-                  >
-                    Create an account
-                  </Link>
-                </div>
-
-                <p className="mt-4 text-ui-xs leading-relaxed text-slate-500">
-                  An account is optional — it lets you save stations and post reviews.
-                </p>
-              </div>
-            </div>
-          </div>
+            The feature list that stood here repeated what the four steps, the
+            ecosystem grid and the route promo each already show further up the
+            page, and pairing it with a second "Create an account" button gave
+            a section about costing nothing two competing asks. A band making
+            one claim should offer one way to act on it.
+          */}
+          <HoverLink
+            href="/map"
+            className="inline-flex h-14 items-center justify-center gap-2.5 rounded-xl bg-slate-900 px-9 text-ui-lg font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_14px_30px_-10px_rgba(37,99,235,0.40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          >
+            Find a charger
+            <AnimatedIcon motion="travel">
+              <ArrowRight size={18} className="shrink-0" aria-hidden="true" />
+            </AnimatedIcon>
+          </HoverLink>
         </div>
       </div>
     </section>
