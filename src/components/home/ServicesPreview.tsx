@@ -1,9 +1,8 @@
 // src/components/home/ServicesPreview.tsx
 import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type LucideIcon } from 'lucide-react'
-import Link from 'next/link'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
-import { AnimatedIcon, HoverLink, type IconMotion } from '@/components/ui'
+import { AnimatedIcon, HoverLink, PillButton, type IconMotion } from '@/components/ui'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
 import { getServiceCategoryCounts } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
@@ -130,18 +129,13 @@ export async function ServicesPreview() {
           })}
         </div>
 
-        <div className="mt-14 text-center">
-          <Link
-            href="/services"
-            className="group inline-flex h-13 items-center gap-2 rounded-xl border-[1.5px] border-slate-300 px-8 text-ui font-semibold text-slate-700 transition-colors duration-200 hover:border-plug-blue-400 hover:text-plug-blue-700"
-          >
+        <div className="mt-14 flex justify-center">
+          {/* The same pill-and-badge as the free band and the route promo. It
+              was an outlined button, which read as a secondary control in a
+              section where it is the only action. */}
+          <PillButton href="/services">
             {total > 0 ? `Explore all ${total} services` : 'Explore EV services'}
-            <ArrowRight
-              size={17}
-              aria-hidden="true"
-              className="transition-transform duration-200 group-hover:translate-x-0.5"
-            />
-          </Link>
+          </PillButton>
         </div>
       </div>
     </section>
