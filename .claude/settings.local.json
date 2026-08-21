@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-Process node -EA SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force -EA SilentlyContinue }; Start-Sleep -Seconds 2; \"  node stopped: $\\(\\(Get-Process node -EA SilentlyContinue | Measure-Object\\).Count\\) remaining\")",
+      "Bash(npx prisma *)",
+      "Bash(node 'C:/Users/92302/AppData/Local/Temp/claude/f--plugPK/fe2411d5-1157-4df4-b9c0-dddf271d2222/scratchpad/fullflow.mjs')"
+    ]
+  }
+}
