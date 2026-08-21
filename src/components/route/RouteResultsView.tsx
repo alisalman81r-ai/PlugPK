@@ -4,7 +4,7 @@
 import { Bookmark, BookmarkCheck, ChevronLeft, Share2, Zap } from 'lucide-react'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Button, MorphIcon } from '@/components/ui'
 import type { PlannedRoute } from '@/lib/types'
 import { RouteMap } from './RouteMap'
 import { RouteStopCard } from './RouteStopCard'
@@ -44,7 +44,7 @@ export function RouteResultsView({ route, onReset, onSave, isSaved }: RouteResul
             variant="secondary"
             size="sm"
             onClick={onSave}
-            leftIcon={isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+            leftIcon={<MorphIcon active={isSaved} on={BookmarkCheck} off={Bookmark} size={16} />}
             className={isSaved ? 'border-blue-200 text-plug-blue-600' : undefined}
           >
             {isSaved ? 'Saved' : 'Save Route'}

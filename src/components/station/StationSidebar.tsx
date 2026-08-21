@@ -18,7 +18,7 @@ import {
 import Link from 'next/link'
 import * as React from 'react'
 
-import { RatingStars, StatusBadge } from '@/components/ui'
+import { AnimatedIcon, HoverButton, MorphIcon, RatingStars, StatusBadge } from '@/components/ui'
 import { recordBusinessDirections } from '@/lib/db/business-actions'
 import { toggleSavedStation } from '@/lib/db/session-actions'
 import type { DayHours, Station } from '@/lib/types'
@@ -208,25 +208,29 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
               aria-label="Copy address"
               className="ml-1.5 inline-flex translate-y-0.5 text-slate-400 transition-colors hover:text-plug-blue-600"
             >
-              {isCopied ? (
-                <Check size={14} className="text-green-500" />
-              ) : (
-                <Copy size={14} />
-              )}
+              <MorphIcon
+                active={isCopied}
+                on={Check}
+                off={Copy}
+                size={14}
+                className={cn('inline-flex', isCopied && 'text-green-500')}
+              />
             </button>
           </p>
         </div>
 
         <div className="border-t border-slate-100" />
 
-        <button
+        <HoverButton
           type="button"
           onClick={handleNavigate}
           className="mt-6 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-brand text-base font-bold text-white shadow-[0_12px_35px_rgba(37,99,235,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_45px_rgba(37,99,235,0.45)]"
         >
           Navigate
-          <Navigation2 size={20} aria-hidden="true" />
-        </button>
+          <AnimatedIcon motion="travel">
+            <Navigation2 size={20} aria-hidden="true" />
+          </AnimatedIcon>
+        </HoverButton>
 
         <div className="mt-3 grid grid-cols-3 gap-3">
           <button
@@ -238,15 +242,17 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
               isSaved && 'border-blue-200 bg-blue-50',
             )}
           >
-            {isSaved ? (
-              <BookmarkCheck size={18} className="text-plug-blue-600" aria-hidden="true" />
-            ) : (
-              <Bookmark
-                size={18}
-                className="text-slate-500 group-hover/act:text-plug-blue-600"
-                aria-hidden="true"
-              />
-            )}
+            <MorphIcon
+              active={isSaved}
+              on={BookmarkCheck}
+              off={Bookmark}
+              size={18}
+              className={cn(
+                isSaved
+                  ? 'text-plug-blue-600'
+                  : 'text-slate-500 group-hover/act:text-plug-blue-600',
+              )}
+            />
             <span
               className={cn(
                 'text-ui-xs font-medium',

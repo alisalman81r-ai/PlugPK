@@ -4,6 +4,7 @@
 import { Car, Check, ChevronDown, Search, X } from 'lucide-react'
 import * as React from 'react'
 
+import { TurnIcon } from '@/components/ui'
 import { ROUTE_VEHICLES } from '@/hooks/useRoutePlanner'
 import type { EVModel } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -82,14 +83,9 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
           )}
         </span>
 
-        <ChevronDown
-          size={18}
-          className={cn(
-            'shrink-0 text-slate-400 transition-transform duration-200',
-            isOpen && 'rotate-180',
-          )}
-          aria-hidden="true"
-        />
+        <TurnIcon active={isOpen} className="text-slate-400">
+          <ChevronDown size={18} aria-hidden="true" />
+        </TurnIcon>
       </button>
 
       {isOpen ? (

@@ -79,3 +79,38 @@ export function MorphIcon({
     </span>
   )
 }
+
+/**
+ * A glyph that turns to mark an open/closed state — the disclosure chevrons.
+ *
+ * Separate from MorphIcon because there is only one icon involved: nothing is
+ * being replaced, it is the same arrow pointing the other way. Spring rather
+ * than the CSS `transition-transform` these had, so it settles instead of
+ * stopping dead on the easing curve.
+ *
+ * Only for chevrons driven by React state. The FAQ lists use `<details>` with
+ * `group-open:rotate-180`, which has no state to read — converting those to
+ * controlled components to gain a spring would trade away the native
+ * disclosure behaviour for very little.
+ */
+export interface TurnIconProps {
+  children: React.ReactNode
+  active: boolean
+  /** Degrees when active. */
+  degrees?: number
+  className?: string
+}
+
+export function TurnIcon({ children, active, degrees = 180, className }: TurnIconProps) {
+  const reduced = useReducedMotion()
+
+  return (
+    <motion.span
+      className={cn('inline-flex shrink-0', className)}
+      animate={{ rotate: active ? degrees : 0 }}
+      transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 26 }}
+    >
+      {children}
+    </motion.span>
+  )
+}

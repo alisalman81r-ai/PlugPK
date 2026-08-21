@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Button, MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import {
@@ -125,7 +125,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-700"
           >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={18} />
           </button>
         </div>
         <FieldError message={fieldError ?? undefined} />

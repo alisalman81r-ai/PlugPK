@@ -4,7 +4,13 @@
 import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from 'lucide-react'
 import * as React from 'react'
 
-import { ConnectorBadgeGroup, PhotoFrame, PortMeter, SpeedBadge } from '@/components/ui'
+import {
+  ConnectorBadgeGroup,
+  MorphIcon,
+  PhotoFrame,
+  PortMeter,
+  SpeedBadge,
+} from '@/components/ui'
 import type { Station, StationStatus } from '@/lib/types'
 import {
   cn,
@@ -241,11 +247,13 @@ export function StationCard({
           aria-pressed={isSaved}
           className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.65] backdrop-blur-md transition-all duration-150 hover:scale-110 hover:bg-black/[0.85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white motion-reduce:transition-none"
         >
-          {isSaved ? (
-            <BookmarkCheck size={18} className="text-blue-400" aria-hidden="true" />
-          ) : (
-            <Bookmark size={18} className="text-white" aria-hidden="true" />
-          )}
+          <MorphIcon
+            active={isSaved}
+            on={BookmarkCheck}
+            off={Bookmark}
+            size={18}
+            className={isSaved ? 'text-blue-400' : 'text-white'}
+          />
         </button>
       </div>
 

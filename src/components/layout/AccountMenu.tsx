@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Avatar } from '@/components/ui'
+import { Avatar, TurnIcon } from '@/components/ui'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -81,11 +81,9 @@ export function AccountMenu({ user }: AccountMenuProps) {
         <span className="max-w-[120px] truncate text-sm font-semibold text-slate-700">
           {user.name}
         </span>
-        <ChevronDown
-          size={14}
-          className={cn('shrink-0 text-slate-400 transition-transform', isOpen && 'rotate-180')}
-          aria-hidden="true"
-        />
+        <TurnIcon active={isOpen} className="text-slate-400">
+          <ChevronDown size={14} aria-hidden="true" />
+        </TurnIcon>
       </button>
 
       {isOpen ? (

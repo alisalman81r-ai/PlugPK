@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Button, MorphIcon } from '@/components/ui'
 import { NAV_LINKS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
@@ -139,14 +139,12 @@ export function Navbar({ user }: NavbarProps) {
             aria-expanded={isMobileMenuOpen}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 lg:hidden"
           >
-            <span
-              className={cn(
-                'inline-flex transition-transform duration-200',
-                isMobileMenuOpen && 'rotate-90',
-              )}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </span>
+            {/* The bars and the cross now turn through each other rather than
+                one being swapped for the other under a CSS rotate — the old
+                version rotated the box while the glyph changed instantly
+                inside it, so the rotation never actually belonged to either
+                icon. */}
+            <MorphIcon active={isMobileMenuOpen} on={X} off={Menu} size={24} />
           </button>
         </nav>
       </header>
