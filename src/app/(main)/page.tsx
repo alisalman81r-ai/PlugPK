@@ -1,6 +1,6 @@
 // src/app/(main)/page.tsx
 import { AppBanner } from '@/components/home/AppBanner'
-import { BusinessCTA } from '@/components/home/BusinessCTA'
+import { PartnerCTA } from '@/components/home/PartnerCTA'
 import { CommunityPreview } from '@/components/home/CommunityPreview'
 import { FreeBanner } from '@/components/home/FreeBanner'
 import { Hero } from '@/components/home/Hero'
@@ -57,7 +57,7 @@ export default async function HomePage() {
         <CommunityPreview />
       </Reveal>
       <Reveal>
-        <BusinessCTA />
+        <PartnerCTA />
       </Reveal>
       <Reveal>
         <AppBanner />
