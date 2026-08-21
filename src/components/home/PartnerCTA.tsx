@@ -6,10 +6,11 @@ import {
   Hotel,
   ShoppingBag,
   Utensils,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -23,11 +24,13 @@ import { cn } from '@/lib/utils'
  * linking to the other one would just teach visitors that the two names mean
  * different things.
  *
- * The band was a blue gradient card with a 200px Zap watermark bleeding out of
- * its corner. Every other section on this page takes its prominence from the
- * edge, the depth and the space, so the fill and the watermark are gone and
- * the structure carries it: centred eyebrow, black heading with one blue word,
- * the five kinds of host as outlined pills, then one card and one button.
+ * The blue stays, by request — it is what set this band apart from the white
+ * sections either side of it. The tinted card and its Zap watermark are back,
+ * with the structure the redesign brought: centred eyebrow, black heading with
+ * one blue word, the five kinds of host as pills, then one card and one
+ * button. The watermark sits behind everything at low contrast and the card
+ * inside it stays white, so the fill is a ground rather than something the
+ * text has to fight.
  *
  * "Free to list, Premium available" stays because it is true — PartnerPricing
  * publishes a real Premium tier at PKR 4,999 a month. It does not contradict
@@ -83,8 +86,15 @@ export function PartnerCTA() {
   return (
     <section className="border-t border-slate-200 bg-white py-24 lg:py-32">
       <div className="container-plug">
+        <div className="relative overflow-hidden rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
+          <Zap
+            size={220}
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-6 -top-6 text-blue-100/70"
+          />
+
         {/* ── The heading ──────────────────────────────────────── */}
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="relative z-10 mx-auto max-w-3xl text-center">
           <span className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
             Partner up
           </span>
@@ -101,19 +111,19 @@ export function PartnerCTA() {
         </div>
 
         {/* ── Who it is for ────────────────────────────────────── */}
-        <ul className="mt-12 flex flex-wrap justify-center gap-3">
+        <ul className="relative z-10 mt-12 flex flex-wrap justify-center gap-3">
           {HOST_TYPES.map((type) => {
             const Icon = type.icon
 
             return (
               <li key={type.label}>
                 {/* Outlined, and hovering one pill moves only its own glyph. */}
-                <HoverMotion className="group/pill flex items-center gap-2.5 rounded-full border-[1.5px] border-slate-200 px-4 py-2.5 text-ui-sm font-semibold text-slate-700 transition-colors duration-300 hover:border-plug-blue-300">
+                <HoverMotion className="group/pill flex items-center gap-2.5 rounded-full border border-blue-200 bg-white px-4 py-2.5 text-ui-sm font-semibold text-slate-700 shadow-sm transition-colors duration-300 hover:border-plug-blue-400">
                   <AnimatedIcon motion={type.motion}>
                     <Icon
                       size={16}
                       aria-hidden="true"
-                      className="shrink-0 text-slate-400 transition-colors duration-300 group-hover/pill:text-plug-blue-600"
+                      className="shrink-0 text-plug-blue-600"
                     />
                   </AnimatedIcon>
                   {type.label}
@@ -124,11 +134,14 @@ export function PartnerCTA() {
         </ul>
 
         {/* ── What a host gets ─────────────────────────────────── */}
-        <HoverMotion className={cn(FRAME, 'mx-auto mt-8 max-w-5xl')}>
+        <HoverMotion className={cn(FRAME, 'relative z-10 mx-auto mt-8 max-w-5xl')}>
           <div className={cn(FACE, 'p-8 lg:p-10')}>
-            <span aria-hidden="true" className={ICON_FRAME}>
+            <span
+              aria-hidden="true"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 transition-colors duration-300 group-hover:bg-blue-100"
+            >
               <AnimatedIcon motion="pulse">
-                <Building2 size={24} className={ICON_GLYPH} />
+                <Building2 size={24} className="text-plug-blue-600" />
               </AnimatedIcon>
             </span>
 
@@ -141,13 +154,13 @@ export function PartnerCTA() {
             <ul className="mt-7 grid gap-x-10 gap-y-5 sm:grid-cols-2">
               {BENEFITS.map((benefit) => (
                 <li key={benefit.title} className="flex items-start gap-3">
-                  {/* Outlined, not a filled green tick — the fill was the one
-                      spot of a third colour anywhere on the page. */}
+                  {/* Filled, and blue rather than the green it used to be —
+                      green was the only third colour anywhere on the page. */}
                   <span
                     aria-hidden="true"
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] border-slate-300 transition-colors duration-300 group-hover:border-plug-blue-400"
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50"
                   >
-                    <Check size={11} strokeWidth={3} className="text-slate-500" />
+                    <Check size={11} strokeWidth={3} className="text-plug-blue-600" />
                   </span>
                   <span>
                     <span className="block text-ui font-semibold text-slate-900">
@@ -162,7 +175,9 @@ export function PartnerCTA() {
             </ul>
 
             <div className="mt-9 flex flex-col items-center gap-4 border-t border-slate-100 pt-8">
-              <PillButton href="/partners">List your charger</PillButton>
+              <PillButton href="/partners" tone="brand">
+                List your charger
+              </PillButton>
 
               <p className="text-ui-xs text-slate-500">
                 Free to list. Premium available if you want more.
@@ -170,6 +185,7 @@ export function PartnerCTA() {
             </div>
           </div>
         </HoverMotion>
+        </div>
       </div>
     </section>
   )
