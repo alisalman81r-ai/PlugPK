@@ -1,7 +1,10 @@
 // src/components/home/HowItWorks.tsx
+'use client'
+
+import { motion } from 'framer-motion'
 import { Navigation2, Search, SlidersHorizontal, Star, type LucideIcon } from 'lucide-react'
 
-import { Reveal } from '@/components/ui'
+import { AnimatedIcon, Reveal, type IconMotion } from '@/components/ui'
 import { ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 
 /**
@@ -17,11 +20,21 @@ import { ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
  * chips were a blue pill on a blue background and the icon holders were solid
  * white with a coloured glyph; both are outlines now, which is the treatment
  * Partner Up and the ecosystem band use.
+ *
+ * The icons animate on card hover rather than on their own. Each step is a
+ * motion.div declaring whileHover="hover", and framer-motion passes that label
+ * down to the AnimatedIcon inside — so the glyph moves in step with the border
+ * and halo the CSS already changes, instead of waiting for the pointer to
+ * reach the 64px holder itself. Which is also why this file is now a client
+ * component: motion.div needs one, and the steps are static data, so there was
+ * nothing on the server to give up.
  */
 
 interface Step {
   number: string
   icon: LucideIcon
+  /** Matched to what the glyph depicts — see AnimatedIcon for the set. */
+  motion: IconMotion
   title: string
   description: string
 }
@@ -29,24 +42,28 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: '01',
+    motion: 'scan',
     icon: Search,
     title: 'Search Your Location',
     description: 'Enter your city or allow location access to find nearby EV chargers instantly.',
   },
   {
     number: '02',
+    motion: 'slide',
     icon: SlidersHorizontal,
     title: 'Filter by Your EV',
     description: 'Select your connector type, speed, and amenities for the perfect match.',
   },
   {
     number: '03',
+    motion: 'travel',
     icon: Navigation2,
     title: 'Navigate and Charge',
     description: 'Get directions with one tap and arrive at your charging destination.',
   },
   {
     number: '04',
+    motion: 'pop',
     icon: Star,
     title: 'Review and Share',
     description: 'Help fellow EV owners by sharing your honest charging experience.',
@@ -97,7 +114,11 @@ export function HowItWorks() {
                 // short enough that the last step is not still arriving after
                 // the eye has moved on.
                 <Reveal key={step.number} delay={index * 110}>
-                  <div className="group relative z-10 flex flex-col items-center p-4 text-center sm:p-8">
+                  <motion.div
+                    initial="rest"
+                    whileHover="hover"
+                    className="group relative z-10 flex flex-col items-center p-4 text-center sm:p-8"
+                  >
                     {/* Outlined, not a filled pill. */}
                     <span className="mb-6 font-mono text-ui-sm font-bold tracking-[0.2em] text-slate-400 transition-colors duration-300 group-hover:text-plug-blue-600">
                       {step.number}
@@ -107,7 +128,9 @@ export function HowItWorks() {
                       aria-hidden="true"
                       className={`${ICON_FRAME} mb-6 h-16 w-16 bg-slate-50`}
                     >
-                      <Icon size={28} strokeWidth={1.5} className={ICON_GLYPH} />
+                      <AnimatedIcon motion={step.motion}>
+                        <Icon size={28} strokeWidth={1.5} className={ICON_GLYPH} />
+                      </AnimatedIcon>
                     </span>
 
                     <h3 className="mb-3 text-xl font-bold tracking-tight text-slate-900">
@@ -116,7 +139,7 @@ export function HowItWorks() {
                     <p className="mx-auto max-w-[220px] text-ui-sm leading-relaxed text-slate-500">
                       {step.description}
                     </p>
-                  </div>
+                  </motion.div>
                 </Reveal>
               )
             })}
