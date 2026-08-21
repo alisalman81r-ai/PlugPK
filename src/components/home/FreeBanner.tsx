@@ -1,9 +1,12 @@
 // src/components/home/FreeBanner.tsx
 'use client'
 
-import { ArrowRight, Check } from 'lucide-react'
+import { ArrowRight, Check, CreditCard, Percent, Repeat, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
+
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { cn } from '@/lib/utils'
 
 /**
  * States plainly that the platform costs nothing to use.
@@ -17,15 +20,60 @@ import * as React from 'react'
  * longer publishes at all — rates are set by each operator and change often,
  * and a stale figure shown as fact is worse than none. Drivers confirm the
  * rate with the operator; businesses discuss terms through a meeting.
+ *
+ * Structure now matches the ecosystem band and the four steps: a centred
+ * eyebrow, one heading at the same clamp as its siblings, a lead paragraph,
+ * then the cards. Before this the section had no h2 at all — the word "Free"
+ * was a paragraph, so the page jumped from the services heading straight to
+ * the community one and the band read as a loose aside rather than a section.
+ *
+ * Colour follows its siblings now rather than staying in ink: a blue eyebrow,
+ * one word of the heading in blue, and the shared card frame — whose edge
+ * grades from grey to brand on hover, warming the icon holder and cap rule
+ * with it. Those come from components/shared/frame, so this band, the
+ * ecosystem grid and Partner Up are tuned in one place.
+ *
+ * Nothing is filled. The blue is only ever an edge, a glyph or a single word;
+ * every card face stays white on white.
  */
+
+interface Fact {
+  icon: LucideIcon
+  label: string
+  detail: string
+}
+
+/**
+ * The three "no charge" pills, promoted to cards.
+ *
+ * As pills they were three words with nothing behind them, which invites the
+ * question they were meant to answer. Each now says what it actually means,
+ * and each line is checkable against the product rather than being a slogan.
+ */
+const NOT_CHARGED: Fact[] = [
+  {
+    icon: Repeat,
+    label: 'No subscription',
+    detail: 'Nothing to start, nothing to renew, no tier held back for later.',
+  },
+  {
+    icon: Percent,
+    label: 'No commission',
+    detail: 'You pay the operator directly. We take no cut of that.',
+  },
+  {
+    icon: CreditCard,
+    label: 'No card details',
+    detail: 'There is no payment field anywhere on Plug.pk to fill in.',
+  },
+]
+
 const INCLUDED = [
   'Search every station, see live availability',
   'See connector types and peak power at a glance',
   'Plan intercity routes around your car’s range',
   'Read and write reviews from other drivers',
 ]
-
-const NOT_CHARGED = ['No subscription', 'No commission', 'No card details']
 
 export function FreeBanner() {
   const stageRef = React.useRef<HTMLDivElement>(null)
@@ -68,101 +116,141 @@ export function FreeBanner() {
 
   return (
     /**
-     * No fill. The section is plain white and gets its presence from scale
-     * and structure instead: rules top and bottom to bound the band, one
-     * word set far larger than anything else on the page, and enough space
-     * around it that nothing crowds it.
-     *
-     * This is why the previous grey-card-on-white version vanished — it
-     * tried to stand out by being a slightly different tone, which is the
-     * one thing that does not work between two pale neighbours.
+     * No fill. The section is plain white and gets its presence from scale,
+     * structure and the space around it — never from painting the surface.
+     * The top rule separates it from the services band above, which is also
+     * white; the community band below is slate-50 and separates itself.
      */
-    <section className="border-y border-slate-200 bg-white py-20 lg:py-28">
+    <section className="border-t border-slate-200 bg-white py-24 lg:py-32">
       <div ref={stageRef} className="container-plug [perspective:1400px]">
-        <div className="grid items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
-          {/* ── The price, as the headline ──────────────────────── */}
-          <div
-            style={{ transform: `translate3d(${tilt.x * -8}px, ${tilt.y * -8}px, 0)` }}
-            className="transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none"
-          >
-            <span className="mb-6 inline-flex items-center gap-2 text-ui-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <span aria-hidden="true" className="h-px w-6 bg-slate-300" />
-              Costs you nothing
-            </span>
+        {/* ── The heading ──────────────────────────────────────── */}
+        <div className="mx-auto max-w-3xl text-center">
+          {/* The ecosystem band's eyebrow, exactly: blue, 13px, bold, wide. */}
+          <span className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
+            Costs you nothing
+          </span>
 
-            {/* Scale is the whole device. One word, far larger than anything
-                else on the page, doing the work a colour block was doing. */}
-            <p className="flex items-baseline gap-3 font-black leading-[0.85] tracking-[-0.045em] text-slate-900">
-              <span className="text-[clamp(4.5rem,14vw,10rem)]">Free</span>
-              <span className="text-[clamp(1rem,2.2vw,1.5rem)] font-bold text-slate-400">
-                to use
-              </span>
-            </p>
+          {/*
+            Black with one word in blue and the full stop back in black — the
+            ecosystem and steps headings' shape. Kept one step up the scale
+            from them (6rem against 4rem) because this section carries no
+            imagery or colour block, so the heading is the whole device.
+          */}
+          <h2 className="mt-5 text-balance text-[clamp(3.25rem,8vw,6rem)] font-black leading-[0.95] tracking-[-0.04em] text-slate-900">
+            <span className="text-plug-blue-600">Free</span> to use.
+          </h2>
 
-            <p className="mt-6 max-w-md text-pretty text-lg leading-relaxed text-slate-600">
-              Plug.pk does not charge drivers. You pay the station operator directly for
-              the electricity you use, at whatever rate they set.
-            </p>
+          <p className="mx-auto mt-8 max-w-xl text-pretty text-lg leading-relaxed text-slate-600">
+            Plug.pk does not charge drivers. You pay the station operator directly for
+            the electricity you use, at whatever rate they set.
+          </p>
+        </div>
 
-            <ul className="mt-7 flex flex-wrap gap-2">
-              {NOT_CHARGED.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-full border border-slate-200 px-3.5 py-1.5 text-ui-sm font-medium text-slate-600"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* ── What "free" rules out ────────────────────────────── */}
+        <div
+          style={{ transform: `translate3d(0, ${tilt.y * -6}px, 0)` }}
+          className="mt-16 grid gap-5 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:grid-cols-3 lg:gap-6"
+        >
+          {NOT_CHARGED.map((fact) => {
+            const Icon = fact.icon
 
-          {/* ── What that includes ─────────────────────────────── */}
-          <div
-            style={{ transform: `translate3d(${tilt.x * 12}px, ${tilt.y * 12}px, 0)` }}
-            className="rounded-3xl border border-slate-200 p-7 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none lg:p-8"
-          >
-            <p className="mb-6 text-ui-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-              Everything included
-            </p>
-
-            <ul className="flex flex-col gap-4">
-              {INCLUDED.map((item) => (
-                <li key={item} className="flex items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300"
-                  >
-                    <Check size={12} className="text-slate-600" />
+            return (
+              <div key={fact.label} className={FRAME}>
+                <div className={cn(FACE, 'p-8')}>
+                  <span aria-hidden="true" className={ICON_FRAME}>
+                    <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
                   </span>
-                  <span className="text-ui leading-relaxed text-slate-700">{item}</span>
-                </li>
-              ))}
-            </ul>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/map"
-                className="group/cta inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-ui font-semibold text-white transition-colors duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 motion-reduce:transition-none"
-              >
-                Find a charger
-                <ArrowRight
-                  size={16}
-                  className="shrink-0 transition-transform duration-200 group-hover/cta:translate-x-0.5 motion-reduce:transition-none"
-                  aria-hidden="true"
-                />
-              </Link>
+                  <span aria-hidden="true" className={cn('mt-7', CAP_RULE)} />
 
-              <Link
-                href="/signup"
-                className="inline-flex h-12 items-center justify-center rounded-xl border border-slate-300 px-6 text-ui font-semibold text-slate-800 transition-colors duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none"
-              >
-                Create an account
-              </Link>
+                  {/* A step above the ecosystem cards' text-xl, and heavier.
+                      These three lines are the section's actual argument, so
+                      they should read before the sentence under them does. */}
+                  <h3 className="mt-5 text-[1.375rem] font-extrabold leading-[1.15] tracking-[-0.02em] text-slate-900">
+                    {fact.label}
+                  </h3>
+
+                  <p className="mt-3 text-ui leading-relaxed text-slate-500">
+                    {fact.detail}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* ── What it includes ─────────────────────────────────── */}
+        <div
+          style={{ transform: `translate3d(0, ${tilt.y * 8}px, 0)` }}
+          className="mx-auto mt-6 max-w-5xl transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none lg:mt-8"
+        >
+          {/* The tilt lives on the wrapper above, not here: FRAME already
+              carries `transition-all`, and a second transition declaration on
+              the same element would only fight it over source order. */}
+          <div className={FRAME}>
+            <div
+              className={cn(
+                FACE,
+                'gap-10 p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-14 lg:p-10',
+              )}
+            >
+              <div className="lg:flex-1">
+                {/* Was slate-400 at 11px — the combination that made the old
+                    version look like it had no headings at all. Brand blue
+                    now, the same eyebrow as the section's own. */}
+                <p className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
+                  Everything included
+                </p>
+
+                {/* Two columns of two on the wide layout, so the list reads as
+                    a block beside the buttons rather than a tall ladder above
+                    them. */}
+                <ul className="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2">
+                  {INCLUDED.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.5px] border-slate-300 transition-colors duration-300 group-hover:border-plug-blue-400"
+                      >
+                        <Check
+                          size={11}
+                          strokeWidth={3}
+                          className="text-slate-500 transition-colors duration-300 group-hover:text-plug-blue-600"
+                        />
+                      </span>
+                      <span className="text-ui leading-relaxed text-slate-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="shrink-0 lg:w-[19rem]">
+                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                  <Link
+                    href="/map"
+                    className="group/cta inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-ui font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_12px_26px_-10px_rgba(37,99,235,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  >
+                    Find a charger
+                    <ArrowRight
+                      size={16}
+                      className="shrink-0 transition-transform duration-200 group-hover/cta:translate-x-0.5 motion-reduce:transition-none"
+                      aria-hidden="true"
+                    />
+                  </Link>
+
+                  <Link
+                    href="/signup"
+                    className="inline-flex h-13 flex-1 items-center justify-center rounded-xl border-[1.5px] border-slate-300 px-6 text-ui font-semibold text-slate-800 transition-colors duration-200 hover:border-plug-blue-400 hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none"
+                  >
+                    Create an account
+                  </Link>
+                </div>
+
+                <p className="mt-4 text-ui-xs leading-relaxed text-slate-500">
+                  An account is optional — it lets you save stations and post reviews.
+                </p>
+              </div>
             </div>
-
-            <p className="mt-4 text-ui-xs leading-relaxed text-slate-500">
-              An account is optional — it lets you save stations and post reviews.
-            </p>
           </div>
         </div>
       </div>
