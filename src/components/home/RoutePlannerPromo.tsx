@@ -1,10 +1,10 @@
 // src/components/home/RoutePlannerPromo.tsx
 'use client'
 
-import { ArrowUpRight, BatteryCharging, Clock, Zap } from 'lucide-react'
-import Link from 'next/link'
+import { BatteryCharging, Clock, Zap } from 'lucide-react'
 import * as React from 'react'
 
+import { PillButton } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 interface RouteStop {
@@ -110,36 +110,11 @@ export function RoutePlannerPromo() {
               actually needs them, using its real range rather than the brochure figure.
             </p>
 
-            {/*
-              The pill-and-badge shape from the reference, inverted for this surface:
-              the reference sits on white so its pill is dark, and this section is dark
-              so the pill is white and the badge takes the dark.
-
-              The movement is a swap, not a nudge. Two arrows sit stacked in the badge
-              and it clips them: on hover the first leaves through the top-right corner
-              while the second arrives from the bottom-left, so the arrow appears to
-              travel through the circle rather than drift inside it. The travel is 24px
-              on a 40px badge — far enough to fully clear the clip at both ends.
-            */}
-            <Link
-              href="/routes"
-              className="group/cta mt-9 inline-flex h-14 items-center gap-4 rounded-full bg-white pl-7 pr-2 text-ui font-bold text-slate-950 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-            >
+            {/* This section is dark, so the pill inverts — see PillButton for
+                how the two stacked arrows travel through the badge. */}
+            <PillButton href="/routes" tone="light" className="mt-9">
               Plan a route
-              <span
-                aria-hidden="true"
-                className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-950"
-              >
-                <ArrowUpRight
-                  size={18}
-                  className="absolute text-white transition-transform duration-300 ease-out group-hover/cta:-translate-y-6 group-hover/cta:translate-x-6 motion-reduce:transition-none motion-reduce:group-hover/cta:translate-x-0 motion-reduce:group-hover/cta:translate-y-0"
-                />
-                <ArrowUpRight
-                  size={18}
-                  className="absolute -translate-x-6 translate-y-6 text-white transition-transform duration-300 ease-out group-hover/cta:translate-x-0 group-hover/cta:translate-y-0 motion-reduce:hidden"
-                />
-              </span>
-            </Link>
+            </PillButton>
           </div>
 
           {/* ── The route card, on a 3D stage ────────────────────── */}

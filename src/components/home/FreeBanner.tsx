@@ -1,11 +1,11 @@
 // src/components/home/FreeBanner.tsx
 'use client'
 
-import { ArrowRight, CreditCard, Percent, Repeat, type LucideIcon } from 'lucide-react'
+import { CreditCard, Percent, Repeat, type LucideIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
-import { AnimatedIcon, HoverLink, HoverMotion, type IconMotion } from '@/components/ui'
+import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 /**
@@ -200,15 +200,7 @@ export function FreeBanner() {
             a section about costing nothing two competing asks. A band making
             one claim should offer one way to act on it.
           */}
-          <HoverLink
-            href="/map"
-            className="inline-flex h-14 items-center justify-center gap-2.5 rounded-xl bg-slate-900 px-9 text-ui-lg font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-[0_14px_30px_-10px_rgba(37,99,235,0.40)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-          >
-            Find a charger
-            <AnimatedIcon motion="travel">
-              <ArrowRight size={18} className="shrink-0" aria-hidden="true" />
-            </AnimatedIcon>
-          </HoverLink>
+          <PillButton href="/map">Find a charger</PillButton>
         </div>
       </div>
     </section>
