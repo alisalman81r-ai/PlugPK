@@ -33,14 +33,30 @@ export interface PillButtonProps {
   /**
    * Which surface it sits on. `dark` is the reference: a dark pill with a
    * white badge, for light sections. `light` inverts it for dark sections —
-   * a white pill takes the dark badge.
+   * a white pill takes the dark badge. `brand` is the blue fill, for the one
+   * or two places that want the CTA to read as the loudest thing in view.
    */
-  tone?: 'dark' | 'light'
+  tone?: 'dark' | 'light' | 'brand'
   className?: string
 }
 
+const TONES = {
+  dark: {
+    pill: 'bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(37,99,235,0.45)]',
+    badge: 'bg-white text-slate-900',
+  },
+  light: {
+    pill: 'bg-white text-slate-950 focus-visible:ring-cyan-400 focus-visible:ring-offset-slate-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
+    badge: 'bg-slate-950 text-white',
+  },
+  brand: {
+    pill: 'bg-gradient-brand text-white focus-visible:ring-plug-blue-500 hover:shadow-[0_16px_38px_-12px_rgba(37,99,235,0.55)]',
+    badge: 'bg-white text-plug-blue-600',
+  },
+} as const
+
 export function PillButton({ href, children, tone = 'dark', className }: PillButtonProps) {
-  const isDark = tone === 'dark'
+  const styles = TONES[tone]
 
   /**
    * Both arrows carry the same transform classes, so the pair is built here
@@ -57,9 +73,7 @@ export function PillButton({ href, children, tone = 'dark', className }: PillBut
         'transition-all duration-300 hover:-translate-y-0.5 focus-visible:outline-none',
         'focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none',
         'motion-reduce:hover:translate-y-0',
-        isDark
-          ? 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-[0_14px_34px_-12px_rgba(37,99,235,0.45)] focus-visible:ring-plug-blue-500'
-          : 'bg-white text-slate-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)] focus-visible:ring-cyan-400 focus-visible:ring-offset-slate-950',
+        styles.pill,
         className,
       )}
     >
@@ -69,7 +83,7 @@ export function PillButton({ href, children, tone = 'dark', className }: PillBut
         aria-hidden="true"
         className={cn(
           'relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full',
-          isDark ? 'bg-white text-slate-900' : 'bg-slate-950 text-white',
+          styles.badge,
         )}
       >
         {/* Leaves through the top-right. */}

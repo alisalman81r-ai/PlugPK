@@ -3,7 +3,7 @@
 
 import { ArrowRight, Clock, Heart, MapPin, MessageSquare, Route, Users } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
 import {
   AnimatedIcon,
   Badge,
@@ -28,15 +28,18 @@ import { cn, formatRelativeTime, getPostCategoryConfig } from '@/lib/utils'
  *     It is now the centred eyebrow / black heading with one blue word / lead
  *     paragraph that the ecosystem band, the four steps and the free band all
  *     open with.
- *   - Two blocks were filled: the clubs list was solid `bg-gradient-brand`
- *     with white text, and the stat icons sat in blue chips. Everywhere else
- *     on this page prominence comes from the edge, the depth and the space —
- *     never from painting the surface — so both are unpainted now, on the
- *     shared frame with outlined icon holders.
- *   - "Join Free" was a filled blue button. It is the pill-and-badge shape
- *     used by the other three sections.
  *   - The cards were a plain border with a hover shadow, rather than the
  *     graded hairline edge that warms to brand on hover.
+ *   - "Join Free" was a plain filled button. It is the pill-and-badge shape
+ *     the other sections use, in its brand tone.
+ *
+ * The colour is deliberate here and stays. Elsewhere on the page prominence
+ * comes from the edge and the space rather than from painting the surface, but
+ * this section is the one asked to keep its blue: the avatars, the stat chips
+ * and the clubs list are all filled as they were. The clubs card carries the
+ * radius and shadow of the framed cards beside it, and its cap rule is white
+ * rather than ink, so it still reads as part of the same set rather than a
+ * panel from another page.
  *
  * The avatar keeps a fill, and deliberately: it is an identity marker rather
  * than a surface, and initials reversed out of ink stay legible at 40px where
@@ -115,7 +118,7 @@ export function CommunityPreview() {
                       <div className="flex items-center gap-3">
                         <span
                           aria-hidden="true"
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white"
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-white"
                         >
                           {post.userName.charAt(0)}
                         </span>
@@ -201,9 +204,12 @@ export function CommunityPreview() {
                           index > 0 && 'border-t border-slate-100',
                         )}
                       >
-                        <span aria-hidden="true" className={cn(ICON_FRAME, 'h-11 w-11 rounded-xl')}>
+                        <span
+                          aria-hidden="true"
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-colors duration-300 group-hover/stat:bg-blue-100"
+                        >
                           <AnimatedIcon motion={stat.motion}>
-                            <Icon size={18} className={ICON_GLYPH} />
+                            <Icon size={20} className="text-plug-blue-600" />
                           </AnimatedIcon>
                         </span>
                         <span>
@@ -218,49 +224,58 @@ export function CommunityPreview() {
                 </div>
 
                 <div className="mt-7 flex justify-center">
-                  <PillButton href="/signup">Join free</PillButton>
+                  <PillButton href="/signup" tone="brand">
+                    Join free
+                  </PillButton>
                 </div>
               </div>
             </div>
 
-            {/* Unpainted. This was a solid brand gradient with white text —
-                the one block on the page that shouted instead of sitting. */}
-            <HoverMotion className={FRAME}>
-              <div className={cn(FACE, 'p-7')}>
-                <span aria-hidden="true" className={cn(ICON_FRAME, 'h-11 w-11 rounded-xl')}>
-                  <AnimatedIcon motion="scan">
-                    <MapPin size={18} className={ICON_GLYPH} />
-                  </AnimatedIcon>
-                </span>
+            {/* The one painted block on the page, and kept that way on
+                request: the clubs list is where the section's colour lives.
+                Its radius and shadow match the framed cards beside it so it
+                still reads as part of the same set. */}
+            <HoverMotion className="group/clubs rounded-3xl bg-gradient-brand p-7 shadow-[0_14px_34px_-14px_rgba(37,99,235,0.55)] transition-shadow duration-300 hover:shadow-[0_20px_44px_-14px_rgba(37,99,235,0.65)]">
+              <span
+                aria-hidden="true"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/25"
+              >
+                <AnimatedIcon motion="scan">
+                  <MapPin size={20} className="text-white" />
+                </AnimatedIcon>
+              </span>
 
-                <span aria-hidden="true" className={cn('mt-6', CAP_RULE)} />
+              {/* The ink cap rule would vanish here, so it takes the white. */}
+              <span
+                aria-hidden="true"
+                className="mt-6 block h-0.5 w-10 origin-left rounded-full bg-white/40 transition-all duration-300 group-hover/clubs:w-16 group-hover/clubs:bg-white"
+              />
 
-                <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900">
-                  EV clubs near you
-                </h3>
+              <h3 className="mt-5 text-lg font-bold tracking-tight text-white">
+                EV clubs near you
+              </h3>
 
-                <ul className="mt-4 flex flex-col">
-                  {CLUBS.map((club, index) => (
-                    <li
-                      key={club.name}
-                      className={cn(
-                        'flex items-center justify-between gap-3 py-3',
-                        index > 0 && 'border-t border-slate-100',
-                      )}
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate text-ui-sm font-semibold text-slate-900">
-                          {club.name}
-                        </span>
-                        <span className="block text-ui-xs text-slate-400">{club.city}</span>
+              <ul className="mt-4 flex flex-col">
+                {CLUBS.map((club, index) => (
+                  <li
+                    key={club.name}
+                    className={cn(
+                      'flex items-center justify-between gap-3 py-3',
+                      index > 0 && 'border-t border-white/20',
+                    )}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-ui-sm font-semibold text-white">
+                        {club.name}
                       </span>
-                      <span className="shrink-0 font-mono text-ui-xs tabular-nums text-slate-500">
-                        {club.members} members
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                      <span className="block text-ui-xs text-white/60">{club.city}</span>
+                    </span>
+                    <span className="shrink-0 font-mono text-ui-xs tabular-nums text-white/80">
+                      {club.members} members
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </HoverMotion>
           </div>
         </div>
