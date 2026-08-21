@@ -59,7 +59,9 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        // Named `sans` still, because every className in the codebase says
+        // font-sans. The family behind it is a serif.
+        sans: ['var(--font-serif)', 'Georgia', 'Cambria', 'serif'],
         mono: ['var(--font-jetbrains)', 'monospace'],
       },
       fontSize: {

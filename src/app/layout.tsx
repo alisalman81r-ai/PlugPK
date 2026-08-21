@@ -1,11 +1,20 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { JetBrains_Mono, Source_Serif_4 } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({
+/**
+ * The site is set in a serif.
+ *
+ * Source Serif 4 rather than a display face like Playfair: the headings are
+ * only part of the job here, and a high-contrast display serif at 13px — the
+ * eyebrows, the meta rows, the table cells — closes up and stops being
+ * readable. This one carries 200 through 900, so the same family covers a
+ * 6rem heading and an 11px label.
+ */
+const serif = Source_Serif_4({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-serif',
   display: 'swap',
   weight: ['400', '500', '600', '700', '800', '900'],
 })
@@ -69,7 +78,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${serif.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-white font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )
