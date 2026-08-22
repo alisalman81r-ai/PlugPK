@@ -22,8 +22,8 @@
  * Extending it (batteries, prices, images, variants)
  * ──────────────────────────────────────────────────
  * Add optional fields to `Vehicle`, or a parallel keyed table joined on `id`
- * the way the spec overlay already is. Both leave the 145 rows below
- * untouched, which is the point of keeping identity and detail apart.
+ * the way the spec overlay already is. Both leave the rows below untouched,
+ * which is the point of keeping identity and detail apart.
  *
  * How availability was assigned
  * ─────────────────────────────
@@ -37,10 +37,17 @@
  * was present, sold or commonly imported as of 2026, and upcoming models are
  * out of scope by design.
  *
- * Body type note: the union below has no `wagon`, `mpv`, `shooting-brake` or
- * `hypercar` member, so the Taycan Turismos and the Zeekr 001 are `other`, the
- * Xpeng X9 and Zeekr 009 are `van`, and the Lotus Evija is `coupe`. Widening
- * the union later only means re-tagging those rows.
+ * Body type note: the union below has no `wagon` member, so the Taycan Cross
+ * and Sport Turismo are `other`. Widening the union later only means re-tagging
+ * those two rows.
+ *
+ * Brands deliberately absent
+ * ──────────────────────────
+ * Volkswagen, Volvo, Zeekr, XPeng, Land Rover, Lucid, Rivian, Genesis, MINI,
+ * Lotus, Maserati, Ferrari, Lamborghini, Seres, JMEV and Alektra were listed
+ * here and have been removed on request. Nothing references them any more —
+ * they are gone from the table too, not just from this file — so re-adding one
+ * means adding its rows back here and re-running the seed.
  */
 
 export type Powertrain = 'BEV' | 'PHEV' | 'EREV'
@@ -110,10 +117,6 @@ export const pakistanEVVehicles: Vehicle[] = [
   { id: 'hyundai-kona-electric', brand: 'Hyundai', model: 'Kona Electric', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
   { id: 'hyundai-tucson-phev', brand: 'Hyundai', model: 'Tucson PHEV', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
 
-  // ─── Seres ────────────────────────────────────────────────────────
-  { id: 'seres-3', brand: 'Seres', model: 'Seres 3', powertrain: 'BEV', availability: 'official', bodyType: 'suv' },
-  { id: 'seres-5', brand: 'Seres', model: 'Seres 5', powertrain: 'BEV', availability: 'official', bodyType: 'suv' },
-
   // ─── ORA (GWM) ────────────────────────────────────────────────────
   { id: 'ora-03', brand: 'ORA', model: 'ORA 03', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
   { id: 'ora-5', brand: 'ORA', model: 'ORA 5', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
@@ -126,17 +129,6 @@ export const pakistanEVVehicles: Vehicle[] = [
   { id: 'gugo-gigi', brand: 'GUGO', model: 'GIGI', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
   { id: 'gugo-box', brand: 'GUGO', model: 'Box', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
   { id: 'gugo-aion-v', brand: 'GUGO', model: 'AION V', powertrain: 'BEV', availability: 'official', bodyType: 'suv' },
-
-  // ─── XPeng ────────────────────────────────────────────────────────
-  { id: 'xpeng-g6', brand: 'XPeng', model: 'G6', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'xpeng-x9', brand: 'XPeng', model: 'X9', powertrain: 'BEV', availability: 'imported', bodyType: 'van' },
-  { id: 'xpeng-p7', brand: 'XPeng', model: 'P7', powertrain: 'BEV', availability: 'imported', bodyType: 'sedan' },
-
-  // ─── Zeekr ────────────────────────────────────────────────────────
-  { id: 'zeekr-7x', brand: 'Zeekr', model: '7X', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'zeekr-001', brand: 'Zeekr', model: '001', powertrain: 'BEV', availability: 'imported', bodyType: 'other' },
-  { id: 'zeekr-x', brand: 'Zeekr', model: 'X', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'zeekr-009', brand: 'Zeekr', model: '009', powertrain: 'BEV', availability: 'imported', bodyType: 'van' },
 
   // ─── BMW ──────────────────────────────────────────────────────────
   { id: 'bmw-i4', brand: 'BMW', model: 'i4', powertrain: 'BEV', availability: 'imported', bodyType: 'sedan' },
@@ -196,40 +188,8 @@ export const pakistanEVVehicles: Vehicle[] = [
   { id: 'rolls-royce-spectre', brand: 'Rolls-Royce', model: 'Spectre', powertrain: 'BEV', availability: 'rare-import', bodyType: 'coupe' },
   { id: 'rolls-royce-spectre-black-badge', brand: 'Rolls-Royce', model: 'Spectre Black Badge', powertrain: 'BEV', availability: 'rare-import', bodyType: 'coupe' },
 
-  // ─── Land Rover ───────────────────────────────────────────────────
-  { id: 'land-rover-range-rover-p460e', brand: 'Land Rover', model: 'Range Rover P460e', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'land-rover-range-rover-p550e', brand: 'Land Rover', model: 'Range Rover P550e', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'land-rover-range-rover-sport-p460e', brand: 'Land Rover', model: 'Range Rover Sport P460e', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'land-rover-range-rover-sport-p510e', brand: 'Land Rover', model: 'Range Rover Sport P510e', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'land-rover-defender-p400e', brand: 'Land Rover', model: 'Defender P400e', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-
   // ─── Jaguar ───────────────────────────────────────────────────────
   { id: 'jaguar-i-pace', brand: 'Jaguar', model: 'I-Pace', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-
-  // ─── Lucid ────────────────────────────────────────────────────────
-  { id: 'lucid-air', brand: 'Lucid', model: 'Air', powertrain: 'BEV', availability: 'imported', bodyType: 'sedan' },
-  { id: 'lucid-gravity', brand: 'Lucid', model: 'Gravity', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-
-  // ─── Rivian ───────────────────────────────────────────────────────
-  { id: 'rivian-r1t', brand: 'Rivian', model: 'R1T', powertrain: 'BEV', availability: 'imported', bodyType: 'pickup' },
-  { id: 'rivian-r1s', brand: 'Rivian', model: 'R1S', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-
-  // ─── Volkswagen ───────────────────────────────────────────────────
-  { id: 'volkswagen-id-3', brand: 'Volkswagen', model: 'ID.3', powertrain: 'BEV', availability: 'imported', bodyType: 'hatchback' },
-  { id: 'volkswagen-id-4', brand: 'Volkswagen', model: 'ID.4', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volkswagen-id-5', brand: 'Volkswagen', model: 'ID.5', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volkswagen-id-6', brand: 'Volkswagen', model: 'ID.6', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volkswagen-id-7', brand: 'Volkswagen', model: 'ID.7', powertrain: 'BEV', availability: 'imported', bodyType: 'sedan' },
-  { id: 'volkswagen-id-buzz', brand: 'Volkswagen', model: 'ID.Buzz', powertrain: 'BEV', availability: 'imported', bodyType: 'van' },
-
-  // ─── Volvo ────────────────────────────────────────────────────────
-  { id: 'volvo-ex30', brand: 'Volvo', model: 'EX30', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volvo-ex40', brand: 'Volvo', model: 'EX40', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volvo-ec40', brand: 'Volvo', model: 'EC40', powertrain: 'BEV', availability: 'imported', bodyType: 'crossover' },
-  { id: 'volvo-ex90', brand: 'Volvo', model: 'EX90', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volvo-c40-recharge', brand: 'Volvo', model: 'C40 Recharge', powertrain: 'BEV', availability: 'imported', bodyType: 'crossover' },
-  { id: 'volvo-xc60-recharge', brand: 'Volvo', model: 'XC60 Recharge', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'volvo-xc90-recharge', brand: 'Volvo', model: 'XC90 Recharge', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
 
   // ─── Lexus ────────────────────────────────────────────────────────
   { id: 'lexus-ux-300e', brand: 'Lexus', model: 'UX 300e', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
@@ -248,36 +208,6 @@ export const pakistanEVVehicles: Vehicle[] = [
   { id: 'nissan-leaf', brand: 'Nissan', model: 'Leaf', powertrain: 'BEV', availability: 'imported', bodyType: 'hatchback' },
   { id: 'nissan-ariya', brand: 'Nissan', model: 'Ariya', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
 
-  // ─── Genesis ──────────────────────────────────────────────────────
-  { id: 'genesis-gv60', brand: 'Genesis', model: 'GV60', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'genesis-electrified-gv70', brand: 'Genesis', model: 'Electrified GV70', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-  { id: 'genesis-electrified-g80', brand: 'Genesis', model: 'Electrified G80', powertrain: 'BEV', availability: 'imported', bodyType: 'sedan' },
-
-  // ─── MINI ─────────────────────────────────────────────────────────
-  { id: 'mini-cooper-electric', brand: 'MINI', model: 'Cooper Electric', powertrain: 'BEV', availability: 'imported', bodyType: 'hatchback' },
-  { id: 'mini-aceman', brand: 'MINI', model: 'Aceman', powertrain: 'BEV', availability: 'imported', bodyType: 'crossover' },
-  { id: 'mini-countryman-electric', brand: 'MINI', model: 'Countryman Electric', powertrain: 'BEV', availability: 'imported', bodyType: 'suv' },
-
-  // ─── Lotus ────────────────────────────────────────────────────────
-  { id: 'lotus-eletre', brand: 'Lotus', model: 'Eletre', powertrain: 'BEV', availability: 'rare-import', bodyType: 'suv' },
-  { id: 'lotus-emeya', brand: 'Lotus', model: 'Emeya', powertrain: 'BEV', availability: 'rare-import', bodyType: 'sedan' },
-  { id: 'lotus-evija', brand: 'Lotus', model: 'Evija', powertrain: 'BEV', availability: 'rare-import', bodyType: 'coupe' },
-
-  // ─── Maserati ─────────────────────────────────────────────────────
-  { id: 'maserati-grecale-folgore', brand: 'Maserati', model: 'Grecale Folgore', powertrain: 'BEV', availability: 'rare-import', bodyType: 'suv' },
-  { id: 'maserati-granturismo-folgore', brand: 'Maserati', model: 'GranTurismo Folgore', powertrain: 'BEV', availability: 'rare-import', bodyType: 'coupe' },
-  { id: 'maserati-grancabrio-folgore', brand: 'Maserati', model: 'GranCabrio Folgore', powertrain: 'BEV', availability: 'rare-import', bodyType: 'convertible' },
-
-  // ─── Ferrari ──────────────────────────────────────────────────────
-  { id: 'ferrari-sf90-stradale', brand: 'Ferrari', model: 'SF90 Stradale', powertrain: 'PHEV', availability: 'imported', bodyType: 'coupe' },
-  { id: 'ferrari-sf90-spider', brand: 'Ferrari', model: 'SF90 Spider', powertrain: 'PHEV', availability: 'imported', bodyType: 'convertible' },
-  { id: 'ferrari-296-gtb', brand: 'Ferrari', model: '296 GTB', powertrain: 'PHEV', availability: 'imported', bodyType: 'coupe' },
-  { id: 'ferrari-296-gts', brand: 'Ferrari', model: '296 GTS', powertrain: 'PHEV', availability: 'imported', bodyType: 'convertible' },
-
-  // ─── Lamborghini ──────────────────────────────────────────────────
-  { id: 'lamborghini-revuelto', brand: 'Lamborghini', model: 'Revuelto', powertrain: 'PHEV', availability: 'imported', bodyType: 'coupe' },
-  { id: 'lamborghini-urus-se', brand: 'Lamborghini', model: 'Urus SE', powertrain: 'PHEV', availability: 'imported', bodyType: 'suv' },
-
   // ─── Omoda (Chery) ────────────────────────────────────────────────
   { id: 'omoda-e5', brand: 'Omoda', model: 'E5', powertrain: 'BEV', availability: 'official', bodyType: 'suv' },
 
@@ -285,9 +215,4 @@ export const pakistanEVVehicles: Vehicle[] = [
   { id: 'forthing-friday', brand: 'Forthing', model: 'Friday', powertrain: 'BEV', availability: 'official', bodyType: 'suv' },
   { id: 'forthing-friday-reev', brand: 'Forthing', model: 'Friday REEV', powertrain: 'EREV', availability: 'official', bodyType: 'suv' },
 
-  // ─── JMEV ─────────────────────────────────────────────────────────
-  { id: 'jmev-ev3', brand: 'JMEV', model: 'EV3', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
-
-  // ─── Alektra ──────────────────────────────────────────────────────
-  { id: 'alektra-metro', brand: 'Alektra', model: 'Metro', powertrain: 'BEV', availability: 'official', bodyType: 'hatchback' },
 ]

@@ -14,12 +14,12 @@ import { cn } from '@/lib/utils'
  * Brand → Model → Vehicle, over the Pakistan catalogue.
  *
  * Not a replacement for components/route/VehicleSelector, which does a
- * different job: that one picks from the ten cars with verified range figures
- * because the route planner needs a number to place charging stops with, and it
- * returns an EVModel. This browses all 145 rows of the catalogue and returns a
- * Vehicle. Pointing the route planner at this list would hand it 135 cars with
- * no range, so the two stay separate on purpose — the shared identity lives in
- * the data, not in one component doing both jobs.
+ * different job: that one picks from the handful of cars with verified range
+ * figures because the route planner needs a number to place charging stops
+ * with, and it returns an EVModel. This browses the whole catalogue and returns
+ * a Vehicle. Pointing the route planner at this list would hand it dozens of
+ * cars with no range, so the two stay separate on purpose — the shared identity
+ * lives in the data, not in one component doing both jobs.
  *
  * The two-step is a real narrowing, not a display trick: picking a brand
  * filters the model list, and the filters above narrow the brand list too, so a

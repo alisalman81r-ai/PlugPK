@@ -214,6 +214,35 @@ async function main() {
     })
   }
 
+  /**
+   * Rows the module no longer lists.
+   *
+   * Upserting alone only ever adds and updates, so a vehicle deleted from the
+   * seed module would sit in the table forever and keep appearing on the
+   * catalogue page. Deleted here instead — but never one somebody owns: the
+   * foreign key from UserVehicle is Restrict, so that would throw rather than
+   * quietly emptying a driver's garage, and a car in use is a reason to keep
+   * the row rather than a problem to force past.
+   */
+  const keep = new Set(pakistanEVVehicles.map((vehicle) => vehicle.id))
+  const orphans = await prisma.vehicle.findMany({
+    where: { id: { notIn: [...keep] } },
+    select: { id: true, _count: { select: { owners: true } } },
+  })
+
+  const removable = orphans.filter((row) => row._count.owners === 0).map((row) => row.id)
+  const owned = orphans.filter((row) => row._count.owners > 0).map((row) => row.id)
+
+  if (removable.length > 0) {
+    console.log(`Removing ${removable.length} vehicles no longer in the catalogue...`)
+    await prisma.vehicle.deleteMany({ where: { id: { in: removable } } })
+  }
+  if (owned.length > 0) {
+    console.warn(
+      `Kept ${owned.length} delisted vehicles because drivers own them: ${owned.join(', ')}`,
+    )
+  }
+
   console.log(`Seeding ${MOCK_CLUBS.length} clubs...`)
   for (const club of MOCK_CLUBS) {
     const data = {

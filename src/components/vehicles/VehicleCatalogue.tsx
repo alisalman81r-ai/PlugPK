@@ -18,14 +18,14 @@ import { cn } from '@/lib/utils'
  * mine". This answers "what is out there", which is a different question and
  * needs the whole list visible rather than hidden behind a dropdown.
  *
- * Grouped by brand rather than one flat 145-card grid: a reader scanning for a
- * BMW wants the seven of them together, and a brand heading gives the eye
- * somewhere to rest every few rows. Groups appear only when they have a card
- * left after filtering, so no heading ever sits above an empty row.
+ * Grouped by brand rather than one flat grid: a reader scanning for a BMW wants
+ * the seven of them together, and a brand heading gives the eye somewhere to
+ * rest every few rows. Groups appear only when they have a card left after
+ * filtering, so no heading ever sits above an empty row.
  *
- * All filtering is client-side over rows the page fetched once. 145 rows is
- * nothing to hold, and a round trip per keystroke would make the search feel
- * broken on a slow connection.
+ * All filtering is client-side over rows the page fetched once. The catalogue
+ * is small enough to hold, and a round trip per keystroke would make the search
+ * feel broken on a slow connection.
  */
 
 export interface VehicleCatalogueProps {
@@ -210,9 +210,9 @@ function VehicleCard({ vehicle }: { vehicle: DbVehicle }) {
         </p>
 
         {/*
-          The range only appears when the row actually has one. 137 of the 145
-          have no verified figure, and a dash or a zero in this slot would read
-          as a spec rather than as a gap.
+          The range only appears when the row actually has one. Most rows have
+          no verified figure, and a dash or a zero in this slot would read as a
+          spec rather than as a gap.
         */}
         <div className="mt-auto pt-5">
           {vehicle.rangeKm ? (
