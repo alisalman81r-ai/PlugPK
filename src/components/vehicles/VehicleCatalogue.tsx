@@ -78,6 +78,29 @@ export function VehicleCatalogue({ vehicles }: VehicleCatalogueProps) {
   const grouped = React.useMemo(() => getVehiclesGroupedByBrand(matches), [matches])
   const isFiltered = filter !== 'all' || query.trim().length > 0
 
+  /**
+   * Nothing in the catalogue at all is a different state from a search that
+   * found nothing, and it gets different words. Offering a search box and seven
+   * filters over an empty list would invite the reader to conclude their query
+   * was at fault.
+   */
+  if (vehicles.length === 0) {
+    return (
+      <div className="mx-auto max-w-md text-center">
+        <AnimatedIcon motion="pop" standalone>
+          <Car size={44} className="mx-auto text-slate-200" aria-hidden="true" />
+        </AnimatedIcon>
+        <p className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+          No vehicles listed yet
+        </p>
+        <p className="mt-2.5 text-ui leading-relaxed text-slate-500">
+          The catalogue is empty. Once vehicles are added they appear here, grouped by
+          brand and searchable.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* ── Search and filters ─────────────────────────────────── */}

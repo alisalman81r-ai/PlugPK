@@ -47,20 +47,34 @@ export default async function VehiclesPage() {
             Every EV in <span className="text-plug-blue-600">Pakistan</span>.
           </h1>
 
+          {/* The count is the sentence's subject, so at zero the sentence has
+              to change rather than reading "0 models across 0 brands". */}
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
-            {totals.vehicles} electric, plug-in hybrid and range-extender models across{' '}
-            {totals.brands} brands — officially sold, commonly imported, and the rare ones
-            too.
+            {totals.vehicles > 0 ? (
+              <>
+                {totals.vehicles} electric, plug-in hybrid and range-extender models across{' '}
+                {totals.brands} brands — officially sold, commonly imported, and the rare
+                ones too.
+              </>
+            ) : (
+              <>
+                Electric, plug-in hybrid and range-extender vehicles sold or imported in
+                Pakistan. Nothing is listed at the moment.
+              </>
+            )}
           </p>
         </div>
 
-        {/* Counted by the database, not written down. */}
-        <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-x-6 gap-y-6 border-y border-slate-200 py-8 sm:grid-cols-4">
-          <Stat value={totals.vehicles} label="Vehicles listed" />
-          <Stat value={totals.brands} label="Brands" />
-          <Stat value={totals.official} label="Officially sold" />
-          <Stat value={totals.electric} label="Fully electric" />
-        </dl>
+        {/* Counted by the database, not written down. Hidden entirely when
+            there is nothing to count — a row of zeroes is worse than no row. */}
+        {totals.vehicles > 0 ? (
+          <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-x-6 gap-y-6 border-y border-slate-200 py-8 sm:grid-cols-4">
+            <Stat value={totals.vehicles} label="Vehicles listed" />
+            <Stat value={totals.brands} label="Brands" />
+            <Stat value={totals.official} label="Officially sold" />
+            <Stat value={totals.electric} label="Fully electric" />
+          </dl>
+        ) : null}
 
         <div className="mt-14">
           <VehicleCatalogue vehicles={vehicles} />
