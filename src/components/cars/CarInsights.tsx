@@ -34,12 +34,22 @@ export function CarInsights({ insights }: CarInsightsProps) {
   return (
     <section aria-labelledby="insights-heading" className="border-b border-slate-100 bg-slate-50/60">
       <div className="container-plug py-10 lg:py-12">
-        <h2
-          id="insights-heading"
-          className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500"
-        >
-          At a glance
-        </h2>
+        {/* A heading, not a caption. At 11px grey uppercase it read as a
+            label on the row below rather than as the name of a section, and
+            this is the first thing under the hero. Same weight as the
+            comparison's group headings, so the section names across the car
+            pages carry one voice. */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2
+            id="insights-heading"
+            className="font-display text-2xl font-bold tracking-tight text-slate-900"
+          >
+            At a glance
+          </h2>
+          <p className="text-ui-sm text-slate-500">
+            The extremes of the catalogue, worked out from the data
+          </p>
+        </div>
 
         <ul className="scrollbar-hide -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:px-0">
           {insights.map((insight) => (

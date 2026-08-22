@@ -35,10 +35,10 @@ export interface BrandRailProps {
 export function BrandRail({ brands, counts, selected, onToggle, onClear }: BrandRailProps) {
   return (
     <section aria-labelledby="brands-heading">
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2
           id="brands-heading"
-          className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500"
+          className="font-display text-2xl font-bold tracking-tight text-slate-900"
         >
           Browse by brand
         </h2>
@@ -47,11 +47,15 @@ export function BrandRail({ brands, counts, selected, onToggle, onClear }: Brand
           <button
             type="button"
             onClick={onClear}
-            className="text-ui-xs font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
+            className="text-ui-sm font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
           >
             Clear {selected.length === 1 ? 'brand' : `${selected.length} brands`}
           </button>
-        ) : null}
+        ) : (
+          <p className="text-ui-sm text-slate-500">
+            {brands.length} brands sold or imported here
+          </p>
+        )}
       </div>
 
       {/* Edge-to-edge on mobile so the last brand does not look clipped by
