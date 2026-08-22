@@ -62,7 +62,7 @@ export function BrandMarquee({ brands }: BrandMarqueeProps) {
             {sequence.map((brand, index) => (
               <span
                 key={`${copy}-${brand}-${index}`}
-                className="whitespace-nowrap font-display text-xl font-bold tracking-tight text-slate-300 transition-colors duration-300 hover:text-slate-900 sm:text-2xl"
+                className="whitespace-nowrap font-display text-xl font-bold tracking-tight text-slate-900 transition-colors duration-300 hover:text-plug-blue-700 sm:text-2xl"
               >
                 {brand}
               </span>
