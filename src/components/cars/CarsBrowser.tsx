@@ -212,23 +212,33 @@ export function CarsBrowser({
         </div>
       </div>
 
-      <div className="mt-8 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-10">
+      <div className="mt-8 lg:grid lg:grid-cols-[17.5rem_1fr] lg:gap-8 xl:gap-10">
         {/* ── Sidebar ─────────────────────────────────────────── */}
         <aside className="hidden lg:block">
-          <div className="sticky top-24">
-            <div className="mb-5 flex items-baseline justify-between gap-3">
-              <h2 className="text-ui font-bold tracking-tight text-slate-900">Filters</h2>
+          {/*
+            A card, not a bare column. The controls previously floated against
+            the page with nothing bounding them, so the sidebar and the results
+            grid read as one undifferentiated field of small type. Sticky below
+            the navbar so the filters stay reachable while a long grid scrolls.
+          */}
+          <div className="sticky top-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-20px_rgba(15,23,42,0.25)]">
+            <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3.5">
+              <h2 className="flex items-center gap-2 text-ui font-bold tracking-tight text-slate-900">
+                <SlidersHorizontal size={15} className="text-slate-400" aria-hidden="true" />
+                Filters
+              </h2>
               {isFiltered ? (
                 <button
                   type="button"
                   onClick={reset}
-                  className="text-ui-xs font-semibold text-plug-blue-600 hover:underline"
+                  className="text-ui-xs font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
                 >
-                  Reset
+                  Reset all
                 </button>
               ) : null}
             </div>
-            {panel}
+
+            <div className="px-5 py-4">{panel}</div>
           </div>
         </aside>
 
@@ -283,8 +293,18 @@ export function CarsBrowser({
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
           />
 
-          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white p-6 shadow-e4">
-            <div className="mb-6 flex items-center justify-between gap-4">
+          {/* A sheet: header and the apply button pinned, only the controls
+              between them scrolling — so the count and the way out stay on
+              screen however far down the panel you are. */}
+          <div className="absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-e4">
+            <div className="shrink-0 px-6 pt-3">
+              <span
+                aria-hidden="true"
+                className="mx-auto block h-1 w-10 rounded-full bg-slate-200"
+              />
+            </div>
+
+            <div className="flex shrink-0 items-center justify-between gap-4 px-6 py-4">
               <h2 className="text-lg font-bold tracking-tight text-slate-900">Filters</h2>
               <div className="flex items-center gap-3">
                 {isFiltered ? (
@@ -307,15 +327,19 @@ export function CarsBrowser({
               </div>
             </div>
 
-            {panel}
+            <div className="min-h-0 flex-1 overflow-y-auto border-y border-slate-100 px-6 py-4">
+              {panel}
+            </div>
 
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(false)}
-              className="mt-8 h-12 w-full rounded-xl bg-slate-900 text-ui font-semibold text-white"
-            >
-              Show {results.length} {results.length === 1 ? 'car' : 'cars'}
-            </button>
+            <div className="shrink-0 p-6">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="h-12 w-full rounded-xl bg-slate-900 text-ui font-semibold text-white transition-colors hover:bg-slate-800"
+              >
+                Show {results.length} {results.length === 1 ? 'car' : 'cars'}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
