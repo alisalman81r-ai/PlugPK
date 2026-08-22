@@ -51,6 +51,13 @@ export interface CarsBrowserProps {
   onQueryChange: (query: string) => void
   filters: CarFilterState
   onFiltersChange: (filters: CarFilterState) => void
+  sort: CarSort
+  onSortChange: (sort: CarSort) => void
+  favouriteIds: string[]
+  onToggleFavourite: (car: Car) => void
+  /** Restricts the grid to saved cars. Owned above so the URL can carry it. */
+  savedOnly: boolean
+  onSavedOnlyChange: (value: boolean) => void
 }
 
 /** Four columns of specs is already dense on a phone; more would not read. */
@@ -66,16 +73,25 @@ export function CarsBrowser({
   onQueryChange,
   filters,
   onFiltersChange,
+  sort,
+  onSortChange,
+  favouriteIds,
+  onToggleFavourite,
+  savedOnly,
+  onSavedOnlyChange,
 }: CarsBrowserProps) {
-  const [sort, setSort] = React.useState<CarSort>('price-asc')
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const [compared, setCompared] = React.useState<string[]>([])
 
   const searched = React.useMemo(() => searchCars(cars, query), [cars, query])
-  const results = React.useMemo(
-    () => sortCars(filterCars(searched, filters), sort),
-    [searched, filters, sort],
-  )
+  const results = React.useMemo(() => {
+    const matched = filterCars(searched, filters)
+    // Applied after the filters rather than inside them: saving is a property
+    // of the visitor, not of the car, and folding it into CarFilterState would
+    // put browser state into the object the URL and the sidebar share.
+    const scoped = savedOnly ? matched.filter((car) => favouriteIds.includes(car.id)) : matched
+    return sortCars(scoped, sort)
+  }, [searched, filters, sort, savedOnly, favouriteIds])
 
   /**
    * Counts shown beside each brand and category.
@@ -100,7 +116,7 @@ export function CarsBrowser({
     return out
   }, [searched, filters, categories])
 
-  const isFiltered = hasActiveFilters(filters) || query.trim().length > 0
+  const isFiltered = hasActiveFilters(filters) || query.trim().length > 0 || savedOnly
 
   const toggleCompare = (car: Car) => {
     setCompared((current) =>
@@ -115,6 +131,7 @@ export function CarsBrowser({
   const reset = () => {
     onQueryChange('')
     onFiltersChange(EMPTY_FILTERS)
+    onSavedOnlyChange(false)
   }
 
   // The drawer is a fixed overlay, so the page behind it must not scroll —
@@ -176,12 +193,24 @@ export function CarsBrowser({
             {CATEGORY_LABEL[category]}
           </Segment>
         ))}
+
+        {/* Absent until there is something in it — an always-visible Saved tab
+            reading zero is an empty promise on a first visit. */}
+        {favouriteIds.length > 0 ? (
+          <Segment
+            active={savedOnly}
+            onClick={() => onSavedOnlyChange(!savedOnly)}
+            count={favouriteIds.length}
+          >
+            Saved
+          </Segment>
+        ) : null}
       </div>
 
       {/* ── Results header ─────────────────────────────────────── */}
       <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-          <p className="text-ui-sm text-slate-500">
+          <p aria-live="polite" className="text-ui-sm text-slate-500">
             <span className="font-bold text-slate-900">{results.length}</span>{' '}
             {results.length === 1 ? 'car' : 'cars'}
             {results.length !== cars.length ? (
@@ -237,7 +266,7 @@ export function CarsBrowser({
             <span className="sr-only">Sort cars</span>
             <select
               value={sort}
-              onChange={(event) => setSort(event.target.value as CarSort)}
+              onChange={(event) => onSortChange(event.target.value as CarSort)}
               className="h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-9 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-blue-500"
             >
               {(Object.keys(SORT_LABELS) as CarSort[]).map((option) => (
@@ -296,6 +325,8 @@ export function CarsBrowser({
                   isCompared={compared.includes(car.id)}
                   onToggleCompare={toggleCompare}
                   compareDisabled={compared.length >= MAX_COMPARE}
+                  isFavourite={favouriteIds.includes(car.id)}
+                  onToggleFavourite={onToggleFavourite}
                 />
               ))}
             </div>
@@ -304,9 +335,15 @@ export function CarsBrowser({
               <AnimatedIcon motion="pop" standalone>
                 <CarIcon size={40} className="text-slate-200" aria-hidden="true" />
               </AnimatedIcon>
-              <p className="mt-4 text-ui font-semibold text-slate-600">No cars match that</p>
+              <p className="mt-4 text-ui font-semibold text-slate-600">
+                {savedOnly && favouriteIds.length === 0
+                  ? 'Nothing saved yet'
+                  : 'No cars match that'}
+              </p>
               <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-400">
-                Try a different brand, or loosen one of the minimums.
+                {savedOnly && favouriteIds.length === 0
+                  ? 'Tap the heart on a car to keep it here while you browse.'
+                  : 'Try a different brand, or loosen one of the minimums.'}
               </p>
               <button
                 type="button"

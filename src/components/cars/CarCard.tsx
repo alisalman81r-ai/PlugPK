@@ -6,6 +6,7 @@ import {
   BatteryCharging,
   Check,
   GitCompareArrows,
+  Heart,
   Plug,
   Route,
   Zap,
@@ -49,6 +50,8 @@ export interface CarCardProps {
   onToggleCompare?: (car: Car) => void
   /** True when the comparison tray is full and this car is not in it. */
   compareDisabled?: boolean
+  isFavourite?: boolean
+  onToggleFavourite?: (car: Car) => void
 }
 
 const CATEGORY_VARIANT: Record<CarCategory, BadgeVariant> = {
@@ -73,7 +76,14 @@ const SPEC_ICON: Record<string, { icon: LucideIcon; motion: IconMotion }> = {
   Power: { icon: Zap, motion: 'pulse' },
 }
 
-export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: CarCardProps) {
+export function CarCard({
+  car,
+  isCompared,
+  onToggleCompare,
+  compareDisabled,
+  isFavourite,
+  onToggleFavourite,
+}: CarCardProps) {
   const specs = headlineSpecs(car)
 
   return (
@@ -98,6 +108,39 @@ export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: C
             </Badge>
           </span>
         </Link>
+
+        {/*
+          Outside the Link, not inside it. Nesting a button in an anchor is
+          invalid and leaves the browser to guess which one a tap meant — here
+          the heart would sometimes navigate instead of saving.
+        */}
+        {onToggleFavourite ? (
+          <button
+            type="button"
+            onClick={() => onToggleFavourite(car)}
+            aria-pressed={isFavourite}
+            aria-label={isFavourite ? `Remove ${car.fullName} from saved` : `Save ${car.fullName}`}
+            className={cn(
+              'absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full',
+              'bg-white/90 shadow-e1 ring-1 ring-black/5 backdrop-blur-sm',
+              'transition-all duration-200 hover:scale-110 active:scale-95',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+              'motion-reduce:transition-none motion-reduce:hover:scale-100',
+            )}
+          >
+            <Heart
+              size={16}
+              // Filled when saved: an outline that only changes colour is hard
+              // to read at 16px, and this is the one control on the card whose
+              // state the visitor needs to see at a glance.
+              className={cn(
+                'transition-colors duration-200',
+                isFavourite ? 'fill-rose-500 text-rose-500' : 'text-slate-500',
+              )}
+              aria-hidden="true"
+            />
+          </button>
+        ) : null}
 
         <div className="flex flex-1 flex-col p-5">
           <span className="text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-400">

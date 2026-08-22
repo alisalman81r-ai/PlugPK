@@ -472,3 +472,142 @@ export function getSimilarCars(car: Car, limit = 3): Car[] {
 
   return [...sameCategory, ...rest].slice(0, limit)
 }
+
+// ─── Insights ───────────────────────────────────────────────
+
+export interface Insight {
+  label: string
+  value: string
+  car: Car
+}
+
+/**
+ * Superlatives, computed rather than curated.
+ *
+ * Every one is the actual extreme of the dataset, so nothing here can drift out
+ * of date when a car is added or a price changes. A category is skipped
+ * entirely when no car carries that figure — with only eight of the cars
+ * publishing an acceleration time, a "quickest" claim drawn from those eight
+ * would read as a claim about all of them.
+ *
+ * Deliberately not "best EV" or "best value": both need a budget and a use case
+ * this data has no knowledge of. Longest, cheapest, largest and most powerful
+ * are facts.
+ */
+export function getInsights(): Insight[] {
+  const out: Insight[] = []
+
+  const extreme = (
+    label: string,
+    pick: (car: Car) => number | null,
+    direction: 'max' | 'min',
+    format: (car: Car) => string,
+  ) => {
+    const scored = cars
+      .map((car) => ({ car, value: pick(car) }))
+      .filter((entry): entry is { car: Car; value: number } => entry.value !== null)
+
+    if (scored.length === 0) return
+
+    const winner = scored.reduce((best, entry) =>
+      direction === 'max' ? (entry.value > best.value ? entry : best) : entry.value < best.value ? entry : best,
+    )
+
+    out.push({ label, value: format(winner.car), car: winner.car })
+  }
+
+  extreme('Longest range', (car) => electricDistance(car), 'max', (car) =>
+    `${electricDistance(car)} km`,
+  )
+  extreme('Most affordable', (car) => car.price.min, 'min', (car) => car.price.display)
+  extreme('Largest battery', (car) => car.batteryCapacity, 'max', (car) =>
+    `${car.batteryCapacity} kWh`,
+  )
+  extreme('Most powerful', (car) => car.power, 'max', (car) => `${car.power} hp`)
+  extreme('Fastest charging', (car) => car.dcCharging, 'max', (car) => `${car.dcCharging} kW DC`)
+
+  return out
+}
+
+// ─── URL state ──────────────────────────────────────────────
+
+/**
+ * Filters, search and sort as query parameters.
+ *
+ * Without this a filtered view cannot be sent to anybody, bookmarked, or
+ * returned to with the back button — the three things a person does after
+ * finding a car they like. Kept short and readable (`?q=byd&type=EV&max=15000000`)
+ * because these end up in messages people paste to each other.
+ *
+ * Only non-default values are written, so an untouched page keeps a clean /cars
+ * URL rather than a string of empties.
+ */
+export function filtersToParams(
+  query: string,
+  filters: CarFilterState,
+  sort: CarSort,
+): URLSearchParams {
+  const params = new URLSearchParams()
+
+  if (query.trim()) params.set('q', query.trim())
+  if (filters.categories.length > 0) params.set('type', filters.categories.join(','))
+  if (filters.brands.length > 0) params.set('brand', filters.brands.join(','))
+  if (filters.connectors.length > 0) params.set('plug', filters.connectors.join(','))
+  if (filters.priceMax !== null) params.set('max', String(filters.priceMax))
+  if (filters.minBattery !== null) params.set('battery', String(filters.minBattery))
+  if (filters.minRange !== null) params.set('range', String(filters.minRange))
+  if (filters.minPower !== null) params.set('power', String(filters.minPower))
+  if (sort !== 'price-asc') params.set('sort', sort)
+
+  return params
+}
+
+/**
+ * The reverse, tolerant of anything.
+ *
+ * A URL is user input — hand-edited, truncated by a chat app, or left over from
+ * an older version of the page. Unknown brands, bad numbers and a sort key that
+ * no longer exists are dropped rather than throwing, so a mangled link still
+ * lands on a working page.
+ */
+export function paramsToFilters(params: URLSearchParams): {
+  query: string
+  filters: CarFilterState
+  sort: CarSort
+} {
+  const list = (key: string) =>
+    (params.get(key) ?? '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+
+  const number = (key: string) => {
+    const raw = params.get(key)
+    if (raw === null) return null
+    const value = Number(raw)
+    return Number.isFinite(value) && value > 0 ? value : null
+  }
+
+  const validBrands = new Set(getBrands())
+  const validCategories = new Set(getCategories())
+  const validConnectors = new Set(getConnectors())
+  const sortKey = params.get('sort')
+
+  return {
+    query: params.get('q') ?? '',
+    filters: {
+      brands: list('brand').filter((brand) => validBrands.has(brand)),
+      categories: list('type').filter((entry): entry is CarCategory =>
+        validCategories.has(entry as CarCategory),
+      ),
+      connectors: list('plug').filter((entry): entry is ConnectorStandard =>
+        validConnectors.has(entry as ConnectorStandard),
+      ),
+      priceMax: number('max'),
+      minBattery: number('battery'),
+      minRange: number('range'),
+      minPower: number('power'),
+    },
+    sort: sortKey && sortKey in SORT_LABELS ? (sortKey as CarSort) : 'price-asc',
+  }
+}

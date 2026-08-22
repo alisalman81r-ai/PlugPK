@@ -1,12 +1,14 @@
 // src/app/(main)/cars/page.tsx
 import type { Metadata } from 'next'
 
+import { CarInsights } from '@/components/cars/CarInsights'
 import { CarsExplorer } from '@/components/cars/CarsExplorer'
 import {
   getAllCars,
   getBrands,
   getCategories,
   getConnectors,
+  getInsights,
   getPriceBounds,
 } from '@/lib/cars'
 
@@ -49,6 +51,10 @@ export default function CarsPage() {
       categories={getCategories()}
       connectors={getConnectors()}
       priceBounds={getPriceBounds()}
+      // Computed on the server from the whole dataset and passed as a finished
+      // element: the superlatives never change with the filters, so none of
+      // that work belongs in the client bundle.
+      insights={<CarInsights insights={getInsights()} />}
     />
   )
 }

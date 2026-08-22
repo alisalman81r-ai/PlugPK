@@ -9,15 +9,23 @@ import { carSeo, getAllCars, getCarBySlug } from '@/lib/cars'
  * One page per car, generated at build time.
  *
  * generateStaticParams means every car is a static file — no database round
- * trip, and a slug that does not exist 404s rather than rendering an empty
- * shell. dynamicParams is left at its default so a car added to the module
- * after a deploy still renders on first request.
+ * trip — and an unknown slug 404s rather than rendering an empty shell.
  */
 
 interface CarPageProps {
   params: { slug: string }
 }
 
+/**
+ * Only the slugs the catalogue holds are prebuilt; anything else 404s at
+ * request time via notFound() below.
+ *
+ * dynamicParams is left at its default (true) after measuring both. Setting it
+ * to false looked more correct — the catalogue is a build-time module, so an
+ * unlisted slug genuinely does not exist — but it made Next answer HTTP 200
+ * carrying the 404 body, a soft 404 that a crawler indexes as a real page.
+ * Verified: with the default, /cars/nope returns a true 404.
+ */
 export function generateStaticParams() {
   return getAllCars().map((car) => ({ slug: car.slug }))
 }

@@ -1,25 +1,46 @@
 // src/components/cars/CarsExplorer.tsx
 'use client'
 
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
-import { EMPTY_FILTERS, filterCars, searchCars, type CarFilterState } from '@/lib/cars'
+import { useFavouriteCars } from '@/hooks/useFavouriteCars'
+import {
+  EMPTY_FILTERS,
+  filterCars,
+  filtersToParams,
+  paramsToFilters,
+  searchCars,
+  type CarFilterState,
+  type CarSort,
+} from '@/lib/cars'
 
+import { BrandRail } from './BrandRail'
 import { CarHero } from './CarHero'
 import { CarsBrowser } from './CarsBrowser'
 
 /**
- * The dark hero and the white results, sharing one search box.
+ * The whole discovery experience, and the single owner of its state.
  *
- * The hero's input and brand select are the page's only search controls, so the
- * state has to live above both — otherwise the toolbar below would need its own
- * input and the two could disagree about what is being searched for.
+ * Search, filters and sort live here because three separate surfaces read them
+ * — the hero's search box and brand select, the brand rail, and the sidebar and
+ * sort in the results — and any of those holding its own copy is how two
+ * controls end up disagreeing about what is being shown.
  *
- * The brand select writes into the same `filters.brands` array the sidebar
- * checkboxes use, rather than a separate field. That is what keeps them honest:
- * picking BYD in the hero ticks BYD in the sidebar, and unticking it there
- * empties the hero select. Two controls over one value, not two values.
+ * State is mirrored into the URL. Without that a filtered view cannot be sent
+ * to anybody, bookmarked, or returned to with the back button, which are the
+ * three things somebody does after finding a car they like. The URL is the
+ * source on first load and a reflection afterwards:
+ *
+ *   - Initial state is read from the query string, so a shared link opens the
+ *     view it describes.
+ *   - Changes are written with replace(), not push(), so typing five characters
+ *     leaves one history entry rather than five — the back button should exit
+ *     the page, not walk backwards through a search.
+ *   - scroll: false, because Next scrolls to the top on navigation by default
+ *     and the results are below the fold; without it every keystroke would
+ *     yank the page upward.
  */
 
 export interface CarsExplorerProps {
@@ -28,6 +49,14 @@ export interface CarsExplorerProps {
   categories: CarCategory[]
   connectors: ConnectorStandard[]
   priceBounds: { min: number; max: number }
+  /**
+   * Rendered between the hero and the catalogue.
+   *
+   * A slot rather than an import, because the insights are computed on the
+   * server from the full dataset and never change with the filters — passing
+   * the finished element keeps that work out of the client bundle.
+   */
+  insights?: React.ReactNode
 }
 
 export function CarsExplorer({
@@ -36,29 +65,82 @@ export function CarsExplorer({
   categories,
   connectors,
   priceBounds,
+  insights,
 }: CarsExplorerProps) {
-  const [query, setQuery] = React.useState('')
-  const [filters, setFilters] = React.useState<CarFilterState>(EMPTY_FILTERS)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  /**
+   * Seeded from the URL exactly once.
+   *
+   * A useState initialiser rather than an effect that syncs both ways: two-way
+   * binding between state and the address bar fights itself, and the only
+   * moment the URL needs to win is the first render.
+   */
+  const initial = React.useMemo(
+    () => paramsToFilters(new URLSearchParams(searchParams.toString())),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
+  const [query, setQuery] = React.useState(initial.query)
+  const [filters, setFilters] = React.useState<CarFilterState>(initial.filters)
+  const [sort, setSort] = React.useState<CarSort>(initial.sort)
+  const [savedOnly, setSavedOnly] = React.useState(false)
+
+  const favourites = useFavouriteCars()
   const resultsRef = React.useRef<HTMLDivElement>(null)
 
   /**
-   * The hero select shows a brand only when exactly one is chosen.
+   * Write the state back to the address bar.
    *
-   * With two ticked in the sidebar there is no single value a `<select>` could
-   * honestly display, so it falls back to "All brands" rather than picking one
-   * of them and implying the other is off.
+   * Deferred rather than immediate: on a long filter interaction this fires on
+   * every keystroke, and router.replace is not free. A short timeout collapses
+   * a burst of typing into one navigation.
+   */
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const params = filtersToParams(query, filters, sort)
+      const next = params.toString()
+      if (next === window.location.search.replace(/^\?/, '')) return
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false })
+    }, 250)
+
+    return () => window.clearTimeout(timer)
+  }, [query, filters, sort, pathname, router])
+
+  /** Brand counts for the rail, computed with the brand facet itself removed. */
+  const brandCounts = React.useMemo(() => {
+    const base = filterCars(searchCars(cars, query), { ...filters, brands: [] })
+    const out: Record<string, number> = {}
+    for (const brand of brands) out[brand] = base.filter((car) => car.brand === brand).length
+    return out
+  }, [cars, query, filters, brands])
+
+  /**
+   * The hero select shows a brand only when exactly one is chosen — with two
+   * ticked there is no single value a `<select>` could honestly display, so it
+   * falls back to "All brands" rather than implying the other is off.
    */
   const heroBrand = filters.brands.length === 1 ? (filters.brands[0] ?? null) : null
 
-  const stats = React.useMemo(() => {
-    const shown = filterCars(searchCars(cars, query), filters)
-    return [
-      // Reflects what is on screen, so the rail never disagrees with the grid.
+  const shown = React.useMemo(() => {
+    const matched = filterCars(searchCars(cars, query), filters)
+    return savedOnly ? matched.filter((car) => favourites.ids.includes(car.id)) : matched
+  }, [cars, query, filters, savedOnly, favourites.ids])
+
+  const stats = React.useMemo(
+    () => [
       { value: String(shown.length), label: shown.length === cars.length ? 'Cars' : 'Matches' },
       { value: String(new Set(shown.map((car) => car.brand)).size), label: 'Brands' },
       { value: String(shown.filter((car) => car.category === 'EV').length), label: 'Full EV' },
-    ]
-  }, [cars, query, filters])
+    ],
+    [shown, cars.length],
+  )
+
+  const scrollToResults = () =>
+    resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
     <>
@@ -71,26 +153,51 @@ export function CarsExplorer({
         }
         brands={brands}
         stats={stats}
-        // Scrolls rather than submits: the filtering already happened on the
-        // keystroke, so the only useful thing left is to show the results.
-        onSubmit={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onSubmit={scrollToResults}
       />
 
-      <section ref={resultsRef} className="scroll-mt-8 bg-white py-14 lg:py-20">
+      {insights}
+
+      <section ref={resultsRef} className="scroll-mt-4 bg-white py-12 lg:py-16">
         <div className="container-plug">
-          <CarsBrowser
-            cars={cars}
+          <BrandRail
             brands={brands}
-            categories={categories}
-            connectors={connectors}
-            priceBounds={priceBounds}
-            query={query}
-            onQueryChange={setQuery}
-            filters={filters}
-            onFiltersChange={setFilters}
+            counts={brandCounts}
+            selected={filters.brands}
+            onToggle={(brand) =>
+              setFilters((current) => ({
+                ...current,
+                brands: current.brands.includes(brand)
+                  ? current.brands.filter((entry) => entry !== brand)
+                  : [...current.brands, brand],
+              }))
+            }
+            onClear={() => setFilters((current) => ({ ...current, brands: [] }))}
           />
+
+          <div className="mt-12">
+            <CarsBrowser
+              cars={cars}
+              brands={brands}
+              categories={categories}
+              connectors={connectors}
+              priceBounds={priceBounds}
+              query={query}
+              onQueryChange={setQuery}
+              filters={filters}
+              onFiltersChange={setFilters}
+              sort={sort}
+              onSortChange={setSort}
+              favouriteIds={favourites.ids}
+              onToggleFavourite={(car) => favourites.toggle(car.id)}
+              savedOnly={savedOnly}
+              onSavedOnlyChange={setSavedOnly}
+            />
+          </div>
         </div>
       </section>
     </>
   )
 }
+
+export { EMPTY_FILTERS }
