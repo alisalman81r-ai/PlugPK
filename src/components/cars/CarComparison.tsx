@@ -35,6 +35,22 @@ import { cn } from '@/lib/utils'
  * Editable in place, through the URL. Removing a car and adding one are both
  * navigations, which keeps a comparison shareable and makes the back button
  * undo a change the way a reader expects.
+ *
+ * Set on glass over a dark ground, which is why the page around it went dark
+ * too. Glassmorphism is a translucent surface blurring what sits behind it —
+ * on the white page this used to sit on there was nothing behind it to blur,
+ * and the effect rendered as a flat grey box. The ground is the same one the
+ * heroes use (slate-950, two blurred colour pools, a dot grid), so this reads
+ * as the site's existing dark treatment rather than a new one.
+ *
+ * Two adjustments the effect forces, both deliberate:
+ *
+ *   - The blur lives on the two containers, never on a cell. backdrop-filter is
+ *     expensive and compositing one per row of a scrolling table is how a
+ *     comparison starts dropping frames on a phone.
+ *   - The pinned label column is more opaque than the rest. A fully translucent
+ *     sticky cell lets the columns scrolling underneath show through it, which
+ *     turns the labels into mud exactly when they matter most.
  */
 
 export interface CarComparisonProps {
@@ -264,22 +280,22 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           return (
             <div
               key={car.id}
-              className="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-e1"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.07] shadow-e4 backdrop-blur-xl transition-colors duration-300 hover:border-white/25"
             >
               <button
                 type="button"
                 onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
                 aria-label={`Remove ${car.fullName} from comparison`}
-                className="absolute right-2.5 top-2.5 z-10 rounded-full bg-white/90 p-1.5 text-slate-400 shadow-e1 ring-1 ring-black/5 backdrop-blur-sm transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+                className="absolute right-2.5 top-2.5 z-10 rounded-full bg-slate-950/60 p-1.5 text-white/70 ring-1 ring-white/20 backdrop-blur-sm transition-colors hover:bg-slate-950/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
               >
                 <X size={14} aria-hidden="true" />
               </button>
 
               <Link
                 href={`/cars/${car.slug}`}
-                className="group/car block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-blue-500"
+                className="group/car block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-cyan-400"
               >
-                <span className="relative block aspect-[16/10] overflow-hidden bg-slate-50">
+                <span className="relative block aspect-[16/10] overflow-hidden bg-white/[0.04]">
                   <PhotoFrame
                     src={car.image ?? undefined}
                     alt={car.fullName}
@@ -292,9 +308,9 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   {/* Same treatment as the catalogue card, so a car looks like
                       itself in both places. */}
                   <span className="flex items-start justify-between gap-2">
-                    <span className="min-w-0 text-lg leading-snug tracking-tight group-hover/car:text-plug-blue-700">
-                      <span className="font-display font-bold text-slate-900">{car.brand}</span>{' '}
-                      <span className="font-sans text-ui font-semibold text-slate-500">
+                    <span className="min-w-0 text-lg leading-snug tracking-tight transition-colors group-hover/car:text-plug-cyan-300">
+                      <span className="font-display font-bold text-white">{car.brand}</span>{' '}
+                      <span className="font-sans text-ui font-semibold text-white/60">
                         {car.model}
                       </span>
                     </span>
@@ -303,16 +319,16 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                     </Badge>
                   </span>
 
-                  <span className="mt-3 block text-xl font-black tracking-tight text-slate-900">
+                  <span className="mt-3 block text-xl font-black tracking-tight text-white">
                     {car.price.display}
                   </span>
 
                   {/* The gap from the cheapest car in the comparison, which is
                       the number a buyer is actually weighing. Absent on the
                       cheapest one rather than printed as zero. */}
-                  <span className="mt-1 block text-ui-xs text-slate-500">
+                  <span className="mt-1 block text-ui-xs text-white/50">
                     {premium === 0 ? (
-                      <span className="font-semibold text-emerald-700">Lowest price here</span>
+                      <span className="font-semibold text-emerald-300">Lowest price here</span>
                     ) : (
                       <>+{formatPkr(premium).replace('PKR ', '')} vs cheapest</>
                     )}
@@ -323,13 +339,13 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               {/* Wins are stated with their denominator. "4" alone is a boast;
                   "4 of 7 measured" is a fact the reader can check. */}
               {analysis.measured > 0 ? (
-                <p className="mt-auto flex items-center gap-2 border-t border-slate-100 bg-slate-50 px-4 py-2.5 text-ui-xs">
+                <p className="mt-auto flex items-center gap-2 border-t border-white/10 bg-white/[0.04] px-4 py-2.5 text-ui-xs">
                   <Trophy
                     size={12}
                     aria-hidden="true"
-                    className={won > 0 ? 'text-amber-500' : 'text-slate-300'}
+                    className={won > 0 ? 'text-amber-300' : 'text-white/25'}
                   />
-                  <span className={won > 0 ? 'font-semibold text-slate-800' : 'text-slate-500'}>
+                  <span className={won > 0 ? 'font-semibold text-white' : 'text-white/50'}>
                     Leads {won} of {analysis.measured} measured {analysis.measured === 1 ? 'row' : 'rows'}
                   </span>
                 </p>
@@ -342,12 +358,12 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
 
       {/* ── Table controls ──────────────────────────────────────── */}
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2.5 text-ui-sm font-semibold text-slate-700">
+        <label className="inline-flex cursor-pointer items-center gap-2.5 text-ui-sm font-semibold text-white/80">
           <input
             type="checkbox"
             checked={onlyDifferences}
             onChange={(event) => setOnlyDifferences(event.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 accent-plug-blue-600"
+            className="h-4 w-4 rounded border-white/30 bg-white/10 accent-plug-cyan-400"
           />
           Only show differences
         </label>
@@ -371,7 +387,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 onChange={(event) =>
                   event.target.value && go([...cars.map((car) => car.id), event.target.value])
                 }
-                className="h-10 max-w-[16rem] cursor-pointer rounded-full border-[1.5px] border-slate-300 bg-white px-3 text-ui-sm font-semibold text-slate-800 outline-none focus:border-blue-500"
+                className="h-10 max-w-[16rem] cursor-pointer rounded-full border border-white/20 bg-slate-900 px-3 text-ui-sm font-semibold text-white outline-none focus:border-plug-cyan-400"
               >
                 <option value="" disabled>
                   Choose a car…
@@ -386,7 +402,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 type="button"
                 onClick={() => setAdding(false)}
                 aria-label="Cancel adding a car"
-                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-full p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <X size={14} aria-hidden="true" />
               </button>
@@ -395,11 +411,11 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border-[1.5px] border-slate-300 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
             >
               <Plus size={14} aria-hidden="true" />
               Add a car
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-[10px] text-white/50">
                 {cars.length}/{max}
               </span>
             </button>
@@ -409,10 +425,10 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex h-10 items-center gap-2 rounded-full border-[1.5px] border-slate-300 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
         >
           {copied ? (
-            <Check size={14} aria-hidden="true" className="text-emerald-600" />
+            <Check size={14} aria-hidden="true" className="text-emerald-300" />
           ) : (
             <Link2 size={14} aria-hidden="true" />
           )}
@@ -421,7 +437,9 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       </div>
 
       {/* ── The table ───────────────────────────────────────────── */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-e1">
+      {/* One pane, one blur. The scroll container carries the glass so the
+          table inside it composites once rather than per cell. */}
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/15 bg-white/[0.07] shadow-e4 backdrop-blur-xl">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
             Specification comparison of {cars.map((car) => car.fullName).join(', ')}
@@ -451,7 +469,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   <th
                     scope="colgroup"
                     colSpan={cars.length + 1}
-                    className="border-y border-slate-200 bg-slate-100 px-4 py-3 font-display text-lg font-bold tracking-tight text-slate-900"
+                    className="border-y border-white/10 bg-white/[0.06] px-4 py-3 font-display text-lg font-bold tracking-tight text-white"
                   >
                     {group.title}
                   </th>
@@ -461,10 +479,14 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   const scale = analysis.scales.get(row.label)
 
                   return (
-                    <tr key={row.label} className="border-b border-slate-100 last:border-b-0">
+                    <tr key={row.label} className="border-b border-white/[0.07] last:border-b-0">
+                      {/* More opaque than the pane, and blurred in its own
+                          right: a fully translucent pinned cell lets the
+                          columns scrolling beneath it show through, which is
+                          unreadable exactly when the label matters. */}
                       <th
                         scope="row"
-                        className="sticky left-0 z-10 bg-white px-4 py-3.5 align-middle text-ui-sm font-medium text-slate-500"
+                        className="sticky left-0 z-10 bg-slate-950/80 px-4 py-3.5 align-middle text-ui-sm font-medium text-white/60 backdrop-blur-md"
                       >
                         {row.label}
                       </th>
@@ -490,16 +512,16 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                         return (
                           <td
                             key={car.id}
-                            className="border-l border-slate-100 px-4 py-3.5 align-middle"
+                            className="border-l border-white/[0.07] px-4 py-3.5 align-middle"
                           >
                             {value ? (
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-ui-sm font-semibold text-slate-900">
+                                  <span className="text-ui-sm font-semibold text-white">
                                     {value}
                                   </span>
                                   {isBest ? (
-                                    <span className="shrink-0 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+                                    <span className="shrink-0 rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300 ring-1 ring-inset ring-emerald-400/30">
                                       Best
                                     </span>
                                   ) : null}
@@ -508,20 +530,20 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                                 {width > 0 ? (
                                   <div
                                     aria-hidden="true"
-                                    className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-100"
+                                    className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10"
                                   >
                                     <div
                                       style={{ width: `${width}%` }}
                                       className={cn(
                                         'h-full rounded-full transition-all duration-500',
-                                        isBest ? 'bg-emerald-500' : 'bg-slate-300',
+                                        isBest ? 'bg-emerald-400' : 'bg-white/40',
                                       )}
                                     />
                                   </div>
                                 ) : null}
                               </div>
                             ) : (
-                              <span className="text-ui-sm text-slate-300">—</span>
+                              <span className="text-ui-sm text-white/25">—</span>
                             )}
                           </td>
                         )
@@ -535,14 +557,14 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         </table>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 text-ui-xs leading-relaxed text-slate-400">
+      <div className="mt-5 flex flex-col gap-2 text-ui-xs leading-relaxed text-white/45">
         <p>
           A dash means the figure was not published for that car, not that it is zero.
           Bars are scaled to the largest value in their own row, so they compare these
           cars against each other and nothing else.
         </p>
         <p>
-          <span className="font-semibold text-slate-500">Best</span> marks the strongest
+          <span className="font-semibold text-white/70">Best</span> marks the strongest
           published figure in a row where more than one car has one and nothing ties. It
           is never shown on price, powertrain, connector or engine size — there, higher or
           lower is a matter of what you want rather than better.
