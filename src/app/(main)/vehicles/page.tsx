@@ -1,7 +1,7 @@
 // src/app/(main)/vehicles/page.tsx
 import type { Metadata } from 'next'
 
-import { VehicleBrowser } from '@/components/vehicles/VehicleBrowser'
+import { VehicleCatalogue } from '@/components/vehicles/VehicleCatalogue'
 import { getVehicleStats, getVehicles } from '@/lib/db/queries'
 
 /**
@@ -16,6 +16,12 @@ import { getVehicleStats, getVehicles } from '@/lib/db/queries'
  *
  * The figures in the copy are counted from the data rather than typed in, which
  * is the only way a number in a heading stays true after a row is added.
+ *
+ * Every car is on the page, grouped by brand. The first version put them behind
+ * a dropdown, which answers "which one is mine" — a form's question. A
+ * catalogue has to answer "what is out there", and that needs the list visible.
+ * The dropdown still exists as components/vehicles/VehicleSelector for the
+ * places that do want a field.
  */
 
 export const revalidate = 3600
@@ -48,10 +54,29 @@ export default async function VehiclesPage() {
           </p>
         </div>
 
+        {/* Counted by the database, not written down. */}
+        <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-x-6 gap-y-6 border-y border-slate-200 py-8 sm:grid-cols-4">
+          <Stat value={totals.vehicles} label="Vehicles listed" />
+          <Stat value={totals.brands} label="Brands" />
+          <Stat value={totals.official} label="Officially sold" />
+          <Stat value={totals.electric} label="Fully electric" />
+        </dl>
+
         <div className="mt-14">
-          <VehicleBrowser vehicles={vehicles} totals={totals} />
+          <VehicleCatalogue vehicles={vehicles} />
         </div>
       </div>
     </section>
+  )
+}
+
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="text-center">
+      <dd className="text-[2rem] font-black leading-none tracking-tight text-slate-900">
+        {value}
+      </dd>
+      <dt className="mt-2 text-ui-xs text-slate-500">{label}</dt>
+    </div>
   )
 }
