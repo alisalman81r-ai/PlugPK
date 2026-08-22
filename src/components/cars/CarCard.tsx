@@ -143,13 +143,26 @@ export function CarCard({
         ) : null}
 
         <div className="flex flex-1 flex-col p-5">
-          <span className="text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-400">
-            {car.brand}
-          </span>
+          {/*
+            The brand leads, in the display face and full ink; the model follows
+            in the body face at a lighter weight. It used to be an 11px grey
+            eyebrow above the model, which is how a brand becomes the least
+            legible thing on a card about a car — and brand is the first thing
+            most people scan a catalogue for.
 
-          <h3 className="mt-1.5 text-lg font-bold leading-snug tracking-tight text-slate-900">
-            <Link href={`/cars/${car.slug}`} className="hover:text-plug-blue-700">
-              {car.model}
+            One heading rather than a label plus a heading: "BYD Atto 2" is the
+            car's name, and splitting it across two elements made the grid read
+            as two columns of unrelated text.
+          */}
+          <h3 className="text-xl leading-snug tracking-tight">
+            <Link
+              href={`/cars/${car.slug}`}
+              className="transition-colors hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+            >
+              <span className="font-display font-bold text-slate-900">{car.brand}</span>{' '}
+              <span className="font-sans text-lg font-semibold text-slate-500">
+                {car.model}
+              </span>
             </Link>
           </h3>
 

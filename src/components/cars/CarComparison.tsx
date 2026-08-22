@@ -289,17 +289,18 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 </span>
 
                 <span className="block p-4">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-400">
-                      {car.brand}
+                  {/* Same treatment as the catalogue card, so a car looks like
+                      itself in both places. */}
+                  <span className="flex items-start justify-between gap-2">
+                    <span className="min-w-0 text-lg leading-snug tracking-tight group-hover/car:text-plug-blue-700">
+                      <span className="font-display font-bold text-slate-900">{car.brand}</span>{' '}
+                      <span className="font-sans text-ui font-semibold text-slate-500">
+                        {car.model}
+                      </span>
                     </span>
                     <Badge variant={CATEGORY_VARIANT[car.category]} size="sm">
                       {car.category}
                     </Badge>
-                  </span>
-
-                  <span className="mt-1 block truncate text-lg font-bold tracking-tight text-slate-900 group-hover/car:text-plug-blue-700">
-                    {car.model}
                   </span>
 
                   <span className="mt-3 block text-xl font-black tracking-tight text-slate-900">
@@ -440,10 +441,17 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                     table keeps the columns aligned across every section, which
                     is the only reason to use a table here at all. */}
                 <tr>
+                  {/*
+                    A real heading, not a caption. These were 11px grey
+                    uppercase, which on a table of bold black figures read as
+                    incidental — the reader lost track of which block they were
+                    in halfway down. In the display face at full ink they divide
+                    the table the way a section title should.
+                  */}
                   <th
                     scope="colgroup"
                     colSpan={cars.length + 1}
-                    className="border-y border-slate-200 bg-slate-50 px-4 py-2.5 text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-500"
+                    className="border-y border-slate-200 bg-slate-100 px-4 py-3 font-display text-lg font-bold tracking-tight text-slate-900"
                   >
                     {group.title}
                   </th>

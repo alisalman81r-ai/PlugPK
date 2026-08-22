@@ -33,8 +33,11 @@ export function SpecificationTable({ rows, title, className }: SpecificationTabl
 
   return (
     <div className={className}>
+      {/* The display face at full ink, matching the comparison's group
+          headings — the same words label the same figures in both places, so
+          they should carry the same weight. */}
       {title ? (
-        <p className="mb-4 text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+        <p className="mb-4 font-display text-lg font-bold tracking-tight text-slate-900">
           {title}
         </p>
       ) : null}
