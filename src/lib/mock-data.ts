@@ -725,9 +725,23 @@ export const MOCK_STATIONS: Station[] = [
 
 // ─── EV Models ───────────────────────────────────────
 
+/**
+ * Verified figures for the cars the route planner does its maths with.
+ *
+ * A spec overlay on src/data/pakistanVehicles.ts, not a second catalogue:
+ * `vehicleId` names the row each of these describes, and getVehicleSpecs() in
+ * src/lib/vehicles.ts is the join. Two rows carry no vehicleId — the Changan
+ * Lumin and Proton e.MAS 7 are not in the catalogue, which lists what is
+ * actually present in Pakistan.
+ *
+ * Range and battery figures here drive where charging stops land on a route,
+ * so this list stays specced. Adding a car to the catalogue does not require
+ * adding it here; it simply has no range until someone verifies one.
+ */
 export const MOCK_EV_MODELS: EVModel[] = [
   {
     id: 'ev-001',
+    vehicleId: 'byd-atto-3',
     make: 'BYD',
     model: 'Atto 3',
     year: 2024,
@@ -738,6 +752,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-002',
+    vehicleId: 'byd-seal',
     make: 'BYD',
     model: 'Seal',
     year: 2024,
@@ -748,6 +763,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-003',
+    vehicleId: 'byd-han',
     make: 'BYD',
     model: 'Han',
     year: 2023,
@@ -758,6 +774,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-004',
+    vehicleId: 'mg-zs-ev',
     make: 'MG',
     model: 'ZS EV',
     year: 2024,
@@ -788,6 +805,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-007',
+    vehicleId: 'bmw-i4',
     make: 'BMW',
     model: 'i4',
     year: 2023,
@@ -798,6 +816,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-008',
+    vehicleId: 'bmw-ix',
     make: 'BMW',
     model: 'iX',
     year: 2023,
@@ -808,6 +827,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-009',
+    vehicleId: 'mercedes-eqs',
     make: 'Mercedes',
     model: 'EQS',
     year: 2023,
@@ -818,6 +838,7 @@ export const MOCK_EV_MODELS: EVModel[] = [
   },
   {
     id: 'ev-010',
+    vehicleId: 'nissan-leaf',
     make: 'Nissan',
     model: 'Leaf e+',
     year: 2022,

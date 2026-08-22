@@ -174,6 +174,18 @@ export interface Station {
 
 export interface EVModel {
   id: string
+  /**
+   * The row in src/data/pakistanVehicles.ts this describes.
+   *
+   * The catalogue is the single source of truth for which vehicles exist in
+   * Pakistan and holds no figures; this type is the spec overlay for the
+   * handful the route planner needs a real range from. The id is what keeps
+   * those two from drifting into separate databases.
+   *
+   * Optional because a spec row may describe something not in the catalogue —
+   * the Proton e.MAS 7 and Changan Lumin below are not on it.
+   */
+  vehicleId?: string
   make: string
   model: string
   year: number
