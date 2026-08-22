@@ -142,23 +142,66 @@ export function CarsBrowser({
   )
 
   return (
-    <div>
-      {/* ── Toolbar ────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/*
-          What is currently being searched for, echoed as a removable chip
-          rather than a second input. The hero above holds the field; repeating
-          it here would give the page two boxes that could disagree.
-        */}
-        <div className="flex min-h-[3rem] min-w-0 flex-1 flex-wrap items-center gap-2">
+    // The comparison tray is fixed to the bottom of the viewport, so without
+    // this the last row of cards sits underneath it and the final card's
+    // buttons cannot be reached. Reserved only while the tray is up.
+    <div className={cn(compared.length > 0 && 'pb-28 sm:pb-24')}>
+      {/*
+        ── Category segments ──────────────────────────────────────
+        A segmented control above the results, not just checkboxes in the
+        sidebar. Powertrain is the first cut almost every buyer makes, and
+        making it a one-tap switch at the top of the grid is faster than
+        opening a panel — on a phone the sidebar is behind a drawer, so
+        without this the primary filter is two taps away.
+
+        It writes into the same filters.categories array the sidebar uses, so
+        the two never disagree.
+      */}
+      <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <Segment
+          active={filters.categories.length === 0}
+          onClick={() => onFiltersChange({ ...filters, categories: [] })}
+          count={searched.length}
+        >
+          All cars
+        </Segment>
+
+        {categories.map((category) => (
+          <Segment
+            key={category}
+            active={filters.categories.length === 1 && filters.categories[0] === category}
+            onClick={() => onFiltersChange({ ...filters, categories: [category] })}
+            count={categoryCounts[category] ?? 0}
+          >
+            {CATEGORY_LABEL[category]}
+          </Segment>
+        ))}
+      </div>
+
+      {/* ── Results header ─────────────────────────────────────── */}
+      <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <p className="text-ui-sm text-slate-500">
+            <span className="font-bold text-slate-900">{results.length}</span>{' '}
+            {results.length === 1 ? 'car' : 'cars'}
+            {results.length !== cars.length ? (
+              <span className="text-slate-400"> of {cars.length}</span>
+            ) : null}
+          </p>
+
+          {/*
+            What is being searched for, echoed as a removable chip rather than
+            a second input. The hero holds the field; repeating it here would
+            give the page two boxes that could disagree.
+          */}
           {query ? (
             <button
               type="button"
               onClick={() => onQueryChange('')}
-              className="inline-flex max-w-full items-center gap-2 rounded-full border-[1.5px] border-slate-300 py-1.5 pl-3.5 pr-2.5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
             >
               <span className="truncate">&ldquo;{query}&rdquo;</span>
-              <X size={14} aria-hidden="true" className="shrink-0 text-slate-400" />
+              <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
             </button>
           ) : null}
 
@@ -166,10 +209,10 @@ export function CarsBrowser({
             <button
               type="button"
               onClick={() => onFiltersChange(EMPTY_FILTERS)}
-              className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-slate-300 py-1.5 pl-3.5 pr-2.5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
+              className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
             >
-              Filters on
-              <X size={14} aria-hidden="true" className="shrink-0 text-slate-400" />
+              Filters
+              <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
             </button>
           ) : null}
         </div>
@@ -244,12 +287,6 @@ export function CarsBrowser({
 
         {/* ── Results ─────────────────────────────────────────── */}
         <div>
-          <p className="mb-6 text-ui-sm text-slate-500">
-            {results.length === cars.length
-              ? `${cars.length} cars in the Pakistan market`
-              : `${results.length} of ${cars.length} cars`}
-          </p>
-
           {results.length > 0 ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {results.map((car) => (
@@ -387,5 +424,56 @@ export function CarsBrowser({
         </div>
       ) : null}
     </div>
+  )
+}
+
+const CATEGORY_LABEL: Record<CarCategory, string> = {
+  EV: 'Electric',
+  PHEV: 'Plug-in hybrid',
+  REEV: 'Range extender',
+  Hybrid: 'Hybrid',
+}
+
+/**
+ * One tab of the segmented control.
+ *
+ * A count on every segment, including zero — a tab that would return nothing
+ * says so before it is tapped, which is kinder than an empty grid and a
+ * "nothing matches" message.
+ */
+function Segment({
+  active,
+  onClick,
+  count,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  count: number
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        'inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
+        active
+          ? 'border-slate-900 bg-slate-900 text-white shadow-[0_4px_14px_-6px_rgba(15,23,42,0.5)]'
+          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
+        count === 0 && !active && 'opacity-45',
+      )}
+    >
+      {children}
+      <span
+        className={cn(
+          'font-mono text-[10px] tabular-nums',
+          active ? 'text-white/60' : 'text-slate-400',
+        )}
+      >
+        {count}
+      </span>
+    </button>
   )
 }

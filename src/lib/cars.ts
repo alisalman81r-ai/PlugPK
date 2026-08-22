@@ -375,3 +375,100 @@ export function carSeo(car: Car): {
     canonical: `/cars/${car.slug}`,
   }
 }
+
+// ─── Grouped specifications ─────────────────────────────────
+
+export interface SpecGroup {
+  title: string
+  rows: Array<{ label: string; value: string }>
+}
+
+/**
+ * The specifications, in blocks a reader can navigate.
+ *
+ * fullSpecs() returns one flat list, which is fine for a card but poor for a
+ * detail page: fourteen unlabelled rows means scanning all of them to find the
+ * charging figure. Grouping puts related numbers together, and — because an
+ * empty group is dropped — a PHEV shows an Engine block where an EV shows none,
+ * without either page carrying a heading over nothing.
+ */
+export function specGroups(car: Car): SpecGroup[] {
+  const span = (low: number | null, high: number | null, unit: string) =>
+    low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+
+  /** Pairs before filtering, so a null value can be dropped by value not label. */
+  type Draft = { title: string; rows: Array<[string, string | null]> }
+
+  const drafts: Draft[] = [
+    {
+      title: 'Battery & range',
+      rows: [
+        [
+          'Battery capacity',
+          car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null,
+        ],
+        ['Driving range', span(car.range, car.rangeMax, car.rangeUnit)],
+        ['Electric range', span(car.electricRange, car.electricRangeMax, car.rangeUnit)],
+      ],
+    },
+    {
+      title: 'Charging',
+      rows: [
+        ['DC fast charging', car.dcCharging ? `${car.dcCharging} ${car.dcChargingUnit}` : null],
+        ['AC charging', car.acCharging ? `${car.acCharging} ${car.acChargingUnit}` : null],
+        ['Connector', car.connector?.length ? car.connector.join(', ') : null],
+      ],
+    },
+    {
+      title: 'Performance',
+      rows: [
+        ['Power', car.power ? `${car.power} ${car.powerUnit}` : null],
+        ['Torque', car.torque ? `${car.torque} Nm` : null],
+        ['0–100 km/h', car.acceleration ? `${car.acceleration} ${car.accelerationUnit}` : null],
+        ['Top speed', car.topSpeed ? `${car.topSpeed} km/h` : null],
+      ],
+    },
+    {
+      title: car.category === 'REEV' ? 'Range extender' : 'Engine',
+      rows: [['Displacement', car.engineCapacity ? `${car.engineCapacity} cc` : null]],
+    },
+    {
+      title: 'Practical',
+      rows: [['Seats', car.seats ? String(car.seats) : null]],
+    },
+  ]
+
+  return drafts
+    .map((draft) => ({
+      title: draft.title,
+      rows: draft.rows
+        .filter((row): row is [string, string] => row[1] !== null)
+        .map(([label, value]) => ({ label, value })),
+    }))
+    .filter((group) => group.rows.length > 0)
+}
+
+/**
+ * Cars a reader might look at instead of this one.
+ *
+ * Same powertrain first, then nearest on price, because those are the two axes
+ * somebody actually shops along — a PHEV buyer is not cross-shopping a 4-crore
+ * EV. Falls back to nearest price across all categories when a category has too
+ * few members to fill the row, so the rail is never half empty.
+ */
+export function getSimilarCars(car: Car, limit = 3): Car[] {
+  const distance = (other: Car) => Math.abs(other.price.min - car.price.min)
+  const others = cars.filter((entry) => entry.id !== car.id)
+
+  const sameCategory = others
+    .filter((entry) => entry.category === car.category)
+    .sort((a, b) => distance(a) - distance(b))
+
+  if (sameCategory.length >= limit) return sameCategory.slice(0, limit)
+
+  const rest = others
+    .filter((entry) => entry.category !== car.category)
+    .sort((a, b) => distance(a) - distance(b))
+
+  return [...sameCategory, ...rest].slice(0, limit)
+}

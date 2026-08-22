@@ -5,7 +5,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarComparison } from '@/components/cars/CarComparison'
-import { getCarsByIds } from '@/lib/cars'
+import { getAllCars, getCarsByIds } from '@/lib/cars'
 
 /**
  * The comparison, addressed by URL.
@@ -40,6 +40,9 @@ export default function ComparePage({ searchParams }: ComparePageProps) {
     .slice(0, MAX)
 
   const cars = getCarsByIds(ids)
+  // What the add control can offer: everything not already in the table.
+  const chosen = new Set(cars.map((car) => car.id))
+  const available = getAllCars().filter((car) => !chosen.has(car.id))
 
   return (
     <section className="bg-white py-12 lg:py-16">
@@ -59,7 +62,7 @@ export default function ComparePage({ searchParams }: ComparePageProps) {
 
         <div className="mt-10">
           {cars.length >= 2 ? (
-            <CarComparison cars={cars} />
+            <CarComparison cars={cars} available={available} max={MAX} />
           ) : (
             /* One car is not a comparison — that is the detail page. Rather
                than render a single column, this says what is missing. */

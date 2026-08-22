@@ -1,5 +1,14 @@
 // src/components/cars/CarDetails.tsx
-import { ArrowLeft, BatteryCharging, Fuel, Gauge, Plug, Route, Timer, Zap } from 'lucide-react'
+import {
+  BatteryCharging,
+  ChevronRight,
+  Fuel,
+  Gauge,
+  Plug,
+  Route,
+  Timer,
+  Zap,
+} from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -7,7 +16,7 @@ import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
 import { AnimatedIcon, Badge, HoverMotion, PhotoFrame, PillButton, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { getImageCredit } from '@/data/carImageCredits'
-import { fullSpecs } from '@/lib/cars'
+import { getSimilarCars, specGroups } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
 import { SpecificationTable } from './SpecificationTable'
@@ -44,7 +53,8 @@ const CATEGORY_BLURB: Record<CarCategory, string> = {
 }
 
 export function CarDetails({ car }: CarDetailsProps) {
-  const specs = fullSpecs(car)
+  const groups = specGroups(car)
+  const similar = getSimilarCars(car)
   const credit = car.image ? getImageCredit(car.id) : undefined
 
   /**
@@ -104,17 +114,24 @@ export function CarDetails({ car }: CarDetailsProps) {
 
   return (
     <div>
-      <Link
-        href="/cars"
-        className="group/back inline-flex items-center gap-1.5 text-ui-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
-      >
-        <ArrowLeft
-          size={15}
-          aria-hidden="true"
-          className="transition-transform duration-200 group-hover/back:-translate-x-0.5"
-        />
-        All cars
-      </Link>
+      {/* A trail rather than a back link. It names the level above and the
+          category, so the page says where it sits instead of only offering a
+          way out — and gives a second route in, via the powertrain. */}
+      <nav aria-label="Breadcrumb">
+        <ol className="flex flex-wrap items-center gap-1.5 text-ui-sm text-slate-400">
+          <li>
+            <Link href="/cars" className="font-medium transition-colors hover:text-slate-900">
+              Cars
+            </Link>
+          </li>
+          <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
+          <li className="font-medium text-slate-600">{car.brand}</li>
+          <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
+          <li aria-current="page" className="font-semibold text-slate-900">
+            {car.model}
+          </li>
+        </ol>
+      </nav>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
         {/* ── The car ──────────────────────────────────────────── */}
@@ -246,18 +263,92 @@ export function CarDetails({ car }: CarDetailsProps) {
             <PillButton href="/map">Find charging nearby</PillButton>
           </div>
 
-          <div className="mt-8 rounded-2xl border border-slate-200 p-6">
-            <SpecificationTable rows={specs} title="Specifications" />
+          {/*
+            Blocks rather than one fourteen-row list. Grouped, the charging
+            figures sit together and a reader can find them without scanning
+            everything; an empty group is dropped, so a PHEV shows an Engine
+            block where an EV shows none.
+          */}
+          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200">
+            {groups.map((group, index) => (
+              <div
+                key={group.title}
+                className={cn('px-6 py-5', index > 0 && 'border-t border-slate-200')}
+              >
+                <SpecificationTable rows={group.rows} title={group.title} />
+              </div>
+            ))}
 
             {/* Said once, plainly, rather than repeated as a dash on every
                 missing row. */}
-            <p className="mt-5 border-t border-slate-100 pt-4 text-ui-xs leading-relaxed text-slate-400">
+            <p className="border-t border-slate-200 bg-slate-50 px-6 py-4 text-ui-xs leading-relaxed text-slate-500">
               Only published figures are listed. Anything absent was not stated by the
               manufacturer or importer — Plug.pk does not estimate specifications.
             </p>
           </div>
         </div>
       </div>
+
+      {/*
+        Where a buyer goes next. A detail page that offers only "back" makes
+        the reader do the comparing; three nearby cars of the same powertrain
+        does it for them. Rendered as compact rows rather than full cards so it
+        reads as a suggestion, not a second catalogue.
+      */}
+      {similar.length > 0 ? (
+        <section className="mt-16 border-t border-slate-200 pt-10">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">
+              Similar cars
+            </h2>
+            <Link
+              href="/cars"
+              className="text-ui-sm font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
+            >
+              See all
+            </Link>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {similar.map((other) => (
+              <HoverMotion key={other.id} className={FRAME}>
+                <Link href={`/cars/${other.slug}`} className={cn(FACE, 'gap-3 p-3')}>
+                  <span className="relative block aspect-[16/10] overflow-hidden rounded-xl bg-slate-50">
+                    <PhotoFrame
+                      src={other.image ?? undefined}
+                      alt={other.fullName}
+                      sizes="(max-width: 640px) 100vw, 300px"
+                    />
+                  </span>
+
+                  <span className="px-1 pb-1">
+                    <span className="block text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                      {other.brand}
+                    </span>
+                    <span className="mt-1 block truncate text-ui font-bold tracking-tight text-slate-900">
+                      {other.model}
+                    </span>
+                    <span className="mt-1.5 block text-ui-sm font-semibold text-slate-700">
+                      {other.price.display}
+                    </span>
+                  </span>
+                </Link>
+              </HoverMotion>
+            ))}
+          </div>
+
+          {/* Straight into the comparison with this car already picked, which
+              is the thing a reader on this page most likely wants next. */}
+          <div className="mt-6 flex justify-center">
+            <Link
+              href={`/cars/compare?ids=${[car.id, similar[0]?.id].filter(Boolean).join(',')}`}
+              className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-slate-300 px-5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
+            >
+              Compare {car.model} with {similar[0]?.model}
+            </Link>
+          </div>
+        </section>
+      ) : null}
     </div>
   )
 }
