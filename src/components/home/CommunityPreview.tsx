@@ -224,7 +224,7 @@ export function CommunityPreview() {
                 </div>
 
                 <div className="mt-7 flex justify-center">
-                  <PillButton href="/signup" tone="brand">
+                  <PillButton href="/signup">
                     Join free
                   </PillButton>
                 </div>

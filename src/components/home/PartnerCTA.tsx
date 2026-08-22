@@ -175,7 +175,7 @@ export function PartnerCTA() {
             </ul>
 
             <div className="mt-9 flex flex-col items-center gap-4 border-t border-slate-100 pt-8">
-              <PillButton href="/partners" tone="brand">
+              <PillButton href="/partners">
                 List your charger
               </PillButton>
 
