@@ -6,11 +6,11 @@ import dynamic from 'next/dynamic'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { MAP_FAQS } from '@/lib/faqs'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useCallback, useMemo, useState } from 'react'
 
 import { FilterPanel } from '@/components/map/FilterPanel'
 import { MapControls } from '@/components/map/MapControls'
-import { MapHeader } from '@/components/map/MapHeader'
+import { MapHero } from '@/components/map/MapHero'
 import { MapSearchBar } from '@/components/map/MapSearchBar'
 import { MobileFilterSheet } from '@/components/map/MobileFilterSheet'
 import { MobileStationSheet } from '@/components/map/MobileStationSheet'
@@ -121,9 +121,23 @@ function MapExplorer() {
     ? stationsWithDistance.find((item) => item.id === selectedStation.id)
     : undefined
 
-  // City lives on the address, not the station. Counted from the unfiltered
-  // list so the figure describes coverage rather than the current filter.
-  const cities = new Set(stations.map((station) => station.address.city)).size
+  /**
+   * City names for the copy, most-covered first.
+   *
+   * From the unfiltered list, so the paragraph describes what the site covers
+   * rather than what the current filter shows — and ordered by how many
+   * stations each has, so the three the copy names are the three worth naming.
+   */
+  const cities = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const station of stations) {
+      const city = station.address.city
+      counts.set(city, (counts.get(city) ?? 0) + 1)
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([city]) => city)
+  }, [stations])
 
   return (
     /**
@@ -132,10 +146,32 @@ function MapExplorer() {
      * third magic number alongside the nav's 72px, and it would be wrong the
      * first time the copy wrapped to two lines on a narrow screen.
      */
-    <div className="flex h-below-nav flex-col overflow-hidden">
-      <MapHeader total={stations.length} shown={filteredStations.length} cities={cities} />
+    <div className="flex min-h-below-nav flex-col">
+      <MapHero
+        total={stations.length}
+        shown={filteredStations.length}
+        cities={cities}
+        filters={filters}
+        onUpdateFilter={updateFilter}
+        activeFilterCount={activeFilterCount}
+        onOpenAllFilters={() => setIsMobileFilterOpen(true)}
+        onLocateMe={handleLocateMe}
+        isLocating={isLocating}
+        search={
+          <MapSearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            resultCount={filteredStations.length}
+            onSelectStation={setSelectedStation}
+          />
+        }
+      />
 
-      <div className="relative flex min-h-0 flex-1 overflow-hidden">
+      {/* The map keeps a fixed working height rather than flexing: with the
+          band above it, flex-1 on a laptop left a 300px strip of map, and a map
+          too short to pan is not a map. */}
+      <div className="relative flex h-[clamp(28rem,68vh,44rem)] overflow-hidden">
       {/* ── Desktop left panel ───────────────────────────────── */}
       <div className="hidden lg:flex">
         <FilterPanel
@@ -148,47 +184,18 @@ function MapExplorer() {
           selectedStation={selectedStation}
           onStationSelect={setSelectedStation}
           isLoading={isLoading}
-          header={
-            <MapSearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onClear={() => setSearchQuery('')}
-              resultCount={filteredStations.length}
-              onSelectStation={setSelectedStation}
-            />
-          }
         />
       </div>
 
       {/* ── Map area ─────────────────────────────────────────── */}
       <div className="relative flex-1 overflow-hidden">
-        {/* Mobile floating controls */}
-        <div className="absolute inset-x-4 top-4 z-20 flex items-center gap-3 lg:hidden">
-          <MapSearchBar
-            className="flex-1"
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            resultCount={filteredStations.length}
-            onSelectStation={setSelectedStation}
-          />
-        </div>
-
-        <div className="absolute right-4 top-[84px] z-20 lg:hidden">
-          <MapControls
-            onFilterClick={() => setIsMobileFilterOpen(true)}
-            activeFilterCount={activeFilterCount}
-            resultCount={filteredStations.length}
-            onLocateMe={handleLocateMe}
-            isLocating={isLocating}
-          />
-        </div>
-
-        {/* Desktop locate control */}
-        <div className="absolute right-5 top-5 z-20 hidden lg:block">
-          {/* No Filters button here: the panel beside it is always open on
-              desktop, so the only control worth floating over the map is
-              locate-me. */}
+        {/*
+          One floating control at every breakpoint: locate-me. Search, the
+          speed pills and All filters all live in the band above now, so the
+          phone no longer carries a second search box over the map and a second
+          Filters button beside it.
+        */}
+        <div className="absolute right-4 top-4 z-20">
           <MapControls
             onFilterClick={() => setIsMobileFilterOpen(true)}
             activeFilterCount={activeFilterCount}
