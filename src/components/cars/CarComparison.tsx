@@ -337,51 +337,6 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           )
         })}
 
-        {canAdd ? (
-          <div className="flex items-center justify-center rounded-2xl border-[1.5px] border-dashed border-slate-300 p-5">
-            {adding ? (
-              <div className="w-full">
-                <label className="block text-ui-xs font-semibold text-slate-600">
-                  Add a car
-                  <select
-                    autoFocus
-                    defaultValue=""
-                    onChange={(event) =>
-                      event.target.value && go([...cars.map((car) => car.id), event.target.value])
-                    }
-                    className="mt-1.5 h-10 w-full cursor-pointer rounded-xl border-[1.5px] border-slate-300 bg-white px-2 text-ui-sm font-semibold text-slate-800 outline-none focus:border-blue-500"
-                  >
-                    <option value="" disabled>
-                      Choose a car…
-                    </option>
-                    {available.map((car) => (
-                      <option key={car.id} value={car.id}>
-                        {car.fullName} — {car.price.display}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setAdding(false)}
-                  className="mt-2 text-ui-xs font-semibold text-slate-400 hover:text-slate-700"
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setAdding(true)}
-                className="flex flex-col items-center gap-2 text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-              >
-                <Plus size={22} aria-hidden="true" />
-                <span className="text-ui-sm font-semibold">Add a car</span>
-                <span className="text-ui-xs text-slate-400">up to {max}</span>
-              </button>
-            )}
-          </div>
-        ) : null}
       </div>
 
       {/* ── Table controls ──────────────────────────────────────── */}
@@ -395,6 +350,60 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           />
           Only show differences
         </label>
+
+        {/*
+          Adding a car sits here rather than as a fifth tile in the grid above.
+          The dashed placeholder took a full column's width to hold one action
+          and made a two-car comparison look like it was missing something — a
+          control among the other controls reads as optional, which it is.
+
+          The select replaces the button in place instead of opening a panel:
+          one step, and the row keeps its height so nothing below it shifts.
+        */}
+        {canAdd ? (
+          adding ? (
+            <div className="flex items-center gap-2">
+              <select
+                autoFocus
+                defaultValue=""
+                aria-label="Add a car to the comparison"
+                onChange={(event) =>
+                  event.target.value && go([...cars.map((car) => car.id), event.target.value])
+                }
+                className="h-10 max-w-[16rem] cursor-pointer rounded-full border-[1.5px] border-slate-300 bg-white px-3 text-ui-sm font-semibold text-slate-800 outline-none focus:border-blue-500"
+              >
+                <option value="" disabled>
+                  Choose a car…
+                </option>
+                {available.map((car) => (
+                  <option key={car.id} value={car.id}>
+                    {car.fullName} — {car.price.display}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setAdding(false)}
+                aria-label="Cancel adding a car"
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              >
+                <X size={14} aria-hidden="true" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border-[1.5px] border-slate-300 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+            >
+              <Plus size={14} aria-hidden="true" />
+              Add a car
+              <span className="font-mono text-[10px] text-slate-400">
+                {cars.length}/{max}
+              </span>
+            </button>
+          )
+        ) : null}
 
         <button
           type="button"
