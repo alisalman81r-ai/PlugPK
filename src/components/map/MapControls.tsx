@@ -11,6 +11,15 @@ export interface MapControlsProps {
   resultCount: number
   onLocateMe: () => void
   isLocating: boolean
+  /**
+   * Whether to offer the Filters button.
+   *
+   * Explicit, because the desktop layout used to hide it with
+   * `[&>button:first-child]:hidden` from the page — which silently coupled that
+   * page to the order of the buttons in here. Adding a control at the front
+   * would have hidden the wrong one.
+   */
+  showFilterButton?: boolean
   className?: string
 }
 
@@ -20,11 +29,13 @@ export function MapControls({
   resultCount,
   onLocateMe,
   isLocating,
+  showFilterButton = true,
   className,
 }: MapControlsProps) {
   return (
     <div className={cn('flex items-center gap-3', className)}>
-      <button
+      {showFilterButton ? (
+        <button
         type="button"
         onClick={onFilterClick}
         aria-label={`Filters, ${resultCount} stations found`}
@@ -40,7 +51,8 @@ export function MapControls({
             {activeFilterCount}
           </span>
         ) : null}
-      </button>
+        </button>
+      ) : null}
 
       <button
         type="button"

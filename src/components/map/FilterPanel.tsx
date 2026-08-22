@@ -41,9 +41,19 @@ const AMENITY_OPTIONS: { type: AmenityType; label: string; icon: LucideIcon }[] 
   { type: 'cafe', label: 'Café', icon: Coffee },
 ]
 
+/**
+ * A filter group's name.
+ *
+ * Was 12px grey uppercase, which put the label below the controls it names in
+ * the visual hierarchy — the reader saw a row of chips and had to look for what
+ * they were for. Display face at full ink now, matching the section headings
+ * across the car pages so the whole site names things one way.
+ */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">{children}</p>
+    <p className="mb-3 font-display text-base font-bold tracking-tight text-slate-900">
+      {children}
+    </p>
   )
 }
 
@@ -265,63 +275,94 @@ export function FilterPanel({
   }, [stations, sortBy])
 
   return (
-    <div className="scrollbar-hide flex h-[calc(100vh-72px)] w-[380px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white">
-      {header ? <div className="border-b border-slate-100 p-4">{header}</div> : null}
+    /**
+     * h-full rather than a height of its own.
+     *
+     * It used to hardcode calc(100vh - 72px), which duplicated the .h-below-nav
+     * utility and missed its 100dvh fallback — so on a phone the panel stayed
+     * the height of the expanded browser chrome after the chrome collapsed. The
+     * page owns the height now and this fills it.
+     */
+    <aside
+      aria-label="Station filters and results"
+      className="flex h-full w-[380px] shrink-0 flex-col border-r border-slate-200 bg-white"
+    >
+      {/* Pinned. The search box used to scroll away with everything else,
+          which on a long station list meant scrolling back up to search. */}
+      {header ? <div className="shrink-0 border-b border-slate-100 p-4">{header}</div> : null}
 
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white p-5">
-        <span className="flex items-center">
-          <span className="text-base font-bold text-slate-900">Filters</span>
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <h2 className="flex items-center font-display text-lg font-bold tracking-tight text-slate-900">
+          Filters
           {activeFilterCount > 0 ? (
-            <span className="ml-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-plug-blue-600 text-xs font-bold text-white">
+            <span className="ml-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-blue-600 px-1.5 font-sans text-ui-xs font-bold text-white">
               {activeFilterCount}
             </span>
           ) : null}
-        </span>
+        </h2>
 
         {activeFilterCount > 0 ? (
           <button
             type="button"
             onClick={onResetFilters}
-            className="text-sm font-medium text-plug-blue-600 hover:text-plug-blue-700 hover:underline"
+            className="shrink-0 text-ui-sm font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
           >
             Clear all
           </button>
         ) : null}
       </div>
 
-      <FilterSections filters={filters} onUpdateFilter={onUpdateFilter} />
+      {/*
+        One scroll area holding the filters, the results bar and the list.
+        min-h-0 is load-bearing: without it a flex child refuses to shrink below
+        its content and the panel grows past the viewport instead of scrolling.
+      */}
+      <div className="scrollbar-hide min-h-0 flex-1 overflow-y-auto">
+        <FilterSections filters={filters} onUpdateFilter={onUpdateFilter} />
 
-      <div className="flex items-center justify-between px-5 pb-3 pt-4">
-        <span className="text-sm font-semibold text-slate-700">{resultCount} stations found</span>
-        <select
-          value={sortBy}
-          onChange={(event) => setSortBy(event.target.value as SortKey)}
-          aria-label="Sort stations"
-          className="cursor-pointer rounded-lg border-none bg-transparent text-sm text-slate-500 outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-        >
-          <option value="nearest">Nearest first</option>
-          <option value="rating">Top rated</option>
-          <option value="recent">Recently added</option>
-        </select>
-      </div>
+        {/*
+          Sticky, so the count and the sort stay reachable once the reader has
+          scrolled past the filters into the list — previously both scrolled
+          away and the list became an unlabelled column of cards.
+        */}
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-y border-slate-100 bg-white/95 px-5 py-3 backdrop-blur-sm">
+          <p aria-live="polite" className="text-ui-sm text-slate-600">
+            <span className="font-bold text-slate-900">{resultCount}</span>{' '}
+            {resultCount === 1 ? 'station' : 'stations'}
+          </p>
 
-      <div className="flex flex-col gap-3 px-5 pb-5">
-        {isLoading ? (
-          <StationListSkeleton count={4} />
-        ) : sorted.length === 0 ? (
-          <NoResults onClearFilters={onResetFilters} />
-        ) : (
-          sorted.map((station) => (
-            <StationListItem
-              key={station.id}
-              station={station}
-              isSelected={selectedStation?.id === station.id}
-              onClick={onStationSelect}
-              distanceKm={station.distanceKm}
-            />
-          ))
-        )}
+          <label className="shrink-0">
+            <span className="sr-only">Sort stations</span>
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as SortKey)}
+              className="cursor-pointer rounded-lg border-none bg-transparent text-ui-sm font-semibold text-slate-600 outline-none transition-colors hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+            >
+              <option value="nearest">Nearest first</option>
+              <option value="rating">Top rated</option>
+              <option value="recent">Recently added</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="flex flex-col gap-3 p-5">
+          {isLoading ? (
+            <StationListSkeleton count={4} />
+          ) : sorted.length === 0 ? (
+            <NoResults onClearFilters={onResetFilters} />
+          ) : (
+            sorted.map((station) => (
+              <StationListItem
+                key={station.id}
+                station={station}
+                isSelected={selectedStation?.id === station.id}
+                onClick={onStationSelect}
+                distanceKm={station.distanceKm}
+              />
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </aside>
   )
 }
