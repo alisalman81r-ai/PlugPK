@@ -178,8 +178,19 @@ const config: Config = {
         float: 'float 4s ease-in-out infinite',
         'spin-slow': 'spin 3s linear infinite',
         'grow-x': 'growX 800ms cubic-bezier(0, 0, 0.2, 1) both',
+        /**
+         * A seamless horizontal loop. Pairs with a track holding its content
+         * twice: translating exactly -50% lands the second copy where the first
+         * began, so the seam never shows. Linear, because any easing makes a
+         * continuous scroll visibly stutter at the loop point.
+         */
+        marquee: 'marquee 45s linear infinite',
       },
       keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
         fadeUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },

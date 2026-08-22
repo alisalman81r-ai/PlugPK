@@ -1,6 +1,7 @@
 // src/app/(main)/cars/page.tsx
 import type { Metadata } from 'next'
 
+import { BrandMarquee } from '@/components/cars/BrandMarquee'
 import { CarInsights } from '@/components/cars/CarInsights'
 import { CarsExplorer } from '@/components/cars/CarsExplorer'
 import {
@@ -51,10 +52,17 @@ export default function CarsPage() {
       categories={getCategories()}
       connectors={getConnectors()}
       priceBounds={getPriceBounds()}
-      // Computed on the server from the whole dataset and passed as a finished
-      // element: the superlatives never change with the filters, so none of
-      // that work belongs in the client bundle.
-      insights={<CarInsights insights={getInsights()} />}
+      // Both computed on the server from the whole dataset and passed as
+      // finished elements: neither changes with the filters, so none of that
+      // work belongs in the client bundle. They render between the hero and
+      // the catalogue, in this order — the brand strip is a half-second of
+      // reassurance, the insights are the first real answer.
+      insights={
+        <>
+          <BrandMarquee brands={getBrands()} />
+          <CarInsights insights={getInsights()} />
+        </>
+      }
     />
   )
 }
