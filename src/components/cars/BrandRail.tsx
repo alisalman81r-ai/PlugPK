@@ -22,6 +22,10 @@ import { cn } from '@/lib/utils'
  * A horizontal rail on every breakpoint. Wrapping fourteen brands into four
  * rows on a phone buries the catalogue, and a rail is the gesture people
  * already use for this kind of strip.
+ *
+ * One at a time: choosing a brand replaces whatever was chosen, and choosing
+ * the active one clears it. The caller owns that rule — see CarsExplorer for
+ * why the rail is single-select while the sidebar checkboxes are not.
  */
 
 export interface BrandRailProps {
@@ -49,7 +53,10 @@ export function BrandRail({ brands, counts, selected, onToggle, onClear }: Brand
             onClick={onClear}
             className="text-ui-sm font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
           >
-            Clear {selected.length === 1 ? 'brand' : `${selected.length} brands`}
+            {/* Named when there is one, counted when the sidebar has added
+                more — "Clear BYD" while two are active would be wrong about
+                what the button does. */}
+            Clear {selected.length === 1 ? selected[0] : `${selected.length} brands`}
           </button>
         ) : (
           <p className="text-ui-sm text-slate-500">

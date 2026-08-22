@@ -164,12 +164,23 @@ export function CarsExplorer({
             brands={brands}
             counts={brandCounts}
             selected={filters.brands}
+            /**
+             * One brand at a time, and tapping the active one clears it.
+             *
+             * It used to accumulate, which made the rail and the hero's brand
+             * select contradict each other: the select can only hold one value,
+             * so picking a second brand in the rail left it showing "All
+             * brands" while two were active. Single-select makes the two
+             * controls the same control.
+             *
+             * The sidebar checkboxes still allow several — that is a filter
+             * panel, where combining is the point. The rail is a shortcut, and
+             * a shortcut that needs a second tap to undo the first is not one.
+             */
             onToggle={(brand) =>
               setFilters((current) => ({
                 ...current,
-                brands: current.brands.includes(brand)
-                  ? current.brands.filter((entry) => entry !== brand)
-                  : [...current.brands, brand],
+                brands: current.brands.length === 1 && current.brands[0] === brand ? [] : [brand],
               }))
             }
             onClear={() => setFilters((current) => ({ ...current, brands: [] }))}
