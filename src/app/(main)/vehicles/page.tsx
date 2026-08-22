@@ -2,18 +2,23 @@
 import type { Metadata } from 'next'
 
 import { VehicleBrowser } from '@/components/vehicles/VehicleBrowser'
-import { getAllVehicles, getBrands } from '@/lib/vehicles'
+import { getVehicleStats, getVehicles } from '@/lib/db/queries'
 
 /**
  * The vehicle catalogue.
  *
  * A new route rather than a change to an existing page, so nothing already
- * shipped had to move to make room for it. Static: the catalogue is a module,
- * not a query, so there is nothing here to revalidate.
+ * shipped had to move to make room for it.
+ *
+ * Reads the Vehicle table, not the seed module, so a car added to the database
+ * appears here without a deploy. Cached for an hour rather than per request:
+ * the catalogue changes when somebody edits it, not when somebody visits.
  *
  * The figures in the copy are counted from the data rather than typed in, which
  * is the only way a number in a heading stays true after a row is added.
  */
+
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'EV & PHEV Vehicles in Pakistan',
@@ -21,9 +26,8 @@ export const metadata: Metadata = {
     'Every electric, plug-in hybrid and range-extender vehicle sold or imported in Pakistan — searchable by brand, model and powertrain.',
 }
 
-export default function VehiclesPage() {
-  const total = getAllVehicles().length
-  const brands = getBrands().length
+export default async function VehiclesPage() {
+  const [vehicles, totals] = await Promise.all([getVehicles(), getVehicleStats()])
 
   return (
     <section className="bg-white py-20 lg:py-28">
@@ -38,13 +42,14 @@ export default function VehiclesPage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
-            {total} electric, plug-in hybrid and range-extender models across {brands} brands —
-            officially sold, commonly imported, and the rare ones too.
+            {totals.vehicles} electric, plug-in hybrid and range-extender models across{' '}
+            {totals.brands} brands — officially sold, commonly imported, and the rare ones
+            too.
           </p>
         </div>
 
         <div className="mt-14">
-          <VehicleBrowser />
+          <VehicleBrowser vehicles={vehicles} totals={totals} />
         </div>
       </div>
     </section>

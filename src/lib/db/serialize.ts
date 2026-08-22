@@ -6,8 +6,10 @@ import type {
   EVService as ServiceRow,
   Review as ReviewRow,
   Station as StationRow,
+  Vehicle as VehicleRow,
 } from '@prisma/client'
 
+import type { Vehicle } from '@/data/pakistanVehicles'
 import type {
   Amenity,
   Comment,
@@ -179,4 +181,76 @@ export function toPost(row: PostWithRelations): CommunityPost {
     updatedAt: row.updatedAt.toISOString(),
     ...(row.comments ? { comments: row.comments.map(toComment) } : {}),
   }
+}
+
+// ─── Vehicles ───────────────────────────────────────
+
+/**
+ * A catalogue row with whatever figures have been verified for it.
+ *
+ * Extends the static catalogue's `Vehicle` rather than redeclaring it, so the
+ * module in src/data and the table stay one shape — a component can take
+ * either. Every spec is optional because most rows genuinely have none, and
+ * `undefined` says that where a 0 would read as "no range".
+ */
+export interface DbVehicle extends Vehicle {
+  modelYear?: number
+  rangeKm?: number
+  batteryCapacityKwh?: number
+  connectorTypes?: ConnectorType[]
+  dcChargingKw?: number
+  acChargingKw?: number
+  pricePkr?: number
+  imageUrl?: string
+}
+
+/** The comma-separated column, back into a list. */
+function parseConnectors(value: string | null): ConnectorType[] | undefined {
+  if (!value) return undefined
+  const list = value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean) as ConnectorType[]
+  return list.length > 0 ? list : undefined
+}
+
+/**
+ * The unions are cast rather than validated.
+ *
+ * powertrain, availability and bodyType are strings in SQLite — the schema
+ * notes why — and the only writers are the seed and the admin actions, both of
+ * which take typed values. A runtime guard here would be a second place to
+ * update every time a body type is added, for a case the type system already
+ * covers at the write end.
+ */
+export function toVehicle(row: VehicleRow): DbVehicle {
+  return {
+    id: row.id,
+    brand: row.brand,
+    model: row.model,
+    powertrain: row.powertrain as Vehicle['powertrain'],
+    availability: row.availability as Vehicle['availability'],
+    bodyType: row.bodyType as Vehicle['bodyType'],
+    ...(row.modelYear !== null ? { modelYear: row.modelYear } : {}),
+    ...(row.rangeKm !== null ? { rangeKm: row.rangeKm } : {}),
+    ...(row.batteryCapacityKwh !== null
+      ? { batteryCapacityKwh: row.batteryCapacityKwh }
+      : {}),
+    ...(parseConnectors(row.connectors) ? { connectorTypes: parseConnectors(row.connectors) } : {}),
+    ...(row.dcChargingKw !== null ? { dcChargingKw: row.dcChargingKw } : {}),
+    ...(row.acChargingKw !== null ? { acChargingKw: row.acChargingKw } : {}),
+    ...(row.pricePkr !== null ? { pricePkr: row.pricePkr } : {}),
+    ...(row.imageUrl !== null ? { imageUrl: row.imageUrl } : {}),
+  }
+}
+
+/** A car a driver has added, with the catalogue row behind it. */
+export interface OwnedVehicle {
+  id: string
+  userId: string
+  vehicle: DbVehicle
+  customName?: string
+  color?: string
+  licensePlate?: string
+  isDefault: boolean
 }

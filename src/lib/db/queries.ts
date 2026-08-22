@@ -1,11 +1,19 @@
 // src/lib/db/queries.ts
 import 'server-only'
 
-import type { CommunityPost, EVService, Station } from '@/lib/types'
+import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
 
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
-import { toConnector, toPost, toService, toStation } from './serialize'
+import {
+  toConnector,
+  toPost,
+  toService,
+  toStation,
+  toVehicle,
+  type DbVehicle,
+  type OwnedVehicle,
+} from './serialize'
 
 /**
  * Read side of the data layer. Every function returns the same interfaces the
@@ -936,4 +944,133 @@ export async function getServiceCategoryCounts(): Promise<Record<string, number>
   const out: Record<string, number> = {}
   for (const row of rows) out[row.category] = row._count._all
   return out
+}
+
+// ─── Vehicles ───────────────────────────────────────
+
+/**
+ * The vehicle catalogue, from the database.
+ *
+ * Mirrors the helpers in src/lib/vehicles.ts, which read the static module.
+ * Both exist on purpose: the module is what the seed is built from and what a
+ * Client Component can import, and these are what pages read so a car added by
+ * an admin appears without a deploy. Same `Vehicle` shape either way, so a
+ * caller swaps one for the other with an import change.
+ */
+export async function getVehicles(): Promise<DbVehicle[]> {
+  const rows = await prisma.vehicle.findMany({
+    orderBy: [{ brand: 'asc' }, { model: 'asc' }],
+  })
+  return rows.map(toVehicle)
+}
+
+export async function getVehicleById(id: string): Promise<DbVehicle | null> {
+  const row = await prisma.vehicle.findUnique({ where: { id } })
+  return row ? toVehicle(row) : null
+}
+
+export async function getVehiclesByBrand(brand: string): Promise<DbVehicle[]> {
+  const rows = await prisma.vehicle.findMany({
+    where: { brand },
+    orderBy: { model: 'asc' },
+  })
+  return rows.map(toVehicle)
+}
+
+/**
+ * Search, in the database rather than over a loaded array.
+ *
+ * Every term must match, so "bmw suv" narrows instead of widening. SQLite's
+ * LIKE is case-insensitive for ASCII, which is why `mode: 'insensitive'` is
+ * absent — that option is unsupported on this provider and passing it throws.
+ */
+export async function searchVehicles(query: string): Promise<DbVehicle[]> {
+  const terms = query.trim().split(/\s+/).filter(Boolean)
+  if (terms.length === 0) return getVehicles()
+
+  const rows = await prisma.vehicle.findMany({
+    where: {
+      AND: terms.map((term) => ({
+        OR: [
+          { brand: { contains: term } },
+          { model: { contains: term } },
+          { powertrain: { contains: term } },
+          { availability: { contains: term } },
+          { bodyType: { contains: term } },
+        ],
+      })),
+    },
+    orderBy: [{ brand: 'asc' }, { model: 'asc' }],
+  })
+  return rows.map(toVehicle)
+}
+
+/** Totals for the catalogue page, counted rather than written down. */
+export async function getVehicleStats(): Promise<{
+  vehicles: number
+  brands: number
+  official: number
+  electric: number
+  withSpecs: number
+}> {
+  const [vehicles, official, electric, withSpecs, brands] = await Promise.all([
+    prisma.vehicle.count(),
+    prisma.vehicle.count({ where: { availability: 'official' } }),
+    prisma.vehicle.count({ where: { powertrain: 'BEV' } }),
+    prisma.vehicle.count({ where: { rangeKm: { not: null } } }),
+    prisma.vehicle.groupBy({ by: ['brand'] }),
+  ])
+
+  return { vehicles, brands: brands.length, official, electric, withSpecs }
+}
+
+/** The cars one driver has added. */
+export async function getUserVehicles(userId: string): Promise<OwnedVehicle[]> {
+  const rows = await prisma.userVehicle.findMany({
+    where: { userId },
+    include: { vehicle: true },
+    orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
+  })
+
+  return rows.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    vehicle: toVehicle(row.vehicle),
+    customName: row.customName ?? undefined,
+    color: row.color ?? undefined,
+    licensePlate: row.licensePlate ?? undefined,
+    isDefault: row.isDefault,
+  }))
+}
+
+// ─── Clubs ──────────────────────────────────────────
+
+/**
+ * Owners' clubs.
+ *
+ * memberCount is the stored baseline plus rows in ClubMember. Those seeded
+ * totals are historical — they predate the join table — so counting rows alone
+ * would show every club dropping to zero the moment this shipped.
+ *
+ * `userId` is optional: pass it and each club reports whether that driver has
+ * joined, which is what the Join button needs to render its own state.
+ */
+export async function getClubs(userId?: string): Promise<EVClub[]> {
+  const rows = await prisma.club.findMany({
+    include: {
+      members: userId ? { where: { userId }, select: { id: true } } : false,
+      _count: { select: { members: true } },
+    },
+    orderBy: { memberCount: 'desc' },
+  })
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    city: row.city,
+    description: row.description,
+    coverPhoto: row.coverPhoto ?? undefined,
+    memberCount: row.memberCount + row._count.members,
+    isJoined: Array.isArray(row.members) ? row.members.length > 0 : false,
+  }))
 }

@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { ClubsDirectory } from '@/components/community/ClubsDirectory'
-import { MOCK_CLUBS } from '@/lib/mock-data'
+import { getClubs } from '@/lib/db/queries'
 
 export const metadata: Metadata = {
   title: 'EV Clubs Pakistan',
@@ -12,7 +12,16 @@ export const metadata: Metadata = {
     'Find and join EV clubs in your city. Connect with electric vehicle owners across Pakistan.',
 }
 
-export default function CommunityClubsPage() {
+/**
+ * Clubs come from the database now rather than the fixture, so the member
+ * counts move when somebody joins instead of being the same eight numbers for
+ * everyone forever.
+ */
+export const revalidate = 300
+
+export default async function CommunityClubsPage() {
+  const clubs = await getClubs()
+
   return (
     <>
       <section className="relative overflow-hidden bg-gradient-hero py-16">
@@ -43,7 +52,7 @@ export default function CommunityClubsPage() {
       </section>
 
       <div className="container-plug py-16">
-        <ClubsDirectory clubs={MOCK_CLUBS} />
+        <ClubsDirectory clubs={clubs} />
       </div>
     </>
   )

@@ -7,7 +7,8 @@ import * as React from 'react'
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion } from '@/components/ui'
 import type { Vehicle } from '@/data/pakistanVehicles'
-import { getAllVehicles, getVehicleLabel, getVehicleSpecs } from '@/lib/vehicles'
+import type { DbVehicle } from '@/lib/db/serialize'
+import { getVehicleLabel } from '@/lib/vehicles'
 import { cn } from '@/lib/utils'
 
 import { VehicleSelector } from './VehicleSelector'
@@ -20,11 +21,26 @@ import { VehicleSelector } from './VehicleSelector'
  * catalogue's own totals underneath so the page says something before anything
  * is selected.
  *
- * The picked panel shows verified figures only when the spec overlay has them,
- * and says plainly that it does not otherwise. A catalogue that invents a range
- * is worse than one that admits it has none — a driver plans a 400km trip on
- * that number.
+ * The picked panel shows verified figures only where the row carries them, and
+ * says plainly that it does not otherwise. A catalogue that invents a range is
+ * worse than one that admits it has none — a driver plans a 400km trip on that
+ * number, and 137 of the 145 rows have no verified range yet.
+ *
+ * Rows and totals arrive as props from the page, which reads them from the
+ * database. Nothing here imports the static module, so a vehicle added by an
+ * admin shows up without a deploy.
  */
+
+export interface VehicleBrowserProps {
+  vehicles: DbVehicle[]
+  totals: {
+    vehicles: number
+    brands: number
+    official: number
+    electric: number
+    withSpecs: number
+  }
+}
 
 const AVAILABILITY_LABEL: Record<Vehicle['availability'], string> = {
   official: 'Officially sold in Pakistan',
@@ -38,21 +54,11 @@ const POWERTRAIN_LABEL: Record<Vehicle['powertrain'], string> = {
   EREV: 'Range-extended electric',
 }
 
-export function VehicleBrowser() {
-  const [selected, setSelected] = React.useState<Vehicle | null>(null)
+export function VehicleBrowser({ vehicles, totals }: VehicleBrowserProps) {
+  const [selected, setSelected] = React.useState<DbVehicle | null>(null)
 
-  const all = React.useMemo(() => getAllVehicles(), [])
-  const specs = selected ? getVehicleSpecs(selected.id) : undefined
-
-  const totals = React.useMemo(() => {
-    const brands = new Set(all.map((vehicle) => vehicle.brand))
-    return {
-      vehicles: all.length,
-      brands: brands.size,
-      official: all.filter((vehicle) => vehicle.availability === 'official').length,
-      electric: all.filter((vehicle) => vehicle.powertrain === 'BEV').length,
-    }
-  }, [all])
+  /** A row has figures when it has a range; the rest travel with it. */
+  const hasFigures = Boolean(selected?.rangeKm)
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-8">
@@ -73,7 +79,11 @@ export function VehicleBrowser() {
           {/* The panel below reads what this sets; nothing else is wired to
               it yet, so the page is safe to link to from anywhere. */}
           <div className="mt-6">
-            <VehicleSelector selectedVehicle={selected} onSelect={setSelected} />
+            <VehicleSelector
+              vehicles={vehicles}
+              selectedVehicle={selected}
+              onSelect={setSelected}
+            />
           </div>
 
           <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-slate-100 pt-6">
@@ -101,6 +111,12 @@ export function VehicleBrowser() {
               </dd>
               <dt className="mt-0.5 text-ui-xs text-slate-500">Fully electric</dt>
             </div>
+            <div>
+              <dd className="text-2xl font-black tracking-tight text-slate-900">
+                {totals.withSpecs}
+              </dd>
+              <dt className="mt-0.5 text-ui-xs text-slate-500">With verified specs</dt>
+            </div>
           </dl>
         </div>
       </div>
@@ -125,16 +141,33 @@ export function VehicleBrowser() {
                 <Row label="Catalogue id" value={selected.id} mono />
               </ul>
 
-              {specs ? (
+              {selected && hasFigures ? (
                 <div className="mt-7 border-t border-slate-100 pt-6">
                   <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-400">
                     Verified figures
                   </p>
+                  {/* Each row renders only where its column is populated, so an
+                      unknown AC speed is absent rather than shown as a dash the
+                      reader has to interpret. */}
                   <ul className="mt-4 flex flex-col">
-                    <Row label="Range" value={`${specs.rangeKm} km`} />
-                    <Row label="Battery" value={`${specs.batteryCapacityKwh} kWh`} />
-                    <Row label="DC charging" value={`${specs.chargingSpeedKw} kW`} />
-                    <Row label="Connectors" value={specs.connectorTypes.join(', ')} />
+                    {selected.rangeKm ? (
+                      <Row label="Range" value={`${selected.rangeKm} km`} />
+                    ) : null}
+                    {selected.batteryCapacityKwh ? (
+                      <Row label="Battery" value={`${selected.batteryCapacityKwh} kWh`} />
+                    ) : null}
+                    {selected.dcChargingKw ? (
+                      <Row label="DC charging" value={`${selected.dcChargingKw} kW`} />
+                    ) : null}
+                    {selected.acChargingKw ? (
+                      <Row label="AC charging" value={`${selected.acChargingKw} kW`} />
+                    ) : null}
+                    {selected.modelYear ? (
+                      <Row label="Model year" value={String(selected.modelYear)} />
+                    ) : null}
+                    {selected.connectorTypes?.length ? (
+                      <Row label="Connectors" value={selected.connectorTypes.join(', ')} />
+                    ) : null}
                   </ul>
                 </div>
               ) : (

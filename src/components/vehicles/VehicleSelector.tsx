@@ -6,13 +6,8 @@ import * as React from 'react'
 
 import { AnimatedIcon, TurnIcon } from '@/components/ui'
 import type { Availability, Powertrain, Vehicle } from '@/data/pakistanVehicles'
-import {
-  getBrands,
-  getVehicleLabel,
-  getVehiclesGroupedByBrand,
-  hasSpecs,
-  searchVehicles,
-} from '@/lib/vehicles'
+import type { DbVehicle } from '@/lib/db/serialize'
+import { filterVehiclesByQuery, getVehicleLabel, getVehiclesGroupedByBrand } from '@/lib/vehicles'
 import { cn } from '@/lib/utils'
 
 /**
@@ -36,8 +31,17 @@ import { cn } from '@/lib/utils'
  */
 
 export interface VehicleSelectorProps {
-  selectedVehicle: Vehicle | null
-  onSelect: (vehicle: Vehicle | null) => void
+  /**
+   * The rows to choose from — read from the database by the page above and
+   * handed down, rather than imported here.
+   *
+   * This is a Client Component, so it cannot run a Prisma query, and firing a
+   * server action on every keystroke would put a round trip between typing and
+   * seeing results. It receives the catalogue once and filters in the browser.
+   */
+  vehicles: DbVehicle[]
+  selectedVehicle: DbVehicle | null
+  onSelect: (vehicle: DbVehicle | null) => void
   className?: string
 }
 
@@ -74,7 +78,12 @@ const AVAILABILITY_LABEL: Record<Availability, string> = {
   'rare-import': 'Rare import',
 }
 
-export function VehicleSelector({ selectedVehicle, onSelect, className }: VehicleSelectorProps) {
+export function VehicleSelector({
+  vehicles,
+  selectedVehicle,
+  onSelect,
+  className,
+}: VehicleSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [filter, setFilter] = React.useState<FilterId>('all')
   const [query, setQuery] = React.useState('')
@@ -107,17 +116,23 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
 
   /** Everything the current filter and query allow. */
   const matches = React.useMemo(
-    () => searchVehicles(query).filter((vehicle) => matchesFilter(vehicle, filter)),
-    [query, filter],
+    () =>
+      filterVehiclesByQuery(vehicles, query).filter((vehicle) => matchesFilter(vehicle, filter)),
+    [vehicles, query, filter],
   )
 
-  /** Brands that still have something under the current filter. */
-  const brands = React.useMemo(() => {
-    if (filter === 'all') return getBrands()
-    return Array.from(new Set(matches.map((vehicle) => vehicle.brand))).sort((a, b) =>
-      a.localeCompare(b),
-    )
-  }, [filter, matches])
+  /**
+   * Brands that still have something under the current filter — derived from
+   * the matches rather than from the full list, so a brand whose only PHEV was
+   * filtered out stops offering an empty model pane.
+   */
+  const brands = React.useMemo(
+    () =>
+      Array.from(new Set(matches.map((vehicle) => vehicle.brand))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [matches],
+  )
 
   const models = React.useMemo(
     () => (brand ? matches.filter((vehicle) => vehicle.brand === brand) : []),
@@ -133,7 +148,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
     if (brand && !brands.includes(brand)) setBrand(null)
   }, [brand, brands])
 
-  const choose = (vehicle: Vehicle) => {
+  const choose = (vehicle: DbVehicle) => {
     onSelect(vehicle)
     setIsOpen(false)
     setQuery('')
@@ -335,9 +350,9 @@ function EmptyState() {
 }
 
 interface VehicleRowProps {
-  vehicle: Vehicle
+  vehicle: DbVehicle
   isSelected: boolean
-  onChoose: (vehicle: Vehicle) => void
+  onChoose: (vehicle: DbVehicle) => void
 }
 
 function VehicleRow({ vehicle, isSelected, onChoose }: VehicleRowProps) {
@@ -355,9 +370,9 @@ function VehicleRow({ vehicle, isSelected, onChoose }: VehicleRowProps) {
         </span>
         <span className="mt-0.5 block text-ui-xs text-slate-400">
           {vehicle.powertrain} · {AVAILABILITY_LABEL[vehicle.availability]} · {vehicle.bodyType}
-          {/* Says so where a verified range exists, rather than printing a
-              figure this catalogue does not hold. */}
-          {hasSpecs(vehicle.id) ? ' · specs available' : ''}
+          {/* The real figure where the row has one, rather than a claim that
+              specs exist somewhere. Most rows have none and say nothing. */}
+          {vehicle.rangeKm ? ` · ${vehicle.rangeKm} km` : ''}
         </span>
       </span>
 

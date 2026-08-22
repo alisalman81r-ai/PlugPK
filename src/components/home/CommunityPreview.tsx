@@ -71,21 +71,20 @@ const COMMUNITY_STATS: CommunityStat[] = [
   { icon: MapPin, motion: 'scan', value: '18', label: 'Cities Active' },
 ]
 
-interface Club {
-  name: string
-  city: string
-  members: number
-}
-
-const CLUBS: Club[] = [
-  { name: 'Lahore EV Owners Club', city: 'Lahore', members: 234 },
-  { name: 'Islamabad EV Community', city: 'Islamabad', members: 178 },
-  { name: 'Karachi Electric Riders', city: 'Karachi', members: 156 },
-]
-
 const POSTS = MOCK_POSTS.slice(0, 2)
 
-export function CommunityPreview() {
+export interface CommunityPreviewProps {
+  /**
+   * The three biggest clubs, read from the database by the page above.
+   *
+   * These were three hardcoded rows here — the same names and the same member
+   * counts for every visitor, drifting further from the clubs table every time
+   * somebody joined one.
+   */
+  clubs: Array<{ id: string; name: string; city: string; memberCount: number }>
+}
+
+export function CommunityPreview({ clubs }: CommunityPreviewProps) {
   return (
     <section className="bg-slate-50 py-24 lg:py-32">
       <div className="container-plug">
@@ -256,9 +255,9 @@ export function CommunityPreview() {
               </h3>
 
               <ul className="mt-4 flex flex-col">
-                {CLUBS.map((club, index) => (
+                {clubs.map((club, index) => (
                   <li
-                    key={club.name}
+                    key={club.id}
                     className={cn(
                       'flex items-center justify-between gap-3 py-3',
                       index > 0 && 'border-t border-white/20',
@@ -271,7 +270,7 @@ export function CommunityPreview() {
                       <span className="block text-ui-xs text-white/60">{club.city}</span>
                     </span>
                     <span className="shrink-0 font-mono text-ui-xs tabular-nums text-white/80">
-                      {club.members} members
+                      {club.memberCount} members
                     </span>
                   </li>
                 ))}

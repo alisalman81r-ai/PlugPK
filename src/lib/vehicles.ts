@@ -66,10 +66,25 @@ export function getRareImportVehicles(): Vehicle[] {
  * shows the catalogue instead of an empty state.
  */
 export function searchVehicles(query: string): Vehicle[] {
-  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
-  if (terms.length === 0) return getAllVehicles()
+  return filterVehiclesByQuery(pakistanEVVehicles, query)
+}
 
-  return pakistanEVVehicles.filter((vehicle) => {
+/**
+ * The same matching, over any list.
+ *
+ * Exported because the catalogue page reads its rows from the database, and a
+ * Client Component cannot call a server query on every keystroke. It receives
+ * the rows once and filters them here, so the search behaves identically
+ * whether the list came from Prisma or from the module.
+ *
+ * Generic over the row type so a DbVehicle keeps its specs through the filter
+ * rather than being widened back to a bare Vehicle.
+ */
+export function filterVehiclesByQuery<T extends Vehicle>(vehicles: T[], query: string): T[] {
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  if (terms.length === 0) return [...vehicles]
+
+  return vehicles.filter((vehicle) => {
     const haystack = [
       vehicle.brand,
       vehicle.model,
@@ -94,8 +109,10 @@ export function getBrands(): string[] {
 }
 
 /** Every vehicle grouped under its brand, for a two-level picker. */
-export function getVehiclesGroupedByBrand(vehicles: Vehicle[] = pakistanEVVehicles): Array<[string, Vehicle[]]> {
-  const byBrand = new Map<string, Vehicle[]>()
+export function getVehiclesGroupedByBrand<T extends Vehicle>(
+  vehicles: T[] = pakistanEVVehicles as T[],
+): Array<[string, T[]]> {
+  const byBrand = new Map<string, T[]>()
 
   for (const vehicle of vehicles) {
     const existing = byBrand.get(vehicle.brand)

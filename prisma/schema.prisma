@@ -70,7 +70,6 @@ model Station {
 
 /**
  * A physical charging unit at a station.
- *
  * Carries no pricing. Rates are set by each operator and change often, and a
  * stale figure shown as fact is worse than no figure at all — a driver who
  * arrives expecting one price and is charged another loses trust in the whole
@@ -78,14 +77,14 @@ model Station {
  * instead.
  */
 model Connector {
-  id                 String  @id
+  id                 String @id
   stationId          String
   type               String
   maxPowerKw         Float
   ports              Int
   availablePorts     Int
-  status             String  @default("available")
-  compatibleVehicles String  @default("[]")
+  status             String @default("available")
+  compatibleVehicles String @default("[]")
 
   // Deleting a station takes its connectors with it. A connector without a
   // station is meaningless, and leaving orphans would corrupt every port
@@ -96,10 +95,9 @@ model Connector {
 }
 
 model Review {
-  id String @id
+  id           String   @id
   /**
    * A review belongs to exactly one of a station or a business.
-   *
    * Both are nullable because listings come from two tables: stations entered
    * by an operator, and businesses that applied through the public form. Before
    * this, a business could be shown on the map but never reviewed — the owner's
@@ -127,19 +125,19 @@ model Review {
 
 /**
  * One row per business per day, counting what actually happened.
- *
  * The analytics page used to read a fixed array — 1,240 views and 89 clicks
  * that never moved, for a listing that may not even have been approved. These
  * counters are incremented by real visits to the public listing page and real
  * presses of its directions button, so a quiet listing correctly reads zero.
- *
  * Stored per day rather than as a running total because the page charts a time
  * series and compares this month against last.
  */
 model BusinessDailyStat {
   id         String @id
   businessId String
-  /** Calendar day in Pakistan Standard Time, as YYYY-MM-DD. */
+  /**
+   * Calendar day in Pakistan Standard Time, as YYYY-MM-DD.
+   */
   day        String
   views      Int    @default(0)
   clicks     Int    @default(0)
@@ -222,7 +220,6 @@ model Comment {
 
 /**
  * A registered EV owner.
- *
  * Exists so the "EV owners" figure on the homepage counts something real. It
  * is a registration record, not a full auth system — there are no sessions,
  * roles or password resets here yet. What it does guarantee is that a
@@ -235,24 +232,26 @@ model User {
   name         String
   city         String?
   vehicle      String?
-  /** Path to an uploaded profile picture, e.g. /uploads/avatars/<id>.jpg. */
+  /**
+   * Path to an uploaded profile picture, e.g. /uploads/avatars/<id>.jpg.
+   */
   avatar       String?
   passwordHash String
   createdAt    DateTime @default(now())
 
-  businesses   Business[]
-  saved        SavedStation[]
+  businesses Business[]
+  saved      SavedStation[]
+  vehicles   UserVehicle[]
+  clubs      ClubMember[]
 
   @@index([createdAt])
 }
 
 /**
  * A listing somebody bookmarked.
- *
  * The bookmark button on a station page used to toggle React state and nothing
  * else, so the dashboard's "Saved" tab could only ever show a fixture's three
  * saved stations to everyone who opened it.
- *
  * `listingId` is a plain string rather than a foreign key because the map
  * carries two kinds of listing — stations entered by an operator and approved
  * businesses — and a driver saving one should not have to care which table it
@@ -272,7 +271,6 @@ model SavedStation {
 
 /**
  * A business asking to talk to the team.
- *
  * Replaces the published subscription tiers. Stored rather than emailed so
  * requests cannot be lost in an inbox and can be worked through in the admin
  * portal.
@@ -286,7 +284,9 @@ model MeetingRequest {
   preferredDate String?
   preferredTime String?
   note          String?
-  /** new | handled — deliberately a string, not an enum, so SQLite stays simple. */
+  /**
+   * new | handled — deliberately a string, not an enum, so SQLite stays simple.
+   */
   status        String   @default("new")
   createdAt     DateTime @default(now())
 
@@ -296,11 +296,9 @@ model MeetingRequest {
 
 /**
  * A business that applied to list its chargers on the platform.
- *
  * Before this, the sign-up form waited 2.5 seconds and showed "You're Live on
  * Plug.pk!" without writing anything — every application was lost the moment
  * the page was refreshed.
- *
  * The password the form collects is deliberately NOT stored here. Keeping a
  * plaintext password in an application record would be indefensible, and
  * hashing one into a table that is not the account table would just be a
@@ -311,7 +309,6 @@ model Business {
   id           String   @id
   /**
    * The account that submitted this listing.
-   *
    * Nullable because an operator can enter a business directly in the admin
    * portal, and that record has no owner account behind it. When the public
    * form is used, a User is created and linked here — which is what lets the
@@ -323,16 +320,19 @@ model Business {
   email        String
   phone        String?
   businessName String
-  /** hotel | restaurant | mall | office | dealership | service-center */
+  /**
+   * hotel | restaurant | mall | office | dealership | service-center
+   */
   businessType String
   city         String
   address      String?
   website      String?
-  /** Free text the owner writes for their public listing. */
+  /**
+   * Free text the owner writes for their public listing.
+   */
   description  String?
   /**
    * Where the chargers actually are.
-   *
    * Nullable because a city and a street line are not a position — an
    * application submitted without coordinates can still be reviewed, it just
    * cannot be put on the map. Only approved businesses that have both values
@@ -340,9 +340,13 @@ model Business {
    */
   lat          Float?
   lng          Float?
-  /** JSON array of { connectorType, maxPowerKw, ports } from the form. */
+  /**
+   * JSON array of { connectorType, maxPowerKw, ports } from the form.
+   */
   chargers     String   @default("[]")
-  /** pending | approved | rejected — a string, not an enum, so SQLite stays simple. */
+  /**
+   * pending | approved | rejected — a string, not an enum, so SQLite stays simple.
+   */
   status       String   @default("pending")
   createdAt    DateTime @default(now())
 
@@ -351,4 +355,125 @@ model Business {
 
   @@index([status])
   @@index([createdAt])
+}
+
+/**
+ * The Pakistan EV / PHEV / EREV catalogue.
+ * Was a 145-row TypeScript module in src/data/pakistanVehicles.ts, which meant
+ * adding a car needed a deploy and nothing could ever reference one by foreign
+ * key. The module stays as the seed source — it is a readable, reviewable
+ * record of where the list came from — but this table is what the application
+ * reads.
+ * Identity is required; every specification is nullable, and that is the whole
+ * design. A range figure is what a driver plans a 400km trip on, so a column
+ * stays NULL until somebody verifies the number rather than holding a
+ * plausible guess. Eight rows have verified figures today; the other 137 are
+ * honestly empty.
+ * `connectors` is a comma-separated string because SQLite has no array type.
+ * Read it through serialize.ts rather than splitting it at each call site.
+ */
+model Vehicle {
+  /**
+   * Kebab-case, e.g. "byd-atto-3" — stable, so it can appear in a URL.
+   */
+  id           String @id
+  brand        String
+  model        String
+  /**
+   * BEV | PHEV | EREV — a string, not an enum, so SQLite stays simple.
+   */
+  powertrain   String
+  /**
+   * official | imported | rare-import
+   */
+  availability String
+  bodyType     String
+
+  // ─── Verified figures. Null means unknown, never zero. ───
+  modelYear          Int?
+  rangeKm            Int?
+  batteryCapacityKwh Float?
+  /**
+   * Comma-separated ConnectorType values, e.g. "CCS2,Type2".
+   */
+  connectors         String?
+  dcChargingKw       Int?
+  acChargingKw       Int?
+  pricePkr           Int?
+  imageUrl           String?
+
+  createdAt DateTime @default(now())
+
+  owners UserVehicle[]
+
+  @@index([brand])
+  @@index([powertrain])
+  @@index([availability])
+}
+
+/**
+ * A car somebody actually owns.
+ * The dashboard has had an "add vehicle" screen for a while with nowhere to
+ * put the answer, so a car added there survived until the next navigation.
+ * User.vehicle is still there and still free text — it is what signup collects
+ * in one box — and this is the structured version, pointing at a catalogue row.
+ */
+model UserVehicle {
+  id           String   @id
+  userId       String
+  vehicleId    String
+  /**
+   * What the owner calls it, e.g. "My BYD".
+   */
+  customName   String?
+  color        String?
+  licensePlate String?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, vehicleId])
+  @@index([userId])
+}
+
+/**
+ * An owners' club.
+ * The home page and the clubs directory both render these, and both were
+ * reading a fixture — so "234 members" was the same number for everyone,
+ * forever, and Join did nothing that survived a refresh.
+ * memberCount is stored rather than counted from ClubMember because the seeded
+ * figures are historical totals from before this table existed; counting rows
+ * would have shown every club dropping to zero. getClubs() returns the stored
+ * figure plus real joins.
+ */
+model Club {
+  id          String   @id
+  name        String
+  city        String
+  description String
+  coverPhoto  String?
+  /**
+   * Baseline total. Real joins live in ClubMember and are added on read.
+   */
+  memberCount Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  members ClubMember[]
+
+  @@index([city])
+}
+
+model ClubMember {
+  id       String   @id
+  clubId   String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+  @@index([userId])
 }
