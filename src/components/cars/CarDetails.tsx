@@ -6,6 +6,7 @@ import * as React from 'react'
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
 import { Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
+import { getImageCredit } from '@/data/carImageCredits'
 import { fullSpecs } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +45,7 @@ const CATEGORY_BLURB: Record<CarCategory, string> = {
 
 export function CarDetails({ car }: CarDetailsProps) {
   const specs = fullSpecs(car)
+  const credit = car.image ? getImageCredit(car.id) : undefined
 
   /**
    * The headline row, ordered by powertrain.
@@ -129,6 +131,39 @@ export function CarDetails({ car }: CarDetailsProps) {
               </div>
             </div>
           </div>
+
+          {/*
+            The photographer, named on the page rather than only in a credits
+            file. Most of these are CC BY-SA, which requires attribution
+            wherever the image appears — burying it one link deep would not
+            honour that, and it costs one quiet line here.
+          */}
+          {credit ? (
+            <p className="mt-2.5 text-ui-xs leading-relaxed text-slate-400">
+              Photo: {credit.author} ·{' '}
+              {credit.licenceUrl ? (
+                <a
+                  href={credit.licenceUrl}
+                  rel="noopener noreferrer nofollow"
+                  target="_blank"
+                  className="underline hover:text-slate-600"
+                >
+                  {credit.licence}
+                </a>
+              ) : (
+                credit.licence
+              )}{' '}
+              ·{' '}
+              <a
+                href={credit.source}
+                rel="noopener noreferrer nofollow"
+                target="_blank"
+                className="underline hover:text-slate-600"
+              >
+                Wikimedia Commons
+              </a>
+            </p>
+          ) : null}
 
           {present.length > 0 ? (
             <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">

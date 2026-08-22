@@ -21,10 +21,16 @@
  * published. `notes` carries anything the source said imprecisely, such as the
  * Omoda 7's "90+ km", so the qualifier survives instead of being rounded away.
  *
- * Images: `image` is null for every car until a real file exists at
- * /public/images/cars/. PhotoFrame renders a fallback for a null source, so an
- * empty field costs a placeholder rather than a broken <img>. To add one, drop
- * the file in and set `image: '/images/cars/<id>.webp'` — nothing else changes.
+ * Images: 25 of the 28 have a photograph in /public/images/cars/, fetched from
+ * Wikimedia Commons under a CC or public-domain licence by
+ * scripts/fetch-car-images.mjs. Most are CC BY-SA, which requires the
+ * photographer to be credited, so src/data/carImageCredits.ts holds the
+ * attribution and the detail page prints it beneath the photo.
+ *
+ * Three are null — the Forthing Friday (both versions) and the Dongfeng 007,
+ * which Commons has no photograph of. PhotoFrame renders a fallback for a null
+ * source, so those cost a placeholder rather than a broken <img>. Drop a
+ * licensed file into that directory and set the path here to fill one in.
  *
  * Scaling: this is a plain module, typed and diffable, and the shape below is
  * open. Adding torque, seats, dimensions or a warranty means adding a field,
@@ -136,7 +142,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/byd-atto-2.jpg',
     notes: null,
   },
   {
@@ -167,7 +173,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/dongfeng-vigo.jpg',
     notes: null,
   },
   {
@@ -198,7 +204,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/jaecoo-j6.png',
     notes: null,
   },
   {
@@ -229,7 +235,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/byd-atto-3-advanced.jpg',
     notes: null,
   },
   {
@@ -260,7 +266,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/omoda-e5.jpg',
     notes: null,
   },
   {
@@ -322,7 +328,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/mg-zs-ev.jpg',
     notes: null,
   },
   {
@@ -384,7 +390,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/gugo-aion-v.jpg',
     notes: null,
   },
   {
@@ -415,7 +421,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/riddara-rd6.jpg',
     notes: null,
   },
   {
@@ -446,7 +452,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/deepal-l07.jpg',
     notes: null,
   },
   {
@@ -477,7 +483,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/xpeng-g6.jpg',
     notes: null,
   },
   {
@@ -508,7 +514,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/byd-seal.jpg',
     notes: null,
   },
   {
@@ -539,7 +545,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/deepal-s07.jpg',
     notes: null,
   },
   {
@@ -570,7 +576,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/byd-sealion-7-advanced.jpg',
     notes: 'Range quoted as a 450–567 km span.',
   },
   {
@@ -601,7 +607,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/kia-ev5.png',
     notes: null,
   },
   {
@@ -632,7 +638,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/deepal-e07.jpg',
     notes: 'Range quoted as a 590–640 km span.',
   },
   {
@@ -663,7 +669,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/kia-ev9-gt-line.jpg',
     notes: null,
   },
 
@@ -696,7 +702,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/chery-tiggo-7-phev.jpg',
     notes: null,
   },
   {
@@ -727,7 +733,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/deepal-s05-reev.jpg',
     notes: null,
   },
   {
@@ -789,7 +795,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/jaecoo-j7-phev.jpg',
     notes: null,
   },
   {
@@ -820,7 +826,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/omoda-7.jpg',
     notes: 'Electric range published as "90+ km".',
   },
   {
@@ -851,7 +857,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/chery-tiggo-8-phev.jpg',
     notes: null,
   },
   {
@@ -882,7 +888,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/chery-tiggo-9-phev.jpg',
     notes: null,
   },
   {
@@ -913,7 +919,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/haval-h6-phev.jpg',
     notes: 'Only price and engine capacity were published for this car.',
   },
   {
@@ -944,7 +950,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/mg-hs-phev.jpg',
     notes: null,
   },
   {
@@ -975,7 +981,7 @@ export const cars: Car[] = [
     torque: null,
     topSpeed: null,
     seats: null,
-    image: null,
+    image: '/images/cars/gwm-tank-500-phev.jpg',
     notes: 'Electric range quoted as an 80–90 km span.',
   },
 ]

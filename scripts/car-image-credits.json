@@ -1,0 +1,259 @@
+{
+  "credits": [
+    {
+      "carId": "byd-atto-2",
+      "file": "cars/byd-atto-2.jpg",
+      "article": "BYD Atto 2",
+      "commonsFile": "BYD_Atto_2_IAA_2025_DSC_2131.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander-93",
+      "source": "https://commons.wikimedia.org/wiki/File:BYD_Atto_2_IAA_2025_DSC_2131.jpg"
+    },
+    {
+      "carId": "dongfeng-vigo",
+      "file": "cars/dongfeng-vigo.jpg",
+      "article": "Dongfeng Vigo",
+      "commonsFile": "(SGP-Singapore)_Showcar_Dongfeng_Vigo_No-plate_2026-01-09.jpg",
+      "licence": "CC BY 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+      "author": "S5A-0043",
+      "source": "https://commons.wikimedia.org/wiki/File:(SGP-Singapore)_Showcar_Dongfeng_Vigo_No-plate_2026-01-09.jpg"
+    },
+    {
+      "carId": "jaecoo-j6",
+      "file": "cars/jaecoo-j6.png",
+      "article": "Jaecoo J6",
+      "commonsFile": "2024_Jaecoo_J6_front_view.png",
+      "licence": "CC BY 3.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+      "author": "Autosdeprimera",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Jaecoo_J6_front_view.png"
+    },
+    {
+      "carId": "byd-atto-3-advanced",
+      "file": "cars/byd-atto-3-advanced.jpg",
+      "article": "BYD Atto 3",
+      "commonsFile": "BYD_Atto_3_1X7A6491.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:BYD_Atto_3_1X7A6491.jpg"
+    },
+    {
+      "carId": "omoda-e5",
+      "file": "cars/omoda-e5.jpg",
+      "article": "Omoda E5",
+      "commonsFile": "2025_Chery_Omoda_E5_front.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "LuvsMG481",
+      "source": "https://commons.wikimedia.org/wiki/File:2025_Chery_Omoda_E5_front.jpg"
+    },
+    {
+      "carId": "mg-zs-ev",
+      "file": "cars/mg-zs-ev.jpg",
+      "article": "MG ZS EV",
+      "commonsFile": "MG_ZS_EV_Facelift_1X7A5867.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:MG_ZS_EV_Facelift_1X7A5867.jpg"
+    },
+    {
+      "carId": "gugo-aion-v",
+      "file": "cars/gugo-aion-v.jpg",
+      "article": "Aion V",
+      "commonsFile": "GAC_Aion_V_(second_generation)_IAA_2025_DSC_1406.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:GAC_Aion_V_(second_generation)_IAA_2025_DSC_1406.jpg"
+    },
+    {
+      "carId": "riddara-rd6",
+      "file": "cars/riddara-rd6.jpg",
+      "article": "Radar RD6",
+      "commonsFile": "2022_Radar_RD6_(front).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "User3204",
+      "source": "https://commons.wikimedia.org/wiki/File:2022_Radar_RD6_(front).jpg"
+    },
+    {
+      "carId": "deepal-l07",
+      "file": "cars/deepal-l07.jpg",
+      "article": "Deepal SL03",
+      "commonsFile": "2023_Chang'an_Shenlan_SL03_(front).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "User3204",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Chang%27an_Shenlan_SL03_(front).jpg"
+    },
+    {
+      "carId": "xpeng-g6",
+      "file": "cars/xpeng-g6.jpg",
+      "article": "XPeng G6",
+      "commonsFile": "XPeng_G6_018_(cropped).jpg",
+      "licence": "CC0",
+      "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "author": "JustAnotherCarDesigner",
+      "source": "https://commons.wikimedia.org/wiki/File:XPeng_G6_018_(cropped).jpg"
+    },
+    {
+      "carId": "byd-seal",
+      "file": "cars/byd-seal.jpg",
+      "article": "BYD Seal",
+      "commonsFile": "2022_BYD_Seal.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "User3204",
+      "source": "https://commons.wikimedia.org/wiki/File:2022_BYD_Seal.jpg"
+    },
+    {
+      "carId": "deepal-s07",
+      "file": "cars/deepal-s07.jpg",
+      "article": "Deepal S7",
+      "commonsFile": "Deepal_S07_IAA_2025_DSC_1894.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:Deepal_S07_IAA_2025_DSC_1894.jpg"
+    },
+    {
+      "carId": "byd-sealion-7-advanced",
+      "file": "cars/byd-sealion-7-advanced.jpg",
+      "article": "BYD Sealion 7",
+      "commonsFile": "2025_BYD_Sealion_7_Performance_front.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "LuvsMG481",
+      "source": "https://commons.wikimedia.org/wiki/File:2025_BYD_Sealion_7_Performance_front.jpg"
+    },
+    {
+      "carId": "kia-ev5",
+      "file": "cars/kia-ev5.png",
+      "article": "Kia EV5",
+      "commonsFile": "2024_Kia_EV5_Earth_Exclusive_AWD_(Thailand)_front_view.png",
+      "licence": "CC BY 3.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+      "author": "iMoD Official",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Kia_EV5_Earth_Exclusive_AWD_(Thailand)_front_view.png"
+    },
+    {
+      "carId": "deepal-e07",
+      "file": "cars/deepal-e07.jpg",
+      "article": "Deepal E07",
+      "commonsFile": "2024_Deepal_E07_Performance_AWD.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Chanokchon",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Deepal_E07_Performance_AWD.jpg"
+    },
+    {
+      "carId": "kia-ev9-gt-line",
+      "file": "cars/kia-ev9-gt-line.jpg",
+      "article": "Kia EV9",
+      "commonsFile": "Kia_EV9_1X7A2472.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander-93",
+      "source": "https://commons.wikimedia.org/wiki/File:Kia_EV9_1X7A2472.jpg"
+    },
+    {
+      "carId": "chery-tiggo-7-phev",
+      "file": "cars/chery-tiggo-7-phev.jpg",
+      "article": "Chery Tiggo 7",
+      "commonsFile": "Chery_Tiggo_7_II_014_(cropped).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "JustAnotherCarDesigner",
+      "source": "https://commons.wikimedia.org/wiki/File:Chery_Tiggo_7_II_014_(cropped).jpg"
+    },
+    {
+      "carId": "deepal-s05-reev",
+      "file": "cars/deepal-s05-reev.jpg",
+      "article": "Deepal S05",
+      "commonsFile": "Deepal_S05_004.jpg",
+      "licence": "CC0",
+      "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "author": "KitsuneDP",
+      "source": "https://commons.wikimedia.org/wiki/File:Deepal_S05_004.jpg"
+    },
+    {
+      "carId": "jaecoo-j7-phev",
+      "file": "cars/jaecoo-j7-phev.jpg",
+      "article": "Jaecoo J7",
+      "commonsFile": "Jaecoo_J7_1.6T_4WD_–_f_21032025.jpg",
+      "licence": "CC BY-SA 3.0 de",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "author": "© M 93",
+      "source": "https://commons.wikimedia.org/wiki/File:Jaecoo_J7_1.6T_4WD_%E2%80%93_f_21032025.jpg"
+    },
+    {
+      "carId": "omoda-7",
+      "file": "cars/omoda-7.jpg",
+      "article": "Omoda 7",
+      "commonsFile": "Omoda_7_SHS_IAA_2025_DSC_2186.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:Omoda_7_SHS_IAA_2025_DSC_2186.jpg"
+    },
+    {
+      "carId": "chery-tiggo-8-phev",
+      "file": "cars/chery-tiggo-8-phev.jpg",
+      "article": "Chery Tiggo 8",
+      "commonsFile": "Chery_Tiggo_8_Plus_018_(cropped).jpg",
+      "licence": "CC0",
+      "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "author": "JustAnotherCarDesigner",
+      "source": "https://commons.wikimedia.org/wiki/File:Chery_Tiggo_8_Plus_018_(cropped).jpg"
+    },
+    {
+      "carId": "chery-tiggo-9-phev",
+      "file": "cars/chery-tiggo-9-phev.jpg",
+      "article": "Chery Tiggo 9",
+      "commonsFile": "Chery_Tiggo_9_01.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Make Chiffon great again",
+      "source": "https://commons.wikimedia.org/wiki/File:Chery_Tiggo_9_01.jpg"
+    },
+    {
+      "carId": "haval-h6-phev",
+      "file": "cars/haval-h6-phev.jpg",
+      "article": "Haval H6",
+      "commonsFile": "Haval_H6_III_IMG001_(cropped).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Zotyefan",
+      "source": "https://commons.wikimedia.org/wiki/File:Haval_H6_III_IMG001_(cropped).jpg"
+    },
+    {
+      "carId": "mg-hs-phev",
+      "file": "cars/mg-hs-phev.jpg",
+      "article": "MG HS",
+      "commonsFile": "MG_HS_Hybrid+_Luxury_(II)_–_f_12032026.jpg",
+      "licence": "CC BY-SA 3.0 de",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "author": "© M 93",
+      "source": "https://commons.wikimedia.org/wiki/File:MG_HS_Hybrid%2B_Luxury_(II)_%E2%80%93_f_12032026.jpg"
+    },
+    {
+      "carId": "gwm-tank-500-phev",
+      "file": "cars/gwm-tank-500-phev.jpg",
+      "article": "Tank 500",
+      "commonsFile": "Tank_500_IMG001.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Anonymousfox36",
+      "source": "https://commons.wikimedia.org/wiki/File:Tank_500_IMG001.jpg"
+    }
+  ],
+  "missing": [
+    "forthing-friday-bev",
+    "dongfeng-007",
+    "forthing-friday-reev"
+  ]
+}
