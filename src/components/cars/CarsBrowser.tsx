@@ -1,7 +1,7 @@
 // src/components/cars/CarsBrowser.tsx
 'use client'
 
-import { Car as CarIcon, GitCompareArrows, Search, SlidersHorizontal, X } from 'lucide-react'
+import { Car as CarIcon, GitCompareArrows, SlidersHorizontal, X } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -23,12 +23,17 @@ import { CarCard } from './CarCard'
 import { CarFilters } from './CarFilters'
 
 /**
- * Search, filters, sorting and the comparison tray, over one list.
+ * Filters, sorting and the comparison tray, over one list.
  *
- * State lives here and nowhere else — the filter panel, the sort select and the
- * cards are all controlled. That is what lets the mobile drawer and the desktop
- * sidebar be the same component: they read the same object, so opening the
- * drawer never shows a different set of choices than the sidebar had.
+ * The search query and the filter object are owned by CarsExplorer above,
+ * because the hero holds the only search box on the page. Sort, the drawer and
+ * the comparison tray are local — nothing outside needs them, and lifting state
+ * nobody else reads only makes the parent harder to follow.
+ *
+ * The filter panel, the sort select and the cards are all controlled, which is
+ * what lets the mobile drawer and the desktop sidebar be the same component:
+ * they read the same object, so opening the drawer never shows a different set
+ * of choices than the sidebar had.
  *
  * The order of operations matters and is deliberate: search, then filter, then
  * sort. Sorting first would be wasted work, and filtering before searching
@@ -41,6 +46,11 @@ export interface CarsBrowserProps {
   categories: CarCategory[]
   connectors: ConnectorStandard[]
   priceBounds: { min: number; max: number }
+  /** Owned by CarsExplorer, because the hero's input is the search box. */
+  query: string
+  onQueryChange: (query: string) => void
+  filters: CarFilterState
+  onFiltersChange: (filters: CarFilterState) => void
 }
 
 /** Four columns of specs is already dense on a phone; more would not read. */
@@ -52,9 +62,11 @@ export function CarsBrowser({
   categories,
   connectors,
   priceBounds,
+  query,
+  onQueryChange,
+  filters,
+  onFiltersChange,
 }: CarsBrowserProps) {
-  const [query, setQuery] = React.useState('')
-  const [filters, setFilters] = React.useState<CarFilterState>(EMPTY_FILTERS)
   const [sort, setSort] = React.useState<CarSort>('price-asc')
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const [compared, setCompared] = React.useState<string[]>([])
@@ -101,8 +113,8 @@ export function CarsBrowser({
   }
 
   const reset = () => {
-    setQuery('')
-    setFilters(EMPTY_FILTERS)
+    onQueryChange('')
+    onFiltersChange(EMPTY_FILTERS)
   }
 
   // The drawer is a fixed overlay, so the page behind it must not scroll —
@@ -119,7 +131,7 @@ export function CarsBrowser({
   const panel = (
     <CarFilters
       filters={filters}
-      onChange={setFilters}
+      onChange={onFiltersChange}
       brands={brands}
       categories={categories}
       connectors={connectors}
@@ -131,26 +143,33 @@ export function CarsBrowser({
 
   return (
     <div>
-      {/* ── Search and sort ────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="flex h-12 flex-1 items-center gap-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white px-4 transition-shadow focus-within:border-blue-500 focus-within:shadow-focus">
-          <Search size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search a brand or model — BYD, Tiggo, PHEV…"
-            aria-label="Search cars"
-            className="w-full border-none bg-transparent text-ui text-slate-900 outline-none placeholder:text-slate-400 [&::-webkit-search-cancel-button]:hidden"
-          />
+      {/* ── Toolbar ────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {/*
+          What is currently being searched for, echoed as a removable chip
+          rather than a second input. The hero above holds the field; repeating
+          it here would give the page two boxes that could disagree.
+        */}
+        <div className="flex min-h-[3rem] min-w-0 flex-1 flex-wrap items-center gap-2">
           {query ? (
             <button
               type="button"
-              onClick={() => setQuery('')}
-              aria-label="Clear search"
-              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              onClick={() => onQueryChange('')}
+              className="inline-flex max-w-full items-center gap-2 rounded-full border-[1.5px] border-slate-300 py-1.5 pl-3.5 pr-2.5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
             >
-              <X size={14} aria-hidden="true" />
+              <span className="truncate">&ldquo;{query}&rdquo;</span>
+              <X size={14} aria-hidden="true" className="shrink-0 text-slate-400" />
+            </button>
+          ) : null}
+
+          {hasActiveFilters(filters) ? (
+            <button
+              type="button"
+              onClick={() => onFiltersChange(EMPTY_FILTERS)}
+              className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-slate-300 py-1.5 pl-3.5 pr-2.5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
+            >
+              Filters on
+              <X size={14} aria-hidden="true" className="shrink-0 text-slate-400" />
             </button>
           ) : null}
         </div>
