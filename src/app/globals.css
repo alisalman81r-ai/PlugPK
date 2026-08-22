@@ -5,7 +5,8 @@
 
 /*
  * Fonts are self-hosted by next/font/google in src/app/layout.tsx, which
- * defines --font-serif and --font-jetbrains on <html>. Do not redeclare them
+ * defines --font-inter, --font-display and --font-jetbrains on <html>. Do
+ * not redeclare them
  * here: :root and next/font's generated class have equal specificity, so a
  * declaration in this file would win on source order and shadow the real,
  * hashed family names.
@@ -47,11 +48,29 @@
   }
 
   body {
-    font-family: var(--font-serif);
+    font-family: var(--font-inter);
     color: var(--color-text);
     background: var(--color-bg);
     line-height: 1.6;
     overflow-x: hidden;
+  }
+
+  /*
+   * Every heading, in one rule.
+   *
+   * An element selector rather than a `font-display` class on each of them:
+   * there are well over a hundred h2s and h3s across the app, a class on each
+   * is a hundred chances to miss one, and any heading added later would come
+   * out on the body face. Weight, size and tracking stay where they are — the
+   * utilities on each heading still win, since this only sets family.
+   */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
   }
 
   ::selection {

@@ -1,22 +1,30 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { JetBrains_Mono, Source_Serif_4 } from 'next/font/google'
+import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google'
 import './globals.css'
 
-/**
- * The site is set in a serif.
- *
- * Source Serif 4 rather than a display face like Playfair: the headings are
- * only part of the job here, and a high-contrast display serif at 13px — the
- * eyebrows, the meta rows, the table cells — closes up and stops being
- * readable. This one carries 200 through 900, so the same family covers a
- * 6rem heading and an 11px label.
- */
-const serif = Source_Serif_4({
+/** Body, labels, buttons — everything that is not a heading. */
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-serif',
+  variable: '--font-inter',
   display: 'swap',
   weight: ['400', '500', '600', '700', '800', '900'],
+})
+
+/**
+ * Headings only.
+ *
+ * Playfair is a display face and is treated as one: globals.css points every
+ * h1–h6 at it and nothing else. That is deliberate rather than lazy — its
+ * stroke contrast is what makes a 6rem heading land, and the same contrast at
+ * 13px closes the counters up, so the eyebrows, meta rows and table cells stay
+ * on Inter.
+ */
+const display = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+  weight: ['500', '600', '700', '800', '900'],
 })
 
 // Supplies --font-jetbrains for the `font-mono` utility. Without it that
@@ -78,7 +86,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${serif.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${inter.variable} ${display.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-white font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )

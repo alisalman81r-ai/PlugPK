@@ -59,9 +59,11 @@ const config: Config = {
         },
       },
       fontFamily: {
-        // Named `sans` still, because every className in the codebase says
-        // font-sans. The family behind it is a serif.
-        sans: ['var(--font-serif)', 'Georgia', 'Cambria', 'serif'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        // For the odd heading-weight line that is not an h1–h6 element — a
+        // stat figure, a card title set as a <p>. Every real heading picks
+        // this up from globals.css without needing the class.
+        display: ['var(--font-display)', 'Georgia', 'serif'],
         mono: ['var(--font-jetbrains)', 'monospace'],
       },
       fontSize: {
