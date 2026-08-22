@@ -44,13 +44,17 @@ export default function ComparePage({ searchParams }: ComparePageProps) {
   return (
     <section className="bg-white py-12 lg:py-16">
       <div className="container-plug">
-        <div className="max-w-3xl">
+        <div className="mx-auto max-w-3xl text-center">
           <span className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
             Side by side
           </span>
-          <h1 className="mt-3 text-[clamp(2rem,4.5vw,3rem)] font-black leading-[1.05] tracking-[-0.03em] text-slate-900">
-            Compare cars
+          <h1 className="mt-4 text-balance text-[clamp(2.25rem,5vw,3.5rem)] font-black leading-[1.03] tracking-[-0.035em] text-slate-900">
+            Compare <span className="text-plug-blue-600">cars</span>.
           </h1>
+          <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
+            Every published figure, lined up. Rows no car has a figure for are left out
+            rather than filled with dashes.
+          </p>
         </div>
 
         <div className="mt-10">

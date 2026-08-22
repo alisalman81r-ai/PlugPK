@@ -4,7 +4,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
-import { Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
+import { AnimatedIcon, Badge, HoverMotion, PhotoFrame, PillButton, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { getImageCredit } from '@/data/carImageCredits'
 import { fullSpecs } from '@/lib/cars'
@@ -171,18 +171,20 @@ export function CarDetails({ car }: CarDetailsProps) {
                 const Icon = item.icon
 
                 return (
-                  <div
+                  <HoverMotion
                     key={item.label}
-                    className="rounded-2xl border border-slate-200 bg-white p-4"
+                    className="rounded-2xl border border-slate-200 bg-white p-4 transition-colors duration-300 hover:border-plug-blue-300"
                   >
                     <dt className="flex items-center gap-1.5 text-ui-xs text-slate-400">
-                      <Icon size={12} className="shrink-0" aria-hidden="true" />
+                      <AnimatedIcon motion="pulse">
+                        <Icon size={12} className="shrink-0" aria-hidden="true" />
+                      </AnimatedIcon>
                       <span className="truncate">{item.label}</span>
                     </dt>
                     <dd className="mt-1.5 text-lg font-black tracking-tight text-slate-900">
                       {item.value}
                     </dd>
-                  </div>
+                  </HoverMotion>
                 )
               })}
             </dl>
@@ -234,6 +236,15 @@ export function CarDetails({ car }: CarDetailsProps) {
               {car.notes}
             </p>
           ) : null}
+
+          {/*
+            The obvious next question after "can I afford it" is "where do I
+            charge it", which is the rest of this site. An EV page that ends in
+            a spec table ends nowhere.
+          */}
+          <div className="mt-8">
+            <PillButton href="/map">Find charging nearby</PillButton>
+          </div>
 
           <div className="mt-8 rounded-2xl border border-slate-200 p-6">
             <SpecificationTable rows={specs} title="Specifications" />

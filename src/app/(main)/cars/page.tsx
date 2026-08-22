@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 
 import { CarsBrowser } from '@/components/cars/CarsBrowser'
+import { Reveal } from '@/components/ui'
 import {
   getAllCars,
   getBrands,
@@ -55,6 +56,31 @@ export default function CarsPage() {
           </p>
         </div>
 
+        {/*
+          Counted from the data, not written down — the only way a figure in a
+          heading stays true when a car is added.
+        */}
+        <Reveal>
+          <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-2 gap-x-6 gap-y-6 border-y border-slate-200 py-8 sm:grid-cols-4">
+            <Stat value={cars.length} label="Cars listed" />
+            <Stat value={getBrands().length} label="Brands" />
+            <Stat value={cars.filter((car) => car.category === 'EV').length} label="Fully electric" />
+            {/* PHEVs and REEVs together — a range extender is not a plug-in
+                hybrid, so the label names both rather than filing one under
+                the other. */}
+            <Stat
+              value={cars.filter((car) => car.category !== 'EV').length}
+              label="Plug-in & REEV"
+            />
+          </dl>
+        </Reveal>
+
+        {/*
+          The browser is deliberately not wrapped in Reveal. Its grid remounts
+          whenever a filter changes, so a fade-and-rise would replay on every
+          click — turning a filter into something that feels slow rather than
+          instant.
+        */}
         <div className="mt-12">
           <CarsBrowser
             cars={cars}
@@ -66,5 +92,16 @@ export default function CarsPage() {
         </div>
       </div>
     </section>
+  )
+}
+
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="text-center">
+      <dd className="text-[2rem] font-black leading-none tracking-tight text-slate-900">
+        {value}
+      </dd>
+      <dt className="mt-2 text-ui-xs text-slate-500">{label}</dt>
+    </div>
   )
 }

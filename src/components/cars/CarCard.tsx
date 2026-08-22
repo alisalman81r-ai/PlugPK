@@ -1,12 +1,28 @@
 // src/components/cars/CarCard.tsx
 'use client'
 
-import { ArrowRight, BatteryCharging, Check, GitCompareArrows, Plug, Route, Zap } from 'lucide-react'
+import {
+  ArrowUpRight,
+  BatteryCharging,
+  Check,
+  GitCompareArrows,
+  Plug,
+  Route,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
-import { AnimatedIcon, Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
+import {
+  AnimatedIcon,
+  Badge,
+  HoverMotion,
+  PhotoFrame,
+  type BadgeVariant,
+  type IconMotion,
+} from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { headlineSpecs } from '@/lib/cars'
 import { cn } from '@/lib/utils'
@@ -16,9 +32,9 @@ import { cn } from '@/lib/utils'
  *
  * Built on the same FRAME/FACE treatment as the ecosystem grid and the partner
  * cards, so a new section does not arrive with its own idea of what a card looks
- * like. The image uses PhotoFrame, which already renders a fallback rather than
- * a broken <Image> when `src` is undefined — which is every car until real
- * photography exists.
+ * like. The image uses PhotoFrame, which renders a fallback rather than a broken
+ * <Image> when `src` is undefined — three of the cars have no licensed
+ * photograph, and they get a placeholder instead of a hole.
  *
  * The spec row is whatever headlineSpecs() returns for that powertrain: an EV
  * shows battery, range and charging speeds, a PHEV shows battery, electric range
@@ -42,22 +58,26 @@ const CATEGORY_VARIANT: Record<CarCategory, BadgeVariant> = {
   Hybrid: 'green',
 }
 
-/** Matched to what the figure means, so the row scans without reading labels. */
-const SPEC_ICON: Record<string, typeof Zap> = {
-  Battery: BatteryCharging,
-  Range: Route,
-  'Electric range': Route,
-  'DC charging': Zap,
-  'AC charging': Plug,
-  Engine: Zap,
-  Power: Zap,
+/**
+ * Matched to what the figure means, so the row scans without reading labels —
+ * and each carries the motion that fits it: the battery pulses, the route
+ * arrow travels, the plug hops.
+ */
+const SPEC_ICON: Record<string, { icon: LucideIcon; motion: IconMotion }> = {
+  Battery: { icon: BatteryCharging, motion: 'pulse' },
+  Range: { icon: Route, motion: 'travel' },
+  'Electric range': { icon: Route, motion: 'travel' },
+  'DC charging': { icon: Zap, motion: 'pulse' },
+  'AC charging': { icon: Plug, motion: 'lift' },
+  Engine: { icon: Zap, motion: 'spin' },
+  Power: { icon: Zap, motion: 'pulse' },
 }
 
 export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: CarCardProps) {
   const specs = headlineSpecs(car)
 
   return (
-    <div className={FRAME}>
+    <HoverMotion className={FRAME}>
       <div className={cn(FACE, 'overflow-hidden')}>
         {/* A ratio rather than a height, so the card keeps its proportion as
             the column narrows. */}
@@ -99,12 +119,17 @@ export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: C
           {specs.length > 0 ? (
             <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2.5 border-t border-slate-100 pt-4">
               {specs.map((spec) => {
-                const Icon = SPEC_ICON[spec.label] ?? Zap
+                const { icon: Icon, motion } = SPEC_ICON[spec.label] ?? {
+                  icon: Zap,
+                  motion: 'pulse' as IconMotion,
+                }
 
                 return (
                   <div key={spec.label} className="min-w-0">
                     <dt className="flex items-center gap-1.5 text-ui-xs text-slate-400">
-                      <Icon size={11} className="shrink-0" aria-hidden="true" />
+                      <AnimatedIcon motion={motion}>
+                        <Icon size={11} className="shrink-0" aria-hidden="true" />
+                      </AnimatedIcon>
                       <span className="truncate">{spec.label}</span>
                     </dt>
                     <dd className="mt-0.5 truncate text-ui-sm font-semibold text-slate-900">
@@ -117,14 +142,31 @@ export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: C
           ) : null}
 
           <div className="mt-5 flex items-center gap-2 pt-1">
+            {/*
+              The pill-and-badge shape from PillButton, at card scale — a 40px
+              badge inside a 40px-tall button would leave no pill, so the
+              geometry is scaled rather than the component reused. Same
+              mechanic: two arrows stacked in a clipped circle, one leaving as
+              the other arrives.
+            */}
             <Link
               href={`/cars/${car.slug}`}
-              className="group/cta inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+              className="group/cta inline-flex h-10 flex-1 items-center justify-between gap-2 rounded-full bg-slate-900 pl-4 pr-1 text-ui-sm font-semibold text-white transition-all duration-300 hover:bg-slate-800 hover:shadow-[0_10px_24px_-10px_rgba(37,99,235,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
             >
               View details
-              <AnimatedIcon motion="travel">
-                <ArrowRight size={14} aria-hidden="true" />
-              </AnimatedIcon>
+              <span
+                aria-hidden="true"
+                className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-slate-900"
+              >
+                <ArrowUpRight
+                  size={14}
+                  className="absolute transition-transform duration-300 ease-out group-hover/cta:-translate-y-5 group-hover/cta:translate-x-5 motion-reduce:transition-none motion-reduce:group-hover/cta:translate-x-0 motion-reduce:group-hover/cta:translate-y-0"
+                />
+                <ArrowUpRight
+                  size={14}
+                  className="absolute -translate-x-5 translate-y-5 transition-transform duration-300 ease-out group-hover/cta:translate-x-0 group-hover/cta:translate-y-0 motion-reduce:hidden"
+                />
+              </span>
             </Link>
 
             {onToggleCompare ? (
@@ -163,6 +205,6 @@ export function CarCard({ car, isCompared, onToggleCompare, compareDisabled }: C
           </div>
         </div>
       </div>
-    </div>
+    </HoverMotion>
   )
 }
