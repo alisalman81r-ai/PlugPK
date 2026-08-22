@@ -27,6 +27,7 @@ export const NAV_LINKS: NavLink[] = [
   // login, so the one item a new business owner would click led to a wall
   // rather than a form.
   { label: 'Partner Up', href: '/partners' },
+  { label: 'Vehicles',   href: '/vehicles' },
 ]
 
 /**
