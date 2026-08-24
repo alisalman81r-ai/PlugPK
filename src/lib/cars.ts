@@ -10,7 +10,16 @@ import {
 /**
  * Everything that reads the car database.
  *
- * The only module that touches src/data/cars.ts, so moving the rows into the
+ * Pure helpers over a list of cars, plus readers that default to the seed.
+ *
+ * The rows now live in the database (see lib/db/car-queries.ts) and this module
+ * no longer owns them. Every helper that judges a set — brands, categories,
+ * connectors, insights, similar cars — takes the list to judge, so it describes
+ * whatever the caller loaded rather than the seed. They default to the module so
+ * scripts/verify-cars.ts and any other consumer keep working against a fixed,
+ * reviewable set.
+ *
+ * Was: the only module that touches src/data/cars.ts, so moving the rows into the
  * database later is a change here and nowhere else. Pure functions over arrays
  * — no caching, no indexes: a few dozen cars filter in well under a frame, and
  * an index is one more thing to invalidate when a row is added.
@@ -35,19 +44,19 @@ export function getCarsByIds(ids: string[]): Car[] {
 }
 
 /** Brands present in the data, alphabetical. Never a hardcoded list. */
-export function getBrands(): string[] {
-  return Array.from(new Set(cars.map((car) => car.brand))).sort((a, b) => a.localeCompare(b))
+export function getBrands(list: Car[] = cars): string[] {
+  return Array.from(new Set(list.map((car) => car.brand))).sort((a, b) => a.localeCompare(b))
 }
 
 /** Only the categories that actually have cars — no empty "Hybrid" chip. */
-export function getCategories(): CarCategory[] {
-  const present = new Set(cars.map((car) => car.category))
+export function getCategories(list: Car[] = cars): CarCategory[] {
+  const present = new Set(list.map((car) => car.category))
   return CATEGORY_ORDER.filter((category) => present.has(category))
 }
 
-export function getConnectors(): ConnectorStandard[] {
+export function getConnectors(list: Car[] = cars): ConnectorStandard[] {
   const present = new Set<ConnectorStandard>()
-  for (const car of cars) for (const connector of car.connector ?? []) present.add(connector)
+  for (const car of list) for (const connector of car.connector ?? []) present.add(connector)
   return Array.from(present).sort((a, b) => a.localeCompare(b))
 }
 
@@ -456,9 +465,9 @@ export function specGroups(car: Car): SpecGroup[] {
  * EV. Falls back to nearest price across all categories when a category has too
  * few members to fill the row, so the rail is never half empty.
  */
-export function getSimilarCars(car: Car, limit = 3): Car[] {
+export function getSimilarCars(car: Car, pool: Car[] = cars, limit = 3): Car[] {
   const distance = (other: Car) => Math.abs(other.price.min - car.price.min)
-  const others = cars.filter((entry) => entry.id !== car.id)
+  const others = pool.filter((entry) => entry.id !== car.id)
 
   const sameCategory = others
     .filter((entry) => entry.category === car.category)
@@ -494,7 +503,7 @@ export interface Insight {
  * this data has no knowledge of. Longest, cheapest, largest and most powerful
  * are facts.
  */
-export function getInsights(): Insight[] {
+export function getInsights(list: Car[] = cars): Insight[] {
   const out: Insight[] = []
 
   const extreme = (
@@ -503,7 +512,7 @@ export function getInsights(): Insight[] {
     direction: 'max' | 'min',
     format: (car: Car) => string,
   ) => {
-    const scored = cars
+    const scored = list
       .map((car) => ({ car, value: pick(car) }))
       .filter((entry): entry is { car: Car; value: number } => entry.value !== null)
 
@@ -553,7 +562,6 @@ export function filtersToParams(
   if (filters.categories.length > 0) params.set('type', filters.categories.join(','))
   if (filters.brands.length > 0) params.set('brand', filters.brands.join(','))
   if (filters.connectors.length > 0) params.set('plug', filters.connectors.join(','))
-  if (filters.priceMax !== null) params.set('max', String(filters.priceMax))
   if (filters.minBattery !== null) params.set('battery', String(filters.minBattery))
   if (filters.minRange !== null) params.set('range', String(filters.minRange))
   if (filters.minPower !== null) params.set('power', String(filters.minPower))
@@ -603,7 +611,19 @@ export function paramsToFilters(params: URLSearchParams): {
       connectors: list('plug').filter((entry): entry is ConnectorStandard =>
         validConnectors.has(entry as ConnectorStandard),
       ),
-      priceMax: number('max'),
+      /*
+        `max` is not read back.
+
+        The price control was removed from the filter panel, so nothing on the
+        page can set or clear priceMax. Honouring the parameter anyway meant a
+        /cars?max=… link quietly cut the grid — 28 cars down to 11 in testing —
+        with no visible control saying why and no way to undo it short of
+        editing the address bar. An invisible filter is worse than no filter.
+
+        priceMax stays on CarFilterState and in filterCars, so restoring a price
+        control is a matter of adding the UI back and restoring this line.
+      */
+      priceMax: null,
       minBattery: number('battery'),
       minRange: number('range'),
       minPower: number('power'),
