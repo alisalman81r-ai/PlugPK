@@ -35,8 +35,24 @@ export function isAdminEnabled(): boolean {
   return process.env.ENABLE_ADMIN === 'true'
 }
 
+/**
+ * The configured password, with surrounding whitespace removed.
+ *
+ * Trimmed at both ends of the comparison — here and on the submitted value.
+ * A shared credential gets pasted, and a paste picks up a trailing space or
+ * newline more often than not; `safeEqual` compares lengths first, so one
+ * stray space reads as a wrong password. The login form cannot say which
+ * failure it was, by design, so that combination is close to undiagnosable
+ * from the browser — it cost a round trip of "the password you gave me does
+ * not work" to find.
+ *
+ * The trade is that leading and trailing whitespace can no longer be part of
+ * the password. For an operator credential typed into a form that is worth
+ * it; a password whose security rests on an invisible trailing space is not a
+ * password worth protecting.
+ */
 function getSecret(): string | null {
-  const password = process.env.ADMIN_PASSWORD
+  const password = process.env.ADMIN_PASSWORD?.trim()
   if (!password || password.length === 0) return null
   return password
 }
@@ -75,7 +91,7 @@ function safeEqual(a: string, b: string): boolean {
 export function verifyPassword(candidate: string): boolean {
   const secret = getSecret()
   if (!secret) return false
-  return safeEqual(candidate, secret)
+  return safeEqual(candidate.trim(), secret)
 }
 
 export function verifySessionValue(value: string | undefined): boolean {
