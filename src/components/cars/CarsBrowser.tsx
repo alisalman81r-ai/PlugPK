@@ -42,10 +42,8 @@ import { CarFilters } from './CarFilters'
 
 export interface CarsBrowserProps {
   cars: Car[]
-  brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
-  priceBounds: { min: number; max: number }
   /** Owned by CarsExplorer, because the hero's input is the search box. */
   query: string
   onQueryChange: (query: string) => void
@@ -65,10 +63,8 @@ const MAX_COMPARE = 4
 
 export function CarsBrowser({
   cars,
-  brands,
   categories,
   connectors,
-  priceBounds,
   query,
   onQueryChange,
   filters,
@@ -94,19 +90,17 @@ export function CarsBrowser({
   }, [searched, filters, sort, savedOnly, favouriteIds])
 
   /**
-   * Counts shown beside each brand and category.
+   * The count beside each powertrain segment.
    *
-   * Computed with that facet's own selection removed, which is what makes them
-   * useful: with BYD checked, the count beside MG has to mean "how many if you
-   * checked MG too", not zero.
+   * Computed with the category selection removed, which is what makes it
+   * useful: with EV selected, the count on PHEV has to mean "how many if you
+   * switched to PHEV", not zero.
+   *
+   * There was a matching brandCounts here for the panel's brand checkboxes.
+   * Those are gone (the rail above the grid is the only brand control now, and
+   * it computes its own counts in CarsExplorer), so this is the only facet left
+   * that needs counting.
    */
-  const brandCounts = React.useMemo(() => {
-    const base = filterCars(searched, { ...filters, brands: [] })
-    const out: Record<string, number> = {}
-    for (const brand of brands) out[brand] = base.filter((car) => car.brand === brand).length
-    return out
-  }, [searched, filters, brands])
-
   const categoryCounts = React.useMemo(() => {
     const base = filterCars(searched, { ...filters, categories: [] })
     const out: Record<string, number> = {}
@@ -145,18 +139,7 @@ export function CarsBrowser({
     }
   }, [drawerOpen])
 
-  const panel = (
-    <CarFilters
-      filters={filters}
-      onChange={onFiltersChange}
-      brands={brands}
-      categories={categories}
-      connectors={connectors}
-      priceBounds={priceBounds}
-      brandCounts={brandCounts}
-      categoryCounts={categoryCounts}
-    />
-  )
+  const panel = <CarFilters filters={filters} onChange={onFiltersChange} connectors={connectors} />
 
   return (
     // The comparison tray is fixed to the bottom of the viewport, so without
@@ -171,8 +154,8 @@ export function CarsBrowser({
         opening a panel — on a phone the sidebar is behind a drawer, so
         without this the primary filter is two taps away.
 
-        It writes into the same filters.categories array the sidebar uses, so
-        the two never disagree.
+        It is also the only powertrain control now: the sidebar used to carry a
+        second copy as checkboxes, which meant two places to look for one choice.
       */}
       <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Segment

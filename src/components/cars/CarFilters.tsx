@@ -5,8 +5,8 @@ import { ChevronDown, RotateCcw } from 'lucide-react'
 import * as React from 'react'
 
 import { TurnIcon } from '@/components/ui'
-import type { CarCategory, ConnectorStandard } from '@/data/cars'
-import { formatPkr, type CarFilterState } from '@/lib/cars'
+import type { ConnectorStandard } from '@/data/cars'
+import type { CarFilterState } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
 /**
@@ -14,27 +14,36 @@ import { cn } from '@/lib/utils'
  *
  * One component for both, so a filter added here appears in both places and
  * cannot drift between them. Presentational throughout: every value arrives as
- * a prop and every change leaves through onChange, which is what lets the hero's
- * brand select and these checkboxes sit over the same array.
+ * a prop and every change leaves through onChange, which is what lets this panel
+ * and the controls above the grid write into one filter object.
  *
- * Structured as collapsible sections rather than one long stack. Seven groups
- * unrolled is over a screen tall on a laptop, so the ones a buyer reaches for
- * first — powertrain, price, brand — open by default and the rest stay shut
- * until wanted. Each header carries a count of its own selections, so a
- * collapsed section can still say it is doing something; a closed section
- * silently filtering the grid is how a filter panel starts feeling broken.
+ * Structured as collapsible sections rather than one long stack. Each header
+ * carries a count of its own selections, so a collapsed section can still say it
+ * is doing something; a closed section silently filtering the grid is how a
+ * filter panel starts feeling broken.
+ *
+ * ── What is deliberately not here ─────────────────────────────────────
+ *
+ * Powertrain and Brand used to head this panel, and both were the second copy
+ * of a control the page already had above the grid: powertrain is the segmented
+ * strip in CarsBrowser, brand is the BrandRail and the hero's select. All of
+ * them wrote into the same two arrays, so the panel was offering a slower route
+ * to a choice already one tap away, and pushing the specification filters — the
+ * ones with nowhere else to live — below the fold.
+ *
+ * Maximum price is gone too, and unlike those two it had no other home on the
+ * page — so price filtering is genuinely gone, not relocated. `priceMax` stays
+ * on CarFilterState and in filterCars, but nothing sets it: the `max` query
+ * parameter is no longer read either, because honouring it with no control on
+ * screen meant a /cars?max=… link quietly cut the grid with no way to undo it.
+ * Restoring price filtering means adding a control here and restoring that one
+ * line in lib/cars.
  */
 
 export interface CarFiltersProps {
   filters: CarFilterState
   onChange: (next: CarFilterState) => void
-  brands: string[]
-  categories: CarCategory[]
   connectors: ConnectorStandard[]
-  priceBounds: { min: number; max: number }
-  /** Per-brand result counts under the *other* active filters. */
-  brandCounts: Record<string, number>
-  categoryCounts: Record<string, number>
 }
 
 /** Round steps a buyer thinks in, rather than the raw data's odd figures. */
@@ -42,154 +51,14 @@ const BATTERY_STEPS = [20, 40, 60, 80]
 const RANGE_STEPS = [100, 300, 400, 500]
 const POWER_STEPS = [150, 200, 300, 400]
 
-export function CarFilters({
-  filters,
-  onChange,
-  brands,
-  categories,
-  connectors,
-  priceBounds,
-  brandCounts,
-  categoryCounts,
-}: CarFiltersProps) {
+export function CarFilters({ filters, onChange, connectors }: CarFiltersProps) {
   /** Add or remove one value from a multi-select group. */
   const toggle = <T,>(list: T[], value: T): T[] =>
     list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]
 
-  const priceValue = filters.priceMax ?? priceBounds.max
-
-  /**
-   * The filled part of the price track.
-   *
-   * A native range input paints one flat colour the whole way across, which
-   * tells the eye nothing about where the handle sits. A gradient stop at the
-   * current position makes the control read as a measure rather than a line.
-   */
-  const priceProgress =
-    ((priceValue - priceBounds.min) / Math.max(1, priceBounds.max - priceBounds.min)) * 100
-
   return (
     <div className="flex flex-col">
-      <Section label="Powertrain" count={filters.categories.length} defaultOpen>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <Chip
-              key={category}
-              active={filters.categories.includes(category)}
-              onClick={() =>
-                onChange({ ...filters, categories: toggle(filters.categories, category) })
-              }
-              count={categoryCounts[category]}
-            >
-              {category}
-            </Chip>
-          ))}
-        </div>
-      </Section>
-
-      <Section
-        label="Maximum price"
-        count={filters.priceMax === null ? 0 : 1}
-        defaultOpen
-        onClear={filters.priceMax === null ? undefined : () => onChange({ ...filters, priceMax: null })}
-      >
-        <p className="mb-3 flex items-baseline justify-between gap-3">
-          <span className="text-lg font-black tracking-tight text-slate-900">
-            {filters.priceMax === null ? 'Any price' : formatPkr(filters.priceMax)}
-          </span>
-        </p>
-
-        <input
-          type="range"
-          min={priceBounds.min}
-          max={priceBounds.max}
-          step={100_000}
-          value={priceValue}
-          onChange={(event) => {
-            const value = Number(event.target.value)
-            // At the top of the range the filter turns off rather than being set
-            // to the maximum, so "no price filter" and "capped at the priciest
-            // car" stay distinguishable — they behave the same but read
-            // differently, and the label has to be able to say which it is.
-            onChange({ ...filters, priceMax: value >= priceBounds.max ? null : value })
-          }}
-          aria-label="Maximum price"
-          aria-valuetext={filters.priceMax === null ? 'Any price' : formatPkr(filters.priceMax)}
-          style={{
-            background: `linear-gradient(to right, #0F172A 0%, #0F172A ${priceProgress}%, #E2E8F0 ${priceProgress}%, #E2E8F0 100%)`,
-          }}
-          className={cn(
-            'h-1.5 w-full cursor-pointer appearance-none rounded-full',
-            // The thumb has to be styled per engine; there is no shorthand.
-            '[&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4',
-            '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full',
-            '[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white',
-            '[&::-webkit-slider-thumb]:bg-slate-900',
-            '[&::-webkit-slider-thumb]:shadow-[0_1px_4px_rgba(15,23,42,0.4)]',
-            '[&::-webkit-slider-thumb]:transition-transform',
-            'hover:[&::-webkit-slider-thumb]:scale-110',
-            '[&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4',
-            '[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2',
-            '[&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-slate-900',
-          )}
-        />
-
-        <div className="mt-2 flex justify-between text-ui-xs tabular-nums text-slate-400">
-          <span>{formatPkr(priceBounds.min)}</span>
-          <span>{formatPkr(priceBounds.max)}</span>
-        </div>
-      </Section>
-
-      <Section
-        label="Brand"
-        count={filters.brands.length}
-        defaultOpen
-        onClear={filters.brands.length === 0 ? undefined : () => onChange({ ...filters, brands: [] })}
-      >
-        {/* Capped and scrollable: fourteen rows unrolled pushes every section
-            below it off the screen, and the list grows as cars are added. */}
-        <div className="scrollbar-hide -mx-1 max-h-64 overflow-y-auto px-1">
-          {brands.map((brand) => {
-            const count = brandCounts[brand] ?? 0
-            const checked = filters.brands.includes(brand)
-
-            return (
-              <label
-                key={brand}
-                className={cn(
-                  'flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2 py-2 text-ui-sm transition-colors',
-                  checked
-                    ? 'bg-slate-900 font-semibold text-white'
-                    : 'text-slate-600 hover:bg-slate-100',
-                  // Dimmed rather than hidden: a brand vanishing as you filter
-                  // makes the list feel unstable under the cursor.
-                  count === 0 && !checked && 'opacity-40',
-                )}
-              >
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => onChange({ ...filters, brands: toggle(filters.brands, brand) })}
-                    className="h-3.5 w-3.5 shrink-0 rounded border-slate-300 accent-plug-blue-600"
-                  />
-                  <span className="truncate">{brand}</span>
-                </span>
-                <span
-                  className={cn(
-                    'shrink-0 font-mono text-ui-xs tabular-nums',
-                    checked ? 'text-white/60' : 'text-slate-400',
-                  )}
-                >
-                  {count}
-                </span>
-              </label>
-            )
-          })}
-        </div>
-      </Section>
-
-      <Section label="Battery" count={filters.minBattery === null ? 0 : 1}>
+      <Section label="Battery" count={filters.minBattery === null ? 0 : 1} defaultOpen>
         <StepRow
           steps={BATTERY_STEPS}
           value={filters.minBattery}
@@ -198,7 +67,7 @@ export function CarFilters({
         />
       </Section>
 
-      <Section label="Electric range" count={filters.minRange === null ? 0 : 1}>
+      <Section label="Electric range" count={filters.minRange === null ? 0 : 1} defaultOpen>
         <StepRow
           steps={RANGE_STEPS}
           value={filters.minRange}
@@ -311,12 +180,10 @@ function Section({
 function Chip({
   active,
   onClick,
-  count,
   children,
 }: {
   active: boolean
   onClick: () => void
-  count?: number
   children: React.ReactNode
 }) {
   return (
@@ -332,16 +199,6 @@ function Chip({
       )}
     >
       {children}
-      {count !== undefined ? (
-        <span
-          className={cn(
-            'font-mono text-[10px] tabular-nums',
-            active ? 'text-white/60' : 'text-slate-400',
-          )}
-        >
-          {count}
-        </span>
-      ) : null}
     </button>
   )
 }

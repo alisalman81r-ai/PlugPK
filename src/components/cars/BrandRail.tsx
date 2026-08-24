@@ -10,8 +10,9 @@ import { cn } from '@/lib/utils'
  *
  * Most people arrive at a car catalogue with a brand in mind, and asking them
  * to open a filter panel and find a checkbox is the slowest possible way to
- * serve that. This is the same selection as those checkboxes — it writes into
- * filters.brands — presented as the first thing on the page.
+ * serve that. This rail, and the hero's select above it, are now the only brand
+ * controls: the filter panel used to repeat them as checkboxes, which put one
+ * choice in two places.
  *
  * Set in type rather than logos, deliberately. Fourteen manufacturer marks
  * would need fourteen licensed assets, would sit at fourteen different optical
@@ -24,8 +25,7 @@ import { cn } from '@/lib/utils'
  * already use for this kind of strip.
  *
  * One at a time: choosing a brand replaces whatever was chosen, and choosing
- * the active one clears it. The caller owns that rule — see CarsExplorer for
- * why the rail is single-select while the sidebar checkboxes are not.
+ * the active one clears it. The caller owns that rule — see CarsExplorer.
  */
 
 export interface BrandRailProps {
