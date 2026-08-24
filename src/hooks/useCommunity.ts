@@ -8,6 +8,32 @@ import type { CommunityPost, EVClub, PostCategory } from '@/lib/types'
 
 export type CommunitySort = 'latest' | 'popular' | 'trending'
 
+/**
+ * The figures the community pages are allowed to print.
+ *
+ * Every one is counted from the data, the way the map and routes heroes count
+ * theirs. The pages used to hardcode "5,000+ members", "1,200+ discussions"
+ * and "450+ trip reports" in two places each — the hero and the sidebar —
+ * against twelve posts and eight clubs. A visitor who scrolled past the badge
+ * could see the claim was false, which is worse than a small honest number, and
+ * a typed-in figure is wrong again the first time somebody posts.
+ *
+ * No member count, deliberately: nothing in the data records a signup, so the
+ * only honest figures are the posts, the replies and the clubs themselves.
+ */
+export interface CommunityStats {
+  /** Posts in the feed. */
+  discussions: number
+  /** Replies across every post. */
+  replies: number
+  /** Clubs in the directory. */
+  clubs: number
+  /** Cities with at least one club. */
+  cities: number
+  /** Members across every club, as the clubs themselves report it. */
+  clubMembers: number
+}
+
 export interface UseCommunityReturn {
   posts: CommunityPost[]
   filteredPosts: CommunityPost[]
@@ -25,6 +51,7 @@ export interface UseCommunityReturn {
   categoryCount: Record<string, number>
   totalPosts: number
   featuredPost: CommunityPost | null
+  stats: CommunityStats
 }
 
 export function useCommunity(): UseCommunityReturn {
@@ -91,6 +118,17 @@ export function useCommunity(): UseCommunityReturn {
     }
   }, [posts, selectedCategory, searchQuery, sortBy])
 
+  const stats = useMemo<CommunityStats>(
+    () => ({
+      discussions: posts.length,
+      replies: posts.reduce((total, post) => total + post.commentCount, 0),
+      clubs: MOCK_CLUBS.length,
+      cities: new Set(MOCK_CLUBS.map((club) => club.city)).size,
+      clubMembers: MOCK_CLUBS.reduce((total, club) => total + club.memberCount, 0),
+    }),
+    [posts],
+  )
+
   /** Most-liked post overall, independent of the current filters. */
   const featuredPost = useMemo(() => {
     if (posts.length === 0) return null
@@ -114,5 +152,6 @@ export function useCommunity(): UseCommunityReturn {
     categoryCount,
     totalPosts: posts.length,
     featuredPost,
+    stats,
   }
 }

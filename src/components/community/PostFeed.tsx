@@ -1,7 +1,18 @@
 // src/components/community/PostFeed.tsx
 'use client'
 
-import { Car, Map, MessageCircle, Newspaper, Pin, ShoppingCart, Users, Zap, type LucideIcon } from 'lucide-react'
+import {
+  Car,
+  Flame,
+  Map,
+  MessageCircle,
+  Newspaper,
+  SearchX,
+  ShoppingCart,
+  Users,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react'
 import * as React from 'react'
 
 import { Button, Skeleton } from '@/components/ui'
@@ -17,6 +28,19 @@ export interface PostFeedProps {
   selectedCategory: PostCategory | 'all'
   likeCountFor?: (post: CommunityPost) => number
   onCreatePost?: () => void
+  /**
+   * The most-liked post on the board, so the badge can name the one post it is
+   * actually true of.
+   *
+   * The feed used to badge whatever landed at index 0 as "Featured", whichever
+   * sort produced it — so under "Latest" the newest post was announced as
+   * featured, and the post the hero was calling featured sat unlabelled further
+   * down. The label now travels with the post rather than with the position.
+   */
+  featuredPostId?: string
+  /** What was typed, so an empty result can say why it is empty. */
+  searchQuery?: string
+  onClearSearch?: () => void
 }
 
 const EMPTY_ICON: Record<string, LucideIcon> = {
@@ -62,13 +86,16 @@ export function PostFeed({
   selectedCategory,
   likeCountFor,
   onCreatePost,
+  featuredPostId,
+  searchQuery,
+  onClearSearch,
 }: PostFeedProps) {
   const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE)
 
   // A new filter should always start from the top of the list.
   React.useEffect(() => {
     setVisibleCount(PAGE_SIZE)
-  }, [selectedCategory, posts.length])
+  }, [selectedCategory, searchQuery, posts.length])
 
   if (isLoading) {
     return (
@@ -81,6 +108,36 @@ export function PostFeed({
   }
 
   if (posts.length === 0) {
+    /*
+      Two different empties, and they need different offers. A search that
+      matched nothing is a query to clear — telling somebody to "be the first
+      to start a discussion" when there are eleven posts they simply mis-spelled
+      past is wrong, and it hides the way out. An empty category really is an
+      invitation to post.
+    */
+    const query = searchQuery?.trim() ?? ''
+
+    if (query.length > 0) {
+      return (
+        <div className="py-20 text-center">
+          <SearchX size={64} className="mx-auto text-slate-200" aria-hidden="true" />
+          <p className="mt-6 font-display text-2xl font-bold text-slate-900">
+            Nothing matches &ldquo;{query}&rdquo;
+          </p>
+          <p className="mt-2 text-ui text-slate-500">
+            Try a shorter word, or clear the search to see the whole board.
+          </p>
+          {onClearSearch ? (
+            <div className="mt-6">
+              <Button variant="secondary" onClick={onClearSearch}>
+                Clear search
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      )
+    }
+
     const EmptyIcon =
       selectedCategory === 'all'
         ? Users
@@ -89,11 +146,13 @@ export function PostFeed({
     return (
       <div className="py-20 text-center">
         <EmptyIcon size={64} className="mx-auto text-slate-200" aria-hidden="true" />
-        <p className="mt-6 text-2xl font-bold text-slate-900">No posts yet</p>
-        <p className="mt-2 text-slate-500">Be the first to start a discussion</p>
+        <p className="mt-6 font-display text-2xl font-bold text-slate-900">
+          {selectedCategory === 'all' ? 'No posts yet' : 'Nothing in this category yet'}
+        </p>
+        <p className="mt-2 text-ui text-slate-500">Be the first to start a discussion.</p>
         {onCreatePost ? (
           <div className="mt-6">
-            <Button onClick={onCreatePost}>Start a Discussion</Button>
+            <Button onClick={onCreatePost}>Start a discussion</Button>
           </div>
         ) : null}
       </div>
@@ -107,10 +166,10 @@ export function PostFeed({
     <div className="flex flex-col gap-5">
       {visible.map((post, index) => (
         <div key={post.id}>
-          {index === 0 ? (
-            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
-              <Pin size={12} aria-hidden="true" />
-              Featured
+          {post.id === featuredPostId ? (
+            <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-ui-xs font-bold uppercase tracking-[0.1em] text-amber-700">
+              <Flame size={12} aria-hidden="true" />
+              Most liked
             </span>
           ) : null}
 
@@ -133,7 +192,7 @@ export function PostFeed({
           className="mt-3"
           onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
         >
-          Load more posts
+          Load {Math.min(PAGE_SIZE, posts.length - visibleCount)} more
         </Button>
       ) : null}
     </div>
