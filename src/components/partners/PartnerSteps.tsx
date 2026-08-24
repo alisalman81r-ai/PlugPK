@@ -5,11 +5,13 @@ import {
   BarChart3,
   Home,
   MapPinned,
+  Route,
   Users,
   type LucideIcon,
 } from 'lucide-react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
+import { SectionIntro } from '@/components/shared/SectionIntro'
 import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
 
 /**
@@ -30,6 +32,9 @@ import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
  * trigger the border and shadow already use. This file stays a server
  * component; HoverMotion is the client shim.
  */
+
+/** One measure, matching the rest of the page and /map, /routes, /community. */
+const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 
 interface Card {
   icon: LucideIcon
@@ -84,15 +89,14 @@ export function PartnerSteps() {
   return (
     <>
       <section className="bg-white py-20 lg:py-28">
-        <div className="container-plug">
-          <div className="mx-auto mb-16 max-w-2xl text-center">
-            <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
-              How it works
-            </span>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-              Three steps, then you are on the map
-            </h2>
-          </div>
+        <div className={STAGE}>
+          <SectionIntro
+            eyebrow="How it works"
+            icon={<Route size={13} aria-hidden="true" />}
+            title="Three steps, then you are on the map"
+            lead="No contract, no listing fee, and nothing to install on your side."
+            className="mb-16"
+          />
 
           {/*
             Prominence without fill.
@@ -106,7 +110,7 @@ export function PartnerSteps() {
             three so they read as a sequence instead of three separate facts.
             The card face itself stays transparent.
           */}
-          <ol className="relative grid gap-6 lg:grid-cols-3 lg:gap-8">
+          <ol className="relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:gap-8">
             {STEPS.map((step, index) => (
               <li key={step.title} className="relative">
                 {/* The rail between cards. Sits at the icon's centre line and
@@ -150,17 +154,16 @@ export function PartnerSteps() {
       </section>
 
       <section className="bg-slate-50 py-20 lg:py-28">
-        <div className="container-plug">
-          <div className="mx-auto mb-16 max-w-2xl text-center">
-            <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
-              What you get
-            </span>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-              Your charger, earning its keep
-            </h2>
-          </div>
+        <div className={STAGE}>
+          <SectionIntro
+            eyebrow="What you get"
+            icon={<Banknote size={13} aria-hidden="true" />}
+            title="Your charger, earning its keep"
+            lead="Every line below maps to something the product actually does."
+            className="mb-16"
+          />
 
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:gap-8">
             {BENEFITS.map((benefit) => (
               <HoverMotion key={benefit.title} className={FRAME}>
                 <div className={`${FACE} p-8`}>

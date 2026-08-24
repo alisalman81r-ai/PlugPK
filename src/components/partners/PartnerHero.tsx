@@ -1,16 +1,31 @@
 // src/components/partners/PartnerHero.tsx
-import { ArrowRight, Check, MapPin, Plug, TrendingUp, Zap } from 'lucide-react'
+import { Building2, Check, MapPin, Plug, Zap, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
+
+import { PillButton } from '@/components/ui'
 
 /**
  * The pitch at the top of Partner Up.
+ *
+ * Same band as /map, /routes and /community: slate-950 with discrete pools of
+ * light, rounded off at the bottom, with the next card lifted up into it. It was
+ * `bg-gradient-hero` — the flat navy-to-teal ramp the other heroes dropped,
+ * because it put the headline on one colour and everything below it on a
+ * visibly different one, and anything white landing mid-ramp got the least
+ * contrast to work against.
+ *
+ * It was also a two-column layout, with a mock dashboard filling the right half.
+ * That mock is the most persuasive thing on the page — it is what a host
+ * actually gets — and at half the width of a 1280px container it was a thumbnail
+ * of itself. It now has the whole measure to itself as the lifted card
+ * (PartnerDashboardPreview), which is where /map keeps its filter rail and
+ * /routes its popular routes.
  *
  * Deliberately carries no invented metrics. Reference designs for this kind of
  * page lean on lines like "2,000+ active drivers" and "15,000 views a month",
  * and every one of those on a young product is a number somebody made up. The
  * counts here are passed in from the database, and any that are still zero are
- * left out rather than dressed up — the rest of this codebase had exactly that
- * problem and it took a day to clear out.
+ * left out rather than dressed up.
  */
 
 export interface PartnerHeroProps {
@@ -22,20 +37,6 @@ export interface PartnerHeroProps {
   }
 }
 
-/** Only the figures that are actually non-zero earn a place in the trust line. */
-function trustLine(stats: PartnerHeroProps['stats']): string | null {
-  const parts: string[] = []
-  if (stats.partners > 0) {
-    parts.push(`${stats.partners} partner${stats.partners === 1 ? '' : 's'}`)
-  }
-  if (stats.listings > 0) {
-    parts.push(`${stats.listings} charging point${stats.listings === 1 ? '' : 's'}`)
-  }
-  if (stats.cities > 0) parts.push(`${stats.cities} ${stats.cities === 1 ? 'city' : 'cities'}`)
-
-  return parts.length > 0 ? parts.join(' · ') : null
-}
-
 const PROMISES = [
   'Free to list — no card, no time limit',
   'You set your own rates and keep every rupee',
@@ -43,160 +44,162 @@ const PROMISES = [
 ]
 
 export function PartnerHero({ stats }: PartnerHeroProps) {
-  const trust = trustLine(stats)
+  /**
+   * Only figures that are actually non-zero earn a place in the rail.
+   *
+   * A stat rail reading "0 partners · 0 ports" is worse than a shorter rail: it
+   * turns the honest thing into the discouraging thing. Below two figures the
+   * rail is dropped entirely and the line underneath does the work instead.
+   */
+  const figures = [
+    { icon: Zap, value: stats.listings, label: 'charging points', tone: 'cyan' as const },
+    {
+      icon: MapPin,
+      value: stats.cities,
+      label: stats.cities === 1 ? 'city' : 'cities',
+      tone: 'plain' as const,
+    },
+    {
+      icon: Building2,
+      value: stats.partners,
+      label: stats.partners === 1 ? 'partner' : 'partners',
+      tone: 'plain' as const,
+    },
+  ].filter((figure) => figure.value > 0)
 
   return (
-    <section className="relative overflow-hidden bg-gradient-hero">
-      {/* A faint grid, purely decorative, kept behind the content. */}
-      <span
+    <header className="relative rounded-b-[2rem] bg-slate-950 pb-32 pt-10 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-14">
+      {/* The decoration clips itself so the band does not have to: the preview
+          card below is lifted up into this padding and paints above it. */}
+      <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.15]"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.4) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-          maskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)',
-        }}
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
+        <div className="absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-plug-blue-600/25 blur-[130px]" />
+        <div className="absolute -bottom-48 right-0 h-80 w-80 rounded-full bg-plug-cyan-500/20 blur-[120px]" />
+      </div>
 
-      <div className="container-plug relative grid items-center gap-14 py-20 lg:grid-cols-[1.05fr_1fr] lg:py-28">
-        {/* ── The pitch ─────────────────────────────────────────── */}
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-ui-sm font-semibold text-plug-cyan-200 backdrop-blur">
-            <Plug size={14} aria-hidden="true" />
+      <div className="container-plug relative">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-plug-cyan-300 backdrop-blur-sm">
+            <Plug size={12} aria-hidden="true" />
             Partner Up
           </span>
 
-          <h1 className="mt-6 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
+          <h1 className="mt-5 text-balance font-display text-[clamp(2rem,4.4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
             Put your charger in front of{' '}
-            <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
               Pakistan&apos;s EV drivers
             </span>
-            .
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-            Whether it is a bank of chargers at your hotel or the single unit on your
-            driveway, listing it on Plug.pk puts it on the map drivers search when they
-            need a charge — and gives you a dashboard showing who found you.
+          <p className="mx-auto mt-4 max-w-2xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
+            A bank of chargers at your hotel or the single unit on your driveway — listing it
+            puts it on the map drivers search when they need a charge, and gives you a
+            dashboard showing who found you.
           </p>
 
-          <ul className="mt-8 flex flex-col gap-3">
+          {/*
+            The three promises, on one line rather than stacked.
+
+            As a bulleted column they were the tallest thing in the band and read
+            as terms and conditions. As chips they read as what they are: the
+            three objections somebody has before they start the form.
+          */}
+          <ul className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2">
             {PROMISES.map((promise) => (
-              <li key={promise} className="flex items-start gap-2.5 text-white/80">
-                <span
-                  aria-hidden="true"
-                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-plug-cyan-400/20"
-                >
-                  <Check size={12} className="text-plug-cyan-300" />
-                </span>
-                <span className="text-ui">{promise}</span>
+              <li
+                key={promise}
+                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-3.5 py-1.5 text-ui-sm text-white/80 backdrop-blur-sm"
+              >
+                <Check size={13} className="shrink-0 text-plug-cyan-300" aria-hidden="true" />
+                {promise}
               </li>
             ))}
           </ul>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3">
+          {/* ── Actions ──────────────────────────────────────────────
+              The same pair as /community: a gradient pill for the thing that
+              starts here, and the badge-and-arrow pill for the one that leaves
+              the page. Both 56px, because a hairline ghost button beside a
+              filled one is decoration rather than a second choice. */}
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/business/signup"
-              className="group inline-flex h-13 items-center gap-2 rounded-xl bg-gradient-brand px-7 text-ui font-bold text-white shadow-[0_10px_30px_rgba(6,182,212,0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(6,182,212,0.5)]"
+              className="inline-flex h-14 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-7 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
+              <Plug size={17} aria-hidden="true" />
               List your charger
-              <ArrowRight
-                size={17}
-                className="transition-transform duration-200 group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
             </Link>
 
-            <Link
-              href="#pricing"
-              className="inline-flex h-13 items-center rounded-xl border border-white/20 bg-white/5 px-7 text-ui font-semibold text-white backdrop-blur transition-colors hover:bg-white/10"
-            >
-              See plans
-            </Link>
+            <PillButton href="#pricing" tone="light">
+              See the plans
+            </PillButton>
           </div>
 
-          {trust ? (
-            <p className="mt-8 text-ui-sm text-white/45">
-              Already on the map: <span className="font-semibold text-white/70">{trust}</span>
-            </p>
+          {figures.length >= 2 ? (
+            <dl className="mx-auto mt-8 flex max-w-lg flex-wrap items-center justify-center divide-white/10 sm:divide-x">
+              {figures.map((figure) => (
+                <Stat
+                  key={figure.label}
+                  icon={figure.icon}
+                  value={figure.value}
+                  label={figure.label}
+                  tone={figure.tone}
+                />
+              ))}
+            </dl>
           ) : (
-            <p className="mt-8 text-ui-sm text-white/45">
+            /* white/60 rather than the white/45 this line used, which was well
+               under 4.5:1 and is the one sentence a first visitor reads. */
+            <p className="mt-8 text-ui-sm text-white/60">
               We are building the map now — early listings are the first drivers see.
             </p>
           )}
         </div>
-
-        {/* ── What a host actually sees ─────────────────────────── */}
-        <div className="relative">
-          <div className="rounded-3xl border border-white/12 bg-[#0A0F1E]/80 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur">
-            {/* Labelled as an example, because it is drawn rather than measured.
-                The alternative — presenting invented view counts as a real
-                dashboard — is the thing this page is careful not to do. */}
-            <p className="mb-5 text-ui-xs font-semibold uppercase tracking-widest text-white/35">
-              Example of your dashboard
-            </p>
-
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <span
-                aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand"
-              >
-                <Zap size={20} className="fill-white text-white" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-bold text-white">Your listing</p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-ui-sm text-white/50">
-                  <MapPin size={12} aria-hidden="true" />
-                  Your city · your chargers
-                </p>
-              </div>
-              <span className="ml-auto shrink-0 rounded-full bg-emerald-400/15 px-2.5 py-1 text-ui-xs font-semibold text-emerald-300">
-                Live
-              </span>
-            </div>
-
-            <dl className="mt-4 grid grid-cols-2 gap-3">
-              {[
-                { label: 'Listing views', hint: 'per day, per visitor' },
-                { label: 'Directions taken', hint: 'drivers heading to you' },
-                { label: 'Reviews received', hint: 'from real visits' },
-                { label: 'Average rating', hint: 'out of five' },
-              ].map((metric) => (
-                <div
-                  key={metric.label}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-                >
-                  <dt className="text-ui-sm font-semibold text-white/80">{metric.label}</dt>
-                  <dd className="mt-1 text-ui-xs text-white/40">{metric.hint}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="flex items-center gap-2 text-ui-sm font-semibold text-white/80">
-                <TrendingUp size={15} className="text-plug-cyan-300" aria-hidden="true" />
-                Views per day, and the 30 days before
-              </p>
-              {/* A shape, not data: no axis labels and no numbers, so it reads
-                  as an illustration of the chart rather than a claim. */}
-              <span
-                aria-hidden="true"
-                className="mt-4 flex h-24 items-end gap-1"
-              >
-                {[18, 34, 26, 44, 38, 56, 48, 62, 54, 72, 66, 84].map((height, index) => (
-                  <span
-                    key={index}
-                    style={{ height: `${height}%` }}
-                    className="flex-1 rounded-t bg-gradient-to-t from-plug-blue-500/40 to-plug-cyan-400/70"
-                  />
-                ))}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
-    </section>
+    </header>
+  )
+}
+
+/**
+ * One figure in the band.
+ *
+ * The same Stat as the map, route and community heroes — mono numeral, hairline
+ * divider, a label small enough that the number is what the eye lands on.
+ */
+function Stat({
+  icon: Icon,
+  value,
+  label,
+  tone = 'plain',
+}: {
+  icon?: LucideIcon
+  value: number
+  label: string
+  tone?: 'plain' | 'cyan'
+}) {
+  return (
+    <div className="px-5 py-1 text-center">
+      <dt className="sr-only">{label}</dt>
+      <dd>
+        <span className="flex items-center justify-center gap-1.5">
+          {Icon ? (
+            <Icon
+              size={14}
+              aria-hidden={true}
+              className={tone === 'cyan' ? 'text-plug-cyan-400' : 'text-white/40'}
+            />
+          ) : null}
+          <span className="font-mono text-lg font-bold text-white">
+            {value.toLocaleString('en-PK')}
+          </span>
+        </span>
+        <span className="mt-0.5 block text-ui-xs uppercase tracking-[0.12em] text-white/45">
+          {label}
+        </span>
+      </dd>
+    </div>
   )
 }

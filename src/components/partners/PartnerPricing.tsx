@@ -1,10 +1,11 @@
 // src/components/partners/PartnerPricing.tsx
-import { ArrowRight, Check, Minus } from 'lucide-react'
+import { ArrowRight, Check, Minus, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
 
 import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
+import { SectionIntro } from '@/components/shared/SectionIntro'
 
 /**
  * Plans for hosts.
@@ -24,6 +25,9 @@ import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
  *
  * The card treatment comes from ./frame, shared with the rest of the page.
  */
+
+/** One measure, matching the rest of the page and /map, /routes, /community. */
+const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 
 interface Plan {
   name: string
@@ -86,21 +90,16 @@ const PLANS: Plan[] = [
 export function PartnerPricing() {
   return (
     <section id="pricing" className="scroll-mt-24 bg-white py-20 lg:py-28">
-      <div className="container-plug">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <span className="text-ui-sm font-bold uppercase tracking-widest text-plug-blue-600">
-            Plans
-          </span>
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Listing is free. Growing is optional.
-          </h2>
-          <p className="mt-4 text-lg text-slate-500">
-            You keep what drivers pay you either way — Plug.pk never takes a cut of your
-            charging revenue.
-          </p>
-        </div>
+      <div className={STAGE}>
+        <SectionIntro
+          eyebrow="Plans"
+          icon={<Tag size={13} aria-hidden="true" />}
+          title="Listing is free. Growing is optional."
+          lead="You keep what drivers pay you either way — Plug.pk never takes a cut of your charging revenue."
+          className="mb-16"
+        />
 
-        <div className="grid items-start gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-6 lg:grid-cols-3 lg:gap-8">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
@@ -193,7 +192,7 @@ export function PartnerPricing() {
         {/* Said plainly rather than buried, because a plan page that implies a
             card will be charged when nothing charges it is the kind of detail
             people rightly get annoyed about. */}
-        <p className="mx-auto mt-12 max-w-2xl text-center text-ui-sm text-slate-500">
+        <p className="mx-auto mt-12 max-w-2xl text-balance text-center text-ui-sm text-slate-500">
           Paid plans are arranged with us directly — there is no card payment on the site yet.
           Free listings go live as soon as we have verified the details.
         </p>
