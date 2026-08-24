@@ -146,8 +146,23 @@ export function RouteInputForm({
   if (attempted && !selectedVehicle) hints.push('Select your EV')
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-card lg:p-10">
-      <h2 className="mb-8 text-2xl font-bold text-slate-900">Plan your route</h2>
+    <div className="rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-e2 sm:p-8 lg:p-10">
+      {/* The card owns its own title. The section around it deliberately has
+          none: a page heading and a card heading stacked two lines apart say
+          the same thing twice and make the form look like a subsection of
+          something else. */}
+      <div className="mb-8">
+        <p className="mb-1.5 flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em] text-plug-blue-600">
+          <Route size={13} aria-hidden="true" />
+          Or plan your own
+        </p>
+        <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+          Plan your route
+        </h2>
+        <p className="mt-1.5 text-ui text-slate-500">
+          Two cities, your car and its current charge — that is everything we need.
+        </p>
+      </div>
 
       <div className="relative flex flex-col gap-5">
         <CityField

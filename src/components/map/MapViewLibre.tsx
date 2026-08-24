@@ -91,10 +91,13 @@ export function MapViewLibre({
         [bounds.west, bounds.south],
         [bounds.east, bounds.north],
       ],
-      // Padding keeps pins clear of the filter panel and the floating mobile
-      // controls; maxZoom stops a tight cluster from slamming the camera to
-      // street level.
-      { padding: 88, maxZoom: 11, duration: 0 },
+      // Asymmetric, because the card's edges are not equally busy: the legend
+      // sits over the top, and the attribution, the zoom cluster and the
+      // floating preview card all sit over the bottom. Uniform padding put the
+      // southernmost pin a few pixels off the bottom edge, half under the
+      // attribution bar. maxZoom stops a tight cluster from slamming the
+      // camera to street level.
+      { padding: { top: 104, right: 88, bottom: 128, left: 88 }, maxZoom: 11, duration: 0 },
     )
   }, [stations, selectedStation])
 

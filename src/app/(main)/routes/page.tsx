@@ -1,260 +1,255 @@
-// src/app/routes/page.tsx
+// src/app/(main)/routes/page.tsx
 'use client'
 
-import { Car, ChevronLeft, MapPin, Route, Zap, type LucideIcon } from 'lucide-react'
-
-import { FaqSection } from '@/components/shared/FaqSection'
-import { ROUTES_FAQS } from '@/lib/faqs'
+import { Bookmark, BookmarkCheck, ChevronLeft, Route as RouteIcon, Share2 } from 'lucide-react'
 import * as React from 'react'
 
+import { MorphIcon } from '@/components/ui'
+
+import { PopularRoutes } from '@/components/route/PopularRoutes'
+import { RouteHero } from '@/components/route/RouteHero'
+import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
 import { RouteInputForm } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
 import { SaveRouteModal } from '@/components/route/SaveRouteModal'
-import { EyebrowBadge } from '@/components/ui'
+import { FaqSection } from '@/components/shared/FaqSection'
+import { ROUTES_FAQS } from '@/lib/faqs'
+import { MOCK_EV_MODELS, MOCK_STATIONS } from '@/lib/mock-data'
+import { cn } from '@/lib/utils'
+import type { PopularRoute } from '@/lib/route-distances'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 
-interface Feature {
-  icon: LucideIcon
-  title: string
-  description: string
-}
+/**
+ * The planning page reads: orient, pick a known route, or fill in your own.
+ *
+ * Popular routes come before the form. Most people planning an EV drive in
+ * Pakistan are on one of six corridors, and for them a tap should be the whole
+ * interaction — previously those six sat at the very bottom, below the form and
+ * below a three-step explainer, so the shortcut was the last thing anyone saw.
+ *
+ * Everything shares the map page's shape: one dark band, one measure down the
+ * page, and the first card lifted up into the band so it reads as the thing the
+ * page is for.
+ */
 
-const FEATURES: Feature[] = [
-  {
-    icon: MapPin,
-    title: 'Enter Your Route',
-    description: 'Type your starting point and destination anywhere in Pakistan.',
-  },
-  {
-    icon: Car,
-    title: 'Select Your EV',
-    description: 'Choose your vehicle and we calculate stops based on real range data.',
-  },
-  {
-    icon: Zap,
-    title: 'Optimised Charging Stops',
-    description: 'We find the fastest chargers compatible with your EV along the way.',
-  },
-]
+/** One measure, matching /map, so the two pages line up edge for edge. */
+const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 
-interface PopularRoute {
-  from: string
-  to: string
-  distanceKm: string
-}
-
-const POPULAR_ROUTES: PopularRoute[] = [
-  { from: 'Islamabad', to: 'Lahore', distanceKm: '385 km' },
-  { from: 'Lahore', to: 'Karachi', distanceKm: '1,230 km' },
-  { from: 'Karachi', to: 'Hyderabad', distanceKm: '162 km' },
-  { from: 'Islamabad', to: 'Peshawar', distanceKm: '175 km' },
-  { from: 'Lahore', to: 'Faisalabad', distanceKm: '127 km' },
-  { from: 'Islamabad', to: 'Murree', distanceKm: '65 km' },
-]
+/** How far the popular-routes card is pulled up into the dark band. */
+const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
 
 export default function RoutesPage() {
   const planner = useRoutePlanner()
   const [isSaveModalOpen, setIsSaveModalOpen] = React.useState(false)
+  const [copied, setCopied] = React.useState(false)
   const formRef = React.useRef<HTMLDivElement>(null)
 
-  const applyPopularRoute = (route: PopularRoute) => {
-    planner.setOrigin(route.from)
-    planner.setDestination(route.to)
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+  const handleShare = React.useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard permission denied — nothing further to fall back to.
+    }
+  }, [])
+
+  /**
+   * Cities with a station, counted rather than claimed — the same figure the
+   * map's hero shows, and for the same reason.
+   */
+  const cityCount = React.useMemo(
+    () => new Set(MOCK_STATIONS.map((station) => station.address.city)).size,
+    [],
+  )
+
+  /**
+   * A tapped route fills the form in and takes the reader to it.
+   *
+   * Aligned to the top rather than the centre, with scroll-mt clearing the
+   * fixed navbar: centring a form this tall on a laptop puts its first field
+   * under the header, so the one thing the tap just filled in is the one thing
+   * you cannot see.
+   */
+  const { setOrigin, setDestination } = planner
+  const applyPopularRoute = React.useCallback(
+    (route: PopularRoute) => {
+      setOrigin(route.from)
+      setDestination(route.to)
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    },
+    [setOrigin, setDestination],
+  )
 
   const showResults = planner.hasCalculated && planner.plannedRoute !== null
 
   return (
     <>
-    <div className="min-h-below-nav bg-slate-50">
-      {showResults && planner.plannedRoute ? (
-        <>
-          <div className="bg-gradient-hero py-12">
-            <div className="container-plug">
-              <button
-                type="button"
-                onClick={planner.resetRoute}
-                className="mb-4 flex items-center gap-1.5 text-sm font-medium text-white/70 transition-colors hover:text-white"
-              >
-                <ChevronLeft size={16} aria-hidden="true" />
-                Plan another route
-              </button>
-              <h1 className="text-3xl font-black text-white">
-                {planner.plannedRoute.origin} to {planner.plannedRoute.destination}
-              </h1>
-            </div>
-          </div>
+      <div className="min-h-below-nav bg-slate-50">
+        {showResults && planner.plannedRoute ? (
+          <>
+            <header className="rounded-b-[2rem] bg-slate-950 pb-12 pt-10 sm:rounded-b-[2.5rem]">
+              <div className={STAGE}>
+                {/* Everything you can do to this result sits on one line: the
+                    way back on the left, what to do with it on the right. */}
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <HeaderAction onClick={planner.resetRoute}>
+                    <ChevronLeft size={15} aria-hidden="true" />
+                    Plan another route
+                  </HeaderAction>
 
-          <div className="bg-white">
-            <div className="mx-auto max-w-6xl px-4 py-10">
-              <RouteResultsView
-                route={planner.plannedRoute}
-                onReset={planner.resetRoute}
-                onSave={() => setIsSaveModalOpen(true)}
-                isSaved={planner.isSaved}
-              />
-            </div>
-          </div>
-
-          <SaveRouteModal
-            isOpen={isSaveModalOpen}
-            onClose={() => setIsSaveModalOpen(false)}
-            route={planner.plannedRoute}
-            onConfirm={() => {
-              planner.saveRoute()
-              setIsSaveModalOpen(false)
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <section className="relative overflow-hidden bg-gradient-hero py-20 text-center lg:py-28">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-blue-600/[0.18] blur-[110px]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-cyan-500/[0.12] blur-[100px]"
-            />
-
-            <div className="container-plug relative z-10">
-              <EyebrowBadge
-                color="cyan"
-                className="border-white/20 bg-white/10 text-white/80"
-              >
-                EV Route Planner
-              </EyebrowBadge>
-
-              <h1 className="mb-4 mt-6 text-4xl font-black text-white lg:text-display-lg">
-                Plan Your Journey
-                <br />
-                Across{' '}
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                  Pakistan
-                </span>
-              </h1>
-
-              <p className="mx-auto max-w-lg text-lg text-white/60">
-                Enter your route and we will find the best charging stops for your EV.
-              </p>
-            </div>
-          </section>
-
-          <div ref={formRef} className="relative z-10 -mt-12 px-4 lg:px-0">
-            <div className="mx-auto max-w-3xl">
-              <RouteInputForm
-                origin={planner.origin}
-                destination={planner.destination}
-                selectedVehicle={planner.selectedVehicle}
-                batteryPercent={planner.batteryPercent}
-                isCalculating={planner.isCalculating}
-                canCalculate={planner.canCalculate}
-                onOriginChange={planner.setOrigin}
-                onDestinationChange={planner.setDestination}
-                onVehicleSelect={planner.setSelectedVehicle}
-                onBatteryChange={planner.setBatteryPercent}
-                onSwapLocations={planner.swapLocations}
-                onCalculate={planner.calculateRoute}
-              />
-
-              {planner.error ? (
-                <p className="mt-4 text-center text-sm text-red-600">{planner.error}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <section className="py-20">
-            <div className="mx-auto max-w-5xl px-4">
-              <h2 className="mb-16 text-center text-3xl font-bold text-slate-900">
-                How Route Planning Works
-              </h2>
-
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {FEATURES.map((feature) => {
-                  const Icon = feature.icon
-
-                  return (
-                    <div
-                      key={feature.title}
-                      className="group flex flex-col items-center p-8 text-center"
+                  <div className="flex flex-wrap items-center gap-2">
+                    <HeaderAction
+                      onClick={() => setIsSaveModalOpen(true)}
+                      active={planner.isSaved}
                     >
-                      <span className="mb-6 flex h-[72px] w-[72px] items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-card transition-all duration-300 group-hover:-translate-y-1 group-hover:border-blue-200 group-hover:shadow-blue">
-                        <Icon
-                          size={32}
-                          strokeWidth={1.5}
-                          className="text-plug-blue-600"
-                          aria-hidden="true"
-                        />
-                      </span>
-                      <h3 className="mb-3 text-xl font-bold text-slate-900">{feature.title}</h3>
-                      <p className="mx-auto max-w-[240px] text-sm leading-relaxed text-slate-500">
-                        {feature.description}
-                      </p>
-                    </div>
-                  )
-                })}
+                      <MorphIcon
+                        active={planner.isSaved}
+                        on={BookmarkCheck}
+                        off={Bookmark}
+                        size={15}
+                      />
+                      {planner.isSaved ? 'Saved' : 'Save route'}
+                    </HeaderAction>
+
+                    <HeaderAction onClick={handleShare}>
+                      <Share2 size={15} aria-hidden="true" />
+                      {copied ? 'Link copied' : 'Share'}
+                    </HeaderAction>
+                  </div>
+                </div>
+
+                <h1 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] font-bold leading-tight tracking-tight text-white">
+                  {planner.plannedRoute.origin}{' '}
+                  <span className="text-plug-cyan-400">→</span>{' '}
+                  {planner.plannedRoute.destination}
+                </h1>
               </div>
+            </header>
+
+            <div className={`${STAGE} py-10 lg:py-12`}>
+              <RouteResultsView route={planner.plannedRoute} />
             </div>
-          </section>
 
-          <section className="px-4 pb-20">
-            <div className="mx-auto max-w-5xl">
-              <h2 className="mb-8 text-2xl font-bold text-slate-900">Popular Routes</h2>
+            <SaveRouteModal
+              isOpen={isSaveModalOpen}
+              onClose={() => setIsSaveModalOpen(false)}
+              route={planner.plannedRoute}
+              onConfirm={() => {
+                planner.saveRoute()
+                setIsSaveModalOpen(false)
+              }}
+            />
+          </>
+        ) : (
+          <>
+            <RouteHero
+              vehicleCount={MOCK_EV_MODELS.length}
+              stationCount={MOCK_STATIONS.length}
+              cityCount={cityCount}
+            />
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {POPULAR_ROUTES.map((route) => (
-                  <button
-                    key={`${route.from}-${route.to}`}
-                    type="button"
-                    onClick={() => applyPopularRoute(route)}
-                    className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 text-left transition-all duration-150 hover:border-blue-200 hover:shadow-card"
+            {/* ── Popular routes, lifted into the band ─────────────── */}
+            <div className={`relative z-10 ${CARD_LIFT} ${STAGE}`}>
+              <PopularRoutes onSelect={applyPopularRoute} />
+            </div>
+
+            {/* ── The planner ──────────────────────────────────────── */}
+            <div id="route-planner" ref={formRef} className={`${STAGE} scroll-mt-24 pt-14 lg:pt-16`}>
+              {/* Wider than a typical form column: at max-w-3xl it read as a
+                  narrow strip stranded under the full-width card above it. */}
+              <div className="mx-auto max-w-4xl">
+                <RouteInputForm
+                  origin={planner.origin}
+                  destination={planner.destination}
+                  selectedVehicle={planner.selectedVehicle}
+                  batteryPercent={planner.batteryPercent}
+                  isCalculating={planner.isCalculating}
+                  canCalculate={planner.canCalculate}
+                  onOriginChange={planner.setOrigin}
+                  onDestinationChange={planner.setDestination}
+                  onVehicleSelect={planner.setSelectedVehicle}
+                  onBatteryChange={planner.setBatteryPercent}
+                  onSwapLocations={planner.swapLocations}
+                  onCalculate={planner.calculateRoute}
+                />
+
+                {planner.error ? (
+                  <p
+                    role="alert"
+                    className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-center text-ui-sm font-medium text-rose-700"
                   >
-                    <span className="shrink-0 rounded-xl bg-blue-50 p-3">
-                      <Route size={24} className="text-plug-blue-600" aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate font-semibold text-slate-900">
-                        {route.from} &rarr; {route.to}
-                      </span>
-                      <span className="block font-mono text-sm text-slate-500">
-                        {route.distanceKm}
-                      </span>
-                    </span>
-                  </button>
-                ))}
+                    {planner.error}
+                  </p>
+                ) : null}
               </div>
             </div>
-          </section>
-        </>
-      )}
 
-      {planner.isCalculating ? (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-white/[0.92] backdrop-blur-md">
-          <Route size={48} className="animate-pulse text-plug-blue-600" aria-hidden="true" />
+            {/* ── How it works ─────────────────────────────────────── */}
+            <div className={`${STAGE} py-16 lg:py-20`}>
+              <RouteHowItWorks />
+            </div>
+          </>
+        )}
 
-          <span className="h-1 w-[200px] overflow-hidden rounded-full bg-slate-100">
-            <span className="block h-full origin-left animate-grow-x rounded-full bg-gradient-brand [animation-duration:2s]" />
-          </span>
+        {planner.isCalculating ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-white/[0.92] backdrop-blur-md"
+          >
+            <RouteIcon size={48} className="animate-pulse text-plug-blue-600" aria-hidden="true" />
 
-          <span className="text-center">
-            <span className="block text-lg font-semibold text-slate-900">
-              Calculating your route...
+            <span className="h-1 w-[200px] overflow-hidden rounded-full bg-slate-100">
+              <span className="block h-full origin-left animate-grow-x rounded-full bg-gradient-brand [animation-duration:2s]" />
             </span>
-            <span className="mt-1 block text-sm text-slate-400">
-              Finding the best charging stops for your EV
-            </span>
-          </span>
-        </div>
-      ) : null}
-    </div>
 
-    <FaqSection items={ROUTES_FAQS} tone="white" title="Common questions about planning" />
+            <span className="text-center">
+              <span className="block font-display text-lg font-bold text-slate-900">
+                Calculating your route…
+              </span>
+              <span className="mt-1 block text-ui-sm text-slate-500">
+                Finding the best charging stops for your EV
+              </span>
+            </span>
+          </div>
+        ) : null}
+      </div>
+
+      <FaqSection items={ROUTES_FAQS} tone="white" title="Common questions about planning" />
     </>
+  )
+}
+
+/**
+ * One control shape for the dark results header.
+ *
+ * Three buttons that do different things should still look like siblings; the
+ * saved state is the only one that reads differently, and it earns that by
+ * being a state rather than an action.
+ */
+function HeaderAction({
+  onClick,
+  active = false,
+  children,
+}: {
+  onClick: () => void
+  active?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+        active
+          ? 'border-plug-cyan-400/60 bg-plug-cyan-400/15 text-plug-cyan-200'
+          : 'border-white/15 bg-white/[0.06] text-white/75 hover:border-white/30 hover:text-white',
+      )}
+    >
+      {children}
+    </button>
   )
 }

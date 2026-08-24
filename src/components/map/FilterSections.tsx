@@ -1,45 +1,22 @@
-// src/components/map/FilterPanel.tsx
+// src/components/map/FilterSections.tsx
 'use client'
 
-import {
-  Bed,
-  Check,
-  Coffee,
-  DoorOpen,
-  ParkingSquare,
-  ShoppingBag,
-  Star,
-  Utensils,
-  Wifi,
-  type LucideIcon,
-} from 'lucide-react'
+import { Check, Star } from 'lucide-react'
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'
-import type { AmenityType, ChargingSpeed, ConnectorType, Station, StationFilters } from '@/lib/types'
+import type { AmenityType, ConnectorType, StationFilters } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { NoResults, StationListItem, StationListSkeleton } from './StationList'
+import { AMENITY_OPTIONS, CONNECTOR_LABEL, SPEED_OPTIONS } from './filter-options'
 
-type SortKey = 'nearest' | 'rating' | 'recent'
-
-const SPEED_OPTIONS: { value: ChargingSpeed | null; label: string; range: string }[] = [
-  { value: null, label: 'All', range: 'Any speed' },
-  { value: 'slow', label: 'Slow', range: 'Up to 7 kW' },
-  { value: 'fast', label: 'Fast', range: '7 – 50 kW' },
-  { value: 'rapid', label: 'Rapid', range: '50 – 150 kW' },
-  { value: 'ultra', label: 'Ultra', range: '150 kW+' },
-]
-
-const AMENITY_OPTIONS: { type: AmenityType; label: string; icon: LucideIcon }[] = [
-  { type: 'restaurant', label: 'Restaurant', icon: Utensils },
-  { type: 'hotel', label: 'Hotel', icon: Bed },
-  { type: 'parking', label: 'Parking', icon: ParkingSquare },
-  { type: 'washroom', label: 'Washroom', icon: DoorOpen },
-  { type: 'wifi', label: 'WiFi', icon: Wifi },
-  { type: 'shopping', label: 'Shopping', icon: ShoppingBag },
-  { type: 'prayer', label: 'Prayer', icon: Star },
-  { type: 'cafe', label: 'Café', icon: Coffee },
-]
+/**
+ * The stacked filter controls, for the mobile filter sheet.
+ *
+ * The desktop map lays the same filters out as a horizontal rail above the map
+ * (FilterRail): a 380px column is the wrong shape for a wide screen, but it is
+ * exactly right inside a phone sheet. Both surfaces read their options from
+ * filter-options.ts, so the two can never name the same filter differently.
+ */
 
 /**
  * A filter group's name.
@@ -62,10 +39,6 @@ export interface FilterSectionsProps {
   onUpdateFilter: <K extends keyof StationFilters>(key: K, value: StationFilters[K]) => void
 }
 
-/**
- * The filter controls themselves, shared verbatim between the desktop
- * FilterPanel and the mobile bottom sheet so the two can never drift.
- */
 export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps) {
   const [hoverRating, setHoverRating] = React.useState<number | null>(null)
 
@@ -108,7 +81,7 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
                 )}
               >
                 {selected ? <Check size={14} className="shrink-0" aria-hidden="true" /> : null}
-                {type}
+                {CONNECTOR_LABEL[type]}
               </button>
             )
           })}
@@ -231,138 +204,5 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
         </div>
       </div>
     </>
-  )
-}
-
-export interface FilterPanelProps {
-  filters: StationFilters
-  onUpdateFilter: <K extends keyof StationFilters>(key: K, value: StationFilters[K]) => void
-  onResetFilters: () => void
-  activeFilterCount: number
-  resultCount: number
-  /** The list below the filters — not in the original prop list, but the
-   *  panel cannot render its station list without them. */
-  stations: (Station & { distanceKm?: number })[]
-  selectedStation: Station | null
-  onStationSelect: (station: Station) => void
-  isLoading?: boolean
-  header?: React.ReactNode
-}
-
-export function FilterPanel({
-  filters,
-  onUpdateFilter,
-  onResetFilters,
-  activeFilterCount,
-  resultCount,
-  stations,
-  selectedStation,
-  onStationSelect,
-  isLoading = false,
-  header,
-}: FilterPanelProps) {
-  const [sortBy, setSortBy] = React.useState<SortKey>('nearest')
-
-  const sorted = React.useMemo(() => {
-    const copy = [...stations]
-
-    if (sortBy === 'rating') return copy.sort((a, b) => b.rating - a.rating)
-    if (sortBy === 'recent') {
-      return copy.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
-    }
-    // `nearest` keeps the distance ordering already applied upstream.
-    return copy
-  }, [stations, sortBy])
-
-  return (
-    /**
-     * h-full rather than a height of its own.
-     *
-     * It used to hardcode calc(100vh - 72px), which duplicated the .h-below-nav
-     * utility and missed its 100dvh fallback — so on a phone the panel stayed
-     * the height of the expanded browser chrome after the chrome collapsed. The
-     * page owns the height now and this fills it.
-     */
-    <aside
-      aria-label="Station filters and results"
-      className="flex h-full w-[380px] shrink-0 flex-col border-r border-slate-200 bg-white"
-    >
-      {/* Pinned. The search box used to scroll away with everything else,
-          which on a long station list meant scrolling back up to search. */}
-      {header ? <div className="shrink-0 border-b border-slate-100 p-4">{header}</div> : null}
-
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
-        <h2 className="flex items-center font-display text-lg font-bold tracking-tight text-slate-900">
-          Filters
-          {activeFilterCount > 0 ? (
-            <span className="ml-2.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-blue-600 px-1.5 font-sans text-ui-xs font-bold text-white">
-              {activeFilterCount}
-            </span>
-          ) : null}
-        </h2>
-
-        {activeFilterCount > 0 ? (
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="shrink-0 text-ui-sm font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
-          >
-            Clear all
-          </button>
-        ) : null}
-      </div>
-
-      {/*
-        One scroll area holding the filters, the results bar and the list.
-        min-h-0 is load-bearing: without it a flex child refuses to shrink below
-        its content and the panel grows past the viewport instead of scrolling.
-      */}
-      <div className="scrollbar-hide min-h-0 flex-1 overflow-y-auto">
-        <FilterSections filters={filters} onUpdateFilter={onUpdateFilter} />
-
-        {/*
-          Sticky, so the count and the sort stay reachable once the reader has
-          scrolled past the filters into the list — previously both scrolled
-          away and the list became an unlabelled column of cards.
-        */}
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-y border-slate-100 bg-white/95 px-5 py-3 backdrop-blur-sm">
-          <p aria-live="polite" className="text-ui-sm text-slate-600">
-            <span className="font-bold text-slate-900">{resultCount}</span>{' '}
-            {resultCount === 1 ? 'station' : 'stations'}
-          </p>
-
-          <label className="shrink-0">
-            <span className="sr-only">Sort stations</span>
-            <select
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as SortKey)}
-              className="cursor-pointer rounded-lg border-none bg-transparent text-ui-sm font-semibold text-slate-600 outline-none transition-colors hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-            >
-              <option value="nearest">Nearest first</option>
-              <option value="rating">Top rated</option>
-              <option value="recent">Recently added</option>
-            </select>
-          </label>
-        </div>
-
-        <div className="flex flex-col gap-3 p-5">
-          {isLoading ? (
-            <StationListSkeleton count={4} />
-          ) : sorted.length === 0 ? (
-            <NoResults onClearFilters={onResetFilters} />
-          ) : (
-            sorted.map((station) => (
-              <StationListItem
-                key={station.id}
-                station={station}
-                isSelected={selectedStation?.id === station.id}
-                onClick={onStationSelect}
-                distanceKm={station.distanceKm}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    </aside>
   )
 }

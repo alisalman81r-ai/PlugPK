@@ -5,7 +5,7 @@ import * as React from 'react'
 
 import type { StationFilters } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { FilterSections } from './FilterPanel'
+import { FilterSections } from './FilterSections'
 
 export interface MobileFilterSheetProps {
   isOpen: boolean

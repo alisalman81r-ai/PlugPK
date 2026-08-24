@@ -1,4 +1,7 @@
 // src/components/route/index.ts
+export { RouteHero } from './RouteHero'
+export { RouteHowItWorks } from './RouteHowItWorks'
+export { PopularRoutes } from './PopularRoutes'
 export { RouteInputForm } from './RouteInputForm'
 export { VehicleSelector } from './VehicleSelector'
 export { BatterySlider } from './BatterySlider'
@@ -8,6 +11,8 @@ export { RouteStopCard } from './RouteStopCard'
 export { RouteMap } from './RouteMap'
 export { SaveRouteModal } from './SaveRouteModal'
 
+export type { RouteHeroProps } from './RouteHero'
+export type { PopularRoutesProps } from './PopularRoutes'
 export type { RouteInputFormProps } from './RouteInputForm'
 export type { VehicleSelectorProps } from './VehicleSelector'
 export type { BatterySliderProps } from './BatterySlider'

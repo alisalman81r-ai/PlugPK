@@ -1,10 +1,8 @@
 // src/components/route/RouteResultsView.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, ChevronLeft, Share2, Zap } from 'lucide-react'
-import * as React from 'react'
+import { Zap } from 'lucide-react'
 
-import { Button, MorphIcon } from '@/components/ui'
 import type { PlannedRoute } from '@/lib/types'
 import { RouteMap } from './RouteMap'
 import { RouteStopCard } from './RouteStopCard'
@@ -12,50 +10,22 @@ import { RouteSummaryBar } from './RouteSummaryBar'
 
 export interface RouteResultsViewProps {
   route: PlannedRoute
-  onReset: () => void
-  onSave: () => void
-  isSaved: boolean
 }
 
-export function RouteResultsView({ route, onReset, onSave, isSaved }: RouteResultsViewProps) {
-  const [copied, setCopied] = React.useState(false)
-
+/**
+ * The result itself: the numbers, the stops in order, and the map beside them.
+ *
+ * It carries no chrome. Going back, saving and sharing all used to live in a
+ * row at the top of this component, directly beneath a header that already had
+ * a way out — two identical escapes a hundred pixels apart, plus an otherwise
+ * empty band holding two right-aligned buttons. Those actions belong to the
+ * page around the result, and that is where they are now.
+ */
+export function RouteResultsView({ route }: RouteResultsViewProps) {
   const startBattery = route.stops[0] ? route.stops[0].arrivalBatteryPercent + 25 : 80
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Clipboard permission denied — nothing further to fall back to.
-    }
-  }
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Button variant="ghost" size="sm" onClick={onReset} leftIcon={<ChevronLeft size={16} />}>
-          Plan another route
-        </Button>
-
-        <div className="flex gap-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onSave}
-            leftIcon={<MorphIcon active={isSaved} on={BookmarkCheck} off={Bookmark} size={16} />}
-            className={isSaved ? 'border-blue-200 text-plug-blue-600' : undefined}
-          >
-            {isSaved ? 'Saved' : 'Save Route'}
-          </Button>
-
-          <Button variant="ghost" size="sm" onClick={handleShare} leftIcon={<Share2 size={16} />}>
-            {copied ? 'Copied!' : 'Share'}
-          </Button>
-        </div>
-      </div>
-
       <RouteSummaryBar route={route} />
 
       <div className="mt-2 grid items-start gap-10 lg:grid-cols-[1fr_420px]">

@@ -58,9 +58,12 @@ function CameraController({
     if (!bounds) return
 
     hasFramed.current = true
+    // Mirrors the MapLibre engine's framing: extra room at the bottom for the
+    // attribution, the zoom cluster and the floating preview card, so the same
+    // catalogue is framed the same way whichever engine is running.
     map.fitBounds(
       { north: bounds.north, south: bounds.south, east: bounds.east, west: bounds.west },
-      96,
+      { top: 104, right: 88, bottom: 128, left: 88 },
     )
   }, [map, stations, selectedStation])
 

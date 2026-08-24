@@ -4,9 +4,9 @@
 import { useCallback, useMemo, useState } from 'react'
 
 import { MOCK_EV_MODELS, MOCK_STATIONS } from '@/lib/mock-data'
+import { estimateDriveMinutes, getRoadDistanceKm } from '@/lib/route-distances'
 import type { EVModel, PlannedRoute, RouteStop } from '@/lib/types'
 
-const AVERAGE_SPEED_KMH = 80
 const DEPARTURE_BATTERY = 80
 const LEG_CONSUMPTION_PERCENT = 25
 const MIN_ARRIVAL_BATTERY = 10
@@ -34,10 +34,19 @@ export interface UseRoutePlannerReturn {
   isSaved: boolean
 }
 
+/**
+ * How many charging stops a journey needs.
+ *
+ * Was a flat three for anything over 400 km, which put the same two-and-a-bit
+ * hours of charging on a 450 km run and on the 1,215 km to Karachi. It scales
+ * past that band now — roughly a stop every 350 km, which is what a 400 km-range
+ * car driven between 10% and 80% actually manages — and caps at the number of
+ * distinct stations there are to send anyone to.
+ */
 function stopCountForDistance(distanceKm: number): number {
   if (distanceKm < 300) return 1
   if (distanceKm <= 400) return 2
-  return 3
+  return Math.min(Math.ceil(distanceKm / 350), MOCK_STATIONS.length)
 }
 
 /**
@@ -91,8 +100,15 @@ export function useRoutePlanner(): UseRoutePlannerReturn {
     // Stands in for the routing API.
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    const totalDistanceKm = Math.round(250 + Math.random() * 200)
-    const estimatedDriveTimeMinutes = Math.round((totalDistanceKm / AVERAGE_SPEED_KMH) * 60)
+    /**
+     * A known city pair gets its real road distance, so the journey the route
+     * card advertised is the journey that comes back. Everything else still
+     * falls back to the stand-in figure until there is a routing API here —
+     * this is the one place that guesses, and it guesses only when it must.
+     */
+    const totalDistanceKm =
+      getRoadDistanceKm(origin, destination) ?? Math.round(250 + Math.random() * 200)
+    const estimatedDriveTimeMinutes = estimateDriveMinutes(totalDistanceKm)
     const stopCount = stopCountForDistance(totalDistanceKm)
     const legDistance = Math.round(totalDistanceKm / (stopCount + 1))
 

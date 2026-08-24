@@ -282,13 +282,6 @@
   padding-bottom: calc(2rem + env(safe-area-inset-bottom));
 }
 
-/* Map page — remove footer */
-.map-page main {
-  height: calc(100vh - 72px);
-  height: calc(100dvh - 72px);
-  overflow: hidden;
-}
-
 /* Pulse ring animation for available status */
 @keyframes pulseRingAnim {
   0%   { transform: scale(1);   opacity: 0.8; }

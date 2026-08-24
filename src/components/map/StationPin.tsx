@@ -21,6 +21,22 @@ const PIN_COLOR: Record<StationStatus, string> = {
   unknown: 'bg-slate-300',
 }
 
+/**
+ * The map legend, defined here rather than on the page.
+ *
+ * A legend that lists its own colours is a legend that goes stale the first
+ * time a pin changes — and a wrong legend is worse than none, because the
+ * reader trusts it. This reads the pin colours themselves; the labels are the
+ * short forms, since the legend has the swatch beside it to do the explaining.
+ */
+export const PIN_LEGEND: { status: StationStatus; label: string; colorClass: string }[] = (
+  ['available', 'limited', 'offline'] as const
+).map((status) => ({
+  status,
+  label: status === 'available' ? 'Available' : status === 'limited' ? 'Limited' : 'Offline',
+  colorClass: PIN_COLOR[status],
+}))
+
 export interface StationPinProps {
   station: Station
   isSelected: boolean

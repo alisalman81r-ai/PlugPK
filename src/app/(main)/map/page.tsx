@@ -6,39 +6,95 @@ import dynamic from 'next/dynamic'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { MAP_FAQS } from '@/lib/faqs'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useMemo, useState } from 'react'
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
 
-import { FilterPanel } from '@/components/map/FilterPanel'
+import { FilterRail } from '@/components/map/FilterRail'
 import { MapControls } from '@/components/map/MapControls'
 import { MapHero } from '@/components/map/MapHero'
 import { MapSearchBar } from '@/components/map/MapSearchBar'
 import { MobileFilterSheet } from '@/components/map/MobileFilterSheet'
-import { MobileStationSheet } from '@/components/map/MobileStationSheet'
+import { PIN_LEGEND } from '@/components/map/StationPin'
 import { StationPreviewCard } from '@/components/map/StationPreviewCard'
+import { StationResults } from '@/components/map/StationResults'
 import { useStations } from '@/hooks/useStations'
 import type { Station } from '@/lib/types'
 
 /**
- * Holds the split layout while the client subtree mounts.
+ * The page is one centred column, not a split view.
  *
- * The panel width here has to match FilterPanel's exactly. It was 400px against
- * the panel's 380px, so the map and everything in it jumped 20px sideways the
- * moment the client subtree took over — the kind of shift that reads as the
- * page being broken rather than loading.
+ * The map used to sit in the right-hand two thirds of a flex row, with a 380px
+ * rail of filters and results pinned to its left. That gave the most spatial
+ * element on the site the smaller half of the screen, and it stacked the
+ * filters on top of the results inside a column too narrow for either.
+ *
+ * Now it reads top to bottom: refine, then map, then results. The filter rail
+ * is the card lifted out of the dark hero band — controls belong with the
+ * search field they extend, and a filter that changes what the map shows has to
+ * be visible while the map is — and the map sits directly under it in a
+ * matching frame. Both wear the same mount, so the pair reads as one console
+ * rather than two unrelated panels, and everything keeps to one measure so the
+ * rail, the map and the results grid share their left and right edges down the
+ * whole page.
  */
-const PANEL_WIDTH = 'w-[380px]'
+
+/** One measure for the whole page, so nothing steps out of line. */
+const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
+
+/**
+ * The map's working height.
+ *
+ * A flat 27rem on a phone: viewport units there are a moving target while the
+ * browser chrome collapses, and a map that resizes under a scrolling thumb is
+ * worse than one that is slightly short. From sm up it scales with the screen
+ * but stops at 46rem — the rail now sits above the map rather than below it,
+ * so the fold has to hold both.
+ */
+const MAP_HEIGHT = 'h-[27rem] sm:h-[clamp(28rem,68vh,46rem)]'
+
+/**
+ * The frame both cards wear.
+ *
+ * A thin white mount around the content, the way a photograph is framed. On the
+ * rail it separates the controls from the dark band they overlap; on the map it
+ * does the same job against the page. Shared rather than copied, because the
+ * moment the two frames differ they stop reading as one console.
+ */
+const MOUNT =
+  'rounded-[2rem] border border-white/20 bg-white/90 p-1.5 shadow-e4 backdrop-blur-sm sm:p-2'
+
+/**
+ * How far the rail is pulled up into the dark band above it.
+ *
+ * Deliberately less than half its height. The rail is a fraction of the map's
+ * height — on a phone it collapses to just its header — so the map's old
+ * -mt-32 would have floated the whole card inside the dark band with nothing
+ * anchoring it to the page. It straddles the edge instead, at every width.
+ */
+const RAIL_LIFT = '-mt-14 sm:-mt-16 lg:-mt-20'
 
 function MapExplorerFallback() {
   return (
-    <div className="flex h-below-nav flex-col overflow-hidden">
-      <div className="h-[76px] shrink-0 border-b border-white/10 bg-slate-950 lg:h-[84px]" />
-      <div className="flex min-h-0 flex-1">
-        <div
-          className={`hidden shrink-0 border-r border-slate-200 bg-white lg:block ${PANEL_WIDTH}`}
-        />
-        <div className="flex flex-1 items-center justify-center bg-slate-100">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
+    <div className="bg-slate-50">
+      <div className="h-[400px] rounded-b-[2rem] bg-slate-950 sm:rounded-b-[2.5rem] lg:h-[430px]" />
+      {/* The same two mounts, in the same order, at the same heights as the real
+          thing — so nothing changes shape or shifts the page the moment the
+          client takes over. */}
+      <div className={`relative ${RAIL_LIFT} ${STAGE}`}>
+        <div className={MOUNT}>
+          <div className="h-[4.5rem] rounded-[1.6rem] bg-white ring-1 ring-slate-900/10 lg:h-[11rem]" />
         </div>
+      </div>
+      <div className={`${STAGE} mt-5 sm:mt-6`}>
+        <div className={MOUNT}>
+          <div
+            className={`${MAP_HEIGHT} flex items-center justify-center overflow-hidden rounded-[1.6rem] bg-slate-100 ring-1 ring-slate-900/10`}
+          >
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
+          </div>
+        </div>
+      </div>
+      <div className={`${STAGE} py-10`}>
+        <div className="h-24 rounded-3xl border border-slate-200/80 bg-white shadow-e2" />
       </div>
     </div>
   )
@@ -51,7 +107,7 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
     /* A faint grid rather than a blank grey field: it reads as a map arriving
        rather than as a panel that failed, and it gives the spinner something
        to sit on. */
-    <div className="relative flex h-full flex-1 items-center justify-center bg-slate-100">
+    <div className="relative flex h-full w-full items-center justify-center bg-slate-100">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
@@ -90,6 +146,7 @@ function MapExplorer() {
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+  const mapRef = useRef<HTMLDivElement>(null)
 
   const handleNavigate = useCallback((station: Station) => {
     window.open(
@@ -117,6 +174,18 @@ function MapExplorer() {
     )
   }, [])
 
+  /**
+   * Selecting from the grid brings the map back into view.
+   *
+   * With the results below the map rather than beside it, a click down the page
+   * used to move a pin the reader could not see — the selection appeared to do
+   * nothing at all.
+   */
+  const handleSelectFromResults = useCallback((station: Station) => {
+    setSelectedStation(station)
+    mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [setSelectedStation])
+
   const selectedWithDistance = selectedStation
     ? stationsWithDistance.find((item) => item.id === selectedStation.id)
     : undefined
@@ -139,22 +208,19 @@ function MapExplorer() {
       .map(([city]) => city)
   }, [stations])
 
+  /** Counted from what is on the map right now, not from the whole database. */
+  const availableNow = useMemo(
+    () => filteredStations.filter((station) => station.status === 'available').length,
+    [filteredStations],
+  )
+
   return (
-    /**
-     * A flex column, so the header sizes itself and the map takes the rest.
-     * Hardcoding a height for the header and subtracting it here would be a
-     * third magic number alongside the nav's 72px, and it would be wrong the
-     * first time the copy wrapped to two lines on a narrow screen.
-     */
-    <div className="flex min-h-below-nav flex-col">
+    <div className="bg-slate-50">
       <MapHero
         total={stations.length}
         shown={filteredStations.length}
         cities={cities}
-        filters={filters}
-        onUpdateFilter={updateFilter}
-        activeFilterCount={activeFilterCount}
-        onOpenAllFilters={() => setIsMobileFilterOpen(true)}
+        availableNow={availableNow}
         onLocateMe={handleLocateMe}
         isLocating={isLocating}
         search={
@@ -168,78 +234,121 @@ function MapExplorer() {
         }
       />
 
-      {/* The map keeps a fixed working height rather than flexing: with the
-          band above it, flex-1 on a laptop left a 300px strip of map, and a map
-          too short to pan is not a map. */}
-      <div className="relative flex h-[clamp(28rem,68vh,44rem)] overflow-hidden">
-      {/* ── Desktop left panel ───────────────────────────────── */}
-      <div className="hidden lg:flex">
-        <FilterPanel
-          filters={filters}
-          onUpdateFilter={updateFilter}
-          onResetFilters={resetFilters}
-          activeFilterCount={activeFilterCount}
-          resultCount={filteredStations.length}
-          stations={stationsWithDistance}
-          selectedStation={selectedStation}
-          onStationSelect={setSelectedStation}
-          isLoading={isLoading}
-        />
-      </div>
-
-      {/* ── Map area ─────────────────────────────────────────── */}
-      <div className="relative flex-1 overflow-hidden">
-        {/*
-          One floating control at every breakpoint: locate-me. Search, the
-          speed pills and All filters all live in the band above now, so the
-          phone no longer carries a second search box over the map and a second
-          Filters button beside it.
-        */}
-        <div className="absolute right-4 top-4 z-20">
-          <MapControls
-            onFilterClick={() => setIsMobileFilterOpen(true)}
+      {/* ── Refine ─────────────────────────────────────────
+          The rail is what now lifts out of the dark band: it carries on from the
+          search field directly above it, and putting the controls here means the
+          map never has to be scrolled away from to change what it shows. */}
+      <div className={`relative z-10 ${RAIL_LIFT} ${STAGE}`}>
+        <div className={MOUNT}>
+          <FilterRail
+            filters={filters}
+            onUpdateFilter={updateFilter}
+            onResetFilters={resetFilters}
             activeFilterCount={activeFilterCount}
             resultCount={filteredStations.length}
-            onLocateMe={handleLocateMe}
-            isLocating={isLocating}
-            showFilterButton={false}
+            totalCount={stations.length}
+            onOpenSheet={() => setIsMobileFilterOpen(true)}
           />
         </div>
+      </div>
 
-        <MapView
-          stations={filteredStations}
-          selectedStation={selectedStation}
-          onStationSelect={setSelectedStation}
-          onMapClick={() => setSelectedStation(null)}
-          userLocation={userLocation}
-        />
-
-        {/* Desktop preview card floats over the map */}
-        {selectedStation ? (
-          <div className="absolute bottom-6 left-1/2 z-20 hidden w-[420px] -translate-x-1/2 lg:block">
-            <StationPreviewCard
-              station={selectedStation}
-              distanceKm={selectedWithDistance?.distanceKm}
-              onClose={() => setSelectedStation(null)}
-              onViewDetails={handleViewDetails}
-              onNavigate={handleNavigate}
+      {/* ── The map ─────────────────────────────────────────
+          Directly under the rail, in the matching mount, so the controls and the
+          surface they act on read as one console rather than two panels. */}
+      <div className={`${STAGE} mt-5 sm:mt-6`}>
+        <div className={MOUNT}>
+          <div
+            ref={mapRef}
+            className={`relative ${MAP_HEIGHT} overflow-hidden rounded-[1.6rem] bg-slate-100 ring-1 ring-slate-900/10`}
+          >
+            <MapView
+              stations={filteredStations}
+              selectedStation={selectedStation}
+              onStationSelect={setSelectedStation}
+              onMapClick={() => setSelectedStation(null)}
+              userLocation={userLocation}
             />
+
+            {/*
+              One floating control: locate-me. Search and every filter already sit
+              in the band and the rail above, so nothing else has to be laid over
+              the map. Top-right, because the SDK owns both bottom corners —
+              attribution on the left, zoom on the right.
+            */}
+            <div className="absolute right-4 top-4 z-20">
+              <MapControls
+                onFilterClick={() => setIsMobileFilterOpen(true)}
+                activeFilterCount={activeFilterCount}
+                resultCount={filteredStations.length}
+                onLocateMe={handleLocateMe}
+                isLocating={isLocating}
+                showFilterButton={false}
+              />
+            </div>
+
+            {/* The pins carry three colours; this is where they are named.
+                Hidden on the smallest screens, where it would cost more map than
+                it explains. */}
+            <div className="absolute left-4 top-4 z-20 hidden sm:block">
+              <div className="glass flex items-center gap-3.5 rounded-2xl border border-white/60 px-3.5 py-2 shadow-e3">
+                {PIN_LEGEND.map((entry) => (
+                  <span key={entry.status} className="flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      className={`h-2 w-2 shrink-0 rounded-full ${entry.colorClass}`}
+                    />
+                    <span className="text-ui-xs font-semibold text-slate-700">{entry.label}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop preview card floats over the map it belongs to. */}
+            {selectedStation ? (
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden justify-center p-5 lg:flex">
+                <div className="pointer-events-auto w-full max-w-[440px] animate-fade-in">
+                  <StationPreviewCard
+                    station={selectedStation}
+                    distanceKm={selectedWithDistance?.distanceKm}
+                    onClose={() => setSelectedStation(null)}
+                    onViewDetails={handleViewDetails}
+                    onNavigate={handleNavigate}
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
-        ) : null}
-      </div>
+          </div>
       </div>
 
-      {/* ── Mobile sheets ────────────────────────────────────── */}
-      <MobileStationSheet
-        stations={stationsWithDistance}
-        selectedStation={selectedStation}
-        onStationSelect={setSelectedStation}
-        onClearSelection={() => setSelectedStation(null)}
-        isLoading={isLoading}
-        onViewDetails={handleViewDetails}
-        onNavigate={handleNavigate}
-        onResetFilters={resetFilters}
-      />
+      {/* ── Results ─────────────────────────────────────────
+          A plain section on the page: the two framed cards above are the map and
+          the controls that drive it, and a third mount here would flatten the
+          pair into a stack of equal panels. */}
+      <div className={`${STAGE} pb-20 pt-10 lg:pt-12`}>
+        <StationResults
+          stations={stationsWithDistance}
+          selectedStation={selectedStation}
+          onStationSelect={handleSelectFromResults}
+          isLoading={isLoading}
+          onResetFilters={resetFilters}
+          hasUserLocation={userLocation !== null}
+        />
+      </div>
+
+      {/* Phone: the selected station docks above the tab bar, where a thumb
+          already is, instead of over the middle of the map. */}
+      {selectedStation ? (
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 animate-slide-up px-3 pb-3 lg:hidden">
+          <StationPreviewCard
+            station={selectedStation}
+            distanceKm={selectedWithDistance?.distanceKm}
+            onClose={() => setSelectedStation(null)}
+            onViewDetails={handleViewDetails}
+            onNavigate={handleNavigate}
+          />
+        </div>
+      ) : null}
 
       <MobileFilterSheet
         isOpen={isMobileFilterOpen}
@@ -261,9 +370,6 @@ export default function MapPage() {
         <MapExplorer />
       </Suspense>
 
-      {/* Below the explorer rather than inside it: the map fills the viewport
-          by design, so the questions sit one scroll further down instead of
-          competing with it for space. */}
       <FaqSection items={MAP_FAQS} title="Common questions about the map" />
     </>
   )
