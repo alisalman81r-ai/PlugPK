@@ -7,6 +7,16 @@
 // Kept as a script rather than a test suite because the project has no test
 // runner configured, and adding one to prove a data module works would be a
 // larger change than the thing being proved.
+//
+// Counts are DERIVED, not written down. This file used to assert "28 cars",
+// "18 EVs", "BYD -> 4" and a dozen more literals, so adding eight cars turned
+// fifteen checks red at once while every one of them was actually correct — the
+// data had changed, not broken. A verifier that cries wolf on every legitimate
+// edit is a verifier people stop reading, and the fifteen real assertions in
+// here would have been lost in the noise. What is asserted now are the
+// invariants that must hold at any size: totals agree with the sum of their
+// parts, filters and sorts are subsets and permutations of the input, and every
+// supplied figure is still exactly what was supplied.
 
 import { cars } from '../src/data/cars'
 import {
@@ -35,7 +45,7 @@ function check(label: string, condition: boolean, detail = '') {
 console.log('\nDATA')
 const ids = cars.map((car) => car.id)
 const slugs = cars.map((car) => car.slug)
-check('28 cars', cars.length === 28, `${cars.length}`)
+check('at least the 28 supplied cars', cars.length >= 28, `${cars.length} cars`)
 check('unique ids', new Set(ids).size === ids.length)
 check('unique slugs', new Set(slugs).size === slugs.length)
 check(
@@ -50,11 +60,38 @@ check(
   'every price display starts with PKR',
   cars.every((car) => car.price.display.startsWith('PKR ')),
 )
-check('brands', getBrands().length === 14, `${getBrands().length} brands`)
-check('categories present', getCategories().join(',') === 'EV,PHEV,REEV', getCategories().join(','))
-check('18 EVs', cars.filter((c) => c.category === 'EV').length === 18)
-check('8 PHEVs', cars.filter((c) => c.category === 'PHEV').length === 8)
-check('2 REEVs', cars.filter((c) => c.category === 'REEV').length === 2)
+check(
+  'getBrands lists every brand present, once',
+  getBrands().length === new Set(cars.map((car) => car.brand)).size,
+  `${getBrands().length} brands`,
+)
+check(
+  'getCategories lists every category present, in CATEGORY_ORDER',
+  getCategories().join(',') ===
+    (['EV', 'PHEV', 'REEV', 'Hybrid'] as const)
+      .filter((category) => cars.some((car) => car.category === category))
+      .join(','),
+  getCategories().join(','),
+)
+check(
+  'category counts sum to the whole catalogue',
+  getCategories().reduce((total, category) => total + cars.filter((c) => c.category === category).length, 0) ===
+    cars.length,
+)
+// A full hybrid has no plug. Asserting it here keeps a later edit from quietly
+// giving one a charging speed, which would put it in the DC filter's results.
+check(
+  'hybrids carry no plug, no DC and no AC figure',
+  cars
+    .filter((car) => car.category === 'Hybrid')
+    .every((car) => car.connector === null && car.dcCharging === null && car.acCharging === null),
+)
+// Every row whose price is not from the supplied list has to say so, wherever
+// that price is printed.
+check(
+  'indicative prices are labelled in price.display',
+  cars.every((car) => !car.notes?.includes('indicative') || car.price.display.includes('(indicative)')),
+)
 
 console.log('\nSUPPLIED FIGURES UNCHANGED')
 const byId = (id: string) => cars.find((car) => car.id === id)!
@@ -70,24 +107,43 @@ check('Haval H6 has only price + engine', byId('haval-h6-phev').engineCapacity =
 check('S05 REEV battery is null', byId('deepal-s05-reev').batteryCapacity === null)
 
 console.log('\nSEARCH')
-check('"BYD" -> 4', searchCars(cars, 'BYD').length === 4, searchCars(cars, 'BYD').map((c) => c.model).join(', '))
-check('"tiggo" -> 3', searchCars(cars, 'tiggo').length === 3)
-check('"PHEV" -> 8', searchCars(cars, 'PHEV').length === 8)
-check('"byd seal" -> 2 (Seal, Sealion)', searchCars(cars, 'byd seal').length === 2)
+const brandCount = (brand: string) => cars.filter((car) => car.brand === brand).length
+check(
+  '"BYD" finds every BYD',
+  searchCars(cars, 'BYD').length === brandCount('BYD'),
+  searchCars(cars, 'BYD').map((c) => c.model).join(', '),
+)
+check(
+  '"tiggo" finds every Tiggo',
+  searchCars(cars, 'tiggo').length === cars.filter((c) => c.model.toLowerCase().includes('tiggo')).length,
+)
+check(
+  '"PHEV" finds every PHEV',
+  searchCars(cars, 'PHEV').length >= cars.filter((c) => c.category === 'PHEV').length,
+)
+check('"byd seal" matches Seal and Sealion', searchCars(cars, 'byd seal').length >= 2)
 check('"kia ev9" -> 1', searchCars(cars, 'kia ev9').length === 1)
-check('empty query -> all', searchCars(cars, '   ').length === 28)
+check('empty query -> all', searchCars(cars, '   ').length === cars.length)
 check('nonsense -> 0', searchCars(cars, 'zzzz').length === 0)
 check('case-insensitive', searchCars(cars, 'byd').length === searchCars(cars, 'BYD').length)
 
 console.log('\nFILTERS')
 const f = (patch: Partial<typeof EMPTY_FILTERS>) => filterCars(cars, { ...EMPTY_FILTERS, ...patch })
-check('no filters -> all 28', f({}).length === 28)
-check('category EV -> 18', f({ categories: ['EV'] }).length === 18)
-check('brand BYD -> 4', f({ brands: ['BYD'] }).length === 4)
-check('two brands OR together', f({ brands: ['BYD', 'KIA'] }).length === 6)
+check('no filters -> all', f({}).length === cars.length)
 check(
-  'EV + BYD + under 1.5 Cr -> 3',
-  f({ categories: ['EV'], brands: ['BYD'], priceMax: 15_000_000 }).length === 3,
+  'category EV -> every EV',
+  f({ categories: ['EV'] }).length === cars.filter((c) => c.category === 'EV').length,
+)
+check('brand BYD -> every BYD', f({ brands: ['BYD'] }).length === brandCount('BYD'))
+check(
+  'two brands OR together',
+  f({ brands: ['BYD', 'KIA'] }).length === brandCount('BYD') + brandCount('KIA'),
+)
+check(
+  'stacked filters narrow rather than widen',
+  f({ categories: ['EV'], brands: ['BYD'], priceMax: 15_000_000 }).every(
+    (car) => car.category === 'EV' && car.brand === 'BYD' && car.price.min <= 15_000_000,
+  ),
   f({ categories: ['EV'], brands: ['BYD'], priceMax: 15_000_000 }).map((c) => c.model).join(', '),
 )
 check(
@@ -107,16 +163,47 @@ const prices = sorted('price-asc').map((c) => c.price.min)
 check('price-asc ascending', prices.every((p, i) => i === 0 || prices[i - 1]! <= p))
 const desc = sorted('price-desc').map((c) => c.price.max)
 check('price-desc descending', desc.every((p, i) => i === 0 || desc[i - 1]! >= p))
-check('price-asc cheapest first', sorted('price-asc')[0]!.id === 'dongfeng-vigo')
-check('price-desc priciest first', sorted('price-desc')[0]!.id === 'kia-ev9-gt-line')
-check('battery-desc largest first', sorted('battery-desc')[0]!.id === 'kia-ev9-gt-line')
-check('power-desc strongest first', sorted('power-desc')[0]!.id === 'chery-tiggo-9-phev')
-check('range-desc highest first', (sorted('range-desc')[0]!.range ?? 0) === 650)
+check(
+  'price-asc puts the cheapest first',
+  sorted('price-asc')[0]!.price.min === Math.min(...cars.map((car) => car.price.min)),
+  sorted('price-asc')[0]!.fullName,
+)
+check(
+  'price-desc puts the priciest first',
+  sorted('price-desc')[0]!.price.max === Math.max(...cars.map((car) => car.price.max)),
+  sorted('price-desc')[0]!.fullName,
+)
+check(
+  'battery-desc puts the largest pack first',
+  (sorted('battery-desc')[0]!.batteryCapacity ?? 0) ===
+    Math.max(...cars.map((car) => car.batteryCapacity ?? 0)),
+  sorted('battery-desc')[0]!.fullName,
+)
+check(
+  'power-desc puts the strongest first',
+  (sorted('power-desc')[0]!.power ?? 0) === Math.max(...cars.map((car) => car.power ?? 0)),
+  sorted('power-desc')[0]!.fullName,
+)
+check(
+  'range-desc puts the longest range first',
+  (sorted('range-desc')[0]!.range ?? 0) === Math.max(...cars.map((car) => car.range ?? 0)),
+  sorted('range-desc')[0]!.fullName,
+)
 check(
   'nulls sort last in power-desc',
   sorted('power-desc').slice(-2).every((c) => c.power === null),
 )
-check('every sort keeps all 28', (['price-asc', 'price-desc', 'range-desc', 'battery-desc', 'power-desc', 'newest'] as CarSort[]).every((s) => sorted(s).length === 28))
+// A sort must be a permutation: same cars, different order. Length alone would
+// miss a sort that dropped one car and duplicated another.
+check(
+  'every sort is a permutation of the catalogue',
+  (['price-asc', 'price-desc', 'range-desc', 'battery-desc', 'power-desc', 'newest'] as CarSort[]).every(
+    (key) => {
+      const out = sorted(key)
+      return out.length === cars.length && new Set(out.map((car) => car.id)).size === cars.length
+    },
+  ),
+)
 
 console.log('\nFORMATTING')
 check('7,290,000 -> 72.9 Lakh', formatPkr(7_290_000) === 'PKR 72.9 Lakh', formatPkr(7_290_000))

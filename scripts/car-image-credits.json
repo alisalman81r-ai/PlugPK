@@ -249,11 +249,82 @@
       "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "author": "Anonymousfox36",
       "source": "https://commons.wikimedia.org/wiki/File:Tank_500_IMG001.jpg"
+    },
+    {
+      "carId": "toyota-corolla-cross-hev",
+      "file": "cars/toyota-corolla-cross-hev.jpg",
+      "article": "Toyota Corolla Cross",
+      "commonsFile": "2023_Toyota_Corolla_Cross_XLE_4WD_in_Wind_Chill_Pearl,_front_left.jpg",
+      "licence": "CC BY-SA 3.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "author": "Mr.choppers",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Toyota_Corolla_Cross_XLE_4WD_in_Wind_Chill_Pearl,_front_left.jpg"
+    },
+    {
+      "carId": "haval-jolion-hev",
+      "file": "cars/haval-jolion-hev.jpg",
+      "article": "Haval Jolion",
+      "commonsFile": "2020_Great_Wall_Haval_Jolion_(front).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "User3204",
+      "source": "https://commons.wikimedia.org/wiki/File:2020_Great_Wall_Haval_Jolion_(front).jpg"
+    },
+    {
+      "carId": "haval-h6-hev",
+      "file": "cars/haval-h6-hev.jpg",
+      "article": "Haval H6",
+      "commonsFile": "Haval_H6_III_IMG001_(cropped).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Zotyefan",
+      "source": "https://commons.wikimedia.org/wiki/File:Haval_H6_III_IMG001_(cropped).jpg"
+    },
+    {
+      "carId": "gwm-tank-300-hev",
+      "file": "cars/gwm-tank-300-hev.jpg",
+      "article": "GWM Tank 300",
+      "commonsFile": "TANK_300_IMG006.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Anonymousfox36",
+      "source": "https://commons.wikimedia.org/wiki/File:TANK_300_IMG006.jpg"
+    },
+    {
+      "carId": "byd-sealion-6",
+      "file": "cars/byd-sealion-6.jpg",
+      "article": "BYD Sealion 6",
+      "commonsFile": "2023_BYD_Song_Plus_DM-i_(front).jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "User3204",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_BYD_Song_Plus_DM-i_(front).jpg"
+    },
+    {
+      "carId": "dfsk-seres-3",
+      "file": "cars/dfsk-seres-3.jpg",
+      "article": "Seres 3",
+      "commonsFile": "Exterior_of_Seres_3,_Singapore,_5_April_2025.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Leongyy02",
+      "source": "https://commons.wikimedia.org/wiki/File:Exterior_of_Seres_3,_Singapore,_5_April_2025.jpg"
+    },
+    {
+      "carId": "hyundai-ioniq-5",
+      "file": "cars/hyundai-ioniq-5.jpg",
+      "article": "Hyundai Ioniq 5",
+      "commonsFile": "Hyundai_Ioniq_5_AWD_Techniq-Paket_–_f_31122024.jpg",
+      "licence": "CC BY-SA 3.0 de",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "author": "© M 93",
+      "source": "https://commons.wikimedia.org/wiki/File:Hyundai_Ioniq_5_AWD_Techniq-Paket_%E2%80%93_f_31122024.jpg"
     }
   ],
   "missing": [
     "forthing-friday-bev",
     "dongfeng-007",
-    "forthing-friday-reev"
+    "forthing-friday-reev",
+    "chery-tiggo-cross-hev"
   ]
 }
