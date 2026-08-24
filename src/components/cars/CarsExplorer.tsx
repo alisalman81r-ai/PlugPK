@@ -48,7 +48,6 @@ export interface CarsExplorerProps {
   brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
-  priceBounds: { min: number; max: number }
   /**
    * Rendered between the hero and the catalogue.
    *
@@ -64,7 +63,6 @@ export function CarsExplorer({
   brands,
   categories,
   connectors,
-  priceBounds,
   insights,
 }: CarsExplorerProps) {
   const router = useRouter()
@@ -189,10 +187,8 @@ export function CarsExplorer({
           <div className="mt-12">
             <CarsBrowser
               cars={cars}
-              brands={brands}
               categories={categories}
               connectors={connectors}
-              priceBounds={priceBounds}
               query={query}
               onQueryChange={setQuery}
               filters={filters}

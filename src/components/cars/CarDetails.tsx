@@ -36,6 +36,16 @@ import { SpecificationTable } from './SpecificationTable'
 
 export interface CarDetailsProps {
   car: Car
+  /**
+   * The catalogue this car is being compared against, for the similar-cars
+   * rail at the foot of the page.
+   *
+   * Passed in rather than imported. The rows live in the database now, and a
+   * component that reached for the seed module itself would show a rail built
+   * from a set the rest of the page is not using — quietly recommending a car
+   * that had been deleted, or missing one that was just added.
+   */
+  pool: Car[]
 }
 
 const CATEGORY_VARIANT: Record<CarCategory, BadgeVariant> = {
@@ -52,9 +62,9 @@ const CATEGORY_BLURB: Record<CarCategory, string> = {
   Hybrid: 'Hybrid — engine assisted by a battery.',
 }
 
-export function CarDetails({ car }: CarDetailsProps) {
+export function CarDetails({ car, pool }: CarDetailsProps) {
   const groups = specGroups(car)
-  const similar = getSimilarCars(car)
+  const similar = getSimilarCars(car, pool)
   const credit = car.image ? getImageCredit(car.id) : undefined
 
   /**

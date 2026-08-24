@@ -5,7 +5,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarComparison } from '@/components/cars/CarComparison'
-import { getAllCars, getCarsByIds } from '@/lib/cars'
+import { getCarsByIdsFromDb, listCars } from '@/lib/db/car-queries'
 
 /**
  * The comparison, addressed by URL.
@@ -32,17 +32,17 @@ interface ComparePageProps {
 /** Four columns already scroll on a phone; more stops being comparable. */
 const MAX = 4
 
-export default function ComparePage({ searchParams }: ComparePageProps) {
+export default async function ComparePage({ searchParams }: ComparePageProps) {
   const ids = (searchParams.ids ?? '')
     .split(',')
     .map((id) => id.trim())
     .filter(Boolean)
     .slice(0, MAX)
 
-  const cars = getCarsByIds(ids)
+  const cars = await getCarsByIdsFromDb(ids)
   // What the add control can offer: everything not already in the table.
   const chosen = new Set(cars.map((car) => car.id))
-  const available = getAllCars().filter((car) => !chosen.has(car.id))
+  const available = (await listCars()).filter((car) => !chosen.has(car.id))
 
   return (
     /**

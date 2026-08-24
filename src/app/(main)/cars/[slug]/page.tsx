@@ -3,7 +3,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { CarDetails } from '@/components/cars/CarDetails'
-import { carSeo, getAllCars, getCarBySlug } from '@/lib/cars'
+import { carSeo } from '@/lib/cars'
+import { getCarBySlugFromDb, getCarSlugs, listCars } from '@/lib/db/car-queries'
 
 /**
  * One page per car, generated at build time.
@@ -26,12 +27,12 @@ interface CarPageProps {
  * carrying the 404 body, a soft 404 that a crawler indexes as a real page.
  * Verified: with the default, /cars/nope returns a true 404.
  */
-export function generateStaticParams() {
-  return getAllCars().map((car) => ({ slug: car.slug }))
+export async function generateStaticParams() {
+  return (await getCarSlugs()).map((slug) => ({ slug }))
 }
 
-export function generateMetadata({ params }: CarPageProps): Metadata {
-  const car = getCarBySlug(params.slug)
+export async function generateMetadata({ params }: CarPageProps): Promise<Metadata> {
+  const car = await getCarBySlugFromDb(params.slug)
 
   // Metadata runs before the component, so an unknown slug is handled here too
   // rather than letting Next fall back to the layout's default title on a 404.
@@ -57,9 +58,16 @@ export function generateMetadata({ params }: CarPageProps): Metadata {
   }
 }
 
-export default function CarPage({ params }: CarPageProps) {
-  const car = getCarBySlug(params.slug)
+export default async function CarPage({ params }: CarPageProps) {
+  const car = await getCarBySlugFromDb(params.slug)
   if (!car) notFound()
+
+  /*
+    The whole catalogue, for the "similar cars" rail at the bottom of the page.
+    getSimilarCars judges a car against a pool, and the pool has to be the live
+    catalogue rather than the seed module now that the two can differ.
+  */
+  const pool = await listCars()
 
   /**
    * Product schema, built only from figures that exist.
@@ -133,7 +141,7 @@ export default function CarPage({ params }: CarPageProps) {
   return (
     <section className="bg-white py-12 lg:py-16">
       <div className="container-plug">
-        <CarDetails car={car} />
+        <CarDetails car={car} pool={pool} />
       </div>
 
       <script

@@ -477,3 +477,65 @@ model ClubMember {
   @@unique([clubId, userId])
   @@index([userId])
 }
+
+/// The electrified car catalogue.
+///
+/// Moved here from src/data/cars.ts, which is now the seed rather than the
+/// source: the admin needs to edit every field, and a TypeScript module
+/// compiled into the bundle cannot be written to at runtime — a production
+/// filesystem is read-only, and the module the server holds is the compiled
+/// one, so a successful write would change a file nobody reads until the next
+/// build.
+///
+/// Every measured column is nullable, which is the whole point. The data
+/// module's first rule is that nothing is invented: a car with no published DC
+/// figure stores null, never a plausible number, and the admin form has to be
+/// able to write that null back.
+///
+/// price is three columns rather than JSON because the catalogue sorts and
+/// filters on the numbers, and `display` has to survive verbatim — "PKR 1.0649
+/// Cr" is not recomputed from 10,649,000, and an indicative price carries its
+/// own "(indicative)" marker inside that string.
+///
+/// connectors is a comma-separated string. SQLite has no array type, the value
+/// is always read and written whole, and there are at most four of them; a join
+/// table would cost a query per car to buy nothing.
+model Car {
+  id       String @id
+  slug     String @unique
+  brand    String
+  model    String
+  fullName String
+  category String
+
+  priceMin     Int
+  priceMax     Int
+  priceDisplay String
+
+  batteryCapacity  Float?
+  range            Int?
+  rangeMax         Int?
+  electricRange    Int?
+  electricRangeMax Int?
+
+  power        Int?
+  acceleration Float?
+  topSpeed     Int?
+  torque       Int?
+  seats        Int?
+
+  dcCharging Float?
+  acCharging Float?
+  connectors String @default("")
+
+  engineCapacity Int?
+
+  image String?
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([brand])
+}

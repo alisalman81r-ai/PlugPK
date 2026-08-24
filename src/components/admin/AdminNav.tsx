@@ -3,6 +3,7 @@
 
 import {
   Building2,
+  Car,
   ExternalLink,
   LayoutDashboard,
   LogOut,
@@ -55,6 +56,14 @@ const SECTIONS: NavSection[] = [
   {
     heading: 'People',
     items: [{ label: 'Members', href: '/admin/members', icon: Users }],
+  },
+  {
+    heading: 'Catalogue',
+    // Its own group rather than an eighth entry under Content. Everything under
+    // Content is database-backed and editable here; cars are an authored module
+    // and read-only, and grouping them together would imply an Edit button that
+    // does not exist. See the cars page for why.
+    items: [{ label: 'Cars', href: '/admin/cars', icon: Car }],
   },
   {
     heading: 'Content',
