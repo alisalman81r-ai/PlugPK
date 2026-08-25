@@ -47,14 +47,35 @@ SESSION_SECRET=paste-the-generated-value-here
 
 ## 3. Build the database
 
-The migrations are committed, so the schema rebuilds from them. The seed fills
-in stations, services and community posts:
+The migrations are committed, so the schema rebuilds from them:
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
-npm run db:seed
+npm run db:seed                # stations, services, community, clubs
+npx tsx scripts/seed-cars.ts   # the 36-car catalogue
 ```
+
+**Both seeds are needed.** `db:seed` does not touch the `Car` table — cars live
+in their own seed, loaded from `src/data/cars.ts`. Run only the first and the
+site comes up with an entirely empty `/cars`, which looks like a broken build
+rather than a missing command.
+
+### Check it worked
+
+```bash
+npx tsx scripts/verify-cars.ts
+```
+
+Prints `ALL CHECKS PASSED` and exercises the catalogue's filters, sorts and
+price formatting against whatever is actually in the table. If the car seed did
+not run, this is where you find out.
+
+**Restart the dev server after seeding.** Next caches rendered routes, so a
+server that was running while the table was empty keeps serving a 404 for
+`/cars` afterwards — which looks exactly like a seed that failed. It was
+verified here: `/cars` returned 404 against a freshly populated database until
+the server was restarted, then 200.
 
 ## 4. Run
 
@@ -82,6 +103,33 @@ Check what the server actually loaded:
 ```bash
 node -e "require('dotenv').config(); console.log('ENABLE_ADMIN =', JSON.stringify(process.env.ENABLE_ADMIN))"
 ```
+
+## 5. Optional: screenshots and the crawler
+
+Neither is needed to run the site.
+
+**Screenshots.** `@playwright/test` is in `package.json`, but the browser it
+drives is roughly 115 MB and is not — and should never be — committed:
+
+```bash
+npx playwright install chromium
+node scripts/shoot.mjs login          # writes to .screenshots/
+```
+
+**Crawler.** Lives in `crawler/` and imports nothing from `src/`. Its staging
+tables start empty and nothing populates them automatically:
+
+```bash
+npm run crawl:verify                       # 48 fixture checks, no network
+npm run crawl:source -- openev --limit 5   # fetches Open EV Data into staging
+```
+
+Crawled data lands in `CarSourceRecord` and is never written to `Car` without a
+review step. See `crawler/README.md`.
+
+One obligation attached to that source: Open EV Data is MIT-licensed **with an
+attribution requirement**, and the required credit is not on the site yet. It
+must be before any of its data is published.
 
 ## Two things that do not travel
 
