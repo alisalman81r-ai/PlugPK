@@ -1,0 +1,38 @@
+{
+  // ─── Prisma ──────────────────────────────────────────────────────────
+  // This project runs Prisma 6 (prisma / @prisma/client ^6.19.3 in
+  // PlugPK/package.json). The Prisma VS Code extension (v31+) ships the
+  // Prisma 7 language server by default, and Prisma 7 removed `url` from the
+  // datasource block — so it reported
+  //
+  //   "The datasource property `url` is no longer supported in schema files"
+  //
+  // against prisma/schema.prisma:26. That rule does not apply here: on
+  // Prisma 6, `url = env("DATABASE_URL")` is required, and `npx prisma
+  // validate` passes. The error was the editor linting against the wrong
+  // major version, not a fault in the schema.
+  //
+  // The extension bundles both language servers; this pins it to the one that
+  // matches the installed Prisma.
+  "prisma.pinToPrisma6": true,
+
+  // Stops the extension nagging to migrate to Prisma 7 on every open.
+  "prisma.hidePrisma6Prompts": true,
+
+  // ─── Terminal ────────────────────────────────────────────────────────
+  // The dead terminal was a restored ghost, not a broken shell. VS Code
+  // persists terminal sessions across window reloads; when the shell process
+  // behind one is already gone, it still rebuilds the pane and replays the
+  // old scrollback, so you get a cursor and a warning badge with nothing
+  // listening. ptyhost.log recorded exactly that:
+  //
+  //   [warning] Persistent process "1": Process had no disconnect runners
+  //             but was an orphan
+  //   [info]    Persistent process "1": Replaying 4786 chars
+  //
+  // Turning persistence off means every window opens a live shell instead of
+  // reattaching to a corpse. Cost: terminals close on reload rather than
+  // being restored. If you would rather keep restore, delete this line and
+  // use "terminal.integrated.persistentSessionReviveProcess": "never".
+  "terminal.integrated.enablePersistentSessions": false
+}
