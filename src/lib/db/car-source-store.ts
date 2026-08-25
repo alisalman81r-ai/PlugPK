@@ -143,9 +143,36 @@ export interface RecordInput {
   errorFields?: string[] | null
 }
 
-/** Stable hash of the raw payload, so an unchanged re-crawl is recognisable. */
+/**
+ * Keys that change on every fetch without the data having changed.
+ *
+ * `fetchedAt` is the whole list and the whole problem. It is stamped with the
+ * current time as each record is built, so hashing the payload verbatim gave a
+ * different hash every morning for a byte-identical car — and the change
+ * detection this hash exists for reported all 8 of 8 records as changed on a
+ * re-run of the same command, minutes apart. Nothing downstream was wrong; the
+ * fingerprint simply included the clock.
+ */
+const VOLATILE_KEYS = new Set(['fetchedAt'])
+
+/**
+ * Stable hash of a payload's data, so an unchanged re-crawl is recognisable.
+ *
+ * Volatile provenance is stripped before hashing. Only the top level is
+ * stripped, which is where these fields live — a deep sweep would risk removing
+ * a genuine field that happens to share the name.
+ */
 export function hashPayload(payload: unknown): string {
-  return createHash('sha256').update(JSON.stringify(payload ?? null)).digest('hex').slice(0, 32)
+  const subject =
+    payload !== null && typeof payload === 'object' && !Array.isArray(payload)
+      ? Object.fromEntries(
+          Object.entries(payload as Record<string, unknown>).filter(
+            ([key]) => !VOLATILE_KEYS.has(key),
+          ),
+        )
+      : payload
+
+  return createHash('sha256').update(JSON.stringify(subject ?? null)).digest('hex').slice(0, 32)
 }
 
 /**
@@ -293,4 +320,383 @@ export async function getStagingStats() {
   ])
 
   return { total, pending, matched, unmatched, sources, runs: runs.length }
+}
+
+// ─── Scheduling and health ────────────────────────────────────────────
+//
+// The decisions live in crawler/schedule.ts and crawler/health.ts, which are
+// pure and importable from both the crawler and the app. This file only reads and
+// writes rows: keeping the arithmetic out of the data layer is what makes the
+// scheduler testable without a database, and what stops "daily" from acquiring a
+// second definition in here.
+
+/**
+ * Every source, with the fields the scheduler and the dashboard need.
+ *
+ * Deliberately not filtered by enabled or robots status. A dashboard that only
+ * lists crawlable sources cannot show the operator the switched-off one that is
+ * the reason a figure is three weeks old. Filtering is the caller's job, and
+ * `isDue` gives it the reason.
+ */
+export async function listSourcesForSchedule() {
+  return prisma.carSource.findMany({
+    orderBy: [{ trustRank: 'desc' }, { name: 'asc' }],
+    select: {
+      id: true,
+      name: true,
+      baseUrl: true,
+      trustRank: true,
+      isEnabled: true,
+      robotsStatus: true,
+      robotsCheckedAt: true,
+      schedule: true,
+      staleAfterDays: true,
+      requestDelayMs: true,
+      lastCrawledAt: true,
+      lastSuccessAt: true,
+      lastFailureAt: true,
+      lastError: true,
+      lastChangedAt: true,
+      consecutiveFailures: true,
+      avgResponseMs: true,
+    },
+  })
+}
+
+export interface HealthPatch {
+  lastSuccessAt?: Date | null
+  lastFailureAt?: Date | null
+  lastError?: string | null
+  consecutiveFailures?: number
+  avgResponseMs?: number | null
+  lastChangedAt?: Date | null
+  lastCrawledAt?: Date | null
+}
+
+/**
+ * Writes a source's health after a run.
+ *
+ * Takes the already-computed state rather than an outcome, so the rules about
+ * what a partial run means, or whether a blocked run counts as a failure, are
+ * decided in one tested place instead of being re-derived here.
+ */
+export async function updateSourceHealth(sourceId: string, patch: HealthPatch) {
+  return prisma.carSource.update({ where: { id: sourceId }, data: patch })
+}
+
+/**
+ * Changes a source's cadence.
+ *
+ * Separate from `upsertSource` on purpose. How often we visit somebody else's
+ * server is a decision about their bandwidth and their terms, and it should never
+ * change as a side effect of a crawl correcting a source's name.
+ */
+export async function setSourceSchedule(
+  sourceId: string,
+  schedule: string,
+  staleAfterDays?: number,
+) {
+  return prisma.carSource.update({
+    where: { id: sourceId },
+    data: {
+      schedule,
+      ...(staleAfterDays !== undefined ? { staleAfterDays } : {}),
+    },
+  })
+}
+
+// ─── Runs ─────────────────────────────────────────────────────────────
+
+export interface OpenRunInput {
+  id: string
+  sourceId: string
+  /** scheduled | manual */
+  trigger: string
+}
+
+export async function openRun(input: OpenRunInput) {
+  return prisma.crawlRun.create({
+    data: { id: input.id, sourceId: input.sourceId, trigger: input.trigger, status: 'running' },
+  })
+}
+
+export interface CloseRunInput {
+  status: 'completed' | 'failed' | 'blocked' | 'partial'
+  recordsFound?: number
+  recordsStored?: number
+  recordsFailed?: number
+  recordsChanged?: number
+  recordsUnchanged?: number
+  recordsPendingReview?: number
+  candidatesFound?: number
+  durationMs?: number
+  notes?: string | null
+  errors?: string[] | null
+}
+
+export async function closeRun(runId: string, input: CloseRunInput) {
+  return prisma.crawlRun.update({
+    where: { id: runId },
+    data: {
+      status: input.status,
+      completedAt: new Date(),
+      recordsFound: input.recordsFound ?? 0,
+      recordsStored: input.recordsStored ?? 0,
+      recordsFailed: input.recordsFailed ?? 0,
+      recordsChanged: input.recordsChanged ?? 0,
+      recordsUnchanged: input.recordsUnchanged ?? 0,
+      recordsPendingReview: input.recordsPendingReview ?? 0,
+      candidatesFound: input.candidatesFound ?? 0,
+      ...(input.durationMs !== undefined ? { durationMs: input.durationMs } : {}),
+      notes: input.notes ?? null,
+      errors: input.errors && input.errors.length > 0 ? JSON.stringify(input.errors) : null,
+    },
+  })
+}
+
+/**
+ * The most recent runs, with each source's display name attached.
+ *
+ * Two queries rather than a join, because CrawlRun deliberately has no relation
+ * to CarSource: a run is a historical fact and must survive the source being
+ * renamed, reconfigured or removed. The name is decoration, so it is looked up
+ * separately and falls back to the id when the source is gone.
+ */
+export async function recentRuns(limit = 30) {
+  const runs = await prisma.crawlRun.findMany({ orderBy: { startedAt: 'desc' }, take: limit })
+  const sources = await prisma.carSource.findMany({ select: { id: true, name: true } })
+  const names = new Map(sources.map((source) => [source.id, source.name]))
+
+  return runs.map((run) => ({ ...run, sourceName: names.get(run.sourceId) ?? run.sourceId }))
+}
+
+/** A run that is still marked running, so a crashed process can be spotted. */
+export async function unfinishedRuns(olderThanMinutes = 120) {
+  const cutoff = new Date(Date.now() - olderThanMinutes * 60_000)
+  return prisma.crawlRun.findMany({
+    where: { status: 'running', startedAt: { lt: cutoff } },
+    orderBy: { startedAt: 'asc' },
+  })
+}
+
+// ─── Candidates ───────────────────────────────────────────────────────
+
+export interface CandidateInput {
+  sourceId: string
+  runId: string
+  recordId: string
+  brand: string
+  model: string
+  variant: string | null
+  trim: string | null
+  modelYear: number | null
+  category: string | null
+  normalised: unknown
+  possibleDuplicateOf: string | null
+  duplicateReason: string | null
+  matchScore: number | null
+  confidence: number
+  sourceUrl: string
+  fetchedAt: Date
+}
+
+/**
+ * Records a car a source described that the catalogue does not have.
+ *
+ * Upsert, not create. A daily crawl re-seeing the same fifty unmatched cars must
+ * refresh fifty rows, not add fifty a day — the alternative is a review queue
+ * that is unusable inside a week and an operator who stops opening it.
+ *
+ * A candidate already reviewed is left alone apart from its raw data: reappearing
+ * in tomorrow's crawl is not new information, and resetting a rejection to
+ * pending would mean a decision that has to be made again every morning.
+ */
+export async function upsertCandidate(input: CandidateInput) {
+  const payload = {
+    runId: input.runId,
+    recordId: input.recordId,
+    trim: input.trim,
+    category: input.category,
+    normalised: JSON.stringify(input.normalised),
+    possibleDuplicateOf: input.possibleDuplicateOf,
+    duplicateReason: input.duplicateReason,
+    matchScore: input.matchScore,
+    confidence: input.confidence,
+    sourceUrl: input.sourceUrl,
+    fetchedAt: input.fetchedAt,
+  }
+
+  /*
+    findFirst then update, rather than prisma.upsert on the unique key.
+
+    The key includes variant and modelYear, both nullable, and in SQL a NULL never
+    equals another NULL — so a unique index does not deduplicate rows where those
+    are absent, and an upsert on that key would insert a fresh row every morning
+    for every candidate whose variant a source does not publish. Matching
+    explicitly on null is the only form that treats "no variant" as one identity.
+
+    A single-writer crawler has no race here worth guarding against.
+  */
+  const existing = await prisma.carCandidate.findFirst({
+    where: {
+      sourceId: input.sourceId,
+      brand: input.brand,
+      model: input.model,
+      variant: input.variant,
+      modelYear: input.modelYear,
+    },
+    select: { id: true, status: true },
+  })
+
+  if (existing) {
+    /*
+      A candidate that has already been judged keeps its verdict.
+
+      Reappearing in tomorrow's crawl is not new information. Resetting a
+      rejection to pending would mean the same decision arriving every morning
+      forever, which trains an operator to stop opening the queue — so only the
+      underlying data is refreshed, and the status stays where the person put it.
+    */
+    return prisma.carCandidate.update({ where: { id: existing.id }, data: payload })
+  }
+
+  return prisma.carCandidate.create({
+    data: {
+      id: randomUUID(),
+      sourceId: input.sourceId,
+      brand: input.brand,
+      model: input.model,
+      variant: input.variant,
+      modelYear: input.modelYear,
+      ...payload,
+    },
+  })
+}
+
+export async function listCandidates(status = 'pending', limit = 100) {
+  return prisma.carCandidate.findMany({
+    where: { status },
+    orderBy: [{ confidence: 'desc' }, { createdAt: 'desc' }],
+    take: limit,
+  })
+}
+
+export async function candidateCounts() {
+  const rows = await prisma.carCandidate.groupBy({ by: ['status'], _count: { _all: true } })
+  const counts: Record<string, number> = { pending: 0, approved: 0, rejected: 0, merged: 0 }
+  for (const row of rows) counts[row.status] = row._count._all
+  return counts
+}
+
+/**
+ * Records a decision about a candidate.
+ *
+ * Note what this does NOT do: it never creates a Car. Approving a candidate marks
+ * it as worth adding and nothing more — the car itself is then created through the
+ * ordinary admin form, with its slug, its images, its Pakistan pricing and its
+ * copy written by a person. A crawler that could create catalogue entries from a
+ * name it failed to match is precisely the failure this table exists to prevent.
+ */
+export async function reviewCandidate(
+  id: string,
+  status: 'approved' | 'rejected' | 'merged',
+  note?: string | null,
+  mergedInto?: string | null,
+) {
+  return prisma.carCandidate.update({
+    where: { id },
+    data: {
+      status,
+      reviewedAt: new Date(),
+      reviewNote: note ?? null,
+      mergedInto: status === 'merged' ? (mergedInto ?? null) : null,
+    },
+  })
+}
+
+// ─── Logs ─────────────────────────────────────────────────────────────
+
+export async function listRunLog(runId: string, limit = 500) {
+  return prisma.crawlLogEntry.findMany({
+    where: { runId },
+    orderBy: { createdAt: 'asc' },
+    take: limit,
+  })
+}
+
+export async function listFailures(sinceHours = 48, limit = 100) {
+  const cutoff = new Date(Date.now() - sinceHours * 3_600_000)
+  return prisma.crawlLogEntry.findMany({
+    where: { status: { in: ['failed', 'blocked'] }, createdAt: { gte: cutoff } },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  })
+}
+
+/**
+ * Trims the log.
+ *
+ * Called with an explicit age by an operator or a maintenance command, never
+ * automatically on a crawl — a crawler that quietly deletes its own audit trail
+ * as a side effect of running is not auditable.
+ */
+export async function pruneLog(olderThanDays: number) {
+  const cutoff = new Date(Date.now() - olderThanDays * 86_400_000)
+  const result = await prisma.crawlLogEntry.deleteMany({ where: { createdAt: { lt: cutoff } } })
+  return result.count
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────
+
+/** The numbers the updates dashboard leads with, counted rather than loaded. */
+export async function getUpdateStats() {
+  const dayAgo = new Date(Date.now() - 86_400_000)
+  const weekAgo = new Date(Date.now() - 7 * 86_400_000)
+
+  const [runsToday, runsWeek, failedWeek, pendingProposals, pendingCandidates, cars, records] =
+    await Promise.all([
+      prisma.crawlRun.count({ where: { startedAt: { gte: dayAgo } } }),
+      prisma.crawlRun.count({ where: { startedAt: { gte: weekAgo } } }),
+      prisma.crawlRun.count({ where: { startedAt: { gte: weekAgo }, status: 'failed' } }),
+      prisma.carFieldChange.count({ where: { status: 'pending' } }),
+      prisma.carCandidate.count({ where: { status: 'pending' } }),
+      prisma.car.count(),
+      prisma.carSourceRecord.count(),
+    ])
+
+  const changed = await prisma.crawlRun.aggregate({
+    where: { startedAt: { gte: weekAgo } },
+    _sum: { recordsChanged: true, recordsUnchanged: true },
+  })
+
+  return {
+    runsToday,
+    runsWeek,
+    failedWeek,
+    pendingProposals,
+    pendingCandidates,
+    cars,
+    records,
+    changedWeek: changed._sum.recordsChanged ?? 0,
+    unchangedWeek: changed._sum.recordsUnchanged ?? 0,
+  }
+}
+
+/**
+ * Every payload hash this source has ever produced.
+ *
+ * Loaded once per run rather than queried per record. The per-record form —
+ * hasSeenPayload in a loop — is one query per car, which is 5,000 round trips
+ * against a single-writer SQLite file for a catalogue that size, and the cost
+ * grows with the very thing the daily run is meant to make cheap.
+ *
+ * A Set of 32-character hashes for 5,000 records is well under a megabyte.
+ */
+export async function knownContentHashes(sourceId: string): Promise<Set<string>> {
+  const rows = await prisma.carSourceRecord.findMany({
+    where: { sourceId },
+    select: { contentHash: true },
+    distinct: ['contentHash'],
+  })
+  return new Set(rows.map((row) => row.contentHash))
 }

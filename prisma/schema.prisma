@@ -539,7 +539,11 @@ model Car {
   /// Staging rows that have been matched to this car. Read-only evidence:
   /// nothing here writes to Car, and deleting a Car nulls the link rather
   /// than destroying what a source said.
-  sourceRecords CarSourceRecord[]
+  sourceRecords   CarSourceRecord[]
+  fieldChanges    CarFieldChange[]
+  changeHistory   CarChangeHistory[]
+  priceHistory    CarPriceHistory[]
+  imageCandidates CarImageCandidate[]
 
   @@index([category])
   @@index([brand])
@@ -584,6 +588,30 @@ model CarSource {
   crawlIntervalMinutes Int       @default(1440)
   requestDelayMs       Int       @default(1500)
   lastCrawledAt        DateTime?
+
+  /// Named cadence: daily | every-3-days | weekly | monthly | manual.
+  /// The interval in minutes above is derived from this, not set separately —
+  /// see crawler/schedule.ts, which owns the mapping so no interval is written
+  /// down twice.
+  schedule String @default("daily")
+
+  /// --- Health -------------------------------------------------------
+  /// Separate from lastCrawledAt, which moves on failure too. A source that
+  /// has been failing for a week has a recent lastCrawledAt and a stale
+  /// lastSuccessAt, and only the second one says whether its data can be
+  /// trusted.
+  lastSuccessAt       DateTime?
+  lastFailureAt       DateTime?
+  lastError           String?
+  /// Reset to zero by any success. Used to back off and to warn.
+  consecutiveFailures Int       @default(0)
+  /// Rolling mean, for noticing a source that is degrading rather than down.
+  avgResponseMs       Int?
+  /// When this source last produced data that differed from the previous crawl.
+  lastChangedAt       DateTime?
+  /// Days without a success before the source is called stale. Per-source
+  /// because a weekly source is not stale after two days.
+  staleAfterDays      Int       @default(7)
 
   /// Off until somebody turns it on deliberately.
   isEnabled Boolean @default(false)
@@ -689,15 +717,32 @@ model CrawlRun {
   startedAt   DateTime  @default(now())
   completedAt DateTime?
 
-  /// running | completed | failed | aborted | blocked
+  /// running | completed | partial | failed | aborted | blocked
   /// "blocked" is its own outcome, not a failure: it means robots.txt or a
   /// missing credential stopped the run before a single request went out, which
   /// is the system working rather than breaking.
+  /// "partial" means some records failed and some arrived. It is not a failure
+  /// either: the source is plainly reachable, so treating it as one would put a
+  /// working source into backoff over a single bad record.
   status String @default("running")
 
-  recordsFound  Int @default(0)
-  recordsStored Int @default(0)
-  recordsFailed Int @default(0)
+  recordsFound         Int @default(0)
+  recordsStored        Int @default(0)
+  recordsFailed        Int @default(0)
+  /// Records whose content hash differed from the last stored one.
+  recordsChanged       Int @default(0)
+  /// Records byte-identical to the previous crawl. The common case on a
+  /// daily schedule, and the reason a run can be cheap.
+  recordsUnchanged     Int @default(0)
+  /// Proposals this run put in front of a person.
+  recordsPendingReview Int @default(0)
+  /// New-car candidates raised.
+  candidatesFound      Int @default(0)
+
+  /// scheduled | manual. Kept so an unexpected run can be traced to whoever
+  /// or whatever started it.
+  trigger    String @default("manual")
+  durationMs Int?
 
   /// Collected failures as JSON text, so one bad page does not lose the run.
   errors String?
@@ -705,4 +750,278 @@ model CrawlRun {
 
   @@index([sourceId, startedAt])
   @@index([status])
+}
+
+/**
+ * --- Review, history and provenance ----------------------------------
+ * Four tables between a crawled record and the catalogue.
+ * A source record is normalised, matched to a Car, then compared field by
+ * field against what that Car holds. Each difference becomes one
+ * CarFieldChange -- a proposal, never an edit. An operator approves or rejects
+ * it; approval writes the field through the existing validated path and leaves
+ * a CarChangeHistory row, so "why does this car show this figure?" always has
+ * an answer.
+ * Prices and images get their own tables because both need history rather than
+ * a current value: a price that changed in March is not wrong, it is previous,
+ * and an image carries a licence that must outlive the image being replaced.
+ */
+
+/**
+ * One proposed change to one field of one car.
+ * The unit of review. A record differing in twelve fields produces twelve of
+ * these, so an operator can take the battery figure and refuse the price rather
+ * than being forced to accept both.
+ * Values are text, not typed columns. A change may concern a number, a string, a
+ * boolean or a list, and what matters is the pair a reviewer reads side by side.
+ */
+model CarFieldChange {
+  id String @id
+
+  carId String
+  car   Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  /// The staging row this came from, so raw data stays reachable.
+  recordId String
+  sourceId String
+  runId    String
+
+  /// The field on Car, e.g. "batteryCapacity".
+  field String
+
+  currentValue  String?
+  proposedValue String?
+  /// Exactly what the source published, before unit normalisation.
+  rawValue      String?
+  unit          String?
+
+  /// new | changed | unchanged | missing | conflicting | suspicious
+  /// | unit-mismatch | source-disagreement
+  changeType String
+
+  /// safe | review | high-risk. Nothing is applied automatically, including
+  /// "safe": the label orders a queue, it does not grant permission.
+  riskLevel String @default("review")
+
+  /// 0-100, with the reasoning kept beside it rather than only the number.
+  confidence        Int     @default(0)
+  confidenceReasons String?
+
+  /// Serialised per-source opinions, so a conflict shows every claim.
+  opinions String?
+
+  /// Validation problems found on the proposed value.
+  validationFlags String?
+
+  /// pending | approved | rejected | superseded
+  status     String    @default("pending")
+  reviewedAt DateTime?
+  reviewedBy String?
+  reviewNote String?
+
+  sourceUrl String
+  fetchedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// One proposal per car+field+source+run. A later run proposing the same
+  /// field is a new row, so what each source claimed over time survives.
+  @@unique([carId, field, sourceId, runId])
+  @@index([status, confidence])
+  @@index([carId, field])
+  @@index([riskLevel, status])
+  @@index([changeType])
+}
+
+/**
+ * What was actually applied, and by whom.
+ * Append-only. This is the trail that answers "why does this car show this
+ * specification?", so nothing here is updated or deleted -- a mistake is
+ * corrected by a further change with its own row, not by editing the record of
+ * the mistake.
+ */
+model CarChangeHistory {
+  id String @id
+
+  carId String
+  car   Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  field    String
+  oldValue String?
+  newValue String?
+
+  sourceId  String?
+  sourceUrl String?
+  /// The proposal this came from. Null for a hand edit.
+  changeId  String?
+
+  approvedBy String
+  approvedAt DateTime @default(now())
+  reason     String?
+
+  @@index([carId, approvedAt])
+  @@index([field])
+}
+
+/**
+ * A price, as it stood at a moment, in a market.
+ * Separate from Car.priceMin because a Pakistani price is a time series, not a
+ * fact: rupee prices move with the budget, the exchange rate and each
+ * assembler's revisions. Never overwritten -- a new price is a new row.
+ */
+model CarPriceHistory {
+  id String @id
+
+  carId String
+  car   Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  /// Whole units of `currency`. Rupees, not paisa.
+  price    Int
+  currency String @default("PKR")
+  /// Market code, so a PKR price and a CNY one cannot be compared by accident.
+  market   String @default("PK")
+
+  /// ex-factory | on-road | announced | indicative. A price without its basis
+  /// is not comparable to another price.
+  priceType String @default("indicative")
+
+  sourceId      String?
+  sourceUrl     String?
+  fetchedAt     DateTime
+  /// When the price took effect, if stated. Often unknown.
+  effectiveDate DateTime?
+
+  confidence Int     @default(0)
+  note       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([carId, fetchedAt])
+  @@index([carId, market, fetchedAt])
+}
+
+/**
+ * An externally-found image and its licence, before anyone publishes it.
+ * Nothing here is served. The catalogue reads Car.image, and a candidate becomes
+ * that only after approval and after a person deliberately places the file.
+ * The licence fields are the point: /images/cars holds Commons files whose
+ * attribution lives in src/data/carImageCredits.ts, and an unlicensed image
+ * landing there would break that credit and put uncredited work on a commercial
+ * site.
+ */
+model CarImageCandidate {
+  id String @id
+
+  carId String
+  car   Car    @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  /// Where the file lives remotely. Never fetched on discovery.
+  imageUrl  String
+  /// The page it was found on.
+  sourceUrl String
+  sourceId  String?
+
+  /// Licence as published. Null means unknown, which is a reason to refuse.
+  licence     String?
+  licenceUrl  String?
+  attribution String?
+
+  fetchedAt  DateTime
+  /// pending | approved | rejected. Approval does not publish it.
+  status     String    @default("pending")
+  reviewedAt DateTime?
+  reviewNote String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([carId, imageUrl])
+  @@index([status])
+}
+
+/**
+ * A car a source described that the catalogue does not have.
+ * Never becomes a Car on its own. Discovery raises a candidate; a person
+ * approves it, rejects it, or merges it into an existing car — because the
+ * alternative is a crawler inventing catalogue entries from a name it could not
+ * match, which is the most damaging thing this pipeline could do.
+ * `possibleDuplicateOf` is the near-miss the matcher found but would not commit
+ * to. A source calling something "Atto 3" when the catalogue holds "Atto 3
+ * Advanced" belongs here, flagged, rather than either silently merged or
+ * silently added as a second car.
+ */
+model CarCandidate {
+  id String @id
+
+  sourceId String
+  runId    String
+  /// The staging row this came from, so the raw data stays reachable.
+  recordId String
+
+  brand     String
+  model     String
+  variant   String?
+  trim      String?
+  modelYear Int?
+  category  String?
+
+  /// The whole normalised vehicle, as JSON text.
+  normalised String
+
+  /// A car this might actually be. Set when the matcher found a near miss.
+  possibleDuplicateOf String?
+  duplicateReason     String?
+  /// 0-100 from the matcher. Never high enough on its own to merge.
+  matchScore          Int?
+
+  confidence Int @default(0)
+
+  /// pending | approved | rejected | merged
+  status     String    @default("pending")
+  reviewedAt DateTime?
+  reviewNote String?
+  /// Set when an operator merged this into an existing car.
+  mergedInto String?
+
+  sourceUrl String
+  fetchedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// One candidate per source identity. A daily crawl re-seeing the same
+  /// unmatched car updates it rather than stacking a new row every morning.
+  @@unique([sourceId, brand, model, variant, modelYear])
+  @@index([status, confidence])
+  @@index([possibleDuplicateOf])
+}
+
+/**
+ * Structured log lines from a crawl.
+ * A table rather than a file, because the questions asked of these are queries:
+ * "what did this source do last Tuesday", "which car failed twice this week".
+ * A log file would need grepping from a machine nobody is sitting at.
+ * NOTHING SECRET IS EVER WRITTEN HERE. No API keys, no tokens, no passwords,
+ * no Authorization headers. crawler/logger.ts redacts before this is reached,
+ * and the redaction is tested — a log table is exactly the kind of place a
+ * credential leaks into and stays.
+ */
+model CrawlLogEntry {
+  id String @id
+
+  runId    String
+  sourceId String
+  /// The car or record this line concerns, when it concerns one.
+  carId    String?
+
+  /// fetch | normalise | match | compare | propose | discover | skip | error
+  operation String
+  /// ok | unchanged | changed | failed | blocked | skipped
+  status    String
+
+  message    String?
+  durationMs Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([runId, createdAt])
+  @@index([sourceId, status, createdAt])
 }

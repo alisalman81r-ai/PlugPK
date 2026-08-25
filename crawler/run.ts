@@ -12,21 +12,9 @@
 
 import { randomUUID } from 'node:crypto'
 
+import { ADAPTERS, toMatchInput } from './adapters'
 import { coverage } from './model'
 import { match, type MatchCandidateCar } from './match'
-import { openEvAdapter } from './sources/openev'
-import { evdbAdapter } from './sources/evdb'
-import { evspecsxAdapter } from './sources/evspecsx'
-import { vehdbAdapter } from './sources/vehdb'
-import type { SourceAdapter } from './sources/types'
-
-/** Every adapter, connected or not. */
-export const ADAPTERS: Record<string, SourceAdapter> = {
-  openev: openEvAdapter,
-  evdb: evdbAdapter,
-  vehdb: vehdbAdapter,
-  evspecsx: evspecsxAdapter,
-}
 
 interface Args {
   source: string
@@ -150,36 +138,7 @@ async function main(): Promise<number> {
     for (const vehicle of vehicles) {
       const { filled, total } = coverage(vehicle)
 
-      const proposal = match(
-        {
-          normalised: {
-            brand: vehicle.brand,
-            model: vehicle.model,
-            variant: vehicle.variant,
-            modelYear: vehicle.modelYear,
-            fullName: [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || null,
-            category: vehicle.powertrainType,
-            priceMin: vehicle.pakistanPrice,
-            priceMax: vehicle.pakistanPrice,
-            priceRaw: null,
-            batteryKwh: vehicle.batteryCapacityKwh,
-            rangeKm: vehicle.rangeKm,
-            electricRangeKm: vehicle.electricRangeKm,
-            powerHp: null,
-            accelerationSec: vehicle.acceleration0To100Sec,
-            topSpeedKph: vehicle.topSpeedKph,
-            torqueNm: vehicle.torqueNm,
-            seats: vehicle.seats,
-            dcKw: vehicle.dcChargingKw,
-            acKw: vehicle.acChargingKw,
-            engineCc: null,
-            connectors: vehicle.chargingStandards,
-            imageUrl: null,
-          },
-          externalId: vehicle.externalId,
-        },
-        catalogue,
-      )
+      const proposal = match(toMatchInput(vehicle), catalogue)
 
       const label = `${vehicle.brand ?? '?'} ${vehicle.model ?? '?'}`.trim()
 

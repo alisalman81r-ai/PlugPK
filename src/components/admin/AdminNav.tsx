@@ -4,12 +4,15 @@
 import {
   Building2,
   Car,
+  Database,
+  GitCompare,
   ExternalLink,
   LayoutDashboard,
   LogOut,
   CalendarClock,
   MessageSquare,
   Plug,
+  RefreshCw,
   Menu,
   Users,
   Wrench,
@@ -63,7 +66,12 @@ const SECTIONS: NavSection[] = [
     // Content is database-backed and editable here; cars are an authored module
     // and read-only, and grouping them together would imply an Edit button that
     // does not exist. See the cars page for why.
-    items: [{ label: 'Cars', href: '/admin/cars', icon: Car }],
+    items: [
+      { label: 'Cars', href: '/admin/cars', icon: Car },
+      { label: 'Review', href: '/admin/cars/review', icon: GitCompare },
+      { label: 'Sources', href: '/admin/cars/sources', icon: Database },
+      { label: 'Updates', href: '/admin/cars/updates', icon: RefreshCw },
+    ],
   },
   {
     heading: 'Content',
@@ -76,11 +84,36 @@ const SECTIONS: NavSection[] = [
   },
 ]
 
+/**
+ * Which nav entry is the current page.
+ *
+ * Two entries need exact matching rather than a prefix test, and both for the
+ * same reason: they have children with their own entries. `/admin` would
+ * otherwise match every admin route, and `/admin/cars` lit up alongside Review
+ * and Sources — three highlighted rows telling the operator nothing about where
+ * they were.
+ *
+ * A car detail page (/admin/cars/byd-seal) still highlights Cars, because it has
+ * no entry of its own and Cars is where it belongs.
+ */
+const EXACT_ONLY = new Set(['/admin', '/admin/cars'])
+
 function isActive(pathname: string, href: string): boolean {
-  // Overview would otherwise match every admin route.
-  if (href === '/admin') return pathname === '/admin'
+  if (EXACT_ONLY.has(href)) {
+    if (pathname === href) return true
+    // A child with its own nav entry must not also light its parent.
+    if (href === '/admin') return false
+    return pathname.startsWith(`${href}/`) && !CHILD_ROUTES.has(pathname)
+  }
   return pathname === href || pathname.startsWith(`${href}/`)
 }
+
+/** Routes under /admin/cars that have their own entry. */
+const CHILD_ROUTES = new Set([
+  '/admin/cars/review',
+  '/admin/cars/sources',
+  '/admin/cars/updates',
+])
 
 function NavContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()

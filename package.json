@@ -13,7 +13,12 @@
     "crawl:smoke": "tsx crawler/smoke.ts",
     "crawl:local": "tsx crawler/crawl-local-cars.ts",
     "crawl:verify": "tsx crawler/verify-pipeline.ts",
-    "crawl:source": "tsx crawler/run.ts"
+    "crawl:source": "tsx crawler/run.ts",
+    "crawl:propose": "tsx crawler/propose.ts",
+    "crawl:verify-review": "tsx crawler/verify-review.ts",
+    "crawl:daily": "tsx crawler/daily.ts",
+    "crawl:status": "tsx crawler/daily.ts --status",
+    "crawl:verify-schedule": "tsx crawler/verify-schedule.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
