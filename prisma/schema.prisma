@@ -536,6 +536,173 @@ model Car {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  /// Staging rows that have been matched to this car. Read-only evidence:
+  /// nothing here writes to Car, and deleting a Car nulls the link rather
+  /// than destroying what a source said.
+  sourceRecords CarSourceRecord[]
+
   @@index([category])
   @@index([brand])
+}
+
+/**
+ * ─── Crawler staging ──────────────────────────────────────────────────
+ * Two tables that sit beside the catalogue and never inside it.
+ * Crawled data does not go into Car. The catalogue's governing rule is that
+ * nothing in it is invented, and a scraped figure is not a verified one — write
+ * it straight into Car and a guess becomes indistinguishable from a supplied
+ * price. So a crawl lands here, an operator reviews it, and only an approved
+ * record is ever applied to a Car through the existing validated write path.
+ * It also means several sources can disagree about the same car and both
+ * answers survive, which a single Car row cannot express.
+ */
+
+/**
+ * A provider of car data.
+ * Disabled by default. Enabling a source is a decision with legal weight —
+ * somebody has to have read its terms and checked its robots.txt — so the
+ * schema makes that an explicit act rather than the default state.
+ */
+model CarSource {
+  /// Kebab-case and hand-set, e.g. "pakwheels", matching the rest of this schema.
+  id      String @id
+  name    String @unique
+  baseUrl String
+
+  /// unchecked | allowed | disallowed | unreachable — see crawler/robots.ts.
+  /// A source may only be crawled while this reads "allowed".
+  robotsStatus    String    @default("unchecked")
+  robotsCheckedAt DateTime?
+  /// The matching robots.txt line, kept so a refusal can be justified later.
+  robotsNote      String?
+
+  /// 0–100. Higher wins when two sources disagree about the same field.
+  /// A rank, not a certainty: it orders sources, it does not validate them.
+  trustRank Int @default(50)
+
+  /// How often this source may be re-crawled, and the pause between requests.
+  crawlIntervalMinutes Int       @default(1440)
+  requestDelayMs       Int       @default(1500)
+  lastCrawledAt        DateTime?
+
+  /// Off until somebody turns it on deliberately.
+  isEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  records CarSourceRecord[]
+
+  @@index([isEnabled])
+}
+
+/**
+ * One page, from one source, as read on one crawl run.
+ * ── The unique constraint, and what it deliberately does not assume ───
+ * `@@unique([sourceId, sourceUrl, runId])`.
+ * A source's car name is not unique, its slug is not unique, and neither is
+ * safe as an identity — two sources will both call something "Atto 3", and one
+ * source may list the same car under several names. The only thing that
+ * identifies a page is its URL, and only within the source that served it.
+ * `runId` is in the key on purpose: it makes re-crawls accumulate as history
+ * rather than overwrite, so "this price changed last Tuesday" is answerable,
+ * while a run that visits the same URL twice still cannot insert it twice.
+ */
+model CarSourceRecord {
+  id String @id
+
+  sourceId String
+  source   CarSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  /// The exact page this was read from.
+  sourceUrl  String
+  /// The source's own identifier, when it publishes one. Never assumed present,
+  /// never assumed unique across sources.
+  externalId String?
+
+  /// Groups every record produced by a single crawl.
+  runId      String
+  fetchedAt  DateTime
+  httpStatus Int?
+
+  /// ScrapedCar, as JSON text — SQLite has no JSON column, and this project
+  /// already stores whole-read blobs this way (see serialize.ts).
+  raw         String
+  /// NormalisedCar, as JSON text. Null when normalisation could not run.
+  normalised  String?
+  /// Hash of `raw`, so an unchanged re-crawl is recognisable without a diff.
+  contentHash String
+
+  /// ok | partial | failed
+  extractionStatus String @default("ok")
+  fieldsFound      Int    @default(0)
+  fieldsExpected   Int    @default(0)
+  /// 0–100, derived from field coverage and how the values were obtained.
+  confidence       Int    @default(0)
+
+  /// pending | approved | rejected | superseded | duplicate
+  reviewStatus String    @default("pending")
+  reviewedAt   DateTime?
+  reviewNote   String?
+
+  /// Set only by the matcher, and only ever as a proposal. Phase 1 never
+  /// applies a record to a Car.
+  matchedCarId    String?
+  matchedCar      Car?    @relation(fields: [matchedCarId], references: [id], onDelete: SetNull)
+  /// external-id | slug | exact | strong | none — see crawler/match.ts.
+  matchStrategy   String?
+  matchScore      Int?
+  /// Serialised rival candidates, so an ambiguous match can be reviewed rather
+  /// than silently resolved.
+  matchCandidates String?
+
+  /// Why extraction or normalisation failed, when it did.
+  errorMessage String?
+  /// Field names that could not be read, as JSON text.
+  errorFields  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sourceId, sourceUrl, runId])
+  @@index([sourceId, externalId])
+  @@index([reviewStatus, fetchedAt])
+  @@index([matchedCarId, fetchedAt])
+  @@index([runId])
+  @@index([contentHash])
+}
+
+/**
+ * One execution of one source's crawl.
+ * `CarSourceRecord.runId` holds this id, but deliberately as a plain string
+ * rather than a foreign key. Adding a real relation would mean altering
+ * CarSourceRecord, and the standing constraint on this project is that crawler
+ * migrations stay additive — a CREATE TABLE cannot damage a live catalogue, an
+ * ALTER can. The cost is that a run row could in principle be deleted while its
+ * records remain; the records are the valuable half, so that is the right way
+ * round.
+ */
+model CrawlRun {
+  id       String @id
+  sourceId String
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  /// running | completed | failed | aborted | blocked
+  /// "blocked" is its own outcome, not a failure: it means robots.txt or a
+  /// missing credential stopped the run before a single request went out, which
+  /// is the system working rather than breaking.
+  status String @default("running")
+
+  recordsFound  Int @default(0)
+  recordsStored Int @default(0)
+  recordsFailed Int @default(0)
+
+  /// Collected failures as JSON text, so one bad page does not lose the run.
+  errors String?
+  notes  String?
+
+  @@index([sourceId, startedAt])
+  @@index([status])
 }
