@@ -9,7 +9,11 @@
     "type-check": "tsc --noEmit",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
-    "import:stations": "tsx scripts/import-stations.ts"
+    "import:stations": "tsx scripts/import-stations.ts",
+    "crawl:smoke": "tsx crawler/smoke.ts",
+    "crawl:local": "tsx crawler/crawl-local-cars.ts",
+    "crawl:verify": "tsx crawler/verify-pipeline.ts",
+    "crawl:source": "tsx crawler/run.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -28,6 +32,7 @@
     "tailwind-merge": "^2.6.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/node": "^20.19.43",
     "@types/react": "^18",
     "@types/react-dom": "^18",

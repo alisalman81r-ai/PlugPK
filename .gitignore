@@ -37,3 +37,8 @@ prisma/dev.db-journal
 
 # Uploaded charger photos — user content, not source.
 public/uploads/
+
+# Playwright screenshots — output, not source.
+.screenshots/
+test-results/
+playwright-report/
