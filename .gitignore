@@ -30,6 +30,9 @@ build/
 # Local SQLite database
 prisma/dev.db
 prisma/dev.db-journal
+# Copies taken before a migration. Same real data as dev.db, so they must
+# never be committed either.
+prisma/dev.db.backup-*
 .probe-profiles/
 
 # Verification builds, kept apart from the dev server output.
