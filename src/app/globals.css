@@ -55,23 +55,19 @@
     overflow-x: hidden;
   }
 
-  /*
-   * Every heading, in one rule.
-   *
-   * An element selector rather than a `font-display` class on each of them:
-   * there are well over a hundred h2s and h3s across the app, a class on each
-   * is a hundred chances to miss one, and any heading added later would come
-   * out on the body face. Weight, size and tracking stay where they are — the
-   * utilities on each heading still win, since this only sets family.
-   */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-display);
-  }
+    /*
+     * Headings stay on the body face.
+     *
+     * A previous rule pointed every h1-h6 at Playfair Display. That stroke
+     * contrast reads well on a 4rem hero line, but the same rule reached the
+     * 1.125rem card titles that make up most of the headings in this app,
+     * where thin strokes and tight counters cost legibility for no gain. The
+     * design system names Inter as the primary face and this keeps headings
+     * on it.
+     *
+     * --font-display is still defined in layout.tsx, so one heading can opt
+     * in deliberately rather than every heading being opted in by default.
+     */
 
   ::selection {
     background: rgba(37, 99, 235, 0.15);

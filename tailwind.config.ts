@@ -63,7 +63,20 @@ const config: Config = {
         // For the odd heading-weight line that is not an h1–h6 element — a
         // stat figure, a card title set as a <p>. Every real heading picks
         // this up from globals.css without needing the class.
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        /*
+         * The display face is Inter, the same as the body.
+         *
+         * This pointed at Playfair Display, which put a high-contrast serif
+         * on every heading carrying `font-display` — 42 of them — and, via a
+         * rule in globals.css, on every other heading too. It reads well at
+         * 4rem and poorly at the 1.125rem card titles that make up most of
+         * them, and the design system names Inter as the primary face.
+         *
+         * Changed here rather than by stripping the class from 42 files: the
+         * intent those classes express is 'this is a display heading', which
+         * is still true. Putting Playfair back is this one line.
+         */
+        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-jetbrains)', 'monospace'],
       },
       fontSize: {
