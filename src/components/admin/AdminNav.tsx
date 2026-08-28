@@ -24,6 +24,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
+import type { AdminBadgeCounts } from '@/lib/db/admin-badges'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
@@ -115,7 +116,13 @@ const CHILD_ROUTES = new Set([
   '/admin/cars/updates',
 ])
 
-function NavContent({ onNavigate }: { onNavigate?: () => void }) {
+function NavContent({
+  onNavigate,
+  badges,
+}: {
+  onNavigate?: () => void
+  badges: AdminBadgeCounts
+}) {
   const pathname = usePathname()
 
   return (
@@ -140,6 +147,7 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
               {section.items.map((item) => {
                 const active = isActive(pathname, item.href)
                 const Icon = item.icon
+                const count = badges[item.href] ?? 0
 
                 return (
                   <li key={item.href}>
@@ -157,6 +165,41 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
                     >
                       <Icon size={17} className="shrink-0" aria-hidden="true" />
                       {item.label}
+
+                      {/*
+                        The count of what is waiting on that page.
+
+                        `ml-auto` rather than a fixed position, so it sits hard
+                        against the right edge whatever the label's length, and
+                        the row keeps one layout whether or not a badge is
+                        present.
+
+                        The number is repeated for screen readers as words,
+                        because "3" announced after "Businesses" is ambiguous —
+                        it could be a position in the list. The digits
+                        themselves are hidden from the accessibility tree so it
+                        is not read twice.
+
+                        Capped at 99+, since the badge is a prompt to open the
+                        page rather than a figure to work from, and a four-digit
+                        number would push the label out of the row.
+                      */}
+                      {count ? (
+                        <span
+                          className={cn(
+                            'ml-auto flex h-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full px-1.5',
+                            'font-mono text-[11px] font-bold tabular-nums leading-none',
+                            active
+                              ? 'bg-white/20 text-white'
+                              : 'bg-plug-blue-600 text-white',
+                          )}
+                        >
+                          <span aria-hidden="true">{count > 99 ? '99+' : count}</span>
+                          <span className="sr-only">
+                            {count === 1 ? '1 item awaiting review' : `${count} items awaiting review`}
+                          </span>
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 )
@@ -193,8 +236,20 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
-export function AdminNav() {
+export interface AdminNavProps {
+  /**
+   * Outstanding work per href, from getAdminBadgeCounts(). Absent keys mean
+   * nothing is waiting; the layout omits zeroes rather than sending them.
+   */
+  badges?: AdminBadgeCounts
+}
+
+export function AdminNav({ badges }: AdminNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const totalWaiting = React.useMemo(
+    () => Object.values(badges ?? {}).reduce((sum, value) => sum + value, 0),
+    [badges],
+  )
   const pathname = usePathname()
 
   // A route change should close the drawer, otherwise it stays over the page
@@ -226,20 +281,40 @@ export function AdminNav() {
         aria-label="Admin"
         className="sticky top-0 hidden h-viewport w-[248px] shrink-0 flex-col border-r border-slate-200 bg-white lg:flex"
       >
-        <NavContent />
+        <NavContent badges={badges ?? {}} />
       </nav>
 
       {/* Mobile: a bar with the trigger. The old fixed 248px column consumed
           three quarters of a 320px screen. */}
       <div className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white px-4 lg:hidden">
+        {/*
+          The trigger carries the total.
+
+          Every badge below lives inside the drawer, which is closed by default
+          on a phone — so without this the one place the operator can see there
+          is work is the one place they have to already know to look. The dot
+          shows the same figure the rows add up to.
+        */}
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          aria-label="Open admin navigation"
+          aria-label={
+            totalWaiting > 0
+              ? `Open admin navigation, ${totalWaiting} awaiting review`
+              : 'Open admin navigation'
+          }
           aria-expanded={isOpen}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          className="relative flex h-10 w-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
           <Menu size={20} />
+          {totalWaiting > 0 ? (
+            <span
+              aria-hidden="true"
+              className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-plug-blue-600 px-1 font-mono text-[10px] font-bold leading-none text-white ring-2 ring-white"
+            >
+              {totalWaiting > 99 ? '99+' : totalWaiting}
+            </span>
+          ) : null}
         </button>
 
         <Link href="/admin" className="flex items-center gap-2">
@@ -281,7 +356,7 @@ export function AdminNav() {
           <X size={18} />
         </button>
 
-        <NavContent onNavigate={() => setIsOpen(false)} />
+        <NavContent onNavigate={() => setIsOpen(false)} badges={badges ?? {}} />
       </nav>
     </>
   )
