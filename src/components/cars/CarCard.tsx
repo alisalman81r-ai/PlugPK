@@ -8,6 +8,7 @@ import * as React from 'react'
 import { PhotoFrame } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { cardSpecs, carDisplayName } from '@/lib/cars'
+import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
 import { cn } from '@/lib/utils'
 
 /**
@@ -49,7 +50,11 @@ import { cn } from '@/lib/utils'
  * ── Surface ───────────────────────────────────────────────────────────
  *
  * Flat at rest: a hairline border, no shadow, on a grey page ground that does
- * the separating instead. Shadows on every card in a 36-card grid add up to a
+ * the separating instead. The border is now the site's graded hairline, taken
+ * from components/shared/frame at this card's own 12px radius rather than the
+ * 24px the marketing cards use — the edge joins the system, the density does
+ * not change. FRAME's resting shadow is explicitly cleared here, for the reason
+ * in the next sentence. Shadows on every card in a 36-card grid add up to a
  * grey haze, and a card that is already lifted has nowhere to go on hover.
  * Hover is where the elevation lives — a 2px rise, a shadow, the border
  * darkening a step and the photograph easing up 4% — and all four are
@@ -195,18 +200,30 @@ export function CarCard({
   return (
     <article
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-xl border bg-white',
-        'transition-[transform,box-shadow,border-color] duration-300 ease-out',
+        isCompared ? FRAME_FEATURED : FRAME,
+        // The catalogue's own radius, not the marketing cards'. twMerge lets the
+        // later class win, so this keeps the tighter 12px corner a dense grid
+        // wants while still taking the site's graded edge. FRAME's rounded-3xl
+        // on a three-up grid beside a filter rail would read as a different
+        // product.
+        'rounded-xl',
+        // Flat at rest, which the Surface note above insists on and is right
+        // about: FRAME carries a resting shadow, and thirty-six of those in one
+        // grid is the grey haze that note describes. Only the base shadow is
+        // cleared — FRAME's hover shadow is a different property and survives,
+        // so the elevation still lives where it was designed to, on hover.
+        !isCompared && 'shadow-none',
         'motion-reduce:transition-none',
-        isCompared
-          ? 'border-plug-blue-500 shadow-[0_0_0_1px_rgba(37,99,235,0.45),0_16px_36px_-24px_rgba(37,99,235,0.45)]'
-          : cn(
-              'border-slate-200/90',
-              'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.35)]',
-              'motion-reduce:hover:translate-y-0',
-            ),
       )}
     >
+      <div
+        className={cn(
+          FACE,
+          // The frame's radius minus its 1.5px padding, same relationship FACE
+          // already encodes for the 24px case.
+          'overflow-hidden rounded-[calc(0.75rem-1.5px)]',
+        )}
+      >
       {/* ── Photograph ───────────────────────────────────────────
           First in the card and a ratio rather than a height, so the images in a
           row line up whatever else a car does or does not have, and nothing
@@ -499,6 +516,7 @@ export function CarCard({
           ) : null}
         </div>
       </div>
+    </div>
     </article>
   )
 }
