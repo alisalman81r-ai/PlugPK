@@ -46,7 +46,7 @@ export function CarHero({
   onSubmit,
 }: CarHeroProps) {
   return (
-    <section className="relative isolate overflow-hidden bg-slate-950 py-20 lg:py-28">
+    <section className="relative isolate overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(255,255,255,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
@@ -121,7 +121,7 @@ export function CarHero({
                 onBrandChange(event.target.value === 'all' ? null : event.target.value)
               }
               aria-label="Filter by brand"
-              className="h-12 min-w-0 flex-1 cursor-pointer rounded-full border border-white/15 bg-slate-900 px-4 text-ui font-medium text-white outline-none transition-colors hover:border-white/25 focus-visible:border-plug-cyan-400 focus-visible:ring-2 focus-visible:ring-plug-cyan-400/40 sm:flex-none"
+              className="h-12 min-w-0 flex-1 cursor-pointer rounded-full border border-white/15 bg-plug-navy-900 px-4 text-ui font-medium text-white outline-none transition-colors hover:border-white/25 focus-visible:border-plug-cyan-400 focus-visible:ring-2 focus-visible:ring-plug-cyan-400/40 sm:flex-none"
             >
               <option value="all">All brands</option>
               {brands.map((entry) => (
@@ -136,7 +136,7 @@ export function CarHero({
                 and people expect somewhere to press. */}
             <button
               type="submit"
-              className="h-12 shrink-0 rounded-full bg-white px-6 text-ui font-semibold text-slate-950 shadow-[0_0_36px_-8px_rgba(34,211,238,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="h-12 shrink-0 rounded-full bg-white px-6 text-ui font-semibold text-slate-950 shadow-[0_0_36px_-8px_rgba(34,211,238,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               Search
             </button>

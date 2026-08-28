@@ -35,7 +35,7 @@ export function RouteSummaryBar({ route }: RouteSummaryBarProps) {
   ]
 
   return (
-    <div className="-mx-4 rounded-none bg-slate-900 px-8 py-5 sm:mx-0 sm:rounded-2xl">
+    <div className="-mx-4 rounded-none bg-plug-navy-900 px-8 py-5 sm:mx-0 sm:rounded-2xl">
       <div className="grid grid-cols-2 items-center gap-6 lg:grid-cols-4">
         {stats.map((stat, index) => {
           const Icon = stat.icon

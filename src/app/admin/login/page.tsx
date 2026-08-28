@@ -56,7 +56,7 @@ export default function AdminLoginPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="flex min-h-viewport items-center justify-center bg-slate-950 px-4">
+    <main className="flex min-h-viewport items-center justify-center bg-plug-navy-950 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <span className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10">
@@ -92,7 +92,7 @@ export default function AdminLoginPage({ searchParams }: PageProps) {
             required
             autoComplete="current-password"
             autoFocus
-            className="field-dark h-12 w-full rounded-xl border border-white/10 bg-slate-900 px-4 text-ui text-white outline-none transition-colors placeholder:text-white/30 focus-visible:border-cyan-400/60"
+            className="field-dark h-12 w-full rounded-xl border border-white/10 bg-plug-navy-900 px-4 text-ui text-white outline-none transition-colors placeholder:text-white/30 focus-visible:border-cyan-400/60"
           />
 
           {searchParams.error ? (
@@ -103,7 +103,7 @@ export default function AdminLoginPage({ searchParams }: PageProps) {
 
           <button
             type="submit"
-            className="mt-5 h-12 w-full rounded-xl bg-white text-ui font-semibold text-slate-950 transition-colors hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            className="mt-5 h-12 w-full rounded-xl bg-white text-ui font-semibold text-slate-950 transition-colors hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
           >
             Sign in
           </button>

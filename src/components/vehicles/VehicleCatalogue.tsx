@@ -140,7 +140,7 @@ export function VehicleCatalogue({ vehicles }: VehicleCatalogueProps) {
                 className={cn(
                   'rounded-full border-[1.5px] px-4 py-2 text-ui-sm font-semibold transition-colors duration-200',
                   isActive
-                    ? 'border-slate-900 bg-slate-900 text-white'
+                    ? 'border-slate-900 bg-plug-navy-900 text-white'
                     : 'border-slate-200 text-slate-600 hover:border-slate-400',
                 )}
               >

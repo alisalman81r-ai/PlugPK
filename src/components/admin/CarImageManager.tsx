@@ -246,7 +246,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={busy}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-slate-900 px-4 text-ui font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-plug-navy-900 px-4 text-ui font-semibold text-white transition-colors hover:bg-plug-navy-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
           >
             <Upload size={15} aria-hidden="true" />
             {image ? 'Replace' : 'Upload'}

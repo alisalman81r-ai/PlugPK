@@ -248,7 +248,7 @@ export function CarsBrowser({
             <SlidersHorizontal size={16} aria-hidden="true" />
             Filters
             {hasActiveFilters(filters) ? (
-              <span className="rounded-full bg-slate-900 px-1.5 py-0.5 font-mono text-[10px] text-white">
+              <span className="rounded-full bg-plug-navy-900 px-1.5 py-0.5 font-mono text-[10px] text-white">
                 on
               </span>
             ) : null}
@@ -442,7 +442,7 @@ export function CarsBrowser({
               <button
                 type="button"
                 onClick={() => setDrawerOpen(false)}
-                className="h-12 w-full rounded-xl bg-slate-900 text-ui font-semibold text-white transition-colors hover:bg-slate-800"
+                className="h-12 w-full rounded-xl bg-plug-navy-900 text-ui font-semibold text-white transition-colors hover:bg-plug-navy-800"
               >
                 Show {results.length} {results.length === 1 ? 'car' : 'cars'}
               </button>
@@ -500,7 +500,7 @@ export function CarsBrowser({
                   'inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-5 text-ui-sm font-semibold transition-colors',
                   compared.length < 2
                     ? 'pointer-events-none bg-slate-200 text-slate-400'
-                    : 'bg-slate-900 text-white hover:bg-slate-800',
+                    : 'bg-plug-navy-900 text-white hover:bg-plug-navy-800',
                 )}
               >
                 <GitCompareArrows size={15} aria-hidden="true" />
@@ -547,7 +547,7 @@ function Segment({
       className={cn(
         'inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
         active
-          ? 'border-slate-900 bg-slate-900 text-white shadow-[0_4px_14px_-6px_rgba(15,23,42,0.5)]'
+          ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(15,23,42,0.5)]'
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
         count === 0 && !active && 'opacity-45',
       )}

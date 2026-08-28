@@ -157,7 +157,7 @@ export default async function PartnersPage() {
           reads as the footer. */}
       <section className="bg-slate-50 py-16 lg:py-20">
         <div className={STAGE}>
-          <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-16 shadow-e4 sm:px-10 lg:py-20">
+          <div className="relative overflow-hidden rounded-[2rem] bg-plug-navy-950 px-6 py-16 shadow-e4 sm:px-10 lg:py-20">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]"
@@ -179,7 +179,7 @@ export default async function PartnersPage() {
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href="/business/signup"
-                  className="inline-flex h-14 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-7 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  className="inline-flex h-14 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-7 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   <Plug size={17} aria-hidden="true" />
                   List your charger

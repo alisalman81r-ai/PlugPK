@@ -132,7 +132,7 @@ export function MemberList({ members }: MemberListProps) {
             className={cn(
               'h-11 rounded-xl px-4 text-ui-sm font-medium transition-colors',
               sortBy === sort.key
-                ? 'bg-slate-900 text-white'
+                ? 'bg-plug-navy-900 text-white'
                 : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
             )}
           >

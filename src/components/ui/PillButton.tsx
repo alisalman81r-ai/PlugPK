@@ -42,12 +42,12 @@ export interface PillButtonProps {
 
 const TONES = {
   dark: {
-    pill: 'bg-slate-900 text-white hover:bg-slate-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(37,99,235,0.45)]',
+    pill: 'bg-plug-navy-900 text-white hover:bg-plug-navy-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(37,99,235,0.45)]',
     badge: 'bg-white text-slate-900',
   },
   light: {
-    pill: 'bg-white text-slate-950 focus-visible:ring-cyan-400 focus-visible:ring-offset-slate-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
-    badge: 'bg-slate-950 text-white',
+    pill: 'bg-white text-slate-950 focus-visible:ring-cyan-400 focus-visible:ring-offset-plug-navy-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
+    badge: 'bg-plug-navy-950 text-white',
   },
   brand: {
     pill: 'bg-gradient-brand text-white focus-visible:ring-plug-blue-500 hover:shadow-[0_16px_38px_-12px_rgba(37,99,235,0.55)]',

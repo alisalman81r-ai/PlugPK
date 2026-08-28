@@ -177,7 +177,7 @@ export function CarInventory({ audits }: CarInventoryProps) {
                   'inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
                   selected
-                    ? 'border-slate-900 bg-slate-900 text-white'
+                    ? 'border-slate-900 bg-plug-navy-900 text-white'
                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50',
                   // A lens with nothing behind it is not worth a click, but it
                   // is worth seeing: zero is the good news on these three.

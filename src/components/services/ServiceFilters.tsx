@@ -131,7 +131,7 @@ export function ServiceFilters({
                 'flex h-full items-center gap-1.5 rounded-lg px-3 text-ui-sm font-semibold transition-colors duration-150',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                 viewMode === mode
-                  ? 'bg-slate-900 text-white'
+                  ? 'bg-plug-navy-900 text-white'
                   : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
               )}
             >

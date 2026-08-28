@@ -87,7 +87,7 @@ export default async function AdminCarDetailPage({ params }: PageProps) {
                   hide
                 </span>
               </summary>
-              <pre className="overflow-x-auto border-t border-slate-100 bg-slate-900 px-5 py-4 text-ui-xs leading-relaxed text-slate-100">
+              <pre className="overflow-x-auto border-t border-slate-100 bg-plug-navy-900 px-5 py-4 text-ui-xs leading-relaxed text-slate-100">
                 <code>{JSON.stringify(car, null, 2)}</code>
               </pre>
             </details>

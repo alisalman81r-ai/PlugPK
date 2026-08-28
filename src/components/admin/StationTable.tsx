@@ -88,7 +88,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                 'h-8 shrink-0 whitespace-nowrap rounded-md px-3 text-ui-sm font-medium transition-colors',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                 status === option.value
-                  ? 'bg-slate-900 text-white'
+                  ? 'bg-plug-navy-900 text-white'
                   : 'text-slate-600 hover:bg-slate-100',
               )}
             >
@@ -234,7 +234,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                   <div className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/admin/stations/${station.id}`}
-                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
                     >
                       <Pencil size={14} aria-hidden="true" />
                       Edit

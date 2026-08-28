@@ -397,7 +397,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 onChange={(event) =>
                   event.target.value && go([...cars.map((car) => car.id), event.target.value])
                 }
-                className="h-10 max-w-[16rem] cursor-pointer rounded-full border border-white/20 bg-slate-900 px-3 text-ui-sm font-semibold text-white outline-none focus:border-plug-cyan-400"
+                className="h-10 max-w-[16rem] cursor-pointer rounded-full border border-white/20 bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white outline-none focus:border-plug-cyan-400"
               >
                 <option value="" disabled>
                   Choose a car…
@@ -421,7 +421,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
             >
               <Plus size={14} aria-hidden="true" />
               Add a car
@@ -435,7 +435,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
         >
           {copied ? (
             <Check size={14} aria-hidden="true" className="text-emerald-300" />
@@ -496,7 +496,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                           unreadable exactly when the label matters. */}
                       <th
                         scope="row"
-                        className="sticky left-0 z-10 bg-slate-950/80 px-4 py-3.5 align-middle text-ui-sm font-medium text-white/60 backdrop-blur-md"
+                        className="sticky left-0 z-10 bg-plug-navy-950/80 px-4 py-3.5 align-middle text-ui-sm font-medium text-white/60 backdrop-blur-md"
                       >
                         {row.label}
                       </th>

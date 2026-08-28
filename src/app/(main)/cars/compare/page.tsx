@@ -54,7 +54,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
      * a blue pool top-left and a cyan one bottom-right — so the page reads as
      * the site's existing dark treatment rather than a new invention.
      */
-    <section className="relative isolate overflow-hidden bg-slate-950 py-14 lg:py-20">
+    <section className="relative isolate overflow-hidden bg-plug-navy-950 py-14 lg:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(255,255,255,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
@@ -106,7 +106,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
               </p>
               <Link
                 href="/cars"
-                className="group/cta mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-ui-sm font-semibold text-slate-950 transition-colors hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="group/cta mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-ui-sm font-semibold text-slate-950 transition-colors hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
               >
                 <ArrowLeft
                   size={15}

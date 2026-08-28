@@ -231,7 +231,7 @@ export function VehicleSelector({
                     className={cn(
                       'rounded-full border px-3 py-1.5 text-ui-xs font-semibold transition-colors duration-150',
                       isActive
-                        ? 'border-slate-900 bg-slate-900 text-white'
+                        ? 'border-slate-900 bg-plug-navy-900 text-white'
                         : 'border-slate-200 text-slate-600 hover:border-slate-400',
                     )}
                   >

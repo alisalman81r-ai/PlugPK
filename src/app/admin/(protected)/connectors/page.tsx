@@ -167,7 +167,7 @@ export default async function AdminConnectorsPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/admin/connectors/${connector.id}`}
-                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
                     >
                       <Pencil size={14} aria-hidden="true" />
                       Edit

@@ -82,7 +82,7 @@ export function BrandRail({ brands, counts, selected, onToggle, onClear }: Brand
                   'flex min-w-[6.5rem] flex-col items-center gap-0.5 rounded-2xl border px-4 py-3 transition-all duration-200',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
                   active
-                    ? 'border-slate-900 bg-slate-900 shadow-e2'
+                    ? 'border-slate-900 bg-plug-navy-900 shadow-e2'
                     : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-400 hover:shadow-e1',
                   'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
                   // Dimmed, not hidden: a brand disappearing as other filters

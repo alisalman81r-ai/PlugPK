@@ -131,7 +131,7 @@ function NavContent({
         <Link href="/admin" onClick={onNavigate} className="flex items-center gap-2">
           <Zap size={18} className="fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
           <span className="font-bold text-slate-900">plug.pk</span>
-          <span className="rounded-md bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+          <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             Admin
           </span>
         </Link>
@@ -159,7 +159,7 @@ function NavContent({
                         'relative flex h-10 items-center gap-3 rounded-lg px-3 text-ui font-medium transition-colors duration-150',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                         active
-                          ? 'bg-slate-900 text-white'
+                          ? 'bg-plug-navy-900 text-white'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                       )}
                     >
@@ -320,7 +320,7 @@ export function AdminNav({ badges }: AdminNavProps) {
         <Link href="/admin" className="flex items-center gap-2">
           <Zap size={16} className="fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
           <span className="font-bold text-slate-900">plug.pk</span>
-          <span className="rounded-md bg-slate-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+          <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             Admin
           </span>
         </Link>

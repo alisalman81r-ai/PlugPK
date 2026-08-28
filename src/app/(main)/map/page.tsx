@@ -75,7 +75,7 @@ const RAIL_LIFT = '-mt-14 sm:-mt-16 lg:-mt-20'
 function MapExplorerFallback() {
   return (
     <div className="bg-slate-50">
-      <div className="h-[400px] rounded-b-[2rem] bg-slate-950 sm:rounded-b-[2.5rem] lg:h-[430px]" />
+      <div className="h-[400px] rounded-b-[2rem] bg-plug-navy-950 sm:rounded-b-[2.5rem] lg:h-[430px]" />
       {/* The same two mounts, in the same order, at the same heights as the real
           thing — so nothing changes shape or shifts the page the moment the
           client takes over. */}

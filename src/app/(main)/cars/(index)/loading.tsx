@@ -29,7 +29,7 @@ export default function CarsLoading() {
 
       {/* The hero in silhouette. Same ground and blur as the real one, so the
           swap is a content change rather than a background flash. */}
-      <section className="relative isolate overflow-hidden bg-slate-950 py-20 lg:py-28">
+      <section className="relative isolate overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -left-40 -top-48 -z-10 h-[34rem] w-[34rem] rounded-full bg-plug-blue-600/20 blur-[130px]"

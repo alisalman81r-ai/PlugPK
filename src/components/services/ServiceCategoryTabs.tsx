@@ -88,7 +88,7 @@ export function ServiceCategoryTabs({
                 // top of every listing and left nothing for the actual calls to
                 // action on the cards below to stand out against.
                 isSelected
-                  ? 'bg-slate-900 text-white shadow-e1'
+                  ? 'bg-plug-navy-900 text-white shadow-e1'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
               )}
             >

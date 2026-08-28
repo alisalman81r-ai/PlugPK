@@ -40,7 +40,7 @@ export function AppBanner() {
   return (
     <section id="app" className="scroll-mt-24 bg-white py-16 lg:py-24">
       <div className="container-plug">
-        <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-14 shadow-e4 sm:px-10 lg:px-14 lg:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] bg-plug-navy-950 px-6 py-14 shadow-e4 sm:px-10 lg:px-14 lg:py-20">
           {/* The same atmosphere the Partner Up closing panel carries: a fine
               dot field for texture, and two soft brand blooms for depth. All
               of it behind the content and none of it in the way of the text. */}
@@ -112,7 +112,7 @@ export function AppBanner() {
               aria-hidden="true"
               className="relative h-[380px] w-[210px] shrink-0 rounded-[36px] border border-white/12 bg-gradient-to-b from-white/[0.10] to-white/[0.02] p-2 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)]"
             >
-              <span className="relative flex h-full w-full flex-col items-center justify-center gap-3 rounded-[28px] bg-slate-950/60">
+              <span className="relative flex h-full w-full flex-col items-center justify-center gap-3 rounded-[28px] bg-plug-navy-950/60">
                 <span className="absolute left-1/2 top-3 flex -translate-x-1/2 items-center gap-1">
                   <span className="h-1 w-1 rounded-full bg-white/25" />
                   <span className="h-1 w-8 rounded-full bg-white/15" />

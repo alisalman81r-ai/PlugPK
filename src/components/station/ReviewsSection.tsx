@@ -33,11 +33,11 @@ type SortKey = 'recent' | 'helpful' | 'highest' | 'lowest'
  * separates one from the next now, rather than colour.
  */
 const AVATAR_TONES = [
-  'bg-slate-800',
+  'bg-plug-navy-800',
   'bg-plug-blue-800',
   'bg-slate-600',
   'bg-plug-cyan-800',
-  'bg-slate-900',
+  'bg-plug-navy-900',
 ]
 
 function toneForName(name: string): string {

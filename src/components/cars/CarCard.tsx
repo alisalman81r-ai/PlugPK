@@ -465,7 +465,7 @@ export function CarCard({
             href={href}
             className={cn(
               'group/cta inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg',
-              'bg-slate-900 px-4 text-ui-sm font-semibold text-white',
+              'bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white',
               'transition-colors duration-200 hover:bg-plug-blue-700',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
               'motion-reduce:transition-none',

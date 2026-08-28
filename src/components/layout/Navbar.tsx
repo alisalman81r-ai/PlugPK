@@ -139,7 +139,7 @@ export function Navbar({ user }: NavbarProps) {
             */}
             <Link
               href="/#app"
-              className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-slate-900 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-slate-800"
+              className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-plug-navy-900 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-plug-navy-800"
             >
               <Smartphone size={15} className="shrink-0" aria-hidden="true" />
               Download App

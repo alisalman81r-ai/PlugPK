@@ -39,7 +39,7 @@ export interface CommunityHeroProps {
 
 export function CommunityHero({ stats, onCreatePost, search }: CommunityHeroProps) {
   return (
-    <header className="relative rounded-b-[2rem] bg-slate-950 pb-32 pt-10 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-14">
+    <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-32 pt-10 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-14">
       {/* The decoration clips itself so the band does not have to: the browse
           card below is lifted up into this padding and has to paint above it. */}
       <div
@@ -108,7 +108,7 @@ export function CommunityHero({ stats, onCreatePost, search }: CommunityHeroProp
             <button
               type="button"
               onClick={onCreatePost}
-              className="inline-flex h-14 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-7 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="inline-flex h-14 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-7 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <PenSquare size={17} aria-hidden="true" />
               Start a discussion

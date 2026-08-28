@@ -152,7 +152,7 @@ export function FilterRail({
         <button
           type="button"
           onClick={onOpenSheet}
-          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-slate-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:hidden"
+          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:hidden"
         >
           <SlidersHorizontal size={14} aria-hidden="true" />
           Filters
@@ -169,7 +169,7 @@ export function FilterRail({
           onClick={() => setIsExpanded((open) => !open)}
           aria-expanded={isExpanded}
           aria-controls="filter-rail-more"
-          className="hidden h-9 shrink-0 items-center gap-1.5 rounded-full bg-slate-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:inline-flex"
+          className="hidden h-9 shrink-0 items-center gap-1.5 rounded-full bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:inline-flex"
         >
           {isExpanded ? 'Fewer filters' : 'More filters'}
           <ChevronDown

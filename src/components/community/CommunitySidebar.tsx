@@ -171,7 +171,7 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
       </div>
 
       {/* ── Newsletter ───────────────────────────────────────── */}
-      <div className="rounded-2xl bg-slate-900 p-6 text-white">
+      <div className="rounded-2xl bg-plug-navy-900 p-6 text-white">
         <Zap size={28} className="mb-3 text-plug-cyan-400" aria-hidden="true" />
 
         <h2 className="mb-2 text-lg font-bold text-white">EV Pakistan Weekly</h2>

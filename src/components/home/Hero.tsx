@@ -112,7 +112,7 @@ export function Hero({ cities }: HeroProps) {
             />
             <button
               type="submit"
-              className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-ui font-semibold text-slate-950 transition-colors duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 motion-reduce:transition-none"
+              className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-ui font-semibold text-slate-950 transition-colors duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-900 motion-reduce:transition-none"
             >
               <MapPin size={16} className="shrink-0" aria-hidden="true" />
               <span className="hidden sm:inline">Find a station</span>

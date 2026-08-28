@@ -57,7 +57,7 @@ export function MapHero({
   const others = cities.length - named.length
 
   return (
-    <header className="relative rounded-b-[2rem] bg-slate-950 pb-24 pt-10 sm:rounded-b-[2.5rem] sm:pb-28 lg:pb-32 lg:pt-14">
+    <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-24 pt-10 sm:rounded-b-[2.5rem] sm:pb-28 lg:pb-32 lg:pt-14">
       {/*
         The decoration clips itself, and the band neither isolates nor hides its
         own overflow.
@@ -122,7 +122,7 @@ export function MapHero({
             <button
               type="button"
               onClick={onLocateMe}
-              className="inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-5 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-gradient-to-r from-plug-cyan-400 to-plug-blue-500 px-5 text-ui font-bold text-slate-950 shadow-cyan transition-all duration-200 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
             >
               <LocateFixed
                 size={16}

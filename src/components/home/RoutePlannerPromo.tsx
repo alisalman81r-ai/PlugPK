@@ -84,7 +84,7 @@ export function RoutePlannerPromo() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden bg-slate-950 py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
       {/* One background idea, not three. The previous version stacked two
           blur glows and a dot grid behind a panel that already had its own
           shadow. */}

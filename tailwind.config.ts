@@ -25,6 +25,36 @@ const config: Config = {
           900: '#1E3A8A',
           950: '#172554',
         },
+        /*
+          The navy ground, and the tints that sit on it.
+          
+          Taken from the palette this product was designed against. The two
+          darks replace neutral slate as every dark surface on the site: slate
+          is grey, and a grey band under a blue brand always reads as a
+          different product's dark mode. 800 and 700 are interpolated between
+          900 and the palette's mid tone so hover states have somewhere to go —
+          the palette itself jumps straight from #052659 to #5483B3, which is
+          too far for a button press.
+          
+          Deliberately NOT the action colour. White on #5483B3 measures 3.98:1,
+          under the 4.5:1 WCAG AA needs for normal text, so every filled button
+          using it would fail. Buttons, links and focus rings stay on
+          plug-blue-600 at 5.17:1. These are grounds and accents, nothing more.
+          
+          White on the two grounds: 19.05:1 on 950, 14.71:1 on 900. Both AAA.
+        */
+        'plug-navy': {
+          700: '#0F4C93',
+          800: '#1F4577',
+          900: '#052659',
+          950: '#021024',
+        },
+        /* The light end of the same palette, for use on the navy. */
+        'plug-sky': {
+          100: '#C1E8FF',
+          300: '#7DA0CA',
+          500: '#5483B3',
+        },
         'plug-cyan': {
           50: '#ECFEFF',
           100: '#CFFAFE',

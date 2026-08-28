@@ -294,7 +294,7 @@ export function ReviewQueue({ rows, counts, active, sources, pagination }: Revie
                 className={cn(
                   'inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors',
                   isActive
-                    ? 'border-slate-900 bg-slate-900 text-white'
+                    ? 'border-slate-900 bg-plug-navy-900 text-white'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
                 )}
               >

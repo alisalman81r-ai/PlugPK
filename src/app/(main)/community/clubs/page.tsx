@@ -54,7 +54,7 @@ export default async function CommunityClubsPage() {
         other heroes dropped, because it put the heading on one colour and
         everything below it on a visibly different one.
       */}
-      <header className="relative rounded-b-[2rem] bg-slate-950 pb-32 pt-8 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-10">
+      <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-32 pt-8 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
@@ -67,7 +67,7 @@ export default async function CommunityClubsPage() {
         <div className={`relative ${STAGE}`}>
           <Link
             href="/community"
-            className="group/back inline-flex items-center gap-1.5 rounded-full text-ui-sm font-semibold text-white/70 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            className="group/back inline-flex items-center gap-1.5 rounded-full text-ui-sm font-semibold text-white/70 transition-colors duration-150 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
           >
             <ChevronLeft
               size={16}

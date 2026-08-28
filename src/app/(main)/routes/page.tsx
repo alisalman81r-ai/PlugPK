@@ -88,7 +88,7 @@ export default function RoutesPage() {
       <div className="min-h-below-nav bg-slate-50">
         {showResults && planner.plannedRoute ? (
           <>
-            <header className="rounded-b-[2rem] bg-slate-950 pb-12 pt-10 sm:rounded-b-[2.5rem]">
+            <header className="rounded-b-[2rem] bg-plug-navy-950 pb-12 pt-10 sm:rounded-b-[2.5rem]">
               <div className={STAGE}>
                 {/* Everything you can do to this result sits on one line: the
                     way back on the left, what to do with it on the right. */}
@@ -243,7 +243,7 @@ function HeaderAction({
       onClick={onClick}
       className={cn(
         'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950',
         active
           ? 'border-plug-cyan-400/60 bg-plug-cyan-400/15 text-plug-cyan-200'
           : 'border-white/15 bg-white/[0.06] text-white/75 hover:border-white/30 hover:text-white',

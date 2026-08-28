@@ -56,7 +56,7 @@ export default function CarsError({
             <button
               type="button"
               onClick={reset}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-ui font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-plug-navy-900 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
             >
               <RotateCcw size={16} aria-hidden="true" />
               Try again

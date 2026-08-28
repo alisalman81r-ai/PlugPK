@@ -132,7 +132,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
       {/* ── The panel ────────────────────────────────────────────────
           Hidden below lg, where it would push the form off the fold. The form
           side carries the wordmark, so a phone still knows whose sign-in it is. */}
-      <div className="relative hidden w-1/2 overflow-hidden bg-slate-950 lg:flex lg:items-center">
+      <div className="relative hidden w-1/2 overflow-hidden bg-plug-navy-950 lg:flex lg:items-center">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
           <div className="absolute -right-32 -top-32 h-[30rem] w-[30rem] rounded-full bg-plug-blue-600/25 blur-[130px]" />

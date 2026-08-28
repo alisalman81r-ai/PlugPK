@@ -167,7 +167,7 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
           <li className="h-full">
               <Link
                 href="/business/signup"
-                className="group flex h-full flex-col justify-between gap-4 rounded-2xl bg-slate-900 p-5 transition-all duration-200 hover:bg-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+                className="group flex h-full flex-col justify-between gap-4 rounded-2xl bg-plug-navy-900 p-5 transition-all duration-200 hover:bg-plug-navy-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
               >
                 <span className="text-ui-lg font-bold leading-tight tracking-tight text-white">
                   Something else?

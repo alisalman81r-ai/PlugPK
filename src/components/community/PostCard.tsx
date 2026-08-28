@@ -37,11 +37,11 @@ export interface PostCardProps {
  * amber and cyan did not.
  */
 const AVATAR_TONES = [
-  'bg-slate-800',
+  'bg-plug-navy-800',
   'bg-plug-blue-800',
   'bg-slate-600',
   'bg-plug-cyan-800',
-  'bg-slate-900',
+  'bg-plug-navy-900',
 ]
 
 /** Stable per-user colour so the same author always looks the same. */

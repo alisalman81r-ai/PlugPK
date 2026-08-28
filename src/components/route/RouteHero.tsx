@@ -28,7 +28,7 @@ export interface RouteHeroProps {
 
 export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroProps) {
   return (
-    <header className="relative rounded-b-[2rem] bg-slate-950 pb-28 pt-10 sm:rounded-b-[2.5rem] sm:pb-32 lg:pb-40 lg:pt-14">
+    <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-28 pt-10 sm:rounded-b-[2.5rem] sm:pb-32 lg:pb-40 lg:pt-14">
       {/* The decoration clips itself so the band does not have to. Anything
           with a dropdown in it — the planner's city fields sit close below —
           needs the header to keep its overflow visible. */}

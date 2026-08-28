@@ -98,7 +98,7 @@ export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="relative overflow-hidden bg-slate-950">
+    <footer className="relative overflow-hidden bg-plug-navy-950">
       {/* Single background idea, deliberately: one cool glow rising behind
           the wordmark. No photograph here — the hero already carries the
           photography, and text this large needs a clean field to sit on. */}
@@ -127,7 +127,7 @@ export function Footer() {
 
           <Link
             href="/map"
-            className="group/cta inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-8 text-base font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 motion-reduce:transition-none sm:w-auto"
+            className="group/cta inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-8 text-base font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none sm:w-auto"
           >
             Find a charger
             <ArrowUpRight

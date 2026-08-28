@@ -181,7 +181,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
           {station.isVerified ? (
             <span className="group/tip relative inline-flex shrink-0">
               <ShieldCheck size={18} className="text-plug-blue-600" aria-label="Verified station" />
-              <span className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/tip:opacity-100">
+              <span className="pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-lg bg-plug-navy-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity group-hover/tip:opacity-100">
                 Verified by Plug.pk
               </span>
             </span>
