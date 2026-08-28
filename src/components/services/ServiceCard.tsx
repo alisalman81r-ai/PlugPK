@@ -5,6 +5,7 @@ import { ArrowRight, MapPin, Package, Phone, ShieldCheck, Star } from 'lucide-re
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
+import { FACE, FRAME } from '@/components/shared/frame'
 import { AnimatedIcon, PhotoFrame, RatingStars, hoverTrigger } from '@/components/ui'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
@@ -153,128 +154,136 @@ export function ServiceCard({
      * pseudo-element and the phone link is lifted above it, so there is never
      * an <a> inside an <a>.
      */
+    /*
+     * The graded hairline the rest of the site's cards wear, rather than a flat
+     * slate border. The face carries `overflow-hidden` because the cover bleeds
+     * to the card's edge and has to be clipped to the inner radius — the frame
+     * itself cannot clip it, since the frame *is* the border.
+     */
     <motion.article
       {...hoverTrigger}
       style={style}
-      className={cn(
-        'relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white',
-        HOVER,
-        className,
-      )}
+      className={cn(FRAME, className)}
     >
-      {/* A ratio rather than a fixed height, so the image keeps its
-          proportion as the column width changes across breakpoints. */}
-      <div className="relative aspect-[16/10] shrink-0 overflow-hidden">
-        {/* The category gradient stays as the fallback, so a service without
-            its own photograph still lands on brand rather than on grey. */}
-        {service.coverPhoto ? (
-          <PhotoFrame
-            src={service.coverPhoto}
-            alt={`${service.name} — ${meta.label}`}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
-            zoomOnHover
-          />
-        ) : (
+      <div className={cn(FACE, 'overflow-hidden')}>
+        {/* A ratio rather than a fixed height, so the image keeps its
+            proportion as the column width changes across breakpoints. */}
+        <div className="relative aspect-[16/10] shrink-0 overflow-hidden">
+          {/* The category gradient stays as the fallback, so a service without
+              its own photograph still lands on brand rather than on grey. */}
+          {service.coverPhoto ? (
+            <PhotoFrame
+              src={service.coverPhoto}
+              alt={`${service.name} — ${meta.label}`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px"
+              zoomOnHover
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className={cn(
+                'flex h-full w-full items-center justify-center bg-gradient-to-br',
+                meta.cover,
+              )}
+            >
+              <Icon size={64} className={cn('opacity-30', meta.tone.split(' ')[1])} />
+            </span>
+          )}
+
+          {/* Scrims top and bottom. The chips used to sit on bare photography,
+              so whether they were readable depended on what happened to be in
+              that corner of that particular picture. */}
           <span
             aria-hidden="true"
-            className={cn(
-              'flex h-full w-full items-center justify-center bg-gradient-to-br',
-              meta.cover,
-            )}
+            className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-16 bg-gradient-to-b from-black/40 to-transparent"
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-16 bg-gradient-to-t from-black/40 to-transparent"
+          />
+
+          <span className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 shadow-e1 ring-1 ring-black/5 backdrop-blur-md">
+            <Icon size={14} className={meta.tone.split(' ')[1]} aria-hidden="true" />
+            <span className="text-ui-xs font-semibold text-slate-700">{meta.label}</span>
+          </span>
+
+          {/* The rating moves onto the photograph as a single glass pill.
+              Below the fold it was a row of five stars that had to be decoded;
+              here it is one number, and it frees the card body for the text
+              that actually differs between listings. */}
+          <span className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 shadow-e1 ring-1 ring-black/5 backdrop-blur-md">
+            <Star size={13} className="shrink-0 fill-amber-400 text-amber-400" aria-hidden="true" />
+            <span className="text-ui-xs font-bold tabular-nums text-slate-900">
+              {service.rating.toFixed(1)}
+            </span>
+            <span className="text-ui-xs tabular-nums text-slate-500">
+              ({service.reviewCount})
+            </span>
+          </span>
+
+          {service.isVerified ? (
+            <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-plug-blue-600 px-2.5 py-1.5 shadow-e1">
+              <ShieldCheck size={12} className="text-white" aria-hidden="true" />
+              {/* ui-xs (11px) rather than a 10px one-off — 10px sits below the
+                  smallest step of the type scale and was set nowhere else. */}
+              <span className="text-ui-xs font-semibold leading-none text-white">Verified</span>
+            </span>
+          ) : null}
+        </div>
+
+        <div className="flex flex-1 flex-col p-5">
+          {/* The clamp lives on the heading, not the anchor: line-clamp sets
+              display:-webkit-box, and that is not a reliable box to hang a
+              stretched pseudo-element off. */}
+          <h3 className="line-clamp-1 text-ui-lg font-bold leading-snug text-slate-900">
+            <Link
+              href={detailHref}
+              className="rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+            >
+              {service.name}
+            </Link>
+          </h3>
+
+          <p className="mt-1.5 flex items-center gap-1.5">
+            <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="line-clamp-1 text-ui-sm text-slate-500">{location}</span>
+          </p>
+
+          <p className="mt-3 line-clamp-2 text-ui-sm leading-relaxed text-slate-500">
+            {service.description}
+          </p>
+        </div>
+
+        {/* Pinned to the bottom by the flex-1 body above it, so cards in a row
+            line up on their actions however long the names run. */}
+        <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-3.5">
+          <a
+            href={`tel:${service.phone.replace(/[^\d+]/g, '')}`}
+            // z-10 lifts it above the heading's stretched anchor; without this
+            // the card link would swallow every tap on the phone number.
+            // Outlined at rest, brand-filled on hover — the same treatment the
+            // map's Navigate button uses, and for the same reason: the card is
+            // itself a link, so a solid button inside it competed with the
+            // surface it sits on rather than reading as the one action on it.
+            className="relative z-10 inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border-[1.5px] border-slate-300 px-3.5 text-ui-sm font-semibold text-slate-700 transition-all duration-200 hover:border-plug-blue-600 hover:bg-plug-blue-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
           >
-            <Icon size={64} className={cn('opacity-30', meta.tone.split(' ')[1])} />
-          </span>
-        )}
+            <Phone size={14} aria-hidden="true" />
+            Contact
+          </a>
 
-        {/* Scrims top and bottom. The chips used to sit on bare photography,
-            so whether they were readable depended on what happened to be in
-            that corner of that particular picture. */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-16 bg-gradient-to-b from-black/40 to-transparent"
-        />
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-16 bg-gradient-to-t from-black/40 to-transparent"
-        />
-
-        <span className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 shadow-e1 ring-1 ring-black/5 backdrop-blur-md">
-          <Icon size={14} className={meta.tone.split(' ')[1]} aria-hidden="true" />
-          <span className="text-ui-xs font-semibold text-slate-700">{meta.label}</span>
-        </span>
-
-        {/* The rating moves onto the photograph as a single glass pill.
-            Below the fold it was a row of five stars that had to be decoded;
-            here it is one number, and it frees the card body for the text
-            that actually differs between listings. */}
-        <span className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 shadow-e1 ring-1 ring-black/5 backdrop-blur-md">
-          <Star size={13} className="shrink-0 fill-amber-400 text-amber-400" aria-hidden="true" />
-          <span className="text-ui-xs font-bold tabular-nums text-slate-900">
-            {service.rating.toFixed(1)}
-          </span>
-          <span className="text-ui-xs tabular-nums text-slate-500">
-            ({service.reviewCount})
-          </span>
-        </span>
-
-        {service.isVerified ? (
-          <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-plug-blue-600 px-2.5 py-1.5 shadow-e1">
-            <ShieldCheck size={12} className="text-white" aria-hidden="true" />
-            {/* ui-xs (11px) rather than a 10px one-off — 10px sits below the
-                smallest step of the type scale and was set nowhere else. */}
-            <span className="text-ui-xs font-semibold leading-none text-white">Verified</span>
-          </span>
-        ) : null}
-      </div>
-
-      <div className="flex flex-1 flex-col p-5">
-        {/* The clamp lives on the heading, not the anchor: line-clamp sets
-            display:-webkit-box, and that is not a reliable box to hang a
-            stretched pseudo-element off. */}
-        <h3 className="line-clamp-1 text-ui-lg font-bold leading-snug text-slate-900">
-          <Link
-            href={detailHref}
-            className="rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          {/* Decorative. The heading's stretched link already covers the card,
+              so this is an affordance rather than a second control — and it is
+              hidden from screen readers to avoid announcing a duplicate. */}
+          <span
+            aria-hidden="true"
+            className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-ui-sm font-semibold text-slate-400 transition-colors duration-200 group-hover:text-plug-blue-600"
           >
-            {service.name}
-          </Link>
-        </h3>
-
-        <p className="mt-1.5 flex items-center gap-1.5">
-          <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <span className="line-clamp-1 text-ui-sm text-slate-500">{location}</span>
-        </p>
-
-        <p className="mt-3 line-clamp-2 text-ui-sm leading-relaxed text-slate-500">
-          {service.description}
-        </p>
-      </div>
-
-      {/* Pinned to the bottom by the flex-1 body above it, so cards in a row
-          line up on their actions however long the names run. */}
-      <div className="flex items-center justify-between gap-3 border-t border-slate-100 px-5 py-3.5">
-        <a
-          href={`tel:${service.phone.replace(/[^\d+]/g, '')}`}
-          // z-10 lifts it above the heading's stretched anchor; without this
-          // the card link would swallow every tap on the phone number.
-          className="relative z-10 inline-flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-plug-blue-600 px-3.5 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-        >
-          <Phone size={14} aria-hidden="true" />
-          Contact
-        </a>
-
-        {/* Decorative. The heading's stretched link already covers the card,
-            so this is an affordance rather than a second control — and it is
-            hidden from screen readers to avoid announcing a duplicate. */}
-        <span
-          aria-hidden="true"
-          className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-ui-sm font-semibold text-slate-400 transition-colors duration-200 group-hover:text-plug-blue-600"
-        >
-          Details
-          <AnimatedIcon motion="travel">
-            <ArrowRight size={14} className="shrink-0" />
-          </AnimatedIcon>
-        </span>
+            Details
+            <AnimatedIcon motion="travel">
+              <ArrowRight size={14} className="shrink-0" />
+            </AnimatedIcon>
+          </span>
+        </div>
       </div>
     </motion.article>
   )
