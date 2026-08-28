@@ -86,7 +86,7 @@ export interface CommunityPreviewProps {
 
 export function CommunityPreview({ clubs }: CommunityPreviewProps) {
   return (
-    <section className="bg-slate-50 py-24 lg:py-32">
+    <section className="bg-white py-24 lg:py-32">
       <div className="container-plug">
         {/* ── The heading ──────────────────────────────────────── */}
         <div className="mx-auto max-w-3xl text-center">
@@ -203,6 +203,9 @@ export function CommunityPreview({ clubs }: CommunityPreviewProps) {
                           index > 0 && 'border-t border-slate-100',
                         )}
                       >
+                        {/* Filled, and staying that way: this section was
+                            explicitly asked to keep its blue. See the note at
+                            the top of the file. */}
                         <span
                           aria-hidden="true"
                           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-colors duration-300 group-hover/stat:bg-blue-100"

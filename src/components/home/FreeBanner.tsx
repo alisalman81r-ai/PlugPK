@@ -126,7 +126,7 @@ export function FreeBanner() {
      * The top rule separates it from the services band above, which is also
      * white; the community band below is slate-50 and separates itself.
      */
-    <section className="border-t border-slate-200 bg-white py-24 lg:py-32">
+    <section className="bg-slate-50 py-24 lg:py-32">
       <div ref={stageRef} className="container-plug [perspective:1400px]">
         {/* ── The heading ──────────────────────────────────────── */}
         <div className="mx-auto max-w-3xl text-center">

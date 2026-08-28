@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -84,7 +84,7 @@ const BENEFITS: Benefit[] = [
 
 export function PartnerCTA() {
   return (
-    <section className="border-t border-slate-200 bg-white py-24 lg:py-32">
+    <section className="bg-slate-50 py-24 lg:py-32">
       <div className="container-plug">
         <div className="relative overflow-hidden rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
           <Zap
@@ -136,12 +136,14 @@ export function PartnerCTA() {
         {/* ── What a host gets ─────────────────────────────────── */}
         <HoverMotion className={cn(FRAME, 'relative z-10 mx-auto mt-8 max-w-5xl')}>
           <div className={cn(FACE, 'p-8 lg:p-10')}>
-            <span
-              aria-hidden="true"
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-blue-50 transition-colors duration-300 group-hover:bg-blue-100"
-            >
+            {/* Outlined, matching every other holder in this card system.
+                It was a filled blue chip sitting inside the same FRAME/FACE
+                card the steps on Partner Up use — the one place on the page
+                where the rule "prominence from the edge, never the fill" was
+                broken, and directly above a CAP_RULE that follows it. */}
+            <span aria-hidden="true" className={ICON_FRAME}>
               <AnimatedIcon motion="pulse">
-                <Building2 size={24} className="text-plug-blue-600" />
+                <Building2 size={24} className={ICON_GLYPH} />
               </AnimatedIcon>
             </span>
 
@@ -154,11 +156,13 @@ export function PartnerCTA() {
             <ul className="mt-7 grid gap-x-10 gap-y-5 sm:grid-cols-2">
               {BENEFITS.map((benefit) => (
                 <li key={benefit.title} className="flex items-start gap-3">
-                  {/* Filled, and blue rather than the green it used to be —
-                      green was the only third colour anywhere on the page. */}
+                  {/* Outlined rather than filled, matching the tick list on
+                      the Partner Up pricing cards. Blue rather than the green
+                      it used to be — green was the only third colour anywhere
+                      on the page. */}
                   <span
                     aria-hidden="true"
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50"
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-plug-blue-200"
                   >
                     <Check size={11} strokeWidth={3} className="text-plug-blue-600" />
                   </span>

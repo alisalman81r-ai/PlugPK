@@ -79,24 +79,41 @@ export function Navbar({ user }: NavbarProps) {
               const active = isActivePath(pathname, link.href)
 
               return (
+                /*
+                 * The same underline the footer links use, wiping in from the
+                 * left on hover and sitting drawn for the current page.
+                 *
+                 * It replaces a grey pill that appeared behind the label on
+                 * hover. Two things were wrong with that: the pill was the only
+                 * filled hover state in a design whose stated rule is that
+                 * prominence comes from the edge rather than the surface, and
+                 * the header and the footer — the two things wrapping every
+                 * page — were the only pair of navigations on the site that did
+                 * not agree on what a link does when you point at it.
+                 *
+                 * Scale on the compositor rather than a width transition, so
+                 * the wipe costs no layout.
+                 */
                 <Link
                   key={link.href}
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'relative whitespace-nowrap rounded-lg px-3 py-2 text-ui font-medium transition-all duration-150',
-                    active
-                      ? 'text-plug-blue-600'
-                      : 'text-slate-900 hover:bg-slate-50 hover:text-plug-blue-600',
+                    'group/nav relative whitespace-nowrap px-3 py-2 text-ui font-medium transition-colors duration-200',
+                    active ? 'text-plug-blue-600' : 'text-slate-900 hover:text-plug-blue-600',
                   )}
                 >
                   {link.label}
-                  {active ? (
-                    <span
-                      aria-hidden="true"
-                      className="absolute bottom-0.5 left-3 right-3 h-0.5 rounded-full bg-plug-blue-600"
-                    />
-                  ) : null}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'absolute bottom-1 left-3 right-3 h-0.5 origin-left rounded-full',
+                      'bg-gradient-brand transition-transform duration-300 ease-out motion-reduce:transition-none',
+                      active
+                        ? 'scale-x-100'
+                        : 'scale-x-0 group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100',
+                    )}
+                  />
                 </Link>
               )
             })}
