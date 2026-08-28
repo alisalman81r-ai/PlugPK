@@ -60,10 +60,23 @@ export const CAP_RULE =
  * heading inside them. Both states are classes: setting the base stroke inline
  * would outrank the hover variant and the colour could never change.
  *
- * Needs `overflow-hidden` on the face it sits in, since it deliberately
- * overhangs the top edge.
+ * On alignment, which this got wrong twice.
+ *
+ * It was `-top-3` inside a face with `overflow-hidden`, so the digit's box
+ * began 12px above the card's top edge and the card then clipped it: every
+ * numeral was sliced flat across the top. That reads as a rendering fault
+ * rather than as a deliberate crop, and it lined up with nothing — the numeral
+ * started at -12px while the icon holder beside it started at 32px.
+ *
+ * It now shares a box with the icon. `top-8` matches the p-8 the faces use, and
+ * `h-14` matches the icon holder's height, so centring the digit in that box
+ * puts it on the icon's optical centre line. The two sit as one row, and
+ * nothing overhangs, so nothing is cut.
+ *
+ * Slightly smaller than before as a result: at 88px the digit had to overhang
+ * to fit at all, which is what led to the crop in the first place.
  */
 export const NUMERAL =
-  'pointer-events-none absolute -top-3 right-4 select-none font-mono text-[5.5rem] font-black ' +
-  'leading-none text-transparent transition-all duration-300 ' +
+  'pointer-events-none absolute right-7 top-8 flex h-14 select-none items-center ' +
+  'font-mono text-[4.5rem] font-black leading-none text-transparent transition-all duration-300 ' +
   '[-webkit-text-stroke:2px_#CBD5E1] group-hover:[-webkit-text-stroke:2px_#60A5FA]'
