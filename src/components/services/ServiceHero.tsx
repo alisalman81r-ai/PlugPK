@@ -99,7 +99,7 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
               name="q"
               placeholder="Search services, dealers, installers..."
               aria-label="Search services"
-              className="h-12 w-full min-w-0 rounded-full border-none bg-transparent pl-11 pr-3 text-ui text-white outline-none placeholder:text-white/50 [&::-webkit-search-cancel-button]:appearance-none"
+              className="field-glass h-12 w-full min-w-0 rounded-full border-none bg-transparent pl-11 pr-3 text-ui text-white outline-none placeholder:text-white/50 [&::-webkit-search-cancel-button]:appearance-none"
             />
           </div>
 

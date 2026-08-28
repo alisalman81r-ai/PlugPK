@@ -65,7 +65,15 @@ const BENEFITS: Benefit[] = [
     description: 'Your chargers show up the moment drivers search nearby.',
   },
   {
-    title: 'Visible to 5,000+ active EV owners',
+    /*
+      No figure here, deliberately.
+
+      This read 'Visible to 5,000+ active EV owners' against a database with no
+      registered users — and contradicted the note on PartnerHero, which says
+      this product does not invent metrics and leaves a count out rather than
+      dressing it up. The promise underneath is true without a number.
+    */
+    title: 'Visible to every driver who opens the map',
     description: 'Reach drivers actively looking for somewhere to charge.',
   },
   {

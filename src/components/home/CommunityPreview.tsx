@@ -13,6 +13,7 @@ import {
   type BadgeVariant,
   type IconMotion,
 } from '@/components/ui'
+import type { CommunityCounts } from '@/lib/db/queries'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import type { PostCategory } from '@/lib/types'
 import { cn, formatRelativeTime, getPostCategoryConfig } from '@/lib/utils'
@@ -60,16 +61,30 @@ interface CommunityStat {
   icon: typeof Users
   /** Matched to the glyph — see AnimatedIcon for the set. */
   motion: IconMotion
-  value: string
+  value: number
   label: string
 }
 
-const COMMUNITY_STATS: CommunityStat[] = [
-  { icon: Users, motion: 'pulse', value: '5,000+', label: 'Active EV Owners' },
-  { icon: MessageSquare, motion: 'pop', value: '1,200+', label: 'Discussions' },
-  { icon: Route, motion: 'slide', value: '450+', label: 'Trip Reports' },
-  { icon: MapPin, motion: 'scan', value: '18', label: 'Cities Active' },
-]
+/**
+ * The four figures, counted rather than claimed.
+ *
+ * These were '5,000+ Active EV Owners', '1,200+ Discussions', '450+ Trip
+ * Reports' and '18 Cities Active' written into this file, against a database
+ * holding no registered users, twelve posts and eight cities — overstating by
+ * roughly a hundred times, on the home page, above a link to the very page that
+ * would have shown the real numbers.
+ *
+ * Members are the figure the clubs themselves report, which is what /community
+ * shows and is the only membership number this product actually holds.
+ */
+function communityStats(counts: CommunityCounts): CommunityStat[] {
+  return [
+    { icon: Users, motion: 'pulse', value: counts.clubMembers, label: counts.clubMembers === 1 ? 'Club member' : 'Club members' },
+    { icon: MessageSquare, motion: 'pop', value: counts.discussions, label: counts.discussions === 1 ? 'Discussion' : 'Discussions' },
+    { icon: Route, motion: 'slide', value: counts.replies, label: counts.replies === 1 ? 'Reply' : 'Replies' },
+    { icon: MapPin, motion: 'scan', value: counts.cities, label: counts.cities === 1 ? 'City active' : 'Cities active' },
+  ]
+}
 
 const POSTS = MOCK_POSTS.slice(0, 2)
 
@@ -82,9 +97,13 @@ export interface CommunityPreviewProps {
    * somebody joined one.
    */
   clubs: Array<{ id: string; name: string; city: string; memberCount: number }>
+  /** Counted figures from the page above, not written here. */
+  counts: CommunityCounts
 }
 
-export function CommunityPreview({ clubs }: CommunityPreviewProps) {
+export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
+  const stats = communityStats(counts)
+
   return (
     <section className="bg-white py-24 lg:py-32">
       <div className="container-plug">
@@ -190,7 +209,7 @@ export function CommunityPreview({ clubs }: CommunityPreviewProps) {
                 </p>
 
                 <div className="mt-7 flex flex-col">
-                  {COMMUNITY_STATS.map((stat, index) => {
+                  {stats.map((stat, index) => {
                     const Icon = stat.icon
 
                     return (
@@ -216,7 +235,7 @@ export function CommunityPreview({ clubs }: CommunityPreviewProps) {
                         </span>
                         <span>
                           <span className="block text-2xl font-black tracking-tight text-slate-900">
-                            {stat.value}
+                            {stat.value.toLocaleString('en-PK')}
                           </span>
                           <span className="block text-ui-sm text-slate-500">{stat.label}</span>
                         </span>

@@ -92,7 +92,7 @@ export default function AdminLoginPage({ searchParams }: PageProps) {
             required
             autoComplete="current-password"
             autoFocus
-            className="h-12 w-full rounded-xl border border-white/10 bg-slate-900 px-4 text-ui text-white outline-none transition-colors placeholder:text-white/30 focus-visible:border-cyan-400/60"
+            className="field-dark h-12 w-full rounded-xl border border-white/10 bg-slate-900 px-4 text-ui text-white outline-none transition-colors placeholder:text-white/30 focus-visible:border-cyan-400/60"
           />
 
           {searchParams.error ? (

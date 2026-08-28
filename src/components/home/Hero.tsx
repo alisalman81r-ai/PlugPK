@@ -108,7 +108,7 @@ export function Hero({ cities }: HeroProps) {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search a city or station"
               aria-label="Search for a charging station by city or name"
-              className="min-w-0 flex-1 border-none bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-white/55 [&::-webkit-search-cancel-button]:appearance-none"
+              className="field-glass min-w-0 flex-1 border-none bg-transparent py-2 text-[15px] text-white outline-none placeholder:text-white/55 [&::-webkit-search-cancel-button]:appearance-none"
             />
             <button
               type="submit"

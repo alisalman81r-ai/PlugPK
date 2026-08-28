@@ -9,7 +9,7 @@ import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
-import { getClubs, getPlatformStats } from '@/lib/db/queries'
+import { getClubs, getCommunityCounts, getPlatformStats } from '@/lib/db/queries'
 
 /**
  * Cached, not dynamic.
@@ -31,7 +31,11 @@ import { getClubs, getPlatformStats } from '@/lib/db/queries'
 export const revalidate = 300
 
 export default async function HomePage() {
-  const [stats, clubs] = await Promise.all([getPlatformStats(), getClubs()])
+  const [stats, clubs, communityCounts] = await Promise.all([
+    getPlatformStats(),
+    getClubs(),
+    getCommunityCounts(),
+  ])
 
   return (
     <>
@@ -54,7 +58,7 @@ export default async function HomePage() {
         <FreeBanner />
       </Reveal>
       <Reveal>
-        <CommunityPreview clubs={clubs.slice(0, 3)} />
+        <CommunityPreview clubs={clubs.slice(0, 3)} counts={communityCounts} />
       </Reveal>
       <Reveal>
         <PartnerCTA />

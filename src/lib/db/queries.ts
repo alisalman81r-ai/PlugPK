@@ -1074,3 +1074,48 @@ export async function getClubs(userId?: string): Promise<EVClub[]> {
     isJoined: Array.isArray(row.members) ? row.members.length > 0 : false,
   }))
 }
+
+// ─── Community figures ───────────────────────────────
+
+export interface CommunityCounts {
+  /** Posts in the feed. */
+  discussions: number
+  /** Replies across every post. */
+  replies: number
+  /** Clubs in the directory. */
+  clubs: number
+  /** Cities with at least one club. */
+  cities: number
+  /** Members across every club, as the clubs themselves report it. */
+  clubMembers: number
+}
+
+/**
+ * The community's real figures, counted.
+ *
+ * This exists because the home page was still printing "5,000+ Active EV
+ * Owners / 1,200+ Discussions / 450+ Trip Reports / 18 Cities Active" from a
+ * hardcoded const, against a database holding no registered users, twelve
+ * posts and eight cities — overstating by roughly a hundred times. The
+ * /community page had already been moved onto counted figures; the home page's
+ * copy of them had not, so the two pages contradicted each other as well as the
+ * data.
+ *
+ * Same shape and same counting rules as CommunityStats on /community, so the
+ * two agree by construction rather than by somebody remembering to update both.
+ */
+export async function getCommunityCounts(): Promise<CommunityCounts> {
+  const [discussions, replies, clubs] = await Promise.all([
+    prisma.communityPost.count(),
+    prisma.comment.count(),
+    prisma.club.findMany({ select: { city: true, memberCount: true } }),
+  ])
+
+  return {
+    discussions,
+    replies,
+    clubs: clubs.length,
+    cities: new Set(clubs.map((club) => club.city)).size,
+    clubMembers: clubs.reduce((sum, club) => sum + club.memberCount, 0),
+  }
+}

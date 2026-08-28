@@ -90,6 +90,44 @@
 
 @layer utilities {
   /*
+   * Autofill on a dark field.
+   *
+   * Chrome and Edge paint a saved credential with their own near-white
+   * background and near-black text, and neither respects background-color — the
+   * only thing that overrides it is an inset box-shadow the size of the field.
+   * Without this, every dark input on the site flips to a pale blue slab the
+   * moment the browser fills it: the admin password box, the hero search, the
+   * map and community search fields. It looks like a rendering fault, and an
+   * operator signing in sees it before anything else on the page.
+   *
+   * The transition delay is the second half of the trick. The shadow is applied
+   * instantly but the UA re-asserts its own background for one frame on
+   * autofill, so the colour is held for long enough that the flash never lands.
+   */
+  .field-dark:-webkit-autofill,
+  .field-dark:-webkit-autofill:hover,
+  .field-dark:-webkit-autofill:focus,
+  .field-dark:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px rgb(15 23 42) inset;
+    box-shadow: 0 0 0 1000px rgb(15 23 42) inset;
+    caret-color: #ffffff;
+    transition: background-color 100000s ease-in-out 0s;
+  }
+
+  /* The same, for a translucent field sitting on a photograph. */
+  .field-glass:-webkit-autofill,
+  .field-glass:-webkit-autofill:hover,
+  .field-glass:-webkit-autofill:focus,
+  .field-glass:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px rgb(2 6 23 / 0.72) inset;
+    box-shadow: 0 0 0 1000px rgb(2 6 23 / 0.72) inset;
+    caret-color: #ffffff;
+    transition: background-color 100000s ease-in-out 0s;
+  }
+
+  /*
    * Film grain, for dark bands.
    *
    * A flat slate-950 panel at this size reads as a hole in the page — the eye
