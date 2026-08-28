@@ -142,10 +142,17 @@ export function CarsBrowser({
   const panel = <CarFilters filters={filters} onChange={onFiltersChange} connectors={connectors} />
 
   return (
-    // The comparison tray is fixed to the bottom of the viewport, so without
-    // this the last row of cards sits underneath it and the final card's
-    // buttons cannot be reached. Reserved only while the tray is up.
-    <div className={cn(compared.length > 0 && 'pb-28 sm:pb-24')}>
+    /*
+      The comparison tray is fixed to the bottom of the viewport, so without
+      this the last row of cards sits underneath it and the final card's buttons
+      cannot be reached. Reserved only while the tray is up.
+
+      More of it below lg, because the tray now clears the mobile tab bar rather
+      than hiding under it — see the tray itself. 10rem covers the tray's own
+      ~4.75rem plus the bar's 4rem; 6rem is enough from lg up, where there is no
+      bar and the tray sits on the viewport edge.
+    */
+    <div className={cn(compared.length > 0 && 'pb-40 lg:pb-24')}>
       {/*
         ── Category segments ──────────────────────────────────────
         A segmented control above the results, not just checkboxes in the
@@ -191,7 +198,9 @@ export function CarsBrowser({
       </div>
 
       {/* ── Results header ─────────────────────────────────────── */}
-      <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+      {/* slate-200, not slate-100 — the ground under this section is slate-100
+          now, and a divider the colour of the page is not a divider. */}
+      <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
           <p aria-live="polite" className="text-ui-sm text-slate-500">
             <span className="font-bold text-slate-900">{results.length}</span>{' '}
@@ -210,7 +219,7 @@ export function CarsBrowser({
             <button
               type="button"
               onClick={() => onQueryChange('')}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:border-slate-400"
             >
               <span className="truncate">&ldquo;{query}&rdquo;</span>
               <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
@@ -221,7 +230,7 @@ export function CarsBrowser({
             <button
               type="button"
               onClick={() => onFiltersChange(EMPTY_FILTERS)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:border-slate-400"
             >
               Filters
               <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
@@ -276,7 +285,7 @@ export function CarsBrowser({
             grid read as one undifferentiated field of small type. Sticky below
             the navbar so the filters stay reachable while a long grid scrolls.
           */}
-          <div className="sticky top-24 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-20px_rgba(15,23,42,0.25)]">
+          <div className="sticky top-24 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-e1">
             <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3.5">
               <h2 className="flex items-center gap-2 text-ui font-bold tracking-tight text-slate-900">
                 <SlidersHorizontal size={15} className="text-slate-400" aria-hidden="true" />
@@ -299,9 +308,34 @@ export function CarsBrowser({
 
         {/* ── Results ─────────────────────────────────────────── */}
         <div>
+          {/*
+            One, two, three — and the two-to-three step is at xl, not lg.
+
+            The card no longer competes with itself for horizontal room. The
+            previous one put the model name and the price on one baseline and the
+            figures in a divided three-cell strip, which needed about 390px to
+            hold together and is why this grid was capped at two columns with an
+            lg:grid-cols-1 dip in the middle. Figures read down the card now, so
+            the only things that need width are the model name and a 44px button
+            pair, and the card works from about 240px.
+
+            Measured, at the container's real widths rather than the viewport's:
+
+              390   1 column,  358px per card
+              768   2 columns, 342px  (no filter rail below lg)
+              1024  2 columns, 262px  (rail takes 17.5rem + a 2rem gap)
+              1280  3 columns, 256px
+              1440  3 columns, 256px  (the container caps at 1280)
+
+            256px is the tightest case and the one to watch: it holds the four
+            figure rows without wrapping a label, and a model name up to about
+            eighteen characters on one line. Longer names wrap to a second line
+            and are clamped there — which is why the actions are pushed down with
+            mt-auto rather than sitting under the price.
+          */}
           {results.length > 0 ? (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {results.map((car) => (
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
+              {results.map((car, index) => (
                 <CarCard
                   key={car.id}
                   car={car}
@@ -310,6 +344,11 @@ export function CarsBrowser({
                   compareDisabled={compared.length >= MAX_COMPARE}
                   isFavourite={favouriteIds.includes(car.id)}
                   onToggleFavourite={onToggleFavourite}
+                  /* The first row only. Three at xl, two below it — asking for
+                     three is harmless at two columns (the third is the start of
+                     row two, still near the fold) and getting it wrong the other
+                     way leaves a hole above the fold. */
+                  priority={index < 3}
                 />
               ))}
             </div>
@@ -342,7 +381,18 @@ export function CarsBrowser({
 
       {/* ── Mobile drawer ──────────────────────────────────────── */}
       {drawerOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        /*
+          z-[60], above the mobile tab bar.
+
+          The bar is z-50 fixed to the bottom of the viewport and renders after
+          <main> in src/app/(main)/layout.tsx, so at an equal z-index it painted
+          over the bottom 4rem of this sheet — which is exactly where the
+          "Show N cars" button is. Measured with a pointer-events test: the tap
+          landed on the bar's Community tab and navigated away instead of
+          applying the filters, so on a phone the drawer could only be dismissed
+          by the backdrop. A full-screen modal belongs above primary navigation.
+        */
+        <div className="fixed inset-0 z-[60] lg:hidden">
           <button
             type="button"
             aria-label="Close filters"
@@ -403,11 +453,28 @@ export function CarsBrowser({
 
       {/* ── Comparison tray ────────────────────────────────────── */}
       {compared.length > 0 ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-4 shadow-[0_-8px_30px_-12px_rgba(15,23,42,0.25)] backdrop-blur">
+        /*
+          Above the mobile tab bar rather than under it.
+
+          This was bottom-0 z-40 against a z-50 tab bar, so below lg the whole
+          tray — the count, Clear, and the Compare button it exists to offer —
+          sat behind 4rem of navigation and could not be seen or tapped. Raising
+          the z-index instead would have hidden the site's primary navigation
+          behind a transient bar, so it sits on top of the bar and both stay
+          reachable. The safe-area inset is added because the bar carries it too;
+          without it the tray overlaps the bar by the home indicator's height on
+          an iPhone.
+        */
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-y border-slate-200 bg-white/95 p-4 shadow-[0_-8px_30px_-12px_rgba(15,23,42,0.25)] backdrop-blur lg:bottom-0 lg:border-b-0">
           <div className="container-plug flex flex-wrap items-center justify-between gap-3">
-            <p className="text-ui-sm text-slate-600">
+            {/* nowrap, and the cap hidden on the narrowest screens. The tray
+                only became visible on a phone once it cleared the tab bar, and
+                at 390px the three items measured 340px of the 358px available —
+                so "Compare 2" broke onto a second line inside its own button.
+                The cap is a nicety; the count and the button are not. */}
+            <p className="whitespace-nowrap text-ui-sm text-slate-600">
               <span className="font-bold text-slate-900">{compared.length}</span> selected
-              <span className="text-slate-400"> · up to {MAX_COMPARE}</span>
+              <span className="hidden text-slate-400 xs:inline"> · up to {MAX_COMPARE}</span>
             </p>
 
             <div className="flex flex-1 items-center justify-end gap-2">
@@ -430,7 +497,7 @@ export function CarsBrowser({
                 href={`/cars/compare?ids=${compared.join(',')}`}
                 aria-disabled={compared.length < 2}
                 className={cn(
-                  'inline-flex h-11 items-center gap-2 rounded-xl px-5 text-ui-sm font-semibold transition-colors',
+                  'inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-5 text-ui-sm font-semibold transition-colors',
                   compared.length < 2
                     ? 'pointer-events-none bg-slate-200 text-slate-400'
                     : 'bg-slate-900 text-white hover:bg-slate-800',

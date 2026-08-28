@@ -1,8 +1,23 @@
 // crawler/proposals.ts
 
-import { compareField, needsReview, render, type SourceClaim } from './compare'
-import { scoreComparison, explain } from './confidence'
-import { assess } from './policy'
+import { compareField, needsReview, render, type FieldComparison, type SourceClaim } from './compare'
+import { scoreComparison, explain, type Confidence } from './confidence'
+import {
+  matchFromRecord,
+  weakerDecision,
+  type MatchEvidence,
+  type StoredMatchColumns,
+} from './match'
+import {
+  assessIdentity,
+  identityFromCar,
+  identityFromSource,
+  isVariantSensitive,
+  type CarRowLike,
+  type IdentityAssessment,
+} from './identity'
+import { assess, type RiskAssessment } from './policy'
+import { standardColumnFor, toRangeStandard, type RangeStandard } from './range-standard'
 import type { SourceRole } from './priority-config'
 import type { NormalisedVehicle } from './model'
 import type { CrawlLogger } from './logger'
@@ -71,11 +86,21 @@ export const FIELD_MAP: { car: string; from: (vehicle: NormalisedVehicle) => unk
     */
     from: (v) => (v.totalPowerKw == null ? null : Math.round(v.totalPowerKw / 0.7457)),
   },
-  { car: 'connectors', from: (v) => (v.chargingStandards.length > 0 ? v.chargingStandards : null) },
+  {
+    car: 'connectors',
+    /*
+      `?? []` because `normalised` is JSON text on a row, and a row outlives the
+      code that wrote it. A payload stored before this field existed — or by an
+      adapter that omitted it — reaches here as undefined, and reading `.length`
+      off that threw inside the loop, taking down the whole propose run for every
+      car in the batch rather than skipping one field on one record.
+    */
+    from: (v) => ((v.chargingStandards ?? []).length > 0 ? v.chargingStandards : null),
+  },
 ]
 
 /** The staging row shape this needs — narrower than Prisma's, so tests can build one. */
-export interface RecordLike {
+export interface RecordLike extends StoredMatchColumns {
   id: string
   sourceId: string
   runId: string
@@ -87,7 +112,7 @@ export interface RecordLike {
   matchedCarId: string | null
 }
 
-export interface CarLike {
+export interface CarLike extends Partial<CarRowLike> {
   id: string
   slug: string
   fullName: string
@@ -95,7 +120,30 @@ export interface CarLike {
   [column: string]: unknown
 }
 
+/**
+ * Every distinct variant this source published for the car in one batch.
+ *
+ * The missing piece. A record is matched on its own, so nothing in the pipeline
+ * could see that five Open EV Data records — 61.4 kWh Comfort, 71.8 kWh Comfort,
+ * 82.5 kWh RWD Design, 82.5 kWh AWD Excellence and 87 kWh Design — were all
+ * claiming the single `byd-seal` row. The field comparison saw five numbers and
+ * reported "sources disagree", which was true about the numbers and wrong about
+ * the cause: it was one source describing five different cars.
+ *
+ * Computed over the group so the ambiguity is visible where the decision is made.
+ */
+export function competingVariants(parsed: ParsedRecord[]): (string | null)[] {
+  return parsed.map(({ vehicle }) => vehicle.variant ?? null)
+}
+
 export interface ProposeOptions {
+  /**
+   * Other catalogue rows sharing this car's brand and model.
+   *
+   * Lets a model-only source record be recognised as ambiguous rather than
+   * assigned to whichever row the matcher reached first.
+   */
+  siblings?: (CarRowLike & { slug: string })[]
   /** Report without writing. */
   dry?: boolean
   /** Print a line per field. The daily run keeps this off and logs instead. */
@@ -113,6 +161,220 @@ export interface ProposeTotals {
 }
 
 const EMPTY: ProposeTotals = { proposed: 0, unchanged: 0, prices: 0, images: 0, highRisk: 0 }
+
+/** One staging row, with its payload already parsed. */
+export interface ParsedRecord {
+  record: RecordLike
+  vehicle: NormalisedVehicle
+}
+
+/** How good the match was for the records behind one proposed field. */
+export interface GoverningMatch {
+  /** The weakest match among them, or undefined when none recorded one. */
+  evidence: MatchEvidence | undefined
+  /** True when at least one contributing record recorded no match evidence. */
+  unrecorded: boolean
+}
+
+/**
+ * How good the match was, across every record that contributed to a field.
+ *
+ * The *weakest* contributor governs, not the winning one. A field can be
+ * proposed on the strength of several sources agreeing, and if one of those
+ * agreements comes from a record that was only a probable match then the
+ * agreement itself is suspect — the corroboration might be about a different
+ * car. Taking the best match would let one confidently-matched record launder a
+ * roomful of doubtful ones.
+ */
+export function governingMatch(records: StoredMatchColumns[]): GoverningMatch {
+  let evidence: MatchEvidence | undefined
+  let unrecorded = false
+
+  for (const record of records) {
+    const recorded = matchFromRecord(record)
+    if (!recorded) {
+      unrecorded = true
+      continue
+    }
+    if (!evidence) {
+      evidence = recorded
+      continue
+    }
+    const weakest = weakerDecision(evidence.decision, recorded.decision)
+    if (weakest !== evidence.decision) evidence = recorded
+  }
+
+  return { evidence, unrecorded }
+}
+
+/** Everything decided about one field, before anything is written. */
+export interface FieldDecision {
+  field: string
+  comparison: FieldComparison
+  confidence: Confidence
+  risk: RiskAssessment
+  /** The records that actually published a value for this field. */
+  contributors: RecordLike[]
+  match: GoverningMatch
+  /**
+   * Whether the variant was established, and by what.
+   *
+   * The weakest assessment among the contributing records governs, for the same
+   * reason the weakest match does: a field proposed on the strength of several
+   * records agreeing is only as trustworthy as the least identified of them.
+   */
+  identity: IdentityAssessment
+  variantSensitive: boolean
+  currentRangeStandard: RangeStandard | null
+  proposedRangeStandard: RangeStandard | null
+}
+
+/**
+ * The weakest identity among the records contributing to one field.
+ *
+ * `mismatch` is worst, then `ambiguous`, then `unproven`, then `proven`. Taking
+ * the best would let one well-identified record launder a group of unidentified
+ * ones — which is exactly the shape of the byd-seal failure, where a record
+ * naming its variant sat beside four others naming different ones.
+ */
+const VERDICT_RANK = { mismatch: 0, ambiguous: 1, unproven: 2, proven: 3 } as const
+
+export function weakestIdentity(assessments: IdentityAssessment[]): IdentityAssessment {
+  if (assessments.length === 0) {
+    return {
+      tier: 'none',
+      verdict: 'unproven',
+      reason: 'no record contributed an identity assessment',
+      blocksVariantSensitive: true,
+      rivals: [],
+    }
+  }
+
+  return assessments.reduce((worst, candidate) =>
+    VERDICT_RANK[candidate.verdict] < VERDICT_RANK[worst.verdict] ? candidate : worst,
+  )
+}
+
+/**
+ * Decides one field: compare, score, and classify.
+ *
+ * Exported and pure so the tests exercise the same code the pipeline runs.
+ * `proposeForCar` below is a loop over this function plus the writes — which
+ * means a test asserting that a weak match produces a high-risk row is
+ * asserting it about the live path, not about a re-implementation of it that
+ * could quietly drift.
+ *
+ * Returns null when there is nothing to review.
+ */
+export function decideField(
+  car: CarLike,
+  mapping: (typeof FIELD_MAP)[number],
+  parsed: ParsedRecord[],
+  options: { siblings?: (CarRowLike & { slug: string })[] } = {},
+): FieldDecision | null {
+  const contributors: RecordLike[] = []
+  const claims: SourceClaim[] = []
+  const identities: IdentityAssessment[] = []
+
+  /*
+    Computed once over the whole group, not per contributor.
+
+    The question "are several variants competing for this row?" is a property of
+    the batch, and asking it per record would always answer no.
+  */
+  const competing = competingVariants(parsed)
+  const carIdentity = identityFromCar({
+    slug: car.slug,
+    brand: String(car.brand ?? ''),
+    model: String(car.model ?? ''),
+    variant: car.variant ?? null,
+    trim: car.trim ?? null,
+    modelYear: car.modelYear ?? null,
+    generation: car.generation ?? null,
+  })
+
+  for (const { record, vehicle } of parsed) {
+    const value = mapping.from(vehicle)
+    if (value === null || value === undefined) continue
+
+    identities.push(
+      assessIdentity({
+        source: identityFromSource(vehicle),
+        car: carIdentity,
+        ...(options.siblings ? { siblings: options.siblings.map(identityFromCar) } : {}),
+        competingSourceVariants: competing,
+      }),
+    )
+
+    contributors.push(record)
+    claims.push({
+      sourceId: record.sourceId,
+      recordId: record.id,
+      role: roleFor(record.sourceId),
+      value,
+      raw: render(value),
+      sourceUrl: record.sourceUrl,
+      fetchedAt: record.fetchedAt.toISOString(),
+      recordConfidence: record.confidence,
+    })
+  }
+
+  if (claims.length === 0) return null
+
+  const comparison = compareField({
+    field: mapping.car,
+    currentValue: car[mapping.car] ?? null,
+    claims,
+    category: car.category,
+  })
+
+  if (!needsReview(comparison)) return null
+
+  const confidence = scoreComparison(comparison)
+  const match = governingMatch(contributors)
+  const identity = weakestIdentity(identities)
+  const variantSensitive = isVariantSensitive(mapping.car)
+
+  /*
+    Test cycles, read from the column that governs this field.
+
+    The catalogue's cycle comes off the Car row; the source's off its payload. Both
+    default to `unspecified`, which is the honest reading of a missing value and
+    the one that forces a review rather than permitting a swap.
+  */
+  const standardColumn = standardColumnFor(mapping.car)
+  const currentRangeStandard = standardColumn
+    ? toRangeStandard(car[standardColumn] as string | null)
+    : null
+  const proposedRangeStandard = standardColumn
+    ? toRangeStandard(
+        (parsed.find(({ vehicle }) => mapping.from(vehicle) !== null)?.vehicle as
+          | { rangeStandard?: string | null }
+          | undefined)?.rangeStandard ?? null,
+      )
+    : null
+
+  return {
+    field: mapping.car,
+    comparison,
+    confidence,
+    risk: assess({
+      comparison,
+      confidence,
+      ...(match.evidence ? { match: match.evidence } : {}),
+      matchUnrecorded: match.unrecorded,
+      identity,
+      ...(currentRangeStandard ? { currentRangeStandard } : {}),
+      ...(proposedRangeStandard ? { proposedRangeStandard } : {}),
+    }),
+    contributors,
+    match,
+    identity,
+    variantSensitive,
+    currentRangeStandard,
+    proposedRangeStandard,
+  }
+}
 
 /**
  * Compares every source's opinion about one car and records the differences.
@@ -135,59 +397,38 @@ export async function proposeForCar(
     '../src/lib/db/car-review-store'
   )
 
-  const parsed = records.map((record) => ({
+  const parsed: ParsedRecord[] = records.map((record) => ({
     record,
     vehicle: JSON.parse(record.normalised ?? record.raw) as NormalisedVehicle,
   }))
 
   for (const mapping of FIELD_MAP) {
-    const claims: SourceClaim[] = parsed
-      .map(({ record, vehicle }) => {
-        const value = mapping.from(vehicle)
-        return {
-          sourceId: record.sourceId,
-          role: roleFor(record.sourceId),
-          value,
-          raw: render(value),
-          sourceUrl: record.sourceUrl,
-          fetchedAt: record.fetchedAt.toISOString(),
-          recordConfidence: record.confidence,
-        }
-      })
-      .filter((claim) => claim.value !== null && claim.value !== undefined)
-
-    if (claims.length === 0) continue
-
-    const comparison = compareField({
-      field: mapping.car,
-      currentValue: car[mapping.car] ?? null,
-      claims,
-      category: car.category,
+    const decision = decideField(car, mapping, parsed, {
+      ...(options.siblings ? { siblings: options.siblings } : {}),
     })
 
-    if (!needsReview(comparison)) {
-      totals.unchanged += 1
+    if (!decision) {
+      /*
+        Either no source published this field, or every source agrees with the
+        catalogue. Only the second is worth counting as "already correct"; a
+        field nobody mentioned was never in question.
+      */
+      if (parsed.some(({ vehicle }) => mapping.from(vehicle) !== null && mapping.from(vehicle) !== undefined)) {
+        totals.unchanged += 1
+      }
       continue
     }
 
-    const confidence = scoreComparison(comparison)
-    /*
-      No `match` is passed here, and that is correct rather than an omission.
-
-      Only records whose matchedCarId is set reach this function, and the runner
-      sets that field exclusively on a `confident` decision — so by construction
-      every record here already passed the check `assess` would apply. A record
-      that matched probably or ambiguously never gets this far; it stays in
-      staging for the unmatched lane.
-    */
-    const risk = assess({ comparison, confidence })
+    const { comparison, confidence, risk } = decision
     if (risk.level === 'high-risk') totals.highRisk += 1
 
     if (options.verbose) {
       console.log(
         `    ${mapping.car.padEnd(18)} ${String(render(comparison.currentValue) ?? '—').padEnd(10)} -> ` +
           `${String(render(comparison.proposedValue) ?? '—').padEnd(10)} ` +
-          `${comparison.changeType.padEnd(20)} ${risk.level.padEnd(10)} conf ${confidence.score}`,
+          `${comparison.changeType.padEnd(20)} ${risk.level.padEnd(10)} conf ${confidence.score}` +
+          `${decision.match.evidence && decision.match.evidence.decision !== 'confident' ? `  match ${decision.match.evidence.decision}` : ''}` +
+          `${decision.match.unrecorded ? '  match unrecorded' : ''}`,
       )
     }
 
@@ -196,7 +437,23 @@ export async function proposeForCar(
       continue
     }
 
-    const winner = records.find((record) => record.sourceId === comparison.winner) ?? records[0]!
+    /*
+      The record that actually supplied the winning value.
+
+      Matched on record id, not source id. Matching on source id returned the
+      FIRST record from the winning source, which is only correct when a source
+      contributes one record per car. Open EV Data contributes five for the Seal,
+      so the proposal for an 87 kWh value was stamped with the URL, the variant and
+      the model year of the 61.4 kWh record — an audit trail pointing at the wrong
+      vehicle, which is worse than none because it reads as corroboration.
+
+      The source-id lookup remains as a fallback for claims built before recordId
+      existed; the array position fallback remains for the impossible case.
+    */
+    const winner =
+      decision.contributors.find((record) => record.id === comparison.winnerRecordId) ??
+      decision.contributors.find((record) => record.sourceId === comparison.winner) ??
+      decision.contributors[0]!
 
     await storeProposal({
       carId: car.id,
@@ -219,10 +476,35 @@ export async function proposeForCar(
         raw: claim.raw,
         url: claim.sourceUrl,
         fetchedAt: claim.fetchedAt,
+        /*
+          The variant each competing claim describes.
+
+          Without this the opinions list showed five values from "openev" with no
+          way to tell what any of them was about — which is exactly what the
+          reviewer saw before approving 87 kWh over 61.44.
+        */
+        variant: variantOf(parsed, claim.recordId ?? ''),
+        recordId: claim.recordId ?? null,
       })),
       validationFlags: comparison.validationFlags,
       sourceUrl: winner.sourceUrl,
       fetchedAt: winner.fetchedAt,
+
+      /*
+        The variant evidence, stored beside the value.
+
+        So the review screen can show WHICH vehicle a figure describes. The five
+        changes that caused Phase 4.1 were approved from a queue that showed the
+        numbers and not the trims; "61.4 kWh RWD Comfort" beside "U 87 kWh Design"
+        is the one piece of information that would have stopped it.
+      */
+      variantVerdict: decision.identity.verdict,
+      identityTier: decision.identity.tier,
+      sourceVariant: variantOf(parsed, winner.id),
+      sourceModelYear: modelYearOf(parsed, winner.id),
+      variantSensitive: decision.variantSensitive,
+      currentRangeStandard: decision.currentRangeStandard,
+      proposedRangeStandard: decision.proposedRangeStandard,
     })
 
     options.logger?.log({
@@ -278,6 +560,16 @@ export async function proposeForCar(
   }
 
   return totals
+}
+
+/** The variant the winning record published, for the proposal row. */
+function variantOf(parsed: ParsedRecord[], recordId: string): string | null {
+  return parsed.find(({ record }) => record.id === recordId)?.vehicle.variant ?? null
+}
+
+/** The model year the winning record published. Never inferred. */
+function modelYearOf(parsed: ParsedRecord[], recordId: string): number | null {
+  return parsed.find(({ record }) => record.id === recordId)?.vehicle.modelYear ?? null
 }
 
 export function addTotals(a: ProposeTotals, b: ProposeTotals): ProposeTotals {

@@ -27,6 +27,11 @@ rather than a missing command.
 **[docs/SETUP.md](docs/SETUP.md) is the full version**, including why `/admin`
 returns 404 on a fresh clone and how to turn it on.
 
+For the external data pipeline — how it works, what each source permits, and the
+schedulers that are built but **not switched on** — see
+**[docs/CRAWLER.md](docs/CRAWLER.md)** and
+**[docs/PHASE4-PRODUCTION-CHECK.md](docs/PHASE4-PRODUCTION-CHECK.md)**.
+
 ## What is where
 
 | Path | |
@@ -35,8 +40,10 @@ returns 404 on a fresh clone and how to turn it on.
 | `src/app/admin/` | operator portal, gated by `ENABLE_ADMIN` + a password |
 | `src/lib/db/` | every Prisma query and server action |
 | `src/data/cars.ts` | the authored car seed, with provenance in comments |
-| `prisma/` | schema and 13 committed migrations |
+| `prisma/` | schema and 16 migrations |
 | `crawler/` | external data pipeline — imports nothing from `src/` |
+| `deploy/` | schedulers for the daily crawl. None is activated |
+| `docs/` | setup, the crawler, and the Phase 4 production check |
 | `scripts/` | seeds, verification, image fetching, screenshots |
 
 ## Scripts
@@ -49,7 +56,9 @@ returns 404 on a fresh clone and how to turn it on.
 | `npm run db:seed` | stations, services, community, clubs |
 | `npx tsx scripts/seed-cars.ts` | the car catalogue |
 | `npx tsx scripts/verify-cars.ts` | exercises the catalogue's logic |
-| `npm run crawl:verify` | 48 crawler fixture checks, no network |
+| `npm run crawl:verify-all` | all five crawler verification suites |
+| `npm run crawl:status` | what a scheduled crawl would do. Contacts nothing |
+| `npm run crawl:dry` | a full crawl that writes nothing |
 | `npm run crawl:source -- openev --limit 5` | fetch a source into staging |
 | `node scripts/fetch-car-images.mjs` | licensed car photos from Wikimedia |
 | `node scripts/shoot.mjs login` | screenshot a page |

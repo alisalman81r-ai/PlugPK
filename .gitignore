@@ -41,6 +41,11 @@ prisma/dev.db.backup-*
 # Uploaded charger photos — user content, not source.
 public/uploads/
 
+# Crawler run transcripts, written by the scheduled task. The crawl's real
+# audit trail lives in the CrawlLogEntry table, which is never pruned by a
+# schedule; these are the console output, and are output rather than source.
+logs/
+
 # Playwright screenshots — output, not source.
 .screenshots/
 test-results/

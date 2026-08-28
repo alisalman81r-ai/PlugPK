@@ -18,7 +18,20 @@
     "crawl:verify-review": "tsx crawler/verify-review.ts",
     "crawl:daily": "tsx crawler/daily.ts",
     "crawl:status": "tsx crawler/daily.ts --status",
-    "crawl:verify-schedule": "tsx crawler/verify-schedule.ts"
+    "crawl:dry": "tsx crawler/daily.ts --dry",
+    "crawl:all": "tsx crawler/daily.ts --all",
+    "crawl:car": "tsx crawler/daily.ts --all --car",
+    "crawl:verify-schedule": "tsx crawler/verify-schedule.ts",
+    "crawl:verify-fixes": "tsx crawler/verify-phase3-fixes.ts",
+    "crawl:verify-daily": "tsx crawler/verify-daily.ts",
+    "crawl:verify-variant": "tsx crawler/verify-variant.ts",
+    "crawl:verify-provenance": "tsx crawler/verify-provenance.ts",
+    "crawl:verify-all": "tsx crawler/verify-pipeline.ts && tsx crawler/verify-review.ts && tsx crawler/verify-phase3-fixes.ts && tsx crawler/verify-schedule.ts && tsx crawler/verify-daily.ts && tsx crawler/verify-variant.ts && tsx crawler/verify-provenance.ts",
+    "db:remove-test-sources": "tsx scripts/remove-test-sources.ts",
+    "db:collapse-duplicates": "tsx scripts/collapse-duplicate-proposals.ts",
+    "db:variant-identity": "tsx scripts/report-variant-identity.ts",
+    "db:analyse-seal": "tsx scripts/analyse-seal-changes.ts",
+    "db:declare-identity": "tsx scripts/declare-variant-identity.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

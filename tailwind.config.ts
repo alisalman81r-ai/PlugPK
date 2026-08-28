@@ -59,25 +59,50 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        // For the odd heading-weight line that is not an h1–h6 element — a
-        // stat figure, a card title set as a <p>. Every real heading picks
-        // this up from globals.css without needing the class.
         /*
-         * The display face is Inter, the same as the body.
-         *
-         * This pointed at Playfair Display, which put a high-contrast serif
-         * on every heading carrying `font-display` — 42 of them — and, via a
-         * rule in globals.css, on every other heading too. It reads well at
-         * 4rem and poorly at the 1.125rem card titles that make up most of
-         * them, and the design system names Inter as the primary face.
-         *
-         * Changed here rather than by stripping the class from 42 files: the
-         * intent those classes express is 'this is a display heading', which
-         * is still true. Putting Playfair back is this one line.
-         */
-        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-jetbrains)', 'monospace'],
+          Poppins everywhere, with a real fallback stack behind it.
+
+          The stack matters more than it looks. The old one was
+          `system-ui, sans-serif` — two entries, the second a generic. If the
+          Poppins files fail or are still in flight, what a reader sees is
+          whatever the OS calls system-ui, which on older Android is a
+          condensed Roboto and on Windows 8 is nothing at all. Naming the real
+          faces in descending order means the fallback is a decision rather
+          than a lottery, and every one of them is a humanist or geometric sans
+          near enough to Poppins that the layout does not reflow noticeably.
+        */
+        sans: [
+          'var(--font-poppins)',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
+        /*
+          `display` is the same family now.
+
+          It is kept as a separate key rather than deleted because 43 places use
+          the `font-display` class — a stat figure, a card title set as a <p>,
+          the auth wordmark. Pointing it at Poppins keeps every one of them
+          working and leaves one token to change if a display face ever comes
+          back. It no longer ends in `serif`: falling back from a sans to
+          Georgia would have been jarring, and was only ever right while the
+          display face was Playfair.
+        */
+        display: [
+          'var(--font-poppins)',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'sans-serif',
+        ],
+        mono: ['var(--font-jetbrains)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       fontSize: {
         /**
@@ -91,25 +116,49 @@ const config: Config = {
          *   ui-lg   card titles
          * Prefer these over new bracket values.
          */
-        'ui-xs': ['0.6875rem', { lineHeight: '1rem' }],
-        'ui-sm': ['0.8125rem', { lineHeight: '1.125rem' }],
-        ui: ['0.9375rem', { lineHeight: '1.375rem' }],
-        'ui-lg': ['1.0625rem', { lineHeight: '1.5rem' }],
+        /*
+          Leading opened up by 1–2px per step when the body face became Poppins.
 
+          Poppins has taller ascenders and deeper descenders than Inter at the
+          same nominal size, so the line-heights that sat comfortably under Inter
+          were letting descenders on one line approach the caps on the next. The
+          sizes themselves are unchanged — this is only the space between lines,
+          and every value is still a whole or half pixel at the default root size
+          so nothing lands on a fractional baseline.
+        */
+        'ui-xs': ['0.6875rem', { lineHeight: '1.0625rem' }],
+        'ui-sm': ['0.8125rem', { lineHeight: '1.25rem' }],
+        ui: ['0.9375rem', { lineHeight: '1.4375rem' }],
+        'ui-lg': ['1.0625rem', { lineHeight: '1.5625rem' }],
+
+        /*
+          The two largest steps drop from 900 to 800.
+
+          Poppins Black is close to circular and its counters — the holes in a, e,
+          o — nearly close at 4.5rem, which reads as heavy rather than confident.
+          800 holds the same weight in the layout and keeps the letterforms open.
+          This is a choice about these two steps only — `font-black` still
+          resolves to a real 900, which is loaded, because 62 places ask for it.
+          See the weights note in src/app/layout.tsx.
+
+          Tracking is tightened a little at the same time. Poppins is a wide,
+          geometric face, so the gaps between round letters open up at display
+          sizes in a way Inter's narrower forms did not.
+        */
         'display-2xl': [
           '4.5rem',
           {
-            lineHeight: '1.1',
-            letterSpacing: '-0.04em',
-            fontWeight: '900',
+            lineHeight: '1.05',
+            letterSpacing: '-0.045em',
+            fontWeight: '800',
           },
         ],
         'display-xl': [
           '3.75rem',
           {
-            lineHeight: '1.1',
-            letterSpacing: '-0.03em',
-            fontWeight: '900',
+            lineHeight: '1.08',
+            letterSpacing: '-0.035em',
+            fontWeight: '800',
           },
         ],
         'display-lg': [

@@ -1,7 +1,17 @@
 // src/components/admin/ReviewQueue.tsx
 'use client'
 
-import { AlertTriangle, ArrowRight, Check, ExternalLink, Info, ShieldAlert, X } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Info,
+  ShieldAlert,
+  X,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -20,10 +30,22 @@ import { cn } from '@/lib/utils'
  * ── There is no "approve everything" ──────────────────────────────────
  *
  * Bulk approval acts only on rows the operator has explicitly ticked, and the
- * server refuses any that are high-risk or conflicting even if they are somehow
- * selected. "Select all" ticks the rows currently visible under the active
- * filter — never the whole queue — so a selection is always something a person
- * could have read.
+ * server refuses any it considers ineligible even if they are somehow selected.
+ * "Select all" ticks the rows on the page currently in front of the operator —
+ * never the whole queue, and never rows on another page — so a selection is
+ * always something a person could have read.
+ *
+ * Which rows are eligible is not decided here. The server sends `bulkEligible`
+ * per row, from the same function its actions enforce; this component only
+ * renders that answer. The rule used to be written out twice, once here and once
+ * on the server, and only the server's copy actually guarded a write.
+ *
+ * ── One page at a time ────────────────────────────────────────────────
+ *
+ * The queue is paged by the database. The browser holds the rows it is showing
+ * and no more: a queue of two thousand proposals is a queue an operator works
+ * through in passes, not one page that takes a second to render and cannot be
+ * resumed.
  *
  * ── Both values are shown, always ─────────────────────────────────────
  *
@@ -48,8 +70,118 @@ export interface ProposalRow {
   sourceId: string
   sourceUrl: string
   fetchedAt: string
-  opinions: { source: string; role: string; value: string | null; url: string }[]
+  opinions: {
+    source: string
+    role: string
+    value: string | null
+    url: string
+    /** Which trim this competing claim describes. Null when the source said none. */
+    variant?: string | null
+  }[]
   validationFlags: { field: string; severity: string; message: string }[]
+
+  /**
+   * --- Variant evidence, Phase 4.1 --------------------------------
+   *
+   * The information whose absence caused the incident this queue exists to
+   * prevent. On 2026-08-27 five proposals were approved from rows that showed the
+   * numbers and the phrase "sources disagree", and nothing about which vehicle
+   * each number described. One source had published five Seal variants; the
+   * catalogue row held the 61.44 kWh car; the 87 kWh figure won.
+   */
+  variantVerdict: string | null
+  identityTier: string | null
+  /** The trim the winning value's own record described. */
+  sourceVariant: string | null
+  sourceModelYear: number | null
+  /** The trim the catalogue row declares, if any. */
+  carVariant: string | null
+  variantSensitive: boolean
+  currentRangeStandard: string | null
+  proposedRangeStandard: string | null
+  /** Decided on the server. The client never re-derives it. */
+  bulkEligible: boolean
+  /** Why not, when it is not. Shown to explain a disabled checkbox. */
+  bulkReason: string
+}
+
+/**
+ * The variant evidence for one proposal, stated on the row.
+ *
+ * Deliberately loud when the variant is not proven, and quiet when it is. A
+ * reviewer scanning forty rows needs the unsafe ones to interrupt them; the safe
+ * ones should not compete for the same attention.
+ */
+function VariantEvidence({ row }: { row: ProposalRow }) {
+  const proven = row.variantVerdict === 'proven'
+
+  const tone = proven
+    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+    : row.variantVerdict === 'mismatch'
+      ? 'border-red-200 bg-red-50 text-red-800'
+      : 'border-amber-200 bg-amber-50 text-amber-900'
+
+  const headline = proven
+    ? 'Variant confirmed'
+    : row.variantVerdict === 'mismatch'
+      ? 'Different vehicle'
+      : row.variantVerdict === 'ambiguous'
+        ? 'Several variants claim this car'
+        : 'Variant not established'
+
+  /*
+    A range change also carries its test cycles. 425 km unspecified replacing
+    650 km CLTC is not a smaller number, it is a different measurement — and
+    that was the second wrong figure applied to the Seal.
+  */
+  const cycles =
+    row.currentRangeStandard || row.proposedRangeStandard
+      ? `${(row.currentRangeStandard ?? 'unspecified').toUpperCase()} → ${(row.proposedRangeStandard ?? 'unspecified').toUpperCase()}`
+      : null
+
+  return (
+    <div className={cn('mt-2 rounded-lg border px-3 py-2 text-ui-xs leading-relaxed', tone)}>
+      <p className="flex items-center gap-1.5 font-bold">
+        {proven ? <Check size={13} aria-hidden="true" /> : <ShieldAlert size={13} aria-hidden="true" />}
+        {headline}
+      </p>
+      <dl className="mt-1.5 grid gap-x-3 gap-y-0.5 sm:grid-cols-[7.5rem_1fr]">
+        <dt className="font-semibold opacity-70">This car</dt>
+        <dd className="font-mono">{row.carVariant ?? 'declares no variant'}</dd>
+
+        <dt className="font-semibold opacity-70">Source says</dt>
+        <dd className="font-mono">
+          {row.sourceVariant ?? 'no variant'}
+          {row.sourceModelYear === null ? '' : ` · ${row.sourceModelYear}`}
+        </dd>
+
+        {cycles ? (
+          <>
+            <dt className="font-semibold opacity-70">Test cycle</dt>
+            <dd className="font-mono">{cycles}</dd>
+          </>
+        ) : null}
+      </dl>
+      {!proven ? (
+        <p className="mt-1.5 opacity-90">
+          {row.field} depends on the trim, so this cannot be applied until the variant is
+          settled. Set this car&rsquo;s variant in the editor if you know which trim it is —
+          approving is refused until then.
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+export interface PaginationState {
+  /** 1-based, already clamped by the server. */
+  page: number
+  pageSize: number
+  pageCount: number
+  /** Matching the active filter, not the whole table. */
+  total: number
+  /** Page sizes the server will accept. */
+  sizes: number[]
 }
 
 export interface ReviewQueueProps {
@@ -58,6 +190,7 @@ export interface ReviewQueueProps {
   /** The filter currently applied, echoed back from the URL. */
   active: { risk?: string; type?: string; source?: string; car?: string; minConfidence?: string }
   sources: string[]
+  pagination: PaginationState
 }
 
 const RISK_TONE: Record<string, string> = {
@@ -75,7 +208,7 @@ const TYPE_TONE: Record<string, string> = {
   'unit-mismatch': 'text-red-700',
 }
 
-export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps) {
+export function ReviewQueue({ rows, counts, active, sources, pagination }: ReviewQueueProps) {
   const router = useRouter()
   const [selected, setSelected] = React.useState<Set<string>>(new Set())
   const [busy, setBusy] = React.useState(false)
@@ -83,13 +216,10 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
   const [expanded, setExpanded] = React.useState<string | null>(null)
 
   /*
-    Rows the server would actually accept in bulk. Anything high-risk or
-    conflicting is excluded here as well as on the server — checking twice is
-    cheap, and it stops the UI offering an action that will be refused.
+    Rows the server would accept in bulk, on this page. The server decided; this
+    is only which of its answers are currently on screen.
   */
-  const bulkable = rows.filter(
-    (row) => row.riskLevel !== 'high-risk' && row.changeType !== 'conflicting',
-  )
+  const bulkable = rows.filter((row) => row.bulkEligible)
 
   const toggle = (id: string) => {
     setSelected((current) => {
@@ -110,14 +240,34 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
     router.refresh()
   }
 
-  const setFilter = (key: string, value: string | null) => {
+  /**
+   * Navigates, keeping every other filter.
+   *
+   * Changing a filter drops the page number: page 7 of the unfiltered queue is
+   * almost never page 7 of the filtered one, and landing on an empty page reads
+   * as "nothing matches" when plenty does. Changing the page keeps the filters,
+   * which is the whole point of paging a filtered queue.
+   */
+  const navigate = (changes: Record<string, string | null>) => {
     const params = new URLSearchParams()
     for (const [name, current] of Object.entries(active)) {
-      if (current && name !== key) params.set(name, current)
+      if (current && !(name in changes)) params.set(name, current)
     }
-    if (value) params.set(key, value)
+    if (!('page' in changes) && pagination.page > 1) params.set('page', String(pagination.page))
+    if (!('pageSize' in changes) && pagination.pageSize !== pagination.sizes[0]) {
+      params.set('pageSize', String(pagination.pageSize))
+    }
+    for (const [name, value] of Object.entries(changes)) {
+      if (value) params.set(name, value)
+    }
+
+    setSelected(new Set())
     router.push(`/admin/cars/review${params.size > 0 ? `?${params}` : ''}`)
   }
+
+  const setFilter = (key: string, value: string | null) => navigate({ [key]: value, page: null })
+
+  const goToPage = (page: number) => navigate({ page: page <= 1 ? null : String(page) })
 
   return (
     <div>
@@ -216,7 +366,7 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
             }
             className="h-4 w-4 rounded border-slate-300 accent-plug-blue-600"
           />
-          Select the {bulkable.length} bulk-eligible row(s) shown
+          Select the {bulkable.length} bulk-eligible row(s) on this page
         </label>
 
         <span className="text-ui-sm text-slate-500">{selected.size} selected</span>
@@ -245,8 +395,9 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
         {/* Said plainly, because its absence is a deliberate design decision
             rather than a missing feature. */}
         <p className="w-full text-ui-xs text-slate-500">
-          High-risk and conflicting rows are never bulk-eligible — they have to be read. There is
-          no approve-everything action.
+          High-risk rows, conflicts and price changes are never bulk-eligible — they have to be
+          read. A selection covers only the page in front of you, and there is no
+          approve-everything action.
         </p>
       </div>
 
@@ -262,16 +413,26 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
       {/* ── Rows ─────────────────────────────────────────────────── */}
       {rows.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
-          <p className="font-semibold text-slate-900">Nothing to review</p>
+          <p className="font-semibold text-slate-900">
+            {counts.pending > 0 ? 'Nothing matches this filter' : 'Nothing to review'}
+          </p>
           <p className="mt-1 text-ui-sm text-slate-500">
-            Run <code className="font-mono">npm run crawl:propose</code> after a crawl to fill this
-            queue.
+            {counts.pending > 0 ? (
+              <>
+                {counts.pending} proposal(s) are still pending under a different filter.
+              </>
+            ) : (
+              <>
+                Run <code className="font-mono">npm run crawl:propose</code> after a crawl to fill
+                this queue.
+              </>
+            )}
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {rows.map((row) => {
-            const eligible = row.riskLevel !== 'high-risk' && row.changeType !== 'conflicting'
+            const eligible = row.bulkEligible
             const isOpen = expanded === row.id
 
             return (
@@ -286,7 +447,7 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
                     disabled={!eligible}
                     onChange={() => toggle(row.id)}
                     aria-label={`Select ${row.field} on ${row.carName}`}
-                    title={eligible ? undefined : 'Not eligible for bulk approval'}
+                    title={eligible ? undefined : `Not eligible for bulk approval: ${row.bulkReason}`}
                     className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-plug-blue-600 disabled:opacity-30"
                   />
 
@@ -350,6 +511,24 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
                         {row.validationFlags.map((flag) => flag.message).join('; ')}
                       </p>
                     ) : null}
+
+                    {/*
+                      ── Which vehicle this figure describes ──────────────
+
+                      On the row, always, never behind the "Why" button. This is
+                      the information whose absence caused the incident: on
+                      2026-08-27 five proposals were approved from rows showing the
+                      numbers and the phrase "sources disagree", with nothing about
+                      which trim each number belonged to. One source had published
+                      five BYD Seal variants; the catalogue row was the 61.44 kWh
+                      car; the 87 kWh figure won.
+
+                      A reviewer who has to click to discover that is a reviewer
+                      who will not click.
+                    */}
+                    {row.variantSensitive ? (
+                      <VariantEvidence row={row} />
+                    ) : null}
                   </div>
 
                   <div className="flex shrink-0 items-center gap-1.5">
@@ -404,15 +583,33 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
                           What each source said
                         </p>
                         <ul className="flex flex-col gap-1">
-                          {row.opinions.map((opinion) => (
+                          {row.opinions.map((opinion, index) => (
                             <li
-                              key={`${opinion.source}-${opinion.value}`}
+                              key={`${opinion.source}-${opinion.value}-${index}`}
                               className="flex flex-wrap items-center gap-2 text-ui-sm"
                             >
                               <span className="font-mono text-slate-500">{opinion.source}</span>
                               <span className="text-ui-xs text-slate-400">({opinion.role})</span>
                               <span className="font-mono font-semibold text-slate-900">
                                 {opinion.value ?? '—'}
+                              </span>
+                              {/*
+                                The trim each competing claim describes.
+
+                                Without it this list read as five values from
+                                "openev" with no way to tell what any of them was
+                                about — which is exactly what was on screen when
+                                87 kWh was approved over 61.44.
+                              */}
+                              <span
+                                className={cn(
+                                  'rounded px-1.5 py-0.5 font-mono text-[11px]',
+                                  opinion.variant
+                                    ? 'bg-slate-200 text-slate-700'
+                                    : 'bg-amber-100 text-amber-800',
+                                )}
+                              >
+                                {opinion.variant ?? 'no variant stated'}
                               </span>
                               <a
                                 href={opinion.url}
@@ -431,7 +628,8 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
                     {!eligible ? (
                       <p className="mt-3 flex items-start gap-1.5 text-ui-xs text-amber-700">
                         <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-                        Excluded from bulk approval — approve or reject it individually.
+                        Excluded from bulk approval ({row.bulkReason}) — approve or reject it
+                        individually.
                       </p>
                     ) : null}
                   </div>
@@ -441,6 +639,72 @@ export function ReviewQueue({ rows, counts, active, sources }: ReviewQueueProps)
           })}
         </div>
       )}
+
+      {/* ── Paging ───────────────────────────────────────────────── */}
+      {pagination.total > 0 ? (
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+          <p className="text-ui-sm text-slate-600">
+            Showing{' '}
+            <span className="font-semibold text-slate-900">
+              {(pagination.page - 1) * pagination.pageSize + 1}
+              {rows.length > 1 ? `–${(pagination.page - 1) * pagination.pageSize + rows.length}` : ''}
+            </span>{' '}
+            of <span className="font-semibold text-slate-900">{pagination.total}</span> matching
+            this filter
+          </p>
+
+          <label className="flex items-center gap-2 text-ui-sm text-slate-500">
+            Per page
+            <select
+              value={pagination.pageSize}
+              onChange={(event) =>
+                navigate({
+                  pageSize: event.target.value === String(pagination.sizes[0]) ? null : event.target.value,
+                  // A different page size means different page boundaries.
+                  page: null,
+                })
+              }
+              className="h-9 cursor-pointer rounded-lg border border-slate-300 bg-white px-3 text-ui-sm text-slate-700 outline-none focus-visible:border-plug-blue-500"
+            >
+              {pagination.sizes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-ui-sm text-slate-500">
+              Page {pagination.page} of {pagination.pageCount}
+            </span>
+            <button
+              type="button"
+              disabled={busy || pagination.page <= 1}
+              onClick={() => goToPage(pagination.page - 1)}
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft size={15} />
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={busy || pagination.page >= pagination.pageCount}
+              onClick={() => goToPage(pagination.page + 1)}
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+              <ChevronRight size={15} />
+            </button>
+          </div>
+
+          {/* Said plainly: a selection does not survive leaving the page. */}
+          <p className="w-full text-ui-xs text-slate-500">
+            Moving between pages clears the selection — a bulk action can only ever apply to rows
+            you are looking at.
+          </p>
+        </div>
+      ) : null}
     </div>
   )
 }

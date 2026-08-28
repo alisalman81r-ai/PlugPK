@@ -43,36 +43,63 @@ export default function CarsLoading() {
         </div>
       </section>
 
-      <section className="bg-white py-12 lg:py-16">
+      {/* The same grey ground and the same card silhouette as the real
+          catalogue: image panel first, then a brand line, a model line, four
+          figure rows and an action pair. A skeleton whose proportions differ
+          from the page it stands in for buys a flash of layout shift for the
+          trouble of drawing it. */}
+      <section className="bg-slate-100 py-12 lg:py-16">
         <div className="container-plug">
           <div className="flex gap-2.5 overflow-hidden">
             {Array.from({ length: 7 }).map((_, index) => (
               <div
                 key={index}
-                className="h-[4.75rem] w-[6.5rem] shrink-0 animate-pulse rounded-2xl bg-slate-100"
+                className="h-[4.75rem] w-[6.5rem] shrink-0 animate-pulse rounded-2xl bg-white/70"
               />
             ))}
           </div>
 
-          <div className="mt-12 lg:grid lg:grid-cols-[17.5rem_1fr] lg:gap-8 xl:gap-10">
-            <div className="hidden h-[32rem] animate-pulse rounded-2xl bg-slate-100 lg:block" />
+          <div className="mt-14 border-t border-slate-200 pt-10">
+            <div className="h-7 w-44 animate-pulse rounded-lg bg-white/70" />
+          </div>
 
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {/* Six, not twenty-eight: enough to fill the fold without
-                  animating a screenful of boxes below it. */}
+          <div className="mt-6 lg:grid lg:grid-cols-[17.5rem_1fr] lg:gap-8 xl:gap-10">
+            <div className="hidden h-[32rem] animate-pulse rounded-xl bg-white/70 lg:block" />
+
+            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
+              {/* Six, not thirty-six: enough to fill the fold without animating
+                  a screenful of boxes below it. */}
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="overflow-hidden rounded-3xl border border-slate-200">
-                  <div className="aspect-[16/10] animate-pulse bg-slate-100" />
-                  <div className="flex flex-col gap-3 p-5">
-                    <div className="h-3 w-16 animate-pulse rounded-full bg-slate-100" />
-                    <div className="h-5 w-32 animate-pulse rounded-full bg-slate-100" />
-                    <div className="h-6 w-24 animate-pulse rounded-full bg-slate-100" />
-                    <div className="mt-2 grid grid-cols-2 gap-2.5">
-                      {Array.from({ length: 4 }).map((__, cell) => (
-                        <div key={cell} className="h-8 animate-pulse rounded-lg bg-slate-100" />
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-xl border border-slate-200/90 bg-white"
+                >
+                  <div className="aspect-[3/2] animate-pulse bg-slate-100" />
+                  <div className="px-5 pb-5 pt-4">
+                    <div className="h-2.5 w-12 animate-pulse rounded bg-slate-100" />
+                    <div className="mt-2.5 h-5 w-32 animate-pulse rounded bg-slate-100" />
+                    <div className="mt-2 h-3 w-40 animate-pulse rounded bg-slate-100" />
+
+                    <div className="mt-4 border-t border-slate-100">
+                      {Array.from({ length: 4 }).map((__, row) => (
+                        <div
+                          key={row}
+                          className="flex items-center justify-between gap-3 border-b border-slate-100 py-3"
+                        >
+                          <div className="h-2.5 w-16 animate-pulse rounded bg-slate-100" />
+                          <div
+                            className={`h-3 animate-pulse rounded bg-slate-100 ${
+                              row === 3 ? 'w-24' : 'w-14'
+                            }`}
+                          />
+                        </div>
                       ))}
                     </div>
-                    <div className="mt-2 h-10 animate-pulse rounded-full bg-slate-100" />
+
+                    <div className="mt-4 flex gap-2">
+                      <div className="h-11 flex-1 animate-pulse rounded-lg bg-slate-100" />
+                      <div className="h-11 w-11 animate-pulse rounded-lg bg-slate-100" />
+                    </div>
                   </div>
                 </div>
               ))}

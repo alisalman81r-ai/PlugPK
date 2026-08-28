@@ -22,6 +22,11 @@ interface FooterColumn {
  * returned 404, alongside four social profiles that were never real
  * accounts. A footer full of dead ends is the least premium thing a site can
  * do, so this lists only what exists and stays short because of it.
+ *
+ * /credits is the exception to "short": it is here because two of the licences
+ * this site depends on require a visible credit in a place where credits are
+ * normally shown, and the footer of every page is that place. It is a licence
+ * obligation, not a nicety — see src/data/dataSources.ts.
  */
 const FOOTER_COLUMNS: FooterColumn[] = [
   {
@@ -57,6 +62,9 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     ],
   },
 ]
+
+/** Reachable from every page, because that is what the licences ask for. */
+const LEGAL_LINKS: FooterLink[] = [{ label: 'Data and image credits', href: '/credits' }]
 
 /**
  * Underline that wipes in from the left on hover and focus. Scale on a
@@ -209,7 +217,19 @@ export function Footer() {
           <p className="text-ui-xs text-white/55">
             &copy; {year} {SITE_CONFIG.name}. All rights reserved.
           </p>
-          <p className="text-ui-xs text-white/50">Built for EV drivers in Pakistan</p>
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            {LEGAL_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-ui-xs text-white/55 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60 focus-visible:text-white focus-visible:outline-none"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <p className="text-ui-xs text-white/50">Built for EV drivers in Pakistan</p>
+          </div>
         </div>
       </div>
     </footer>

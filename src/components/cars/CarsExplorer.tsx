@@ -102,7 +102,9 @@ export function CarsExplorer({
       const params = filtersToParams(query, filters, sort)
       const next = params.toString()
       if (next === window.location.search.replace(/^\?/, '')) return
-      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false })
+      router.replace(next ? `${pathname}?${next}` : pathname, {
+        scroll: false,
+      })
     }, 250)
 
     return () => window.clearTimeout(timer)
@@ -110,7 +112,10 @@ export function CarsExplorer({
 
   /** Brand counts for the rail, computed with the brand facet itself removed. */
   const brandCounts = React.useMemo(() => {
-    const base = filterCars(searchCars(cars, query), { ...filters, brands: [] })
+    const base = filterCars(searchCars(cars, query), {
+      ...filters,
+      brands: [],
+    })
     const out: Record<string, number> = {}
     for (const brand of brands) out[brand] = base.filter((car) => car.brand === brand).length
     return out
@@ -130,9 +135,18 @@ export function CarsExplorer({
 
   const stats = React.useMemo(
     () => [
-      { value: String(shown.length), label: shown.length === cars.length ? 'Cars' : 'Matches' },
-      { value: String(new Set(shown.map((car) => car.brand)).size), label: 'Brands' },
-      { value: String(shown.filter((car) => car.category === 'EV').length), label: 'Full EV' },
+      {
+        value: String(shown.length),
+        label: shown.length === cars.length ? 'Cars' : 'Matches',
+      },
+      {
+        value: String(new Set(shown.map((car) => car.brand)).size),
+        label: 'Brands',
+      },
+      {
+        value: String(shown.filter((car) => car.category === 'EV').length),
+        label: 'Full EV',
+      },
     ],
     [shown, cars.length],
   )
@@ -147,7 +161,10 @@ export function CarsExplorer({
         onQueryChange={setQuery}
         brand={heroBrand}
         onBrandChange={(brand) =>
-          setFilters((current) => ({ ...current, brands: brand ? [brand] : [] }))
+          setFilters((current) => ({
+            ...current,
+            brands: brand ? [brand] : [],
+          }))
         }
         brands={brands}
         stats={stats}
@@ -156,7 +173,22 @@ export function CarsExplorer({
 
       {insights}
 
-      <section ref={resultsRef} className="scroll-mt-4 bg-white py-12 lg:py-16">
+      {/*
+        A grey ground under the catalogue, where this used to be white.
+
+        The cards are flat now — a hairline border and no shadow at rest — and a
+        white card on a white page needs a shadow to exist at all. Thirty-six of
+        those shadows is a grey haze, and a card already lifted off the page has
+        nowhere left to go on hover. Moving the separation into the ground gets
+        it for free, gives the hover somewhere to go, and makes the white
+        surfaces that should read as controls — the filter panel, the brand
+        tiles, the segments, the sort — read as controls.
+
+        slate-100 rather than slate-50: at #F8FAFC the cards were not reliably
+        distinguishable from the page on a dim laptop screen, which defeats the
+        point of the change.
+      */}
+      <section ref={resultsRef} className="scroll-mt-4 bg-slate-100 py-12 lg:py-16">
         <div className="container-plug">
           <BrandRail
             brands={brands}
@@ -184,7 +216,26 @@ export function CarsExplorer({
             onClear={() => setFilters((current) => ({ ...current, brands: [] }))}
           />
 
-          <div className="mt-12">
+          {/*
+            A heading for the grid, in the same voice as "Browse by brand" above
+            it and "At a glance" before that.
+
+            The results block used to open on a row of segments and a count,
+            which meant the largest section on the page — the one everything else
+            is a way into — was the only one nobody had named. A reader arriving
+            by anchor or scroll had to infer what they were looking at from a
+            number.
+          */}
+          <div className="mt-14 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-slate-200 pt-10">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+              The catalogue
+            </h2>
+            <p className="text-ui-sm text-slate-500">
+              Every published figure, none estimated — filter, sort and compare
+            </p>
+          </div>
+
+          <div className="mt-6">
             <CarsBrowser
               cars={cars}
               categories={categories}

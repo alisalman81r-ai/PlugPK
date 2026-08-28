@@ -3,7 +3,12 @@ import { AlertTriangle, CheckCircle2, GitCompare, ShieldAlert, type LucideIcon }
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { ReviewQueue, type ProposalRow } from '@/components/admin/ReviewQueue'
-import { listProposals, proposalCounts } from '@/lib/db/car-review-queries'
+import {
+  bulkEligible,
+  listProposalPage,
+  PAGE_SIZES,
+  proposalCounts,
+} from '@/lib/db/car-review-queries'
 import { listSources } from '@/lib/db/car-source-queries'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +30,8 @@ interface PageProps {
     source?: string
     car?: string
     minConfidence?: string
+    page?: string
+    pageSize?: string
   }
 }
 
@@ -54,22 +61,42 @@ export default async function AdminCarReviewPage({ searchParams }: PageProps) {
   const type = searchParams.type && TYPES.has(searchParams.type) ? searchParams.type : undefined
   const minConfidence = Number(searchParams.minConfidence)
 
-  const [proposals, counts, sources] = await Promise.all([
-    listProposals({
+  const requestedPage = Number(searchParams.page)
+  const requestedSize = Number(searchParams.pageSize)
+
+  /*
+    Every filter goes into the query, including the car.
+
+    The car used to be filtered here, after the rows came back, which meant the
+    row limit was applied before the filter — so asking for one car's proposals
+    could show none while it had plenty. It also made the count meaningless,
+    which is the other half of why pagination needs the filter in the query.
+  */
+  const [page, counts, sources] = await Promise.all([
+    listProposalPage({
       status: 'pending',
       ...(risk ? { riskLevel: risk as 'safe' | 'review' | 'high-risk' } : {}),
       ...(type ? { changeType: type } : {}),
       ...(searchParams.source ? { sourceId: searchParams.source } : {}),
+      ...(searchParams.car ? { carSlug: searchParams.car } : {}),
       ...(Number.isFinite(minConfidence) ? { minConfidence } : {}),
-      limit: 200,
+      ...(Number.isFinite(requestedPage) ? { page: requestedPage } : {}),
+      ...(Number.isFinite(requestedSize) ? { pageSize: requestedSize } : {}),
     }),
     proposalCounts(),
     listSources(),
   ])
 
-  const rows: ProposalRow[] = proposals
-    .filter((proposal) => !searchParams.car || proposal.car.slug === searchParams.car)
-    .map((proposal) => ({
+  const rows: ProposalRow[] = page.rows.map((proposal) => {
+    /*
+      Bulk eligibility is decided here, by the same function the server action
+      enforces, and shipped as a boolean. The queue previously re-derived the
+      rule in the browser — two copies of a safety check, of which only one was
+      ever consulted before a write.
+    */
+    const eligible = bulkEligible(proposal)
+
+    return {
       id: proposal.id,
       carSlug: proposal.car.slug,
       carName: proposal.car.fullName,
@@ -87,7 +114,24 @@ export default async function AdminCarReviewPage({ searchParams }: PageProps) {
       fetchedAt: proposal.fetchedAt.toISOString(),
       opinions: parseJson(proposal.opinions, [] as ProposalRow['opinions']),
       validationFlags: parseJson(proposal.validationFlags, [] as ProposalRow['validationFlags']),
-    }))
+      bulkEligible: eligible.ok,
+      bulkReason: eligible.reason,
+
+      variantVerdict: proposal.variantVerdict,
+      identityTier: proposal.identityTier,
+      sourceVariant: proposal.sourceVariant,
+      sourceModelYear: proposal.sourceModelYear,
+      /*
+        The catalogue row's own variant, so the two can be read side by side.
+        "declares no variant" against "U 87 kWh Design" is the whole story in one
+        line, and it was the line nobody could see.
+      */
+      carVariant: proposal.car.variant,
+      variantSensitive: proposal.variantSensitive,
+      currentRangeStandard: proposal.currentRangeStandard,
+      proposedRangeStandard: proposal.proposedRangeStandard,
+    }
+  })
 
   return (
     <>
@@ -152,6 +196,13 @@ export default async function AdminCarReviewPage({ searchParams }: PageProps) {
             ...(searchParams.minConfidence ? { minConfidence: searchParams.minConfidence } : {}),
           }}
           sources={sources.map((source) => source.id)}
+          pagination={{
+            page: page.page,
+            pageSize: page.pageSize,
+            pageCount: page.pageCount,
+            total: page.total,
+            sizes: [...PAGE_SIZES],
+          }}
         />
       </div>
     </>

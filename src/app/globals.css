@@ -4,12 +4,11 @@
 @tailwind utilities;
 
 /*
- * Fonts are self-hosted by next/font/google in src/app/layout.tsx, which
- * defines --font-inter, --font-display and --font-jetbrains on <html>. Do
- * not redeclare them
- * here: :root and next/font's generated class have equal specificity, so a
- * declaration in this file would win on source order and shadow the real,
- * hashed family names.
+ * Fonts are self-hosted by next/font/google in src/app/layout.tsx, which defines
+ * --font-poppins and --font-jetbrains on <html>. Do not redeclare them here:
+ * :root and next/font's generated class have equal specificity, so a declaration
+ * in this file would win on source order and shadow the real, hashed family
+ * names — and the site would silently render in the fallback stack.
  */
 
 :root {
@@ -48,26 +47,34 @@
   }
 
   body {
-    font-family: var(--font-inter);
+    font-family: var(--font-poppins);
     color: var(--color-text);
     background: var(--color-bg);
     line-height: 1.6;
     overflow-x: hidden;
   }
 
-    /*
-     * Headings stay on the body face.
-     *
-     * A previous rule pointed every h1-h6 at Playfair Display. That stroke
-     * contrast reads well on a 4rem hero line, but the same rule reached the
-     * 1.125rem card titles that make up most of the headings in this app,
-     * where thin strokes and tight counters cost legibility for no gain. The
-     * design system names Inter as the primary face and this keeps headings
-     * on it.
-     *
-     * --font-display is still defined in layout.tsx, so one heading can opt
-     * in deliberately rather than every heading being opted in by default.
-     */
+  /*
+   * Every heading, in one rule.
+   *
+   * Now the same family as the body, so this is technically redundant —
+   * inheritance would do it. It stays for two reasons: it is the one place that
+   * states headings are deliberately on the same face rather than accidentally
+   * so, and it keeps the seam where a display face could return without hunting
+   * through a hundred h2s and h3s again.
+   *
+   * Only the family is set. Weight, size and tracking come from the utilities on
+   * each heading and from the display scale in tailwind.config.ts, which still
+   * win over this.
+   */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-poppins);
+  }
 
   ::selection {
     background: rgba(37, 99, 235, 0.15);
@@ -82,6 +89,28 @@
 }
 
 @layer utilities {
+  /*
+   * Film grain, for dark bands.
+   *
+   * A flat slate-950 panel at this size reads as a hole in the page — the eye
+   * has nothing to hold on to, and gradient blur pools alone stay smooth enough
+   * to look like a rendering artefact rather than a surface. A little noise
+   * gives the dark ground a texture, which is what stops it looking empty.
+   *
+   * An inline SVG turbulence rather than a PNG: it is about 250 bytes, needs no
+   * request, and scales to any viewport without a second asset. `pointer-events:
+   * none` because this is decoration sitting over content.
+   *
+   * Kept low — 0.035 alpha. Grain that can be seen as grain is too much.
+   */
+  .grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
   .gradient-text {
     background: var(--gradient-brand);
     -webkit-background-clip: text;

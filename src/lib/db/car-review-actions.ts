@@ -45,10 +45,33 @@ async function requireAdmin(): Promise<boolean> {
 /**
  * Who approved it.
  *
- * The portal is a single shared credential, so there is no per-user identity to
- * record — "admin" is the honest answer rather than inventing a name. If the
- * portal ever gains real accounts, this is the one place that changes, and the
- * history rows written before then remain truthful about what was known.
+ * ── A PRODUCTION REQUIREMENT, recorded here rather than papered over ──
+ *
+ * This is not a real identity, and it cannot be made into one from where it
+ * sits. The portal authenticates with a single shared password (see
+ * src/lib/admin-auth.ts): the session cookie is an HMAC over an expiry and
+ * carries no subject, and there is nobody to look up — the `User` table belongs
+ * to the community side of the product and has no relationship to admin access.
+ * So the honest value for `approvedBy` is the fact that somebody holding the
+ * shared credential did it.
+ *
+ * What was considered and rejected:
+ *
+ *   the session cookie — it identifies no person, and putting a signed token in
+ *   an audit column would leak a credential into history for no gain;
+ *
+ *   an operator name from the environment — configuration is not authentication.
+ *   Two people sharing one password would both be recorded as whoever the
+ *   variable named, which is worse than "admin": it is a specific, checkable,
+ *   wrong answer, and an audit trail that can name the wrong person is more
+ *   dangerous than one that admits it does not know.
+ *
+ * BEFORE THIS PORTAL IS USED BY MORE THAN ONE PERSON, or before anyone relies on
+ * CarChangeHistory.approvedBy to say who did something, admin access needs real
+ * per-user accounts. That is a change to src/lib/admin-auth.ts and the login
+ * route, not to this constant — but this constant is the one place that then
+ * starts carrying a user id, and the rows written before it does remain truthful
+ * about exactly what was known when they were written.
  */
 const APPROVER = 'admin'
 

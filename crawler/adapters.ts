@@ -1,7 +1,5 @@
 // crawler/adapters.ts
 
-import type { MatchInput } from './match'
-import type { NormalisedVehicle } from './model'
 import { openEvAdapter } from './sources/openev'
 import { evdbAdapter } from './sources/evdb'
 import { evspecsxAdapter } from './sources/evspecsx'
@@ -28,38 +26,9 @@ export function adapterFor(id: string): SourceAdapter | undefined {
 }
 
 /**
- * Recasts a normalised vehicle as matcher input.
+ * Re-exported so existing callers keep working.
  *
- * Shared by the manual and scheduled runners so both identify cars identically.
- * When these drifted, the same record could match a car on demand and miss it
- * overnight — and the overnight result is the one that reaches the queue.
+ * The implementation moved to match-input.ts, which imports no source modules —
+ * see the note there. Nothing about the mapping changed.
  */
-export function toMatchInput(vehicle: NormalisedVehicle): MatchInput {
-  return {
-    normalised: {
-      brand: vehicle.brand,
-      model: vehicle.model,
-      variant: vehicle.variant,
-      modelYear: vehicle.modelYear,
-      fullName: [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || null,
-      category: vehicle.powertrainType,
-      priceMin: vehicle.pakistanPrice,
-      priceMax: vehicle.pakistanPrice,
-      priceRaw: null,
-      batteryKwh: vehicle.batteryCapacityKwh,
-      rangeKm: vehicle.rangeKm,
-      electricRangeKm: vehicle.electricRangeKm,
-      powerHp: null,
-      accelerationSec: vehicle.acceleration0To100Sec,
-      topSpeedKph: vehicle.topSpeedKph,
-      torqueNm: vehicle.torqueNm,
-      seats: vehicle.seats,
-      dcKw: vehicle.dcChargingKw,
-      acKw: vehicle.acChargingKw,
-      engineCc: null,
-      connectors: vehicle.chargingStandards,
-      imageUrl: null,
-    },
-    externalId: vehicle.externalId,
-  }
-}
+export { toMatchInput } from './match-input'

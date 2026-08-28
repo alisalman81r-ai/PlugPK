@@ -33,6 +33,8 @@ type CarRow = {
   slug: string
   brand: string
   model: string
+  /** Phase 4.1's column. Null means the row declares no variant. */
+  variant: string | null
   fullName: string
   category: string
   priceMin: number
@@ -67,6 +69,10 @@ export function rowToCar(row: CarRow): Car {
     slug: row.slug,
     brand: row.brand,
     model: row.model,
+    // Phase 4.1's column, now carried out to the public type. Null passes
+    // through as null — "this row declares no variant" — never coerced to '' or
+    // filled in from the model name.
+    variant: row.variant,
     fullName: row.fullName,
     category: row.category as CarCategory,
     price: { min: row.priceMin, max: row.priceMax, display: row.priceDisplay },

@@ -125,11 +125,50 @@ npm run crawl:source -- openev --limit 5   # fetches Open EV Data into staging
 ```
 
 Crawled data lands in `CarSourceRecord` and is never written to `Car` without a
-review step. See `crawler/README.md`.
+review step. See **[CRAWLER.md](CRAWLER.md)** for the whole pipeline, the
+scheduler options, and what each source permits.
 
 One obligation attached to that source: Open EV Data is MIT-licensed **with an
-attribution requirement**, and the required credit is not on the site yet. It
-must be before any of its data is published.
+attribution requirement**. That credit is now given at **`/credits`**, linked from
+the footer of every page — and it is enforced rather than remembered: `applyChange`
+refuses to publish a proposal from any source absent from
+`src/data/dataSources.ts`, so a figure cannot reach a public page while its
+attribution is outstanding. Adding a source means adding its licence entry at the
+same time, having read its terms.
+
+## Automated crawling is built but not switched on
+
+Nothing runs on a timer. The schedulers exist — Windows Task Scheduler under
+`deploy/windows/`, a systemd timer under `deploy/linux/`, and an authenticated
+trigger at `/api/crawler/daily` for hosts with no shell — and each takes a
+deliberate command to activate.
+
+Before activating any of them, read
+**[PHASE4-PRODUCTION-CHECK.md](PHASE4-PRODUCTION-CHECK.md)**. It sets out the
+expected request and write volumes, the rollback strategy, and the one open
+decision: a first live run would raise about 1,300 new-car candidates from a
+global dataset against a 36-car Pakistani catalogue.
+
+To see what a run would do without doing it:
+
+```bash
+npm run crawl:status    # what would run, and what is stale. Contacts nothing.
+npm run crawl:dry       # a full pass that writes nothing
+```
+
+## Known production requirement: who approved a change
+
+The admin portal is one shared password, and the session cookie identifies no
+person — so every approval in the review queue is recorded as `admin` in
+`CarChangeHistory.approvedBy`. That is accurate today, and it stops being
+adequate the moment two people have the password.
+
+Before the portal is used by more than one operator, or before anybody relies on
+that column to say **who** changed a figure, admin access needs real per-user
+accounts (`src/lib/admin-auth.ts` and the `/admin/login` route). No name is
+invented in the meantime, and no environment variable will fix it: configuration
+is not authentication, and an audit trail that can name the wrong person is
+worse than one that says it does not know.
 
 ## Two things that do not travel
 

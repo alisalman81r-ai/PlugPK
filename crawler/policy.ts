@@ -2,7 +2,9 @@
 
 import type { FieldComparison } from './compare'
 import type { Confidence } from './confidence'
-import type { MatchResult } from './match'
+import { isVariantSensitive, type IdentityAssessment } from './identity'
+import type { MatchEvidence } from './match'
+import { compareStandards, isRangeField, type RangeStandard } from './range-standard'
 
 /**
  * How risky a proposed change is, and therefore how it should be queued.
@@ -71,8 +73,47 @@ function relativeShift(comparison: FieldComparison): number | null {
 export interface AssessInput {
   comparison: FieldComparison
   confidence: Confidence
-  /** The match that tied this record to the car. */
-  match?: MatchResult | undefined
+  /**
+   * The match that tied this record to the car.
+   *
+   * A live `MatchResult` satisfies this, and so does one read back off the
+   * staging row by `matchFromRecord`. Both are checked identically: the point of
+   * the rule is the tier, not which stage of the pipeline established it.
+   */
+  match?: MatchEvidence | undefined
+  /**
+   * Set when the record carries no recorded match evidence at all.
+   *
+   * Distinct from a weak match, and it must stay distinct. A weak match is known
+   * to be poor and is refused outright below; an unrecorded one is simply
+   * unknown, which is not grounds to call a change dangerous but is grounds to
+   * refuse to call it safe.
+   */
+  matchUnrecorded?: boolean | undefined
+
+  /**
+   * Whether the VARIANT was established, not just the model.
+   *
+   * Added in Phase 4.1. Its absence is what let a 87 kWh figure from a
+   * "U 87 kWh Design" record be applied to a catalogue row holding the 61.44 kWh
+   * Seal: the match was to the right model, the risk assessment had no way to ask
+   * which trim, and the field was graded on the plausibility of the number alone.
+   *
+   * Optional so existing callers compile, and treated as unproven when absent —
+   * see the rule below, which fails closed rather than assuming a missing
+   * assessment means a good one.
+   */
+  identity?: IdentityAssessment | undefined
+
+  /**
+   * The test cycles either side of a range change.
+   *
+   * A range is only a number once you know how it was measured. 425 km
+   * unspecified and 650 km CLTC are not a 34.6% decrease; they are two
+   * measurements of unknown relationship.
+   */
+  currentRangeStandard?: RangeStandard | undefined
+  proposedRangeStandard?: RangeStandard | undefined
 }
 
 /**
@@ -82,7 +123,15 @@ export interface AssessInput {
  * cannot be outvoted by several reassuring ones.
  */
 export function assess(input: AssessInput): RiskAssessment {
-  const { comparison, confidence, match } = input
+  const {
+    comparison,
+    confidence,
+    match,
+    matchUnrecorded,
+    identity,
+    currentRangeStandard,
+    proposedRangeStandard,
+  } = input
 
   /*
     The match itself is the first thing to distrust.
@@ -94,13 +143,99 @@ export function assess(input: AssessInput): RiskAssessment {
     every field on that record high-risk regardless of its own merits.
   */
   if (match && match.decision !== 'confident') {
+    const how =
+      match.strategy && match.strategy !== 'none'
+        ? ` (matched by ${match.strategy}${match.score === null || match.score === undefined ? '' : `, scoring ${match.score}`})`
+        : ''
+
     return {
       level: 'high-risk',
       reason:
         match.decision === 'ambiguous'
-          ? `the record matched ${match.candidates.length} cars equally well — it may not be about this car at all`
-          : `the record was only a ${match.decision} match for this car`,
+          ? `the record matched ${match.candidates.length} cars equally well — it may not be about this car at all${how}`
+          : match.decision === 'none'
+            ? `the record matched no car by name, so its link to this one was not established by the matcher${how}`
+            : `the record was only a ${match.decision} match for this car${how}`,
       excludeFromBulk: true,
+    }
+  }
+
+  /*
+    ── The variant, which is the other half of "is this the right car?" ──
+
+    Placed directly after the match check because it is the same class of
+    question. A confident match establishes the MODEL; it says nothing about the
+    TRIM, and a battery capacity, a range, a power figure and a price all belong
+    to a trim rather than to a model.
+
+    This is the rule whose absence caused Phase 4.1. Five Open EV Data records
+    for five different Seal variants each matched the one `byd-seal` row with
+    strategy `exact-parts` and score 90. Every one was `confident`. The figures
+    that reached the public catalogue — 87 kWh, 425 km, 140 kW DC — belonged to
+    "U 87 kWh Design", while the row described the 61.4 kWh Comfort.
+
+    Note what this rule does NOT do: it does not reject the match or the record.
+    Model-level fields still flow normally, and the proposal is still raised with
+    its evidence attached. It refuses only to let a trim-dependent figure be
+    applied while the trim is unestablished.
+  */
+  if (isVariantSensitive(comparison.field)) {
+    /*
+      A missing assessment counts as unproven.
+
+      Fails closed on purpose. `identity` is optional so that older callers
+      compile, and the safe reading of "this caller did not tell me about the
+      variant" is that the variant is unknown — not that it is fine.
+    */
+    if (!identity) {
+      return {
+        level: 'high-risk',
+        reason:
+          `${comparison.field} depends on which variant this is, and no variant identity was established for the record`,
+        excludeFromBulk: true,
+      }
+    }
+
+    if (identity.blocksVariantSensitive) {
+      const verdict =
+        identity.verdict === 'mismatch'
+          ? 'the record is about a different vehicle'
+          : identity.verdict === 'ambiguous'
+            ? 'more than one vehicle is claiming this catalogue row'
+            : 'the variant was not established'
+
+      return {
+        level: 'high-risk',
+        reason:
+          `${comparison.field} is a variant-level figure and ${verdict}: ${identity.reason}. ` +
+          `Confirm which variant this catalogue row describes before accepting it`,
+        excludeFromBulk: true,
+      }
+    }
+  }
+
+  /*
+    ── A range without a comparable test cycle ─────────────────────────
+
+    Before the numeric rules below, because those measure how far the value moved
+    and that distance is meaningless across cycles. The catalogue's 650 km and the
+    source's 425 km differ by 34.6%, which the old code reported as a large change
+    worth reading — a true statement that invited exactly the wrong conclusion,
+    because the two figures were never measuring the same thing.
+  */
+  if (isRangeField(comparison.field) && comparison.changeType !== 'new') {
+    const current = currentRangeStandard ?? 'unspecified'
+    const proposed = proposedRangeStandard ?? 'unspecified'
+    const comparability = compareStandards(current, proposed)
+
+    if (!comparability.comparable) {
+      return {
+        level: 'high-risk',
+        reason:
+          `${comparison.field}: ${comparability.reason}. ` +
+          `Replacing one with the other would change what the figure means, not just its value`,
+        excludeFromBulk: true,
+      }
     }
   }
 
@@ -154,6 +289,24 @@ export function assess(input: AssessInput): RiskAssessment {
     return {
       level: 'review',
       reason: `${comparison.field} is shown on every card, so a change to it is worth reading`,
+      excludeFromBulk: true,
+    }
+  }
+
+  /*
+    No match evidence on the record.
+
+    Placed after every high-risk rule so it cannot mask one — a rename or a
+    price jump keeps its own, sharper reason. What it does is stop such a row
+    reaching any of the `safe` outcomes below: a value whose connection to this
+    car was never established is not something to wave through in a batch,
+    however unremarkable the number looks.
+  */
+  if (matchUnrecorded) {
+    return {
+      level: 'review',
+      reason:
+        'the record carries no recorded match evidence, so how it came to be attached to this car is unknown',
       excludeFromBulk: true,
     }
   }
