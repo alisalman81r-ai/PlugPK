@@ -21,21 +21,36 @@ export interface PostCardProps {
   className?: string
 }
 
-const AVATAR_GRADIENTS = [
-  'from-blue-500 to-cyan-500',
-  'from-purple-500 to-pink-500',
-  'from-green-500 to-emerald-500',
-  'from-amber-500 to-orange-500',
-  'from-red-500 to-rose-500',
+/**
+ * Five ink tones, not five hues.
+ *
+ * This was a purple-to-pink, a green-to-emerald, an amber-to-orange and a
+ * red-to-rose gradient — five saturated hues that appear nowhere else in a
+ * product built on slate and one blue, and the single loudest thing on the
+ * community feed. It also contradicted this application's own note on avatars,
+ * which says an avatar is an identity marker and should be set in ink, not
+ * brand.
+ *
+ * Depth is what distinguishes them now rather than hue: two neutrals either
+ * side of the ink, and two brand-adjacent darks. All five clear 7:1 against
+ * white initials, so the letter stays legible at 32px where the rainbow's
+ * amber and cyan did not.
+ */
+const AVATAR_TONES = [
+  'bg-slate-800',
+  'bg-plug-blue-800',
+  'bg-slate-600',
+  'bg-plug-cyan-800',
+  'bg-slate-900',
 ]
 
 /** Stable per-user colour so the same author always looks the same. */
-export function avatarGradient(name: string): string {
+export function avatarTone(name: string): string {
   let hash = 0
   for (let index = 0; index < name.length; index += 1) {
-    hash = (hash + name.charCodeAt(index)) % AVATAR_GRADIENTS.length
+    hash = (hash + name.charCodeAt(index)) % AVATAR_TONES.length
   }
-  return AVATAR_GRADIENTS[hash] ?? AVATAR_GRADIENTS[0]!
+  return AVATAR_TONES[hash] ?? AVATAR_TONES[0]!
 }
 
 export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
@@ -43,8 +58,8 @@ export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
     <span
       aria-hidden="true"
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br font-bold text-white',
-        avatarGradient(name),
+        'flex shrink-0 items-center justify-center rounded-full font-bold text-white',
+        avatarTone(name),
         size >= 48 ? 'text-xl' : size >= 40 ? 'text-lg' : 'text-sm',
       )}
       style={{ width: size, height: size }}

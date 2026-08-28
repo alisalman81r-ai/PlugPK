@@ -2,7 +2,7 @@
 export { CommunityHero } from './CommunityHero'
 export { CommunitySearchBar } from './CommunitySearchBar'
 export { CategoryTabs, POST_ICON } from './CategoryTabs'
-export { PostCard, Avatar, avatarGradient } from './PostCard'
+export { PostCard, Avatar, avatarTone } from './PostCard'
 export { PostFeed } from './PostFeed'
 export { CreatePostForm } from './CreatePostForm'
 export { CommunitySidebar } from './CommunitySidebar'

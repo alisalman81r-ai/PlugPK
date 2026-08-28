@@ -4,44 +4,77 @@ import {
   Car,
   Coffee,
   Hotel,
+  MapPinned,
+  Route,
   ShoppingBag,
+  Star,
   Utensils,
   Wrench,
   Zap,
   type LucideIcon,
 } from 'lucide-react'
 
-import { RatingStars, SectionHeader } from '@/components/ui'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { SectionHeader } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
-interface Testimonial {
-  quote: string
-  name: string
-  role: string
-  tone: string
+/**
+ * What a listing does, and who it is for.
+ *
+ * ── What this section used to be ──────────────────────────────────────
+ *
+ * Three customer testimonials, five stars each, under the heading "Trusted by
+ * EV-Forward Businesses". Every one of them was invented: named people — Usman
+ * Tariq, Fatima Ahmed, Kamran Hussain — given job titles at named businesses,
+ * one of them a real brand, quoted claiming specific results including
+ * "excellent ROI" and "a 30% increase in EV-owning customers".
+ *
+ * The Business table holds zero rows. Not zero approved — zero. So there was no
+ * customer to have said any of it, and the page attributed words and commercial
+ * outcomes to three people who do not exist at businesses that had not signed
+ * up. That is a false claim about a real named brand as well as invented social
+ * proof, and it is the sort of thing that is repeated back to a company by a
+ * regulator rather than merely being embarrassing.
+ *
+ * It also contradicted this product's own standard, written on PartnerHero:
+ * reference designs for this kind of page lean on invented metrics, and this
+ * one does not do that — counts come from the database and a figure that is
+ * still zero is left out rather than dressed up.
+ *
+ * ── What replaced it ──────────────────────────────────────────────────
+ *
+ * The same three-card shape, carrying three things the application actually
+ * does for a host, each traceable to code that exists: the listing appears on
+ * the map the moment it is approved, the route planner can route a driver
+ * through it, and drivers can rate it. No names, no quotes, no stars standing
+ * in for a review nobody left.
+ *
+ * When there are real hosts with real things to say, quotes belong here — with
+ * their consent and their actual words. Until then this says what the product
+ * does, which is the honest version of the same pitch.
+ */
+
+interface Capability {
+  icon: LucideIcon
+  title: string
+  body: string
 }
 
-const TESTIMONIALS: Testimonial[] = [
+const CAPABILITIES: Capability[] = [
   {
-    quote:
-      'We installed 2 EV chargers and listed on Plug.pk. Within a week we had EV customers specifically visiting for charging. Excellent ROI.',
-    name: 'Usman Tariq',
-    role: 'Owner, Mall Road Hotel, Lahore',
-    tone: 'from-blue-500 to-cyan-500',
+    icon: MapPinned,
+    title: 'You appear on the map',
+    body: 'Once your listing is approved it is on the charging map and in search, filterable by connector and speed, with directions one tap away.',
   },
   {
-    quote:
-      'Our restaurant saw a 30% increase in EV-owning customers after listing. They stay longer while charging — perfect for our business.',
-    name: 'Fatima Ahmed',
-    role: 'Manager, The EV Café, Islamabad',
-    tone: 'from-purple-500 to-pink-500',
+    icon: Route,
+    title: 'Route planning sends drivers to you',
+    body: 'The planner sizes charging stops against a car’s real battery and range, so a listing on a long corridor becomes a scheduled stop rather than a hope.',
   },
   {
-    quote:
-      'As a dealership, Plug.pk connects us with active EV buyers at exactly the right moment. Best platform for the Pakistan EV market.',
-    name: 'Kamran Hussain',
-    role: 'Director, BYD Lahore',
-    tone: 'from-emerald-500 to-cyan-500',
+    icon: Star,
+    title: 'Drivers rate what they actually used',
+    body: 'Reviews come from people who charged there, and you can reply to them in public. Your rating is counted from those reviews, never set by us.',
   },
 ]
 
@@ -62,49 +95,31 @@ export function BusinessTestimonials() {
       <div className="container-plug">
         <SectionHeader
           align="center"
-          eyebrow="Success Stories"
-          eyebrowColor="green"
-          title="Trusted by EV-Forward Businesses"
+          eyebrow="What a listing does"
+          title="Three things that happen once you are listed"
         />
 
         <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {TESTIMONIALS.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="rounded-2xl border border-slate-200 bg-white p-7"
-            >
-              <span
-                aria-hidden="true"
-                className="-mb-4 block text-6xl font-black leading-none text-blue-100"
-              >
-                &ldquo;
-              </span>
+          {CAPABILITIES.map((item) => {
+            const Icon = item.icon
 
-              <div className="mb-4">
-                <RatingStars rating={5} size="sm" />
+            return (
+              <div key={item.title} className={FRAME}>
+                <div className={cn(FACE, 'p-8')}>
+                  <span aria-hidden="true" className={ICON_FRAME}>
+                    <Icon size={24} className={ICON_GLYPH} />
+                  </span>
+
+                  <span aria-hidden="true" className={cn('mt-8', CAP_RULE)} />
+
+                  <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-ui leading-relaxed text-slate-500">{item.body}</p>
+                </div>
               </div>
-
-              <p className="mb-6 text-base italic leading-relaxed text-slate-600">
-                {testimonial.quote}
-              </p>
-
-              <div className="flex items-center gap-3 border-t border-slate-100 pt-5">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-lg font-bold text-white',
-                    testimonial.tone,
-                  )}
-                >
-                  {testimonial.name.charAt(0)}
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-bold text-slate-900">{testimonial.name}</span>
-                  <span className="block text-sm text-slate-500">{testimonial.role}</span>
-                </span>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div className="mt-16 text-center">

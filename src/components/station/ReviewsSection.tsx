@@ -24,12 +24,20 @@ export interface ReviewsSectionProps {
 
 type SortKey = 'recent' | 'helpful' | 'highest' | 'lowest'
 
+/**
+ * Ink tones, not hues — the same set the community feed uses.
+ *
+ * These were five saturated gradients running through purple, emerald, amber
+ * and rose, none of which appear anywhere else in a product built on slate and
+ * one blue. An avatar is an identity marker, so it keeps a fill; depth is what
+ * separates one from the next now, rather than colour.
+ */
 const AVATAR_TONES = [
-  'bg-gradient-to-br from-blue-500 to-cyan-500',
-  'bg-gradient-to-br from-purple-500 to-blue-500',
-  'bg-gradient-to-br from-emerald-500 to-cyan-500',
-  'bg-gradient-to-br from-amber-500 to-orange-500',
-  'bg-gradient-to-br from-rose-500 to-purple-500',
+  'bg-slate-800',
+  'bg-plug-blue-800',
+  'bg-slate-600',
+  'bg-plug-cyan-800',
+  'bg-slate-900',
 ]
 
 function toneForName(name: string): string {

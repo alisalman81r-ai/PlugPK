@@ -11,13 +11,13 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
+import { FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion, SectionHeader, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 interface Feature {
   motion: IconMotion
   icon: LucideIcon
-  tone: string
   title: string
   description: string
 }
@@ -26,7 +26,6 @@ const FEATURES: Feature[] = [
   {
     icon: MapPin,
     motion: 'scan',
-    tone: 'bg-blue-50 text-plug-blue-600',
     title: 'Map Visibility',
     description:
       'Appear on the Plug.pk charging map and be discovered by EV owners actively searching near you.',
@@ -34,7 +33,6 @@ const FEATURES: Feature[] = [
   {
     icon: ShieldCheck,
     motion: 'pop',
-    tone: 'bg-green-50 text-green-600',
     title: 'Verified Badge',
     description:
       'Get a verified badge that builds trust with EV owners and shows your chargers are accurate and reliable.',
@@ -42,7 +40,6 @@ const FEATURES: Feature[] = [
   {
     icon: Zap,
     motion: 'pulse',
-    tone: 'bg-amber-50 text-amber-600',
     title: 'Charger Management',
     description:
       'Easily manage your charger details, availability, and pricing from your simple business dashboard.',
@@ -50,7 +47,6 @@ const FEATURES: Feature[] = [
   {
     icon: Star,
     motion: 'pop',
-    tone: 'bg-purple-50 text-purple-600',
     title: 'Reviews & Ratings',
     description:
       'Receive and respond to reviews from real EV owners who have visited your location.',
@@ -58,7 +54,6 @@ const FEATURES: Feature[] = [
   {
     icon: BarChart2,
     motion: 'slide',
-    tone: 'bg-cyan-50 text-cyan-600',
     title: 'Analytics Dashboard',
     description:
       'Track profile views, navigation clicks, and customer engagement with easy-to-read analytics.',
@@ -66,10 +61,9 @@ const FEATURES: Feature[] = [
   {
     icon: Users,
     motion: 'pulse',
-    tone: 'bg-rose-50 text-rose-600',
     title: 'Community Reach',
     description:
-      "Reach Pakistan's largest EV community and attract premium EV-owning customers.",
+      'Your listing sits alongside the discussions, trip reports and owner clubs drivers already read here.',
   },
 ]
 
@@ -123,23 +117,20 @@ export function BusinessFeatures() {
               const Icon = feature.icon
 
               return (
-                <HoverMotion
-                  key={feature.title}
-                  className="rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-[250ms] hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover"
-                >
-                  <span
-                    className={cn(
-                      'mb-5 flex h-14 w-14 items-center justify-center rounded-2xl',
-                      feature.tone,
-                    )}
-                  >
-                    <AnimatedIcon motion={feature.motion}>
-                      <Icon size={26} aria-hidden="true" />
-                    </AnimatedIcon>
-                  </span>
+                <HoverMotion key={feature.title} className={FRAME}>
+                  <div className={cn(FACE, 'p-7')}>
+                    {/* Outlined, like every other icon holder on the site. This
+                        was one pastel fill per feature — six hues in a six-card
+                        grid, and the last rainbow on the public site. */}
+                    <span aria-hidden="true" className={cn('mb-5', ICON_FRAME)}>
+                      <AnimatedIcon motion={feature.motion}>
+                        <Icon size={24} aria-hidden="true" className={ICON_GLYPH} />
+                      </AnimatedIcon>
+                    </span>
 
-                  <h3 className="mb-2 text-lg font-bold text-slate-900">{feature.title}</h3>
-                  <p className="text-sm leading-relaxed text-slate-500">{feature.description}</p>
+                    <h3 className="mb-2 text-lg font-bold text-slate-900">{feature.title}</h3>
+                    <p className="text-sm leading-relaxed text-slate-500">{feature.description}</p>
+                  </div>
                 </HoverMotion>
               )
             })}
