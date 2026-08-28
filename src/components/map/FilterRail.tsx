@@ -112,9 +112,14 @@ export function FilterRail({
         figure a pin can slide behind.
       */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6">
+        {/* Outlined, like every other icon holder on the site. The filter chips
+            below keep their tint, and deliberately — a fill there means "this
+            filter is on", which is state the user needs to see. This glyph
+            labels the panel and carries no state, so a fill only competed with
+            the ones that do. */}
         <span
           aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-plug-blue-600/10 text-plug-blue-600"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-slate-300 text-slate-500"
         >
           <SlidersHorizontal size={17} />
         </span>

@@ -12,6 +12,7 @@ import {
   SpeedBadge,
   StatusDot,
 } from '@/components/ui'
+import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
 import type { Station } from '@/lib/types'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
 
@@ -41,6 +42,20 @@ export function StationListItem({
   }
 
   return (
+    /*
+     * The card treatment shared with the home page and Partner Up.
+     *
+     * These were the last cards on the site still wearing a plain slate border
+     * with a blue tint on hover, while every other card wears a graded hairline
+     * that warms to brand. Walking from the home page to the map changed what a
+     * card was for no reason a visitor could see.
+     *
+     * The selected state is FRAME_FEATURED — the same brand edge the
+     * recommended pricing plan carries — rather than a blue fill with a thick
+     * left border. A fill was the heaviest possible way to say "this one", on a
+     * page where up to a dozen of these sit in a grid, and it fought the photo
+     * and the status dot inside the card for attention.
+     */
     <div
       role="button"
       tabIndex={0}
@@ -53,78 +68,92 @@ export function StationListItem({
         }
       }}
       className={cn(
-        'cursor-pointer rounded-2xl bg-white p-4 transition-all duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
-        isSelected
-          ? 'border-2 border-l-4 border-plug-blue-600 bg-blue-50 shadow-blue'
-          : 'border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 hover:shadow-sm',
+        isSelected ? FRAME_FEATURED : FRAME,
+        'cursor-pointer focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
       )}
     >
-      {/* Thumbnail beside the text: the same photo shown on the station page,
-          so a row in the list and its pin on the map read as one place. */}
-      <div className="mb-3 flex gap-3">
-        <span className="relative block h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl">
-          <PhotoFrame
-            src={station.coverPhoto}
-            alt={`${station.name} charging station`}
-            sizes="68px"
-          />
-        </span>
+      <div className={cn(FACE, 'p-4')}>
+        {/* Thumbnail beside the text: the same photo shown on the station page,
+            so a row in the list and its pin on the map read as one place. */}
+        <div className="mb-3 flex gap-3">
+          <span className="relative block h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl">
+            <PhotoFrame
+              src={station.coverPhoto}
+              alt={`${station.name} charging station`}
+              sizes="68px"
+            />
+          </span>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 flex-1 text-ui font-bold text-slate-900">
-              {station.name}
-            </h3>
-            <span className="flex shrink-0 items-center gap-1">
-              <Star size={13} className="fill-amber-400 text-amber-400" aria-hidden="true" />
-              <span className="text-sm font-semibold text-slate-900">
-                {formatRating(station.rating)}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="line-clamp-1 flex-1 text-ui font-bold text-slate-900">
+                {station.name}
+              </h3>
+              <span className="flex shrink-0 items-center gap-1">
+                <Star size={13} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+                <span className="text-sm font-semibold text-slate-900">
+                  {formatRating(station.rating)}
+                </span>
               </span>
-            </span>
-          </div>
+            </div>
 
-          <div className="mt-1 flex items-center justify-between gap-2">
-            <span className="flex min-w-0 items-center gap-1.5">
-              <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-              <span className="line-clamp-1 text-ui-sm text-slate-500">
-                {station.address.area}, {station.address.city}
+            <div className="mt-1 flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
+                <span className="line-clamp-1 text-ui-sm text-slate-500">
+                  {station.address.area}, {station.address.city}
+                </span>
               </span>
-            </span>
-            {distanceKm !== undefined ? (
-              <span className="shrink-0 font-mono text-xs text-slate-400">
-                {formatDistance(distanceKm)}
-              </span>
-            ) : null}
-          </div>
+              {distanceKm !== undefined ? (
+                <span className="shrink-0 font-mono text-xs text-slate-400">
+                  {formatDistance(distanceKm)}
+                </span>
+              ) : null}
+            </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <StatusDot status={station.status} size="sm" showLabel />
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <StatusDot status={station.status} size="sm" showLabel />
+            </div>
           </div>
         </div>
+
+        {ports.total > 0 ? (
+          <PortMeter available={ports.available} total={ports.total} size="sm" className="mb-3" />
+        ) : null}
+
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
+          {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
+        </div>
+
+        {/*
+          Outlined at rest, brand-filled on hover.
+
+          It was a solid blue bar across the full width of every card, so a grid
+          of six put six blue slabs on the page and they, rather than the
+          stations, were what the eye landed on. There is also a nesting problem
+          a fill makes worse: the card itself is a button — clicking it puts the
+          station on the map — so a second, heavier-looking button inside it
+          left no way to tell what each one did. Outlined, the card reads as the
+          surface and this reads as the one specific action on it.
+
+          It still fills on hover and keeps its own focus ring, so it never
+          stops looking like a control.
+        */}
+        <button
+          type="button"
+          onClick={handleNavigate}
+          className="group/nav flex h-9 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-slate-300 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-plug-blue-600 hover:bg-plug-blue-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+        >
+          Navigate
+          <Navigation2
+            size={15}
+            className="shrink-0 transition-transform duration-200 group-hover/nav:translate-x-[3px]"
+            aria-hidden="true"
+          />
+        </button>
       </div>
-
-      {ports.total > 0 ? (
-        <PortMeter available={ports.available} total={ports.total} size="sm" className="mb-3" />
-      ) : null}
-
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
-        {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
-      </div>
-
-      <button
-        type="button"
-        onClick={handleNavigate}
-        className="group/nav flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-sm font-semibold text-white transition-colors duration-150 hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-      >
-        Navigate
-        <Navigation2
-          size={15}
-          className="shrink-0 transition-transform duration-200 group-hover/nav:translate-x-[3px]"
-          aria-hidden="true"
-        />
-      </button>
     </div>
   )
 }
@@ -137,29 +166,27 @@ export function StationListSkeleton({ count = 4 }: StationListSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }, (_, index) => index).map((index) => (
-        <div
-          key={index}
-          role="status"
-          aria-label="Loading station"
-          className="rounded-2xl border border-slate-200 bg-white p-4"
-        >
-          {/* Mirrors the loaded row exactly, so nothing shifts on swap-in. */}
-          <div className="mb-3 flex gap-3">
-            <Skeleton rounded="lg" className="h-[68px] w-[68px] shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <Skeleton className="h-4 w-2/3" />
-                <Skeleton className="h-4 w-10" />
+        // Mirrors the loaded row exactly — the same frame and face, so nothing
+        // changes shape or shifts the grid the moment the real cards arrive.
+        <div key={index} role="status" aria-label="Loading station" className={FRAME}>
+          <div className={cn(FACE, 'p-4')}>
+            <div className="mb-3 flex gap-3">
+              <Skeleton rounded="lg" className="h-[68px] w-[68px] shrink-0" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-4 w-10" />
+                </div>
+                <Skeleton className="mt-2 h-3 w-1/2" />
+                <Skeleton className="mt-2.5 h-4 w-24" />
               </div>
-              <Skeleton className="mt-2 h-3 w-1/2" />
-              <Skeleton className="mt-2.5 h-4 w-24" />
             </div>
+            <div className="mb-3 flex gap-2">
+              <Skeleton rounded="full" className="h-5 w-20" />
+              <Skeleton rounded="full" className="h-5 w-16" />
+            </div>
+            <Skeleton rounded="lg" className="h-9 w-full" />
           </div>
-          <div className="mb-3 flex gap-2">
-            <Skeleton rounded="full" className="h-5 w-20" />
-            <Skeleton rounded="full" className="h-5 w-16" />
-          </div>
-          <Skeleton rounded="lg" className="h-9 w-full" />
         </div>
       ))}
     </>
