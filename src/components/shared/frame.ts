@@ -17,9 +17,23 @@
  * the padding is the border.
  */
 
-/** Grey at rest, brand on hover. Pair with FACE on the child. */
+/**
+ * Grey at rest, brand on hover. Pair with FACE on the child.
+ *
+ * `block` matters, and is easy to lose. This file says the frame is applied to
+ * "a div, an li and an anchor", and an anchor is `display: inline` by default.
+ * An inline box holding a block child does not wrap it — it paints its
+ * background across line boxes instead, so the gradient appears as stray
+ * slivers above and below the card rather than as its border. Measured on the
+ * community feed before this was added: a 303px frame around a 252px face, with
+ * 26px of gradient showing at each end.
+ *
+ * It goes unnoticed wherever the card is a grid or flex item, because those are
+ * blockified anyway — which is exactly why it survived on every other page and
+ * only appeared in the one feed that stacks its cards in normal flow.
+ */
 export const FRAME =
-  'group h-full rounded-3xl bg-gradient-to-b from-slate-300 via-slate-300 to-slate-200 p-[1.5px] ' +
+  'group block h-full rounded-3xl bg-gradient-to-b from-slate-300 via-slate-300 to-slate-200 p-[1.5px] ' +
   'shadow-[0_1px_2px_rgba(15,23,42,0.05),0_16px_36px_-20px_rgba(15,23,42,0.35)] ' +
   'transition-all duration-300 ' +
   'hover:from-plug-blue-500 hover:via-plug-cyan-400 hover:to-plug-blue-300 ' +
@@ -30,7 +44,7 @@ export const FRAME =
  * It carries the brand edge at rest rather than waiting for a hover.
  */
 export const FRAME_FEATURED =
-  'group h-full rounded-3xl bg-gradient-to-b from-plug-blue-500 via-plug-cyan-400 to-plug-blue-300 p-[1.5px] ' +
+  'group block h-full rounded-3xl bg-gradient-to-b from-plug-blue-500 via-plug-cyan-400 to-plug-blue-300 p-[1.5px] ' +
   'shadow-[0_14px_30px_-10px_rgba(37,99,235,0.28),0_34px_70px_-28px_rgba(37,99,235,0.45)] ' +
   'transition-all duration-300 hover:shadow-[0_18px_38px_-10px_rgba(37,99,235,0.36),0_40px_80px_-28px_rgba(37,99,235,0.55)]'
 

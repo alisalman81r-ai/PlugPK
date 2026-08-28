@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 
+import { FACE, FRAME } from '@/components/shared/frame'
 import { POST_CATEGORY_META } from '@/lib/constants'
 import type { CommunityPost } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
@@ -165,64 +166,75 @@ export function PostCard({
   }
 
   /* ── Featured ────────────────────────────────────────────────── */
+  /*
+   * The graded hairline the rest of the site's cards wear.
+   *
+   * group/post is kept alongside FRAME's own unnamed `group` because the
+   * children below address the named group explicitly, and FRAME only supplies
+   * the unnamed one.
+   *
+   * The comment sits above the `return` rather than inside it: SWC rejects a
+   * block comment between `return (` and the JSX element with "Expected jsx
+   * identifier", even though tsc accepts it happily. That mismatch is worth
+   * knowing about — a type-check pass is not proof the page compiles.
+   */
   if (variant === 'featured') {
     return (
       <Link
         href={href}
         style={style}
-        className={cn(
-          'group/post flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-card-hover lg:flex-row',
-          className,
-        )}
+        className={cn(FRAME, 'group/post', className)}
       >
-        {coverPhoto ? (
-          <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-blue-50 lg:h-auto lg:w-[200px]">
-            <Image
-              src={coverPhoto}
-              alt=""
-              fill
-              sizes="(max-width: 1024px) 100vw, 200px"
-              className="object-cover"
-            />
-          </span>
-        ) : (
-          <span
-            aria-hidden="true"
-            className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 lg:h-auto lg:w-[200px]"
-          >
-            <Zap size={48} className="text-blue-200" />
-          </span>
-        )}
-
-        <div className="min-w-0 flex-1">
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Avatar name={post.userName} />
-              <span>
-                <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
-                {post.userVehicle ? (
-                  <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                    <Car size={11} aria-hidden="true" />
-                    {post.userVehicle}
-                  </span>
-                ) : null}
-              </span>
-            </div>
-            {categoryBadge}
-          </div>
-
-          <h3 className="mb-2 line-clamp-2 text-xl font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
-            {post.title}
-          </h3>
-
-          <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
-
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5 text-xs text-slate-400">
-              <Clock size={13} aria-hidden="true" />
-              {formatRelativeTime(post.createdAt)}
+        <div className={cn(FACE, 'flex flex-col gap-6 p-6 lg:flex-row')}>
+          {coverPhoto ? (
+            <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-blue-50 lg:h-auto lg:w-[200px]">
+              <Image
+                src={coverPhoto}
+                alt=""
+                fill
+                sizes="(max-width: 1024px) 100vw, 200px"
+                className="object-cover"
+              />
             </span>
-            {engagement}
+          ) : (
+            <span
+              aria-hidden="true"
+              className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 lg:h-auto lg:w-[200px]"
+            >
+              <Zap size={48} className="text-blue-200" />
+            </span>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Avatar name={post.userName} />
+                <span>
+                  <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
+                  {post.userVehicle ? (
+                    <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
+                      <Car size={11} aria-hidden="true" />
+                      {post.userVehicle}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+              {categoryBadge}
+            </div>
+
+            <h3 className="mb-2 line-clamp-2 text-xl font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
+              {post.title}
+            </h3>
+
+            <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
+
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                <Clock size={13} aria-hidden="true" />
+                {formatRelativeTime(post.createdAt)}
+              </span>
+              {engagement}
+            </div>
           </div>
         </div>
       </Link>
@@ -231,62 +243,57 @@ export function PostCard({
 
   /* ── Default ─────────────────────────────────────────────────── */
   return (
-    <Link
-      href={href}
-      style={style}
-      className={cn(
-        'group/post block rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-card-hover',
-        className,
-      )}
-    >
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Avatar name={post.userName} />
-          <span>
-            <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
-            {post.userVehicle ? (
-              <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                <Car size={11} aria-hidden="true" />
-                {post.userVehicle}
+    <Link href={href} style={style} className={cn(FRAME, 'group/post', className)}>
+      <div className={cn(FACE, 'block p-6')}>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Avatar name={post.userName} />
+            <span>
+              <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
+              {post.userVehicle ? (
+                <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
+                  <Car size={11} aria-hidden="true" />
+                  {post.userVehicle}
+                </span>
+              ) : null}
+            </span>
+          </div>
+          {categoryBadge}
+        </div>
+
+        <h3 className="mb-2 line-clamp-2 text-ui-lg font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
+          {post.title}
+        </h3>
+
+        <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
+
+        {coverPhoto ? (
+          // Empty alt: the heading above already names the post, so announcing
+          // the image again would just repeat it.
+          <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-blue-50">
+            <Image
+              src={coverPhoto}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover transition-transform duration-300 group-hover/post:scale-[1.03]"
+            />
+            {photoCount > 1 ? (
+              <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-ui-xs font-medium text-white backdrop-blur-md">
+                <Images size={11} aria-hidden="true" />
+                {photoCount}
               </span>
             ) : null}
           </span>
+        ) : null}
+
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1.5 text-xs text-slate-400">
+            <Clock size={13} aria-hidden="true" />
+            {formatRelativeTime(post.createdAt)}
+          </span>
+          {engagement}
         </div>
-        {categoryBadge}
-      </div>
-
-      <h3 className="mb-2 line-clamp-2 text-ui-lg font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
-        {post.title}
-      </h3>
-
-      <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
-
-      {coverPhoto ? (
-        // Empty alt: the heading above already names the post, so announcing
-        // the image again would just repeat it.
-        <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-blue-50">
-          <Image
-            src={coverPhoto}
-            alt=""
-            fill
-            sizes="(max-width: 768px) 100vw, 400px"
-            className="object-cover transition-transform duration-300 group-hover/post:scale-[1.03]"
-          />
-          {photoCount > 1 ? (
-            <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-ui-xs font-medium text-white backdrop-blur-md">
-              <Images size={11} aria-hidden="true" />
-              {photoCount}
-            </span>
-          ) : null}
-        </span>
-      ) : null}
-
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-xs text-slate-400">
-          <Clock size={13} aria-hidden="true" />
-          {formatRelativeTime(post.createdAt)}
-        </span>
-        {engagement}
       </div>
     </Link>
   )
