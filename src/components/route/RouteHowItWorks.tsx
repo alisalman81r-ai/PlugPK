@@ -1,6 +1,10 @@
 // src/components/route/RouteHowItWorks.tsx
 import { BatteryCharging, Car, MapPin, type LucideIcon } from 'lucide-react'
 
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
+import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
+import { cn } from '@/lib/utils'
+
 /**
  * What the planner does, in three steps.
  *
@@ -16,6 +20,8 @@ import { BatteryCharging, Car, MapPin, type LucideIcon } from 'lucide-react'
 
 interface Step {
   icon: LucideIcon
+  /** Matched to what the glyph depicts, not picked for variety. */
+  motion: IconMotion
   title: string
   description: string
 }
@@ -23,18 +29,21 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: MapPin,
+    motion: 'scan',
     title: 'Set two cities',
     description:
       'Type a start and a destination anywhere in Pakistan, or tap one of the popular routes above.',
   },
   {
     icon: Car,
+    motion: 'travel',
     title: 'Pick your EV',
     description:
       'Stops are sized against your car’s real battery capacity and peak charging rate, not a generic average.',
   },
   {
     icon: BatteryCharging,
+    motion: 'pulse',
     title: 'Drive with a plan',
     description:
       'You get the charging stops in order, how long each one takes, and the battery you arrive and leave on.',
@@ -56,35 +65,59 @@ export function RouteHowItWorks() {
         </h2>
       </div>
 
-      <ol className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-        {/* The thread between the steps, drawn behind them. Only on the wide
-            layout, where the three actually sit in a row. */}
-        <span
-          aria-hidden="true"
-          className="absolute left-[16%] right-[16%] top-[3.25rem] hidden border-t-2 border-dashed border-slate-200 lg:block"
-        />
+      {/*
+        The same three-step treatment Partner Up uses.
 
+        These are literally the same idea — three numbered steps explaining a
+        flow — and they were drawn two different ways. Here the icon was a
+        filled blue-to-cyan chip with a dark numbered disc pinned to its corner;
+        on Partner Up it is an outlined holder with a stroke-only numeral in the
+        card's corner. The rule the rest of the site follows is that prominence
+        comes from the edge and the space rather than from painting the surface,
+        and this section was the loudest thing on a page whose actual subject is
+        the planner directly above it.
+
+        Left-aligned rather than centred, for the same reason Partner Up is: the
+        numeral sits in the top corner, and with centred content it had nothing
+        to align to.
+      */}
+      <ol className="relative grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
         {STEPS.map((step, index) => {
           const Icon = step.icon
 
           return (
-            <li
-              key={step.title}
-              className="relative flex flex-col items-center rounded-3xl border border-slate-200/80 bg-white px-6 py-8 text-center shadow-e1 transition-shadow duration-200 hover:shadow-e2"
-            >
-              <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-plug-blue-600 to-plug-cyan-500 text-white shadow-blue">
-                <Icon size={24} strokeWidth={1.75} aria-hidden="true" />
-                <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-slate-900 font-mono text-[11px] font-bold text-white">
-                  {index + 1}
-                </span>
-              </span>
+            <li key={step.title} className="relative">
+              {/* The thread between the steps, at the icon's centre line and
+                  only ever between two cards — never trailing off the last. */}
+              {index < STEPS.length - 1 ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-full top-[60px] z-10 hidden h-px w-8 border-t-2 border-dashed border-slate-300 lg:block"
+                />
+              ) : null}
 
-              <h3 className="mt-5 font-display text-lg font-bold tracking-tight text-slate-900">
-                {step.title}
-              </h3>
-              <p className="mt-2 max-w-[28ch] text-ui leading-relaxed text-slate-500">
-                {step.description}
-              </p>
+              <HoverMotion className={FRAME}>
+                <div className={cn(FACE, 'overflow-hidden p-8')}>
+                  <span aria-hidden="true" className={NUMERAL}>
+                    {index + 1}
+                  </span>
+
+                  <span aria-hidden="true" className={ICON_FRAME}>
+                    <AnimatedIcon motion={step.motion}>
+                      <Icon size={24} className={ICON_GLYPH} />
+                    </AnimatedIcon>
+                  </span>
+
+                  <span aria-hidden="true" className={cn('mt-8', CAP_RULE)} />
+
+                  <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+                    {step.title}
+                  </h3>
+                  <p className="mt-3 text-ui leading-relaxed text-slate-500">
+                    {step.description}
+                  </p>
+                </div>
+              </HoverMotion>
             </li>
           )
         })}

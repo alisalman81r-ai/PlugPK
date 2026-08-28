@@ -4,6 +4,7 @@
 import { ArrowRight, Clock, Route as RouteIcon } from 'lucide-react'
 import * as React from 'react'
 
+import { FACE, FRAME } from '@/components/shared/frame'
 import { estimateDriveMinutes, POPULAR_ROUTES, type PopularRoute } from '@/lib/route-distances'
 import { cn, formatDuration } from '@/lib/utils'
 
@@ -79,69 +80,81 @@ function RouteCard({
   const driveTime = formatDuration(estimateDriveMinutes(route.distanceKm))
 
   return (
+    /*
+      The card treatment shared with the rest of the site: a graded hairline
+      that warms to brand, rather than a flat slate border on a tinted ground.
+      These sit inside the white "Popular routes" panel, so the tint was also
+      the only thing on the page drawing a grey rectangle on white.
+    */
     <button
       type="button"
       onClick={() => onSelect(route)}
       aria-label={`Plan ${route.from} to ${route.to}, about ${route.distanceKm} kilometres`}
-      className="group flex flex-col rounded-2xl border border-slate-200 bg-slate-50/60 p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-plug-blue-200 hover:bg-white hover:shadow-e2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+      className={cn(
+        FRAME,
+        'text-left focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+      )}
     >
-      {/*
-        The two cities read down the card with the same green-to-red run the
-        planner's own From and To fields use, so a card and the form it fills in
-        are visibly the same thing.
-      */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="relative min-w-0 pl-6">
-          <span
-            aria-hidden="true"
-            className="absolute left-[3px] top-[7px] h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute bottom-[9px] left-[7px] top-[19px] border-l-2 border-dashed border-slate-300"
-          />
-          <span
-            aria-hidden="true"
-            className="absolute bottom-[3px] left-[3px] h-2.5 w-2.5 rounded-full bg-rose-500 ring-4 ring-rose-500/15"
-          />
+      <div className={cn(FACE, 'p-5')}>
+        {/*
+          The two cities read down the card with the same green-to-red run the
+          planner's own From and To fields use, so a card and the form it fills in
+          are visibly the same thing.
+        */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="relative min-w-0 pl-6">
+            <span
+              aria-hidden="true"
+              className="absolute left-[3px] top-[7px] h-2.5 w-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute bottom-[9px] left-[7px] top-[19px] border-l-2 border-dashed border-slate-300"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute bottom-[3px] left-[3px] h-2.5 w-2.5 rounded-full bg-rose-500 ring-4 ring-rose-500/15"
+            />
 
-          <span className="block truncate text-ui-lg font-bold leading-snug text-slate-900">
-            {route.from}
-          </span>
-          <span className="mt-2 block truncate text-ui-lg font-bold leading-snug text-slate-900">
-            {route.to}
+            <span className="block truncate text-ui-lg font-bold leading-snug text-slate-900">
+              {route.from}
+            </span>
+            <span className="mt-2 block truncate text-ui-lg font-bold leading-snug text-slate-900">
+              {route.to}
+            </span>
+          </div>
+
+          <span className="shrink-0 text-right">
+            <span className="block font-mono text-xl font-bold leading-none text-plug-blue-600">
+              {route.distanceKm.toLocaleString('en-PK')}
+            </span>
+            <span className="mt-1 block font-mono text-ui-xs uppercase tracking-widest text-slate-400">
+              km
+            </span>
           </span>
         </div>
 
-        <span className="shrink-0 text-right">
-          <span className="block font-mono text-xl font-bold leading-none text-plug-blue-600">
-            {route.distanceKm.toLocaleString('en-PK')}
+        <span className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-4">
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="flex items-center gap-1.5 text-ui-sm text-slate-500">
+              <Clock size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
+              {/* Approximate, and said so: it is distance over an assumed average
+                  speed, not a live traffic estimate. */}
+              <span className="font-mono">~{driveTime}</span>
+            </span>
+            <span className="truncate text-ui-sm text-slate-400">{route.note}</span>
           </span>
-          <span className="mt-1 block font-mono text-ui-xs uppercase tracking-widest text-slate-400">
-            km
+
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-slate-200 transition-all duration-200 group-hover:bg-plug-blue-600 group-hover:text-white group-hover:ring-plug-blue-600">
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover:translate-x-px"
+            />
           </span>
         </span>
       </div>
-
-      <span className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200/70 pt-4">
-        <span className="flex min-w-0 items-center gap-3">
-          <span className="flex items-center gap-1.5 text-ui-sm text-slate-500">
-            <Clock size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-            {/* Approximate, and said so: it is distance over an assumed average
-                speed, not a live traffic estimate. */}
-            <span className="font-mono">~{driveTime}</span>
-          </span>
-          <span className="truncate text-ui-sm text-slate-400">{route.note}</span>
-        </span>
-
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-slate-200 transition-all duration-200 group-hover:bg-plug-blue-600 group-hover:text-white group-hover:ring-plug-blue-600">
-          <ArrowRight
-            size={15}
-            aria-hidden="true"
-            className="transition-transform duration-200 group-hover:translate-x-px"
-          />
-        </span>
-      </span>
     </button>
   )
 }
