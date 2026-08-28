@@ -55,7 +55,22 @@ const DAY_LABEL: Record<(typeof DAYS)[number], string> = {
   sunday: 'Sunday',
 }
 
-function formatDay(hours: DayHours): string {
+/**
+ * One day's hours, tolerating a listing that has none.
+ *
+ * A service can reach this page without opening hours: the public application
+ * form does not ask for them — nobody should have to type a week of times
+ * before anyone has agreed to list them — so the row carries the schema's `{}`
+ * default until a reviewer fills them in. An admin adding a service by hand can
+ * leave them empty the same way.
+ *
+ * Before this guard, `hours.isClosed` on an undefined day threw and took the
+ * whole detail page to a 500. Saying the hours are not listed is both true and
+ * survivable; claiming "Closed" for a business that simply has not told us
+ * would be neither.
+ */
+function formatDay(hours: DayHours | undefined): string {
+  if (!hours) return 'Not listed'
   return hours.isClosed ? 'Closed' : `${hours.open} – ${hours.close}`
 }
 

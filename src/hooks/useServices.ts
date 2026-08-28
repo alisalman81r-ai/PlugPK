@@ -28,6 +28,19 @@ export interface UseServicesOptions {
   /** Seeds from the URL so the hero's search form actually drives results. */
   initialQuery?: string
   initialCity?: string
+  /**
+   * The directory to filter, read from the database by the page above.
+   *
+   * This used to be MOCK_SERVICES, hardcoded here. That meant the /services
+   * listing showed a fixed twelve rows while /services/[category] and every
+   * detail page read the real table — so approving a service in the admin made
+   * it appear on its category page and never on the main directory. Passing the
+   * data in is what connects this page to the database at all.
+   *
+   * Optional so an existing caller keeps working, and it falls back to the
+   * mock set rather than to an empty page.
+   */
+  services?: EVService[]
 }
 
 export function useServices(options: UseServicesOptions = {}): UseServicesReturn {
@@ -45,7 +58,7 @@ export function useServices(options: UseServicesOptions = {}): UseServicesReturn
    */
   const isLoading = false
 
-  const services = MOCK_SERVICES
+  const services = options.services ?? MOCK_SERVICES
 
   /** Counts come from the unfiltered list so tab badges never change. */
   const categoryCount = useMemo(() => {

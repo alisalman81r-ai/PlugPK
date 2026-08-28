@@ -70,8 +70,22 @@ export async function getStationSlugs(): Promise<string[]> {
 
 // ─── Services ───────────────────────────────────────
 
+/**
+ * The public directory — approved listings only.
+ *
+ * Anyone can now apply to be listed, so this has to filter. Before the approval
+ * gate existed every row was admin-created and therefore live by definition;
+ * an unfiltered query today would publish an application the moment it was
+ * submitted, which is the whole thing the gate prevents.
+ *
+ * Admin screens deliberately do NOT use this — see listServicesForAdmin, which
+ * returns every status because reviewing them is its job.
+ */
 export async function getServices(): Promise<EVService[]> {
-  const rows = await prisma.eVService.findMany({ orderBy: { name: 'asc' } })
+  const rows = await prisma.eVService.findMany({
+    where: { status: 'approved' },
+    orderBy: { name: 'asc' },
+  })
   return rows.map(toService)
 }
 
@@ -83,6 +97,9 @@ export async function getServiceBySlug(
   // The URL carries both, so a mismatched pair is a 404 rather than a
   // redirect — otherwise /services/insurance/some-dealer would resolve.
   if (!row || row.category !== category) return null
+  // An unapproved listing is a 404 on the public site, not a preview. Guessing
+  // a slug should not be a way to read an application before it is reviewed.
+  if (row.status !== 'approved') return null
   return toService(row)
 }
 
@@ -91,8 +108,47 @@ export async function getServiceById(id: string): Promise<EVService | null> {
   return row ? toService(row) : null
 }
 
+/** Static params for the public detail pages, so only approved ones prerender. */
 export async function getServiceParams(): Promise<{ category: string; slug: string }[]> {
-  const rows = await prisma.eVService.findMany({ select: { category: true, slug: true } })
+  const rows = await prisma.eVService.findMany({
+    where: { status: 'approved' },
+    select: { category: true, slug: true },
+  })
+  return rows
+}
+
+/**
+ * Every service, whatever its status — the admin list.
+ *
+ * Deliberately separate from getServices(), which filters to approved. The
+ * admin page used to call that one, and gating it without this would have made
+ * pending applications invisible to the only person who can approve them.
+ *
+ * Pending first, because that is the work; the rest by name.
+ */
+export interface AdminServiceRow {
+  id: string
+  name: string
+  slug: string
+  category: string
+  city: string
+  status: string
+  isVerified: boolean
+  submittedAt: Date | null
+  phone: string
+  email: string | null
+}
+
+export async function listServicesForAdmin(): Promise<AdminServiceRow[]> {
+  const rows = await prisma.eVService.findMany({
+    orderBy: [{ status: 'asc' }, { name: 'asc' }],
+    select: {
+      id: true, name: true, slug: true, category: true, city: true,
+      status: true, isVerified: true, submittedAt: true, phone: true, email: true,
+    },
+  })
+  // 'pending' sorts before 'approved' and 'rejected' alphabetically, which is
+  // the order wanted here — stated rather than left to look like a coincidence.
   return rows
 }
 
@@ -936,8 +992,11 @@ export async function getPartners(): Promise<PartnerRow[]> {
  * zero somebody has to interpret.
  */
 export async function getServiceCategoryCounts(): Promise<Record<string, number>> {
+  // Approved only, matching what the directory actually shows. A pending
+  // application must not inflate the figure on the home page.
   const rows = await prisma.eVService.groupBy({
     by: ['category'],
+    where: { status: 'approved' },
     _count: { _all: true },
   })
 

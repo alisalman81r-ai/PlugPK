@@ -1,5 +1,6 @@
 // src/components/services/ServiceHero.tsx
 import { Search } from 'lucide-react'
+import Link from 'next/link'
 
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS } from '@/lib/constants'
 
@@ -148,6 +149,26 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
             </div>
           ))}
         </dl>
+
+        {/*
+          The way in for the other side of this directory.
+
+          Every service here used to be typed in by an admin, so a workshop or
+          installer had no way to ask to be listed. It sits under the figures
+          rather than beside the search: a driver looking for a mechanic is the
+          common case and keeps the top of the page, and a provider looking to
+          be listed will read this far.
+        */}
+        <p className="mt-8 text-center text-ui-sm text-white/60">
+          Offer an EV service?{' '}
+          <Link
+            href="/services/list"
+            className="font-semibold text-plug-sky-100 underline decoration-plug-sky-300/50 underline-offset-4 transition-colors hover:text-white hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
+          >
+            Apply to be listed
+          </Link>{' '}
+          — free, and checked before it goes live.
+        </p>
       </div>
     </section>
   )

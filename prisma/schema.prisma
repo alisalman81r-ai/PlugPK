@@ -176,10 +176,28 @@ model EVService {
   operatingHours String  @default("{}")
   isVerified     Boolean @default(false)
 
+  /// Whether a person has approved this listing for the public site.
+  ///
+  /// Services used to be admin-created only, so every row was live the moment
+  /// it existed and there was no way for a workshop or installer to ask to be
+  /// listed. This is the same gate charger hosts already go through on
+  /// Business.status, so an operator learns one approval flow rather than two.
+  ///
+  /// Defaults to pending because the public form is now the common way a row
+  /// arrives. The twelve rows that predate this were set to approved in the
+  /// migration — they were already on the live site, and a default of pending
+  /// would have emptied the Services page.
+  status      String   @default("pending")
+  /// When the applicant submitted it. Null for admin-created rows.
+  submittedAt DateTime?
+  /// Free-text note from the reviewer, shown to nobody but the admin.
+  reviewNote  String?
+
   createdAt DateTime @default(now())
 
   @@index([category])
   @@index([city])
+  @@index([status])
 }
 
 model CommunityPost {

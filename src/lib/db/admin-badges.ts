@@ -56,6 +56,15 @@ const QUEUES: Queue[] = [
     count: () => prisma.meetingRequest.count({ where: { status: 'new' } }),
   },
   {
+    // Businesses applying to be listed in the EV services directory. Same
+    // shape as the charger-host queue above: submitted by the public, invisible
+    // on the site until a person approves it.
+    href: '/admin/services',
+    one: 'service application to review',
+    many: 'service applications to review',
+    count: () => prisma.eVService.count({ where: { status: 'pending' } }),
+  },
+  {
     // Field changes the crawler proposed against the car catalogue.
     href: '/admin/cars/review',
     one: 'proposed change to review',
