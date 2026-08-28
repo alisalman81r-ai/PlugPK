@@ -3,7 +3,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { PhotoFrame } from '@/components/ui'
-import type { Insight } from '@/lib/cars'
+import { carDisplayName, type Insight } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
 /**
@@ -32,7 +32,17 @@ export function CarInsights({ insights }: CarInsightsProps) {
   if (insights.length === 0) return null
 
   return (
-    <section aria-labelledby="insights-heading" className="border-b border-slate-100 bg-slate-50/60">
+    /*
+      White, where this was slate-50/60.
+
+      The catalogue below it moved to a slate-100 ground, and slate-50 at 60%
+      over white is close enough to slate-100 that the seam between the two
+      sections read as a rendering seam rather than a change of section — while
+      these white cards had nothing to sit against. White here gives the page
+      two clean bands (the brand strip and this) above the grey working area,
+      and lets the cards' own borders do the work.
+    */
+    <section aria-labelledby="insights-heading" className="border-b border-slate-200 bg-white">
       <div className="container-plug py-10 lg:py-12">
         {/* A heading, not a caption. At 11px grey uppercase it read as a
             label on the row below rather than as the name of a section, and
@@ -53,10 +63,7 @@ export function CarInsights({ insights }: CarInsightsProps) {
 
         <ul className="scrollbar-hide -mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:px-0">
           {insights.map((insight) => (
-            <li
-              key={insight.label}
-              className="w-[15rem] shrink-0 snap-start lg:w-auto lg:shrink"
-            >
+            <li key={insight.label} className="w-[15rem] shrink-0 snap-start lg:w-auto lg:shrink">
               <Link
                 href={`/cars/${insight.car.slug}`}
                 className={cn(
@@ -71,7 +78,7 @@ export function CarInsights({ insights }: CarInsightsProps) {
                 <span className="relative block h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-100">
                   <PhotoFrame
                     src={insight.car.image ?? undefined}
-                    alt={insight.car.fullName}
+                    alt={carDisplayName(insight.car)}
                     sizes="56px"
                   />
                 </span>
@@ -83,8 +90,12 @@ export function CarInsights({ insights }: CarInsightsProps) {
                   <span className="mt-0.5 block truncate text-ui font-black tracking-tight text-slate-900">
                     {insight.value}
                   </span>
+                  {/* The trim included: an insight claims a superlative
+                      ("largest battery") and the figure above it is
+                      variant-level, so naming only the family would attribute
+                      one trim's figure to all of them. */}
                   <span className="mt-0.5 block truncate text-ui-xs text-slate-500">
-                    {insight.car.fullName}
+                    {carDisplayName(insight.car)}
                   </span>
                 </span>
               </Link>

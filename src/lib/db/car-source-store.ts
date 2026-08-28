@@ -141,6 +141,26 @@ export interface RecordInput {
   matchCandidates?: unknown
   errorMessage?: string | null
   errorFields?: string[] | null
+
+  /**
+   * --- Identity as published, Phase 4.1 ----------------------------
+   *
+   * Lifted out of the payload into columns so the review queue can show which
+   * variant a figure came from without parsing JSON, and so "which variants of
+   * this model have we seen?" is a query rather than a scan.
+   *
+   * The data was always in the payload; nothing read it. openev publishes variant
+   * "61.4 kWh RWD Comfort" for the Seal and the matcher compared brand and model
+   * only, so five different vehicles became indistinguishable claims about one
+   * catalogue row.
+   */
+  variant?: string | null
+  trim?: string | null
+  modelYear?: number | null
+  generation?: string | null
+  /** proven | unproven | ambiguous | mismatch — see crawler/identity.ts. */
+  variantVerdict?: string | null
+  identityTier?: string | null
 }
 
 /**
@@ -208,6 +228,23 @@ export async function storeRecord(input: RecordInput) {
       input.matchCandidates === undefined ? null : JSON.stringify(input.matchCandidates),
     errorMessage: input.errorMessage ?? null,
     errorFields: input.errorFields ? JSON.stringify(input.errorFields) : null,
+
+    variant: input.variant ?? null,
+    trim: input.trim ?? null,
+    /*
+      From the source or null. Never from the crawl date — a record fetched today
+      says nothing about the model year of the car it describes, and an invented
+      year is worse than none because the year guard would then compare it.
+    */
+    modelYear: input.modelYear ?? null,
+    generation: input.generation ?? null,
+    /*
+      Defaults to 'unproven', not null. A record whose identity nobody assessed
+      has not had its variant established, and the two must read the same to
+      everything downstream.
+    */
+    variantVerdict: input.variantVerdict ?? 'unproven',
+    identityTier: input.identityTier ?? null,
   }
 
   return prisma.carSourceRecord.upsert({
@@ -359,8 +396,92 @@ export async function listSourcesForSchedule() {
       lastChangedAt: true,
       consecutiveFailures: true,
       avgResponseMs: true,
+      lastEtag: true,
+      lastModifiedHttp: true,
+      lastSeenModified: true,
+      recordBudget: true,
     },
   })
+}
+
+/**
+ * Stores the validators a source returned, so tomorrow's request can be
+ * conditional.
+ *
+ * Separate from updateSourceHealth on purpose. Health is about whether a source
+ * is working; a validator is a token we hand back to it. Writing them together
+ * would mean every health update had an opinion about the ETag, and the one
+ * update that got that opinion wrong — a failure path writing `undefined` over a
+ * good validator — is the bug that makes a source answer 304 forever.
+ */
+export interface ValidatorPatch {
+  lastEtag?: string | null
+  lastModifiedHttp?: string | null
+  lastSeenModified?: Date | null
+}
+
+export async function updateSourceValidators(sourceId: string, patch: ValidatorPatch) {
+  return prisma.carSource.update({
+    where: { id: sourceId },
+    data: {
+      ...(patch.lastEtag !== undefined ? { lastEtag: patch.lastEtag } : {}),
+      ...(patch.lastModifiedHttp !== undefined ? { lastModifiedHttp: patch.lastModifiedHttp } : {}),
+      ...(patch.lastSeenModified !== undefined ? { lastSeenModified: patch.lastSeenModified } : {}),
+    },
+  })
+}
+
+/**
+ * Clears a source's validators.
+ *
+ * Called on any failure. A validator kept across a failure is worse than no
+ * validator: the source recovers, answers 304 to a token from before whatever
+ * went wrong, and the run records a clean success having fetched nothing — a
+ * silent outage that looks like a quiet week.
+ */
+export async function clearSourceValidators(sourceId: string) {
+  return prisma.carSource.update({
+    where: { id: sourceId },
+    data: { lastEtag: null, lastModifiedHttp: null },
+  })
+}
+
+/**
+ * Sets how many records a source may process per run.
+ *
+ * 0 means no cap. Distinct from `requestDelayMs`, which is about their server;
+ * this is about ours — a ceiling on a run's own work, so a dataset growing to
+ * ten thousand records cannot turn a morning job into an afternoon one.
+ */
+export async function setSourceBudget(sourceId: string, recordBudget: number) {
+  return prisma.carSource.update({
+    where: { id: sourceId },
+    data: { recordBudget: Math.max(0, Math.trunc(recordBudget)) },
+  })
+}
+
+/**
+ * Every external identity this source has ever produced.
+ *
+ * Read alongside the hashes so a record can be told apart from a *changed*
+ * record: a payload whose hash is unknown might be a car we have tracked for
+ * months whose price moved, or one we have never seen. Those deserve different
+ * places in the queue, and only the identity distinguishes them.
+ *
+ * Falls back to the URL when a source publishes no id of its own, because that
+ * is what the staging key already uses as identity.
+ */
+export async function knownRecordIdentities(sourceId: string): Promise<Set<string>> {
+  const rows = await prisma.carSourceRecord.findMany({
+    where: { sourceId },
+    select: { externalId: true, sourceUrl: true },
+  })
+
+  const identities = new Set<string>()
+  for (const row of rows) {
+    identities.add(row.externalId ?? row.sourceUrl)
+  }
+  return identities
 }
 
 export interface HealthPatch {
@@ -699,4 +820,231 @@ export async function knownContentHashes(sourceId: string): Promise<Set<string>>
     distinct: ['contentHash'],
   })
   return new Set(rows.map((row) => row.contentHash))
+}
+
+// ─── Today's crawl, and filtering ─────────────────────────────────────
+//
+// The dashboard asks two different kinds of question, and they need different
+// shapes. "What happened today" is a set of counts, and must be counted rather
+// than assembled from rows — a page that loads every run of the day to add up its
+// records gets slower every day it runs. "Show me X" is a filtered list, and
+// every filter belongs in the query: filtering after a `take` means asking for
+// one source's runs can return none while it has plenty, which is the bug this
+// project already fixed once on the review queue.
+
+/** Local midnight, so "today" means the operator's day and not UTC's. */
+function startOfToday(now = new Date()): Date {
+  const start = new Date(now)
+  start.setHours(0, 0, 0, 0)
+  return start
+}
+
+export interface TodayStats {
+  sourcesChecked: number
+  sourcesSuccessful: number
+  sourcesFailed: number
+  sourcesBlocked: number
+  carsScanned: number
+  newCarsDiscovered: number
+  changedFields: number
+  unchangedRecords: number
+  conflicts: number
+  highConfidenceProposals: number
+  reviewRequired: number
+  staleSources: number
+  /** Runs still marked running, which means a process stopped without closing. */
+  unfinished: number
+}
+
+/**
+ * The figures for today's crawl.
+ *
+ * Everything is scoped to runs that *started* today rather than completed today.
+ * A run that began at 23:58 and finished after midnight belongs to the day it was
+ * scheduled for; attributing it to the next day would make one morning look
+ * missed and the following one look doubled.
+ *
+ * Staleness is the exception and is not time-scoped at all: a source that has
+ * been failing for three weeks is stale today whether or not anything ran, and
+ * that is exactly the fact this panel exists to surface.
+ */
+export async function getTodayStats(now = new Date()): Promise<TodayStats> {
+  const since = startOfToday(now)
+
+  const [runs, candidates, conflicts, highConfidence, reviewRequired, unfinished, sources] =
+    await Promise.all([
+      prisma.crawlRun.findMany({
+        where: { startedAt: { gte: since } },
+        select: {
+          sourceId: true,
+          status: true,
+          recordsFound: true,
+          recordsChanged: true,
+          recordsUnchanged: true,
+          candidatesFound: true,
+        },
+      }),
+      prisma.carCandidate.count({ where: { status: 'pending', createdAt: { gte: since } } }),
+      prisma.carFieldChange.count({
+        where: {
+          status: 'pending',
+          changeType: { in: ['conflicting', 'source-disagreement'] },
+        },
+      }),
+      /*
+        "High-confidence" is a property of the proposal, not a permission.
+
+        Counted so an operator can see how much of the queue is likely to be
+        straightforward, and deliberately not wired to anything that applies it.
+        There is no threshold in this system above which a change is written
+        without a person.
+      */
+      prisma.carFieldChange.count({ where: { status: 'pending', confidence: { gte: 80 } } }),
+      prisma.carFieldChange.count({ where: { status: 'pending' } }),
+      prisma.crawlRun.count({
+        where: { status: 'running', startedAt: { lt: new Date(now.getTime() - 2 * 3_600_000) } },
+      }),
+      prisma.carSource.findMany({ select: { lastSuccessAt: true, staleAfterDays: true } }),
+    ])
+
+  const staleSources = sources.filter((source) => {
+    if (source.lastSuccessAt === null) return true
+    const days = Math.floor((now.getTime() - source.lastSuccessAt.getTime()) / 86_400_000)
+    return days >= source.staleAfterDays
+  }).length
+
+  return {
+    /*
+      Distinct sources, not runs. A source crawled twice today because somebody
+      re-ran it by hand was checked once as far as coverage is concerned, and
+      counting runs would make a morning of debugging look like broad coverage.
+    */
+    sourcesChecked: new Set(runs.map((run) => run.sourceId)).size,
+    sourcesSuccessful: new Set(
+      runs
+        .filter((run) => run.status === 'completed' || run.status === 'partial')
+        .map((run) => run.sourceId),
+    ).size,
+    sourcesFailed: new Set(
+      runs.filter((run) => run.status === 'failed').map((run) => run.sourceId),
+    ).size,
+    sourcesBlocked: new Set(
+      runs.filter((run) => run.status === 'blocked').map((run) => run.sourceId),
+    ).size,
+    carsScanned: runs.reduce((total, run) => total + run.recordsFound, 0),
+    newCarsDiscovered: candidates,
+    changedFields: runs.reduce((total, run) => total + run.recordsChanged, 0),
+    unchangedRecords: runs.reduce((total, run) => total + run.recordsUnchanged, 0),
+    conflicts,
+    highConfidenceProposals: highConfidence,
+    reviewRequired,
+    staleSources,
+    unfinished,
+  }
+}
+
+export interface RunFilter {
+  sourceId?: string | undefined
+  status?: string | undefined
+  from?: Date | undefined
+  to?: Date | undefined
+  limit?: number | undefined
+}
+
+function runWhere(filter: RunFilter) {
+  const startedAt =
+    filter.from || filter.to
+      ? {
+          ...(filter.from ? { gte: filter.from } : {}),
+          ...(filter.to ? { lt: filter.to } : {}),
+        }
+      : undefined
+
+  return {
+    ...(filter.sourceId ? { sourceId: filter.sourceId } : {}),
+    ...(filter.status ? { status: filter.status } : {}),
+    ...(startedAt ? { startedAt } : {}),
+  }
+}
+
+/**
+ * Runs, filtered in the query.
+ *
+ * The source name is attached afterwards rather than joined, because CrawlRun
+ * deliberately has no relation to CarSource: a run is a historical fact and must
+ * survive its source being renamed, reconfigured or removed. The name is
+ * decoration, so it falls back to the id when the source is gone.
+ */
+export async function filterRuns(filter: RunFilter = {}) {
+  const runs = await prisma.crawlRun.findMany({
+    where: runWhere(filter),
+    orderBy: { startedAt: 'desc' },
+    take: filter.limit ?? 30,
+  })
+
+  const sources = await prisma.carSource.findMany({ select: { id: true, name: true } })
+  const names = new Map(sources.map((source) => [source.id, source.name]))
+
+  return runs.map((run) => ({ ...run, sourceName: names.get(run.sourceId) ?? run.sourceId }))
+}
+
+/** How many runs match a filter, so the count is not just the page length. */
+export async function countRuns(filter: RunFilter = {}): Promise<number> {
+  return prisma.crawlRun.count({ where: runWhere(filter) })
+}
+
+export interface CandidateFilter {
+  status?: string | undefined
+  sourceId?: string | undefined
+  minConfidence?: number | undefined
+  /** Only candidates flagged as possibly already in the catalogue. */
+  duplicatesOnly?: boolean | undefined
+  limit?: number | undefined
+}
+
+/** New-car candidates, filtered in the query for the same reason as runs. */
+export async function filterCandidates(filter: CandidateFilter = {}) {
+  return prisma.carCandidate.findMany({
+    where: {
+      status: filter.status ?? 'pending',
+      ...(filter.sourceId ? { sourceId: filter.sourceId } : {}),
+      ...(filter.minConfidence !== undefined ? { confidence: { gte: filter.minConfidence } } : {}),
+      ...(filter.duplicatesOnly ? { possibleDuplicateOf: { not: null } } : {}),
+    },
+    orderBy: [{ confidence: 'desc' }, { createdAt: 'desc' }],
+    take: filter.limit ?? 30,
+  })
+}
+
+export interface LogFilter {
+  sourceId?: string | undefined
+  runId?: string | undefined
+  status?: string | undefined
+  operation?: string | undefined
+  sinceHours?: number | undefined
+  limit?: number | undefined
+}
+
+/**
+ * Log lines, filtered.
+ *
+ * A superset of listFailures, which stays as the default view because "what
+ * broke" is asked far more often than anything else. Nothing here can leak a
+ * credential: every message was redacted by crawler/logger.ts before it was
+ * written, at the single point where logging happens rather than at each caller.
+ */
+export async function filterLog(filter: LogFilter = {}) {
+  const cutoff = new Date(Date.now() - (filter.sinceHours ?? 72) * 3_600_000)
+
+  return prisma.crawlLogEntry.findMany({
+    where: {
+      createdAt: { gte: cutoff },
+      ...(filter.sourceId ? { sourceId: filter.sourceId } : {}),
+      ...(filter.runId ? { runId: filter.runId } : {}),
+      ...(filter.status ? { status: filter.status } : {}),
+      ...(filter.operation ? { operation: filter.operation } : {}),
+    },
+    orderBy: { createdAt: 'desc' },
+    take: filter.limit ?? 40,
+  })
 }

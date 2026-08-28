@@ -1,11 +1,6 @@
 // src/lib/cars.ts
 
-import {
-  cars,
-  type Car,
-  type CarCategory,
-  type ConnectorStandard,
-} from '@/data/cars'
+import { cars, type Car, type CarCategory, type ConnectorStandard } from '@/data/cars'
 
 /**
  * Everything that reads the car database.
@@ -40,7 +35,9 @@ export function getCarBySlug(slug: string): Car | undefined {
 export function getCarsByIds(ids: string[]): Car[] {
   // Mapped over ids rather than filtered over cars, so the result follows the
   // order the user picked them in — which is the order the comparison shows.
-  return ids.map((id) => cars.find((car) => car.id === id)).filter((car): car is Car => Boolean(car))
+  return ids
+    .map((id) => cars.find((car) => car.id === id))
+    .filter((car): car is Car => Boolean(car))
 }
 
 /** Brands present in the data, alphabetical. Never a hardcoded list. */
@@ -79,9 +76,7 @@ export function getPriceBounds(): { min: number; max: number } {
  */
 export function formatPkr(rupees: number): string {
   const trim = (value: number, places: number) =>
-    Number(value.toFixed(places))
-      .toString()
-      .replace(/\.0+$/, '')
+    Number(value.toFixed(places)).toString().replace(/\.0+$/, '')
 
   if (rupees >= 10_000_000) return `PKR ${trim(rupees / 10_000_000, 4)} Cr`
   if (rupees >= 100_000) return `PKR ${trim(rupees / 100_000, 2)} Lakh`
@@ -96,6 +91,55 @@ export function formatPkr(rupees: number): string {
  */
 export function formatCarPrice(car: Car): string {
   return car.price.display
+}
+
+// ─── Names, and where the variant goes ──────────────────────
+
+/**
+ * How a declared trim joins a car's name — decided here, once.
+ *
+ * `Car.variant` became public in Phase 4.1's plumbing, and five surfaces have to
+ * render it: the catalogue card, the detail page's h1 and breadcrumb, the
+ * comparison, and the SEO and structured-data strings. Five copies of
+ * `variant ? '<model> <variant>' : model` repeated is five places for the two to
+ * drift apart, and the drift is invisible until somebody notices the card and the
+ * h1 disagree about what a car is called.
+ *
+ * Both helpers are pure string joins over data that is already there. Neither
+ * invents, infers, or parses a variant out of a model name — a row with
+ * `variant: null` gets its existing name back byte for byte, which is what keeps
+ * all 35 undeclared rows rendering exactly as they did before.
+ *
+ * `fullName` and `model` are left alone deliberately. They are stored columns,
+ * authored and crawled against, and the matcher compares `model` as published;
+ * folding a trim into either would change what the pipeline thinks a car is
+ * called. The variant is a display concern on top of them.
+ */
+
+/**
+ * Brand, model and trim — the car's whole public identity.
+ *
+ * For alt text, aria-labels, `<option>` labels, table captions, SEO titles and
+ * schema.org `name`: anywhere a car has to be identifiable on its own, with no
+ * surrounding context to supply the brand.
+ *
+ * Built from `fullName` rather than `brand + model`, so it keeps whatever the
+ * authored full name says — "JAECOO J7 PHEV" is not "JAECOO" + "J7 PHEV" in
+ * every row, and reassembling it here would quietly rename cars.
+ */
+export function carDisplayName(car: Car): string {
+  return car.variant ? `${car.fullName} ${car.variant}` : car.fullName
+}
+
+/**
+ * Model and trim, without the brand.
+ *
+ * For the surfaces that already show the brand separately — the card's eyebrow,
+ * the detail page's brand line, the comparison's column head, the breadcrumb's
+ * brand crumb. Prepending the brand again in those places would print it twice.
+ */
+export function carModelName(car: Car): string {
+  return car.variant ? `${car.model} ${car.variant}` : car.model
 }
 
 // ─── Search ─────────────────────────────────────────────────
@@ -113,7 +157,17 @@ export function searchCars(list: Car[], query: string): Car[] {
   if (terms.length === 0) return [...list]
 
   return list.filter((car) => {
-    const haystack = [car.brand, car.model, car.fullName, car.category]
+    /*
+      The variant joins the haystack, so a declared trim is searchable: with the
+      Seal declaring "61.4 kWh RWD Comfort", "seal comfort" finds it. Undeclared
+      rows contribute an empty string and match exactly as they did before.
+
+      Still a substring test over normalised text, and still every term must
+      match — no fuzzy matching, no scoring, nothing that could make a search
+      term look like evidence of identity. This is a text filter over a list a
+      person is already looking at; it has nothing to do with the matcher.
+    */
+    const haystack = [car.brand, car.model, car.variant ?? '', car.fullName, car.category]
       .join(' ')
       .toLowerCase()
     return terms.every((term) => haystack.includes(term))
@@ -210,12 +264,7 @@ export function filterCars(list: Car[], filters: CarFilterState): Car[] {
 // ─── Sorting ────────────────────────────────────────────────
 
 export type CarSort =
-  | 'price-asc'
-  | 'price-desc'
-  | 'range-desc'
-  | 'battery-desc'
-  | 'power-desc'
-  | 'newest'
+  'price-asc' | 'price-desc' | 'range-desc' | 'battery-desc' | 'power-desc' | 'newest'
 
 export const SORT_LABELS: Record<CarSort, string> = {
   'price-asc': 'Price: low to high',
@@ -307,6 +356,143 @@ export function headlineSpecs(car: Car): Array<{ label: string; value: string }>
   return out
 }
 
+/**
+ * Exactly three rows for a card, in a fixed order, figure and unit kept apart.
+ *
+ * ── Why fixed slots, and not "whatever was published" ─────────────────
+ *
+ * headlineSpecs() answers "which figures does this car have", which is the
+ * right question for a detail page and the wrong one for a grid. It returns two
+ * rows for a car with two figures and four for a car with four, and — because
+ * it skips the gaps — it returns them in whatever order the gaps left.
+ *
+ * That produced a real fault. The Toyota Corolla Cross Hybrid publishes no
+ * battery capacity and, being a full hybrid, no electric-only range, so
+ * headlineSpecs returned [Engine, Power] and the card read ENGINE / POWER /
+ * BATTERY while the Chery Tiggo Cross HEV beside it read BATTERY / ENGINE /
+ * POWER. Two cards of the same category, same three labels, different rows —
+ * which defeats the only reason to put figures in a grid at all. Somebody
+ * comparing five hybrids should be able to read straight down the second row.
+ *
+ * So the slots are declared per category and the data fills them. Row two of a
+ * hybrid card is the engine on every hybrid card, whether or not that car
+ * published one. Where it did not, the row says so with an em dash: a stated
+ * absence, which is rule 1 of src/data/cars.ts — never a zero, never a
+ * plausible number.
+ *
+ * ── Why each category has the slots it has ────────────────────────────
+ *
+ * An EV's is how much battery, how far it goes, how hard it pulls. A plug-in's
+ * is how much battery, how far on electricity alone, and what takes over when
+ * that runs out.
+ *
+ * The EV's third slot was DC charging speed first, which is the more
+ * interesting figure and the wrong one to put here. Counted against the data:
+ * 7 of the 20 EVs publish a DC figure and all 20 publish power, so two cards in
+ * three would have carried a dash in that row — a third of the grid's third row
+ * saying nothing. Power is not a consolation either: it is one of the six sorts
+ * and one of the filter facets, so it is already a figure this product treats as
+ * first-class. Charging speed is on the detail page, in full, alongside the AC
+ * figure and the connector standard.
+ *
+ * A full hybrid gets its own list rather than sharing the plug-in's, and that
+ * is the one non-obvious entry. Every full hybrid in the data has a null
+ * electricRange, and not because nobody published it — a full hybrid has no
+ * electric-only range to publish. A permanently dashed row on all five cars
+ * would spend a third of the card saying nothing, so the slot goes to power,
+ * which they all have. A dash should mean "this car did not say", not "this
+ * field does not apply to anything here".
+ *
+ * ── Figure and unit ───────────────────────────────────────────────────
+ *
+ * Separated so the card can set "45.12" at reading size and "kWh" small beside
+ * it. A number with its unit at equal weight reads as a sentence; with the unit
+ * subordinate it reads as a quantity, which is what somebody comparing four
+ * batteries is doing.
+ *
+ * The unit keeps its published casing — kWh, kW, km, hp, cc — because these are
+ * SI symbols. "KWH" would sit more neatly in a row of uppercase labels and
+ * would also be wrong, and the labels are uppercased in CSS for exactly that
+ * reason: so the values do not have to be.
+ *
+ * Labels are short on purpose. "DC charging" fits the 256px card at xl; "DC
+ * charging speed" wraps, and a wrapped label breaks the row rhythm this whole
+ * function exists to hold.
+ */
+export interface CardSpec {
+  label: string
+  figure: string | null
+  unit: string | null
+}
+
+/** The three rows a card of each category shows, in the order it shows them. */
+type CardSlot = 'battery' | 'range' | 'electricRange' | 'dcCharging' | 'engine' | 'power'
+
+const CARD_SLOTS: Record<CarCategory, [CardSlot, CardSlot, CardSlot]> = {
+  EV: ['battery', 'range', 'power'],
+  PHEV: ['battery', 'electricRange', 'engine'],
+  REEV: ['battery', 'electricRange', 'engine'],
+  Hybrid: ['battery', 'engine', 'power'],
+}
+
+const SLOT_LABEL: Record<CardSlot, string> = {
+  battery: 'Battery',
+  range: 'Range',
+  electricRange: 'Electric range',
+  dcCharging: 'DC charging',
+  engine: 'Engine',
+  power: 'Power',
+}
+
+export function cardSpecs(car: Car): CardSpec[] {
+  /** A span keeps both ends as one figure — see splitFigure. */
+  const span = (low: number | null, high: number | null, unit: string) =>
+    low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+
+  const value = (slot: CardSlot): string | null => {
+    switch (slot) {
+      case 'battery':
+        return car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null
+      case 'range':
+        return span(car.range, car.rangeMax, car.rangeUnit)
+      case 'electricRange':
+        return span(car.electricRange, car.electricRangeMax, car.rangeUnit)
+      case 'dcCharging':
+        return car.dcCharging ? `${car.dcCharging} ${car.dcChargingUnit}` : null
+      case 'engine':
+        return car.engineCapacity ? `${car.engineCapacity} cc` : null
+      case 'power':
+        return car.power ? `${car.power} ${car.powerUnit}` : null
+    }
+  }
+
+  return CARD_SLOTS[car.category].map((slot) => {
+    const published = value(slot)
+    return {
+      label: SLOT_LABEL[slot],
+      ...(published ? splitFigure(published) : { figure: null, unit: null }),
+    }
+  })
+}
+
+/**
+ * Splits "61.44 kWh" into its figure and its unit.
+ *
+ * Ranges survive as one figure ("410–450" + "km"), because the span is the
+ * quantity — breaking it apart would print two numbers with no relationship
+ * between them. Anything that does not begin with a digit comes back whole as
+ * the figure with no unit: a slightly large string is a better failure than a
+ * mangled one.
+ */
+function splitFigure(value: string): { figure: string; unit: string | null } {
+  const match = /^([\d.,]+(?:\s*[–-]\s*[\d.,]+)?)\s*(.*)$/.exec(value.trim())
+  if (!match?.[1]) return { figure: value, unit: null }
+  return {
+    figure: match[1].replace(/\s/g, ''),
+    unit: match[2]?.trim() || null,
+  }
+}
+
 /** Every published figure, for the detail page and the comparison. */
 export function fullSpecs(car: Car): Array<{ label: string; value: string }> {
   const out: Array<{ label: string; value: string }> = []
@@ -321,10 +507,7 @@ export function fullSpecs(car: Car): Array<{ label: string; value: string }> {
 
   push('Category', car.category)
   push('Price', car.price.display)
-  push(
-    'Battery capacity',
-    car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null,
-  )
+  push('Battery capacity', car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null)
   push('Driving range', span(car.range, car.rangeMax, car.rangeUnit))
   push('Electric range', span(car.electricRange, car.electricRangeMax, car.rangeUnit))
   push('Power', car.power ? `${car.power} ${car.powerUnit}` : null)
@@ -370,16 +553,31 @@ export function carSeo(car: Car): {
     car.power ? `${car.power} hp` : null,
   ].filter(Boolean)
 
-  const description = `${car.fullName} price in Pakistan: ${car.price.display}. ${
+  /*
+    The declared trim is part of the name in every string below.
+
+    It has to be. The figures quoted in the description — battery, range, power —
+    are variant-level for an EV, so a title naming only "BYD Seal" while the body
+    quotes the Comfort trim's 61.44 kWh is a page claiming those numbers for
+    every Seal. That is the same conflation Phase 4.1 was created to stop, and a
+    search result is where it would do the most damage: it is the version of the
+    page most people see, and the one they never scroll.
+
+    An undeclared row returns its `fullName` unchanged, so 35 of 36 titles,
+    descriptions and OG strings are byte-identical to before.
+  */
+  const name = carDisplayName(car)
+
+  const description = `${name} price in Pakistan: ${car.price.display}. ${
     facts.length > 0 ? `${facts.join(', ')}. ` : ''
   }Full ${kind} specifications, charging and range on Plug.pk.`
 
   return {
-    title: `${car.fullName} Price in Pakistan | ${
+    title: `${name} Price in Pakistan | ${
       car.category === 'EV' ? 'EV Specifications & Range' : 'Specifications & Electric Range'
     }`,
     description,
-    ogTitle: `${car.fullName} — ${car.price.display}`,
+    ogTitle: `${name} — ${car.price.display}`,
     ogDescription: description,
     canonical: `/cars/${car.slug}`,
   }
@@ -519,21 +717,48 @@ export function getInsights(list: Car[] = cars): Insight[] {
     if (scored.length === 0) return
 
     const winner = scored.reduce((best, entry) =>
-      direction === 'max' ? (entry.value > best.value ? entry : best) : entry.value < best.value ? entry : best,
+      direction === 'max'
+        ? entry.value > best.value
+          ? entry
+          : best
+        : entry.value < best.value
+          ? entry
+          : best,
     )
 
     out.push({ label, value: format(winner.car), car: winner.car })
   }
 
-  extreme('Longest range', (car) => electricDistance(car), 'max', (car) =>
-    `${electricDistance(car)} km`,
+  extreme(
+    'Longest range',
+    (car) => electricDistance(car),
+    'max',
+    (car) => `${electricDistance(car)} km`,
   )
-  extreme('Most affordable', (car) => car.price.min, 'min', (car) => car.price.display)
-  extreme('Largest battery', (car) => car.batteryCapacity, 'max', (car) =>
-    `${car.batteryCapacity} kWh`,
+  extreme(
+    'Most affordable',
+    (car) => car.price.min,
+    'min',
+    (car) => car.price.display,
   )
-  extreme('Most powerful', (car) => car.power, 'max', (car) => `${car.power} hp`)
-  extreme('Fastest charging', (car) => car.dcCharging, 'max', (car) => `${car.dcCharging} kW DC`)
+  extreme(
+    'Largest battery',
+    (car) => car.batteryCapacity,
+    'max',
+    (car) => `${car.batteryCapacity} kWh`,
+  )
+  extreme(
+    'Most powerful',
+    (car) => car.power,
+    'max',
+    (car) => `${car.power} hp`,
+  )
+  extreme(
+    'Fastest charging',
+    (car) => car.dcCharging,
+    'max',
+    (car) => `${car.dcCharging} kW DC`,
+  )
 
   return out
 }

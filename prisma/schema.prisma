@@ -508,6 +508,41 @@ model Car {
   fullName String
   category String
 
+  /// --- Variant identity ---------------------------------------------
+  ///
+  /// Added in Phase 4.1, after a crawl applied a different variant's figures to
+  /// this catalogue. Before these columns existed, identity was brand + model,
+  /// and variant lived inside `model` as free text: "Atto 3 Advanced", "EV9
+  /// GT-Line", "Sealion 7 Advanced". That is readable and useless for matching —
+  /// a source publishing variant "61.4 kWh RWD Comfort" had nothing to compare it
+  /// against, so five different Seal variants all matched the one Seal row with
+  /// equal confidence and the wrong one won.
+  ///
+  /// Deliberately nullable, and deliberately left null by the migration. Null
+  /// means "this row does not declare a variant", which is a fact about all 36
+  /// rows today, and the matcher treats it as exactly that: a variant-sensitive
+  /// figure from a variant-declaring source is NOT applied to a row that declares
+  /// none. Null does not mean "any variant".
+  ///
+  /// Nothing infers these. Splitting "Atto 3 Advanced" into model + variant is a
+  /// judgement about what is actually sold here, so it is an edit somebody makes
+  /// in the car editor, not something a migration guesses. See
+  /// scripts/report-variant-identity.ts, which proposes the splits for review.
+  variant    String?
+  trim       String?
+  /// Null means unknown, never "current year". Nothing infers this from a date.
+  modelYear  Int?
+  generation String?
+
+  /// The test cycle `range` and `electricRange` were measured on.
+  ///
+  /// wltp | epa | cltc | nedc | jc08 | unspecified. A range without its cycle is
+  /// not comparable to another range: CLTC reads roughly a third higher than WLTP
+  /// for the same car, so replacing one with the other looks like a specification
+  /// change and is actually a unit error. See crawler/range-standard.ts.
+  rangeStandard         String?
+  electricRangeStandard String?
+
   priceMin     Int
   priceMax     Int
   priceDisplay String
@@ -613,6 +648,28 @@ model CarSource {
   /// because a weekly source is not stale after two days.
   staleAfterDays      Int       @default(7)
 
+  /// --- Conditional requests ------------------------------------------
+  /// The validators the source returned on the last successful fetch, replayed
+  /// as If-None-Match / If-Modified-Since on the next one. A 304 then costs a
+  /// few hundred bytes instead of a whole dataset, and — the part that matters
+  /// more — it is the source telling us nothing changed rather than us
+  /// downloading everything to work that out ourselves.
+  ///
+  /// Cleared on any failure. A stale validator would make a recovered source
+  /// answer 304 forever, which looks exactly like a healthy source with no news.
+  lastEtag         String?
+  lastModifiedHttp String?
+
+  /// The newest source-side modification timestamp seen, for APIs that accept a
+  /// `modifiedSince` parameter. Distinct from lastSuccessAt, which is our clock:
+  /// this one is theirs, and only theirs is safe to send back to them.
+  lastSeenModified DateTime?
+
+  /// Records to process per run, 0 for no cap. A ceiling on our own work rather
+  /// than on requests — see crawler/incremental.ts for the order they are taken
+  /// in, which is what makes a capped run still cover what matters.
+  recordBudget Int @default(0)
+
   /// Off until somebody turns it on deliberately.
   isEnabled Boolean @default(false)
 
@@ -647,6 +704,30 @@ model CarSourceRecord {
   /// The source's own identifier, when it publishes one. Never assumed present,
   /// never assumed unique across sources.
   externalId String?
+
+  /// --- Identity as the source published it -------------------------
+  ///
+  /// Lifted out of the normalised payload rather than left only inside it, so the
+  /// review queue can show which variant a figure came from without parsing JSON,
+  /// and so "which variants of this model did we see?" is a query.
+  ///
+  /// This data was always in the payload. openev publishes variant
+  /// "61.4 kWh RWD Comfort" and a release year for the Seal, and the matcher
+  /// ignored both — which is how an 87 kWh record and a 61.4 kWh record became
+  /// indistinguishable claims about one car.
+  variant    String?
+  trim       String?
+  modelYear  Int?
+  generation String?
+
+  /// proven | unproven | ambiguous | mismatch — see crawler/identity.ts.
+  ///
+  /// Whether the VARIANT was established, which is a separate question from
+  /// whether the model matched. A record can match the right car and still have
+  /// an unproven variant, and that is the case that caused Phase 4.1.
+  variantVerdict String?
+  /// Which identity tier decided it, e.g. "brand-model-variant-year".
+  identityTier   String?
 
   /// Groups every record produced by a single crawl.
   runId      String
@@ -811,6 +892,29 @@ model CarFieldChange {
 
   /// Validation problems found on the proposed value.
   validationFlags String?
+
+  /// --- Variant evidence -------------------------------------------
+  ///
+  /// Carried onto the proposal so the review screen can say WHICH variant a
+  /// figure describes, beside the value. The five changes that prompted Phase 4.1
+  /// were approved from a queue that said "sources disagree" — true in that the
+  /// numbers differed, and misleading in that it was one source describing five
+  /// different cars. A reviewer shown "61.4 kWh RWD Comfort" next to
+  /// "U 87 kWh Design" would not have approved.
+  variantVerdict  String?
+  identityTier    String?
+  sourceVariant   String?
+  sourceModelYear Int?
+
+  /// True when this field's value depends on which variant is being described.
+  /// Battery, range, power and price are; seat count is usually not. Such a field
+  /// is never applied while the variant is unproven.
+  variantSensitive Boolean @default(false)
+
+  /// Test cycles either side of a range change, so 425 unspecified cannot quietly
+  /// replace 650 CLTC.
+  currentRangeStandard  String?
+  proposedRangeStandard String?
 
   /// pending | approved | rejected | superseded
   status     String    @default("pending")

@@ -8,6 +8,7 @@ import { PartnerHero } from '@/components/partners/PartnerHero'
 import { PartnerList } from '@/components/partners/PartnerList'
 import { PartnerPricing } from '@/components/partners/PartnerPricing'
 import { PartnerSteps } from '@/components/partners/PartnerSteps'
+import { PartnerVenueTypes } from '@/components/partners/PartnerVenueTypes'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { SectionIntro } from '@/components/shared/SectionIntro'
 import { PillButton } from '@/components/ui'
@@ -60,6 +61,18 @@ export default async function PartnersPage() {
   const ports = partners.reduce((total, partner) => total + partner.portCount, 0)
   const homes = partners.filter((partner) => partner.type === 'home').length
 
+  /*
+    Live listings per venue type, for the "who lists here" section.
+
+    Counted here rather than inside the component so the component stays a pure
+    render of numbers it was handed — the same reason CarDetails takes its pool as
+    a prop instead of importing the catalogue.
+  */
+  const countsByType = partners.reduce<Record<string, number>>((counts, partner) => {
+    counts[partner.type] = (counts[partner.type] ?? 0) + 1
+    return counts
+  }, {})
+
   return (
     <>
       <div className="min-h-below-nav bg-slate-50">
@@ -78,6 +91,16 @@ export default async function PartnersPage() {
         <div className={`relative z-10 ${CARD_LIFT} ${STAGE}`}>
           <PartnerDashboardPreview />
         </div>
+
+        {/*
+          Who lists here, before how it works.
+
+          The marketplace pattern puts categories immediately after the hero, and
+          the reason holds: the page used to answer "what happens next" before it
+          had answered "is this for a place like mine?", which is the question
+          somebody actually arrives with.
+        */}
+        <PartnerVenueTypes counts={countsByType} />
 
         <PartnerSteps />
         <PartnerPricing />

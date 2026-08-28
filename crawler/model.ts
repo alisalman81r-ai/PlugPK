@@ -37,7 +37,25 @@ export type ExtractionMethod =
   /** Derived from other fields rather than read. */
   | 'computed'
 
-export type RangeStandard = 'WLTP' | 'EPA' | 'NEDC' | 'CLTC' | 'real-world' | 'unspecified'
+/**
+ * Range test cycles. Re-exported from the module that owns the comparison rules.
+ *
+ * ── Why this is not declared here any more ────────────────────────────
+ *
+ * It was, as `'WLTP' | 'EPA' | 'NEDC' | 'CLTC' | 'real-world' | 'unspecified'` —
+ * a second, differently-spelled, JC08-less definition of the same concept living
+ * a few files away from crawler/range-standard.ts, which holds the comparability
+ * rules. Two types with one name and different members is precisely the drift
+ * that produces a wrong figure on a public page, and this project has just spent
+ * a phase on one of those.
+ *
+ * `'real-world'` is gone with it. It was never assigned anywhere, it is not a
+ * test cycle, and the concept it gestured at already has its own field
+ * (`realWorldRangeKm`).
+ */
+import type { RangeStandard } from './range-standard'
+
+export type { RangeStandard }
 
 export interface Dimensions {
   lengthMm: number | null

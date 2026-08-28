@@ -80,6 +80,32 @@ export interface Car {
   slug: string
   brand: string
   model: string
+
+  /**
+   * The trim this row describes, or null.
+   *
+   * Added in Phase 4.1 (see the column comment in prisma/schema.prisma) and made
+   * public here so a declared trim survives to the page. Before this the field
+   * existed in the database and was rendered only in the admin portal, so the
+   * catalogue, the detail page, the comparison and the SEO strings could not show
+   * it — which is why the three suggested model/variant splits were held: they
+   * would have moved the trim out of `model`, and `model` is the public h1, the
+   * breadcrumb and the card title, so the trim would simply have disappeared.
+   *
+   * **`null` means "this row declares no variant". It never means "any variant".**
+   * That distinction is load-bearing for the matcher — a variant-sensitive figure
+   * from a variant-declaring source is refused against a row that declares none —
+   * so the field is required rather than optional. An optional field would admit a
+   * third state, `undefined`, meaning "nobody considered it", and blurring that
+   * into "declares none" is exactly the ambiguity Phase 4.1 exists to remove.
+   *
+   * Nothing infers this. It is not derived from `model`, from a crawl date, or
+   * from a figure that happens to match a trim. All 36 authored rows below state
+   * `null` explicitly, and the one row that declares a variant does so in the
+   * database, set deliberately by scripts/declare-variant-identity.ts.
+   */
+  variant: string | null
+
   fullName: string
   category: CarCategory
 
@@ -144,6 +170,7 @@ export const cars: Car[] = [
     slug: 'byd-atto-2',
     brand: 'BYD',
     model: 'Atto 2',
+    variant: null,
     fullName: 'BYD Atto 2',
     category: 'EV',
     price: { min: lakh(72.9), max: lakh(72.9), display: 'PKR 72.9 Lakh' },
@@ -175,6 +202,7 @@ export const cars: Car[] = [
     slug: 'dongfeng-vigo',
     brand: 'Dongfeng',
     model: 'Vigo',
+    variant: null,
     fullName: 'Dongfeng Vigo',
     category: 'EV',
     price: { min: lakh(69.99), max: lakh(69.99), display: 'PKR 69.99 Lakh' },
@@ -206,6 +234,7 @@ export const cars: Car[] = [
     slug: 'jaecoo-j6',
     brand: 'JAECOO',
     model: 'J6',
+    variant: null,
     fullName: 'JAECOO J6',
     category: 'EV',
     price: { min: lakh(87.99), max: lakh(87.99), display: 'PKR 87.99 Lakh' },
@@ -237,6 +266,7 @@ export const cars: Car[] = [
     slug: 'byd-atto-3-advanced',
     brand: 'BYD',
     model: 'Atto 3 Advanced',
+    variant: null,
     fullName: 'BYD Atto 3 Advanced',
     category: 'EV',
     price: { min: lakh(89.9), max: lakh(89.9), display: 'PKR 89.9 Lakh' },
@@ -268,6 +298,7 @@ export const cars: Car[] = [
     slug: 'omoda-e5',
     brand: 'Omoda',
     model: 'E5',
+    variant: null,
     fullName: 'Omoda E5',
     category: 'EV',
     price: { min: lakh(89.9), max: lakh(89.9), display: 'PKR 89.9 Lakh' },
@@ -299,6 +330,7 @@ export const cars: Car[] = [
     slug: 'forthing-friday-bev',
     brand: 'Forthing',
     model: 'Friday BEV',
+    variant: null,
     fullName: 'Forthing Friday BEV',
     category: 'EV',
     price: { min: lakh(89.99), max: lakh(89.99), display: 'PKR 89.99 Lakh' },
@@ -330,6 +362,7 @@ export const cars: Car[] = [
     slug: 'mg-zs-ev',
     brand: 'MG',
     model: 'ZS EV',
+    variant: null,
     fullName: 'MG ZS EV',
     category: 'EV',
     price: { min: lakh(96.9), max: lakh(96.9), display: 'PKR 96.9 Lakh' },
@@ -361,6 +394,7 @@ export const cars: Car[] = [
     slug: 'dongfeng-007',
     brand: 'Dongfeng',
     model: '007',
+    variant: null,
     fullName: 'Dongfeng 007',
     category: 'EV',
     price: { min: crore(1.19), max: crore(1.19), display: 'PKR 1.19 Cr' },
@@ -392,6 +426,7 @@ export const cars: Car[] = [
     slug: 'gugo-aion-v',
     brand: 'GUGO',
     model: 'AION V',
+    variant: null,
     fullName: 'GUGO AION V',
     category: 'EV',
     price: { min: crore(1.2), max: crore(1.2), display: 'PKR 1.20 Cr' },
@@ -423,6 +458,7 @@ export const cars: Car[] = [
     slug: 'riddara-rd6',
     brand: 'Riddara',
     model: 'RD6',
+    variant: null,
     fullName: 'Riddara RD6',
     category: 'EV',
     price: { min: crore(1.33), max: crore(1.7), display: 'PKR 1.33–1.70 Cr' },
@@ -454,6 +490,7 @@ export const cars: Car[] = [
     slug: 'deepal-l07',
     brand: 'Deepal',
     model: 'L07',
+    variant: null,
     fullName: 'Deepal L07',
     category: 'EV',
     price: { min: crore(1.4), max: crore(1.4), display: 'PKR 1.40 Cr' },
@@ -485,6 +522,7 @@ export const cars: Car[] = [
     slug: 'xpeng-g6',
     brand: 'XPENG',
     model: 'G6',
+    variant: null,
     fullName: 'XPENG G6',
     category: 'EV',
     price: { min: crore(1.45), max: crore(1.85), display: 'PKR 1.45–1.85 Cr' },
@@ -516,6 +554,7 @@ export const cars: Car[] = [
     slug: 'byd-seal',
     brand: 'BYD',
     model: 'Seal',
+    variant: null,
     fullName: 'BYD Seal',
     category: 'EV',
     price: { min: crore(1.48), max: crore(1.7), display: 'PKR 1.48–1.70 Cr' },
@@ -547,6 +586,7 @@ export const cars: Car[] = [
     slug: 'deepal-s07',
     brand: 'Deepal',
     model: 'S07',
+    variant: null,
     fullName: 'Deepal S07',
     category: 'EV',
     price: { min: crore(1.5), max: crore(1.5), display: 'PKR 1.50 Cr' },
@@ -578,6 +618,7 @@ export const cars: Car[] = [
     slug: 'byd-sealion-7-advanced',
     brand: 'BYD',
     model: 'Sealion 7 Advanced',
+    variant: null,
     fullName: 'BYD Sealion 7 Advanced',
     category: 'EV',
     price: { min: crore(1.55), max: crore(1.55), display: 'PKR 1.55 Cr' },
@@ -609,6 +650,7 @@ export const cars: Car[] = [
     slug: 'kia-ev5',
     brand: 'KIA',
     model: 'EV5',
+    variant: null,
     fullName: 'KIA EV5',
     category: 'EV',
     price: { min: crore(1.85), max: crore(2.35), display: 'PKR 1.85–2.35 Cr' },
@@ -640,6 +682,7 @@ export const cars: Car[] = [
     slug: 'deepal-e07',
     brand: 'Deepal',
     model: 'E07',
+    variant: null,
     fullName: 'Deepal E07',
     category: 'EV',
     price: { min: crore(1.9), max: crore(1.9), display: 'PKR 1.90 Cr' },
@@ -671,6 +714,7 @@ export const cars: Car[] = [
     slug: 'kia-ev9-gt-line',
     brand: 'KIA',
     model: 'EV9 GT-Line',
+    variant: null,
     fullName: 'KIA EV9 GT-Line',
     category: 'EV',
     price: { min: crore(4.32), max: crore(4.32), display: 'PKR 4.32 Cr' },
@@ -704,6 +748,7 @@ export const cars: Car[] = [
     slug: 'chery-tiggo-7-phev',
     brand: 'Chery',
     model: 'Tiggo 7 PHEV',
+    variant: null,
     fullName: 'Chery Tiggo 7 PHEV',
     category: 'PHEV',
     price: { min: lakh(99.99), max: lakh(99.99), display: 'PKR 99.99 Lakh' },
@@ -735,6 +780,7 @@ export const cars: Car[] = [
     slug: 'deepal-s05-reev',
     brand: 'Deepal',
     model: 'S05 REEV',
+    variant: null,
     fullName: 'Deepal S05 REEV',
     category: 'REEV',
     price: { min: lakh(99.99), max: lakh(99.99), display: 'PKR 99.99 Lakh' },
@@ -766,6 +812,7 @@ export const cars: Car[] = [
     slug: 'forthing-friday-reev',
     brand: 'Forthing',
     model: 'Friday REEV',
+    variant: null,
     fullName: 'Forthing Friday REEV',
     category: 'REEV',
     price: { min: lakh(99.99), max: lakh(99.99), display: 'PKR 99.99 Lakh' },
@@ -797,6 +844,7 @@ export const cars: Car[] = [
     slug: 'jaecoo-j7-phev',
     brand: 'JAECOO',
     model: 'J7 PHEV',
+    variant: null,
     fullName: 'JAECOO J7 PHEV',
     category: 'PHEV',
     price: { min: crore(1.05), max: crore(1.05), display: 'PKR 1.05 Cr' },
@@ -828,6 +876,7 @@ export const cars: Car[] = [
     slug: 'omoda-7',
     brand: 'Omoda',
     model: '7',
+    variant: null,
     fullName: 'Omoda 7',
     category: 'PHEV',
     price: { min: crore(1.0649), max: crore(1.0649), display: 'PKR 1.0649 Cr' },
@@ -859,6 +908,7 @@ export const cars: Car[] = [
     slug: 'chery-tiggo-8-phev',
     brand: 'Chery',
     model: 'Tiggo 8 PHEV',
+    variant: null,
     fullName: 'Chery Tiggo 8 PHEV',
     category: 'PHEV',
     price: { min: crore(1.15), max: crore(1.15), display: 'PKR 1.15 Cr' },
@@ -890,6 +940,7 @@ export const cars: Car[] = [
     slug: 'chery-tiggo-9-phev',
     brand: 'Chery',
     model: 'Tiggo 9 PHEV',
+    variant: null,
     fullName: 'Chery Tiggo 9 PHEV',
     category: 'PHEV',
     price: { min: crore(1.43), max: crore(1.43), display: 'PKR 1.43 Cr' },
@@ -921,6 +972,7 @@ export const cars: Car[] = [
     slug: 'haval-h6-phev',
     brand: 'Haval',
     model: 'H6 PHEV',
+    variant: null,
     fullName: 'Haval H6 PHEV',
     category: 'PHEV',
     price: { min: crore(1.2895), max: crore(1.2895), display: 'PKR 1.2895 Cr' },
@@ -952,6 +1004,7 @@ export const cars: Car[] = [
     slug: 'mg-hs-phev',
     brand: 'MG',
     model: 'HS PHEV',
+    variant: null,
     fullName: 'MG HS PHEV',
     category: 'PHEV',
     price: { min: lakh(98.99), max: lakh(98.99), display: 'PKR 98.99 Lakh' },
@@ -983,6 +1036,7 @@ export const cars: Car[] = [
     slug: 'gwm-tank-500-phev',
     brand: 'GWM',
     model: 'Tank 500 PHEV',
+    variant: null,
     fullName: 'GWM Tank 500 PHEV',
     category: 'PHEV',
     price: { min: crore(2.25), max: crore(2.25), display: 'PKR 2.25 Cr' },
@@ -1020,6 +1074,7 @@ export const cars: Car[] = [
     slug: 'toyota-corolla-cross-hev',
     brand: 'Toyota',
     model: 'Corolla Cross Hybrid',
+    variant: null,
     fullName: 'Toyota Corolla Cross Hybrid',
     category: 'Hybrid',
     price: { min: lakh(95.5), max: lakh(95.5), display: 'PKR 95.5 Lakh (indicative)' },
@@ -1057,6 +1112,7 @@ export const cars: Car[] = [
     slug: 'haval-jolion-hev',
     brand: 'Haval',
     model: 'Jolion Hybrid',
+    variant: null,
     fullName: 'Haval Jolion Hybrid',
     category: 'Hybrid',
     price: { min: lakh(89.99), max: lakh(89.99), display: 'PKR 89.99 Lakh (indicative)' },
@@ -1088,6 +1144,7 @@ export const cars: Car[] = [
     slug: 'haval-h6-hev',
     brand: 'Haval',
     model: 'H6 Hybrid',
+    variant: null,
     fullName: 'Haval H6 Hybrid',
     category: 'Hybrid',
     price: { min: crore(1.05), max: crore(1.05), display: 'PKR 1.05 Cr (indicative)' },
@@ -1120,6 +1177,7 @@ export const cars: Car[] = [
     slug: 'gwm-tank-300-hev',
     brand: 'GWM',
     model: 'Tank 300 HEV',
+    variant: null,
     fullName: 'GWM Tank 300 HEV',
     category: 'Hybrid',
     price: { min: crore(1.29), max: crore(1.29), display: 'PKR 1.29 Cr (indicative)' },
@@ -1152,6 +1210,7 @@ export const cars: Car[] = [
     slug: 'chery-tiggo-cross-hev',
     brand: 'Chery',
     model: 'Tiggo Cross HEV',
+    variant: null,
     fullName: 'Chery Tiggo Cross HEV',
     category: 'Hybrid',
     price: { min: lakh(82), max: lakh(82), display: 'PKR 82 Lakh (indicative)' },
@@ -1185,6 +1244,7 @@ export const cars: Car[] = [
     slug: 'byd-sealion-6',
     brand: 'BYD',
     model: 'Sealion 6',
+    variant: null,
     fullName: 'BYD Sealion 6',
     category: 'PHEV',
     price: { min: crore(1.09), max: crore(1.09), display: 'PKR 1.09 Cr (indicative)' },
@@ -1217,6 +1277,7 @@ export const cars: Car[] = [
     slug: 'dfsk-seres-3',
     brand: 'DFSK',
     model: 'Seres 3',
+    variant: null,
     fullName: 'DFSK Seres 3',
     category: 'EV',
     price: { min: lakh(82.5), max: lakh(82.5), display: 'PKR 82.5 Lakh (indicative)' },
@@ -1249,6 +1310,7 @@ export const cars: Car[] = [
     slug: 'hyundai-ioniq-5',
     brand: 'Hyundai',
     model: 'Ioniq 5',
+    variant: null,
     fullName: 'Hyundai Ioniq 5',
     category: 'EV',
     price: { min: crore(1.7), max: crore(1.7), display: 'PKR 1.7 Cr (indicative)' },

@@ -8,7 +8,7 @@ import * as React from 'react'
 
 import { Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
-import { formatPkr } from '@/lib/cars'
+import { carDisplayName, formatPkr } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
 /**
@@ -285,7 +285,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               <button
                 type="button"
                 onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
-                aria-label={`Remove ${car.fullName} from comparison`}
+                aria-label={`Remove ${carDisplayName(car)} from comparison`}
                 className="absolute right-2.5 top-2.5 z-10 rounded-full bg-slate-950/60 p-1.5 text-white/70 ring-1 ring-white/20 backdrop-blur-sm transition-colors hover:bg-slate-950/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
               >
                 <X size={14} aria-hidden="true" />
@@ -298,7 +298,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 <span className="relative block aspect-[16/10] overflow-hidden bg-white/[0.04]">
                   <PhotoFrame
                     src={car.image ?? undefined}
-                    alt={car.fullName}
+                    alt={carDisplayName(car)}
                     sizes="(max-width: 640px) 100vw, 320px"
                     zoomOnHover
                   />
@@ -313,6 +313,16 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                       <span className="font-sans text-ui font-semibold text-white/60">
                         {car.model}
                       </span>
+                      {/* The trim beneath, not appended: a comparison column is
+                          narrow, and this is the one screen where two rows of the
+                          same model may sit side by side — so the trim is the only
+                          thing telling them apart and it must not be truncated
+                          into the model name. */}
+                      {car.variant ? (
+                        <span className="mt-1 block font-mono text-ui-xs font-medium leading-snug text-plug-cyan-300/80">
+                          {car.variant}
+                        </span>
+                      ) : null}
                     </span>
                     <Badge variant={CATEGORY_VARIANT[car.category]} size="sm">
                       {car.category}
@@ -394,7 +404,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 </option>
                 {available.map((car) => (
                   <option key={car.id} value={car.id}>
-                    {car.fullName} — {car.price.display}
+                    {carDisplayName(car)} — {car.price.display}
                   </option>
                 ))}
               </select>
@@ -442,7 +452,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       <div className="mt-4 overflow-x-auto rounded-2xl border border-white/15 bg-white/[0.07] shadow-e4 backdrop-blur-xl">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
-            Specification comparison of {cars.map((car) => car.fullName).join(', ')}
+            Specification comparison of {cars.map((car) => carDisplayName(car)).join(', ')}
           </caption>
 
           <colgroup>

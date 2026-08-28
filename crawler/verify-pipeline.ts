@@ -267,7 +267,7 @@ console.log('\nDUPLICATES AND MULTI-SOURCE')
 // ── Source priority and conflicts ─────────────────────────────────────
 console.log('\nSOURCE PRIORITY AND CONFLICTS')
 {
-  const stub = { access: async () => ({ kind: 'open-dataset' as const, allowed: true, reason: 'fixture' }), fetch: async () => [] }
+  const stub = { access: async () => ({ kind: 'open-dataset' as const, allowed: true, reason: 'fixture' }), fetch: async () => ({ vehicles: [] }) }
 
   const globalDb: SourceAdapter = {
     id: 'global-ev-db', name: 'Global EV DB', baseUrl: 'https://x', defaultTrust: 70,

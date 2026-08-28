@@ -1,5 +1,6 @@
 // crawler/match.ts
 
+import { sameVariant } from './identity'
 import { nameKey, type NormalisedCar } from './normalise'
 
 /**
@@ -35,11 +36,29 @@ export interface MatchCandidateCar {
   model: string
   fullName: string
   category: string
+
+  /**
+   * Variant identity, added in Phase 4.1. Optional so fixtures and older callers
+   * compile; null and absent both mean "this row declares no variant".
+   *
+   * Before these existed, `yearGuard` was called with a hard-coded null for the
+   * catalogue side — dead code that could never fire, because there was no column
+   * to compare against. Both guards are live now.
+   */
+  variant?: string | null
+  trim?: string | null
+  modelYear?: number | null
+  generation?: string | null
 }
 
 export type MatchStrategy =
   | 'external-id'
   | 'slug'
+  /** Brand, model, variant and model year all agree exactly. */
+  | 'exact-variant-year'
+  /** Brand, model and variant agree exactly. */
+  | 'exact-variant'
+  /** Brand and model agree exactly. Says nothing about the variant. */
   | 'exact-parts'
   | 'exact-name'
   | 'brand-model'
@@ -205,9 +224,37 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
       continue
     }
 
-    const yearProblem = yearGuard(normalised.modelYear, null)
+    /*
+      The year guard, now with something to compare against.
+
+      This used to be `yearGuard(normalised.modelYear, null)` — a call that could
+      never return a problem, because Car had no modelYear column and the second
+      argument was a literal null. It looked like a working guard in every reading
+      of this file. Phase 4.1 gave Car the column; the guard is live.
+
+      Still only fires when BOTH sides state a year: one side being silent is not
+      evidence either way, and treating it as a mismatch would block every record
+      from a source that omits the year.
+    */
+    const yearProblem = yearGuard(normalised.modelYear, car.modelYear ?? null)
     if (yearProblem) {
       blocked.push({ car, reason: yearProblem })
+      continue
+    }
+
+    /*
+      A stated variant contradiction blocks the pair outright.
+
+      Exact comparison over normalised text — see sameVariant in identity.ts for
+      why there is no similarity scoring here. If both sides name a variant and
+      the names differ, these are different vehicles and no amount of agreement
+      elsewhere changes that.
+    */
+    if (normalised.variant && car.variant && !sameVariant(normalised.variant, car.variant)) {
+      blocked.push({
+        car,
+        reason: `variants differ ("${normalised.variant}" vs "${car.variant}")`,
+      })
       continue
     }
 
@@ -225,14 +272,67 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
       continue
     }
 
-    // ── Tier 3 — brand, model and variant all agree exactly ────────
     const modelAgrees = sourceModel !== null && nameKey(sourceModel) === nameKey(car.model)
+
+    /*
+      ── Tier 3 — brand, model AND variant agree exactly ──────────────
+
+      The comment above this tier used to read "brand, model and variant all
+      agree exactly" while the code compared brand and model. That gap is the
+      whole of Phase 4.1: five Seal variants each scored 90 here and each came
+      back `confident`, and the one that won the field-level comparison was not
+      the one the catalogue described.
+
+      The variant tiers are now separate and score higher, so a record that
+      genuinely proves the trim outranks one that only proves the model. A
+      model-only agreement still scores 90 and still reaches `confident` — it is
+      a correct statement about the MODEL, and the model is what a match is for.
+      What it no longer does is imply anything about the trim: that question is
+      answered by identity.ts, and variant-sensitive fields are gated on its
+      verdict rather than on this score.
+    */
+    const variantAgrees =
+      normalised.variant !== null &&
+      car.variant !== null &&
+      car.variant !== undefined &&
+      sameVariant(normalised.variant, car.variant)
+
+    const yearAgrees =
+      normalised.modelYear !== null &&
+      car.modelYear !== null &&
+      car.modelYear !== undefined &&
+      normalised.modelYear === car.modelYear
+
+    if (brandAgrees && modelAgrees && variantAgrees && yearAgrees) {
+      candidates.push({
+        car,
+        strategy: 'exact-variant-year',
+        score: 98,
+        reason: `brand, model, variant and year match exactly (${car.brand} ${car.model} ${car.variant}, ${car.modelYear})`,
+      })
+      continue
+    }
+
+    if (brandAgrees && modelAgrees && variantAgrees) {
+      candidates.push({
+        car,
+        strategy: 'exact-variant',
+        score: 94,
+        reason: `brand, model and variant match exactly (${car.brand} ${car.model} ${car.variant})`,
+      })
+      continue
+    }
+
     if (brandAgrees && modelAgrees) {
       candidates.push({
         car,
         strategy: 'exact-parts',
         score: 90,
-        reason: `brand and model match exactly (${car.brand} / ${car.model})`,
+        reason:
+          `brand and model match exactly (${car.brand} / ${car.model})` +
+          (normalised.variant
+            ? ` — the source names variant "${normalised.variant}", which this row does not declare, so the trim is not established`
+            : ''),
       })
       continue
     }
@@ -309,5 +409,143 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
     best,
     candidates,
     blocked,
+  }
+}
+
+// ─── Reading a match back off a stored record ─────────────────────────
+
+/**
+ * What a downstream decision needs to know about a match.
+ *
+ * Narrower than `MatchResult` on purpose. A `MatchResult` satisfies it, and so
+ * does a match reconstructed from a staging row — which cannot rebuild the full
+ * candidate cars, because only their id and slug were stored. The policy layer
+ * only ever asks how good the match was and how many rivals there were, so
+ * asking it for more than that would force the reconstruction to invent brands
+ * and model names it does not have.
+ */
+export interface MatchEvidence {
+  decision: MatchDecision
+  /** The rivals. Only the count is read, so the element type is irrelevant. */
+  candidates: readonly unknown[]
+  strategy?: string | null
+  score?: number | null
+}
+
+/** The match columns a staging row carries. Prisma's row satisfies this. */
+export interface StoredMatchColumns {
+  matchStrategy?: string | null
+  matchScore?: number | null
+  /** Serialised rival candidates, exactly as `storeRecord` wrote them. */
+  matchCandidates?: string | null
+}
+
+interface StoredCandidate {
+  carId?: string
+  slug?: string
+  strategy?: string
+  score?: number
+}
+
+/**
+ * The score each tier awards, so a row that recorded a strategy but no number
+ * can still be placed. Mirrors the tiers in `match()` above; if one changes,
+ * both change together or a reconstructed match stops meaning what the live one
+ * meant.
+ */
+const STRATEGY_SCORE: Record<string, number> = {
+  'exact-variant-year': 98,
+  'exact-variant': 94,
+  'external-id': 100,
+  slug: 95,
+  'exact-parts': 90,
+  'exact-name': 85,
+  'brand-model': 65,
+}
+
+/** Weakest first, so a group of records can be judged by its worst member. */
+export const MATCH_DECISION_RANK: Record<MatchDecision, number> = {
+  none: 0,
+  ambiguous: 1,
+  probable: 2,
+  confident: 3,
+}
+
+export function weakerDecision(a: MatchDecision, b: MatchDecision): MatchDecision {
+  return MATCH_DECISION_RANK[a] <= MATCH_DECISION_RANK[b] ? a : b
+}
+
+function parseCandidates(json: string | null | undefined): StoredCandidate[] {
+  if (!json) return []
+  try {
+    const parsed: unknown = JSON.parse(json)
+    return Array.isArray(parsed) ? (parsed as StoredCandidate[]) : []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Rebuilds the match decision a staging row was stored with.
+ *
+ * ── Why this exists ───────────────────────────────────────────────────
+ *
+ * The match happens when a record is crawled; the proposal is built later, from
+ * the database, by a different command. The decision itself was never stored —
+ * only its evidence was — so the proposal stage had no way to ask how good the
+ * match was and instead assumed it had been a good one. That assumption held
+ * only because the two runners happen to set `matchedCarId` on nothing weaker
+ * than `confident`; anything else that ever sets it — a manual association, a
+ * new adapter, a hand-edited row — would have had its fields treated as
+ * confidently matched without a word.
+ *
+ * The rules here are the same rules `match()` applies, read back off the
+ * columns rather than recomputed against the catalogue. Nothing is re-matched:
+ * this is not a second matcher, and it will never disagree with the first about
+ * *which* car — only report how sure that first answer was.
+ *
+ * Returns null when the row records no match evidence at all. That is different
+ * from a weak match, and the caller must treat it differently: a weak match is
+ * known to be poor, while no evidence means nothing is known either way.
+ */
+export function matchFromRecord(record: StoredMatchColumns): MatchEvidence | null {
+  const strategy = record.matchStrategy ?? null
+  const score = record.matchScore ?? null
+  const candidates = parseCandidates(record.matchCandidates)
+
+  if (strategy === null && score === null && candidates.length === 0) return null
+
+  if (strategy === 'none') {
+    return { decision: 'none', candidates, strategy, score }
+  }
+
+  const ranked = [...candidates].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  const effective =
+    score ?? (strategy !== null ? STRATEGY_SCORE[strategy] : undefined) ?? ranked[0]?.score ?? null
+
+  if (effective === null) {
+    /*
+      Evidence exists but says nothing about strength. Deliberately not
+      `confident`: the whole point of this function is that an unproven match
+      must not be able to present itself as a proven one.
+    */
+    return { decision: 'probable', candidates, strategy, score }
+  }
+
+  /*
+    Two candidates within ten points is the same "that is a question, not an
+    answer" rule `match()` applies. A row stored before its rivals were recorded
+    has an empty candidate list and is judged on its score alone.
+  */
+  const runnerUp = ranked[1]?.score
+  if (runnerUp !== undefined && effective - runnerUp < 10) {
+    return { decision: 'ambiguous', candidates, strategy, score: effective }
+  }
+
+  return {
+    decision: effective >= 85 ? 'confident' : 'probable',
+    candidates,
+    strategy,
+    score: effective,
   }
 }

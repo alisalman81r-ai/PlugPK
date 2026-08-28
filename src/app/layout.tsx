@@ -1,30 +1,56 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { Inter, JetBrains_Mono, Playfair_Display } from 'next/font/google'
+import { JetBrains_Mono, Poppins } from 'next/font/google'
 import './globals.css'
 
-/** Body, labels, buttons — everything that is not a heading. */
-const inter = Inter({
+/**
+ * One face for the whole interface: Poppins, headings included.
+ *
+ * ── What this replaced, and why the pairing went ───────────────────────
+ *
+ * Body was Inter and every h1–h6 was Playfair Display, a high-contrast serif.
+ * That pairing is a legitimate one and it is not what this product wants: a
+ * serif heading over a technical dashboard reads editorial, and the site is a
+ * charging map, a route planner and an operator console. A single geometric sans
+ * across both is quieter and more consistent, which is what "professional" means
+ * here far more than any particular typeface does.
+ *
+ * ── Weights, and why all six are loaded ────────────────────────────────
+ *
+ * Poppins is not a variable font on Google Fonts, so every weight is a separate
+ * file — roughly 15KB each, latin-subset, self-hosted and preloaded by next/font.
+ * Six is more than one would choose from scratch, and each one is answering an
+ * existing call site rather than a guess:
+ *
+ *   400  body copy
+ *   500  font-medium        — 134 uses
+ *   600  font-semibold      — 469 uses
+ *   700  font-bold          — 315 uses
+ *   800  font-extrabold and the display-lg/xl/2xl steps
+ *   900  font-black         —  62 uses
+ *
+ * 900 was very nearly dropped, on the grounds that Poppins Black is close to
+ * circular and its counters tighten at display sizes. That was the wrong call:
+ * 62 places ask for `font-black` explicitly, and a weight that is asked for and
+ * not loaded is not absent — the browser fakes it by smearing the 800, which
+ * looks far worse than a heavy face used deliberately.
+ *
+ * What did change is the display scale in tailwind.config.ts: `display-2xl` and
+ * `display-xl` moved from 900 to 800, because at 4.5rem the open letterforms
+ * carry the weight better. `font-black` still renders a real 900 wherever an
+ * author reached for it.
+ */
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-poppins',
+  /*
+    `swap` rather than `optional`: the fallback stack in tailwind.config.ts is
+    metric-different from Poppins, so a failed swap would leave the site in
+    system-ui permanently on a slow connection. A brief flash of the fallback is
+    the better trade for a face this central.
+  */
   display: 'swap',
   weight: ['400', '500', '600', '700', '800', '900'],
-})
-
-/**
- * Headings only.
- *
- * Playfair is a display face and is treated as one: globals.css points every
- * h1–h6 at it and nothing else. That is deliberate rather than lazy — its
- * stroke contrast is what makes a 6rem heading land, and the same contrast at
- * 13px closes the counters up, so the eyebrows, meta rows and table cells stay
- * on Inter.
- */
-const display = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-  weight: ['500', '600', '700', '800', '900'],
 })
 
 // Supplies --font-jetbrains for the `font-mono` utility. Without it that
@@ -86,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${display.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${poppins.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-white font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )

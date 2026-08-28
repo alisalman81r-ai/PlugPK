@@ -11,8 +11,15 @@
 
 import { compareField, sameValue, type SourceClaim } from './compare'
 import { explain, scoreComparison } from './confidence'
-import { match, type MatchCandidateCar } from './match'
+import { match, matchFromRecord, weakerDecision, type MatchCandidateCar } from './match'
 import { assess } from './policy'
+import {
+  derivePriceDisplay,
+  formatPriceDisplay,
+  parsePriceDisplay,
+  unitFor,
+} from '../src/lib/price-display'
+import { decideField, governingMatch, FIELD_MAP, type CarLike, type RecordLike } from './proposals'
 import { trustFor } from './priority-config'
 import { toKm, toKmh, toKg, toKwh, toHp, toMm, toNm, toPkr } from './units'
 import { validateCrossField, validateField } from './validate'
@@ -315,7 +322,49 @@ check('exact match is confident', match({ normalised: norm('BYD', 'Atto 3 Advanc
 }
 
 // ── 13. Update policy ─────────────────────────────────────────────────
+//
+// Each of these isolates one policy rule, so each passes a PROVEN variant
+// identity. Phase 4.1 made variant identity an input to `assess`, and its default
+// when absent is to refuse variant-sensitive fields — correct for production and
+// wrong for a unit test of the price rule, which would then pass for the wrong
+// reason. The fail-closed default has its own test immediately below.
 console.log('\nUPDATE POLICY')
+
+/** Variant established, so these tests exercise the rule they name. */
+const PROVEN = {
+  tier: 'brand-model-variant' as const,
+  verdict: 'proven' as const,
+  reason: 'fixture: variant agreed exactly',
+  blocksVariantSensitive: false,
+  rivals: [],
+}
+{
+  /*
+    The fail-closed default itself.
+
+    A caller that says nothing about the variant has not established it, and a
+    variant-level field must not be applied on that basis. This is the rule whose
+    absence let an 87 kWh figure overwrite 61.44 kWh.
+  */
+  const noIdentity = compareField({
+    field: 'batteryCapacity',
+    currentValue: 61.44,
+    category: 'EV',
+    claims: [claim({ sourceId: 'A', role: 'open-dataset', value: 87 })],
+  })
+  const risk = assess({ comparison: noIdentity, confidence: scoreComparison(noIdentity) })
+  check(
+    'a variant-sensitive field with NO identity assessment is high risk',
+    risk.level === 'high-risk',
+    risk.reason,
+  )
+  check('   and never bulk-eligible', risk.excludeFromBulk)
+  check(
+    '   the reason says the variant was not established',
+    risk.reason.includes('no variant identity was established'),
+    risk.reason,
+  )
+}
 {
   const safeChange = compareField({
     field: 'torque',
@@ -326,7 +375,7 @@ console.log('\nUPDATE POLICY')
       claim({ sourceId: 'B', role: 'open-dataset', value: 350 }),
     ],
   })
-  const risk = assess({ comparison: safeChange, confidence: scoreComparison(safeChange) })
+  const risk = assess({ comparison: safeChange, confidence: scoreComparison(safeChange), identity: PROVEN })
   check('filling a gap with agreeing sources is safe', risk.level === 'safe', risk.reason)
   check('and it is bulk-eligible', !risk.excludeFromBulk)
 }
@@ -336,7 +385,7 @@ console.log('\nUPDATE POLICY')
     currentValue: 15_000_000,
     claims: [claim({ sourceId: 'local', role: 'pk-distributor', value: 19_000_000 })],
   })
-  const risk = assess({ comparison: priceJump, confidence: scoreComparison(priceJump) })
+  const risk = assess({ comparison: priceJump, confidence: scoreComparison(priceJump), identity: PROVEN })
   check('a 27% price jump is high risk', risk.level === 'high-risk', risk.reason)
   check('and it is never bulk-eligible', risk.excludeFromBulk)
 }
@@ -346,7 +395,7 @@ console.log('\nUPDATE POLICY')
     currentValue: 15_000_000,
     claims: [claim({ sourceId: 'local', role: 'pk-distributor', value: 15_300_000 })],
   })
-  const risk = assess({ comparison: smallPrice, confidence: scoreComparison(smallPrice) })
+  const risk = assess({ comparison: smallPrice, confidence: scoreComparison(smallPrice), identity: PROVEN })
   check('even a small price change needs reading', risk.level === 'review' && risk.excludeFromBulk)
 }
 {
@@ -355,7 +404,7 @@ console.log('\nUPDATE POLICY')
     currentValue: 'Sealion 6',
     claims: [claim({ sourceId: 'A', role: 'aggregator', value: 'Sealion 7' })],
   })
-  const risk = assess({ comparison: identity, confidence: scoreComparison(identity) })
+  const risk = assess({ comparison: identity, confidence: scoreComparison(identity), identity: PROVEN })
   check('renaming a car from crawled data is high risk', risk.level === 'high-risk', risk.reason)
 }
 {
@@ -366,10 +415,441 @@ console.log('\nUPDATE POLICY')
     claims: [claim({ sourceId: 'A', role: 'manufacturer', value: 420 })],
   })
   const weakMatch = match({ normalised: norm('BYD', 'Atto 3') }, CATALOGUE)
-  const risk = assess({ comparison: good, confidence: scoreComparison(good), match: weakMatch })
+  const risk = assess({
+    comparison: good,
+    confidence: scoreComparison(good),
+    match: weakMatch,
+    identity: PROVEN,
+    /*
+      Same cycle both sides, so this stays a test of the MATCH rule rather than
+      becoming a test of the range-cycle rule.
+    */
+    currentRangeStandard: 'wltp',
+    proposedRangeStandard: 'wltp',
+  })
   check('a plausible value on a weak match is high risk', risk.level === 'high-risk', risk.reason)
   check('because a right value on the wrong car survives review', risk.excludeFromBulk)
 }
+
+
+// ── 14. The match tier reaches the live proposal path ─────────────────
+//
+// The rule that a weak match makes every field on a record high-risk was tested
+// against `assess` directly and was correct there — but nothing passed a match
+// into `assess` on the path the pipeline actually runs, so the rule was unwired.
+// These exercise `decideField`, which IS that path: `proposeForCar` is a loop
+// over it plus the writes.
+console.log('\nMATCH TIER IN THE LIVE PROPOSAL PATH')
+
+/**
+ * A catalogue row, with only the columns the comparison reads.
+ *
+ * Declares a variant, and its test records declare the same one, so these tests
+ * isolate the MATCH tier. Phase 4.1 added a second, independent gate — variant
+ * identity — and without a declared variant every one of these would come back
+ * high-risk for a reason that has nothing to do with what they are testing.
+ *
+ * The `PROVEN_VARIANT` constant is shared with the record fixture below so the two
+ * cannot drift apart; a mismatch there would silently turn these into tests of the
+ * variant rule.
+ */
+const PROVEN_VARIANT = 'DM-i 18.3 kWh Premium'
+
+function carFixture(overrides: Partial<CarLike> = {}): CarLike {
+  return {
+    id: 'byd-sealion-6',
+    slug: 'byd-sealion-6',
+    fullName: 'BYD Sealion 6',
+    category: 'PHEV',
+    brand: 'BYD',
+    model: 'Sealion 6',
+    variant: PROVEN_VARIANT,
+    trim: PROVEN_VARIANT,
+    modelYear: null,
+    generation: null,
+    electricRangeStandard: 'cltc',
+    range: null,
+    electricRange: 90,
+    torque: null,
+    priceMin: 10_900_000,
+    priceMax: 10_900_000,
+    priceDisplay: 'PKR 1.09 Cr (indicative)',
+    ...overrides,
+  }
+}
+
+/**
+ * A staging row, with the match columns a real one carries.
+ *
+ * The payload carries the brand, model and variant, because identity is read out
+ * of the payload — a fixture that omits them describes a vehicle with no name,
+ * which `assessIdentity` correctly calls a mismatch.
+ */
+function recordFixture(vehicle: Record<string, unknown>, columns: Partial<RecordLike> = {}): RecordLike {
+  const payload = {
+    brand: 'BYD',
+    model: 'Sealion 6',
+    variant: PROVEN_VARIANT,
+    trim: PROVEN_VARIANT,
+    modelYear: null,
+    generation: null,
+    electricRangeStandard: 'cltc',
+    rangeStandard: 'cltc',
+    ...vehicle,
+  }
+
+  return {
+    id: `record-${columns.sourceId ?? 'A'}`,
+    sourceId: 'openev',
+    runId: 'run-1',
+    sourceUrl: 'https://example.com/record',
+    fetchedAt: new Date(),
+    confidence: 80,
+    raw: JSON.stringify(payload),
+    normalised: JSON.stringify(payload),
+    matchedCarId: 'byd-sealion-6',
+    ...columns,
+  }
+}
+
+/** One record, ready for decideField. */
+function parsedFixture(vehicle: Record<string, unknown>, columns: Partial<RecordLike> = {}) {
+  const record = recordFixture(vehicle, columns)
+  return { record, vehicle: JSON.parse(record.normalised!) }
+}
+
+const ELECTRIC_RANGE_FIELD = FIELD_MAP.find((entry) => entry.car === 'electricRange')!
+const TORQUE_FIELD = FIELD_MAP.find((entry) => entry.car === 'torque')!
+
+{
+  // The tiers, read back off the columns a staging row stores.
+  check(
+    'a stored exact-parts match reads back as confident',
+    matchFromRecord({ matchStrategy: 'exact-parts', matchScore: 90 })?.decision === 'confident',
+  )
+  check(
+    'a stored brand-model match reads back as probable, not confident',
+    matchFromRecord({ matchStrategy: 'brand-model', matchScore: 65 })?.decision === 'probable',
+  )
+  check(
+    'a stored "none" reads back as none',
+    matchFromRecord({ matchStrategy: 'none', matchScore: null })?.decision === 'none',
+  )
+  check(
+    'two close rivals read back as ambiguous',
+    matchFromRecord({
+      matchStrategy: 'exact-name',
+      matchScore: 85,
+      matchCandidates: JSON.stringify([
+        { carId: 'a', score: 85 },
+        { carId: 'b', score: 85 },
+      ]),
+    })?.decision === 'ambiguous',
+  )
+  check(
+    'a distant rival does not make it ambiguous',
+    matchFromRecord({
+      matchStrategy: 'exact-parts',
+      matchScore: 90,
+      matchCandidates: JSON.stringify([
+        { carId: 'a', score: 90 },
+        { carId: 'b', score: 65 },
+      ]),
+    })?.decision === 'confident',
+  )
+  check(
+    'a strategy with no score is placed by its tier, not assumed confident',
+    matchFromRecord({ matchStrategy: 'brand-model' })?.decision === 'probable',
+  )
+  check(
+    'a row with no match evidence at all reads back as null',
+    matchFromRecord({ matchStrategy: null, matchScore: null, matchCandidates: null }) === null,
+  )
+  check(
+    'unreadable candidate JSON does not throw',
+    matchFromRecord({ matchCandidates: '{oops' }) === null,
+  )
+  check('the weaker of two decisions wins', weakerDecision('confident', 'probable') === 'probable')
+}
+
+{
+  // 2. EXACT MATCH — keeps the treatment it had.
+  const decision = decideField(carFixture(), TORQUE_FIELD, [
+    parsedFixture({ torqueNm: 325 }, { matchStrategy: 'exact-parts', matchScore: 90 }),
+  ])
+  check('an exact match still produces a proposal', decision !== null)
+  check(
+    'and it is not made high-risk by the match check',
+    decision!.risk.level !== 'high-risk',
+    `${decision!.risk.level} — ${decision!.risk.reason}`,
+  )
+  check('its match reads as confident', decision!.match.evidence?.decision === 'confident')
+  check('and it still carries a confidence score', decision!.confidence.score > 0)
+}
+
+{
+  // 1. WEAK MATCH — a perfectly plausible figure on a probable match.
+  const decision = decideField(carFixture(), TORQUE_FIELD, [
+    parsedFixture({ torqueNm: 325 }, { matchStrategy: 'brand-model', matchScore: 65 }),
+  ])
+  check(
+    'a weak match makes a plausible value high-risk on the live path',
+    decision!.risk.level === 'high-risk',
+    decision!.risk.reason,
+  )
+  check('and it is never bulk-eligible', decision!.risk.excludeFromBulk)
+  check('the reason names the tier that caused it', decision!.risk.reason.includes('brand-model'))
+}
+
+{
+  // An ambiguous match — several cars fitted equally well.
+  const decision = decideField(carFixture(), TORQUE_FIELD, [
+    parsedFixture(
+      { torqueNm: 325 },
+      {
+        matchStrategy: 'exact-name',
+        matchScore: 85,
+        matchCandidates: JSON.stringify([
+          { carId: 'byd-sealion-6', score: 85 },
+          { carId: 'byd-sealion-7-advanced', score: 85 },
+        ]),
+      },
+    ),
+  ])
+  check(
+    'an ambiguous match is high-risk on the live path',
+    decision!.risk.level === 'high-risk',
+    decision!.risk.reason,
+  )
+  check('and the reason says how many cars fitted', decision!.risk.reason.includes('2 cars'))
+}
+
+{
+  // A record whose match was never recorded: unknown, not weak.
+  const decision = decideField(carFixture(), TORQUE_FIELD, [
+    parsedFixture({ torqueNm: 325 }, { matchStrategy: null, matchScore: null }),
+  ])
+  check(
+    'a record with no match evidence cannot be safe',
+    decision!.risk.level !== 'safe',
+    decision!.risk.reason,
+  )
+  check('but it is not called high-risk either', decision!.risk.level === 'review')
+  check('and it is kept out of bulk approval', decision!.risk.excludeFromBulk)
+}
+
+{
+  // The weakest contributor governs, so one good match cannot launder a bad one.
+  const strong = recordFixture({ torqueNm: 325 }, { sourceId: 'openev', matchStrategy: 'exact-parts', matchScore: 90 })
+  const weak = recordFixture({ torqueNm: 325 }, { sourceId: 'vehdb', matchStrategy: 'brand-model', matchScore: 65 })
+
+  check(
+    'the weakest match of a group is the one that governs',
+    governingMatch([strong, weak]).evidence?.decision === 'probable',
+  )
+  check(
+    'and one unrecorded record flags the whole group',
+    governingMatch([strong, { ...weak, matchStrategy: null, matchScore: null }]).unrecorded,
+  )
+
+  const decision = decideField(carFixture(), TORQUE_FIELD, [
+    { record: strong, vehicle: JSON.parse(strong.normalised!) },
+    { record: weak, vehicle: JSON.parse(weak.normalised!) },
+  ])
+  check(
+    'two sources agreeing does not rescue a weakly-matched one',
+    decision!.risk.level === 'high-risk',
+    decision!.risk.reason,
+  )
+}
+
+{
+  // 3. MODEL-NUMBER MISMATCH — the guard that keeps Sealion 6 and 7 apart is
+  // still in force, and a record it refused cannot arrive as a safe proposal.
+  const blocked = match({ normalised: norm('BYD', 'Sealion 7') }, CATALOGUE)
+  check('Sealion 7 does not reach Sealion 6', blocked.best?.car.id !== 'byd-sealion-6')
+  check(
+    'and Sealion 6 is recorded as blocked, with the reason',
+    blocked.blocked.some(
+      (entry) => entry.car.id === 'byd-sealion-6' && entry.reason.includes('model numbers differ'),
+    ),
+  )
+
+  const unknownNumber = match({ normalised: norm('BYD', 'Sealion 9') }, CATALOGUE)
+  check('an unknown model number matches nothing at all', unknownNumber.decision === 'none')
+
+  const decision = decideField(carFixture(), ELECTRIC_RANGE_FIELD, [
+    parsedFixture({ electricRangeKm: 105 }, { matchStrategy: 'none', matchScore: null }),
+  ])
+  check(
+    'a record the matcher never tied to a car is high-risk if it is proposed',
+    decision!.risk.level === 'high-risk',
+    decision!.risk.reason,
+  )
+  check(
+    'and the reconstruction adds no fuzzy matching of its own',
+    !/levenshtein|editDistance|similarity|fuzzy/i.test(matchFromRecord.toString()),
+  )
+}
+
+// ── 15. Price consistency ─────────────────────────────────────────────
+console.log('\nPRICE CONSISTENCY')
+{
+  const parsed = parsePriceDisplay('PKR 1.33–1.70 Cr')
+  check('a span parses both ends', parsed?.min === 13_300_000 && parsed?.max === 17_000_000)
+  check('and keeps its precision', parsed?.decimals === 2)
+
+  const hedged = parsePriceDisplay('PKR 82 Lakh (indicative)')
+  check('a qualifier is read, not discarded', hedged?.qualifier === '(indicative)')
+  check('and Lakh is understood', hedged?.min === 8_200_000)
+
+  check(
+    'an unparseable string is refused rather than guessed',
+    parsePriceDisplay('call for price') === null,
+  )
+  check('a dollar price is not read as rupees', parsePriceDisplay('$45,000') === null)
+  check(
+    'the unit follows the size of the figure',
+    unitFor(9_900_000) === 'Lakh' && unitFor(10_000_000) === 'Cr',
+  )
+  check(
+    'formatting is the inverse of parsing',
+    formatPriceDisplay({ min: 10_500_000, max: 10_500_000, unit: 'Cr', decimals: 2 }) === 'PKR 1.05 Cr',
+  )
+}
+{
+  // priceMin moving, with the display carried along.
+  const result = derivePriceDisplay({
+    currentDisplay: 'PKR 1.09 Cr (indicative)',
+    currentMin: 10_900_000,
+    currentMax: 10_900_000,
+    nextMin: 11_500_000,
+    nextMax: 11_500_000,
+  })
+  check(
+    'a priceMin rise rewrites the display string',
+    result.ok && result.display === 'PKR 1.15 Cr (indicative)',
+    result.ok ? result.display : result.reason,
+  )
+  check('and the qualifier survives', result.ok && result.display.includes('(indicative)'))
+}
+{
+  // priceMax moving on a span.
+  const result = derivePriceDisplay({
+    currentDisplay: 'PKR 1.48–1.70 Cr',
+    currentMin: 14_800_000,
+    currentMax: 17_000_000,
+    nextMin: 14_800_000,
+    nextMax: 18_000_000,
+  })
+  check(
+    'a priceMax rise updates the upper end alone',
+    result.ok && result.display === 'PKR 1.48–1.80 Cr',
+    result.ok ? result.display : result.reason,
+  )
+}
+{
+  const kept = derivePriceDisplay({
+    currentDisplay: 'PKR 1.20 Cr',
+    currentMin: 12_000_000,
+    currentMax: 12_000_000,
+    nextMin: 13_000_000,
+    nextMax: 13_000_000,
+  })
+  check(
+    "the catalogue's chosen precision is kept",
+    kept.ok && kept.display === 'PKR 1.30 Cr',
+    kept.ok ? kept.display : kept.reason,
+  )
+}
+{
+  const crossing = derivePriceDisplay({
+    currentDisplay: 'PKR 89.9 Lakh',
+    currentMin: 8_990_000,
+    currentMax: 8_990_000,
+    nextMin: 10_500_000,
+    nextMax: 10_500_000,
+  })
+  check(
+    'crossing a crore switches the unit',
+    crossing.ok && crossing.display === 'PKR 1.05 Cr',
+    crossing.ok ? crossing.display : crossing.reason,
+  )
+
+  const straddling = derivePriceDisplay({
+    currentDisplay: 'PKR 89.9 Lakh',
+    currentMin: 8_990_000,
+    currentMax: 8_990_000,
+    nextMin: 9_990_000,
+    nextMax: 10_500_000,
+  })
+  check(
+    'a span straddling a crore is refused, not invented',
+    !straddling.ok,
+    straddling.ok ? straddling.display : straddling.reason,
+  )
+}
+{
+  const unreadable = derivePriceDisplay({
+    currentDisplay: 'from PKR 1.2 Cr onwards',
+    currentMin: 12_000_000,
+    currentMax: 12_000_000,
+    nextMin: 13_000_000,
+    nextMax: 13_000_000,
+  })
+  check('an unrewritable display refuses the whole change', !unreadable.ok)
+  check('and says what a person must do', !unreadable.ok && unreadable.reason.includes('by hand'))
+
+  const drifted = derivePriceDisplay({
+    currentDisplay: 'PKR 1.20 Cr',
+    currentMin: 11_000_000,
+    currentMax: 11_000_000,
+    nextMin: 13_000_000,
+    nextMax: 13_000_000,
+  })
+  check(
+    'a display that already disagrees is not used as a template',
+    !drifted.ok,
+    drifted.ok ? drifted.display : drifted.reason,
+  )
+
+  const unwritable = derivePriceDisplay({
+    currentDisplay: 'PKR 1.20 Cr',
+    currentMin: 12_000_000,
+    currentMax: 12_000_000,
+    nextMin: 10_649_321,
+    nextMax: 10_649_321,
+  })
+  check(
+    'a figure that will not write exactly is refused, not rounded',
+    !unwritable.ok,
+    unwritable.ok ? unwritable.display : unwritable.reason,
+  )
+
+  const backwards = derivePriceDisplay({
+    currentDisplay: 'PKR 1.20 Cr',
+    currentMin: 12_000_000,
+    currentMax: 12_000_000,
+    nextMin: 13_000_000,
+    nextMax: 11_000_000,
+  })
+  check(
+    'a lower price above the upper one is refused',
+    !backwards.ok,
+    backwards.ok ? backwards.display : backwards.reason,
+  )
+}
+{
+  const unchanged = derivePriceDisplay({
+    currentDisplay: 'PKR 1.09 Cr (indicative)',
+    currentMin: 10_900_000,
+    currentMax: 10_900_000,
+    nextMin: 10_900_000,
+    nextMax: 10_900_000,
+  })
+  check('an unchanged price reports that no rewrite is needed', unchanged.ok && !unchanged.changed)
+}
+
 
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}\n`)
 process.exitCode = failures === 0 ? 0 : 1

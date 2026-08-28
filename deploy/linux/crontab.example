@@ -1,0 +1,42 @@
+# deploy/linux/crontab.example
+#
+# For a host without systemd. Prefer the timer in this directory where there is a
+# choice - see the note in plugpk-crawler.timer for what cron cannot do.
+#
+# Install:
+#   crontab -u plugpk deploy/linux/crontab.example
+# Inspect:
+#   crontab -u plugpk -l
+# Remove (this is the deactivation switch):
+#   crontab -u plugpk -r
+#
+# Nothing is scheduled until `crontab` is run. Copying this file does nothing.
+
+# cron runs with almost no environment, and the two lines below are the reason a
+# working command fails under cron and nowhere else. PATH must include node.
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Where mail goes when the command writes to stderr. Set it, or the output of a
+# failing crawl is delivered to a local mailbox nobody opens. Leave it empty to
+# discard - honest, and better than pretending.
+MAILTO=""
+
+# 06:00 daily. Not midnight, and not */5 - see docs/CRAWLER.md for what each
+# source permits.
+#
+# The `cd` is not optional: cron starts in the user's home directory and `npm run`
+# needs the package.json. Output is appended to a dated log because cron keeps
+# none of it.
+#
+# 2>&1 merges stderr into the same file, in order. A crawl's errors belong beside
+# its results, not in a separate stream an operator has to correlate by timestamp.
+
+0 6 * * * cd /srv/plugpk && /usr/bin/npm run crawl:daily >> /srv/plugpk/logs/crawler/crawl-$(date +\%Y-\%m-\%d).log 2>&1
+
+# Weekly prune of the run logs, so this does not grow without limit. The crawl's
+# own audit trail lives in the database and is never deleted by a schedule - see
+# pruneLog in src/lib/db/car-source-store.ts, which is called by hand and on
+# purpose. This only removes the console transcripts.
+
+30 4 * * 0 find /srv/plugpk/logs/crawler -name 'crawl-*.log' -mtime +30 -delete

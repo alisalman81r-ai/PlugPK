@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { CarDetails } from '@/components/cars/CarDetails'
-import { carSeo } from '@/lib/cars'
+import { carDisplayName, carSeo } from '@/lib/cars'
 import { getCarBySlugFromDb, getCarSlugs, listCars } from '@/lib/db/car-queries'
 
 /**
@@ -77,7 +77,20 @@ export default async function CarPage({ params }: CarPageProps) {
    * electrical specs — schema.org has no battery or range field for a car, and
    * inventing one would not be understood, whereas a named QuantitativeValue is.
    */
-  const properties = [
+  /*
+    `unitText` is optional, and the predicate says so.
+
+    The Variant property is a string with no unit, and the predicate here used to
+    assert `value: number; unitText: string` — a type predicate is a cast, not a
+    check, so TypeScript accepted the mismatch silently and the JSON-LD would
+    have carried `"unitText": null`, which is not a thing a consumer can read.
+  */
+  type SchemaProperty = { name: string; value: string | number; unitText?: string }
+
+  const candidates: Array<SchemaProperty | null> = [
+    // First, so a consumer reading the list in order learns which vehicle the
+    // figures below belong to before it reads them.
+    car.variant ? { name: 'Variant', value: car.variant } : null,
     car.batteryCapacity
       ? { name: 'Battery capacity', value: car.batteryCapacity, unitText: 'kWh' }
       : null,
@@ -88,12 +101,25 @@ export default async function CarPage({ params }: CarPageProps) {
     car.power ? { name: 'Power', value: car.power, unitText: 'hp' } : null,
     car.dcCharging ? { name: 'DC charging', value: car.dcCharging, unitText: 'kW' } : null,
     car.acCharging ? { name: 'AC charging', value: car.acCharging, unitText: 'kW' } : null,
-  ].filter((entry): entry is { name: string; value: number; unitText: string } => Boolean(entry))
+  ]
+
+  /* The annotation is on the literal above, not on this result: it is what gives
+     the predicate's parameter a `SchemaProperty | null` type to narrow from. */
+  const properties = candidates.filter((entry): entry is SchemaProperty => entry !== null)
 
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Car',
-    name: car.fullName,
+    /*
+      `name` carries the trim; `model` stays the model.
+
+      schema.org's field for a trim is `vehicleConfiguration`, which this page
+      already uses for the powertrain category — repointing it would change what
+      the existing markup asserts, so the trim is published as `name` plus a
+      named property instead. `model` deliberately stays the bare model, since
+      that is what it means and what the crawler compares against.
+    */
+    name: carDisplayName(car),
     brand: { '@type': 'Brand', name: car.brand },
     model: car.model,
     vehicleConfiguration: car.category,
@@ -132,14 +158,24 @@ export default async function CarPage({ params }: CarPageProps) {
             '@type': 'PropertyValue',
             name: property.name,
             value: property.value,
-            unitText: property.unitText,
+            // Spread, so a property with no unit omits the key rather than
+            // publishing a null one.
+            ...(property.unitText ? { unitText: property.unitText } : {}),
           })),
         }
       : {}),
   }
 
   return (
-    <section className="bg-white py-12 lg:py-16">
+    /*
+      A tinted canvas rather than white.
+
+      The panel inside CarDetails is white and the stage the car sits on is
+      tinted again — three tones of depth, which is what gives the reference
+      layout its layered feel. On a white section the panel has no edge to sit
+      against and the whole thing reads as one flat page.
+    */
+    <section className="bg-slate-100 py-10 lg:py-14">
       <div className="container-plug">
         <CarDetails car={car} pool={pool} />
       </div>

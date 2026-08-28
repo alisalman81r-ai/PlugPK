@@ -43,6 +43,20 @@ export type ChangeType =
 
 export interface SourceClaim {
   sourceId: string
+  /**
+   * The staging row this claim came from.
+   *
+   * Added in Phase 4.1, because `sourceId` cannot identify a claim when one source
+   * publishes several records for the same car. Open EV Data lists five BYD Seal
+   * variants; all five arrived as `sourceId: 'openev'`, so the winning claim was
+   * indistinguishable from its four rivals and the proposal was attributed to
+   * whichever record happened to be first in the array.
+   *
+   * The result was an audit trail that named the wrong car: the applied value was
+   * 87 kWh from "U 87 kWh Design", and the proposal recorded the URL and variant
+   * of "61.4 kWh RWD Comfort". Optional so fixtures compile.
+   */
+  recordId?: string | undefined
   role: SourceRole
   /** The value after unit normalisation. */
   value: unknown
@@ -69,6 +83,13 @@ export interface FieldComparison {
   claims: SourceClaim[]
   /** Which source the proposal came from. */
   winner: string | null
+  /**
+   * Which staging row the proposed value came from.
+   *
+   * The identifying half of the provenance. `winner` alone was ambiguous whenever
+   * one source contributed more than one record — see SourceClaim.recordId.
+   */
+  winnerRecordId?: string | null
   /** True when sources contradicted each other. */
   conflicting: boolean
   validationFlags: ValidationFlag[]
@@ -198,6 +219,7 @@ export function compareField(input: CompareInput): FieldComparison {
       claims: ranked,
       winner: null,
       conflicting: false,
+      winnerRecordId: null,
       validationFlags: [],
       reason:
         currentValue === null
@@ -248,6 +270,7 @@ export function compareField(input: CompareInput): FieldComparison {
     changeType,
     claims: ranked,
     winner: best.sourceId,
+    winnerRecordId: best.recordId ?? null,
     conflicting,
     validationFlags: flags,
     reason,

@@ -1,7 +1,7 @@
 // crawler/sources/openev.ts
 
 import { emptyVehicle, type NormalisedVehicle } from '../model'
-import type { AccessVerdict, FetchOptions, SourceAdapter } from './types'
+import type { AccessVerdict, FetchOptions, FetchOutcome, SourceAdapter } from './types'
 
 /**
  * Open EV Data — github.com/KilowattApp/open-ev-data
@@ -271,15 +271,52 @@ export const openEvAdapter: SourceAdapter = {
     }
   },
 
-  async fetch(options: FetchOptions = {}): Promise<NormalisedVehicle[]> {
-    const response = await fetch(DATASET_URL, {
-      headers: {
-        'User-Agent': 'PlugPK-crawler/0.1 (+https://plug.pk)',
-        Accept: 'application/vnd.github.raw+json',
-      },
-    })
+  async fetch(options: FetchOptions = {}): Promise<FetchOutcome> {
+    /*
+      A conditional request, when we have something to condition on.
+
+      This dataset is one file for all ~1,300 records, so there is no cursor and
+      no `modifiedSince` to send — the only incremental mechanism the source
+      offers is an ETag. Sending it turns the overwhelmingly common outcome of a
+      daily run, "the maintainer has not committed anything since yesterday",
+      from a 400KB download and 1,300 hash comparisons into one 304 and no work
+      at all.
+
+      This is politeness as much as efficiency. Pulling a whole dataset every
+      morning to discover it is unchanged is exactly the traffic an ETag exists
+      to prevent, and api.github.com does not count a 304 against the rate limit.
+    */
+    const headers: Record<string, string> = {
+      'User-Agent': 'PlugPK-crawler/0.1 (+https://plug.pk)',
+      Accept: 'application/vnd.github.raw+json',
+    }
+    if (options.etag) headers['If-None-Match'] = options.etag
+    if (options.lastModified) headers['If-Modified-Since'] = options.lastModified
+
+    const response = await fetch(DATASET_URL, { headers })
+
+    /*
+      304 is a success with no body.
+
+      Reported as an outcome rather than an empty array, because an empty array
+      would be indistinguishable from a dataset that suddenly holds no cars — and
+      the pipeline treats those two facts very differently. One means "today is
+      quiet"; the other would mean every car in the catalogue has lost its
+      source.
+    */
+    if (response.status === 304) {
+      return {
+        vehicles: [],
+        notModified: true,
+        etag: options.etag ?? null,
+        lastModified: options.lastModified ?? null,
+      }
+    }
 
     if (!response.ok) throw new Error(`Open EV Data returned HTTP ${response.status}`)
+
+    const etag = response.headers.get('etag')
+    const lastModified = response.headers.get('last-modified')
 
     const payload = (await response.json()) as { data?: OpenEvRecord[] } | OpenEvRecord[]
     const records = Array.isArray(payload) ? payload : (payload.data ?? [])
@@ -301,8 +338,37 @@ export const openEvAdapter: SourceAdapter = {
       })
     }
 
+    /*
+      Ordered before the limit is applied, so a capped run takes the records the
+      source itself says have changed most recently rather than whichever
+      happened to be first in the file. Without this, `--limit 20` would visit
+      the same twenty cars every morning and never reach the rest.
+
+      Records with no timestamp sort last: unknown is not recent.
+    */
+    selected = [...selected].sort((a, b) => {
+      const left = Date.parse(a.updated_at ?? '') || 0
+      const right = Date.parse(b.updated_at ?? '') || 0
+      return right - left
+    })
+
+    const newest = selected.reduce<Date | null>((latest, record) => {
+      const stamp = Date.parse(record.updated_at ?? '')
+      if (!Number.isFinite(stamp)) return latest
+      const candidate = new Date(stamp)
+      return latest === null || candidate > latest ? candidate : latest
+    }, null)
+
+    const totalAvailable = selected.length
     if (typeof options.limit === 'number') selected = selected.slice(0, options.limit)
 
-    return selected.map(mapOpenEvRecord)
+    return {
+      vehicles: selected.map(mapOpenEvRecord),
+      notModified: false,
+      etag,
+      lastModified,
+      newestModified: newest,
+      totalAvailable,
+    }
   },
 }

@@ -124,7 +124,17 @@ async function main(): Promise<number> {
   let failed = 0
 
   try {
-    const vehicles = await adapter.fetch({ limit: args.limit, only: args.only })
+    /*
+      No validators are sent from this command.
+
+      `crawl:source` is what somebody runs to look at a source right now. A
+      conditional request would answer 304 and the command would print "fetched 0
+      records" — a true statement about the dataset and a useless answer to the
+      question that was asked. Conditional requests belong on the scheduled path,
+      in pipeline.ts, where a 304 is the outcome being hoped for.
+    */
+    const outcome = await adapter.fetch({ limit: args.limit, only: args.only })
+    const vehicles = outcome.vehicles
     found = vehicles.length
     console.log(`\n  fetched ${found} record(s)\n`)
 
