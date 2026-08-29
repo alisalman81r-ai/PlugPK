@@ -195,29 +195,66 @@ const PLAN: PlanEntry[] = [
     ],
   },
   {
+    /*
+      Released from hold and applied on 2026-08-28, by operator decision.
+
+      The hold existed because `Car.model` was the only thing the public surfaces
+      rendered, so moving the trim out of it would have dropped "GT-Line" from the
+      h1, the breadcrumb and the card title. That reason is gone: `Car.variant` is
+      a public field now, rendered on the card, the detail h1, the breadcrumb, the
+      comparison and its picker, the SEO strings and schema.org.
+
+      This entry is applied alone. The two BYD entries below stay held — the EV9
+      is the only one of the three with independent structural support for its
+      model name, and the only one whose split has no new matching exposure.
+    */
     carId: 'kia-ev9-gt-line',
-    held:
-      'On hold by decision, 2026-08-27. The split is correct as data, but `Car.model` is the '
-      + 'public h1 on the detail page, the breadcrumb and the card title — so moving the trim '
-      + 'out of it would drop "Advanced" / "GT-Line" from those surfaces unless the display '
-      + 'components render the variant alongside the model. Apply together with that change, '
-      + 'or accept the shorter titles knowingly.',
     model: 'EV9',
     variant: 'GT-Line',
     trim: 'GT-Line',
+    /*
+      fullName moves too, and that is not cosmetic.
+
+      `carDisplayName` in src/lib/cars.ts composes the public identity as
+      `fullName + variant`. Leaving fullName at "KIA EV9 GT-Line" while variant
+      became "GT-Line" would have produced "KIA EV9 GT-Line GT-Line" in the SEO
+      title and description, the OG strings, schema.org `name`, the hero and
+      similar-car alt text, the save and compare aria-labels, the comparison
+      picker options and the table caption. Measured before applying, on all
+      three candidate rows. Reduced to brand + model, the composition returns
+      "KIA EV9 GT-Line" exactly as before.
+    */
+    fullName: 'KIA EV9',
     reason:
       'Phase 4.1: moving the trim out of the model name into the variant column, so a source ' +
       'naming a different EV9 trim can be recognised as a mismatch rather than a match.',
     declaredBy: DECLARED_BY,
     evidence: [
-      'model "EV9 GT-Line", slug "kia-ev9-gt-line". "GT-Line" is a published Kia trim name used',
-      '  across their range, not part of the model designation. Authored row 18.',
-      'The catalogue holds kia-ev5 as model "EV5", so "EV9" as a model is consistent with how',
-      '  the rest of the Kia rows are named.',
-      'No source records and no proposals exist for this car.',
+      'AUTHORED / LOCAL CATALOGUE DECISION, not source corroboration. Recorded as such',
+      '  deliberately: no source record anywhere states "GT-Line". Checked every one of the 24',
+      '  CarSourceRecord rows on 2026-08-28 — zero hits for "GT-Line", "GT" or "Advanced".',
+      'The Pakistani price list this row came from names the car "EV9 GT-Line" (authored row 18',
+      '  of the first 28, no "(indicative)" marker), so the trim word is part of the local',
+      '  product name. That is what is being re-parsed here, not a global listing.',
+      'Open EV Data independently confirms the MODEL SPLIT POINT, though not the trim: it',
+      '  publishes model "EV9" with the variant carried separately as "76.1 kWh RWD". So the',
+      '  source treats "EV9" as the model and the remainder as variant, which is the structure',
+      '  this change adopts.',
+      'The catalogue holds kia-ev5 as model "EV5", so "EV9" as a bare model is consistent with',
+      '  how the other Kia row is named.',
+      'No source records, no proposals and no history rows exist for this car, so the split',
+      '  cannot disturb anything in flight.',
+      'Matching consequence, measured before applying: the source record Kia | EV9 |',
+      '  "76.1 kWh RWD" (73 kWh / 400 km) matches nothing today only by accident, because the',
+      '  model strings differ. After the split it is BLOCKED explicitly — "variants differ',
+      '  (\\"76.1 kWh RWD\\" vs \\"GT-Line\\")" — which is protection by design rather than by',
+      '  coincidence. No new match is created.',
     ],
     deliberatelyUnset: [
-      'fullName: unchanged at "KIA EV9 GT-Line".',
+      'slug: unchanged at "kia-ev9-gt-line". The identity store has no slug input by design —',
+      '  it is the public URL and this is a data correction, so every /cars/... link survives.',
+      'Specifications, price, range, charging and connectors: untouched. This change is',
+      '  identity only.',
       'modelYear, generation, rangeStandard: no evidence. Left null.',
     ],
   },
