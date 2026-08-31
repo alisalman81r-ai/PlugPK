@@ -217,8 +217,30 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
 
   for (const car of catalogue) {
     // ── Guards, applied before any tier can score ──────────────────
-    const numberProblem =
-      numberGuard(sourceModel ?? sourceName, car.model) ?? numberGuard(sourceName, car.fullName)
+    /*
+      Every guard below is gated on the brand agreeing first, and that gate is
+      the whole point of them.
+
+      These three exist to stop near-identical names inside ONE brand's family
+      from matching the wrong row: "Sealion 7" must not land on "Sealion 6", and
+      a 2023 Seal must not land on a 2025 Seal. Against an unrelated brand they
+      have nothing to protect and plenty to break, because a digit appearing in
+      two different manufacturers' model names is coincidence, not a near miss.
+
+      Ungated, numberGuard blocked a Kia EV9 against byd-atto-2 on "model
+      numbers differ (9 vs 2)" — and because a blocked entry is recorded as a
+      near miss, discovery then described that EV9 as "related to BYD Atto 2".
+      The record was never a candidate for that row: the brands differ, so the
+      comparison should never have been made. A cross-brand pair scores nothing
+      and falls through on its own; it does not need blocking to be excluded.
+    */
+    const carBrand = brandKey(car.brand)
+    const brandAgreesForGuard = sourceBrand.length > 0 && carBrand === sourceBrand
+
+    const numberProblem = brandAgreesForGuard
+      ? (numberGuard(sourceModel ?? sourceName, car.model) ??
+        numberGuard(sourceName, car.fullName))
+      : null
     if (numberProblem) {
       blocked.push({ car, reason: numberProblem })
       continue
@@ -236,7 +258,9 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
       evidence either way, and treating it as a mismatch would block every record
       from a source that omits the year.
     */
-    const yearProblem = yearGuard(normalised.modelYear, car.modelYear ?? null)
+    const yearProblem = brandAgreesForGuard
+      ? yearGuard(normalised.modelYear, car.modelYear ?? null)
+      : null
     if (yearProblem) {
       blocked.push({ car, reason: yearProblem })
       continue
@@ -250,7 +274,12 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
       the names differ, these are different vehicles and no amount of agreement
       elsewhere changes that.
     */
-    if (normalised.variant && car.variant && !sameVariant(normalised.variant, car.variant)) {
+    if (
+      brandAgreesForGuard &&
+      normalised.variant &&
+      car.variant &&
+      !sameVariant(normalised.variant, car.variant)
+    ) {
       blocked.push({
         car,
         reason: `variants differ ("${normalised.variant}" vs "${car.variant}")`,
@@ -258,8 +287,8 @@ export function match(input: MatchInput, catalogue: MatchCandidateCar[]): MatchR
       continue
     }
 
-    const carBrand = brandKey(car.brand)
-    const brandAgrees = sourceBrand.length > 0 && carBrand === sourceBrand
+    // carBrand and this same comparison are computed above, for the guards.
+    const brandAgrees = brandAgreesForGuard
 
     // ── Tier 2 — the source's slug, if it happens to be ours ───────
     if (externalId && nameKey(externalId) === nameKey(car.slug)) {

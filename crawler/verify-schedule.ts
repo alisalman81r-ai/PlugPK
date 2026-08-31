@@ -379,6 +379,84 @@ const vehicle = (over: Partial<NormalisedVehicle> = {}): NormalisedVehicle => ({
 
   const nameless = classify({ vehicle: vehicle({ model: null }), match: result({}) })
   check('    a record with no model is unusable, not a candidate', nameless.verdict === 'unusable' && !isCandidate(nameless.verdict))
+
+  /*
+    Market scope. A global dataset against a Pakistan-only catalogue raises
+    ~1,303 candidates on a first live run, almost all of them cars that are not
+    sold here — see crawler/market.ts.
+  */
+  const foreign = classify({
+    vehicle: vehicle({ brand: 'Porsche', model: 'Taycan' }),
+    match: result({ decision: 'none' }),
+  })
+  check(
+    '17b. an out-of-market brand is filtered, not queued',
+    foreign.verdict === 'out-of-market' && !isCandidate(foreign.verdict),
+    foreign.reason,
+  )
+  check(
+    '     and it is distinguished from an unreadable record, which stays unusable',
+    foreign.verdict !== 'unusable' && nameless.verdict === 'unusable',
+  )
+
+  const inScope = classify({
+    vehicle: vehicle({ brand: 'Chery', model: 'Tiggo 4' }),
+    match: result({ decision: 'none' }),
+  })
+  check(
+    '17b2. an in-scope brand still raises a candidate',
+    inScope.verdict === 'new' && isCandidate(inScope.verdict),
+    inScope.reason,
+  )
+
+  /*
+    The cross-brand near-miss regression.
+
+    A Kia EV9 used to come back as "related to BYD Atto 2 but rejected: model
+    numbers differ (9 vs 2)" at 55% confidence, because the old code took
+    match.blocked[0] — unranked — as the near miss. crawler/match.ts no longer
+    blocks cross-brand pairs at all, and this is the second half of that fix.
+  */
+  const crossBrand = classify({
+    vehicle: vehicle({ brand: 'KIA', model: 'EV9' }),
+    match: result({
+      decision: 'none',
+      blocked: [{ car: CAR, reason: 'model numbers differ: 9 vs 6' }],
+    }),
+  })
+  check(
+    '17c. a cross-brand block is never reported as a near miss',
+    crossBrand.possibleDuplicateOf !== 'byd-sealion-6',
+    `possibleDuplicateOf=${JSON.stringify(crossBrand.possibleDuplicateOf)}`,
+  )
+  check(
+    '     it names no related car at all, and invents no reason',
+    crossBrand.possibleDuplicateOf === null && crossBrand.duplicateReason === null,
+    `duplicateReason=${JSON.stringify(crossBrand.duplicateReason)}`,
+  )
+  check(
+    '     and it is still a candidate — out of family, not out of scope',
+    crossBrand.verdict === 'new' && isCandidate(crossBrand.verdict),
+    crossBrand.reason,
+  )
+
+  const sameBrand = classify({
+    vehicle: vehicle(),
+    match: result({
+      decision: 'none',
+      blocked: [{ car: CAR, reason: 'model numbers differ: 8 vs 6' }],
+    }),
+  })
+  check(
+    '17c2. a same-brand block still names the family it is related to',
+    sameBrand.possibleDuplicateOf === 'byd-sealion-6',
+    `possibleDuplicateOf=${JSON.stringify(sameBrand.possibleDuplicateOf)}`,
+  )
+  check(
+    '      with the guard reason carried through',
+    sameBrand.duplicateReason?.includes('8 vs 6') === true,
+    sameBrand.duplicateReason ?? 'null',
+  )
 }
 {
   const a = candidateKey(vehicle({ variant: ' 82.5 kWh AWD ' }))

@@ -1,5 +1,6 @@
 // crawler/discover.ts
 
+import { isOutOfMarket, marketBrandKey } from './market'
 import type { MatchResult } from './match'
 import type { NormalisedVehicle } from './model'
 
@@ -28,6 +29,15 @@ export type Verdict =
   | 'possible-duplicate'
   /** Too little identity to record: no brand, or no model. */
   | 'unusable'
+  /**
+   * A real car, correctly read, from a brand this catalogue does not cover.
+   *
+   * Separate from 'unusable' on purpose. Unusable means we could not read the
+   * record; this means we read it fine and it is not our market. Keeping them
+   * apart is what lets an extraction failure stay visible instead of being
+   * filed under a market decision. See crawler/market.ts.
+   */
+  | 'out-of-market'
 
 export interface DiscoveryInput {
   vehicle: NormalisedVehicle
@@ -102,6 +112,31 @@ export function classify(input: DiscoveryInput): Discovery {
   }
 
   /*
+    Market scope, checked after identity and before anything else.
+
+    After, because a record with no brand cannot be judged on brand and is an
+    extraction failure rather than a scope decision — hasIdentity above owns
+    that case. Before everything else, because a Porsche is out of scope
+    whatever the matcher went on to think of it, and running the near-miss and
+    duplicate reasoning first would only produce a comparison nobody will read.
+
+    This is what stops a live run raising ~1,303 candidates from a global
+    dataset against a 36-car Pakistani catalogue. The record still gets a stated
+    reason, so an excluded brand can be found and reconsidered later; nothing is
+    deleted and nothing is dropped in silence.
+  */
+  if (isOutOfMarket(vehicle.brand)) {
+    return {
+      verdict: 'out-of-market',
+      reason: `${vehicle.brand} is outside the catalogue's market scope — not currently listed for Pakistan`,
+      possibleDuplicateOf: null,
+      duplicateReason: null,
+      matchScore: null,
+      confidence: 0,
+    }
+  }
+
+  /*
     Ambiguous means several cars fit equally well.
 
     This is the case most likely to be a duplicate rather than a discovery: the
@@ -136,20 +171,38 @@ export function classify(input: DiscoveryInput): Discovery {
   }
 
   /*
-    A guard-blocked candidate is a near miss of a specific and telling kind.
+    A guard-blocked candidate is a near miss of a specific and telling kind —
+    but only when the block was against the SAME brand.
 
-    The model-number guard blocks "Sealion 7" from matching "Sealion 6" — the
-    names are one character apart and the cars are different. When that fires, the
-    record is very likely a genuinely new car in a family we already carry, which
-    is worth saying out loud rather than presenting as an unexplained blank.
+    The model-number guard blocks "Sealion 7" from matching "Sealion 6": the
+    names are one character apart, the cars are different, and the record is
+    very likely a genuinely new car in a family we already carry. That is worth
+    saying out loud rather than presenting as an unexplained blank.
+
+    This used to read `match.blocked[0]` — the first blocked entry, unranked, in
+    whatever order the matcher happened to block rows. So a Kia EV9 came out as
+    "related to BYD Atto 2 but rejected: model numbers differ (9 vs 2)", with
+    verdict 'new', reason "a new variant in a family the catalogue already
+    carries", at 55% confidence. Every part of that was wrong, and it was the
+    text an operator would triage against.
+
+    Two changes fix it, and both are needed. crawler/match.ts no longer blocks
+    cross-brand pairs at all, so that entry would not exist today; and this
+    searches for a same-brand block rather than taking whichever came first. A
+    cross-brand block, if one ever appears again, now falls through to the clean
+    'new' return below with no fabricated relation — because a cross-brand block
+    is never a near miss.
   */
-  const blocked = match.blocked[0]
-  if (blocked) {
+  const sameBrandBlocked = match.blocked.find(
+    (candidate) => marketBrandKey(candidate.car.brand) === marketBrandKey(vehicle.brand),
+  )
+
+  if (sameBrandBlocked) {
     return {
       verdict: 'new',
       reason: 'a new variant in a family the catalogue already carries',
-      possibleDuplicateOf: blocked.car.slug,
-      duplicateReason: `related to ${blocked.car.fullName} but rejected: ${blocked.reason}`,
+      possibleDuplicateOf: sameBrandBlocked.car.slug,
+      duplicateReason: `related to ${sameBrandBlocked.car.fullName} but rejected: ${sameBrandBlocked.reason}`,
       matchScore: null,
       confidence: 55,
     }
