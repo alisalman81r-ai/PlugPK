@@ -14,10 +14,22 @@ import { prisma } from './client'
  *     is the row this counts. There is no separate "seen" flag to drift out of
  *     step with reality, and nothing to mark as read.
  *   - Pages with no queue — Stations, Connectors, Members, Services,
- *     Community, Cars — get no badge. A counter that showed "12 stations"
- *     would be decoration dressed as an alert, and once a badge can mean
- *     "there are things here" the operator stops believing the ones that mean
- *     "act on this".
+ *     Community, Cars, Sources — get no badge. A counter that showed
+ *     "12 stations" would be decoration dressed as an alert, and once a badge can
+ *     mean "there are things here" the operator stops believing the ones that
+ *     mean "act on this".
+ *
+ *     Sources was counted here and has been removed, because it failed the test
+ *     above rather than because the number was unwanted. It counted
+ *     `CarSourceRecord` rows with `reviewStatus: 'pending'`, which is every row
+ *     a crawl has ever staged: the writer in crawler/propose.ts sets 'pending'
+ *     and, while car-source-store.ts exports setReviewStatus, **nothing in the
+ *     portal calls it**. So no action on the Sources page could clear the badge.
+ *     It read 24 of 24 records, and each crawl would only push it higher — a
+ *     permanent alert for work that has no clearing action, which is exactly the
+ *     kind of badge this file exists to keep out of the sidebar. Staged records
+ *     are inventory; the queue an operator does act on is the proposals one, at
+ *     /admin/cars/review, which is still badged.
  *
  * Keyed by href so AdminNav can look each entry up without a second mapping
  * table that could disagree with the nav itself.
@@ -70,14 +82,6 @@ const QUEUES: Queue[] = [
     one: 'proposed change to review',
     many: 'proposed changes to review',
     count: () => prisma.carFieldChange.count({ where: { status: 'pending' } }),
-  },
-  {
-    // Fetched source records that have not been reviewed yet. This is the
-    // figure the Sources page shows as "pending".
-    href: '/admin/cars/sources',
-    one: 'fetched record to review',
-    many: 'fetched records to review',
-    count: () => prisma.carSourceRecord.count({ where: { reviewStatus: 'pending' } }),
   },
   {
     // Cars a source has seen that the catalogue does not hold yet.
