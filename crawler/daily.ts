@@ -8,6 +8,9 @@
 //   npm run crawl:all                          every enabled source, cadence ignored
 //   npm run crawl:daily -- --source openev     one source, ignoring its cadence
 //   npm run crawl:car -- byd-seal              one car, by slug or name
+//   npm run crawl:car -- "byd seal"            the same car — hyphens, underscores
+//                                              and spaces are all the same query
+//   npm run crawl:car -- seal                  a partial name still narrows it
 //   npm run crawl:daily -- --cars a,b,c        several cars
 //   npm run crawl:daily -- --budget 200        process at most 200 records
 //

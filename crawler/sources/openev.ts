@@ -96,6 +96,64 @@ function str(value: unknown): string | null {
 }
 
 /**
+ * Normalises a name for the `--car` filter.
+ *
+ * Lowercased, and hyphens and underscores become spaces before anything is
+ * compared. Applied to BOTH sides, which is the part that matters: the needle
+ * arrives from a command line where a slug is the natural thing to type, and the
+ * dataset writes model names however its contributors wrote them.
+ */
+function carFilterKey(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * Does a record satisfy one of the `--car` needles?
+ *
+ * Matches on brand and model together, so "byd atto 3" cannot be satisfied by a
+ * Kia. Substring per word rather than exact, because the dataset's model strings
+ * carry suffixes this project's names do not — which is why "seal" still finds
+ * the Seal.
+ *
+ * ── The bug this fixes ────────────────────────────────────────────────
+ *
+ * The needle used to be lowercased and split on whitespace only. So `--car
+ * byd-seal` became the single word "byd-seal", and testing it against the
+ * haystack "byd seal" failed on the hyphen: the run fetched 0 records and
+ * reported success. crawler/daily.ts documents that flag as taking a car "by
+ * slug or name", and a slug is exactly the form that did not work — so the one
+ * spelling the docs told you to use was the one spelling that silently matched
+ * nothing.
+ *
+ * Normalising both sides makes "byd-seal", "byd_seal" and "byd seal" the same
+ * query, which is what the documentation already promised.
+ *
+ * Exported so it can be tested without a network call. An empty needle matches
+ * nothing rather than everything: `''.split(' ')` used to yield `['']`, and
+ * `haystack.includes('')` is true for every record, so a stray `--car ""` would
+ * quietly have selected the entire dataset while looking like a filter.
+ */
+export function matchesCarFilter(
+  needles: readonly string[],
+  brand: string | null,
+  model: string | null,
+): boolean {
+  if (needles.length === 0) return true
+
+  const haystack = carFilterKey(`${brand ?? ''} ${model ?? ''}`)
+
+  return needles.some((needle) => {
+    const words = carFilterKey(needle).split(' ').filter(Boolean)
+    if (words.length === 0) return false
+    return words.every((word) => haystack.includes(word))
+  })
+}
+
+/**
  * Maps one dataset record into the internal shape.
  *
  * Exported so it can be exercised over a fixture without a network call, which
@@ -323,19 +381,10 @@ export const openEvAdapter: SourceAdapter = {
 
     let selected = records
 
-    /*
-      `only` matches on brand and model together, so "byd atto 3" cannot be
-      satisfied by a Kia. Substring rather than exact, because the dataset's model
-      strings carry suffixes this project's names do not.
-    */
     if (options.only && options.only.length > 0) {
-      const needles = options.only.map((entry) => entry.toLowerCase().trim())
-      selected = selected.filter((record) => {
-        const haystack = `${record.brand ?? ''} ${record.model ?? ''}`.toLowerCase()
-        return needles.some((needle) =>
-          needle.split(/\s+/).every((word) => haystack.includes(word)),
-        )
-      })
+      selected = selected.filter((record) =>
+        matchesCarFilter(options.only ?? [], record.brand ?? null, record.model ?? null),
+      )
     }
 
     /*

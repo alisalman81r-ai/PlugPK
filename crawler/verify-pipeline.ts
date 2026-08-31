@@ -19,6 +19,7 @@ import { isPathAllowed, parseRobots, type RobotsPolicy } from './robots'
 import { emptyVehicle } from './model'
 import { reconcile } from './priority'
 import { evdbAdapter } from './sources/evdb'
+import { matchesCarFilter } from './sources/openev'
 import { evspecsxAdapter } from './sources/evspecsx'
 import { vehdbAdapter } from './sources/vehdb'
 import type { SourceAdapter } from './sources/types'
@@ -317,6 +318,62 @@ console.log('\nSOURCE PRIORITY AND CONFLICTS')
  * printing the summary outside this would report a result before the async
  * checks had run, which is the one failure mode a verifier must not have.
  */
+// -- The --car filter -------------------------------------------------
+//
+// crawler/daily.ts documents `--car byd-seal` as taking a car "by slug or
+// name". The slug form did not work: the needle was split on whitespace only,
+// so "byd-seal" stayed one word and failed against the haystack "byd seal" on
+// the hyphen. The run fetched 0 records and reported success -- the one
+// spelling the docs recommended was the one spelling that silently matched
+// nothing. Both sides are normalised now.
+{
+  console.log('\nCAR FILTER')
+
+  // What the dataset actually publishes for these two, as observed.
+  const SEAL = { brand: 'BYD', model: 'SEAL' }
+  const ATTO = { brand: 'BYD', model: 'ATTO 3' }
+  const EV9 = { brand: 'Kia', model: 'EV9' }
+
+  const hit = (needle: string, car: { brand: string; model: string }) =>
+    matchesCarFilter([needle], car.brand, car.model)
+
+  check('   the slug form matches, which is what the docs promise', hit('byd-seal', SEAL))
+  check('   the spaced form matches', hit('byd seal', SEAL))
+  check('   the underscore form matches', hit('byd_seal', SEAL))
+  check('   a partial name still narrows it', hit('seal', SEAL))
+  check('   mixed case and padding do not matter', hit('  BYD-Seal  ', SEAL))
+  check(
+    '   all four spellings agree with each other',
+    new Set([
+      hit('byd-seal', SEAL),
+      hit('byd seal', SEAL),
+      hit('byd_seal', SEAL),
+      hit('BYD Seal', SEAL),
+    ]).size === 1,
+  )
+
+  check('   a non-matching needle returns nothing', !hit('porsche-taycan', SEAL))
+  check(
+    '   brand and model must BOTH be satisfied, so a slug cannot cross brands',
+    !hit('byd-seal', EV9) && !hit('kia-ev9', SEAL),
+  )
+  check('   a hyphenated model matches its slug', hit('byd-atto-3', ATTO))
+  check('   and does not match a different number in the family', !hit('byd-atto-2', ATTO))
+
+  check(
+    '   no needles means no filter, not no records',
+    matchesCarFilter([], SEAL.brand, SEAL.model),
+  )
+  check(
+    '   *** an empty needle matches NOTHING, not everything ***',
+    !hit('', SEAL) && !hit('   ', SEAL),
+  )
+  check(
+    '   a null brand or model does not throw',
+    matchesCarFilter(['seal'], null, 'SEAL') && !matchesCarFilter(['seal'], null, null),
+  )
+}
+
 async function accessChecks(): Promise<void> {
   console.log('\nACCESS CONTROL')
 
