@@ -128,14 +128,36 @@ export function CarsBrowser({
     onSavedOnlyChange(false)
   }
 
-  // The drawer is a fixed overlay, so the page behind it must not scroll —
-  // otherwise a swipe on the backdrop moves the list instead of the drawer.
+  /*
+    The drawer is a fixed overlay, so the page behind it must not scroll —
+    otherwise a swipe on the backdrop moves the list instead of the drawer.
+
+    Escape closes it, which it did not until an interaction audit went looking.
+    This is a modal: it has a backdrop, it locks the body scroll, and it covers
+    the page. Escape is the keyboard convention for dismissing exactly that, and
+    without it the only ways out were a 30px X and a backdrop tap — both pointer
+    gestures. A keyboard user could open the filters and then have no key that
+    closed them.
+
+    Bound on the document rather than the panel, because the panel does not hold
+    focus when it opens: a keydown listener on the sheet only fires once
+    something inside it has been tabbed to, which is the case where the user
+    least needs the escape hatch.
+  */
   React.useEffect(() => {
     if (!drawerOpen) return
+
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setDrawerOpen(false)
+    }
+    document.addEventListener('keydown', onKeyDown)
+
     return () => {
       document.body.style.overflow = previous
+      document.removeEventListener('keydown', onKeyDown)
     }
   }, [drawerOpen])
 

@@ -35,9 +35,20 @@ export function BrandMarquee({ brands }: BrandMarqueeProps) {
   const sequence = brands.length < 8 ? [...brands, ...brands] : brands
 
   return (
+    /*
+      border-slate-200, where this was slate-100.
+
+      This strip used to sit above the "At a glance" panel — white on white —
+      and a slate-100 hairline was the right weight to separate two white
+      bands. That panel is gone, so the strip now meets the catalogue's
+      slate-100 ground directly, and a slate-100 border against a slate-100
+      background is a border that does nothing. slate-200 gives the strip a
+      defined bottom edge again, which is the job the removed panel's own
+      border was doing for the section boundary.
+    */
     <div
       aria-hidden="true"
-      className="relative overflow-hidden border-b border-slate-100 bg-white py-5"
+      className="relative overflow-hidden border-b border-slate-200 bg-white py-5"
     >
       {/*
         Masks at both edges, so names enter and leave rather than being sliced

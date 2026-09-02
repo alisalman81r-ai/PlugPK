@@ -449,14 +449,32 @@ export function cardSpecs(car: Car): CardSpec[] {
   const span = (low: number | null, high: number | null, unit: string) =>
     low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
 
+  /*
+    The range unit carries its test cycle when the row states one.
+
+    A range figure means nothing without knowing which cycle produced it. NEDC
+    is roughly 20-25% more optimistic than WLTP for the same car, so a card
+    reading "510 km" beside one reading "430 km" can be ranking the cycles
+    rather than the cars — and this catalogue now has rows where both figures
+    exist for one vehicle and only one of them is stored.
+
+    `rangeStandard` was null on every row when this function was written, so
+    there was nothing to print. Twenty-five of the forty-eight rows now state a
+    cycle, and it goes in the unit rather than the figure: splitFigure takes the
+    leading number as the figure and the remainder as the unit, so "510–650 km
+    NEDC" renders as a 510–650 figure with "km NEDC" in the lighter weight
+    beside it. Rows that state no cycle print "km" exactly as before.
+  */
+  const cycle = car.rangeStandard ? `${car.rangeUnit} ${car.rangeStandard}` : car.rangeUnit
+
   const value = (slot: CardSlot): string | null => {
     switch (slot) {
       case 'battery':
         return car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null
       case 'range':
-        return span(car.range, car.rangeMax, car.rangeUnit)
+        return span(car.range, car.rangeMax, cycle)
       case 'electricRange':
-        return span(car.electricRange, car.electricRangeMax, car.rangeUnit)
+        return span(car.electricRange, car.electricRangeMax, cycle)
       case 'dcCharging':
         return car.dcCharging ? `${car.dcCharging} ${car.dcChargingUnit}` : null
       case 'engine':
@@ -599,49 +617,118 @@ export interface SpecGroup {
  * empty group is dropped — a PHEV shows an Engine block where an EV shows none,
  * without either page carrying a heading over nothing.
  */
+/** Readable powertrain names, for the spec sheet's "Vehicle type" row. */
+const CATEGORY_FULL: Record<CarCategory, string> = {
+  EV: 'EV (Pure Electric)',
+  PHEV: 'PHEV (Plug-in Hybrid)',
+  REEV: 'REEV (Range Extender)',
+  Hybrid: 'HEV (Hybrid)',
+}
+
 export function specGroups(car: Car): SpecGroup[] {
-  const span = (low: number | null, high: number | null, unit: string) =>
-    low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+  const span = (low: number | null | undefined, high: number | null | undefined, unit: string) =>
+    low === null || low === undefined ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+
+  /** A figure with its unit, or null. Zero is a real value; only null/undefined drop. */
+  const q = (value: number | null | undefined, unit: string, dp?: number) =>
+    value === null || value === undefined
+      ? null
+      : `${dp === undefined ? value : value.toFixed(dp)} ${unit}`
+
+  const text = (value: string | null | undefined) => (value && value.trim() ? value.trim() : null)
 
   /** Pairs before filtering, so a null value can be dropped by value not label. */
   type Draft = { title: string; rows: Array<[string, string | null]> }
 
+  /*
+    Six groups, in the order a spec sheet is read: what the car is, what moves
+    it, how far it goes, how it refuels, how big it is, and what it costs here.
+
+    Every row is dropped when its value is null, and a group with no rows left is
+    dropped whole — so a car nobody has researched shows the four groups it can
+    fill rather than thirty empty labels. That is why this is worth doing as data
+    instead of prose in `notes`: a table can hide what it does not know.
+  */
   const drafts: Draft[] = [
     {
-      title: 'Battery & range',
+      title: 'Basic information',
+      rows: [
+        ['Make', car.brand],
+        ['Model', car.model],
+        ['Variant', text(car.variant)],
+        ['Full name', car.fullName],
+        ['Model year', car.modelYear ? String(car.modelYear) : null],
+        ['Vehicle type', CATEGORY_FULL[car.category]],
+        ['Body type', text(car.bodyType)],
+      ],
+    },
+    {
+      title: 'Battery & performance',
       rows: [
         [
           'Battery capacity',
           car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null,
         ],
-        ['Driving range', span(car.range, car.rangeMax, car.rangeUnit)],
+        ['Battery technology', text(car.batteryTech)],
+        ['Motor power', q(car.motorPowerKw, 'kW')],
+        ['Horsepower', car.power ? `${car.power} ${car.powerUnit}` : null],
+        ['Torque', q(car.torque, 'Nm')],
+        ['0–100 km/h', car.acceleration ? `${car.acceleration} ${car.accelerationUnit}` : null],
+        ['Top speed', q(car.topSpeed, 'km/h')],
+        ['Drive type', text(car.driveType)],
+      ],
+    },
+    {
+      title: car.category === 'REEV' ? 'Range extender' : 'Engine',
+      rows: [['Displacement', q(car.engineCapacity, 'cc')]],
+    },
+    {
+      title: 'Range & efficiency',
+      rows: [
+        ['Official range', span(car.range, car.rangeMax, car.rangeUnit)],
+        ['Range standard', text(car.rangeStandard)],
         ['Electric range', span(car.electricRange, car.electricRangeMax, car.rangeUnit)],
+        [
+          'Real-world range',
+          span(car.realWorldRange, car.realWorldRangeMax, `${car.rangeUnit} (est.)`),
+        ],
+        [
+          'Energy consumption',
+          span(car.consumption, car.consumptionMax, 'kWh/100 km (est.)'),
+        ],
       ],
     },
     {
       title: 'Charging',
       rows: [
         ['DC fast charging', car.dcCharging ? `${car.dcCharging} ${car.dcChargingUnit}` : null],
+        ['DC charging time', q(car.dcChargingMinutes, 'min (10–80%)')],
         ['AC charging', car.acCharging ? `${car.acCharging} ${car.acChargingUnit}` : null],
+        ['AC charging time', q(car.acChargingHours, 'h (0–100%)')],
         ['Connector', car.connector?.length ? car.connector.join(', ') : null],
       ],
     },
     {
-      title: 'Performance',
+      title: 'Dimensions',
       rows: [
-        ['Power', car.power ? `${car.power} ${car.powerUnit}` : null],
-        ['Torque', car.torque ? `${car.torque} Nm` : null],
-        ['0–100 km/h', car.acceleration ? `${car.acceleration} ${car.accelerationUnit}` : null],
-        ['Top speed', car.topSpeed ? `${car.topSpeed} km/h` : null],
+        ['Length', q(car.lengthMm, 'mm')],
+        ['Width', q(car.widthMm, 'mm')],
+        ['Height', q(car.heightMm, 'mm')],
+        ['Wheelbase', q(car.wheelbaseMm, 'mm')],
+        ['Ground clearance', span(car.groundClearanceMm, car.groundClearanceMaxMm, 'mm')],
+        ['Boot space', q(car.bootCapacityL, 'L')],
+        ['Kerb weight', q(car.kerbWeightKg, 'kg')],
+        ['Seats', car.seats ? String(car.seats) : null],
       ],
     },
     {
-      title: car.category === 'REEV' ? 'Range extender' : 'Engine',
-      rows: [['Displacement', car.engineCapacity ? `${car.engineCapacity} cc` : null]],
-    },
-    {
-      title: 'Practical',
-      rows: [['Seats', car.seats ? String(car.seats) : null]],
+      title: 'Pakistan market',
+      rows: [
+        ['Price', car.price.display],
+        ['Availability', text(car.availability)],
+        ['Official distributor', text(car.distributor)],
+        ['Warranty', text(car.warranty)],
+      ],
     },
   ]
 
@@ -678,89 +765,6 @@ export function getSimilarCars(car: Car, pool: Car[] = cars, limit = 3): Car[] {
     .sort((a, b) => distance(a) - distance(b))
 
   return [...sameCategory, ...rest].slice(0, limit)
-}
-
-// ─── Insights ───────────────────────────────────────────────
-
-export interface Insight {
-  label: string
-  value: string
-  car: Car
-}
-
-/**
- * Superlatives, computed rather than curated.
- *
- * Every one is the actual extreme of the dataset, so nothing here can drift out
- * of date when a car is added or a price changes. A category is skipped
- * entirely when no car carries that figure — with only eight of the cars
- * publishing an acceleration time, a "quickest" claim drawn from those eight
- * would read as a claim about all of them.
- *
- * Deliberately not "best EV" or "best value": both need a budget and a use case
- * this data has no knowledge of. Longest, cheapest, largest and most powerful
- * are facts.
- */
-export function getInsights(list: Car[] = cars): Insight[] {
-  const out: Insight[] = []
-
-  const extreme = (
-    label: string,
-    pick: (car: Car) => number | null,
-    direction: 'max' | 'min',
-    format: (car: Car) => string,
-  ) => {
-    const scored = list
-      .map((car) => ({ car, value: pick(car) }))
-      .filter((entry): entry is { car: Car; value: number } => entry.value !== null)
-
-    if (scored.length === 0) return
-
-    const winner = scored.reduce((best, entry) =>
-      direction === 'max'
-        ? entry.value > best.value
-          ? entry
-          : best
-        : entry.value < best.value
-          ? entry
-          : best,
-    )
-
-    out.push({ label, value: format(winner.car), car: winner.car })
-  }
-
-  extreme(
-    'Longest range',
-    (car) => electricDistance(car),
-    'max',
-    (car) => `${electricDistance(car)} km`,
-  )
-  extreme(
-    'Most affordable',
-    (car) => car.price.min,
-    'min',
-    (car) => car.price.display,
-  )
-  extreme(
-    'Largest battery',
-    (car) => car.batteryCapacity,
-    'max',
-    (car) => `${car.batteryCapacity} kWh`,
-  )
-  extreme(
-    'Most powerful',
-    (car) => car.power,
-    'max',
-    (car) => `${car.power} hp`,
-  )
-  extreme(
-    'Fastest charging',
-    (car) => car.dcCharging,
-    'max',
-    (car) => `${car.dcCharging} kW DC`,
-  )
-
-  return out
 }
 
 // ─── URL state ──────────────────────────────────────────────

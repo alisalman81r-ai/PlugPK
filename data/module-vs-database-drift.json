@@ -1,0 +1,807 @@
+{
+  "generatedAt": "2026-09-02T13:50:53.353Z",
+  "summary": {
+    "moduleRows": 48,
+    "databaseRows": 48,
+    "differingFields": 132,
+    "imagePathDifferences": 48,
+    "substantiveDifferences": 84
+  },
+  "note": "src/data/cars.ts is the authored seed; prisma/dev.db is the live catalogue the site reads. Neither is wrong by construction — this lists where they disagree so a person can decide, per field, which one is right.",
+  "differences": [
+    {
+      "car": "dongfeng-vigo",
+      "field": "batteryCapacity",
+      "module": 44.94,
+      "database": 120
+    },
+    {
+      "car": "dongfeng-vigo",
+      "field": "rangeMax",
+      "module": null,
+      "database": 353
+    },
+    {
+      "car": "jaecoo-j6",
+      "field": "dcCharging",
+      "module": null,
+      "database": 80
+    },
+    {
+      "car": "byd-atto-3-advanced",
+      "field": "rangeMax",
+      "module": null,
+      "database": 420
+    },
+    {
+      "car": "byd-atto-3-advanced",
+      "field": "dcCharging",
+      "module": null,
+      "database": 88
+    },
+    {
+      "car": "omoda-e5",
+      "field": "rangeMax",
+      "module": null,
+      "database": 430
+    },
+    {
+      "car": "omoda-e5",
+      "field": "dcCharging",
+      "module": null,
+      "database": 80
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "rangeMax",
+      "module": null,
+      "database": 600
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "seats",
+      "module": null,
+      "database": 5
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "torque",
+      "module": null,
+      "database": 340
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "topSpeed",
+      "module": null,
+      "database": 180
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "dcCharging",
+      "module": null,
+      "database": 80
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "acCharging",
+      "module": null,
+      "database": 6.6
+    },
+    {
+      "car": "dongfeng-007",
+      "field": "dcCharging",
+      "module": null,
+      "database": 200
+    },
+    {
+      "car": "gugo-aion-v",
+      "field": "rangeMax",
+      "module": null,
+      "database": 600
+    },
+    {
+      "car": "riddara-rd6",
+      "field": "dcCharging",
+      "module": null,
+      "database": 110
+    },
+    {
+      "car": "deepal-l07",
+      "field": "dcCharging",
+      "module": null,
+      "database": 66.8
+    },
+    {
+      "car": "deepal-l07",
+      "field": "acCharging",
+      "module": null,
+      "database": 7
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "rangeMax",
+      "module": null,
+      "database": 535
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "seats",
+      "module": null,
+      "database": 5
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "torque",
+      "module": null,
+      "database": 480
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "topSpeed",
+      "module": null,
+      "database": 202
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "dcCharging",
+      "module": null,
+      "database": 451
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "acCharging",
+      "module": null,
+      "database": 11
+    },
+    {
+      "car": "byd-seal",
+      "field": "priceMin",
+      "module": 14790000,
+      "database": 14800000
+    },
+    {
+      "car": "byd-seal",
+      "field": "priceMax",
+      "module": 16990000,
+      "database": 17000000
+    },
+    {
+      "car": "byd-seal",
+      "field": "priceDisplay",
+      "module": "PKR 1.479–1.699 Cr",
+      "database": "PKR 1.48–1.70 Cr"
+    },
+    {
+      "car": "byd-seal",
+      "field": "range",
+      "module": 510,
+      "database": 650
+    },
+    {
+      "car": "byd-seal",
+      "field": "variant",
+      "module": null,
+      "database": "61.4 kWh RWD Comfort"
+    },
+    {
+      "car": "byd-seal",
+      "field": "trim",
+      "module": null,
+      "database": "61.4 kWh RWD Comfort"
+    },
+    {
+      "car": "byd-seal",
+      "field": "rangeStandard",
+      "module": "NEDC",
+      "database": null
+    },
+    {
+      "car": "byd-seal",
+      "field": "driveType",
+      "module": "RWD",
+      "database": null
+    },
+    {
+      "car": "byd-seal",
+      "field": "acCharging",
+      "module": 7,
+      "database": 11
+    },
+    {
+      "car": "byd-seal",
+      "field": "notes",
+      "module": "BYD Seal, sold in two variants. Dynamic: 61.44 kWh Blade LFP, 150 kW / 201 hp, 310 Nm, RWD, 510 km NEDC (about 460 km WLTP), 7.5 s 0–100, about 110 kW DC, PKR 14,790,000. Premium: 82.56 kWh, 230 kW / 313 hp (308 hp in some sources), 360 Nm (380 Nm in some sources), RWD, 650 km NEDC (about 570 km WLTP), 5.9 s, about 150 kW DC, PKR 16,990,000. Battery, power, torque, 0–100, DC and AC rates, top speed and kerb weight above are all the Dynamic's, matching the lower price; the maximum range is the Premium's. A THIRD VARIANT IS EXCLUDED FROM THE PRICE RANGE: a Performance AWD, 390 kW / 523 hp, 3.8 s 0–100, at PKR 22,200,000 — it is the only AWD Seal and its price is deliberately not folded into the range above. RANGE CYCLES: 510 and 650 km are NEDC; the WLTP figures for the same two cars are about 460 and 570 km, and both pairs are kept rather than reconciled. About 430–520 km is the realistic expectation, and consumption is published as 134–145 Wh/km. AC CHARGING DISAGREES: 7 kW is the Dynamic's figure and 11 kW is also published. DC reaches 30–80% in about 25–30 minutes, which is a different window from the 10–80% this catalogue normally shows. Top speed spans 180–220 km/h and kerb weight 1922–2055 kg across the variants. 4800×1875×1460 mm, wheelbase 2920 mm, ground clearance about 145 mm, 400 L rear boot plus about 53 L under the bonnet, 5 seats. CCS2 and Type 2. Mega Motor Company. Battery warranty is about 8 years and needs confirming.",
+      "database": null
+    },
+    {
+      "car": "deepal-s07",
+      "field": "torque",
+      "module": null,
+      "database": 320
+    },
+    {
+      "car": "deepal-s07",
+      "field": "dcCharging",
+      "module": null,
+      "database": 93
+    },
+    {
+      "car": "deepal-s07",
+      "field": "acCharging",
+      "module": null,
+      "database": 7.4
+    },
+    {
+      "car": "kia-ev9-gt-line",
+      "field": "rangeMax",
+      "module": null,
+      "database": 561
+    },
+    {
+      "car": "alektra-mini-x2",
+      "field": "batteryCapacity",
+      "module": null,
+      "database": 12.96
+    },
+    {
+      "car": "alektra-mini-x2",
+      "field": "range",
+      "module": 80,
+      "database": 100
+    },
+    {
+      "car": "alektra-mini-x2",
+      "field": "power",
+      "module": null,
+      "database": 7
+    },
+    {
+      "car": "alektra-mini-x2",
+      "field": "acCharging",
+      "module": null,
+      "database": 1.5
+    },
+    {
+      "car": "alektra-mini-x4",
+      "field": "batteryCapacity",
+      "module": null,
+      "database": 12.96
+    },
+    {
+      "car": "alektra-mini-x4",
+      "field": "power",
+      "module": null,
+      "database": 7
+    },
+    {
+      "car": "alektra-mini-x4",
+      "field": "acCharging",
+      "module": null,
+      "database": 3
+    },
+    {
+      "car": "alektra-solar-mini-x4",
+      "field": "batteryCapacity",
+      "module": null,
+      "database": 12.96
+    },
+    {
+      "car": "alektra-solar-mini-x4",
+      "field": "power",
+      "module": null,
+      "database": 7
+    },
+    {
+      "car": "alektra-solar-mini-x4",
+      "field": "acCharging",
+      "module": null,
+      "database": 7.2
+    },
+    {
+      "car": "forthing-friday-reev",
+      "field": "seats",
+      "module": null,
+      "database": 5
+    },
+    {
+      "car": "forthing-friday-reev",
+      "field": "torque",
+      "module": null,
+      "database": 340
+    },
+    {
+      "car": "forthing-friday-reev",
+      "field": "topSpeed",
+      "module": null,
+      "database": 180
+    },
+    {
+      "car": "omoda-7",
+      "field": "topSpeed",
+      "module": null,
+      "database": 190
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "priceDisplay",
+      "module": "PKR 1.2895 Cr",
+      "database": "PKR 1.28 Cr"
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "batteryCapacity",
+      "module": null,
+      "database": 19.09
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "topSpeed",
+      "module": null,
+      "database": 200
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "dcCharging",
+      "module": null,
+      "database": 34
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "acCharging",
+      "module": null,
+      "database": 6
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "seats",
+      "module": null,
+      "database": 7
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "torque",
+      "module": null,
+      "database": 750
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "topSpeed",
+      "module": null,
+      "database": 200
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "dcCharging",
+      "module": null,
+      "database": 50
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "acCharging",
+      "module": null,
+      "database": 6.6
+    },
+    {
+      "car": "gwm-tank-300-hev",
+      "field": "torque",
+      "module": null,
+      "database": 648
+    },
+    {
+      "car": "gwm-tank-300-hev",
+      "field": "topSpeed",
+      "module": null,
+      "database": 180
+    },
+    {
+      "car": "byd-sealion-6",
+      "field": "torque",
+      "module": null,
+      "database": 550
+    },
+    {
+      "car": "byd-sealion-6",
+      "field": "topSpeed",
+      "module": null,
+      "database": 180
+    },
+    {
+      "car": "byd-sealion-6",
+      "field": "dcCharging",
+      "module": null,
+      "database": 18
+    },
+    {
+      "car": "dfsk-seres-3",
+      "field": "rangeMax",
+      "module": null,
+      "database": 450
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "priceMin",
+      "module": 17000000,
+      "database": 12000000
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "priceMax",
+      "module": 17000000,
+      "database": 12000000
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "priceDisplay",
+      "module": "PKR 1.7 Cr (indicative)",
+      "database": "PKR 1.20 Cr (indicative)"
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "range",
+      "module": 481,
+      "database": 394
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "rangeMax",
+      "module": null,
+      "database": 512
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "torque",
+      "module": null,
+      "database": 605
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "topSpeed",
+      "module": null,
+      "database": 180
+    },
+    {
+      "car": "gugo-gigi",
+      "field": "rangeMax",
+      "module": null,
+      "database": 220
+    },
+    {
+      "car": "gugo-gigi",
+      "field": "seats",
+      "module": null,
+      "database": 2
+    },
+    {
+      "car": "gugo-gigi",
+      "field": "dcCharging",
+      "module": null,
+      "database": 0
+    },
+    {
+      "car": "gugo-gigi",
+      "field": "acCharging",
+      "module": null,
+      "database": 3.3
+    },
+    {
+      "car": "gugo-aion-ut",
+      "field": "topSpeed",
+      "module": null,
+      "database": 165
+    },
+    {
+      "car": "gugo-box",
+      "field": "dcCharging",
+      "module": null,
+      "database": 50
+    },
+    {
+      "car": "dongfeng-box",
+      "field": "topSpeed",
+      "module": null,
+      "database": 140
+    },
+    {
+      "car": "dongfeng-box",
+      "field": "dcCharging",
+      "module": null,
+      "database": 60
+    },
+    {
+      "car": "jmev-ev3",
+      "field": "dcCharging",
+      "module": null,
+      "database": 30
+    }
+  ],
+  "imagePathDifferences": [
+    {
+      "car": "byd-atto-2",
+      "field": "image",
+      "module": "/images/cars/byd-atto-2.jpg",
+      "database": "/uploads/cars/3a20f3fb-22e4-46ac-b45c-a49a27f063f0.webp"
+    },
+    {
+      "car": "dongfeng-vigo",
+      "field": "image",
+      "module": "/images/cars/dongfeng-vigo.jpg",
+      "database": "/uploads/cars/282d9b3d-3a7f-45c3-b73b-4fd82c5bd825.jpg"
+    },
+    {
+      "car": "jaecoo-j6",
+      "field": "image",
+      "module": "/images/cars/jaecoo-j6.png",
+      "database": "/uploads/cars/016f57b0-1450-4d3d-944b-ad53190ca658.jpg"
+    },
+    {
+      "car": "byd-atto-3-advanced",
+      "field": "image",
+      "module": "/images/cars/byd-atto-3-advanced.jpg",
+      "database": "/uploads/cars/5550f5f4-4346-420d-b11d-69f4e1fb9b30.jpg"
+    },
+    {
+      "car": "omoda-e5",
+      "field": "image",
+      "module": "/images/cars/omoda-e5.jpg",
+      "database": "/uploads/cars/133646f5-6dc3-49de-a6d6-3669649231ac.jpg"
+    },
+    {
+      "car": "forthing-friday-bev",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/bb2b747f-b443-4296-82af-6a56c2769d6f.png"
+    },
+    {
+      "car": "mg-zs-ev",
+      "field": "image",
+      "module": "/images/cars/mg-zs-ev.jpg",
+      "database": "/uploads/cars/ec32bec7-cb4a-4dfd-bd90-4a666d0cc734.jpg"
+    },
+    {
+      "car": "mg-binguo",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/ae6cc703-aceb-4759-b538-ec5021195809.jpg"
+    },
+    {
+      "car": "mg-4-urban",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/95527e10-e75d-4051-81d9-002da6b68207.jpg"
+    },
+    {
+      "car": "dongfeng-007",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/c346418b-cd9c-49f1-84ef-5523525902f2.jpg"
+    },
+    {
+      "car": "gugo-aion-v",
+      "field": "image",
+      "module": "/images/cars/gugo-aion-v.jpg",
+      "database": "/uploads/cars/928dc80a-6a54-41f8-b736-a969f54e64d8.jpg"
+    },
+    {
+      "car": "riddara-rd6",
+      "field": "image",
+      "module": "/images/cars/riddara-rd6.jpg",
+      "database": "/uploads/cars/b84cc2ac-2a22-41e8-a2e5-808f79e9f398.jpg"
+    },
+    {
+      "car": "deepal-l07",
+      "field": "image",
+      "module": "/images/cars/deepal-l07.jpg",
+      "database": "/uploads/cars/6a7a5b21-42d1-4a89-9efe-ec8c9f617ea5.jpg"
+    },
+    {
+      "car": "xpeng-g6",
+      "field": "image",
+      "module": "/images/cars/xpeng-g6.jpg",
+      "database": "/uploads/cars/032bcd6c-4521-4131-b4cf-e6f835edf6ce.jpg"
+    },
+    {
+      "car": "byd-seal",
+      "field": "image",
+      "module": "/images/cars/byd-seal.jpg",
+      "database": "/uploads/cars/328b2b04-1418-4a90-8100-abff4f72c66d.jpg"
+    },
+    {
+      "car": "deepal-s07",
+      "field": "image",
+      "module": "/images/cars/deepal-s07.jpg",
+      "database": "/uploads/cars/2579cdb3-2657-4bef-9711-207e88ae6269.jpg"
+    },
+    {
+      "car": "byd-sealion-7-advanced",
+      "field": "image",
+      "module": "/images/cars/byd-sealion-7-advanced.jpg",
+      "database": "/uploads/cars/c4097eed-2926-4d42-b787-daef8d93b689.jpg"
+    },
+    {
+      "car": "kia-ev5",
+      "field": "image",
+      "module": "/images/cars/kia-ev5.png",
+      "database": "/uploads/cars/8eef7dd4-edfd-4897-8d3e-f4c7a1dab815.jpg"
+    },
+    {
+      "car": "deepal-e07",
+      "field": "image",
+      "module": "/images/cars/deepal-e07.jpg",
+      "database": "/uploads/cars/bbc80019-1194-4bcd-bb71-2ade0afac077.jpg"
+    },
+    {
+      "car": "kia-ev9-gt-line",
+      "field": "image",
+      "module": "/images/cars/kia-ev9-gt-line.jpg",
+      "database": "/uploads/cars/dd675dfd-c6ea-41b8-9dd8-c0a8c45c3835.jpg"
+    },
+    {
+      "car": "alektra-mini-x2",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/a93d3853-7321-46d9-a812-0f30c3a18680.jpg"
+    },
+    {
+      "car": "alektra-mini-x4",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/0be4a142-facd-4853-b434-f86a05b82838.jpg"
+    },
+    {
+      "car": "alektra-solar-mini-x4",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/5948044d-0521-41b5-b053-1639a9d1f4b9.jpg"
+    },
+    {
+      "car": "chery-tiggo-7-phev",
+      "field": "image",
+      "module": "/images/cars/chery-tiggo-7-phev.jpg",
+      "database": "/uploads/cars/4e5f0861-66cc-4a9a-a145-e179c3da3f33.jpg"
+    },
+    {
+      "car": "deepal-s05-reev",
+      "field": "image",
+      "module": "/images/cars/deepal-s05-reev.jpg",
+      "database": "/uploads/cars/b7f07aa5-7be9-4eb9-a6e6-c778f8737e5d.jpg"
+    },
+    {
+      "car": "forthing-friday-reev",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/a4220d16-c3a2-402c-9154-daeb2f7263e9.png"
+    },
+    {
+      "car": "jaecoo-j7-phev",
+      "field": "image",
+      "module": "/images/cars/jaecoo-j7-phev.jpg",
+      "database": "/uploads/cars/d5a4429c-a287-44fd-9b02-4049dcaf8d9c.jpg"
+    },
+    {
+      "car": "omoda-7",
+      "field": "image",
+      "module": "/images/cars/omoda-7.jpg",
+      "database": "/uploads/cars/7c30d63a-2ceb-47a8-8f9e-dda7e1d6a5a4.jpg"
+    },
+    {
+      "car": "chery-tiggo-8-phev",
+      "field": "image",
+      "module": "/images/cars/chery-tiggo-8-phev.jpg",
+      "database": "/uploads/cars/76de10af-da2b-4743-ab17-02ccb05647cb.jpg"
+    },
+    {
+      "car": "chery-tiggo-9-phev",
+      "field": "image",
+      "module": "/images/cars/chery-tiggo-9-phev.jpg",
+      "database": "/uploads/cars/b33681d4-95c4-48e6-b931-9c9cebd99406.jpg"
+    },
+    {
+      "car": "haval-h6-phev",
+      "field": "image",
+      "module": "/images/cars/haval-h6-phev.jpg",
+      "database": "/uploads/cars/925b1869-bd5b-4d8d-8471-16be0b3956a0.jpg"
+    },
+    {
+      "car": "mg-hs-phev",
+      "field": "image",
+      "module": "/images/cars/mg-hs-phev.jpg",
+      "database": "/uploads/cars/ab8021e2-acef-409c-b33b-ee8cd2bc883a.jpg"
+    },
+    {
+      "car": "gwm-tank-500-phev",
+      "field": "image",
+      "module": "/images/cars/gwm-tank-500-phev.jpg",
+      "database": "/uploads/cars/3ccb2707-e233-4d1b-b8a3-00c2c87a4ffe.jpg"
+    },
+    {
+      "car": "mg-hs-hev",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/7ac375f2-afcf-4667-89e6-0086f8f9b5de.jpg"
+    },
+    {
+      "car": "toyota-corolla-cross-hev",
+      "field": "image",
+      "module": "/images/cars/toyota-corolla-cross-hev.jpg",
+      "database": "/uploads/cars/ce5415e5-293c-45ed-a285-dc3268118abe.jpg"
+    },
+    {
+      "car": "haval-jolion-hev",
+      "field": "image",
+      "module": "/images/cars/haval-jolion-hev.jpg",
+      "database": "/uploads/cars/f37f037a-46a2-4c2c-9e9c-e86d4f3fd1bc.jpg"
+    },
+    {
+      "car": "haval-h6-hev",
+      "field": "image",
+      "module": "/images/cars/haval-h6-hev.jpg",
+      "database": "/uploads/cars/09b466b3-ed77-40cc-8bb7-43b420c365d1.jpg"
+    },
+    {
+      "car": "gwm-tank-300-hev",
+      "field": "image",
+      "module": "/images/cars/gwm-tank-300-hev.jpg",
+      "database": "/uploads/cars/0f365102-82b2-432a-911c-a5e662981331.jpg"
+    },
+    {
+      "car": "chery-tiggo-cross-hev",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/ed00e58f-262e-4e26-8b9e-17bebd53ed54.webp"
+    },
+    {
+      "car": "byd-sealion-6",
+      "field": "image",
+      "module": "/images/cars/byd-sealion-6.jpg",
+      "database": "/uploads/cars/187efdd8-5a3c-4964-9069-1a7d78f3482a.png"
+    },
+    {
+      "car": "dfsk-seres-3",
+      "field": "image",
+      "module": "/images/cars/dfsk-seres-3.jpg",
+      "database": "/uploads/cars/4ebbbdde-703f-44e8-b8f3-3995c59107f0.jpg"
+    },
+    {
+      "car": "hyundai-ioniq-5",
+      "field": "image",
+      "module": "/images/cars/hyundai-ioniq-5.jpg",
+      "database": "/uploads/cars/06aee3ee-e670-46c4-8a68-c2ab64177918.jpg"
+    },
+    {
+      "car": "gugo-gigi",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/e5a338bb-76da-47a7-bb3b-1ae08c929621.jpg"
+    },
+    {
+      "car": "gugo-aion-ut",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/131c120f-4880-440a-8929-3f650ad902b1.jpg"
+    },
+    {
+      "car": "gugo-box",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/c653b3ed-9fa6-4b8e-a356-c31614ed5a9d.jpg"
+    },
+    {
+      "car": "dongfeng-box",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/6809f692-d758-4e1a-bae3-d51a02c06e94.jpg"
+    },
+    {
+      "car": "jmev-ev3",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/a75a63fc-fb14-4bfa-a74b-1251a8f7bd7d.jpg"
+    },
+    {
+      "car": "jmev-elight",
+      "field": "image",
+      "module": null,
+      "database": "/uploads/cars/da916c10-3a76-4e92-8d63-1f2a13ba7625.jpg"
+    }
+  ]
+}

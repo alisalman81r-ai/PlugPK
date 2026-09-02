@@ -119,20 +119,38 @@ const CATEGORY_LINE: Record<CarCategory, string> = {
  *
  * The powertrain always leads, because it is the frame the figures below are
  * read inside. The second part is the first of these a car actually has, in
- * order of what changes a decision: which charger fits it, how many it seats,
- * how quickly it gets to 100, how fast it will go. Everything else is on the
- * detail page, and the figure rows below carry the four that matter most.
+ * order of what changes a decision. Everything else is on the detail page, and
+ * the figure rows below carry the ones that matter most.
+ *
+ * ── Why drive type now leads the second part ───────────────────────────
+ *
+ * It used to be the connector, and that was right when the alternative was an
+ * acceleration time. It is not right at forty-eight cars: thirty of them carry
+ * exactly ['CCS2', 'Type 2'], so a column of nine cards printed the same nine
+ * words and the line became wallpaper — present on every card, telling the
+ * reader nothing about the card they were looking at.
+ *
+ * `driveType` was null on every row when this was written and is now stated on
+ * thirty-seven. FWD, RWD, AWD and 2WD/4WD actually differ card to card, they
+ * are three or four characters so the line can never truncate on them, and on a
+ * page that includes a pickup and two AWD SUVs it is a real distinction.
+ *
+ * The connector keeps its place in the chain, just below seats, so it still
+ * surfaces on a row that states no drive type and no seat count. Nothing is
+ * lost: the full connector list is a row of its own on the detail page.
  */
 function supportingLine(car: Car): string {
-  const extra = car.connector?.length
-    ? car.connector.join(' / ')
+  const extra = car.driveType
+    ? car.driveType
     : car.seats
       ? `${car.seats} seats`
-      : car.acceleration
-        ? `0–100 in ${car.acceleration}${car.accelerationUnit}`
-        : car.topSpeed
-          ? `${car.topSpeed} km/h`
-          : null
+      : car.connector?.length
+        ? car.connector.join(' / ')
+        : car.acceleration
+          ? `0–100 in ${car.acceleration}${car.accelerationUnit}`
+          : car.topSpeed
+            ? `${car.topSpeed} km/h`
+            : null
 
   const powertrain = CATEGORY_LINE[car.category]
   return extra ? `${powertrain}  ·  ${extra}` : powertrain
@@ -229,12 +247,18 @@ export function CarCard({
           row line up whatever else a car does or does not have, and nothing
           shifts while they load.
 
-          3:2 because the source photographs are 1.50–1.78 — a squarer panel
-          would crop the nose off a car that is already photographed side-on,
-          and the brief was a hero image without awkward cropping. Cover, not
-          contain: these are location photographs rather than studio cut-outs,
-          so letterboxing them would frame the background as much as the car. */}
-      <div className="relative aspect-[3/2] shrink-0 overflow-hidden bg-slate-100">
+          7:5, opened up from 3:2, which is about 7% more image height on every
+          card in the grid. The panel is the largest thing on a card and the
+          first thing anybody looks at, and at 3:2 it was losing the contest
+          with the block of type beneath it.
+
+          7:5 is 1.40 against the source photographs' 1.50–1.78, so it crops a
+          few pixels more off the sides than 3:2 did — the reason it is not
+          4:3 (1.33), which would start taking the nose off a car photographed
+          side-on. Cover, not contain: these are location photographs rather
+          than studio cut-outs, so letterboxing them would frame the background
+          as much as the car. */}
+      <div className="relative aspect-[7/5] shrink-0 overflow-hidden bg-slate-100">
         <Link href={href} tabIndex={-1} aria-hidden="true" className="absolute inset-0 block">
           {car.image ? (
             <PhotoFrame
@@ -250,25 +274,35 @@ export function CarCard({
             /*
               A stated absence rather than PhotoFrame's shared fallback.
 
-              Three of the cars have no licensed photograph on Commons — see the
-              images note in src/data/cars.ts — and the shared fallback is a very
-              pale gradient with a 28px icon in the middle of it. At 3:2 across a
-              third of the grid that is 250px of near-white nothing, and in a row
+              SIXTEEN of the forty-eight cars have no licensed photograph — the
+              three the images note in src/data/cars.ts describes, plus the 2026
+              model-year rows added since — and the shared fallback is a very
+              pale gradient with a 28px icon in the middle of it. Across a third
+              of the grid that is 250px of near-white nothing, and in a row
               beside two photographs it reads as a card that failed to load
               rather than a car nobody has published a picture of.
 
               The brand wordmark at display size fills the panel deliberately,
               and the caption says what is actually true. Same ground and the
               same hairline as a real panel, so the row still reads as a row.
+
+              Contrast raised a step now that this is a third of the grid rather
+              than three cards: the ground from slate-50/100 to slate-100/200,
+              the wordmark from slate-300 to slate-400, the caption from
+              slate-400 to slate-500. Still quieter than any photograph, so a
+              real panel keeps winning its row — but it now reads as a
+              deliberate panel rather than an empty one. The fix is files, not
+              CSS: drop a licensed image into /public/images/cars/<slug>.jpg and
+              set `image` on the row.
             */
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-slate-50 to-slate-100">
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-slate-100 to-slate-200/70">
               <span
                 aria-hidden="true"
-                className="font-display text-[clamp(1.5rem,3.5vw,2rem)] font-bold leading-none tracking-tight text-slate-300"
+                className="font-display text-[clamp(1.5rem,3.5vw,2rem)] font-bold leading-none tracking-tight text-slate-400"
               >
                 {car.brand}
               </span>
-              <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-slate-400">
+              <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-slate-500">
                 No photograph
               </span>
             </span>

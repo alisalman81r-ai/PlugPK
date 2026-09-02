@@ -98,7 +98,16 @@ const byId = (id: string) => cars.find((car) => car.id === id)!
 check('Atto 2 = 72.9 Lakh', byId('byd-atto-2').price.min === 7_290_000)
 check('Omoda 7 = 1.0649 Cr', byId('omoda-7').price.min === 10_649_000)
 check('EV9 GT-Line = 4.32 Cr', byId('kia-ev9-gt-line').price.min === 43_200_000)
-check('Riddara span 1.33–1.70 Cr', byId('riddara-rd6').price.min === 13_300_000 && byId('riddara-rd6').price.max === 17_000_000)
+/*
+  Was 13,300,000-17,000,000, the price list's rounded span.
+
+  Updated deliberately, not to silence a red check. The 2026 model-year research
+  supplies the four variant prices this span is meant to cover — Econ 13,299,000,
+  Air 14,699,000, Pro 16,999,000, Ultra 18,499,000 — so the old maximum sat below
+  the top variant it was supposed to include. The assertion still does its job:
+  it pins the row to exact rupee figures rather than to a rounded summary.
+*/
+check('Riddara span 1.3299–1.8499 Cr', byId('riddara-rd6').price.min === 13_299_000 && byId('riddara-rd6').price.max === 18_499_000)
 check('Sealion 7 battery 82.56', byId('byd-sealion-7-advanced').batteryCapacity === 82.56)
 check('Sealion 7 range span 450–567', byId('byd-sealion-7-advanced').range === 450 && byId('byd-sealion-7-advanced').rangeMax === 567)
 check('Deepal E07 DC 240 kW', byId('deepal-e07').dcCharging === 240)

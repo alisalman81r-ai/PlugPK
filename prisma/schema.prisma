@@ -583,6 +583,63 @@ model Car {
 
   engineCapacity Int?
 
+  /// ── The full spec sheet ─────────────────────────────────────────────
+  ///
+  /// Added because a researched car has about thirty-five facts and this table
+  /// held fourteen of them. The rest were going into `notes` as prose, which
+  /// reads acceptably once and cannot be grouped, compared, filtered or shown
+  /// as a table — so the detail page could not present a spec sheet even when
+  /// somebody had done the work of assembling one.
+  ///
+  /// Every column is nullable and nothing is derived. Same rule as the rest of
+  /// this table: a figure appears only if a source stated it, and a gap is null
+  /// rather than a plausible number. Most are null on most rows today, which is
+  /// the honest state of the catalogue and the same reason `torque`, `topSpeed`
+  /// and `seats` were added before any row carried them.
+  ///
+  /// Where a source publishes a span rather than a figure — ground clearance
+  /// quoted 145-170 mm, consumption 19-21 kWh/100km — both ends are kept, the
+  /// way `range`/`rangeMax` and `priceMin`/`priceMax` already do it. Averaging
+  /// them would invent a number nobody published.
+  bodyType  String?
+  driveType String?
+
+  /// Motor output in kW. `power` above stays the hp figure the cards show.
+  motorPowerKw Int?
+
+  /// Real-world range, as a span. Distinct from `range`, which is the figure a
+  /// test cycle produced; this is what owners report.
+  realWorldRange    Int?
+  realWorldRangeMax Int?
+
+  /// kWh per 100 km, as a span.
+  consumption    Float?
+  consumptionMax Float?
+
+  /// Hours for a full AC charge, and minutes for a 10-80% DC charge.
+  acChargingHours   Float?
+  dcChargingMinutes Int?
+
+  /// Cell chemistry and pack name, e.g. "BYD Blade Battery (LFP)".
+  batteryTech String?
+
+  lengthMm    Int?
+  widthMm     Int?
+  heightMm    Int?
+  wheelbaseMm Int?
+
+  groundClearanceMm    Int?
+  groundClearanceMaxMm Int?
+
+  bootCapacityL Int?
+  kerbWeightKg  Int?
+
+  /// Pakistan market facts. Free text because each is a sentence a person wrote
+  /// after checking, not a figure a source publishes in a fixed unit.
+  availability String?
+  distributor  String?
+  warranty     String?
+
   image String?
   notes String?
 

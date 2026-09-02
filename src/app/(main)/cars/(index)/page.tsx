@@ -2,9 +2,8 @@
 import type { Metadata } from 'next'
 
 import { BrandMarquee } from '@/components/cars/BrandMarquee'
-import { CarInsights } from '@/components/cars/CarInsights'
 import { CarsExplorer } from '@/components/cars/CarsExplorer'
-import { getBrands, getCategories, getConnectors, getInsights } from '@/lib/cars'
+import { getBrands, getCategories, getConnectors } from '@/lib/cars'
 import { listCars } from '@/lib/db/car-queries'
 
 /**
@@ -52,17 +51,23 @@ export default async function CarsPage() {
       brands={getBrands(cars)}
       categories={getCategories(cars)}
       connectors={getConnectors(cars)}
-      // Both computed on the server from the whole dataset and passed as
-      // finished elements: neither changes with the filters, so none of that
-      // work belongs in the client bundle. They render between the hero and
-      // the catalogue, in this order — the brand strip is a half-second of
-      // reassurance, the insights are the first real answer.
-      insights={
-        <>
-          <BrandMarquee brands={getBrands(cars)} />
-          <CarInsights insights={getInsights(cars)} />
-        </>
-      }
+      /*
+        The brand strip, computed on the server from the whole dataset and
+        passed as a finished element: it does not change with the filters, so
+        none of that work belongs in the client bundle.
+
+        It used to be one of two things in this slot. The "At a glance" panel —
+        five computed superlatives, longest range and cheapest and so on — sat
+        below it and has been removed: it put a second, competing set of car
+        cards between the hero and the actual catalogue, so the first screen
+        offered two answers to "which car" and the real list was the one
+        further down. The brand strip stays because it is a strip, not a
+        second catalogue.
+
+        getInsights() went with it rather than being left as an unused export.
+        It is in the history if the panel is ever wanted back.
+      */
+      beforeResults={<BrandMarquee brands={getBrands(cars)} />}
     />
   )
 }

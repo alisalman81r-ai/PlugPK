@@ -56,6 +56,31 @@ type CarRow = {
   engineCapacity: number | null
   image: string | null
   notes: string | null
+
+  // The full spec sheet, added 2026-09-01. All nullable.
+  bodyType: string | null
+  driveType: string | null
+  motorPowerKw: number | null
+  modelYear: number | null
+  rangeStandard: string | null
+  realWorldRange: number | null
+  realWorldRangeMax: number | null
+  consumption: number | null
+  consumptionMax: number | null
+  acChargingHours: number | null
+  dcChargingMinutes: number | null
+  batteryTech: string | null
+  lengthMm: number | null
+  widthMm: number | null
+  heightMm: number | null
+  wheelbaseMm: number | null
+  groundClearanceMm: number | null
+  groundClearanceMaxMm: number | null
+  bootCapacityL: number | null
+  kerbWeightKg: number | null
+  availability: string | null
+  distributor: string | null
+  warranty: string | null
 }
 
 export function rowToCar(row: CarRow): Car {
@@ -96,6 +121,30 @@ export function rowToCar(row: CarRow): Car {
     torque: row.torque,
     topSpeed: row.topSpeed,
     seats: row.seats,
+    // The full spec sheet. Passed straight through; nothing derived.
+    bodyType: row.bodyType,
+    driveType: row.driveType,
+    motorPowerKw: row.motorPowerKw,
+    modelYear: row.modelYear,
+    rangeStandard: row.rangeStandard,
+    realWorldRange: row.realWorldRange,
+    realWorldRangeMax: row.realWorldRangeMax,
+    consumption: row.consumption,
+    consumptionMax: row.consumptionMax,
+    acChargingHours: row.acChargingHours,
+    dcChargingMinutes: row.dcChargingMinutes,
+    batteryTech: row.batteryTech,
+    lengthMm: row.lengthMm,
+    widthMm: row.widthMm,
+    heightMm: row.heightMm,
+    wheelbaseMm: row.wheelbaseMm,
+    groundClearanceMm: row.groundClearanceMm,
+    groundClearanceMaxMm: row.groundClearanceMaxMm,
+    bootCapacityL: row.bootCapacityL,
+    kerbWeightKg: row.kerbWeightKg,
+    availability: row.availability,
+    distributor: row.distributor,
+    warranty: row.warranty,
     image: row.image,
     notes: row.notes,
   }

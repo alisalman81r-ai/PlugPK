@@ -51,11 +51,16 @@ export interface CarsExplorerProps {
   /**
    * Rendered between the hero and the catalogue.
    *
-   * A slot rather than an import, because the insights are computed on the
-   * server from the full dataset and never change with the filters — passing
+   * A slot rather than an import, because what goes here is computed on the
+   * server from the full dataset and never changes with the filters — passing
    * the finished element keeps that work out of the client bundle.
+   *
+   * Named for the position rather than the contents. It was `insights`, after
+   * the "At a glance" panel it carried; that panel is gone and the prop now
+   * holds the brand strip, so a name describing one of its former occupants
+   * would send the next reader looking for something that is not there.
    */
-  insights?: React.ReactNode
+  beforeResults?: React.ReactNode
 }
 
 export function CarsExplorer({
@@ -63,7 +68,7 @@ export function CarsExplorer({
   brands,
   categories,
   connectors,
-  insights,
+  beforeResults,
 }: CarsExplorerProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -171,7 +176,7 @@ export function CarsExplorer({
         onSubmit={scrollToResults}
       />
 
-      {insights}
+      {beforeResults}
 
       {/*
         A grey ground under the catalogue, where this used to be white.
@@ -217,20 +222,29 @@ export function CarsExplorer({
           />
 
           {/*
-            A heading for the grid, in the same voice as "Browse by brand" above
-            it and "At a glance" before that.
+            A heading for the grid.
 
             The results block used to open on a row of segments and a count,
             which meant the largest section on the page — the one everything else
             is a way into — was the only one nobody had named. A reader arriving
             by anchor or scroll had to infer what they were looking at from a
             number.
+
+            Now the largest heading on the page, and stepped above "Browse by
+            brand" rather than level with it. It used to share a size with that
+            rail and with "At a glance" above them both, which was right when
+            three sections were competing for the first screen. With the
+            insights panel gone this is the page's subject and the brand rail is
+            a control leading into it, so a flat hierarchy would leave the
+            catalogue announced no more loudly than one of its own filters. The
+            subtitle steps up with it, on its own line, so the pair reads as a
+            section opening rather than a label with a caption beside it.
           */}
-          <div className="mt-14 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-slate-200 pt-10">
-            <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
+          <div className="mt-14 border-t border-slate-200 pt-10">
+            <h2 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 lg:text-4xl">
               The catalogue
             </h2>
-            <p className="text-ui-sm text-slate-500">
+            <p className="mt-2 max-w-2xl text-ui text-slate-600">
               Every published figure, none estimated — filter, sort and compare
             </p>
           </div>
