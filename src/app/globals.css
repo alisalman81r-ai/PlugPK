@@ -674,3 +674,67 @@
     }
   }
 }
+
+@layer components {
+  /*
+   * ── The hero entrance ──────────────────────────────────────────────
+   *
+   * One movement, staged. Each element rises a short distance and resolves,
+   * a beat after the one above it, so the eye is walked down the frame in the
+   * order the content is meant to be read: what this is, then what it does,
+   * then the thing you can act on.
+   *
+   * A hero that fades in as one block announces itself and says nothing about
+   * where to look. A hero where six things move independently is a carousel.
+   * The staging is the whole point, and it is why the delays are a scale
+   * rather than six arbitrary numbers.
+   *
+   * 12px, not 40px. A long travel reads as a slide and draws attention to the
+   * animation; a short one reads as the page settling. The 0.9s duration on a
+   * 12px move is deliberately slower than the distance suggests — that
+   * mismatch is what makes it feel eased into place rather than thrown.
+   *
+   * transform and opacity only, so the whole sequence is composited and the
+   * first paint is not competing with layout.
+   */
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .hero-rise {
+    animation: hero-rise 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /*
+   * The scale. Roughly a fifth of the animation's own duration between steps —
+   * close enough that the sequence reads as one movement, far enough apart that
+   * the order is legible.
+   */
+  .hero-rise-1 { animation-delay: 60ms; }
+  .hero-rise-2 { animation-delay: 160ms; }
+  .hero-rise-3 { animation-delay: 280ms; }
+  .hero-rise-4 { animation-delay: 400ms; }
+  .hero-rise-5 { animation-delay: 500ms; }
+
+  /*
+   * Reduced motion gets the content, immediately and in place.
+   *
+   * `both` above means the element holds the from-state until its delay
+   * elapses, so simply disabling the animation would leave everything at
+   * opacity 0 — the hero would be blank. The end state has to be restated.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-rise {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
