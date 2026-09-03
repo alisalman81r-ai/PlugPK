@@ -2,13 +2,13 @@
 'use client'
 
 import { ArrowRight, MapPin, Search } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { HeroBackdrop } from './HeroBackdrop'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -41,31 +41,28 @@ export function Hero({ cities }: HeroProps) {
     <section className="bg-white px-3 pb-6 pt-[84px] sm:px-4 sm:pb-10 lg:px-6">
       {/* The frame. Fixed layers — nothing in here moves. */}
       <div className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]">
-        {/* Layer 1 — the photograph. */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10">
-          <Image
-            src="/images/stations/gulberg-charging-station-1.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-        </div>
+        {/* Layer 1 — the backdrop. A video once there is one, the photograph
+            until then. See HeroBackdrop for what the footage wants to be. */}
+        <HeroBackdrop />
 
         {/*
-          Layer 2 — legibility, in two parts.
+          Layer 2 — legibility.
 
-          A light wash over the whole frame, then a second gradient anchored to
-          the bottom where the words actually sit. One gradient could not do
-          both: dark enough for the text meant flattening the photograph, and
-          light enough for the photograph meant the headline fighting the car's
-          reflections for contrast.
+          Heavier at the foot than the photograph alone needed, because a moving
+          backdrop cannot be reasoned about the way a still can: a frame that is
+          dark behind the headline for eight seconds may not be on the ninth, so
+          the scrim has to hold the text legible against the worst frame rather
+          than the average one.
+
+          It is also what lets the type drop its text-shadow. A shadow on a 72px
+          headline fringes the letterforms and is the single most common tell of
+          text pasted over a photograph. Contrast belongs in the ground, not in
+          an outline around every glyph.
         */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-slate-950/25" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-plug-navy-950/30" />
         <div
           aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,6,23,0.92)_0%,rgba(2,6,23,0.80)_22%,rgba(2,6,23,0.45)_48%,rgba(2,6,23,0.12)_75%,transparent_100%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,16,36,0.94)_0%,rgba(2,16,36,0.86)_26%,rgba(2,16,36,0.52)_52%,rgba(2,16,36,0.16)_78%,transparent_100%)]"
         />
 
         {/* Layer 3 — content. */}
@@ -80,11 +77,11 @@ export function Hero({ cities }: HeroProps) {
               : 'Mapping Pakistan, city by city'}
           </span>
 
-          <h1 className="max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.55),0_4px_30px_rgba(0,0,0,0.45)]">
+          <h1 className="max-w-[18ch] text-balance text-[clamp(2.5rem,6.4vw,5rem)] font-black leading-[0.98] tracking-[-0.04em] text-white">
             Every charger in Pakistan, on one map
           </h1>
 
-          <p className="mt-5 max-w-xl text-pretty text-[15px] leading-relaxed text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.5)] sm:text-lg">
+          <p className="mt-6 max-w-[46ch] text-pretty text-lg leading-relaxed text-white/75 sm:text-xl">
             Connector types, charging speeds, and reviews from drivers who actually
             charged there.
           </p>
