@@ -2,6 +2,7 @@
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
+import { CardSpotlight } from '@/components/ui'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
 /**
@@ -23,6 +24,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <>
+      {/* One delegated pointer listener for every card on the page. Renders
+          nothing; see CardSpotlight for why it is not per-card. */}
+      <CardSpotlight />
       <Navbar user={user} />
       <main className="min-h-screen pt-[72px]">{children}</main>
       <Footer />

@@ -586,3 +586,91 @@
     transform: none !important;
   }
 }
+
+@layer components {
+  /*
+   * ── The card edge ──────────────────────────────────────────────────
+   *
+   * One idea, executed once, inherited by every card on the site: the
+   * hairline border catches a light that follows the pointer across it.
+   *
+   * Why it lives in CSS rather than in the Tailwind class string. The edge is
+   * two stacked background layers — a specular highlight over a base gradient
+   * — and `bg-gradient-to-b` can only express the second. Moving it here also
+   * means the twenty-two components that import FRAME inherit the change
+   * without one of them being edited, which is the whole reason the token
+   * exists.
+   *
+   * How the light is positioned. A single delegated pointermove listener
+   * (CardSpotlight, mounted once in the layout) writes --px and --py onto
+   * whichever .card-frame is under the cursor. Not one listener per card:
+   * a catalogue row is nine cards and the cars grid is forty-eight, and
+   * forty-eight listeners firing on every pointer move is how a grid starts
+   * dropping frames. Only background-position and opacity change, so the
+   * work stays on the compositor.
+   *
+   * The 50%/0% defaults matter: they are what the server renders and what a
+   * card shows before it has ever been pointed at, so nothing shifts on
+   * hydration and a card that is never hovered still has a sensible edge.
+   */
+  .card-frame {
+    --px: 50%;
+    --py: 0%;
+    background-image:
+      radial-gradient(
+        16rem circle at var(--px) var(--py),
+        rgb(59 130 246 / 0),
+        transparent 70%
+      ),
+      linear-gradient(to bottom, rgb(203 213 225), rgb(203 213 225), rgb(226 232 240));
+    transition:
+      box-shadow 300ms ease,
+      transform 300ms ease;
+  }
+
+  .card-frame:hover {
+    background-image:
+      radial-gradient(
+        16rem circle at var(--px) var(--py),
+        rgb(96 165 250 / 0.95),
+        rgb(34 211 238 / 0.55) 38%,
+        rgb(148 163 184 / 0.35) 68%,
+        transparent 78%
+      ),
+      linear-gradient(to bottom, rgb(203 213 225), rgb(203 213 225), rgb(226 232 240));
+  }
+
+  /*
+   * The chosen card — the recommended plan, the selected station, the car in
+   * the comparison tray. It carries the brand edge at rest, and the same light
+   * still tracks across it, so being already-selected does not make it the one
+   * card on the page that stops responding.
+   */
+  .card-frame--featured {
+    --px: 50%;
+    --py: 0%;
+    background-image:
+      radial-gradient(
+        16rem circle at var(--px) var(--py),
+        rgb(255 255 255 / 0.55),
+        transparent 65%
+      ),
+      linear-gradient(to bottom, rgb(59 130 246), rgb(34 211 238), rgb(147 197 253));
+  }
+
+  /*
+   * Reduced motion keeps the edge and drops the chase.
+   *
+   * The highlight is not decoration you can simply delete — without it the
+   * hover state loses its colour entirely — so it is pinned to the top centre
+   * instead of following the pointer. The card still lights up; nothing moves.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .card-frame,
+    .card-frame--featured {
+      --px: 50% !important;
+      --py: 0% !important;
+      transition: none;
+    }
+  }
+}

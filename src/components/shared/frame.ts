@@ -33,18 +33,16 @@
  * only appeared in the one feed that stacks its cards in normal flow.
  */
 export const FRAME =
-  'group block h-full rounded-3xl bg-gradient-to-b from-slate-300 via-slate-300 to-slate-200 p-[1.5px] ' +
+  'group card-frame block h-full rounded-3xl p-[1.5px] ' +
   'shadow-[0_1px_2px_rgba(15,23,42,0.05),0_16px_36px_-20px_rgba(15,23,42,0.35)] ' +
-  'transition-all duration-300 ' +
-  'hover:from-plug-blue-500 hover:via-plug-cyan-400 hover:to-plug-blue-300 ' +
-  'hover:shadow-[0_12px_26px_-8px_rgba(37,99,235,0.22),0_30px_64px_-24px_rgba(37,99,235,0.38)]'
+  'hover:shadow-[0_16px_34px_-10px_rgba(37,99,235,0.24),0_36px_72px_-26px_rgba(37,99,235,0.42)]'
 
 /**
  * For the one card that should already look chosen — the recommended plan.
  * It carries the brand edge at rest rather than waiting for a hover.
  */
 export const FRAME_FEATURED =
-  'group block h-full rounded-3xl bg-gradient-to-b from-plug-blue-500 via-plug-cyan-400 to-plug-blue-300 p-[1.5px] ' +
+  'group card-frame--featured block h-full rounded-3xl p-[1.5px] ' +
   'shadow-[0_14px_30px_-10px_rgba(37,99,235,0.28),0_34px_70px_-28px_rgba(37,99,235,0.45)] ' +
   'transition-all duration-300 hover:shadow-[0_18px_38px_-10px_rgba(37,99,235,0.36),0_40px_80px_-28px_rgba(37,99,235,0.55)]'
 
