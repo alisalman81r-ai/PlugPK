@@ -60,7 +60,15 @@ export function HoverButton({ children, ...rest }: HoverButtonProps) {
   )
 }
 
-const MotionLink = motion(Link)
+/*
+ * motion.create rather than motion().
+ *
+ * Calling motion as a function is deprecated in framer-motion 11 and logs a
+ * warning on every page that renders a card — which, since HoverLink is what
+ * most card links are built from, was every page on the site. Same component,
+ * same behaviour, no console noise.
+ */
+const MotionLink = motion.create(Link)
 
 export type HoverLinkProps = React.ComponentProps<typeof MotionLink>
 

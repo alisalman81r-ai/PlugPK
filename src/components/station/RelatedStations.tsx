@@ -1,6 +1,7 @@
 // src/components/station/RelatedStations.tsx
 import { StationCard } from '@/components/home/StationCard'
 import { getStations } from '@/lib/db/queries'
+import { STAGGER } from '@/lib/motion'
 
 export interface RelatedStationsProps {
   currentStationId: string
@@ -30,7 +31,7 @@ export async function RelatedStations({ currentStationId, city }: RelatedStation
           <StationCard
             key={station.id}
             station={station}
-            animationDelay={index * 100}
+            animationDelay={index * STAGGER.TIGHT}
             className="animate-fade-up opacity-0"
           />
         ))}

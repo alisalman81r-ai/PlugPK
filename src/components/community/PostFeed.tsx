@@ -17,6 +17,7 @@ import * as React from 'react'
 
 import { Button, Skeleton } from '@/components/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
+import { STAGGER } from '@/lib/motion'
 import type { CommunityPost, PostCategory } from '@/lib/types'
 import { PostCard } from './PostCard'
 
@@ -179,7 +180,7 @@ export function PostFeed({
             isLiked={likedPosts.has(post.id)}
             likeCount={likeCountFor ? likeCountFor(post) : post.likeCount}
             onLike={onLike}
-            animationDelay={index * 60}
+            animationDelay={index * STAGGER.TIGHT}
             className="animate-fade-up opacity-0"
           />
         </div>

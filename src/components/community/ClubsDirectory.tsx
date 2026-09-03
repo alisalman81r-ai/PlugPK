@@ -3,6 +3,7 @@ import { MapPin, Users } from 'lucide-react'
 import Link from 'next/link'
 
 import { cityPhoto } from '@/lib/city-photos'
+import { STAGGER } from '@/lib/motion'
 import type { EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ClubCard } from './ClubCard'
@@ -86,7 +87,7 @@ export function ClubsDirectory({ clubs, className }: ClubsDirectoryProps) {
                   should show itself, not its skyline.
                 */
                 photo={club.coverPhoto ?? cityPhoto(club.city)}
-                animationDelay={index * 80}
+                animationDelay={index * STAGGER.TIGHT}
                 className="animate-fade-up opacity-0"
               />
             ))}

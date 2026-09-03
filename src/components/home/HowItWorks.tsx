@@ -2,6 +2,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { STAGGER } from '@/lib/motion'
 import { Navigation2, Search, SlidersHorizontal, Star, type LucideIcon } from 'lucide-react'
 
 import { AnimatedIcon, Reveal, type IconMotion } from '@/components/ui'
@@ -113,7 +114,7 @@ export function HowItWorks() {
                 // Staggered by 110ms. Enough to read as one-after-another,
                 // short enough that the last step is not still arriving after
                 // the eye has moved on.
-                <Reveal key={step.number} delay={index * 110}>
+                <Reveal key={step.number} delay={index * STAGGER.STEP}>
                   <motion.div
                     initial="rest"
                     whileHover="hover"

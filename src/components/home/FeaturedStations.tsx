@@ -7,6 +7,7 @@ import * as React from 'react'
 
 import { TiltCard } from '@/components/ui'
 import type { Station } from '@/lib/types'
+import { STAGGER } from '@/lib/motion'
 import { getPortAvailability } from '@/lib/utils'
 
 import { StationCard } from './StationCard'
@@ -90,7 +91,7 @@ export function FeaturedStations({ stations }: FeaturedStationsProps) {
             <TiltCard key={station.id} className="h-full">
               <StationCard
                 station={station}
-                animationDelay={index * 90}
+                animationDelay={index * STAGGER.TIGHT}
                 isSaved={savedIds.includes(station.id)}
                 onSave={toggleSaved}
                 className="h-full animate-fade-up opacity-0"

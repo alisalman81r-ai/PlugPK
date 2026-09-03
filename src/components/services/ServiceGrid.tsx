@@ -6,6 +6,7 @@ import { Package } from 'lucide-react'
 import { FACE, FRAME } from '@/components/shared/frame'
 import { Button, Skeleton } from '@/components/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
+import { STAGGER } from '@/lib/motion'
 import type { EVService, ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ServiceCard } from './ServiceCard'
@@ -97,7 +98,7 @@ export function ServiceGrid({
             key={service.id}
             service={service}
             variant="horizontal"
-            animationDelay={index * 80}
+            animationDelay={index * STAGGER.TIGHT}
             className="animate-fade-up opacity-0"
           />
         ))}
@@ -136,7 +137,7 @@ export function ServiceGrid({
             <ServiceCard
               key={service.id}
               service={service}
-              animationDelay={index * 80}
+              animationDelay={index * STAGGER.TIGHT}
               className="animate-fade-up opacity-0"
             />
           ))}
@@ -176,7 +177,7 @@ export function ServiceGrid({
                   <ServiceCard
                     key={service.id}
                     service={service}
-                    animationDelay={index * 80}
+                    animationDelay={index * STAGGER.TIGHT}
                     className="animate-fade-up opacity-0"
                   />
                 ))}
@@ -194,7 +195,7 @@ export function ServiceGrid({
         <ServiceCard
           key={service.id}
           service={service}
-          animationDelay={index * 80}
+          animationDelay={index * STAGGER.TIGHT}
           className="animate-fade-up opacity-0"
         />
       ))}
