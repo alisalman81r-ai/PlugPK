@@ -16,59 +16,89 @@ import { cn } from '@/lib/utils'
  *
  * ── The shape, and why it is this shape ───────────────────────────────
  *
- * Photograph first, then a fixed block of type: brand, model, a supporting
- * line, four label/value rows, two actions. Every card in the grid is that
- * sequence, at those sizes, in that order — which is the point. A visitor
- * comparing nine cars is not reading nine cards, they are reading one card nine
- * times, and the only way that works is if the battery figure is always in the
- * same place.
+ * Photograph on a stage, then brand, model, trim, the price on a line of its
+ * own, three figures in a panel, and one quiet action. Every card is that
+ * sequence at those sizes in that order — which is the point. A visitor
+ * comparing nine cars is not reading nine cards, they are reading one card
+ * nine times, and that only works if the battery figure is always in the same
+ * place.
  *
- * Three decisions carry most of the design:
+ * ── What changed from the spec-sheet version, and why ─────────────────
  *
- *   1. The photograph is the first element in the DOM, not the fourth. It used
- *      to sit below the name, the price and a bordered paragraph of caveat
- *      text, and that paragraph is present on some cars and absent on others —
- *      so two cards side by side had their photographs 100px apart vertically
- *      and the row read as broken. Nothing precedes the image now, so the images
- *      in a row are aligned by construction rather than by luck.
+ * The previous card set its four figures as label/value rows with a hairline
+ * under each and the price as the last of them. It was legible and it was
+ * honest, and it read as an invoice: nine of them in a grid gave the page
+ * thirty-six horizontal rules and no focal point. Three things were actually
+ * wrong with it rather than merely plain.
  *
- *   2. The figures are rows, not a divided strip of cells. The strip fitted
- *      three figures across the card and looked tidy at 390px, but it could not
- *      survive a third column — 78px per cell wraps "DC charging" onto two
- *      lines — and a cell with no figure had to be dropped, which is what made
- *      cards disagree about how many figures they had. Rows read down the card,
- *      cost no horizontal room, and a row with nothing published can say so.
+ *   1. THE PRICE WAS BEING TRUNCATED. Measured on the rendered grid, six of the
+ *      forty-eight cards clipped it — "PKR 63–77 Lakh (ex-factory)" wanted
+ *      240px and had 162px, "PKR 4,899,000 – 4,999,999" wanted 220px. The price
+ *      shared a baseline with its own label in a justify-between row, so it
+ *      could never have more than about two thirds of a 256px card. A truncated
+ *      price is not a small visual flaw: it is the single number the whole card
+ *      exists to deliver, and an ellipsis in the middle of it means the reader
+ *      cannot tell a 63 Lakh car from a 63 Lakh one with conditions.
  *
- *   3. Labels and figures are set in the mono face. It is loaded already and
- *      unused outside a few counters, and a technical micro-label in a
- *      monospace at 10px does something no sans at 10px does: it reads as
- *      instrument marking rather than as small body copy, and the values line
- *      up in a column because every digit is the same width. On a page of
- *      batteries and kilowatts that is the difference between a spec sheet and
- *      a paragraph.
+ *      It now has a full-width line to itself with no label — "PKR" makes a
+ *      label redundant — and any parenthetical qualifier drops to a quiet line
+ *      beneath rather than competing for the same width.
+ *
+ *   2. THE FIGURES DID NOT NEED A HAIRLINE EACH. There were four rows with a
+ *      rule under every one and the price as the fourth, so nine cards drew
+ *      thirty-six horizontal lines and the card had no focal point. They are
+ *      still rows — set side by side in three cells they truncated the range
+ *      spans, which is measured in the figures block below — but there are
+ *      three of them now rather than four, the rules are gone, and one soft
+ *      panel groups them instead. Same information, a ninth of the lines.
+ *
+ *   3. FORTY-EIGHT FILLED NAVY BUTTONS. "View details" was a solid slab on
+ *      every card, so the loudest thing on the page was the same instruction
+ *      repeated four dozen times, and the actual differences between the cars
+ *      were quieter than the furniture around them. The whole card is the link
+ *      now — which is what a visitor already expects to be able to click — and
+ *      the words stay as a quiet cue that animates on hover rather than a
+ *      button competing with the photograph above it.
+ *
+ * ── The stage ─────────────────────────────────────────────────────────
+ *
+ * The photographs come from different sources and do not share a background:
+ * some are white studio cut-outs, some are lit against dark grey, some are
+ * location shots. Three of those in one row is the strongest single reason the
+ * old grid looked assembled rather than designed.
+ *
+ * CSS cannot repair that — a filter that neutralised the dark backdrops would
+ * also shift the cars' paint colour, which on a page whose job is to describe
+ * cars accurately is not a trade worth making. What it can do is stop the card
+ * from making it worse: the panel sits on a soft vertical stage with a vignette
+ * rather than flat white, so a cut-out has something to stand on and a dark
+ * photograph is a deliberate-looking dark panel instead of a hole. Genuinely
+ * fixing it means re-shooting or re-sourcing on one ground.
  *
  * ── Surface ───────────────────────────────────────────────────────────
  *
- * Flat at rest: a hairline border, no shadow, on a grey page ground that does
- * the separating instead. The border is now the site's graded hairline, taken
- * from components/shared/frame at this card's own 12px radius rather than the
- * 24px the marketing cards use — the edge joins the system, the density does
- * not change. FRAME's resting shadow is explicitly cleared here, for the reason
- * in the next sentence. Shadows on every card in a 36-card grid add up to a
- * grey haze, and a card that is already lifted has nowhere to go on hover.
- * Hover is where the elevation lives — a 2px rise, a shadow, the border
- * darkening a step and the photograph easing up 4% — and all four are
- * transform/opacity/colour, so it stays on the compositor.
+ * Flat at rest — the site's graded hairline at this card's own 14px radius, no
+ * shadow, on a grey page ground that does the separating. FRAME's resting
+ * shadow is explicitly cleared: thirty-six shadows in one grid add up to a grey
+ * haze, and a card already lifted has nowhere to go on hover. Hover is where
+ * the elevation lives, and every part of it — rise, shadow, border, a 4% image
+ * push — is transform, opacity or colour, so it stays on the compositor.
  *
  * ── What is not on the card ───────────────────────────────────────────
  *
- * `car.notes` is. It used to print in a filled bar above the photograph, which
- * is both what broke the row alignment and a poor use of the space: the Tiggo
- * Cross HEV's note is four lines of prose explaining that a full hybrid has no
- * plug. That belongs on the detail page, where it is, and the card carries the
- * two facts from it that change a buying decision — a price that is indicative,
- * a car that cannot be plugged in — as chips on the photograph. Two words each,
- * both derived from the data, neither invented.
+ * `car.notes`. It used to print in a filled bar above the photograph, which
+ * broke row alignment and spent four lines explaining that a full hybrid has no
+ * plug. That belongs on the detail page, where it is. The card carries the two
+ * facts from it that change a buying decision — a price that is indicative, a
+ * car that cannot be plugged in — as chips, two words each, both derived from
+ * the data rather than written.
+ *
+ * The category chip is now conditional, which is the same argument. Thirty-one
+ * of the forty-eight cars are EVs, so an "EV" chip on all of them was ink that
+ * told the reader nothing about the card they were looking at — while the
+ * supporting line under the model already says "Fully electric" in words. The
+ * chip appears when the powertrain is the exception (PHEV, REEV, Hybrid), which
+ * is precisely when it carries information.
  */
 
 export interface CarCardProps {
@@ -120,9 +150,9 @@ const CATEGORY_LINE: Record<CarCategory, string> = {
  * The powertrain always leads, because it is the frame the figures below are
  * read inside. The second part is the first of these a car actually has, in
  * order of what changes a decision. Everything else is on the detail page, and
- * the figure rows below carry the ones that matter most.
+ * the figures below carry the ones that matter most.
  *
- * ── Why drive type now leads the second part ───────────────────────────
+ * ── Why drive type leads the second part ───────────────────────────────
  *
  * It used to be the connector, and that was right when the alternative was an
  * acceleration time. It is not right at forty-eight cars: thirty of them carry
@@ -159,22 +189,26 @@ function supportingLine(car: Car): string {
 /**
  * Chips for the photograph, in the order they matter.
  *
- * Never more than two: the reference this card is built on runs to two, a third
- * starts to wrap on a 256px card, and there are only ever two true ones here.
+ * Never more than two: a third starts to wrap on a 256px card, and there are
+ * only ever two true ones here.
  *
- * "Indicative" is read out of the price string rather than a flag because that
- * is where the data carries it — see the provenance note in src/data/cars.ts.
- * The qualifier is then stripped from the figure below, so the caveat appears
- * once, as a chip, instead of twice in two registers.
+ * The powertrain chip is conditional — see the note at the head of this file on
+ * why an "EV" chip on thirty-one of forty-eight cards was ink spent saying
+ * nothing. "Indicative" is read out of the price string rather than a flag
+ * because that is where the data carries it; see the provenance note in
+ * src/data/cars.ts. The qualifier is then stripped from the price below, so the
+ * caveat appears once as a chip instead of twice in two registers.
  */
 function chips(car: Car): Array<{ label: string; className: string }> {
-  const out: Array<{ label: string; className: string }> = [
-    { label: car.category, className: CATEGORY_CHIP[car.category] },
-  ]
+  const out: Array<{ label: string; className: string }> = []
 
-  if (/\(indicative\)/i.test(car.price.display)) {
+  if (car.category !== 'EV') {
+    out.push({ label: car.category, className: CATEGORY_CHIP[car.category] })
+  }
+
+  if (/\((?:indicative|ex-factory)\)/i.test(car.price.display)) {
     out.push({
-      label: 'Indicative price',
+      label: /ex-factory/i.test(car.price.display) ? 'Ex-factory' : 'Indicative',
       className: 'border-slate-300/80 bg-white/95 text-slate-600',
     })
   } else if (car.category === 'Hybrid') {
@@ -203,6 +237,20 @@ function chips(car: Car): Array<{ label: string; className: string }> {
   return out
 }
 
+/**
+ * Splits "PKR 63–77 Lakh (ex-factory)" into the figure and its qualifier.
+ *
+ * The qualifier is already a chip on the photograph, so what comes back here is
+ * the price alone. It is returned rather than discarded because a card that
+ * somehow has a qualifier with no matching chip should still say so somewhere
+ * rather than silently drop a condition attached to a price.
+ */
+function splitPrice(display: string): { amount: string; qualifier: string | null } {
+  const match = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(display)
+  if (!match?.[1]) return { amount: display.trim(), qualifier: null }
+  return { amount: match[1].trim(), qualifier: match[2]?.trim() ?? null }
+}
+
 export function CarCard({
   car,
   isCompared,
@@ -214,17 +262,19 @@ export function CarCard({
 }: CarCardProps) {
   const specs = cardSpecs(car)
   const href = `/cars/${car.slug}`
+  const { amount, qualifier } = splitPrice(car.price.display)
+  const cardChips = chips(car)
 
   return (
     <article
       className={cn(
         isCompared ? FRAME_FEATURED : FRAME,
         // The catalogue's own radius, not the marketing cards'. twMerge lets the
-        // later class win, so this keeps the tighter 12px corner a dense grid
-        // wants while still taking the site's graded edge. FRAME's rounded-3xl
-        // on a three-up grid beside a filter rail would read as a different
-        // product.
-        'rounded-xl',
+        // later class win, so this keeps a tighter corner than the 24px the
+        // marketing cards use while still taking the site's graded edge. 14px
+        // rather than the previous 12px: the card is taller now and a 12px
+        // corner on a 560px card starts to read as square.
+        'rounded-[0.875rem]',
         // Flat at rest, which the Surface note above insists on and is right
         // about: FRAME carries a resting shadow, and thirty-six of those in one
         // grid is the grey haze that note describes. Only the base shadow is
@@ -237,29 +287,36 @@ export function CarCard({
       <div
         className={cn(
           FACE,
-          // The frame's radius minus its 1.5px padding, same relationship FACE
-          // already encodes for the 24px case.
-          'overflow-hidden rounded-[calc(0.75rem-1.5px)]',
+          // The frame's radius minus its 1.5px padding, the same relationship
+          // FACE already encodes for the 24px case.
+          'overflow-hidden rounded-[calc(0.875rem-1.5px)]',
         )}
       >
-      {/* ── Photograph ───────────────────────────────────────────
-          First in the card and a ratio rather than a height, so the images in a
-          row line up whatever else a car does or does not have, and nothing
-          shifts while they load.
+        {/* ── Photograph ───────────────────────────────────────────
+            First in the card and a ratio rather than a height, so the images in
+            a row line up whatever else a car does or does not have, and nothing
+            shifts while they load.
 
-          7:5, opened up from 3:2, which is about 7% more image height on every
-          card in the grid. The panel is the largest thing on a card and the
-          first thing anybody looks at, and at 3:2 it was losing the contest
-          with the block of type beneath it.
+            4:3, opened up again from 7:5. The panel is the largest thing on a
+            card and the first thing anybody looks at, and the figures below now
+            cost 56px instead of 120px — that height is better spent here. 4:3
+            is 1.33 against the source photographs' 1.50–1.78, so `cover` crops
+            more off the sides than 7:5 did; object-center keeps the crop
+            symmetrical, and a car photographed side-on loses background rather
+            than bodywork. */}
+        <div className="relative aspect-[4/3] shrink-0 overflow-hidden">
+          {/* The stage. A vertical wash plus a vignette, under the photograph
+              and above nothing — see the stage note at the head of the file for
+              what this is compensating for and what it cannot fix. */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 bg-[linear-gradient(to_bottom,#F8FAFC_0%,#F1F5F9_55%,#E7ECF3_100%)]"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_42%,rgba(255,255,255,0.85)_0%,transparent_70%)]"
+          />
 
-          7:5 is 1.40 against the source photographs' 1.50–1.78, so it crops a
-          few pixels more off the sides than 3:2 did — the reason it is not
-          4:3 (1.33), which would start taking the nose off a car photographed
-          side-on. Cover, not contain: these are location photographs rather
-          than studio cut-outs, so letterboxing them would frame the background
-          as much as the car. */}
-      <div className="relative aspect-[7/5] shrink-0 overflow-hidden bg-slate-100">
-        <Link href={href} tabIndex={-1} aria-hidden="true" className="absolute inset-0 block">
           {car.image ? (
             <PhotoFrame
               src={car.image}
@@ -282,20 +339,14 @@ export function CarCard({
               beside two photographs it reads as a card that failed to load
               rather than a car nobody has published a picture of.
 
-              The brand wordmark at display size fills the panel deliberately,
-              and the caption says what is actually true. Same ground and the
-              same hairline as a real panel, so the row still reads as a row.
-
-              Contrast raised a step now that this is a third of the grid rather
-              than three cards: the ground from slate-50/100 to slate-100/200,
-              the wordmark from slate-300 to slate-400, the caption from
-              slate-400 to slate-500. Still quieter than any photograph, so a
-              real panel keeps winning its row — but it now reads as a
-              deliberate panel rather than an empty one. The fix is files, not
-              CSS: drop a licensed image into /public/images/cars/<slug>.jpg and
-              set `image` on the row.
+              The brand wordmark at display size fills the panel deliberately
+              and the caption says what is actually true. It sits on the same
+              stage as a real panel, so the row still reads as a row. Still
+              quieter than any photograph, so a real panel keeps winning its
+              row. The fix is files, not CSS: drop a licensed image into
+              /public/images/cars/<slug>.jpg and set `image` on the row.
             */
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gradient-to-b from-slate-100 to-slate-200/70">
+            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <span
                 aria-hidden="true"
                 className="font-display text-[clamp(1.5rem,3.5vw,2rem)] font-bold leading-none tracking-tight text-slate-400"
@@ -307,36 +358,267 @@ export function CarCard({
               </span>
             </span>
           )}
-        </Link>
 
-        {/* A hairline along the bottom edge of the panel, over the photograph.
-            The panel and the type block are the same white otherwise, and a
-            light-bodied car meeting the content block with no line between them
-            reads as the card having no image at all. */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-slate-200/90"
-        />
+          {/* A hairline along the bottom edge of the panel. The stage and the
+              type block are close in value, and a light-bodied car meeting the
+              content block with no line between them reads as the card having
+              no image at all. */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-slate-200/90"
+          />
 
-        <div className="pointer-events-none absolute left-3 top-3 z-10 flex max-w-[calc(100%-4.5rem)] flex-wrap gap-1.5">
-          {chips(car).map((chip) => (
-            <span
-              key={chip.label}
-              className={cn(
-                'inline-flex items-center rounded-md border px-2 py-1 font-mono text-[0.5625rem]',
-                'font-medium uppercase leading-none tracking-[0.1em] backdrop-blur-sm',
-                chip.className,
-              )}
-            >
-              {chip.label}
-            </span>
-          ))}
+          {cardChips.length > 0 ? (
+            <div className="pointer-events-none absolute left-3 top-3 z-20 flex max-w-[calc(100%-4.5rem)] flex-wrap gap-1.5">
+              {cardChips.map((chip) => (
+                <span
+                  key={chip.label}
+                  className={cn(
+                    'inline-flex items-center rounded-md border px-2 py-1 font-mono text-[0.5625rem]',
+                    'font-medium uppercase leading-none tracking-[0.1em] backdrop-blur-sm',
+                    chip.className,
+                  )}
+                >
+                  {chip.label}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
 
-        {/* Outside the Link, not inside it. A button nested in an anchor is
-            invalid and leaves the browser to decide which a tap meant — the
-            heart used to navigate instead of saving. 44px, the touch-target
-            floor, and the smallest control on the card. */}
+        {/* ── Type ─────────────────────────────────────────────────
+            Brand quiet and small above, model at reading size and weight below.
+            The model is what somebody is looking for — "Atto 3", not "BYD",
+            since the brand is already the thing they filtered on to get here —
+            so it gets the only piece of real typographic weight above the
+            price. */}
+        <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+          <p className="font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.16em] text-slate-400">
+            {car.brand}
+          </p>
+
+          {/* No anchor of its own any more. The whole card is the link — see the
+              overlay at the foot of this component — and a nested anchor around
+              the model would put a second tab stop and a second announced link
+              on every card for the same destination. The colour still responds
+              to hovering the card, because that transition is the cue that the
+              heading is what you are about to open. */}
+          <h3 className="mt-2 line-clamp-2 text-ui-lg font-semibold leading-snug tracking-[-0.012em] text-slate-900 transition-colors duration-200 group-hover:text-plug-blue-700">
+            {car.model}
+          </h3>
+
+          {/*
+            The trim, on its own line, only when the row declares one.
+
+            Not appended to the h3. The model there is clamped to two lines and
+            carries the card's only real typographic weight; "Seal 61.4 kWh RWD
+            Comfort" at 17px semibold would eat both lines on a 256px card and
+            push the model itself out of the clamp, so the thing a reader is
+            scanning for would be the thing that got cut.
+
+            truncate rather than wrap, for the same reason the line below it
+            truncates: two cards in a row whose type blocks are different
+            heights break the horizontal rhythm the figures depend on.
+          */}
+          {car.variant ? (
+            <p
+              className="mt-1 truncate font-mono text-[0.6875rem] leading-normal text-slate-500"
+              title={car.variant}
+            >
+              {car.variant}
+            </p>
+          ) : null}
+
+          {/*
+            slate-500 rather than slate-400, measured: slate-400 on white is
+            2.56:1, under the 4.5:1 AA floor, and 11px gets no large-text
+            exemption. slate-500 is 4.76:1.
+          */}
+          <p className="mt-1.5 truncate text-ui-xs leading-relaxed text-slate-500">
+            {supportingLine(car)}
+          </p>
+
+          {/* ── Price ─────────────────────────────────────────────
+              A full-width line with no label, which is the fix for the
+              truncation measured at the head of this file. "PKR" is its own
+              label, so the word Price was spending a third of the width to
+              repeat what the value already says.
+
+              tabular-nums because Poppins' default digits are proportional, and
+              a column of prices that do not align on their digits reads as a
+              list of strings rather than a set of comparable amounts. */}
+          <div className="mt-4">
+            {/* 20px rather than 22px, and leading-tight rather than leading-none.
+
+                The longest price in the catalogue is "PKR 4,899,000 – 4,999,999"
+                — the one row that states rupees rather than Lakh or Crore — and
+                at 22px it needs about 250px against the 216px a card has at the
+                tightest column. It wraps to two lines there, which is correct
+                behaviour and much better than the truncation this replaced, but
+                leading-none makes a wrapped price collide with itself. At 20px
+                with tight leading only that one row wraps, and it wraps
+                legibly. */}
+            <p className="text-[1.25rem] font-bold leading-tight tracking-[-0.02em] tabular-nums text-slate-900">
+              {amount}
+            </p>
+            {qualifier ? (
+              <p className="mt-1.5 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-400">
+                {qualifier}
+              </p>
+            ) : null}
+          </div>
+
+          {/* ── The figures ───────────────────────────────────────
+              Three rows in a tinted panel: label left, figure right, no rules.
+
+              This was tried as three cells side by side and measured wrong. A
+              third of a 256px card is 72px, and the range figures here are
+              spans with a test cycle attached — "80–180 km NEDC" — so eleven of
+              the forty-eight cards truncated their range to "80-1…". Trading a
+              truncated price for a truncated range is not a redesign.
+
+              Rows give the figure about 150px, which every value in the
+              catalogue fits. What made the previous rows read as an invoice was
+              not that they were rows: it was a hairline under each of four of
+              them, with the price as the fourth, so nine cards in a grid drew
+              thirty-six rules and had no focal point.
+
+              So: the price is out of the list and above it at 20px, there are
+              three rows rather than four, and the rules are gone — a single
+              soft panel groups them instead. Same information, one ninth of the
+              lines.
+
+              tabular-nums on the figures: Poppins' default digits are
+              proportional, so a column of "45.12" over "380" over "65" would
+              not align on the decimal. */}
+          <dl className="mt-4 rounded-lg bg-slate-50/80 px-3.5 py-2.5 ring-1 ring-inset ring-slate-100">
+            {specs.map((spec, index) => (
+              <div
+                // Label, not value — two rows can share a figure ("380 km" and
+                // "380 hp" is unlikely but "—" and "—" is not), and a padded
+                // row has no label at all.
+                key={spec.label || `empty-${index}`}
+                className="flex items-baseline justify-between gap-3 py-[0.3125rem]"
+              >
+                <dt className="shrink-0 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
+                  {spec.short}
+                </dt>
+                <dd className="min-w-0 truncate font-mono text-ui-sm font-semibold leading-none tabular-nums text-slate-900">
+                  {spec.figure ? (
+                    <>
+                      {spec.figure}
+                      {spec.unit ? (
+                        <span className="ml-1 font-normal text-slate-500">{spec.unit}</span>
+                      ) : null}
+                    </>
+                  ) : (
+                    // An em dash, and said out loud for a screen reader — a
+                    // stated absence rather than a blank cell that could be a
+                    // rendering fault. Never a zero, never a likely number.
+                    <span className="text-slate-400">
+                      <span aria-hidden="true">—</span>
+                      <span className="sr-only">Not published</span>
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* ── Actions ───────────────────────────────────────────
+              mt-auto, so the row sits on the bottom edge of every card however
+              a model name wrapped above it.
+
+              "View details" is a cue rather than a button now — the card itself
+              is the link. It is not interactive and takes no tab stop; the
+              overlay below is the one focusable target for the destination, so
+              a keyboard user gets one stop per card instead of three.
+
+              Compare stays a real control, 44px, because it does something the
+              card does not. */}
+          <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+            <span
+              aria-hidden="true"
+              className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-slate-500 transition-colors duration-200 group-hover:text-plug-blue-700"
+            >
+              View details
+              <ArrowRight
+                size={14}
+                className="transition-transform duration-300 ease-out group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+              />
+            </span>
+
+            {onToggleCompare ? (
+              <button
+                type="button"
+                onClick={() => onToggleCompare(car)}
+                // Disabled only when the tray is full AND this car is not in
+                // it, so a full tray can still be emptied from the cards.
+                disabled={compareDisabled && !isCompared}
+                aria-pressed={isCompared}
+                /* An accessible name as well as the icon: this control is an
+                   icon alone at every width, and `title` is not a name a screen
+                   reader reliably announces. */
+                aria-label={
+                  isCompared
+                    ? `Remove ${carDisplayName(car)} from comparison`
+                    : compareDisabled
+                      ? 'Comparison is full'
+                      : `Add ${carDisplayName(car)} to comparison`
+                }
+                // z-20 and relative: the card-wide link overlay sits at z-10,
+                // and without this the overlay would swallow every click meant
+                // for this button.
+                className={cn(
+                  'relative z-20 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
+                  'transition-colors duration-200',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+                  'disabled:cursor-not-allowed disabled:opacity-40',
+                  isCompared
+                    ? 'border-plug-blue-500 bg-plug-blue-50 text-plug-blue-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900 hover:text-slate-900',
+                )}
+              >
+                {isCompared ? (
+                  <Check size={16} aria-hidden="true" />
+                ) : (
+                  <GitCompareArrows size={16} aria-hidden="true" />
+                )}
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        {/* ── The card as a link ───────────────────────────────────
+            One anchor covering the face, under the two real controls and above
+            everything else.
+
+            This replaces both the old filled "View details" button and the
+            anchor that wrapped the model name, and it is why the card can be
+            quiet: a visitor clicking a product card expects the card to open,
+            so the instruction does not have to be shouted on forty-eight tiles.
+
+            It carries the accessible name for the whole card, since the h3 it
+            replaced is no longer a link. carDisplayName rather than the model
+            alone: "Seal" twice in a list of links names neither trim.
+
+            The focus ring is drawn on this element at the card's own radius, so
+            tabbing through the grid outlines the card rather than a strip of
+            text inside it. */}
+        <Link
+          href={href}
+          aria-label={`${carDisplayName(car)} — view details`}
+          className={cn(
+            'absolute inset-0 z-10 rounded-[calc(0.875rem-1.5px)]',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+          )}
+        />
+
+        {/* The favourite control, last in the DOM so it lands above the overlay
+            without a stacking trick, and outside any anchor — a button nested in
+            an anchor is invalid and leaves the browser to decide which a tap
+            meant, which is how the heart used to navigate instead of saving.
+            44px, the touch-target floor. */}
         {onToggleFavourite ? (
           <button
             type="button"
@@ -371,186 +653,6 @@ export function CarCard({
           </button>
         ) : null}
       </div>
-
-      {/* ── Type ─────────────────────────────────────────────────
-          Brand quiet and small above, model at reading size and weight below.
-          The model is what somebody is looking for — "Atto 3", not "BYD", since
-          the brand is already the thing they filtered on to get here — so it
-          gets the only piece of real typographic weight above the price. */}
-      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
-        <p className="font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.16em] text-slate-400">
-          {car.brand}
-        </p>
-
-        <h3 className="mt-2 text-ui-lg font-semibold leading-snug tracking-[-0.012em] text-slate-900">
-          <Link
-            href={href}
-            className={cn(
-              'line-clamp-2 rounded transition-colors duration-200 hover:text-plug-blue-700',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-            )}
-          >
-            {car.model}
-          </Link>
-        </h3>
-
-        {/*
-          The trim, on its own line, only when the row declares one.
-
-          Not appended to the h3. The model there is clamped to two lines and
-          carries the card's only real typographic weight; "Seal 61.4 kWh RWD
-          Comfort" at 17px semibold would eat both lines on a 256px card and push
-          the model itself out of the clamp, so the thing a reader is scanning for
-          would be the thing that got cut.
-
-          A separate line at the supporting size keeps the reference's hierarchy
-          intact — model strong, trim quieter beneath it — and reuses the slot
-          that was already designed for exactly this: "Variant → smaller
-          supporting text". Undeclared rows render nothing here and are pixel-for-
-          pixel unchanged.
-
-          truncate rather than wrap, for the same reason the line below it
-          truncates: two cards in a row whose type blocks are different heights
-          break the horizontal rhythm the figure rows depend on.
-        */}
-        {car.variant ? (
-          <p
-            className="mt-1 truncate font-mono text-[0.6875rem] leading-normal text-slate-500"
-            title={car.variant}
-          >
-            {car.variant}
-          </p>
-        ) : null}
-
-        {/*
-          slate-500 rather than slate-400, measured: slate-400 on white is
-          2.56:1, under the 4.5:1 AA floor, and 11px gets no large-text
-          exemption. slate-500 is 4.76:1.
-        */}
-        <p className="mt-1.5 truncate text-ui-xs leading-relaxed text-slate-500">
-          {supportingLine(car)}
-        </p>
-
-        {/* ── The figures ───────────────────────────────────────
-            Label left, figure right, a hairline under each. Always four rows —
-            three specs and the price — so the price sits on the same baseline
-            on every card in the grid and the column of figures can be read
-            straight down without the eye re-finding it each time.
-
-            tabular-nums on the figures: Poppins' default digits are
-            proportional, so a column of "45.12" over "380" over "65" would not
-            align on the decimal. */}
-        <dl className="mt-4 border-t border-slate-100">
-          {specs.map((spec, index) => (
-            <div
-              // Label, not value — two rows can share a figure ("380 km" and
-              // "380 hp" is unlikely but "—" and "—" is not), and a padded row
-              // has no label at all.
-              key={spec.label || `empty-${index}`}
-              className="flex items-baseline justify-between gap-3 border-b border-slate-100 py-2.5"
-            >
-              <dt className="shrink-0 font-mono text-[0.625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
-                {spec.label}
-              </dt>
-              <dd className="min-w-0 truncate font-mono text-ui-sm font-medium tabular-nums text-slate-900">
-                {spec.figure ? (
-                  <>
-                    {spec.figure}
-                    {spec.unit ? (
-                      <span className="ml-1 font-normal text-slate-500">{spec.unit}</span>
-                    ) : null}
-                  </>
-                ) : (
-                  // An em dash, and said out loud for a screen reader — a
-                  // stated absence rather than a blank cell that could be a
-                  // rendering fault. Never a zero, never a likely number.
-                  <span className="text-slate-400">
-                    <span aria-hidden="true">—</span>
-                    <span className="sr-only">Not published</span>
-                  </span>
-                )}
-              </dd>
-            </div>
-          ))}
-
-          {/* The price, as the last row of the same list.
-              Same rhythm, three times the type size — which is what makes it
-              the anchor of the card without needing a panel, a colour or a rule
-              of its own. The published wording, minus the qualifier that is now
-              a chip on the photograph. */}
-          <div className="flex items-baseline justify-between gap-3 border-b border-slate-100 py-3">
-            <dt className="shrink-0 font-mono text-[0.625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
-              Price
-            </dt>
-            <dd className="min-w-0 truncate text-ui-lg font-bold leading-none tracking-[-0.015em] text-slate-900">
-              {car.price.display.replace(/\s*\(indicative\)\s*/i, '')}
-            </dd>
-          </div>
-        </dl>
-
-        {/* ── Actions ───────────────────────────────────────────
-            mt-auto, so the pair sits on the bottom edge of every card in the
-            row however a model name wrapped above it. Both 44px tall with 8px
-            between them: the touch-target floor and the minimum spacing for
-            adjacent targets — below that a thumb aiming at Compare catches View
-            details often enough to matter. */}
-        <div className="mt-auto flex items-center gap-2 pt-4">
-          <Link
-            href={href}
-            className={cn(
-              'group/cta inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg',
-              'bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white',
-              'transition-colors duration-200 hover:bg-plug-blue-700',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-              'motion-reduce:transition-none',
-            )}
-          >
-            View details
-            <ArrowRight
-              size={14}
-              aria-hidden="true"
-              className="transition-transform duration-300 ease-out group-hover/cta:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover/cta:translate-x-0"
-            />
-          </Link>
-
-          {onToggleCompare ? (
-            <button
-              type="button"
-              onClick={() => onToggleCompare(car)}
-              // Disabled only when the tray is full AND this car is not in it,
-              // so a full tray can still be emptied from the cards.
-              disabled={compareDisabled && !isCompared}
-              aria-pressed={isCompared}
-              /* An accessible name as well as the icon: this control is an icon
-                 alone at every width now, and `title` is not a name a screen
-                 reader reliably announces. */
-              aria-label={
-                isCompared
-                  ? `Remove ${carDisplayName(car)} from comparison`
-                  : compareDisabled
-                    ? 'Comparison is full'
-                    : `Add ${carDisplayName(car)} to comparison`
-              }
-              className={cn(
-                'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
-                'transition-colors duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-                'disabled:cursor-not-allowed disabled:opacity-40',
-                isCompared
-                  ? 'border-plug-blue-500 bg-plug-blue-50 text-plug-blue-700'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900 hover:text-slate-900',
-              )}
-            >
-              {isCompared ? (
-                <Check size={16} aria-hidden="true" />
-              ) : (
-                <GitCompareArrows size={16} aria-hidden="true" />
-              )}
-            </button>
-          ) : null}
-        </div>
-      </div>
-    </div>
     </article>
   )
 }

@@ -421,6 +421,21 @@ export function headlineSpecs(car: Car): Array<{ label: string; value: string }>
  */
 export interface CardSpec {
   label: string
+  /**
+   * The label for a narrow column rather than a wide row.
+   *
+   * The card sets its three figures side by side, so each label gets about a
+   * third of the content width — 72px at the tightest column in the grid. Four
+   * of the six slot labels fit that; "Electric range" and "DC charging" wrap to
+   * two lines, and a label that wraps on some cards and not others is the same
+   * broken rhythm the long labels were originally chosen to avoid.
+   *
+   * These are the same words shortened, never different words: "EV range" is
+   * the electric-only range, "DC" is the DC charging speed. The full label is
+   * what the detail page and the comparison table still use, where there is
+   * room to spell it out.
+   */
+  short: string
   figure: string | null
   unit: string | null
 }
@@ -440,6 +455,16 @@ const SLOT_LABEL: Record<CardSlot, string> = {
   range: 'Range',
   electricRange: 'Electric range',
   dcCharging: 'DC charging',
+  engine: 'Engine',
+  power: 'Power',
+}
+
+/** The same labels at a width a third of a card can hold. See CardSpec.short. */
+const SLOT_SHORT: Record<CardSlot, string> = {
+  battery: 'Battery',
+  range: 'Range',
+  electricRange: 'EV range',
+  dcCharging: 'DC',
   engine: 'Engine',
   power: 'Power',
 }
@@ -488,6 +513,7 @@ export function cardSpecs(car: Car): CardSpec[] {
     const published = value(slot)
     return {
       label: SLOT_LABEL[slot],
+      short: SLOT_SHORT[slot],
       ...(published ? splitFigure(published) : { figure: null, unit: null }),
     }
   })
