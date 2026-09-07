@@ -251,6 +251,47 @@ function splitPrice(display: string): { amount: string; qualifier: string | null
   return { amount: match[1].trim(), qualifier: match[2]?.trim() ?? null }
 }
 
+/**
+ * The type size for a price, chosen so every price is one line.
+ *
+ * The prices in this catalogue are not the same length. Most are short — "PKR
+ * 1.05 Cr", "PKR 55–68 Lakh" — but a handful span two units ("PKR 98.49 Lakh –
+ * 1.03 Cr") and one states rupees rather than Lakh or Crore: the JMEV EV3 is
+ * published as "PKR 4,899,000 – 4,999,999", twenty-five characters against the
+ * fourteen of the median.
+ *
+ * At one fixed size that longest string wrapped to two lines at the tightest
+ * column, which is 216px of content. A wrapped price is the thing this is
+ * fixing: it makes one card in a row of three a different shape from its
+ * neighbours, and it pushes everything below it down so the figure panels stop
+ * lining up across the row — the alignment the whole card is built around.
+ *
+ * The alternative was to shorten the string in the data, and that is not
+ * available. src/data/cars.ts carries a note on that exact row: the Premium is
+ * priced at 4,999,999 rupees, one short of 50 lakh, and "PKR 48.99–50 Lakh"
+ * would print a price nobody quoted. Rule 2 of that file forbids moving a
+ * published figure to make it fit a layout, which is the correct priority — the
+ * card is what should bend.
+ *
+ * So the size steps down instead, twice, and the thresholds come from measuring
+ * the rendered grid rather than from arithmetic. Nineteen characters is the
+ * longest that holds one line at 20px: twenty was tried and "PKR 84.99–99.99
+ * Lakh" came out at 214px against the 210px its box actually offers, which is
+ * only four pixels but it is four pixels into the card's padding. Twenty-two
+ * holds at 17px. Anything longer takes 15px, where the 25-character outlier has
+ * room to spare.
+ *
+ * A price that is a step smaller on one card in a row is a much smaller
+ * inconsistency than a price on two lines: the size difference reads as the
+ * number simply being longer, which it is, while the wrap read as a broken
+ * card.
+ */
+function priceSize(amount: string): string {
+  if (amount.length <= 19) return 'text-[1.25rem]'
+  if (amount.length <= 22) return 'text-[1.0625rem]'
+  return 'text-[0.9375rem]'
+}
+
 export function CarCard({
   car,
   isCompared,
@@ -448,19 +489,28 @@ export function CarCard({
               a column of prices that do not align on their digits reads as a
               list of strings rather than a set of comparable amounts. */}
           <div className="mt-4">
-            {/* 20px rather than 22px, and leading-tight rather than leading-none.
+            {/* A fixed 28px line box with the price sitting on its floor.
 
-                The longest price in the catalogue is "PKR 4,899,000 – 4,999,999"
-                — the one row that states rupees rather than Lakh or Crore — and
-                at 22px it needs about 250px against the 216px a card has at the
-                tightest column. It wraps to two lines there, which is correct
-                behaviour and much better than the truncation this replaced, but
-                leading-none makes a wrapped price collide with itself. At 20px
-                with tight leading only that one row wraps, and it wraps
-                legibly. */}
-            <p className="text-[1.25rem] font-bold leading-tight tracking-[-0.02em] tabular-nums text-slate-900">
-              {amount}
-            </p>
+                The height has to be reserved rather than left to the type,
+                because priceSize can set three different sizes and a 15px line
+                box is 6px shorter than a 20px one — which would put that card's
+                figure panel 6px above its neighbours' and undo half of what the
+                one-line fix was for. Bottom-aligned so the baselines agree
+                rather than the cap heights, since the baseline is the line the
+                eye actually reads across a row.
+
+                nowrap, and the sizes are chosen to make that safe: measured at
+                1440, 1280, 1024 and 390, no price wraps and none overflows. */}
+            <div className="flex h-7 items-end">
+              <p
+                className={cn(
+                  'whitespace-nowrap font-bold leading-none tracking-[-0.02em] tabular-nums text-slate-900',
+                  priceSize(amount),
+                )}
+              >
+                {amount}
+              </p>
+            </div>
             {qualifier ? (
               <p className="mt-1.5 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-400">
                 {qualifier}
@@ -468,124 +518,144 @@ export function CarCard({
             ) : null}
           </div>
 
-          {/* ── The figures ───────────────────────────────────────
-              Three rows in a tinted panel: label left, figure right, no rules.
+          {/* ── The foot: figures, then actions ───────────────────
+              Bottom-anchored as one group, and that is what makes the figure
+              panels line up across a row.
 
-              This was tried as three cells side by side and measured wrong. A
-              third of a 256px card is 72px, and the range figures here are
-              spans with a test cycle attached — "80–180 km NEDC" — so eleven of
-              the forty-eight cards truncated their range to "80-1…". Trading a
-              truncated price for a truncated range is not a redesign.
+              Not everything above this is the same height. The trim line is
+              only there on cars that declare one, and the price qualifier only
+              on the seven that carry one, so a card can be one or two lines
+              taller than the card beside it before this point. Left to flow,
+              the panels came out up to 21px apart within a single row —
+              measured: "GIGI(panel@351, variant) EV3(panel@330) Box(panel@330)"
+              — and a row of three panels at three different heights is the
+              thing the card's whole alignment argument is against.
 
-              Rows give the figure about 150px, which every value in the
-              catalogue fits. What made the previous rows read as an invoice was
-              not that they were rows: it was a hairline under each of four of
-              them, with the price as the fourth, so nine cards in a grid drew
-              thirty-six rules and had no focal point.
+              Every card in a grid row is the same height, so anchoring this
+              group to the bottom puts the panels and the actions at identical
+              offsets on all three. The variable slack collects as whitespace
+              above the panel instead, where it reads as breathing room rather
+              than as a mistake. */}
+          <div className="mt-auto pt-4">
+            {/* ── The figures ───────────────────────────────────────
+                Three rows in a tinted panel: label left, figure right, no rules.
 
-              So: the price is out of the list and above it at 20px, there are
-              three rows rather than four, and the rules are gone — a single
-              soft panel groups them instead. Same information, one ninth of the
-              lines.
+                This was tried as three cells side by side and measured wrong. A
+                third of a 256px card is 72px, and the range figures here are
+                spans with a test cycle attached — "80–180 km NEDC" — so eleven of
+                the forty-eight cards truncated their range to "80-1…". Trading a
+                truncated price for a truncated range is not a redesign.
 
-              tabular-nums on the figures: Poppins' default digits are
-              proportional, so a column of "45.12" over "380" over "65" would
-              not align on the decimal. */}
-          <dl className="mt-4 rounded-lg bg-slate-50/80 px-3.5 py-2.5 ring-1 ring-inset ring-slate-100">
-            {specs.map((spec, index) => (
-              <div
-                // Label, not value — two rows can share a figure ("380 km" and
-                // "380 hp" is unlikely but "—" and "—" is not), and a padded
-                // row has no label at all.
-                key={spec.label || `empty-${index}`}
-                className="flex items-baseline justify-between gap-3 py-[0.3125rem]"
+                Rows give the figure about 150px, which every value in the
+                catalogue fits. What made the previous rows read as an invoice was
+                not that they were rows: it was a hairline under each of four of
+                them, with the price as the fourth, so nine cards in a grid drew
+                thirty-six rules and had no focal point.
+
+                So: the price is out of the list and above it at 20px, there are
+                three rows rather than four, and the rules are gone — a single
+                soft panel groups them instead. Same information, one ninth of the
+                lines.
+
+                tabular-nums on the figures: Poppins' default digits are
+                proportional, so a column of "45.12" over "380" over "65" would
+                not align on the decimal. */}
+            <dl className="rounded-lg bg-slate-50/80 px-3.5 py-2.5 ring-1 ring-inset ring-slate-100">
+              {specs.map((spec, index) => (
+                <div
+                  // Label, not value — two rows can share a figure ("380 km" and
+                  // "380 hp" is unlikely but "—" and "—" is not), and a padded
+                  // row has no label at all.
+                  key={spec.label || `empty-${index}`}
+                  className="flex items-baseline justify-between gap-3 py-[0.3125rem]"
+                >
+                  <dt className="shrink-0 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
+                    {spec.short}
+                  </dt>
+                  <dd className="min-w-0 truncate font-mono text-ui-sm font-semibold leading-none tabular-nums text-slate-900">
+                    {spec.figure ? (
+                      <>
+                        {spec.figure}
+                        {spec.unit ? (
+                          <span className="ml-1 font-normal text-slate-500">{spec.unit}</span>
+                        ) : null}
+                      </>
+                    ) : (
+                      // An em dash, and said out loud for a screen reader — a
+                      // stated absence rather than a blank cell that could be a
+                      // rendering fault. Never a zero, never a likely number.
+                      <span className="text-slate-400">
+                        <span aria-hidden="true">—</span>
+                        <span className="sr-only">Not published</span>
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            {/* ── Actions ───────────────────────────────────────────
+                mt-auto, so the row sits on the bottom edge of every card however
+                a model name wrapped above it.
+
+                "View details" is a cue rather than a button now — the card itself
+                is the link. It is not interactive and takes no tab stop; the
+                overlay below is the one focusable target for the destination, so
+                a keyboard user gets one stop per card instead of three.
+
+                Compare stays a real control, 44px, because it does something the
+                card does not. */}
+            <div className="flex items-center justify-between gap-3 pt-5">
+              <span
+                aria-hidden="true"
+                className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-slate-500 transition-colors duration-200 group-hover:text-plug-blue-700"
               >
-                <dt className="shrink-0 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
-                  {spec.short}
-                </dt>
-                <dd className="min-w-0 truncate font-mono text-ui-sm font-semibold leading-none tabular-nums text-slate-900">
-                  {spec.figure ? (
-                    <>
-                      {spec.figure}
-                      {spec.unit ? (
-                        <span className="ml-1 font-normal text-slate-500">{spec.unit}</span>
-                      ) : null}
-                    </>
-                  ) : (
-                    // An em dash, and said out loud for a screen reader — a
-                    // stated absence rather than a blank cell that could be a
-                    // rendering fault. Never a zero, never a likely number.
-                    <span className="text-slate-400">
-                      <span aria-hidden="true">—</span>
-                      <span className="sr-only">Not published</span>
-                    </span>
+                View details
+                <ArrowRight
+                  size={14}
+                  className="transition-transform duration-300 ease-out group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
+                />
+              </span>
+
+              {onToggleCompare ? (
+                <button
+                  type="button"
+                  onClick={() => onToggleCompare(car)}
+                  // Disabled only when the tray is full AND this car is not in
+                  // it, so a full tray can still be emptied from the cards.
+                  disabled={compareDisabled && !isCompared}
+                  aria-pressed={isCompared}
+                  /* An accessible name as well as the icon: this control is an
+                     icon alone at every width, and `title` is not a name a screen
+                     reader reliably announces. */
+                  aria-label={
+                    isCompared
+                      ? `Remove ${carDisplayName(car)} from comparison`
+                      : compareDisabled
+                        ? 'Comparison is full'
+                        : `Add ${carDisplayName(car)} to comparison`
+                  }
+                  // z-20 and relative: the card-wide link overlay sits at z-10,
+                  // and without this the overlay would swallow every click meant
+                  // for this button.
+                  className={cn(
+                    'relative z-20 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
+                    'transition-colors duration-200',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+                    'disabled:cursor-not-allowed disabled:opacity-40',
+                    isCompared
+                      ? 'border-plug-blue-500 bg-plug-blue-50 text-plug-blue-700'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900 hover:text-slate-900',
                   )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-
-          {/* ── Actions ───────────────────────────────────────────
-              mt-auto, so the row sits on the bottom edge of every card however
-              a model name wrapped above it.
-
-              "View details" is a cue rather than a button now — the card itself
-              is the link. It is not interactive and takes no tab stop; the
-              overlay below is the one focusable target for the destination, so
-              a keyboard user gets one stop per card instead of three.
-
-              Compare stays a real control, 44px, because it does something the
-              card does not. */}
-          <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-            <span
-              aria-hidden="true"
-              className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-slate-500 transition-colors duration-200 group-hover:text-plug-blue-700"
-            >
-              View details
-              <ArrowRight
-                size={14}
-                className="transition-transform duration-300 ease-out group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0"
-              />
-            </span>
-
-            {onToggleCompare ? (
-              <button
-                type="button"
-                onClick={() => onToggleCompare(car)}
-                // Disabled only when the tray is full AND this car is not in
-                // it, so a full tray can still be emptied from the cards.
-                disabled={compareDisabled && !isCompared}
-                aria-pressed={isCompared}
-                /* An accessible name as well as the icon: this control is an
-                   icon alone at every width, and `title` is not a name a screen
-                   reader reliably announces. */
-                aria-label={
-                  isCompared
-                    ? `Remove ${carDisplayName(car)} from comparison`
-                    : compareDisabled
-                      ? 'Comparison is full'
-                      : `Add ${carDisplayName(car)} to comparison`
-                }
-                // z-20 and relative: the card-wide link overlay sits at z-10,
-                // and without this the overlay would swallow every click meant
-                // for this button.
-                className={cn(
-                  'relative z-20 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
-                  'transition-colors duration-200',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-                  'disabled:cursor-not-allowed disabled:opacity-40',
-                  isCompared
-                    ? 'border-plug-blue-500 bg-plug-blue-50 text-plug-blue-700'
-                    : 'border-slate-200 bg-white text-slate-600 hover:border-slate-900 hover:text-slate-900',
-                )}
-              >
-                {isCompared ? (
-                  <Check size={16} aria-hidden="true" />
-                ) : (
-                  <GitCompareArrows size={16} aria-hidden="true" />
-                )}
-              </button>
-            ) : null}
+                >
+                  {isCompared ? (
+                    <Check size={16} aria-hidden="true" />
+                  ) : (
+                    <GitCompareArrows size={16} aria-hidden="true" />
+                  )}
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
 
