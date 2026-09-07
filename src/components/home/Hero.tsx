@@ -44,55 +44,64 @@ export function Hero({ cities }: HeroProps) {
         {/* Layer 1 — the backdrop. A video once there is one, the photograph
             until then. See HeroBackdrop for what the footage wants to be. */}
         <HeroBackdrop />
-
         {/*
-          Layer 2 — legibility, and it is directional now.
+          Layer 2 — legibility, shaped rather than flat.
 
-          The scrim used to run bottom-to-top across the full width, which meant
-          the darkest part of the frame was the bottom half — the half holding
-          the car. The photograph was being flattened to make room for text that
-          only ever occupied the left of it.
+          The content is centred, so the scrim has to be densest along the
+          bottom where the words are. A flat bottom-to-top wash does that, and
+          it is what this had originally — but it takes the whole lower half of
+          the frame with it, and the lower half is where the car, the connector
+          and the light across the bodywork are.
 
-          It runs left-to-right instead: heavy where the words are, clearing by
-          the middle so the car, the connector and the light on the bodywork are
-          all still there to be seen. A low wash from the foot catches the search
-          control without taking the upper frame down with it.
-
-          Below sm the columns collapse and the text sits over everything, so the
-          vertical wash comes back — the same reason the layout stacks there
-          rather than the same treatment applied at every width.
+          Two layers instead. A vertical wash carrying most of the weight, and
+          an ellipse anchored to the bottom centre that adds density only where
+          the words actually sit. The lower corners stay lighter than a flat
+          wash would leave them, which is what keeps the wheel and the bodywork
+          readable while the type still has its ground.
         */}
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-plug-navy-950/25" />
+        {/*
+          The phone stops are not a scaled copy of the desktop ones, and that
+          was found by measuring rather than by looking.
+
+          A tall narrow frame pushes the headline well above the point a
+          bottom-anchored wash still has any weight. Measured on the rendered
+          pixels with the desktop values applied at both widths, the accent line
+          came out at 6.77:1 at 1440 and 4.24:1 at 390 — the same colour, the
+          same type size relative to the frame, less than two thirds of the
+          contrast. Holding density through the upper band on small screens
+          brings it back. It costs some of the photograph on a phone, where the
+          frame is mostly cropped away regardless.
+        */}
         <div
           aria-hidden="true"
-          // The phone stop weights are not a scaled copy of the desktop ones.
-          // With the columns collapsed the headline sits high in the frame,
-          // which is exactly where a bottom-weighted wash is thinnest: measured
-          // on the rendered pixels, the accent line came out at 4.29:1 against
-          // its background at 390px while the same line measured 6.54:1 at
-          // 1440. Holding more density through the upper two thirds takes it to
-          // a comfortable margin. It costs some of the photograph on a phone,
-          // where most of the frame is cropped away regardless.
-          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,16,36,0.94)_0%,rgba(2,16,36,0.86)_30%,rgba(2,16,36,0.72)_62%,rgba(2,16,36,0.45)_100%)] sm:bg-[linear-gradient(to_right,rgba(2,16,36,0.95)_0%,rgba(2,16,36,0.88)_28%,rgba(2,16,36,0.55)_52%,rgba(2,16,36,0.18)_74%,transparent_92%)]"
+          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,16,36,0.92)_0%,rgba(2,16,36,0.84)_30%,rgba(2,16,36,0.68)_62%,rgba(2,16,36,0.40)_100%)] sm:bg-[linear-gradient(to_top,rgba(2,16,36,0.90)_0%,rgba(2,16,36,0.76)_26%,rgba(2,16,36,0.40)_54%,rgba(2,16,36,0.12)_78%,transparent_100%)]"
         />
+        {/* The ellipse is the part that keeps the lower corners lighter than a
+            flat wash would, so it is only worth having where there is width for
+            a centre to be distinct from an edge. */}
         <div
           aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 -z-10 hidden h-1/3 bg-[linear-gradient(to_top,rgba(2,16,36,0.55),transparent)] sm:block"
+          className="absolute inset-0 -z-10 hidden bg-[radial-gradient(125%_78%_at_50%_100%,rgba(2,16,36,0.60)_0%,rgba(2,16,36,0.32)_46%,transparent_76%)] sm:block"
         />
 
         {/*
-          Layer 3 — content, left-aligned and vertically centred.
+          Layer 3 — content, centred and anchored to the foot.
 
-          It was a centred stack pinned to the bottom edge, which is the most
-          common hero composition on the web and the reason this frame read as
-          competent rather than as anything in particular. Anchoring it left and
-          centring it vertically does two things at once: the type gets a column
-          of its own instead of a full-width band, and the right of the frame is
-          left to the photograph, which is the only part of this page nobody else
-          has.
+          This was briefly left-aligned and vertically centred, which freed the
+          right of the frame for the photograph. Centred is the asked-for
+          composition and it is the better one here for a reason worth writing
+          down: the search field is the only thing on this page a visitor can
+          act on, and centred it sits directly under the headline on the
+          frame's own axis rather than off to one side of it. A hero whose
+          single control is off-axis makes the reader look for it.
+
+          What the left-aligned pass was solving still had to be solved — the
+          photograph being flattened to make room for text — and that is what
+          the shaped scrim above does instead.
         */}
-        <div className="relative flex min-h-[540px] flex-col justify-center px-6 py-16 sm:min-h-[600px] sm:px-10 lg:min-h-[calc(100dvh-108px)] lg:px-16">
-          <div className="w-full max-w-[42rem]">
+        <div className="relative flex min-h-[540px] flex-col items-center justify-end px-6 pb-14 pt-24 text-center sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20">
+          <div className="flex w-full max-w-[44rem] flex-col items-center">
             <span className="hero-rise hero-rise-1 mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07] px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
               <span
                 aria-hidden="true"
@@ -106,11 +115,13 @@ export function Hero({ cities }: HeroProps) {
             {/*
               Set as three lines rather than left to wrap.
 
-              A balanced wrap is right for a centred headline and wrong for this
-              one: the break lands wherever the measure happens to fall, and at
-              several widths "on one map" ends up alone on a third line anyway.
-              Set explicitly, the ragged edge becomes a decision — long, long,
-              short — and the short line is the one carrying the idea.
+              Centred type makes this matter more, not less. A wrap breaks
+              wherever the measure happens to fall, so the silhouette of a
+              centred block changes with the viewport — and at several widths
+              "on one map" ended up alone on a third line regardless. Set
+              explicitly, the shape is a decision at every width: two long
+              lines and a short one, symmetrical, with the short line carrying
+              the idea and taking the accent.
 
               Spans rather than <br>, which a screen reader announces as a pause
               mid-sentence. These are block-level and read as one heading.
@@ -160,7 +171,7 @@ export function Hero({ cities }: HeroProps) {
               </button>
             </form>
 
-            <div className="hero-rise hero-rise-5 mt-5 flex flex-wrap items-center gap-2">
+            <div className="hero-rise hero-rise-5 mt-5 flex flex-wrap items-center justify-center gap-2">
               <span className="text-ui-xs uppercase tracking-[0.12em] text-white/45">Popular</span>
               {QUICK_CITIES.map((city) => (
                 <button
