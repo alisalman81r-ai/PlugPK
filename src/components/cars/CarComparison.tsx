@@ -77,12 +77,46 @@ interface Row {
   unit?: string
 }
 
+/*
+  Every row the detail page can show, in the order it shows them.
+
+  ── Why this list grew from 13 rows to 34 ─────────────────────────────
+
+  The table was built when the catalogue held fourteen columns per car and most
+  of them were null, so thirteen rows was most of what there was to say. The
+  rows now carry the full sheet — dimensions, real-world range, consumption,
+  battery chemistry, warranty, distributor — and the comparison was still
+  offering battery, range, charging, power and seats. Two cars could differ by
+  400mm of wheelbase and 200 litres of boot and the page whose entire job is
+  showing differences had no line for either.
+
+  The labels, the units and the span formatting are deliberately identical to
+  specGroups() in lib/cars.ts, which is what the detail page renders. A figure
+  that reads "430–520 km (est.)" on one page and "430 km" on the other is a
+  reader wondering which page is wrong.
+
+  ── Where a bar and a BEST appear, and where they do not ──────────────
+
+  Only on rows where more of something is unambiguously better than less of it.
+  Power, range, torque and boot space qualify; a shorter 0-100 and a lower
+  consumption qualify inverted. Dimensions do not — a longer car is not a better
+  car, it is a longer car, and somebody comparing a hatchback against an SUV is
+  choosing between them, not ranking them. Kerb weight is the same argument:
+  lighter helps a 0-100 figure that already has its own row and hurts nothing
+  the table measures.
+
+  Price, powertrain, connector and engine size keep the exemption they already
+  had, for the same reason.
+*/
 const GROUPS: Array<{ title: string; rows: Row[] }> = [
   {
-    title: 'Price',
+    title: 'Basic information',
     rows: [
       { label: 'Pakistan price', value: (car) => car.price.display },
       { label: 'Powertrain', value: (car) => car.category },
+      { label: 'Variant', value: (car) => car.variant?.trim() || null },
+      { label: 'Model year', value: (car) => (car.modelYear ? String(car.modelYear) : null) },
+      { label: 'Body type', value: (car) => car.bodyType?.trim() || null },
     ],
   },
   {
@@ -95,6 +129,7 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         better: 'higher',
         unit: 'kWh',
       },
+      { label: 'Battery technology', value: (car) => car.batteryTech?.trim() || null },
       {
         label: 'Driving range',
         value: (car) =>
@@ -107,6 +142,7 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         better: 'higher',
         unit: 'km',
       },
+      { label: 'Range standard', value: (car) => car.rangeStandard?.trim() || null },
       {
         label: 'Electric range',
         value: (car) =>
@@ -118,6 +154,30 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         number: (car) => car.electricRange,
         better: 'higher',
         unit: 'km',
+      },
+      {
+        label: 'Real-world range',
+        value: (car) =>
+          car.realWorldRange === null || car.realWorldRange === undefined
+            ? null
+            : car.realWorldRangeMax
+              ? `${car.realWorldRange}–${car.realWorldRangeMax} km (est.)`
+              : `${car.realWorldRange} km (est.)`,
+        number: (car) => car.realWorldRange ?? null,
+        better: 'higher',
+        unit: 'km',
+      },
+      {
+        label: 'Energy consumption',
+        value: (car) =>
+          car.consumption === null || car.consumption === undefined
+            ? null
+            : car.consumptionMax
+              ? `${car.consumption}–${car.consumptionMax} kWh/100 km (est.)`
+              : `${car.consumption} kWh/100 km (est.)`,
+        number: (car) => car.consumption ?? null,
+        better: 'lower',
+        unit: 'kWh per 100 km',
       },
     ],
   },
@@ -132,11 +192,31 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         unit: 'kW',
       },
       {
+        label: 'DC charging time',
+        value: (car) =>
+          car.dcChargingMinutes === null || car.dcChargingMinutes === undefined
+            ? null
+            : `${car.dcChargingMinutes} min (10–80%)`,
+        number: (car) => car.dcChargingMinutes ?? null,
+        better: 'lower',
+        unit: 'minutes',
+      },
+      {
         label: 'AC charging',
         value: (car) => (car.acCharging ? `${car.acCharging} ${car.acChargingUnit}` : null),
         number: (car) => car.acCharging,
         better: 'higher',
         unit: 'kW',
+      },
+      {
+        label: 'AC charging time',
+        value: (car) =>
+          car.acChargingHours === null || car.acChargingHours === undefined
+            ? null
+            : `${car.acChargingHours} h (0–100%)`,
+        number: (car) => car.acChargingHours ?? null,
+        better: 'lower',
+        unit: 'hours',
       },
       {
         label: 'Connector',
@@ -148,11 +228,28 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
     title: 'Performance',
     rows: [
       {
+        label: 'Motor power',
+        value: (car) =>
+          car.motorPowerKw === null || car.motorPowerKw === undefined
+            ? null
+            : `${car.motorPowerKw} kW`,
+        number: (car) => car.motorPowerKw ?? null,
+        better: 'higher',
+        unit: 'kW',
+      },
+      {
         label: 'Power',
         value: (car) => (car.power ? `${car.power} ${car.powerUnit}` : null),
         number: (car) => car.power,
         better: 'higher',
         unit: 'hp',
+      },
+      {
+        label: 'Torque',
+        value: (car) => (car.torque ? `${car.torque} Nm` : null),
+        number: (car) => car.torque,
+        better: 'higher',
+        unit: 'Nm',
       },
       {
         label: '0–100 km/h',
@@ -161,15 +258,59 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         better: 'lower',
         unit: 'seconds',
       },
-      { label: 'Torque', value: (car) => (car.torque ? `${car.torque} Nm` : null) },
-      { label: 'Top speed', value: (car) => (car.topSpeed ? `${car.topSpeed} km/h` : null) },
+      {
+        label: 'Top speed',
+        value: (car) => (car.topSpeed ? `${car.topSpeed} km/h` : null),
+        number: (car) => car.topSpeed,
+        better: 'higher',
+        unit: 'km/h',
+      },
+      { label: 'Drive type', value: (car) => car.driveType?.trim() || null },
+      { label: 'Engine', value: (car) => (car.engineCapacity ? `${car.engineCapacity} cc` : null) },
     ],
   },
   {
-    title: 'Engine & practical',
+    title: 'Dimensions & practicality',
     rows: [
-      { label: 'Engine', value: (car) => (car.engineCapacity ? `${car.engineCapacity} cc` : null) },
+      { label: 'Length', value: (car) => (car.lengthMm ? `${car.lengthMm} mm` : null) },
+      { label: 'Width', value: (car) => (car.widthMm ? `${car.widthMm} mm` : null) },
+      { label: 'Height', value: (car) => (car.heightMm ? `${car.heightMm} mm` : null) },
+      { label: 'Wheelbase', value: (car) => (car.wheelbaseMm ? `${car.wheelbaseMm} mm` : null) },
+      {
+        label: 'Ground clearance',
+        value: (car) =>
+          car.groundClearanceMm === null || car.groundClearanceMm === undefined
+            ? null
+            : car.groundClearanceMaxMm
+              ? `${car.groundClearanceMm}–${car.groundClearanceMaxMm} mm`
+              : `${car.groundClearanceMm} mm`,
+      },
+      {
+        label: 'Boot space',
+        value: (car) =>
+          car.bootCapacityL === null || car.bootCapacityL === undefined
+            ? null
+            : `${car.bootCapacityL} L`,
+        number: (car) => car.bootCapacityL ?? null,
+        better: 'higher',
+        unit: 'litres',
+      },
+      {
+        label: 'Kerb weight',
+        value: (car) =>
+          car.kerbWeightKg === null || car.kerbWeightKg === undefined
+            ? null
+            : `${car.kerbWeightKg} kg`,
+      },
       { label: 'Seats', value: (car) => (car.seats ? String(car.seats) : null) },
+    ],
+  },
+  {
+    title: 'Pakistan market',
+    rows: [
+      { label: 'Availability', value: (car) => car.availability?.trim() || null },
+      { label: 'Official distributor', value: (car) => car.distributor?.trim() || null },
+      { label: 'Warranty', value: (car) => car.warranty?.trim() || null },
     ],
   },
 ]
@@ -280,13 +421,13 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           return (
             <div
               key={car.id}
-              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/15 bg-white/[0.07] shadow-e4 backdrop-blur-xl transition-colors duration-300 hover:border-white/25"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/80 hover:shadow-[0_26px_60px_-26px_rgba(15,23,42,0.35)]"
             >
               <button
                 type="button"
                 onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
                 aria-label={`Remove ${carDisplayName(car)} from comparison`}
-                className="absolute right-2.5 top-2.5 z-10 rounded-full bg-slate-950/60 p-1.5 text-white/70 ring-1 ring-white/20 backdrop-blur-sm transition-colors hover:bg-slate-950/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
+                className="absolute right-2.5 top-2.5 z-10 rounded-full bg-white/80 p-1.5 text-slate-500 ring-1 ring-slate-900/10 backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
               >
                 <X size={14} aria-hidden="true" />
               </button>
@@ -295,7 +436,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 href={`/cars/${car.slug}`}
                 className="group/car block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-cyan-400"
               >
-                <span className="relative block aspect-[16/10] overflow-hidden bg-white/[0.04]">
+                <span className="relative block aspect-[16/10] overflow-hidden bg-white/70">
                   <PhotoFrame
                     src={car.image ?? undefined}
                     alt={carDisplayName(car)}
@@ -308,9 +449,9 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   {/* Same treatment as the catalogue card, so a car looks like
                       itself in both places. */}
                   <span className="flex items-start justify-between gap-2">
-                    <span className="min-w-0 text-lg leading-snug tracking-tight transition-colors group-hover/car:text-plug-cyan-300">
-                      <span className="font-display font-bold text-white">{car.brand}</span>{' '}
-                      <span className="font-sans text-ui font-semibold text-white/60">
+                    <span className="min-w-0 text-lg leading-snug tracking-tight transition-colors group-hover/car:text-plug-blue-700">
+                      <span className="font-display font-bold text-slate-900">{car.brand}</span>{' '}
+                      <span className="font-sans text-ui font-semibold text-slate-500">
                         {car.model}
                       </span>
                       {/* The trim beneath, not appended: a comparison column is
@@ -319,7 +460,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                           thing telling them apart and it must not be truncated
                           into the model name. */}
                       {car.variant ? (
-                        <span className="mt-1 block font-mono text-ui-xs font-medium leading-snug text-plug-cyan-300/80">
+                        <span className="mt-1 block font-mono text-ui-xs font-medium leading-snug text-plug-blue-700/85">
                           {car.variant}
                         </span>
                       ) : null}
@@ -329,16 +470,16 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                     </Badge>
                   </span>
 
-                  <span className="mt-3 block text-xl font-black tracking-tight text-white">
+                  <span className="mt-3 block text-xl font-black tracking-tight text-slate-900">
                     {car.price.display}
                   </span>
 
                   {/* The gap from the cheapest car in the comparison, which is
                       the number a buyer is actually weighing. Absent on the
                       cheapest one rather than printed as zero. */}
-                  <span className="mt-1 block text-ui-xs text-white/50">
+                  <span className="mt-1 block text-ui-xs text-slate-500">
                     {premium === 0 ? (
-                      <span className="font-semibold text-emerald-300">Lowest price here</span>
+                      <span className="font-semibold text-emerald-700">Lowest price here</span>
                     ) : (
                       <>+{formatPkr(premium).replace('PKR ', '')} vs cheapest</>
                     )}
@@ -349,13 +490,13 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               {/* Wins are stated with their denominator. "4" alone is a boast;
                   "4 of 7 measured" is a fact the reader can check. */}
               {analysis.measured > 0 ? (
-                <p className="mt-auto flex items-center gap-2 border-t border-white/10 bg-white/[0.04] px-4 py-2.5 text-ui-xs">
+                <p className="mt-auto flex items-center gap-2 border-t border-slate-900/[0.07] bg-white/45 px-4 py-2.5 text-ui-xs">
                   <Trophy
                     size={12}
                     aria-hidden="true"
-                    className={won > 0 ? 'text-amber-300' : 'text-white/25'}
+                    className={won > 0 ? 'text-amber-500' : 'text-slate-300'}
                   />
-                  <span className={won > 0 ? 'font-semibold text-white' : 'text-white/50'}>
+                  <span className={won > 0 ? 'font-semibold text-slate-900' : 'text-slate-500'}>
                     Leads {won} of {analysis.measured} measured {analysis.measured === 1 ? 'row' : 'rows'}
                   </span>
                 </p>
@@ -368,12 +509,12 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
 
       {/* ── Table controls ──────────────────────────────────────── */}
       <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2.5 text-ui-sm font-semibold text-white/80">
+        <label className="inline-flex cursor-pointer items-center gap-2.5 text-ui-sm font-semibold text-slate-700">
           <input
             type="checkbox"
             checked={onlyDifferences}
             onChange={(event) => setOnlyDifferences(event.target.checked)}
-            className="h-4 w-4 rounded border-white/30 bg-white/10 accent-plug-cyan-400"
+            className="h-4 w-4 rounded border-slate-300 bg-white accent-plug-blue-600"
           />
           Only show differences
         </label>
@@ -397,7 +538,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 onChange={(event) =>
                   event.target.value && go([...cars.map((car) => car.id), event.target.value])
                 }
-                className="h-10 max-w-[16rem] cursor-pointer rounded-full border border-white/20 bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white outline-none focus:border-plug-cyan-400"
+                className="h-10 max-w-[16rem] cursor-pointer rounded-full border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-800 outline-none focus:border-plug-blue-500"
               >
                 <option value="" disabled>
                   Choose a car…
@@ -412,7 +553,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 type="button"
                 onClick={() => setAdding(false)}
                 aria-label="Cancel adding a car"
-                className="rounded-full p-1.5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
+                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-900/5 hover:text-slate-900"
               >
                 <X size={14} aria-hidden="true" />
               </button>
@@ -421,11 +562,11 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
             >
               <Plus size={14} aria-hidden="true" />
               Add a car
-              <span className="font-mono text-[10px] text-white/50">
+              <span className="font-mono text-[10px] text-slate-400">
                 {cars.length}/{max}
               </span>
             </button>
@@ -435,10 +576,10 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.06] px-4 text-ui-sm font-semibold text-white/85 backdrop-blur-sm transition-colors hover:border-white/40 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
         >
           {copied ? (
-            <Check size={14} aria-hidden="true" className="text-emerald-300" />
+            <Check size={14} aria-hidden="true" className="text-emerald-600" />
           ) : (
             <Link2 size={14} aria-hidden="true" />
           )}
@@ -449,7 +590,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       {/* ── The table ───────────────────────────────────────────── */}
       {/* One pane, one blur. The scroll container carries the glass so the
           table inside it composites once rather than per cell. */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/15 bg-white/[0.07] shadow-e4 backdrop-blur-xl">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
             Specification comparison of {cars.map((car) => carDisplayName(car)).join(', ')}
@@ -479,7 +620,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   <th
                     scope="colgroup"
                     colSpan={cars.length + 1}
-                    className="border-y border-white/10 bg-white/[0.06] px-4 py-3 font-display text-lg font-bold tracking-tight text-white"
+                    className="border-y border-slate-900/[0.08] bg-white/55 px-4 py-3.5 font-display text-[1.0625rem] font-extrabold uppercase tracking-[0.08em] text-plug-navy-800"
                   >
                     {group.title}
                   </th>
@@ -489,14 +630,14 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   const scale = analysis.scales.get(row.label)
 
                   return (
-                    <tr key={row.label} className="border-b border-white/[0.07] last:border-b-0">
+                    <tr key={row.label} className="border-b border-slate-900/[0.06] last:border-b-0">
                       {/* More opaque than the pane, and blurred in its own
                           right: a fully translucent pinned cell lets the
                           columns scrolling beneath it show through, which is
                           unreadable exactly when the label matters. */}
                       <th
                         scope="row"
-                        className="sticky left-0 z-10 bg-plug-navy-950/80 px-4 py-3.5 align-middle text-ui-sm font-medium text-white/60 backdrop-blur-md"
+                        className="sticky left-0 z-10 bg-white/75 px-4 py-3.5 align-middle text-ui-sm font-medium text-slate-500 backdrop-blur-md"
                       >
                         {row.label}
                       </th>
@@ -522,16 +663,16 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                         return (
                           <td
                             key={car.id}
-                            className="border-l border-white/[0.07] px-4 py-3.5 align-middle"
+                            className="border-l border-slate-900/[0.06] px-4 py-3.5 align-middle"
                           >
                             {value ? (
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-ui-sm font-semibold text-white">
+                                  <span className="text-ui-sm font-semibold text-slate-900">
                                     {value}
                                   </span>
                                   {isBest ? (
-                                    <span className="shrink-0 rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300 ring-1 ring-inset ring-emerald-400/30">
+                                    <span className="shrink-0 rounded-full bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-600/25">
                                       Best
                                     </span>
                                   ) : null}
@@ -540,20 +681,20 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                                 {width > 0 ? (
                                   <div
                                     aria-hidden="true"
-                                    className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10"
+                                    className="mt-2 h-1 w-full overflow-hidden rounded-full bg-slate-900/10"
                                   >
                                     <div
                                       style={{ width: `${width}%` }}
                                       className={cn(
                                         'h-full rounded-full transition-all duration-500',
-                                        isBest ? 'bg-emerald-400' : 'bg-white/40',
+                                        isBest ? 'bg-emerald-500' : 'bg-slate-400/70',
                                       )}
                                     />
                                   </div>
                                 ) : null}
                               </div>
                             ) : (
-                              <span className="text-ui-sm text-white/25">—</span>
+                              <span className="text-ui-sm text-slate-300">—</span>
                             )}
                           </td>
                         )
@@ -567,14 +708,14 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         </table>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 text-ui-xs leading-relaxed text-white/45">
+      <div className="mt-5 flex flex-col gap-2 text-ui-xs leading-relaxed text-slate-500">
         <p>
           A dash means the figure was not published for that car, not that it is zero.
           Bars are scaled to the largest value in their own row, so they compare these
           cars against each other and nothing else.
         </p>
         <p>
-          <span className="font-semibold text-white/70">Best</span> marks the strongest
+          <span className="font-semibold text-slate-700">Best</span> marks the strongest
           published figure in a row where more than one car has one and nothing ties. It
           is never shown on price, powertrain, connector or engine size — there, higher or
           lower is a matter of what you want rather than better.
