@@ -193,8 +193,39 @@ export function CarsExplorer({
         distinguishable from the page on a dim laptop screen, which defeats the
         point of the change.
       */}
-      <section ref={resultsRef} className="scroll-mt-4 bg-slate-100 py-12 lg:py-16">
-        <div className="container-plug">
+      {/*
+        The ground, and why it is no longer one flat grey.
+
+        slate-100 stays — the note above is right that the cards need something
+        to sit on and that slate-50 was too close to white to do it. What it was
+        missing is that a single flat fill is the one surface a photograph of a
+        showroom never has. Three layers, none of which change the value enough
+        to affect the card separation the note is protecting:
+
+          a wash    light falling from the top of the section, so the ground is
+                    brightest where the heading is and settles as the grid runs
+                    on. This is what stops eight rows of cards reading as eight
+                    rows of the same thing.
+          a grain   the site's own .grain, already tuned to 0.035 — visible as
+                    texture, never as noise. It is what makes the white cards
+                    read as paper on a surface rather than as holes cut in grey.
+          an edge   a hairline that fades out at both ends, so the section
+                    starts on a drawn line rather than a colour change.
+
+        All three are decoration and all three are aria-hidden. None of them
+        moves, so the section costs a paint and nothing after it.
+      */}
+      <section ref={resultsRef} className="relative scroll-mt-4 bg-slate-100 py-12 lg:py-16">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_55%_at_50%_0%,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.45)_30%,transparent_64%)]"
+        />
+        <span aria-hidden="true" className="grain" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(148,163,184,0.55)_18%,rgba(148,163,184,0.55)_82%,transparent_100%)]"
+        />
+        <div className="container-plug relative">
           <BrandRail
             brands={brands}
             counts={brandCounts}
@@ -240,12 +271,35 @@ export function CarsExplorer({
             subtitle steps up with it, on its own line, so the pair reads as a
             section opening rather than a label with a caption beside it.
           */}
-          <div className="mt-14 border-t border-slate-200 pt-10">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 lg:text-4xl">
-              The catalogue
+          <div className="mt-14 border-t border-slate-300/70 pt-10">
+            {/*
+              An index line above the heading rather than a count beside it.
+
+              The catalogue is a reference document and this is its title page,
+              so it opens the way the rest of the site opens one — a mono label
+              on the left, the extent of the thing on the right, both on the
+              rule.
+
+              Brands rather than cars, deliberately. The car count already sits
+              three hundred pixels below in the results header, where it is an
+              aria-live region that changes as filters are applied — the one
+              number on this page that is meant to move. Printing it here too
+              would put "48 cars" on screen twice and then have the two
+              contradict each other the moment anybody filtered. The brand count
+              is the fact this line can state and the other one cannot.
+            */}
+            <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
+              <span>The catalogue</span>
+              <span className="tabular-nums text-slate-400">{brands.length} brands</span>
+            </p>
+            <h2 className="mt-5 font-display text-[2.5rem] font-extrabold leading-[0.95] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]">
+              Every figure,
+              <br />
+              <span className="text-plug-navy-700">as published</span>
             </h2>
-            <p className="mt-2 max-w-2xl text-ui text-slate-600">
-              Every published figure, none estimated — filter, sort and compare
+            <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
+              Nothing estimated and nothing averaged — filter, sort and compare on the numbers the
+              manufacturer actually stated.
             </p>
           </div>
 

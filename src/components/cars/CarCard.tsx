@@ -552,15 +552,24 @@ export function CarCard({
                 them, with the price as the fourth, so nine cards in a grid drew
                 thirty-six rules and had no focal point.
 
-                So: the price is out of the list and above it at 20px, there are
-                three rows rather than four, and the rules are gone — a single
-                soft panel groups them instead. Same information, one ninth of the
-                lines.
+                So: the price is out of the list and above it at 20px, and there
+                are three rows rather than four.
+
+                What groups them is one hairline, not a fill. It was a tinted
+                panel with an inset ring, and on the textured ground this section
+                now has, that panel was the least considered thing on the card —
+                a grey slab inside a white card reads as a disabled input, and
+                nine of them tile the grid with grey rectangles. The objection
+                recorded above was never to rules as such: it was to a rule under
+                each of four rows, thirty-six in a grid. One rule per card is
+                nine, it does the same grouping the fill was doing, and it is the
+                same hairline the rest of the site uses to separate a block from
+                the block above it.
 
                 tabular-nums on the figures: Poppins' default digits are
                 proportional, so a column of "45.12" over "380" over "65" would
                 not align on the decimal. */}
-            <dl className="rounded-lg bg-slate-50/80 px-3.5 py-2.5 ring-1 ring-inset ring-slate-100">
+            <dl className="border-t border-slate-200/90 pt-3">
               {specs.map((spec, index) => (
                 <div
                   // Label, not value — two rows can share a figure ("380 km" and

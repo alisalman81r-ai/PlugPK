@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import { JetBrains_Mono, Poppins } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 
 /**
@@ -15,10 +15,23 @@ import './globals.css'
  * across both is quieter and more consistent, which is what "professional" means
  * here far more than any particular typeface does.
  *
+ * ── Why these are local files and not next/font/google ─────────────────
+ *
+ * They were fetched from fonts.googleapis.com at compile time until that proved
+ * unreliable here: TLS on this machine is intercepted by antivirus, Node's
+ * connections are intermittently aborted, and the loader's answer to a failed
+ * download is three retries and then silence. One dev session logged 76
+ * failures and served the entire site in a fallback serif — the build succeeds,
+ * the page renders, and nothing anywhere says the typeface is missing.
+ *
+ * scripts/fetch-fonts.mjs pulls the same latin-subset files into
+ * src/app/fonts/, 169KB for all ten, and next/font/local self-hosts and
+ * preloads them exactly as the Google loader did. Run it again to add a weight.
+ * A typeface is not a build-time network dependency worth keeping.
+ *
  * ── Weights, and why all six are loaded ────────────────────────────────
  *
- * Poppins is not a variable font on Google Fonts, so every weight is a separate
- * file — roughly 15KB each, latin-subset, self-hosted and preloaded by next/font.
+ * Poppins is not a variable font, so every weight is a separate file.
  * Six is more than one would choose from scratch, and each one is answering an
  * existing call site rather than a guess:
  *
@@ -40,8 +53,7 @@ import './globals.css'
  * carry the weight better. `font-black` still renders a real 900 wherever an
  * author reached for it.
  */
-const poppins = Poppins({
-  subsets: ['latin'],
+const poppins = localFont({
   variable: '--font-poppins',
   /*
     `swap` rather than `optional`: the fallback stack in tailwind.config.ts is
@@ -50,16 +62,27 @@ const poppins = Poppins({
     the better trade for a face this central.
   */
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800', '900'],
+  src: [
+    { path: './fonts/poppins-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/poppins-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/poppins-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/poppins-700.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/poppins-800.woff2', weight: '800', style: 'normal' },
+    { path: './fonts/poppins-900.woff2', weight: '900', style: 'normal' },
+  ],
 })
 
 // Supplies --font-jetbrains for the `font-mono` utility. Without it that
 // variable is undefined and every mono style falls back to generic monospace.
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
+const jetbrainsMono = localFont({
   variable: '--font-jetbrains',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  src: [
+    { path: './fonts/jetbrains-mono-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/jetbrains-mono-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/jetbrains-mono-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/jetbrains-mono-700.woff2', weight: '700', style: 'normal' },
+  ],
 })
 
 export const metadata: Metadata = {
