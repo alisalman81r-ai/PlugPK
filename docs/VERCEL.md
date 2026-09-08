@@ -39,11 +39,18 @@ Once a database exists:
 1. `provider = "postgresql"` in `prisma/schema.prisma`.
 2. `DATABASE_URL` in Vercel's environment settings (Production, Preview and
    Development each need their own).
-3. `npx prisma migrate deploy` against the new database.
-4. Move the data across. `data/catalogue-snapshot.json` holds all 48 cars and
-   `scripts/fill-car-gaps.ts` writes them, so the catalogue restores cleanly.
-   Stations, services, users, reviews and community posts have no snapshot —
-   they live only in `prisma/dev.db` and need exporting first.
+3. **Delete `prisma/migrations/` and generate one fresh initial migration.**
+   The 19 migrations in there were written against SQLite —
+   `migration_lock.toml` declares `provider = "sqlite"` and the SQL uses
+   `PRAGMA` and `DATETIME`, neither of which Postgres accepts. `prisma migrate
+   deploy` does not translate them; it replays them verbatim and fails on the
+   first one. The history is not worth keeping across an engine change: what
+   matters is that the schema is reproducible, and `prisma migrate dev --name
+   init` against the new database gives exactly that.
+4. Move the data across. It is a small amount — 48 cars, 6 stations, 23
+   reviews, no users. `data/catalogue-snapshot.json` plus
+   `scripts/fill-car-gaps.ts` restores the catalogue; the rest lives only in
+   `prisma/dev.db` and needs exporting first.
 
 **Check the SQLite-isms before assuming a clean swap.** Postgres is stricter,
 and two differences in this schema are worth looking at specifically: SQLite
