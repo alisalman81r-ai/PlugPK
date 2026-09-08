@@ -43,6 +43,83 @@ import { CarsBrowser } from './CarsBrowser'
  *     yank the page upward.
  */
 
+/**
+ * The masthead over the grid, one per powertrain.
+ *
+ * ── Why the heading says what the powertrain IS ───────────────────────
+ *
+ * The segmented control is the first cut almost every buyer makes, and it is
+ * made out of four acronyms that are routinely confused with each other — a
+ * plug-in hybrid and a range extender both have a plug and an engine, and a
+ * "hybrid" has neither socket nor any way to charge it. A visitor who picks the
+ * wrong segment does not get an error; they get a grid of cars that cannot do
+ * what they assumed, and nothing on the page tells them so.
+ *
+ * So the heading for each segment states the mechanical distinction rather than
+ * restating its own label. "Plug-in hybrid: 9 cars" is a count. "A plug and an
+ * engine — both can drive the wheels" is the answer to the question the segment
+ * was being used to ask. It costs two lines that were going to be filled with
+ * something anyway.
+ *
+ * Every claim here is a fact about the drivetrain, not a sales line: an EV has
+ * no engine, a REEV's engine never turns the wheels, an HEV has no socket. None
+ * of it is derived from the rows, because none of it varies by row.
+ */
+interface Masthead {
+  /** Distinguishes the block for React's key, so the entrance replays. */
+  id: string
+  eyebrow: string
+  /** Set in ink. */
+  title: string
+  /** Set in navy, on its own line. */
+  emphasis: string
+  blurb: string
+}
+
+const ALL_CARS_MASTHEAD: Masthead = {
+  id: 'all',
+  eyebrow: 'The catalogue',
+  title: 'Every figure,',
+  emphasis: 'as published',
+  blurb:
+    'Nothing estimated and nothing averaged — filter, sort and compare on the numbers the manufacturer actually stated.',
+}
+
+const CATEGORY_MASTHEAD: Record<CarCategory, Masthead> = {
+  EV: {
+    id: 'EV',
+    eyebrow: 'Fully electric',
+    title: 'Battery only,',
+    emphasis: 'no engine at all',
+    blurb:
+      'Driven entirely by its motor and charged from a plug. There is no engine, no fuel tank and no exhaust — the range below is the whole range.',
+  },
+  PHEV: {
+    id: 'PHEV',
+    eyebrow: 'Plug-in hybrid',
+    title: 'A plug',
+    emphasis: 'and an engine',
+    blurb:
+      'Charge it for the daily run and the engine covers everything past that. Both the motor and the engine can drive the wheels, so the electric range is the shorter of two numbers.',
+  },
+  REEV: {
+    id: 'REEV',
+    eyebrow: 'Range extender',
+    title: 'The motor drives,',
+    emphasis: 'the engine generates',
+    blurb:
+      'The wheels are turned by the motor at all times. The engine on board never drives them — it runs as a generator once the battery is low.',
+  },
+  Hybrid: {
+    id: 'Hybrid',
+    eyebrow: 'Hybrid',
+    title: 'No plug,',
+    emphasis: 'nothing to charge',
+    blurb:
+      'Petrol driven, with a small battery the car fills itself while braking. There is no socket, so no charger and no electric-only range worth quoting.',
+  },
+}
+
 export interface CarsExplorerProps {
   cars: Car[]
   brands: string[]
@@ -125,6 +202,36 @@ export function CarsExplorer({
     for (const brand of brands) out[brand] = base.filter((car) => car.brand === brand).length
     return out
   }, [cars, query, filters, brands])
+
+  /**
+   * The masthead follows the segmented control and nothing else.
+   *
+   * The segments are single-select — one category or none — so anything other
+   * than exactly one selected category is the catalogue as a whole. That covers
+   * the empty case and also the state the sidebar can still produce, where two
+   * powertrains are ticked at once: there is no single heading that honestly
+   * describes "PHEVs and hybrids", so it falls back rather than picking one.
+   */
+  const activeCategory =
+    filters.categories.length === 1 ? (filters.categories[0] ?? null) : null
+
+  const masthead =
+    activeCategory === null ? ALL_CARS_MASTHEAD : CATEGORY_MASTHEAD[activeCategory]
+
+  /*
+    Brands within the heading's own subject.
+
+    Counted off the category alone, not off the full filter state — the heading
+    names a powertrain, so its index line should answer "how many brands make
+    one of these", which does not change when somebody also ticks 60+ kWh. The
+    number that responds to every filter is the aria-live count below the
+    segments, and these two are deliberately measuring different things.
+  */
+  const mastheadBrands = React.useMemo(() => {
+    const scope =
+      activeCategory === null ? cars : cars.filter((car) => car.category === activeCategory)
+    return new Set(scope.map((car) => car.brand)).size
+  }, [cars, activeCategory])
 
   /**
    * The hero select shows a brand only when exactly one is chosen — with two
@@ -286,21 +393,35 @@ export function CarsExplorer({
               number on this page that is meant to move. Printing it here too
               would put "48 cars" on screen twice and then have the two
               contradict each other the moment anybody filtered. The brand count
-              is the fact this line can state and the other one cannot.
+              is the fact this line can state and the other one cannot, and it
+              counts the brands in the selected powertrain rather than all of
+              them, so it answers a question about what is on screen.
+
+              The `key` is what makes the block change rather than mutate: React
+              replaces the subtree when the powertrain changes, so the entrance
+              animation below replays. Without it the text would swap in place
+              and a reader who tapped a segment would not be certain anything
+              had happened.
             */}
-            <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
-              <span>The catalogue</span>
-              <span className="tabular-nums text-slate-400">{brands.length} brands</span>
-            </p>
-            <h2 className="mt-5 font-display text-[2.5rem] font-extrabold leading-[0.95] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]">
-              Every figure,
-              <br />
-              <span className="text-plug-navy-700">as published</span>
-            </h2>
-            <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
-              Nothing estimated and nothing averaged — filter, sort and compare on the numbers the
-              manufacturer actually stated.
-            </p>
+            <div key={masthead.id} className="masthead-enter motion-reduce:animate-none">
+              <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
+                <span>{masthead.eyebrow}</span>
+                <span className="tabular-nums text-slate-400">
+                  {mastheadBrands} {mastheadBrands === 1 ? 'brand' : 'brands'}
+                </span>
+              </p>
+              <h2
+                aria-live="polite"
+                className="mt-5 font-display text-[2.5rem] font-extrabold leading-[0.95] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]"
+              >
+                {masthead.title}
+                <br />
+                <span className="text-plug-navy-700">{masthead.emphasis}</span>
+              </h2>
+              <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
+                {masthead.blurb}
+              </p>
+            </div>
           </div>
 
           <div className="mt-6">

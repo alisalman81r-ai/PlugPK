@@ -561,8 +561,30 @@ function Segment({
   count: number
   children: React.ReactNode
 }) {
+  const ref = React.useRef<HTMLButtonElement>(null)
+
+  /*
+    Bring the active segment fully into the rail.
+
+    The rail scrolls horizontally on a phone and five segments do not fit, so
+    the selected one is regularly half off the right edge — including on first
+    load, where a category arriving in the URL can select a segment that is not
+    on screen at all. The masthead then describes a powertrain whose tab the
+    reader cannot see, which reads as the page having decided something on its
+    own.
+
+    `block: 'nearest'` is load-bearing: the rail sits about a thousand pixels
+    down the page, and the default `'start'` would scroll the document
+    vertically to it on mount.
+  */
+  React.useEffect(() => {
+    if (!active) return
+    ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
+  }, [active])
+
   return (
     <button
+      ref={ref}
       type="button"
       onClick={onClick}
       aria-pressed={active}

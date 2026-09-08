@@ -149,6 +149,34 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /**
+   * The catalogue masthead arriving when the powertrain segment changes.
+   *
+   * Short and small: 260ms and 10px. The block is 150px of type near the top of
+   * the section and the reader's eye is already on it — having asked for it by
+   * tapping a segment two rows below — so this only needs to confirm that the
+   * words changed, not perform the change. Anything longer reads as the page
+   * being slow to answer.
+   *
+   * opacity and transform only, so it stays on the compositor and never lays
+   * out. Reduced motion is handled at the call site, which sets
+   * `motion-reduce:animate-none` — the text still swaps, it just arrives.
+   */
+  @keyframes masthead-enter {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .masthead-enter {
+    animation: masthead-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .gradient-text {
     background: var(--gradient-brand);
     -webkit-background-clip: text;
