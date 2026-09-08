@@ -1039,9 +1039,17 @@ export async function getVehiclesByBrand(brand: string): Promise<DbVehicle[]> {
 /**
  * Search, in the database rather than over a loaded array.
  *
- * Every term must match, so "bmw suv" narrows instead of widening. SQLite's
- * LIKE is case-insensitive for ASCII, which is why `mode: 'insensitive'` is
- * absent — that option is unsupported on this provider and passing it throws.
+ * Every term must match, so "bmw suv" narrows instead of widening.
+ *
+ * `mode: 'insensitive'` is required here and was previously forbidden. On
+ * SQLite it throws — the provider does not support the option — and it was not
+ * needed either, because SQLite's LIKE is already case-insensitive for ASCII.
+ * Postgres is the other way round on both counts: the option is supported, and
+ * without it `contains` is case-sensitive, so a search for "byd" would stop
+ * matching "BYD" and a search for "SUV" would stop matching "Suv".
+ *
+ * That is the kind of difference that survives a build and a smoke test and
+ * only shows up as "search is broken" once somebody types a lowercase brand.
  */
 export async function searchVehicles(query: string): Promise<DbVehicle[]> {
   const terms = query.trim().split(/\s+/).filter(Boolean)
@@ -1051,11 +1059,11 @@ export async function searchVehicles(query: string): Promise<DbVehicle[]> {
     where: {
       AND: terms.map((term) => ({
         OR: [
-          { brand: { contains: term } },
-          { model: { contains: term } },
-          { powertrain: { contains: term } },
-          { availability: { contains: term } },
-          { bodyType: { contains: term } },
+          { brand: { contains: term, mode: 'insensitive' } },
+          { model: { contains: term, mode: 'insensitive' } },
+          { powertrain: { contains: term, mode: 'insensitive' } },
+          { availability: { contains: term, mode: 'insensitive' } },
+          { bodyType: { contains: term, mode: 'insensitive' } },
         ],
       })),
     },

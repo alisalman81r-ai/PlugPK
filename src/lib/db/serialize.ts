@@ -217,7 +217,7 @@ function parseConnectors(value: string | null): ConnectorType[] | undefined {
 /**
  * The unions are cast rather than validated.
  *
- * powertrain, availability and bodyType are strings in SQLite — the schema
+ * powertrain, availability and bodyType are stored as plain strings — the schema
  * notes why — and the only writers are the seed and the admin actions, both of
  * which take typed values. A runtime guard here would be a second place to
  * update every time a body type is added, for a case the type system already

@@ -1,0 +1,142 @@
+[
+  {
+    "id": "stn-001-c1",
+    "stationId": "stn-001",
+    "type": "CCS2",
+    "maxPowerKw": 150,
+    "ports": 2,
+    "availablePorts": 2,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"BYD Seal\",\"MG ZS EV\",\"Hyundai Ioniq 5\",\"KIA EV6\"]"
+  },
+  {
+    "id": "stn-001-c2",
+    "stationId": "stn-001",
+    "type": "CCS2",
+    "maxPowerKw": 60,
+    "ports": 1,
+    "availablePorts": 0,
+    "status": "in-use",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG ZS EV\",\"Proton e.MAS 7\"]"
+  },
+  {
+    "id": "stn-001-c3",
+    "stationId": "stn-001",
+    "type": "Type2",
+    "maxPowerKw": 22,
+    "ports": 2,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG HS PHEV\",\"BMW i4\",\"Audi e-tron\"]"
+  },
+  {
+    "id": "stn-002-c1",
+    "stationId": "stn-002",
+    "type": "CCS2",
+    "maxPowerKw": 120,
+    "ports": 1,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"BYD Han\",\"MG ZS EV\",\"BMW iX\",\"Proton e.MAS 7\"]"
+  },
+  {
+    "id": "stn-002-c2",
+    "stationId": "stn-002",
+    "type": "Type2",
+    "maxPowerKw": 22,
+    "ports": 2,
+    "availablePorts": 2,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG HS PHEV\",\"BMW i4\",\"Mercedes EQS\"]"
+  },
+  {
+    "id": "stn-003-c1",
+    "stationId": "stn-003",
+    "type": "CCS2",
+    "maxPowerKw": 50,
+    "ports": 2,
+    "availablePorts": 1,
+    "status": "in-use",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG ZS EV\",\"Changan Lumin\"]"
+  },
+  {
+    "id": "stn-003-c2",
+    "stationId": "stn-003",
+    "type": "Type2",
+    "maxPowerKw": 11,
+    "ports": 1,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG HS PHEV\",\"BMW i4\"]"
+  },
+  {
+    "id": "stn-004-c1",
+    "stationId": "stn-004",
+    "type": "Type2",
+    "maxPowerKw": 22,
+    "ports": 3,
+    "availablePorts": 2,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG ZS EV\",\"MG HS PHEV\",\"BMW i4\",\"Mercedes EQS\"]"
+  },
+  {
+    "id": "stn-004-c2",
+    "stationId": "stn-004",
+    "type": "Type1",
+    "maxPowerKw": 7.4,
+    "ports": 1,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"Nissan Leaf (imported)\",\"Toyota Prius PHV (imported)\"]"
+  },
+  {
+    "id": "stn-005-c1",
+    "stationId": "stn-005",
+    "type": "CCS2",
+    "maxPowerKw": 150,
+    "ports": 2,
+    "availablePorts": 0,
+    "status": "offline",
+    "compatibleVehicles": "[\"BYD Seal\",\"BYD Han\",\"BMW iX\",\"Mercedes EQS\",\"KIA EV6\"]"
+  },
+  {
+    "id": "stn-005-c2",
+    "stationId": "stn-005",
+    "type": "Type2",
+    "maxPowerKw": 22,
+    "ports": 2,
+    "availablePorts": 0,
+    "status": "offline",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"BMW i4\",\"Mercedes EQS\"]"
+  },
+  {
+    "id": "stn-006-c1",
+    "stationId": "stn-006",
+    "type": "CCS2",
+    "maxPowerKw": 120,
+    "ports": 2,
+    "availablePorts": 2,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"BYD Seal\",\"MG ZS EV\",\"Hyundai Ioniq 5\",\"BMW iX\"]"
+  },
+  {
+    "id": "stn-006-c2",
+    "stationId": "stn-006",
+    "type": "CHAdeMO",
+    "maxPowerKw": 50,
+    "ports": 1,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"Nissan Leaf\",\"Nissan Leaf e+\",\"Mitsubishi Outlander PHEV\"]"
+  },
+  {
+    "id": "stn-006-c3",
+    "stationId": "stn-006",
+    "type": "Type2",
+    "maxPowerKw": 22,
+    "ports": 2,
+    "availablePorts": 1,
+    "status": "available",
+    "compatibleVehicles": "[\"BYD Atto 3\",\"MG HS PHEV\",\"BMW i4\"]"
+  }
+]

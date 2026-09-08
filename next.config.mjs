@@ -29,6 +29,29 @@ const nextConfig = {
     // this ever sits behind a CDN that absorbs the cold cost once globally.
     formats: ['image/webp'],
 
+    /**
+     * Vercel Blob, for images uploaded through the admin portal.
+     *
+     * next/image refuses a remote host that is not listed here, so without this
+     * every uploaded photograph 400s the moment uploads move off the local
+     * filesystem — see the note in src/lib/db/upload-actions.ts.
+     *
+     * The hostname is per-store and unknowable at authoring time: Vercel
+     * generates `<storeId>.public.blob.vercel-storage.com` when the store is
+     * created. Hence the wildcard, which is scoped to that one Vercel-owned
+     * suffix and matches nothing else.
+     *
+     * Repository images under public/ are unaffected — those are local paths
+     * and never go through remotePatterns.
+     */
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+        pathname: '/**',
+      },
+    ],
+
     // Trimmed from the defaults, which run to 3840px. Nothing here is ever
     // displayed above ~1920px, and every extra entry is another variant the
     // browser may pick and the server may have to encode from cold.

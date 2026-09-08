@@ -1,0 +1,74 @@
+[
+  {
+    "id": "club-001",
+    "name": "Lahore EV Owners Club",
+    "city": "Lahore",
+    "description": "The largest EV community in Punjab. Monthly meetups, group charging trips and a very active parts-and-service recommendation thread.",
+    "coverPhoto": null,
+    "memberCount": 234,
+    "createdAt": "2026-08-25T17:11:36.698Z"
+  },
+  {
+    "id": "club-002",
+    "name": "Islamabad EV Community",
+    "city": "Islamabad",
+    "description": "Capital-region owners covering Islamabad and Rawalpindi. Organises northern-areas convoys through the summer.",
+    "coverPhoto": null,
+    "memberCount": 178,
+    "createdAt": "2026-08-25T17:11:36.714Z"
+  },
+  {
+    "id": "club-003",
+    "name": "Karachi Electric Riders",
+    "city": "Karachi",
+    "description": "Karachi-wide group with a strong imported-EV contingent. Good place to ask about CHAdeMO and grey-import servicing.",
+    "coverPhoto": null,
+    "memberCount": 156,
+    "createdAt": "2026-08-25T17:11:36.728Z"
+  },
+  {
+    "id": "club-004",
+    "name": "Rawalpindi EV Circle",
+    "city": "Rawalpindi",
+    "description": "Smaller, practical group focused on home charging installs and shared workshop recommendations around the Pindi area.",
+    "coverPhoto": null,
+    "memberCount": 89,
+    "createdAt": "2026-08-25T17:11:36.750Z"
+  },
+  {
+    "id": "club-005",
+    "name": "Faisalabad EV Group",
+    "city": "Faisalabad",
+    "description": "Growing fast since the first public charger opened. Mostly first-time EV owners helping each other through the early months.",
+    "coverPhoto": null,
+    "memberCount": 67,
+    "createdAt": "2026-08-25T17:11:36.833Z"
+  },
+  {
+    "id": "club-006",
+    "name": "Peshawar EV Drivers",
+    "city": "Peshawar",
+    "description": "KP-based owners coordinating on the limited charging available and running an informal roadside-help roster.",
+    "coverPhoto": null,
+    "memberCount": 45,
+    "createdAt": "2026-08-25T17:11:36.917Z"
+  },
+  {
+    "id": "club-007",
+    "name": "Multan EV Connect",
+    "city": "Multan",
+    "description": "South Punjab group covering Multan and Bahawalpur. Focused on making the long runs north genuinely practical.",
+    "coverPhoto": null,
+    "memberCount": 38,
+    "createdAt": "2026-08-25T17:11:37.000Z"
+  },
+  {
+    "id": "club-008",
+    "name": "Quetta EV Network",
+    "city": "Quetta",
+    "description": "The newest club on Plug.pk. Small but determined, and the best source of information on charging in Balochistan.",
+    "coverPhoto": null,
+    "memberCount": 29,
+    "createdAt": "2026-08-25T17:11:37.037Z"
+  }
+]

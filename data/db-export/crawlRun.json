@@ -1,0 +1,38 @@
+[
+  {
+    "id": "29d3180f-f3e5-484c-8b39-22935dab97b5",
+    "sourceId": "evdb",
+    "startedAt": "2026-08-28T09:58:09.520Z",
+    "completedAt": "2026-08-28T09:58:09.518Z",
+    "status": "blocked",
+    "recordsFound": 0,
+    "recordsStored": 0,
+    "recordsFailed": 0,
+    "recordsChanged": 0,
+    "recordsUnchanged": 0,
+    "recordsPendingReview": 0,
+    "candidatesFound": 0,
+    "trigger": "manual",
+    "durationMs": null,
+    "errors": "[\"a written data licence or API agreement from EV Database (ev-database.org contact form)\",\"confirmation of permitted reuse scope: which fields, how many records, what attribution\",\"an API key, if a commercial API is offered on request\"]",
+    "notes": "No public API, and no terms-of-use page found at any conventional path. robots.txt permits crawling but grants no reuse licence, and this is a commercial specification database whose product is the compiled dataset. Bulk extraction into a commercial catalogue needs written permission first."
+  },
+  {
+    "id": "9a91652f-ea54-44a6-97db-95b0571bd3d4",
+    "sourceId": "openev",
+    "startedAt": "2026-08-26T10:15:32.779Z",
+    "completedAt": "2026-08-26T10:15:34.136Z",
+    "status": "completed",
+    "recordsFound": 5,
+    "recordsStored": 5,
+    "recordsFailed": 0,
+    "recordsChanged": 0,
+    "recordsUnchanged": 0,
+    "recordsPendingReview": 0,
+    "candidatesFound": 0,
+    "trigger": "manual",
+    "durationMs": null,
+    "errors": null,
+    "notes": null
+  }
+]

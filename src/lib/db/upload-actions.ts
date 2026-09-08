@@ -13,16 +13,42 @@ import { getCurrentUser } from './session-actions'
 /**
  * Photos of the chargers on a listing.
  *
- * Files are written under public/uploads and the listing stores the path. That
- * suits how this application already runs — a SQLite file beside the app — and
- * keeps images out of the database, where a few megabytes of base64 per charger
- * would bloat every query that touches the row. It does mean the directory has
- * to survive a deploy; on a host with an ephemeral filesystem this needs to
- * become object storage, and only this file changes.
+ * Images stay out of the database — a few megabytes of base64 per charger would
+ * bloat every query that touches the row — so the bytes go to storage and the
+ * row keeps a URL.
+ *
+ * ── Two backends, chosen by whether a token exists ────────────────────
+ *
+ * The note that used to be here said writing under public/uploads "does mean
+ * the directory has to survive a deploy; on a host with an ephemeral filesystem
+ * this needs to become object storage, and only this file changes." That came
+ * due, and it was right that only this file changes.
+ *
+ * With BLOB_READ_WRITE_TOKEN set, uploads go to Vercel Blob and the row stores
+ * an absolute URL. Without it, they go to public/uploads exactly as before and
+ * the row stores a site-relative path. Vercel sets that variable automatically
+ * once a Blob store is attached to the project, so production gets object
+ * storage and a developer with no token keeps a working upload against their
+ * own filesystem — which matters, because the alternative is a local admin
+ * portal that throws on every image.
+ *
+ * The two are told apart at delete time by the URL itself rather than by
+ * re-reading the environment: a path that starts with a scheme is in the blob
+ * store, anything else is on disk. A file uploaded before the token existed is
+ * therefore still deletable after it is added.
  */
 
 const UPLOAD_ROOT = join(process.cwd(), 'public', 'uploads')
 const MAX_BYTES = 5 * 1024 * 1024
+
+/** Set by Vercel when a Blob store is attached. Absent in local development. */
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN
+
+const MIME: Record<string, string> = {
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+}
 
 /**
  * The kinds of image this application accepts, and where each lands.
@@ -123,6 +149,25 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
   const name = `${randomUUID()}.${kind}`
   const { dir, prefix } = BUCKETS[bucket]
 
+  if (BLOB_TOKEN) {
+    /*
+      Imported here rather than at the top of the file so a deployment without
+      a Blob store never loads the SDK, and `addRandomSuffix: false` because the
+      name is already a UUID — letting the store add another produces a key that
+      does not match what is written to the row.
+    */
+    const { put } = await import('@vercel/blob')
+    // Buffer, not the Uint8Array: the SDK's body type does not accept a bare
+    // typed array. Buffer.from over the same memory, so nothing is copied.
+    const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
+      access: 'public',
+      token: BLOB_TOKEN,
+      contentType: MIME[kind] ?? 'application/octet-stream',
+      addRandomSuffix: false,
+    })
+    return { ok: true, url: blob.url }
+  }
+
   await mkdir(dir, { recursive: true })
   await writeFile(join(dir, name), bytes)
 
@@ -131,6 +176,23 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
 
 async function discard(bucket: Bucket, url: string): Promise<void> {
   const { dir, prefix } = BUCKETS[bucket]
+
+  /*
+    An absolute URL is in the blob store, wherever it was written from. Checked
+    on the value rather than on BLOB_TOKEN so files uploaded before a store was
+    attached stay deletable afterwards, and vice versa.
+  */
+  if (url.startsWith('https://') || url.startsWith('http://')) {
+    if (!BLOB_TOKEN) return
+    try {
+      const { del } = await import('@vercel/blob')
+      await del(url, { token: BLOB_TOKEN })
+    } catch {
+      // Already gone is the desired end state, as below.
+    }
+    return
+  }
+
   if (!url.startsWith(prefix)) return
 
   const target = resolve(dir, url.slice(prefix.length))

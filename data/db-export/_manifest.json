@@ -1,0 +1,131 @@
+{
+  "exportedAt": "2026-09-08T13:55:31.937Z",
+  "totalRows": 155,
+  "models": [
+    {
+      "model": "Station",
+      "file": "station.json",
+      "rows": 6
+    },
+    {
+      "model": "Connector",
+      "file": "connector.json",
+      "rows": 14
+    },
+    {
+      "model": "Review",
+      "file": "review.json",
+      "rows": 23
+    },
+    {
+      "model": "BusinessDailyStat",
+      "file": "businessDailyStat.json",
+      "rows": 0
+    },
+    {
+      "model": "EVService",
+      "file": "eVService.json",
+      "rows": 12
+    },
+    {
+      "model": "CommunityPost",
+      "file": "communityPost.json",
+      "rows": 12
+    },
+    {
+      "model": "Comment",
+      "file": "comment.json",
+      "rows": 23
+    },
+    {
+      "model": "User",
+      "file": "user.json",
+      "rows": 0
+    },
+    {
+      "model": "SavedStation",
+      "file": "savedStation.json",
+      "rows": 0
+    },
+    {
+      "model": "MeetingRequest",
+      "file": "meetingRequest.json",
+      "rows": 0
+    },
+    {
+      "model": "Business",
+      "file": "business.json",
+      "rows": 0
+    },
+    {
+      "model": "Vehicle",
+      "file": "vehicle.json",
+      "rows": 0
+    },
+    {
+      "model": "UserVehicle",
+      "file": "userVehicle.json",
+      "rows": 0
+    },
+    {
+      "model": "Club",
+      "file": "club.json",
+      "rows": 8
+    },
+    {
+      "model": "ClubMember",
+      "file": "clubMember.json",
+      "rows": 0
+    },
+    {
+      "model": "Car",
+      "file": "car.json",
+      "rows": 48
+    },
+    {
+      "model": "CarSource",
+      "file": "carSource.json",
+      "rows": 2
+    },
+    {
+      "model": "CarSourceRecord",
+      "file": "carSourceRecord.json",
+      "rows": 5
+    },
+    {
+      "model": "CrawlRun",
+      "file": "crawlRun.json",
+      "rows": 2
+    },
+    {
+      "model": "CarFieldChange",
+      "file": "carFieldChange.json",
+      "rows": 0
+    },
+    {
+      "model": "CarChangeHistory",
+      "file": "carChangeHistory.json",
+      "rows": 0
+    },
+    {
+      "model": "CarPriceHistory",
+      "file": "carPriceHistory.json",
+      "rows": 0
+    },
+    {
+      "model": "CarImageCandidate",
+      "file": "carImageCandidate.json",
+      "rows": 0
+    },
+    {
+      "model": "CarCandidate",
+      "file": "carCandidate.json",
+      "rows": 0
+    },
+    {
+      "model": "CrawlLogEntry",
+      "file": "crawlLogEntry.json",
+      "rows": 0
+    }
+  ]
+}

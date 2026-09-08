@@ -1,0 +1,232 @@
+[
+  {
+    "id": "cmt-001",
+    "postId": "post-001",
+    "userId": "usr-107",
+    "userName": "Hassan Ali",
+    "userAvatar": null,
+    "content": "This matches my experience almost exactly in a ZS EV, except I need two stops because of the smaller battery. The taper point on the Bhera unit is the key detail — took me three trips to work that out.",
+    "likeCount": 27,
+    "createdAt": "2026-07-26T16:40:00.000Z"
+  },
+  {
+    "id": "cmt-002",
+    "postId": "post-001",
+    "userId": "usr-106",
+    "userName": "Zainab Malik",
+    "userAvatar": null,
+    "content": "Did you try 100 km/h instead of 110? On my Han the drop from 120 to 100 is worth nearly 60 km of range, which is often cheaper than the extra charging stop.",
+    "likeCount": 15,
+    "createdAt": "2026-07-27T04:05:00.000Z"
+  },
+  {
+    "id": "cmt-003",
+    "postId": "post-001",
+    "userId": "usr-113",
+    "userName": "Saad Rehman",
+    "userAvatar": null,
+    "content": "Useful writeup. Worth adding that the Bhera site only has two working ports, so on Eid weekends there was a 40 minute queue. Mall Road hub before you leave Lahore is a safer bet.",
+    "likeCount": 22,
+    "createdAt": "2026-07-27T08:30:00.000Z"
+  },
+  {
+    "id": "cmt-004",
+    "postId": "post-002",
+    "userId": "usr-115",
+    "userName": "Tahir Mehmood",
+    "userAvatar": null,
+    "content": "Thank you for using real receipts instead of the usual per-100km guesswork. The 3.4 rupees per km figure lines up with what I calculated over a shorter period.",
+    "likeCount": 41,
+    "createdAt": "2026-07-18T09:50:00.000Z"
+  },
+  {
+    "id": "cmt-005",
+    "postId": "post-002",
+    "userId": "usr-111",
+    "userName": "Kamran Aslam",
+    "userAvatar": null,
+    "content": "Worth noting the protected slab only applies under 200 units a month. Once you cross that, home charging jumps closer to 60 a unit and the maths changes for anyone driving more than you.",
+    "likeCount": 36,
+    "createdAt": "2026-07-19T02:15:00.000Z"
+  },
+  {
+    "id": "cmt-006",
+    "postId": "post-003",
+    "userId": "usr-119",
+    "userName": "Omar Faridi",
+    "userAvatar": null,
+    "content": "Leaf owner here and this is fair. I love the car and DHA Charging Hub has never let me down, but if I lived in Lahore I would not have bought it. Buy the connector, not just the car.",
+    "likeCount": 88,
+    "createdAt": "2026-07-08T14:30:00.000Z"
+  },
+  {
+    "id": "cmt-007",
+    "postId": "post-003",
+    "userId": "usr-112",
+    "userName": "Maryam Farooq",
+    "userAvatar": null,
+    "content": "Would add one thing for GB/T owners like me: a decent portable AC charger is not optional, it is part of the purchase price. Budget for it up front.",
+    "likeCount": 45,
+    "createdAt": "2026-07-09T05:10:00.000Z"
+  },
+  {
+    "id": "cmt-008",
+    "postId": "post-004",
+    "userId": "usr-120",
+    "userName": "Nida Aslam",
+    "userAvatar": null,
+    "content": "DHA is the right answer for CHAdeMO, full stop. Nothing else in Karachi is reliable for it. For CCS2 I would add the new site off Shahrah-e-Faisal but it only opened three weeks ago so treat it as unproven.",
+    "likeCount": 19,
+    "createdAt": "2026-07-27T06:45:00.000Z"
+  },
+  {
+    "id": "cmt-009",
+    "postId": "post-004",
+    "userId": "usr-123",
+    "userName": "Waqas Ahmed",
+    "userAvatar": null,
+    "content": "Clifton has been half-broken since June. I reported it twice through the app. Worth calling ahead rather than driving there on faith.",
+    "likeCount": 14,
+    "createdAt": "2026-07-27T10:10:00.000Z"
+  },
+  {
+    "id": "cmt-010",
+    "postId": "post-004",
+    "userId": "usr-121",
+    "userName": "Junaid Sattar",
+    "userAvatar": null,
+    "content": "Nothing usable near Korangi or SITE yet as far as I know. The industrial areas are a real gap — plenty of EVs going in and out for work and no public charging at all.",
+    "likeCount": 11,
+    "createdAt": "2026-07-28T03:30:00.000Z"
+  },
+  {
+    "id": "cmt-011",
+    "postId": "post-005",
+    "userId": "usr-101",
+    "userName": "Ahmed Raza",
+    "userAvatar": null,
+    "content": "Atto 3 owner here and I agree with all of this. The one thing I would add is boot space — the Atto 3 is noticeably more practical if you carry anything regularly.",
+    "likeCount": 38,
+    "createdAt": "2026-07-25T11:20:00.000Z"
+  },
+  {
+    "id": "cmt-012",
+    "postId": "post-005",
+    "userId": "usr-115",
+    "userName": "Tahir Mehmood",
+    "userAvatar": null,
+    "content": "The service network point is underrated. I waited eleven days for a part on a less common brand. Whatever you buy, check where the nearest authorised workshop actually is.",
+    "likeCount": 44,
+    "createdAt": "2026-07-26T04:05:00.000Z"
+  },
+  {
+    "id": "cmt-013",
+    "postId": "post-005",
+    "userId": "usr-113",
+    "userName": "Saad Rehman",
+    "userAvatar": null,
+    "content": "Would also factor in resale. Neither has a long track record here yet, so whatever you buy, assume the first few years of depreciation are unknown.",
+    "likeCount": 21,
+    "createdAt": "2026-07-26T08:40:00.000Z"
+  },
+  {
+    "id": "cmt-014",
+    "postId": "post-006",
+    "userId": "usr-116",
+    "userName": "Adeel Hussain",
+    "userAvatar": null,
+    "content": "The building provision clause is the real story here. Right now retrofitting a charger into an existing plaza is the single biggest cost for any operator.",
+    "likeCount": 57,
+    "createdAt": "2026-07-29T04:30:00.000Z"
+  },
+  {
+    "id": "cmt-015",
+    "postId": "post-006",
+    "userId": "usr-117",
+    "userName": "Sadia Iqbal",
+    "userAvatar": null,
+    "content": "Agreed on grid capacity. Blue Area has been offline for weeks for a transformer upgrade — that is the constraint, not the number of chargers.",
+    "likeCount": 41,
+    "createdAt": "2026-07-29T07:00:00.000Z"
+  },
+  {
+    "id": "cmt-016",
+    "postId": "post-007",
+    "userId": "usr-102",
+    "userName": "Fatima Khan",
+    "userAvatar": null,
+    "content": "The one-pedal point is fair. Coming from a ZS EV I found the Atto 3 regen weaker than expected. You adapt but it is not the same.",
+    "likeCount": 15,
+    "createdAt": "2026-07-23T03:10:00.000Z"
+  },
+  {
+    "id": "cmt-017",
+    "postId": "post-008",
+    "userId": "usr-111",
+    "userName": "Kamran Aslam",
+    "userAvatar": null,
+    "content": "This matches my costs in Karachi almost exactly, within about 15,000. And yes on earthing — my installer replaced the rod as a matter of course and I did not understand why until later.",
+    "likeCount": 33,
+    "createdAt": "2026-07-20T09:25:00.000Z"
+  },
+  {
+    "id": "cmt-018",
+    "postId": "post-008",
+    "userId": "usr-109",
+    "userName": "Imran Sheikh",
+    "userAvatar": null,
+    "content": "Worth adding: check your meter capacity before ordering the charger. Mine needed upgrading first and that added three weeks.",
+    "likeCount": 27,
+    "createdAt": "2026-07-21T04:50:00.000Z"
+  },
+  {
+    "id": "cmt-019",
+    "postId": "post-009",
+    "userId": "usr-110",
+    "userName": "Hina Butt",
+    "userAvatar": null,
+    "content": "Confirming there is still nothing public in Hyderabad. I did this trip in a ZS EV and had to charge at a hotel on a 3-pin, which took most of the afternoon.",
+    "likeCount": 22,
+    "createdAt": "2026-07-20T02:15:00.000Z"
+  },
+  {
+    "id": "cmt-020",
+    "postId": "post-010",
+    "userId": "usr-103",
+    "userName": "Bilal Ahmad",
+    "userAvatar": null,
+    "content": "Strongly agree on the 80 percent point. Past that the curve is so flat you are holding a bay hostage for almost no added range.",
+    "likeCount": 48,
+    "createdAt": "2026-07-17T14:20:00.000Z"
+  },
+  {
+    "id": "cmt-021",
+    "postId": "post-010",
+    "userId": "usr-122",
+    "userName": "Sarah Ashraf",
+    "userAvatar": null,
+    "content": "Some operators abroad charge an idle fee after the session ends. Might be worth suggesting to the networks here before it becomes a bigger problem.",
+    "likeCount": 35,
+    "createdAt": "2026-07-18T05:05:00.000Z"
+  },
+  {
+    "id": "cmt-022",
+    "postId": "post-011",
+    "userId": "usr-106",
+    "userName": "Zainab Malik",
+    "userAvatar": null,
+    "content": "The regen also weakens noticeably when the pack is cold, which catches people out on the descent. Do not assume you will recover as much coming back down as you spent going up.",
+    "likeCount": 29,
+    "createdAt": "2026-07-14T12:00:00.000Z"
+  },
+  {
+    "id": "cmt-023",
+    "postId": "post-012",
+    "userId": "usr-115",
+    "userName": "Tahir Mehmood",
+    "userAvatar": null,
+    "content": "This is genuinely good news. Faisalabad to Lahore is only 127 km so this makes that route trivial in almost anything now.",
+    "likeCount": 31,
+    "createdAt": "2026-07-12T13:20:00.000Z"
+  }
+]
