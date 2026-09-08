@@ -80,7 +80,34 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(148,163,184,0.6)_20%,rgba(148,163,184,0.6)_80%,transparent_100%)]"
       />
       <div className="container-plug relative z-10">
-        <div className="mx-auto max-w-3xl text-center">
+        {/*
+          The way back to the catalogue.
+
+          This page is reached by pressing Compare on cards in the grid, and
+          until now the only route back out was the browser's own back button —
+          which is wrong twice over. Adding a car rewrites the query string, so
+          somebody who has assembled a four-car table has four history entries
+          to walk back through before reaching the grid. And the page is
+          shareable by design: the Copy link control exists for that, so a
+          reader arriving on a sent link has no history to go back to at all.
+
+          A real link to /cars rather than router.back(), for that second
+          reason. Left-aligned above the centred masthead, so it reads as
+          navigation out of the page rather than part of the title block.
+        */}
+        <Link
+          href="/cars"
+          className="group/back inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 py-1.5 pl-2.5 pr-4 text-ui-sm font-semibold text-slate-600 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
+        >
+          <ArrowLeft
+            size={15}
+            aria-hidden="true"
+            className="transition-transform duration-200 group-hover/back:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover/back:translate-x-0"
+          />
+          All cars
+        </Link>
+
+        <div className="mx-auto mt-8 max-w-3xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3.5 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.14em] text-plug-navy-800 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
             Side by side
