@@ -112,7 +112,7 @@ export function Hero({ cities }: HeroProps) {
         </div>
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
-        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:items-end lg:py-24 lg:pl-14 lg:pr-4 xl:pl-20">
+        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-24 lg:pl-14 lg:pr-10 xl:pl-20">
           {/* One quiet light source behind the type, so the solid half is not
               a flat fill. Nothing reads as a gradient; it reads as depth. */}
           <div
@@ -128,8 +128,8 @@ export function Hero({ cities }: HeroProps) {
             className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(80%_65%_at_45%_32%,rgba(15,76,147,0.34)_0%,transparent_70%)]"
           />
 
-          <div className="flex w-full max-w-[38rem] flex-col items-start text-left">
-            <span className="hero-rise hero-rise-1 mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07] px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
+          <div className="flex w-full max-w-[34rem] flex-col items-start text-left">
+            <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07] px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
               <span
                 aria-hidden="true"
                 className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400 shadow-[0_0_10px_2px_rgba(34,211,238,0.55)]"
@@ -163,13 +163,13 @@ export function Hero({ cities }: HeroProps) {
               up, and the phone value is unchanged because the panel is
               full-width there.
             */}
-            <h1 className="text-[clamp(2.75rem,4.4vw,4.5rem)] font-black leading-[0.94] tracking-[-0.04em] text-white">
+            <h1 className="text-[clamp(2.5rem,3.9vw,3.875rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">
               <span className="hero-rise hero-rise-2 block">Every charger</span>
               <span className="hero-rise hero-rise-3 block">in Pakistan,</span>
               <span className="hero-rise hero-rise-4 block text-plug-sky-300">on one map.</span>
             </h1>
 
-            <p className="hero-rise hero-rise-4 mt-7 max-w-[42ch] text-pretty text-lg leading-relaxed text-white/70 sm:text-xl">
+            <p className="hero-rise hero-rise-4 mt-6 max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white/65">
               Connector types, charging speeds, and reviews from drivers who actually
               charged there.
             </p>
@@ -182,7 +182,7 @@ export function Hero({ cities }: HeroProps) {
                 event.preventDefault()
                 go(query)
               }}
-              className="hero-rise hero-rise-5 mt-10 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/20 bg-white/[0.09] p-1.5 pl-5 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/45 focus-within:bg-white/[0.16]"
+              className="hero-rise hero-rise-5 mt-11 flex w-full max-w-[30rem] items-center gap-2 rounded-full border border-white/20 bg-white/[0.09] p-1.5 pl-5 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/45 focus-within:bg-white/[0.16]"
             >
               <Search size={18} className="shrink-0 text-white/70" aria-hidden="true" />
               <input
@@ -208,7 +208,7 @@ export function Hero({ cities }: HeroProps) {
               </button>
             </form>
 
-            <div className="hero-rise hero-rise-5 mt-5 flex flex-wrap items-center justify-center gap-2">
+            <div className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center justify-center gap-2">
               <span className="text-ui-xs uppercase tracking-[0.12em] text-white/45">Popular</span>
               {QUICK_CITIES.map((city) => (
                 <button
