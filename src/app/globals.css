@@ -183,8 +183,8 @@
     background-image: radial-gradient(
       125% 105% at 68% 42%,
       transparent 0%,
-      rgb(var(--hero-shade-rgb) / 0.16) 76%,
-      rgb(var(--hero-shade-rgb) / 0.42) 100%
+      rgb(var(--hero-shade-rgb) / 0.06) 82%,
+      rgb(var(--hero-shade-rgb) / 0.20) 100%
     );
   }
 
@@ -200,8 +200,8 @@
     background-image: linear-gradient(
       to bottom,
       rgb(var(--hero-ground-rgb) / 0) 0%,
-      rgb(var(--hero-ground-rgb) / 0.28) 52%,
-      rgb(var(--hero-ground-rgb) / 0.82) 86%,
+      rgb(var(--hero-ground-rgb) / 0) 66%,
+      rgb(var(--hero-ground-rgb) / 0.45) 84%,
       rgb(var(--hero-ground-rgb)) 98%,
       rgb(var(--hero-ground-rgb)) 100%
     );
@@ -212,10 +212,10 @@
       background-image: linear-gradient(
         to left,
         rgb(var(--hero-ground-rgb) / 0) 0%,
-        rgb(var(--hero-ground-rgb) / 0) 40%,
-        rgb(var(--hero-ground-rgb) / 0.36) 58%,
-        rgb(var(--hero-ground-rgb) / 0.86) 80%,
-        rgb(var(--hero-ground-rgb)) 93%,
+        rgb(var(--hero-ground-rgb) / 0) 74%,
+        rgb(var(--hero-ground-rgb) / 0.42) 86%,
+        rgb(var(--hero-ground-rgb) / 0.90) 94%,
+        rgb(var(--hero-ground-rgb)) 98%,
         rgb(var(--hero-ground-rgb)) 100%
       );
     }
@@ -226,9 +226,9 @@
   .hero-lift {
     background-image: radial-gradient(
       85% 70% at 40% 28%,
-      rgb(var(--hero-lift-rgb)) 0%,
-      rgb(var(--hero-lift-rgb) / 0.55) 44%,
-      transparent 74%
+      rgb(var(--hero-lift-rgb) / 0.60) 0%,
+      rgb(var(--hero-lift-rgb) / 0.22) 46%,
+      transparent 72%
     );
   }
 
