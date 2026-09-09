@@ -54,24 +54,25 @@ const HERO_VIDEO: string | null = null
  * The photograph. Poster for the video, and the whole backdrop without one.
  *
  * Its own path under /images/hero rather than borrowing a station photograph,
- * so replacing the hero image is one file and no code: drop a new JPEG at
- * public/images/hero/hero-charging.jpg and it is live.
+ * so replacing the hero image is one file and no code: drop a JPEG at
+ * public/images/hero/hero-porsche.jpg and it is live.
  *
- * What this frame wants, now that it is the left half of a split rather than a
+ * What this frame wants, now that it is the right half of a split rather than a
  * full-width backdrop:
  *
- *   Portrait or square subject matter reads better than landscape — the panel
- *   is roughly 56% of the width and full height, so a wide composition loses
- *   its sides to the crop.
+ *   Keep the subject right of centre. The left third dissolves into the navy
+ *   panel, so anything placed there disappears into it.
  *
- *   Keep the subject left of centre. The right fifth dissolves into the navy
- *   panel, so anything placed there disappears.
+ *   Landscape crops better than portrait. The panel is wider than it is tall,
+ *   so a portrait source is scaled to the width and loses its top and bottom —
+ *   about 13% each for the current image, which is why `objectPosition` exists
+ *   below.
  *
- *   Bright works as well as dark here. The type sits on the solid panel, not on
- *   the photograph, so this no longer has to be dark enough to read through —
- *   which is what the old full-width backdrop needed and what constrained it.
+ *   Bright works as well as dark. The type sits on the solid panel, not on the
+ *   photograph, so this no longer has to be dark enough to read through — the
+ *   constraint the old full-width backdrop was under.
  */
-const POSTER = '/images/hero/hero-charging.jpg'
+const POSTER = '/images/hero/hero-porsche.jpg'
 
 export interface HeroBackdropProps {
   /**
@@ -83,9 +84,23 @@ export interface HeroBackdropProps {
    * twice the size actually rendered.
    */
   sizes?: string
+  /**
+   * CSS object-position for the photograph.
+   *
+   * Needed once the backdrop became a panel rather than a full-width band. The
+   * current image is portrait and the panel is landscape, so `cover` scales to
+   * the width and crops about 13% off the top and bottom — which with the
+   * default centre took the top off the wall charger and the badge off the
+   * nose. Biasing the crop upward keeps the charger, the cable and the run of
+   * the bonnet, which is the part of the composition worth showing.
+   */
+  objectPosition?: string
 }
 
-export function HeroBackdrop({ sizes = '100vw' }: HeroBackdropProps) {
+export function HeroBackdrop({
+  sizes = '100vw',
+  objectPosition = 'center',
+}: HeroBackdropProps) {
   const [failed, setFailed] = React.useState(false)
   const [ready, setReady] = React.useState(false)
   const [allowVideo, setAllowVideo] = React.useState(false)
@@ -129,7 +144,8 @@ export function HeroBackdrop({ sizes = '100vw' }: HeroBackdropProps) {
         fill
         priority
         sizes={sizes}
-        className="object-cover object-center"
+        style={{ objectPosition }}
+        className="object-cover"
       />
 
       {showVideo ? (
@@ -146,7 +162,8 @@ export function HeroBackdrop({ sizes = '100vw' }: HeroBackdropProps) {
           onCanPlay={() => setReady(true)}
           onError={() => setFailed(true)}
           onStalled={() => setFailed(true)}
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+          style={{ objectPosition }}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
             ready ? 'opacity-100' : 'opacity-0'
           }`}
         >

@@ -1,14 +1,19 @@
 # Photo credits
 
-All photographs in this directory are real, human-taken stock photos from
-[Pexels](https://www.pexels.com). No AI-generated imagery is used.
+Every photograph here is real and human-taken. No AI-generated imagery is used.
 
-They are covered by the [Pexels License](https://www.pexels.com/license/):
-free for commercial and non-commercial use, no attribution required —
-credited here anyway because the photographers deserve it.
+Almost all of them come from [Pexels](https://www.pexels.com) under the
+[Pexels License](https://www.pexels.com/license/): free for commercial and
+non-commercial use, no attribution required — credited anyway because the
+photographers deserve it. Those files are listed with the Pexels photo ID they
+came from, so any one can be traced back to
+`https://www.pexels.com/photo/<id>/`.
 
-Each file is listed with the Pexels photo ID it came from, so any image can be
-traced back to its source at `https://www.pexels.com/photo/<id>/`.
+**One file is not from Pexels and its licence has not been established** — see
+"Unverified" at the foot of this file. This section used to open by saying every
+image here was Pexels-licensed, which stopped being true the moment that file
+was added; the claim is narrowed rather than left to quietly cover something it
+does not.
 
 ## Stations
 
@@ -32,7 +37,11 @@ traced back to its source at `https://www.pexels.com/photo/<id>/`.
 
 | File | Pexels ID | Photographer |
 | --- | --- | --- |
-| `hero/charging-hub-night.jpg` | 12860663 | solyartphotos |
+| — | — | — |
+
+`hero/charging-hub-night.jpg` (Pexels 12860663, solyartphotos) was removed when
+the hero moved to the split layout. It is still in git history if it is wanted
+back.
 
 ## Community
 
@@ -108,3 +117,25 @@ Three cars have no photograph, because Commons holds none: the Forthing Friday
 | `cars/omoda-e5.jpg` | LuvsMG481 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:2025_Chery_Omoda_E5_front.jpg) |
 | `cars/riddara-rd6.jpg` | User3204 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:2022_Radar_RD6_(front).jpg) |
 | `cars/xpeng-g6.jpg` | JustAnotherCarDesigner | CC0 | [Commons](https://commons.wikimedia.org/wiki/File:XPeng_G6_018_(cropped).jpg) |
+
+## Unverified
+
+| File | Source | Licence |
+| --- | --- | --- |
+| `hero/hero-porsche.jpg` | supplied by the site owner | **not established** |
+
+Added at the owner's request as the landing-page hero. It did not come from
+Pexels: it arrived as `Porsche L2000 (Concept).jfif`, a filename and format that
+indicate it was saved from a web page rather than downloaded from a stock
+library, and its embedded colour profile carries no author or licence field.
+
+The subject appears to be a manufacturer concept render. Those are normally
+press assets, and press assets are normally licensed for editorial use — not for
+the marketing page of a commercial product. That may be fine here; the owner may
+hold rights this file does not record. It is listed separately so that nobody
+later reads the Pexels statement at the top of this file and concludes the whole
+directory is cleared for commercial use.
+
+**Before this goes to production**, either confirm the licence and move the row
+into the Hero table with its source, or replace the file. Replacing it is one
+step and no code: drop a new image at `public/images/hero/hero-porsche.jpg`.

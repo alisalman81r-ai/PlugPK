@@ -58,25 +58,33 @@ export function Hero({ cities }: HeroProps) {
       ── The seam ──────────────────────────────────────────────────────
       Both halves are the same navy. The photograph does not stop at a boundary,
       it dissolves into the panel over roughly a fifth of the width, so there is
-      no edge to notice. Below `lg` the two stack and the same gradient turns
-      vertical, because a left-to-right dissolve on a stacked layout fades the
+      no edge to notice. Below `lg` the two stack and the gradient turns
+      vertical, because a horizontal dissolve on a stacked layout fades the
       wrong way — into nothing, rather than into what follows it.
+
+      ── Which side the photograph is on ───────────────────────────────
+      Type left, photograph right. The DOM order stays type-first regardless:
+      the h1 is the page's heading and should not follow a decorative figure,
+      so the photograph is moved with `order` rather than by being written
+      first. On a phone that puts it above the type, which is the reading order
+      wanted there.
     */
     /* No top padding: the (main) layout already offsets 72px for the fixed
        navbar, and adding it again here left a band of bare navy above the
        photograph that read as a gap rather than as clearance. */
     <section className="relative isolate w-full overflow-hidden bg-plug-navy-950">
-      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.06fr_0.94fr]">
-        {/* ── Left: the photograph ───────────────────────────────────── */}
-        <div className="relative isolate min-h-[300px] sm:min-h-[380px] lg:min-h-[42rem]">
+      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[0.94fr_1.06fr]">
+        {/* ── The photograph. Written second, shown first on a phone and on
+               the right from lg up — see the order note above. ──────────── */}
+        <div className="relative isolate order-first min-h-[340px] sm:min-h-[440px] lg:order-last lg:min-h-[42rem]">
           {/* A video once there is one, the photograph until then. */}
-          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 56vw" />
+          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 56vw" objectPosition="center 34%" />
 
           {/* Depth. The photograph is lit from its own centre outward, so a
               vignette keeps the corners from competing with the type opposite. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(120%_100%_at_35%_40%,transparent_0%,rgba(2,16,36,0.28)_70%,rgba(2,16,36,0.55)_100%)]"
+            className="absolute inset-0 bg-[radial-gradient(125%_105%_at_68%_42%,transparent_0%,rgba(2,16,36,0.10)_74%,rgba(2,16,36,0.30)_100%)]"
           />
 
           {/* The dissolve into the panel. Vertical while stacked, horizontal
@@ -84,32 +92,39 @@ export function Hero({ cities }: HeroProps) {
           <div
             aria-hidden="true"
             /*
-              The last stretch is flat navy, not a ramp ending at the edge.
+              The dissolve, now running right-to-left because the photograph
+              moved to the right of the panel.
 
-              Reaching #021024 exactly at 100% still showed a seam: the ramp was
-              steepest right where the two panels met, so the eye had a value
-              change to land on at the precise pixel of the join. Holding solid
-              from 92% gives the photograph a band of the panel's own colour to
-              end in, and the join has nothing to mark it.
+              Two things it has to do that the previous version did not. The
+              flat run of #021024 at the joining edge stays — reaching solid
+              exactly at the boundary put the ramp's steepest part on the join
+              itself, which is what made a seam visible at all.
+
+              And the ramp is longer. This photograph is a white car on a pale
+              grey wall, where the last one was a dark car at dusk; dropping
+              from near-white to #021024 over a fifth of the width banded
+              visibly. It now starts at 55% and only reaches solid at 8%, so
+              roughly half the panel is doing the work the old quarter did.
             */
-            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,16,36,0.08)_0%,rgba(2,16,36,0.40)_55%,#021024_94%,#021024_100%)] lg:bg-[linear-gradient(to_right,rgba(2,16,36,0.18)_0%,rgba(2,16,36,0.06)_38%,rgba(2,16,36,0.62)_74%,#021024_92%,#021024_100%)]"
+            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,16,36,0.04)_0%,rgba(2,16,36,0.30)_52%,rgba(2,16,36,0.80)_86%,#021024_98%,#021024_100%)] lg:bg-[linear-gradient(to_left,rgba(2,16,36,0.12)_0%,rgba(2,16,36,0.04)_38%,rgba(2,16,36,0.34)_55%,rgba(2,16,36,0.82)_78%,#021024_92%,#021024_100%)]"
           />
         </div>
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
-        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-24 lg:pl-4 lg:pr-14 xl:pr-20">
+        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:items-end lg:py-24 lg:pl-14 lg:pr-4 xl:pl-20">
           {/* One quiet light source behind the type, so the solid half is not
               a flat fill. Nothing reads as a gradient; it reads as depth. */}
           <div
             aria-hidden="true"
             /*
-              Centred at 55%, not 20%. Anchored near the left edge it was
+              Kept off the joining edge. Anchored against the seam it was
               brighter than the photograph's faded edge immediately beside it,
-              which drew the seam back as a hard line — the one thing the
-              dissolve exists to remove. Pushed to the middle of the panel, the
-              two meet at the same value and the join disappears.
+              which drew the join back as a hard line — the one thing the
+              dissolve exists to remove. The panel is on the left now, so the
+              glow moves with it: centred at 45%, away from the right-hand edge
+              where the two meet.
             */
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(80%_65%_at_55%_32%,rgba(15,76,147,0.34)_0%,transparent_70%)]"
+            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(80%_65%_at_45%_32%,rgba(15,76,147,0.34)_0%,transparent_70%)]"
           />
 
           <div className="flex w-full max-w-[38rem] flex-col items-start text-left">
@@ -223,7 +238,7 @@ export function Hero({ cities }: HeroProps) {
         own left edge so it reads as belonging to the column above it rather
         than to the page.
       */}
-      <div className="mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:justify-end lg:pb-12 lg:pr-14 xl:pr-20">
+      <div className="mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
         <Link
           href="/routes"
           className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-white/60 transition-colors duration-150 hover:text-plug-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
