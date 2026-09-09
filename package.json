@@ -8,6 +8,7 @@
     "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",

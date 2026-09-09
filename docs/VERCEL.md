@@ -24,11 +24,63 @@ first deploy or the build fails at page-data collection.
 The data is unchanged. `scripts/export-db.ts` wrote every row of all 25 tables
 to `data/db-export/`, and re-importing that export into an empty database and
 exporting it again produced byte-identical files. Nothing was added, dropped or
-rewritten — 48 cars, 6 stations, 14 connectors, 23 reviews, 12 services, 12
-community posts, 23 comments, 8 clubs, 2 crawl sources, 5 source records, 2
-crawl runs.
+rewritten.
+
+| Table | Rows | | Table | Rows |
+| --- | ---: | --- | --- | ---: |
+| Car | 48 | | Club | 8 |
+| Review | 23 | | Station | 6 |
+| Comment | 23 | | CarSourceRecord | 5 |
+| Connector | 14 | | CarSource | 2 |
+| EVService | 12 | | CrawlRun | 2 |
+| CommunityPost | 12 | | *14 empty tables* | 0 |
+
+**155 rows across 25 tables.** The fourteen empty tables — User, Business,
+Vehicle, SavedStation, MeetingRequest, the crawler's change-history and
+candidate tables — are genuinely empty in the source database, not skipped.
+
+## What was NOT tested
+
+**The migration has never been executed against PostgreSQL.** There is no
+Postgres on the machine this was prepared on — no Docker, no server, nothing on
+5432 — so `prisma migrate deploy` and `scripts/import-db.ts` have not run
+against a real Postgres.
+
+What that leaves proven and unproven:
+
+- **Proven.** The schema validates as PostgreSQL. The migration is byte-identical
+  to a fresh `prisma migrate diff` from the schema, so it has no drift: 25
+  tables, 60 indexes, 17 foreign keys. The generated client is built for
+  `postgresql`. The application compiles. The import logic round-trips 155 rows
+  byte-identically against a real database engine.
+- **Unproven.** That the DDL executes without error on a live Postgres, and that
+  the import completes there. Given a well-formed Postgres URL the application
+  now fails with "Can't reach database server" rather than any configuration
+  error, so reachability is the only thing left between here and a working
+  deploy — but "the only thing left" is not the same as "tested".
+
+Run step 2 locally before connecting Vercel, so anything unexpected happens in
+your terminal rather than in a build log.
 
 ---
+
+## Before anything: `db:reset` is now dangerous
+
+```jsonc
+"db:reset": "prisma migrate reset --force"
+```
+
+That script predates this migration. Against a local SQLite file it cost a
+reseed; against `DATABASE_URL` pointing at a shared Postgres it drops every
+table and every row, with `--force` skipping the confirmation. If `DATABASE_URL`
+is the production database when somebody runs it, the production database is
+what it resets.
+
+It is left in place because it is genuinely useful on a scratch database, and
+removing a script somebody may rely on is not this change's business. Know that
+it is there, and check what `DATABASE_URL` is pointing at before running it.
+
+Nothing in the deployment path below uses it.
 
 ## 1. Create a Postgres database
 
@@ -109,15 +161,71 @@ Push to `main`. Vercel builds automatically.
 
 ---
 
-## Checking it worked
+## Local development
 
-- `/cars` lists 48 cars.
-- **Search a lowercase brand.** `byd` must return the BYD cars. This is the one
-  behaviour that changed with the engine and the one most likely to be wrong if
-  something was missed.
-- `/cars/compare?ids=byd-seal,kia-ev5` fills every row of the table.
-- `/map` shows 6 stations.
-- Upload an image in the admin portal, if the Blob store is attached.
+`.env` is gitignored and is yours; `.env.example` documents every variable.
+
+```bash
+cp .env.example .env          # then fill in DATABASE_URL and the secrets
+npx prisma migrate deploy     # creates the schema
+npx tsx scripts/import-db.ts  # loads data/db-export/  -> 155 rows
+npm run dev                   # http://localhost:3000
+```
+
+Point `DATABASE_URL` at Postgres, not SQLite. There is no fallback and that is
+deliberate — see the note in `.env.example`. A separate Neon branch keeps local
+writes away from live data while behaving identically.
+
+`npm run dev` refuses to start if something is already listening on the port.
+Two dev servers share one `.next` and corrupt each other's manifests, which
+presents as "Internal Server Error" on one and 404s on the other rather than as
+anything that names the real problem. Stop the first, or give the second its own
+output directory:
+
+```bash
+NEXT_DIST_DIR=.next-alt npx next dev -p 3005
+```
+
+## Production verification checklist
+
+Work through this against the deployed URL, not localhost.
+
+**Public site**
+
+- [ ] Homepage renders, stats bar shows real figures
+- [ ] `/cars` lists **48** cars
+- [ ] Car search: `BYD`, `byd` and `Byd` all return the same BYD cars — the one
+      behaviour the engine change could break
+- [ ] Powertrain segments (Electric / Plug-in hybrid / Range extender / Hybrid)
+      filter and swap the masthead
+- [ ] `/cars/[slug]` detail page fills the specification table
+- [ ] `/cars/compare?ids=byd-seal,kia-ev5` fills every row
+- [ ] `/map` shows **6** stations and the pins cluster
+- [ ] Station detail page opens, shows its **connectors** and **reviews**
+- [ ] `/services` lists **12** services, category pages resolve
+- [ ] `/community` lists **12** posts; a post shows its **comments** (23 total)
+- [ ] `/community/clubs` lists **8** clubs
+- [ ] `/routes` planner loads
+
+**Admin** — only if `ENABLE_ADMIN=true`
+
+- [ ] `/admin` with no cookie redirects to login, does not render the portal
+- [ ] Wrong password is rejected
+- [ ] Correct password reaches the dashboard
+- [ ] Create, edit and delete a **throwaway** station or car — not a real row
+- [ ] Image upload succeeds and the image renders (needs the Blob store)
+- [ ] Sign out, then confirm `/admin` is protected again
+- [ ] With `ENABLE_ADMIN` unset, `/admin` 404s
+
+**Data**
+
+- [ ] Record counts match the table in this document
+- [ ] A review submitted from the public site persists across a reload
+
+**Responsive**
+
+- [ ] 390px: navigation drawer, car grid, filter sheet, compare table scroll
+- [ ] 768px and 1440px: no horizontal overflow
 
 ## Known and deliberate
 
