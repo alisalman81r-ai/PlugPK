@@ -73,12 +73,13 @@ export function Hero({ cities }: HeroProps) {
        navbar, and adding it again here left a band of bare navy above the
        photograph that read as a gap rather than as clearance. */
     <section className="relative isolate w-full overflow-hidden bg-plug-navy-950">
-      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[0.94fr_1.06fr]">
+      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
         {/* ── The photograph. Written second, shown first on a phone and on
                the right from lg up — see the order note above. ──────────── */}
-        <div className="relative isolate order-first min-h-[340px] sm:min-h-[440px] lg:order-last lg:min-h-[42rem]">
+        <div className="relative isolate order-first min-h-[340px] sm:min-h-[460px] lg:order-last lg:min-h-[54rem]">
           {/* A video once there is one, the photograph until then. */}
-          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 56vw" objectPosition="center 34%" />
+          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 46vw" objectPosition="center 42%"
+            quality={92} />
 
           {/* Depth. The photograph is lit from its own centre outward, so a
               vignette keeps the corners from competing with the type opposite. */}

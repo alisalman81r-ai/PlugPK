@@ -95,11 +95,22 @@ export interface HeroBackdropProps {
    * the bonnet, which is the part of the composition worth showing.
    */
   objectPosition?: string
+  /**
+   * next/image re-encode quality, 1-100. Defaults to Next's own 75.
+   *
+   * Worth raising for a hero that is being scaled up. The current photograph is
+   * 736x981 and the panel asks for roughly 1526x1344 on a 2x display, so the
+   * pixels are already stretched before Next re-encodes them — and a 75-quality
+   * re-encode of an upscale puts compression artifacts on top of softness. It
+   * cannot add detail that is not in the file; it can avoid removing more.
+   */
+  quality?: number
 }
 
 export function HeroBackdrop({
   sizes = '100vw',
   objectPosition = 'center',
+  quality = 75,
 }: HeroBackdropProps) {
   const [failed, setFailed] = React.useState(false)
   const [ready, setReady] = React.useState(false)
@@ -144,6 +155,7 @@ export function HeroBackdrop({
         fill
         priority
         sizes={sizes}
+        quality={quality}
         style={{ objectPosition }}
         className="object-cover"
       />
