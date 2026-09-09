@@ -72,7 +72,7 @@ export function Hero({ cities }: HeroProps) {
     /* No top padding: the (main) layout already offsets 72px for the fixed
        navbar, and adding it again here left a band of bare navy above the
        photograph that read as a gap rather than as clearance. */
-    <section className="relative isolate w-full overflow-hidden bg-plug-navy-950">
+    <section className="relative isolate w-full overflow-hidden bg-[#EEF2F8]">
       <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
         {/* ── The photograph. Written second, shown first on a phone and on
                the right from lg up — see the order note above. ──────────── */}
@@ -85,7 +85,7 @@ export function Hero({ cities }: HeroProps) {
               vignette keeps the corners from competing with the type opposite. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(125%_105%_at_68%_42%,transparent_0%,rgba(2,16,36,0.10)_74%,rgba(2,16,36,0.30)_100%)]"
+            className="absolute inset-0 bg-[radial-gradient(125%_105%_at_68%_42%,transparent_0%,rgba(214,223,236,0.16)_76%,rgba(214,223,236,0.42)_100%)]"
           />
 
           {/* The dissolve into the panel. Vertical while stacked, horizontal
@@ -107,7 +107,7 @@ export function Hero({ cities }: HeroProps) {
               visibly. It now starts at 55% and only reaches solid at 8%, so
               roughly half the panel is doing the work the old quarter did.
             */
-            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,16,36,0.04)_0%,rgba(2,16,36,0.30)_52%,rgba(2,16,36,0.80)_86%,#021024_98%,#021024_100%)] lg:bg-[linear-gradient(to_left,rgba(2,16,36,0.12)_0%,rgba(2,16,36,0.04)_38%,rgba(2,16,36,0.34)_55%,rgba(2,16,36,0.82)_78%,#021024_92%,#021024_100%)]"
+            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(238,242,248,0.00)_0%,rgba(238,242,248,0.28)_52%,rgba(238,242,248,0.82)_86%,#EEF2F8_98%,#EEF2F8_100%)] lg:bg-[linear-gradient(to_left,rgba(238,242,248,0.00)_0%,rgba(238,242,248,0.00)_40%,rgba(238,242,248,0.36)_58%,rgba(238,242,248,0.86)_80%,#EEF2F8_93%,#EEF2F8_100%)]"
           />
         </div>
 
@@ -125,14 +125,14 @@ export function Hero({ cities }: HeroProps) {
               glow moves with it: centred at 45%, away from the right-hand edge
               where the two meet.
             */
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(80%_65%_at_45%_32%,rgba(15,76,147,0.34)_0%,transparent_70%)]"
+            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_70%_at_40%_28%,#FFFFFF_0%,rgba(255,255,255,0.55)_44%,transparent_74%)]"
           />
 
           <div className="flex w-full max-w-[34rem] flex-col items-start text-left">
-            <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07] px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
+            <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
               <span
                 aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400 shadow-[0_0_10px_2px_rgba(34,211,238,0.55)]"
+                className="h-1.5 w-1.5 rounded-full bg-plug-blue-500 shadow-[0_0_8px_2px_rgba(59,130,246,0.35)]"
               />
               {cities > 0
                 ? `Live in ${cities} ${cities === 1 ? 'city' : 'cities'}`
@@ -163,13 +163,13 @@ export function Hero({ cities }: HeroProps) {
               up, and the phone value is unchanged because the panel is
               full-width there.
             */}
-            <h1 className="text-[clamp(2.5rem,3.9vw,3.875rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">
+            <h1 className="text-[clamp(2.875rem,4.6vw,4.625rem)] font-extrabold leading-[0.98] tracking-[-0.038em] text-slate-900">
               <span className="hero-rise hero-rise-2 block">Every charger</span>
               <span className="hero-rise hero-rise-3 block">in Pakistan,</span>
-              <span className="hero-rise hero-rise-4 block text-plug-sky-300">on one map.</span>
+              <span className="hero-rise hero-rise-4 block text-plug-navy-700">on one map.</span>
             </h1>
 
-            <p className="hero-rise hero-rise-4 mt-6 max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white/65">
+            <p className="hero-rise hero-rise-4 mt-6 max-w-[46ch] text-pretty text-[1.1875rem] leading-[1.62] text-slate-600">
               Connector types, charging speeds, and reviews from drivers who actually
               charged there.
             </p>
@@ -182,20 +182,20 @@ export function Hero({ cities }: HeroProps) {
                 event.preventDefault()
                 go(query)
               }}
-              className="hero-rise hero-rise-5 mt-11 flex w-full max-w-[30rem] items-center gap-2 rounded-full border border-white/20 bg-white/[0.09] p-1.5 pl-5 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/45 focus-within:bg-white/[0.16]"
+              className="hero-rise hero-rise-5 mt-11 flex w-full max-w-[30rem] items-center gap-2 rounded-full border border-slate-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-12px_rgba(15,23,42,0.22)] transition-colors duration-200 focus-within:border-slate-400"
             >
-              <Search size={18} className="shrink-0 text-white/70" aria-hidden="true" />
+              <Search size={18} className="shrink-0 text-slate-500" aria-hidden="true" />
               <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search a city or station"
                 aria-label="Search for a charging station by city or name"
-                className="field-glass min-w-0 flex-1 border-none bg-transparent py-2.5 text-[15px] text-white outline-none placeholder:text-white/55 [&::-webkit-search-cancel-button]:appearance-none"
+                className="min-w-0 flex-1 border-none bg-transparent py-2.5 text-[15px] text-slate-900 outline-none placeholder:text-slate-500 [&::-webkit-search-cancel-button]:appearance-none"
               />
               <button
                 type="submit"
-                className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-5 text-ui font-semibold text-plug-navy-950 transition-colors duration-200 hover:bg-plug-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-900 motion-reduce:transition-none"
+                className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-plug-navy-900 px-5 text-ui font-semibold text-white transition-colors duration-200 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-navy-900 focus-visible:ring-offset-2 motion-reduce:transition-none"
               >
                 <MapPin size={16} className="shrink-0" aria-hidden="true" />
                 <span className="hidden sm:inline">Find a station</span>
@@ -209,16 +209,16 @@ export function Hero({ cities }: HeroProps) {
             </form>
 
             <div className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-ui-xs uppercase tracking-[0.12em] text-white/45">Popular</span>
+              <span className="text-ui-xs uppercase tracking-[0.12em] text-slate-600">Popular</span>
               {QUICK_CITIES.map((city) => (
                 <button
                   key={city}
                   type="button"
                   onClick={() => go(city)}
                   className={cn(
-                    'rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-medium text-white/80 backdrop-blur-sm',
-                    'transition-colors duration-150 hover:border-white/40 hover:bg-white/[0.14] hover:text-white',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white',
+                    'rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-ui-xs font-medium text-slate-700',
+                    'transition-colors duration-150 hover:border-slate-400 hover:text-slate-900',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                   )}
                 >
                   {city}
@@ -230,19 +230,21 @@ export function Hero({ cities }: HeroProps) {
       </div>
 
       {/*
-        The route-planner line, now inside the navy.
+        The route-planner line, on the band's own left edge.
 
-        It was slate-500 on white, which was correct while this sat under a
-        white-backed hero and is invisible against #021024 — 1.6:1. On the band
-        it takes the same white/70 the rest of the panel uses and picks up the
-        sky accent on hover, and it moves off the centre line onto the panel's
-        own left edge so it reads as belonging to the column above it rather
-        than to the page.
+        Back to slate-500, which is where it started. It went white/60 when the
+        band was navy and slate-500 measured 1.6:1 against #021024; on the light
+        ground that reasoning reverses and the original colour is the correct
+        one again — 4.2:1, and 8.6:1 on the slate-900 hover.
+
+        What did not revert is the position. It sat centred under a full-width
+        hero; it is aligned to the type column now, so it reads as belonging to
+        what is above it rather than to the page.
       */}
       <div className="mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
         <Link
           href="/routes"
-          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-white/60 transition-colors duration-150 hover:text-plug-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
+          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
         >
           Driving between cities? Plan a route with charging stops
           <ArrowRight
