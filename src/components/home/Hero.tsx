@@ -73,7 +73,7 @@ export function Hero({ cities }: HeroProps) {
        navbar, and adding it again here left a band of bare navy above the
        photograph that read as a gap rather than as clearance. */
     <section className="relative isolate w-full overflow-hidden bg-white">
-      <div className="mx-auto grid w-full max-w-[1800px] bg-[#EEF2F8] lg:grid-cols-[1.08fr_0.92fr]">
+      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
         {/* ── The photograph. Written second, shown first on a phone and on
                the right from lg up — see the order note above. ──────────── */}
         <div className="relative isolate order-first min-h-[340px] sm:min-h-[460px] lg:order-last lg:min-h-[54rem]">
@@ -85,7 +85,7 @@ export function Hero({ cities }: HeroProps) {
               vignette keeps the corners from competing with the type opposite. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(125%_105%_at_68%_42%,transparent_0%,rgba(214,223,236,0.16)_76%,rgba(214,223,236,0.42)_100%)]"
+            className="hero-vignette absolute inset-0"
           />
 
           {/* The dissolve into the panel. Vertical while stacked, horizontal
@@ -107,7 +107,7 @@ export function Hero({ cities }: HeroProps) {
               visibly. It now starts at 55% and only reaches solid at 8%, so
               roughly half the panel is doing the work the old quarter did.
             */
-            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(238,242,248,0.00)_0%,rgba(238,242,248,0.28)_52%,rgba(238,242,248,0.82)_86%,#EEF2F8_98%,#EEF2F8_100%)] lg:bg-[linear-gradient(to_left,rgba(238,242,248,0.00)_0%,rgba(238,242,248,0.00)_40%,rgba(238,242,248,0.36)_58%,rgba(238,242,248,0.86)_80%,#EEF2F8_93%,#EEF2F8_100%)]"
+            className="hero-dissolve absolute inset-0"
           />
         </div>
 
@@ -125,7 +125,7 @@ export function Hero({ cities }: HeroProps) {
               glow moves with it: centred at 45%, away from the right-hand edge
               where the two meet.
             */
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_70%_at_40%_28%,#FFFFFF_0%,rgba(255,255,255,0.55)_44%,transparent_74%)]"
+            className="hero-lift pointer-events-none absolute inset-0 -z-10"
           />
 
           <div className="flex w-full max-w-[34rem] flex-col items-start text-left">
@@ -241,7 +241,7 @@ export function Hero({ cities }: HeroProps) {
         hero; it is aligned to the type column now, so it reads as belonging to
         what is above it rather than to the page.
       */}
-      <div className="mx-auto flex w-full max-w-[1800px] bg-[#EEF2F8] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
+      <div className="hero-band mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
         <Link
           href="/routes"
           className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"

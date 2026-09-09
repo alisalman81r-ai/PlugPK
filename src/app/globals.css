@@ -150,6 +150,89 @@
   }
 
   /**
+   * ── The hero band's colour, in one place ────────────────────────────
+   *
+   * The split hero is a photograph dissolving into a flat ground, and the
+   * ground colour has to appear in four different forms for that to work: the
+   * fill itself, the last stops of two dissolve gradients, the vignette that
+   * settles the photograph's corners, and the light lifting the type panel.
+   * Written as Tailwind arbitrary values that was fifteen literals across four
+   * lines, and every retheme meant finding all fifteen and getting the alpha
+   * variants right by hand — which is how a stale `rgba(2,16,36,…)` survived a
+   * light retheme once already.
+   *
+   * Three custom properties, four classes. Changing the band is now editing
+   * `--hero-ground-rgb` and `--hero-shade-rgb`, and nothing else moves.
+   *
+   *   --hero-ground-rgb  the flat fill, and what the photograph dissolves into
+   *   --hero-shade-rgb   a step darker, for the vignette only
+   *   --hero-lift-rgb    the glow behind the type; white on a light band
+   *
+   * Space-separated triples rather than hex, so `rgb(var(--x) / 0.28)` works.
+   */
+  .hero-band {
+    --hero-ground-rgb: 238 242 248;
+    --hero-shade-rgb: 214 223 236;
+    --hero-lift-rgb: 255 255 255;
+
+    background-color: rgb(var(--hero-ground-rgb));
+  }
+
+  /* Settles the photograph's corners so they do not compete with the type. */
+  .hero-vignette {
+    background-image: radial-gradient(
+      125% 105% at 68% 42%,
+      transparent 0%,
+      rgb(var(--hero-shade-rgb) / 0.16) 76%,
+      rgb(var(--hero-shade-rgb) / 0.42) 100%
+    );
+  }
+
+  /*
+    The dissolve. Vertical while the columns are stacked, horizontal once the
+    panel is beside the photograph rather than under it.
+
+    Both end on a flat run of the ground colour rather than ramping to it at the
+    boundary — a ramp whose steepest part lands on the join is exactly what
+    makes a seam visible.
+  */
+  .hero-dissolve {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--hero-ground-rgb) / 0) 0%,
+      rgb(var(--hero-ground-rgb) / 0.28) 52%,
+      rgb(var(--hero-ground-rgb) / 0.82) 86%,
+      rgb(var(--hero-ground-rgb)) 98%,
+      rgb(var(--hero-ground-rgb)) 100%
+    );
+  }
+
+  @media (min-width: 1024px) {
+    .hero-dissolve {
+      background-image: linear-gradient(
+        to left,
+        rgb(var(--hero-ground-rgb) / 0) 0%,
+        rgb(var(--hero-ground-rgb) / 0) 40%,
+        rgb(var(--hero-ground-rgb) / 0.36) 58%,
+        rgb(var(--hero-ground-rgb) / 0.86) 80%,
+        rgb(var(--hero-ground-rgb)) 93%,
+        rgb(var(--hero-ground-rgb)) 100%
+      );
+    }
+  }
+
+  /* Keeps the solid half from reading as a flat fill. Off the joining edge, or
+     it is brighter than the photograph beside it and draws the seam back. */
+  .hero-lift {
+    background-image: radial-gradient(
+      85% 70% at 40% 28%,
+      rgb(var(--hero-lift-rgb)) 0%,
+      rgb(var(--hero-lift-rgb) / 0.55) 44%,
+      transparent 74%
+    );
+  }
+
+  /**
    * The catalogue masthead arriving when the powertrain segment changes.
    *
    * Short and small: 260ms and 10px. The block is 150px of type near the top of
