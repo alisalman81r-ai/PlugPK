@@ -8,7 +8,7 @@ import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { HeroWorldMap } from './HeroWorldMap'
+import { WorldMap } from './WorldMap'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -92,7 +92,7 @@ export function Hero({ cities }: HeroProps) {
           below, which is not whitespace, it is a gap.
         */}
         <div className="relative order-first flex min-h-[240px] items-center justify-center px-6 py-10 sm:min-h-[300px] sm:px-10 lg:order-last lg:min-h-[34rem] lg:px-12 lg:py-16">
-          <HeroWorldMap className="h-auto w-full max-w-[46rem]" />
+          <WorldMap className="h-auto w-full max-w-[46rem]" />
         </div>
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
