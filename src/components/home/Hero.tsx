@@ -72,8 +72,8 @@ export function Hero({ cities }: HeroProps) {
     /* No top padding: the (main) layout already offsets 72px for the fixed
        navbar, and adding it again here left a band of bare navy above the
        photograph that read as a gap rather than as clearance. */
-    <section className="relative isolate w-full overflow-hidden bg-[#EEF2F8]">
-      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
+    <section className="relative isolate w-full overflow-hidden bg-white">
+      <div className="mx-auto grid w-full max-w-[1800px] bg-[#EEF2F8] lg:grid-cols-[1.08fr_0.92fr]">
         {/* ── The photograph. Written second, shown first on a phone and on
                the right from lg up — see the order note above. ──────────── */}
         <div className="relative isolate order-first min-h-[340px] sm:min-h-[460px] lg:order-last lg:min-h-[54rem]">
@@ -241,7 +241,7 @@ export function Hero({ cities }: HeroProps) {
         hero; it is aligned to the type column now, so it reads as belonging to
         what is above it rather than to the page.
       */}
-      <div className="mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
+      <div className="mx-auto flex w-full max-w-[1800px] bg-[#EEF2F8] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
         <Link
           href="/routes"
           className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
