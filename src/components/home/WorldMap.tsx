@@ -1,4 +1,9 @@
 // src/components/home/WorldMap.tsx
+'use client'
+
+import * as React from 'react'
+
+import { EVCar, EVCarDefs } from './EVCar'
 
 /**
  * The dotted world behind the hero, and the frame the EV journey will animate
@@ -7,8 +12,8 @@
  * ── The layers, and why they are separate ─────────────────────────────
  *
  *   map visual        the dotted land
- *   route layer       the line the journey follows        (empty — step 4)
- *   car layer         the vehicle travelling it           (empty — step 4)
+ *   route layer       the line the journey follows
+ *   car layer         the EV travelling it, at `carProgress`
  *   station layer     charging stops along the way
  *   destination layer where the journey ends
  *
@@ -37,8 +42,9 @@
  * the zoom a single animatable attribute rather than a transform on a group
  * that would take the stroke widths and dot radii with it.
  *
- * Step 4 interpolates VIEW.world -> VIEW.pakistan and runs the route inside the
- * second. This component stays still and knows nothing about scrolling.
+ * Step 6 interpolates between the framings and drives `carProgress`. This
+ * component stays still and knows nothing about scrolling — it takes a number
+ * and a viewBox, and both are the caller's business.
  */
 
 // ── Geometry ──────────────────────────────────────────────────────────
@@ -326,19 +332,77 @@ function RouteLayer() {
  * step 5 has something to move: giving the group a transform is the whole
  * change, and `getPointAtLength` on `.route-path` supplies the coordinates.
  */
-function CarLayer() {
+/**
+ * Where a car sits at `progress` along the route, and which way it points.
+ *
+ * ── Why this is not GSAP MotionPathPlugin ─────────────────────────────
+ *
+ * MotionPathPlugin is the right tool when a path has to be aligned to, rotated
+ * along and tweened in one declaration. Here the tween is the caller's job —
+ * step 6 owns the scroll and passes a number — so all that is actually needed
+ * is a point and a tangent, which is getPointAtLength twice and an atan2.
+ *
+ * That is this function, at no bytes. GSAP with MotionPathPlugin is roughly
+ * 70KB gzipped on the landing page's critical path, for arithmetic the browser
+ * already does natively.
+ *
+ * It stays worth installing for one thing: ScrollTrigger pinning, if step 6
+ * wants the hero held still while the car drives. Nothing here blocks that —
+ * the group this positions is a plain <g>, and MotionPathPlugin can target it
+ * directly and take over.
+ *
+ * The tangent is sampled across a span rather than differentiated: a Bézier's
+ * derivative at an endpoint is zero when its control point coincides with it,
+ * and atan2(0, 0) is 0 — the car would snap flat at exactly the two moments it
+ * is most visible.
+ */
+export function pointOnPath(
+  path: SVGPathElement,
+  progress: number,
+): { x: number; y: number; angle: number } {
+  const total = path.getTotalLength()
+  const at = total * Math.min(Math.max(progress, 0), 1)
+
+  const span = Math.max(total * 0.01, 0.5)
+  const behind = path.getPointAtLength(Math.max(at - span, 0))
+  const ahead = path.getPointAtLength(Math.min(at + span, total))
+  const here = path.getPointAtLength(at)
+
+  return {
+    x: here.x,
+    y: here.y,
+    angle: (Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180) / Math.PI,
+  }
+}
+
+/**
+ * The car on the route.
+ *
+ * Positioned after mount, not during render: getTotalLength needs a laid-out
+ * path and there is none on the server. Until then it sits at the first
+ * waypoint, which is where progress 0 resolves to anyway — so the hand-off is
+ * invisible rather than a jump from the origin.
+ *
+ * `progress` is a plain number in 0..1. Step 6 drives it from scroll; this
+ * component learns nothing about scrolling.
+ */
+function CarLayer({ progress, carLength }: { progress: number; carLength: number }) {
   const start = journeyPoints()[0]!
+  const [pose, setPose] = React.useState({ x: start.x, y: start.y, angle: 0 })
+
+  React.useEffect(() => {
+    const path = document.querySelector<SVGPathElement>('.route-path')
+    if (!path) return
+    setPose(pointOnPath(path, progress))
+  }, [progress])
 
   return (
-    <g data-layer="car" id="car-layer" transform={`translate(${start.x} ${start.y})`}>
-      <circle r={6.5} className="fill-plug-navy-900" />
-      <circle r={6.5} className="fill-none stroke-white" strokeWidth={1.6} />
-      {/* A bolt rather than a car silhouette — at 18 units across, a car reads
-          as a smudge and a bolt still reads as a bolt. */}
-      <path
-        d="M 0.8 -3.3 L -1.9 0.4 L -0.15 0.4 L -0.8 3.3 L 1.9 -0.4 L 0.15 -0.4 Z"
-        className="fill-white"
-      />
+    <g
+      data-layer="car"
+      id="car-layer"
+      transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle})`}
+    >
+      <EVCar length={carLength} />
     </g>
   )
 }
@@ -376,6 +440,10 @@ function StationMarker({ x, y }: { x: number; y: number }) {
 
 export interface WorldMapProps {
   className?: string
+  /** 0 = parked at the origin, 1 = arrived. Step 6 drives this from scroll. */
+  carProgress?: number
+  /** Car length in user units. See EVCar's note on why not pixels. */
+  carLength?: number
   /**
    * Which framing to draw. Defaults to the world.
    *
@@ -385,7 +453,12 @@ export interface WorldMapProps {
   viewBox?: string
 }
 
-export function WorldMap({ className, viewBox = VIEW.region }: WorldMapProps) {
+export function WorldMap({
+  className,
+  viewBox = VIEW.region,
+  carProgress = 0,
+  carLength = 11,
+}: WorldMapProps) {
   const destination = project(JOURNEY.destination.lon, JOURNEY.destination.lat)
 
   return (
@@ -413,11 +486,13 @@ export function WorldMap({ className, viewBox = VIEW.region }: WorldMapProps) {
         <filter id="worldmap-route-glow" x="-40%" y="-40%" width="180%" height="180%">
           <feGaussianBlur stdDeviation="2.4" />
         </filter>
+
+        <EVCarDefs />
       </defs>
 
       <MapVisual />
       <RouteLayer />
-      <CarLayer />
+      <CarLayer progress={carProgress} carLength={carLength} />
 
       <g data-layer="stations">
         {JOURNEY.stations.map((station) => {
