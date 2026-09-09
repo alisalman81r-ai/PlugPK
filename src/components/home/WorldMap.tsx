@@ -74,6 +74,30 @@ export function project(lon: number, lat: number): { x: number; y: number } {
  */
 export const VIEW = {
   world: `0 ${1 * STEP - STEP} ${MAP_WIDTH} ${30 * STEP}`,
+
+  /**
+   * The default. Europe and Africa's east through to south-east Asia, with the
+   * journey near the centre.
+   *
+   * Arrived at by measuring rather than by taste, because the two requirements
+   * pull against each other. A dotted map stops reading as a map below roughly
+   * twenty dots across; a route stops reading as a journey below roughly 8% of
+   * the frame's width. Across the range:
+   *
+   *     width   dots across   route
+   *      130         9        23.0%   dots become blobs, no map left
+   *      240        17        12.5%
+   *      340        24         8.8%   <- both hold
+   *      560        40         5.3%
+   *     1008        72         3.0%   route is a smudge
+   *
+   * 340 is inside the overlap. Both endpoints of that range were rendered, not
+   * assumed: at 130 the map reads as a diagram, at 1008 the whole journey is
+   * about twenty pixels.
+   */
+  region: '532 65 340 210',
+
+  /** Tight on the journey. For the end of a scroll zoom, not for a resting state. */
   pakistan: '648 118 130 96',
 } as const
 
@@ -191,6 +215,134 @@ export const JOURNEY = {
   destination: { name: 'Islamabad', lon: 73.05, lat: 33.68 },
 } as const satisfies { stations: readonly Waypoint[]; destination: Waypoint }
 
+// ── The route ─────────────────────────────────────────────────────────
+
+/**
+ * A smooth path through the waypoints, as one `d` string.
+ *
+ * Catmull-Rom converted to cubic Béziers. Two reasons it is generated rather
+ * than hand-authored: the control points come out of the waypoints, so moving a
+ * city moves the curve with it and nothing drifts out of sync; and the result
+ * is a single continuous path, which is what `strokeDasharray` needs to draw
+ * itself in evenly and what `getPointAtLength` needs to put a car on.
+ *
+ * A path built from separate segments per leg would animate each leg
+ * independently and jump at every join.
+ *
+ * `tension` at 0.2 is a gentle bow. Higher overshoots on the near-doubling-back
+ * between Lahore and Islamabad, which are 3.6 units apart on the x axis and
+ * would loop.
+ */
+function smoothPath(points: ReadonlyArray<{ x: number; y: number }>, tension = 0.2): string {
+  if (points.length < 2) return ''
+
+  const first = points[0]!
+  let d = `M ${first.x.toFixed(2)} ${first.y.toFixed(2)}`
+
+  for (let i = 0; i < points.length - 1; i += 1) {
+    // Duplicate the ends so the first and last legs curve like the middle ones
+    // rather than running straight out of the endpoints.
+    const p0 = points[i - 1] ?? points[i]!
+    const p1 = points[i]!
+    const p2 = points[i + 1]!
+    const p3 = points[i + 2] ?? p2
+
+    const c1x = p1.x + ((p2.x - p0.x) / 6) * (tension * 6)
+    const c1y = p1.y + ((p2.y - p0.y) / 6) * (tension * 6)
+    const c2x = p2.x - ((p3.x - p1.x) / 6) * (tension * 6)
+    const c2y = p2.y - ((p3.y - p1.y) / 6) * (tension * 6)
+
+    d += ` C ${c1x.toFixed(2)} ${c1y.toFixed(2)}, ${c2x.toFixed(2)} ${c2y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`
+  }
+
+  return d
+}
+
+/** Origin, stops and destination in travel order, projected. */
+function journeyPoints(): { x: number; y: number }[] {
+  return [
+    ...JOURNEY.stations.map((s) => project(s.lon, s.lat)),
+    project(JOURNEY.destination.lon, JOURNEY.destination.lat),
+  ]
+}
+
+const ROUTE_D = smoothPath(journeyPoints())
+
+/**
+ * The route: three strokes of the same `d`.
+ *
+ * They share the path string rather than each having their own, so the glow
+ * cannot drift from the line it is lighting and the dashes cannot drift from
+ * either.
+ *
+ *   glow     wide, low alpha, blurred — reads as light off the road
+ *   .route-path  the line itself, and the one GSAP will draw in
+ *   dashes   a thin overlay suggesting direction without animating
+ *
+ * `.route-path` is the class asked for and carries `pathLength={100}`, which
+ * normalises the geometry: `strokeDasharray="100"` and an offset from 100 to 0
+ * draws it in regardless of how long the path actually is, so retiming does not
+ * change when a waypoint moves.
+ */
+function RouteLayer() {
+  return (
+    <g data-layer="route">
+      <path
+        d={ROUTE_D}
+        fill="none"
+        className="stroke-plug-blue-500"
+        strokeWidth={5}
+        strokeLinecap="round"
+        opacity={0.22}
+        filter="url(#worldmap-route-glow)"
+      />
+      <path
+        id="route-path"
+        className="route-path stroke-plug-blue-500"
+        d={ROUTE_D}
+        pathLength={100}
+        fill="none"
+        strokeWidth={1.7}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d={ROUTE_D}
+        fill="none"
+        className="stroke-white"
+        strokeWidth={1}
+        strokeLinecap="round"
+        strokeDasharray="0.8 5"
+        opacity={0.75}
+      />
+    </g>
+  )
+}
+
+/**
+ * The car, parked at the start.
+ *
+ * Static, as asked. It is here rather than absent so the layer is proven and
+ * step 5 has something to move: giving the group a transform is the whole
+ * change, and `getPointAtLength` on `.route-path` supplies the coordinates.
+ */
+function CarLayer() {
+  const start = journeyPoints()[0]!
+
+  return (
+    <g data-layer="car" id="car-layer" transform={`translate(${start.x} ${start.y})`}>
+      <circle r={6.5} className="fill-plug-navy-900" />
+      <circle r={6.5} className="fill-none stroke-white" strokeWidth={1.6} />
+      {/* A bolt rather than a car silhouette — at 18 units across, a car reads
+          as a smudge and a bolt still reads as a bolt. */}
+      <path
+        d="M 0.8 -3.3 L -1.9 0.4 L -0.15 0.4 L -0.8 3.3 L 1.9 -0.4 L 0.15 -0.4 Z"
+        className="fill-white"
+      />
+    </g>
+  )
+}
+
 // ── Layers ────────────────────────────────────────────────────────────
 
 /** The dotted land. Very light grey, with Pakistan picked out in brand navy. */
@@ -215,9 +367,9 @@ function MapVisual() {
 function StationMarker({ x, y }: { x: number; y: number }) {
   return (
     <>
-      <circle cx={x} cy={y} r={26} fill="url(#worldmap-halo)" />
-      <circle cx={x} cy={y} r={5.5} className="fill-white" />
-      <circle cx={x} cy={y} r={3.6} className="fill-plug-blue-500" />
+      <circle cx={x} cy={y} r={12} fill="url(#worldmap-halo)" />
+      <circle cx={x} cy={y} r={4} className="fill-white" />
+      <circle cx={x} cy={y} r={2.5} className="fill-plug-blue-500" />
     </>
   )
 }
@@ -233,7 +385,7 @@ export interface WorldMapProps {
   viewBox?: string
 }
 
-export function WorldMap({ className, viewBox = VIEW.world }: WorldMapProps) {
+export function WorldMap({ className, viewBox = VIEW.region }: WorldMapProps) {
   const destination = project(JOURNEY.destination.lon, JOURNEY.destination.lat)
 
   return (
@@ -255,17 +407,17 @@ export function WorldMap({ className, viewBox = VIEW.world }: WorldMapProps) {
           <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.34" />
           <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
         </radialGradient>
+
+        {/* The route's glow. `stdDeviation` in user units, so it scales with
+            the viewBox and does not have to be retuned when the view zooms. */}
+        <filter id="worldmap-route-glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.4" />
+        </filter>
       </defs>
 
       <MapVisual />
-
-      {/*
-        Empty until step 4. Placed here rather than added later so the stacking
-        order is already right: the route sits above the land and below the
-        stations, and the car sits above the route it travels.
-      */}
-      <g data-layer="route" id="route-layer" />
-      <g data-layer="car" id="car-layer" />
+      <RouteLayer />
+      <CarLayer />
 
       <g data-layer="stations">
         {JOURNEY.stations.map((station) => {
@@ -277,15 +429,15 @@ export function WorldMap({ className, viewBox = VIEW.world }: WorldMapProps) {
       <g data-layer="destination">
         {/* A ring rather than a fourth dot, so the end of the journey is
             distinguishable from the stops along it at a glance. */}
-        <circle cx={destination.x} cy={destination.y} r={26} fill="url(#worldmap-halo)" />
+        <circle cx={destination.x} cy={destination.y} r={13} fill="url(#worldmap-halo)" />
         <circle
           cx={destination.x}
           cy={destination.y}
-          r={7.5}
+          r={5.2}
           className="fill-white stroke-plug-navy-700"
-          strokeWidth={2.5}
+          strokeWidth={1.8}
         />
-        <circle cx={destination.x} cy={destination.y} r={3} className="fill-plug-navy-700" />
+        <circle cx={destination.x} cy={destination.y} r={2} className="fill-plug-navy-700" />
       </g>
     </svg>
   )
