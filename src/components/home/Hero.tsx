@@ -38,70 +38,81 @@ export function Hero({ cities }: HeroProps) {
    */
 
   return (
-    <section className="bg-white px-3 pb-6 pt-[84px] sm:px-4 sm:pb-10 lg:px-6">
-      {/* The frame. Fixed layers — nothing in here moves. */}
-      <div className="relative isolate mx-auto min-h-[540px] max-w-[1600px] overflow-hidden rounded-[20px] sm:min-h-[600px] lg:min-h-[calc(100dvh-108px)] lg:rounded-[28px]">
-        {/* Layer 1 — the backdrop. A video once there is one, the photograph
-            until then. See HeroBackdrop for what the footage wants to be. */}
-        <HeroBackdrop />
-        {/*
-          Layer 2 — legibility, shaped rather than flat.
+    /*
+      ── A split band, not a framed panel ──────────────────────────────
+      Full bleed and square-cornered. It was an inset card with a 28px radius
+      floating on white, which reads as a component on a page; edge to edge, the
+      photograph is the top of the site rather than an illustration placed near
+      it.
 
-          The content is centred, so the scrim has to be densest along the
-          bottom where the words are. A flat bottom-to-top wash does that, and
-          it is what this had originally — but it takes the whole lower half of
-          the frame with it, and the lower half is where the car, the connector
-          and the light across the bodywork are.
+      ── Where the type sits, and why this reverses an earlier decision ──
+      The content was centred over the photograph, and the note that used to be
+      here argued for it: the search field is the only thing on this page a
+      visitor can act on, and centred it sits on the frame's own axis. That
+      reasoning holds for a hero where type is ON the image. It does not survive
+      the split, because there is no longer one axis — there are two panels, and
+      the control belongs on the axis of the one it lives in. Asked for by the
+      author, and the composition it produces is the better argument: the
+      photograph is no longer something to be read through.
 
-          Two layers instead. A vertical wash carrying most of the weight, and
-          an ellipse anchored to the bottom centre that adds density only where
-          the words actually sit. The lower corners stay lighter than a flat
-          wash would leave them, which is what keeps the wheel and the bodywork
-          readable while the type still has its ground.
-        */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-plug-navy-950/25" />
-        {/*
-          The phone stops are not a scaled copy of the desktop ones, and that
-          was found by measuring rather than by looking.
+      ── The seam ──────────────────────────────────────────────────────
+      Both halves are the same navy. The photograph does not stop at a boundary,
+      it dissolves into the panel over roughly a fifth of the width, so there is
+      no edge to notice. Below `lg` the two stack and the same gradient turns
+      vertical, because a left-to-right dissolve on a stacked layout fades the
+      wrong way — into nothing, rather than into what follows it.
+    */
+    /* No top padding: the (main) layout already offsets 72px for the fixed
+       navbar, and adding it again here left a band of bare navy above the
+       photograph that read as a gap rather than as clearance. */
+    <section className="relative isolate w-full overflow-hidden bg-plug-navy-950">
+      <div className="mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.06fr_0.94fr]">
+        {/* ── Left: the photograph ───────────────────────────────────── */}
+        <div className="relative isolate min-h-[300px] sm:min-h-[380px] lg:min-h-[42rem]">
+          {/* A video once there is one, the photograph until then. */}
+          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 56vw" />
 
-          A tall narrow frame pushes the headline well above the point a
-          bottom-anchored wash still has any weight. Measured on the rendered
-          pixels with the desktop values applied at both widths, the accent line
-          came out at 6.77:1 at 1440 and 4.24:1 at 390 — the same colour, the
-          same type size relative to the frame, less than two thirds of the
-          contrast. Holding density through the upper band on small screens
-          brings it back. It costs some of the photograph on a phone, where the
-          frame is mostly cropped away regardless.
-        */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgba(2,16,36,0.92)_0%,rgba(2,16,36,0.84)_30%,rgba(2,16,36,0.68)_62%,rgba(2,16,36,0.40)_100%)] sm:bg-[linear-gradient(to_top,rgba(2,16,36,0.90)_0%,rgba(2,16,36,0.76)_26%,rgba(2,16,36,0.40)_54%,rgba(2,16,36,0.12)_78%,transparent_100%)]"
-        />
-        {/* The ellipse is the part that keeps the lower corners lighter than a
-            flat wash would, so it is only worth having where there is width for
-            a centre to be distinct from an edge. */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-10 hidden bg-[radial-gradient(125%_78%_at_50%_100%,rgba(2,16,36,0.60)_0%,rgba(2,16,36,0.32)_46%,transparent_76%)] sm:block"
-        />
+          {/* Depth. The photograph is lit from its own centre outward, so a
+              vignette keeps the corners from competing with the type opposite. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[radial-gradient(120%_100%_at_35%_40%,transparent_0%,rgba(2,16,36,0.28)_70%,rgba(2,16,36,0.55)_100%)]"
+          />
 
-        {/*
-          Layer 3 — content, centred and anchored to the foot.
+          {/* The dissolve into the panel. Vertical while stacked, horizontal
+              once there is a panel to the right of it. */}
+          <div
+            aria-hidden="true"
+            /*
+              The last stretch is flat navy, not a ramp ending at the edge.
 
-          This was briefly left-aligned and vertically centred, which freed the
-          right of the frame for the photograph. Centred is the asked-for
-          composition and it is the better one here for a reason worth writing
-          down: the search field is the only thing on this page a visitor can
-          act on, and centred it sits directly under the headline on the
-          frame's own axis rather than off to one side of it. A hero whose
-          single control is off-axis makes the reader look for it.
+              Reaching #021024 exactly at 100% still showed a seam: the ramp was
+              steepest right where the two panels met, so the eye had a value
+              change to land on at the precise pixel of the join. Holding solid
+              from 92% gives the photograph a band of the panel's own colour to
+              end in, and the join has nothing to mark it.
+            */
+            className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,16,36,0.08)_0%,rgba(2,16,36,0.40)_55%,#021024_94%,#021024_100%)] lg:bg-[linear-gradient(to_right,rgba(2,16,36,0.18)_0%,rgba(2,16,36,0.06)_38%,rgba(2,16,36,0.62)_74%,#021024_92%,#021024_100%)]"
+          />
+        </div>
 
-          What the left-aligned pass was solving still had to be solved — the
-          photograph being flattened to make room for text — and that is what
-          the shaped scrim above does instead.
-        */}
-        <div className="relative flex min-h-[540px] flex-col items-center justify-end px-6 pb-14 pt-24 text-center sm:min-h-[600px] sm:pb-16 lg:min-h-[calc(100dvh-108px)] lg:pb-20">
-          <div className="flex w-full max-w-[44rem] flex-col items-center">
+        {/* ── Right: the solid panel ─────────────────────────────────── */}
+        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-24 lg:pl-4 lg:pr-14 xl:pr-20">
+          {/* One quiet light source behind the type, so the solid half is not
+              a flat fill. Nothing reads as a gradient; it reads as depth. */}
+          <div
+            aria-hidden="true"
+            /*
+              Centred at 55%, not 20%. Anchored near the left edge it was
+              brighter than the photograph's faded edge immediately beside it,
+              which drew the seam back as a hard line — the one thing the
+              dissolve exists to remove. Pushed to the middle of the panel, the
+              two meet at the same value and the join disappears.
+            */
+            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(80%_65%_at_55%_32%,rgba(15,76,147,0.34)_0%,transparent_70%)]"
+          />
+
+          <div className="flex w-full max-w-[38rem] flex-col items-start text-left">
             <span className="hero-rise hero-rise-1 mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.07] px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-white/85 backdrop-blur-md">
               <span
                 aria-hidden="true"
@@ -126,7 +137,17 @@ export function Hero({ cities }: HeroProps) {
               Spans rather than <br>, which a screen reader announces as a pause
               mid-sentence. These are block-level and read as one heading.
             */}
-            <h1 className="text-[clamp(2.75rem,7vw,5.75rem)] font-black leading-[0.92] tracking-[-0.045em] text-white">
+            {/*
+              Smaller than it was, because the measure is. At 7vw capped to
+              5.75rem the type was sized for a frame the full width of the page;
+              in a panel of roughly 620px "Every charger" no longer fits on one
+              line, and the three deliberate lines below became four arbitrary
+              ones — which is exactly what setting them explicitly was meant to
+              prevent. 4.4vw capped to 4.5rem holds the intended shape from 1024
+              up, and the phone value is unchanged because the panel is
+              full-width there.
+            */}
+            <h1 className="text-[clamp(2.75rem,4.4vw,4.5rem)] font-black leading-[0.94] tracking-[-0.04em] text-white">
               <span className="hero-rise hero-rise-2 block">Every charger</span>
               <span className="hero-rise hero-rise-3 block">in Pakistan,</span>
               <span className="hero-rise hero-rise-4 block text-plug-sky-300">on one map.</span>
@@ -192,10 +213,20 @@ export function Hero({ cities }: HeroProps) {
         </div>
       </div>
 
-      <div className="mx-auto mt-5 flex max-w-[1600px] justify-center lg:mt-6">
+      {/*
+        The route-planner line, now inside the navy.
+
+        It was slate-500 on white, which was correct while this sat under a
+        white-backed hero and is invisible against #021024 — 1.6:1. On the band
+        it takes the same white/70 the rest of the panel uses and picks up the
+        sky accent on hover, and it moves off the centre line onto the panel's
+        own left edge so it reads as belonging to the column above it rather
+        than to the page.
+      */}
+      <div className="mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:justify-end lg:pb-12 lg:pr-14 xl:pr-20">
         <Link
           href="/routes"
-          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-4"
+          className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-white/60 transition-colors duration-150 hover:text-plug-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950"
         >
           Driving between cities? Plan a route with charging stops
           <ArrowRight

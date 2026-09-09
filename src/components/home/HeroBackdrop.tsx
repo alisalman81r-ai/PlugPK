@@ -50,10 +50,42 @@ import * as React from 'react'
  */
 const HERO_VIDEO: string | null = null
 
-/** The photograph. Poster for the video, and the whole backdrop without one. */
-const POSTER = '/images/stations/gulberg-charging-station-1.jpg'
+/**
+ * The photograph. Poster for the video, and the whole backdrop without one.
+ *
+ * Its own path under /images/hero rather than borrowing a station photograph,
+ * so replacing the hero image is one file and no code: drop a new JPEG at
+ * public/images/hero/hero-charging.jpg and it is live.
+ *
+ * What this frame wants, now that it is the left half of a split rather than a
+ * full-width backdrop:
+ *
+ *   Portrait or square subject matter reads better than landscape — the panel
+ *   is roughly 56% of the width and full height, so a wide composition loses
+ *   its sides to the crop.
+ *
+ *   Keep the subject left of centre. The right fifth dissolves into the navy
+ *   panel, so anything placed there disappears.
+ *
+ *   Bright works as well as dark here. The type sits on the solid panel, not on
+ *   the photograph, so this no longer has to be dark enough to read through —
+ *   which is what the old full-width backdrop needed and what constrained it.
+ */
+const POSTER = '/images/hero/hero-charging.jpg'
 
-export function HeroBackdrop() {
+export interface HeroBackdropProps {
+  /**
+   * What share of the viewport this fills, for next/image's srcset choice.
+   *
+   * It was hardcoded to 100vw, which was true while the backdrop spanned the
+   * whole hero. It now fills the left panel of a split, so on a desktop it is
+   * a little over half the width and 100vw would fetch a candidate roughly
+   * twice the size actually rendered.
+   */
+  sizes?: string
+}
+
+export function HeroBackdrop({ sizes = '100vw' }: HeroBackdropProps) {
   const [failed, setFailed] = React.useState(false)
   const [ready, setReady] = React.useState(false)
   const [allowVideo, setAllowVideo] = React.useState(false)
@@ -96,7 +128,7 @@ export function HeroBackdrop() {
         alt=""
         fill
         priority
-        sizes="100vw"
+        sizes={sizes}
         className="object-cover object-center"
       />
 
