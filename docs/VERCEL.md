@@ -39,28 +39,50 @@ rewritten.
 Vehicle, SavedStation, MeetingRequest, the crawler's change-history and
 candidate tables — are genuinely empty in the source database, not skipped.
 
-## What was NOT tested
+## What has been tested, and what has not
 
-**The migration has never been executed against PostgreSQL.** There is no
-Postgres on the machine this was prepared on — no Docker, no server, nothing on
-5432 — so `prisma migrate deploy` and `scripts/import-db.ts` have not run
-against a real Postgres.
+All of this ran against **PostgreSQL 18**, started locally by `npm run db:local`:
 
-What that leaves proven and unproven:
+| Checked | Result |
+| --- | --- |
+| `prisma migrate deploy` | Applied clean — 25 tables, 60 indexes, 17 foreign keys |
+| `scripts/import-db.ts` | **155 rows in 1 pass** |
+| SQLite export vs Postgres re-export | **Byte-identical, 24/24 files** |
+| Application against Postgres | Every public route 200, no runtime errors |
+| Case-insensitive search | `BYD`, `byd`, `Byd`, `bYd` all return the BYD cars |
+| `npx tsc --noEmit` | Clean |
+| `npm run lint` | Clean |
+| `npm run build` | **Succeeds — 137 pages prerendered** |
 
-- **Proven.** The schema validates as PostgreSQL. The migration is byte-identical
-  to a fresh `prisma migrate diff` from the schema, so it has no drift: 25
-  tables, 60 indexes, 17 foreign keys. The generated client is built for
-  `postgresql`. The application compiles. The import logic round-trips 155 rows
-  byte-identically against a real database engine.
-- **Unproven.** That the DDL executes without error on a live Postgres, and that
-  the import completes there. Given a well-formed Postgres URL the application
-  now fails with "Can't reach database server" rather than any configuration
-  error, so reachability is the only thing left between here and a working
-  deploy — but "the only thing left" is not the same as "tested".
+**Not tested, and cannot be from here:**
 
-Run step 2 locally before connecting Vercel, so anything unexpected happens in
-your terminal rather than in a build log.
+- The deploy itself. Nothing has run on Vercel.
+- **Vercel Blob uploads.** With no `BLOB_READ_WRITE_TOKEN` the code takes its
+  filesystem path, so the Blob branch has never executed. Test an admin upload
+  as soon as the store is attached.
+- The admin portal end to end, which needs `ENABLE_ADMIN=true` and a password.
+- Hosted-Postgres specifics: connection pooling and cold-start latency behave
+  differently on Neon or Supabase than on a local server.
+
+### One finding worth carrying into production
+
+**The database must be UTF8.** The first import attempt failed on exactly one
+row of 155 — `alektra-solar-mini-x4`, whose notes contain `≈` (U+2248) — with
+SQLSTATE `22P05`:
+
+```
+character with byte sequence 0xe2 0x89 0x88 in encoding "UTF8"
+has no equivalent in encoding "WIN1252"
+```
+
+The cluster had been created with the host's Windows locale, giving WIN1252.
+Neon, Supabase and Vercel Postgres all default to UTF8, so this should not
+recur — but if an import ever fails on a single row while the other 154 succeed,
+this is why. Check with:
+
+```sql
+SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database();
+```
 
 ---
 
@@ -165,16 +187,46 @@ Push to `main`. Vercel builds automatically.
 
 `.env` is gitignored and is yours; `.env.example` documents every variable.
 
+There are two ways to get a database. The first needs no accounts.
+
+**A local Postgres, one command.** In its own terminal:
+
 ```bash
-cp .env.example .env          # then fill in DATABASE_URL and the secrets
-npx prisma migrate deploy     # creates the schema
-npx tsx scripts/import-db.ts  # loads data/db-export/  -> 155 rows
-npm run dev                   # http://localhost:3000
+npm run db:local
+```
+
+First run downloads a Postgres server into `.localdb/` (gitignored), creates a
+UTF8 cluster, applies the migration and imports all 155 rows. Later runs just
+start it. Ctrl-C stops it; the data stays. It prints the `DATABASE_URL` to paste
+into `.env`.
+
+It is a real PostgreSQL, not an emulation, so `contains`, collation and
+constraints behave exactly as they will in production. The server is installed
+into `.localdb/` rather than added to `package.json` on purpose: Vercel installs
+devDependencies during a build, and a ~30MB database binary has no business
+being downloaded on every deploy.
+
+**Or a hosted database.** Point `DATABASE_URL` at Neon or Supabase and run:
+
+```bash
+npx prisma migrate deploy
+npx tsx scripts/import-db.ts   # -> 155 rows imported in 1 pass
+```
+
+Either way:
+
+```bash
+cp .env.example .env    # fill in DATABASE_URL and the secrets
+npm run dev             # http://localhost:3000
 ```
 
 Point `DATABASE_URL` at Postgres, not SQLite. There is no fallback and that is
-deliberate — see the note in `.env.example`. A separate Neon branch keeps local
-writes away from live data while behaving identically.
+deliberate — see the note in `.env.example`.
+
+`npm run dev` runs a preflight check first and refuses to start on a state that
+would fail confusingly later: a port already serving, a SQLite URL left in
+`.env`, or a database URL nothing answers on. Each says what is wrong and what
+to run.
 
 `npm run dev` refuses to start if something is already listening on the port.
 Two dev servers share one `.next` and corrupt each other's manifests, which

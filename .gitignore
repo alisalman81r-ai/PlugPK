@@ -50,3 +50,9 @@ logs/
 .screenshots/
 test-results/
 playwright-report/
+
+# Local database URL backups — never source.
+.env.backup-*
+
+# Local development database — a Postgres cluster, never source.
+.localdb/
