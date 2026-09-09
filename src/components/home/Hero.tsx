@@ -8,7 +8,7 @@ import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { HeroBackdrop } from './HeroBackdrop'
+import { HeroWorldMap } from './HeroWorldMap'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -74,41 +74,25 @@ export function Hero({ cities }: HeroProps) {
        photograph that read as a gap rather than as clearance. */
     <section className="relative isolate w-full overflow-hidden bg-white">
       <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
-        {/* ── The photograph. Written second, shown first on a phone and on
-               the right from lg up — see the order note above. ──────────── */}
-        <div className="relative isolate order-first min-h-[340px] sm:min-h-[460px] lg:order-last lg:min-h-[54rem]">
-          {/* A video once there is one, the photograph until then. */}
-          <HeroBackdrop sizes="(max-width: 1024px) 100vw, 46vw" objectPosition="center 42%"
-            quality={92} />
+        {/*
+          ── The map ───────────────────────────────────────────────────
+          Written second, shown first on a phone and on the right from lg up —
+          see the order note above.
 
-          {/* Depth. The photograph is lit from its own centre outward, so a
-              vignette keeps the corners from competing with the type opposite. */}
-          <div
-            aria-hidden="true"
-            className="hero-vignette absolute inset-0"
-          />
+          The photograph and its two overlays are gone. A dissolve and a
+          vignette existed to solve a problem a photograph has and this does
+          not: a rectangular image has an edge, and the edge had to be hidden.
+          The map is drawn on transparency, sits on the same ground as the type
+          and has no edge to hide — so the panel is the ground, and nothing is
+          painted over it.
 
-          {/* The dissolve into the panel. Vertical while stacked, horizontal
-              once there is a panel to the right of it. */}
-          <div
-            aria-hidden="true"
-            /*
-              The dissolve, now running right-to-left because the photograph
-              moved to the right of the panel.
-
-              Two things it has to do that the previous version did not. The
-              flat run of #021024 at the joining edge stays — reaching solid
-              exactly at the boundary put the ramp's steepest part on the join
-              itself, which is what made a seam visible at all.
-
-              And the ramp is longer. This photograph is a white car on a pale
-              grey wall, where the last one was a dark car at dusk; dropping
-              from near-white to #021024 over a fifth of the width banded
-              visibly. It now starts at 55% and only reaches solid at 8%, so
-              roughly half the panel is doing the work the old quarter did.
-            */
-            className="hero-dissolve absolute inset-0"
-          />
+          The height comes down from 54rem to 34rem with it. That was set to fit
+          a portrait photograph without cropping the car out of it; a landscape
+          map in a tall panel is a small graphic with empty space above and
+          below, which is not whitespace, it is a gap.
+        */}
+        <div className="relative order-first flex min-h-[240px] items-center justify-center px-6 py-10 sm:min-h-[300px] sm:px-10 lg:order-last lg:min-h-[34rem] lg:px-12 lg:py-16">
+          <HeroWorldMap className="h-auto w-full max-w-[46rem]" />
         </div>
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
