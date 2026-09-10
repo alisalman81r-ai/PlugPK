@@ -69,8 +69,17 @@ const PHASE = {
  *   0.480-0.610  charging  0% to 100%, driven only by scroll
  *   0.610-0.632  ready     complete state, held long enough to read
  *   0.624-0.649  exit      popup is gone BEFORE the car moves at 0.650
+ *   0.652-0.700  charger goes quiet again behind the departing car
  */
 const CHARGER_WAKE: readonly [number, number] = [0.45, 0.48]
+/**
+ * And going quiet again once the car has gone.
+ *
+ * Found in QA: without this the halo stayed lit for the whole second drive
+ * and was still burning at the destination, which reads as a charger that
+ * never finished. It fades out just after the car departs.
+ */
+const CHARGER_SLEEP: readonly [number, number] = [0.652, 0.7]
 /** Popup enters after the car has stopped, not while it is still arriving. */
 const POPUP_IN: readonly [number, number] = [0.455, 0.49]
 const CHARGING: readonly [number, number] = [0.48, 0.61]
@@ -169,28 +178,100 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         destination.style.transformOrigin = `${end.x}px ${end.y}px`
       }
 
-      /** Everything the page shows at master progress `t`. Pure in `t`. */
+      /*
+        ── Direction ─────────────────────────────────────────────────────
+
+        The two directions now tell different stories, so route progress is
+        no longer a pure function of t. It is a small state machine, and it
+        lives here alone — nothing downstream asks which way the user is
+        going.
+
+        Forward keeps the approved mapping, hold and all. Reverse is
+        continuous: the car drives back through the charger without stopping.
+
+        ── Why an anchor, and not two fixed curves ───────────────────────
+
+        A fixed reverse curve teleports. Forward and reverse can only agree
+        where both are pinned — p=0 below t=0.08 and p=1 above t=0.94 — and
+        anywhere between them the two functions return different positions
+        for the same t. Switching at, say, t=0.55 would jump the car by the
+        difference.
+
+        So the switch records where the car actually was and rebuilds the
+        mapping from that point:
+
+          reverse   p falls linearly from anchorP to 0 as t falls to 0.
+                    Monotonic by construction, so it cannot pause at 0.5.
+
+          forward   the approved curve plus the offset it was carrying at the
+                    moment of the switch, decayed to nothing over BLEND. The
+                    car rejoins the real curve and the freeze stays exact —
+                    once decayed, p IS forwardAt(t), not an approximation.
+
+        Both are continuous at the switch by construction: at t = anchorT
+        each returns exactly anchorP. The car never leaves the path; only the
+        fraction along it is remapped.
+      */
+      const DIRECTION_EPSILON = 0.0004
+      const BLEND = 0.05
+
+      let mode: 'forward' | 'reverse' = 'forward'
+      let anchorT = 0
+      let anchorP = 0
+      let carried = 0
+      let lastT = 0
+      let lastP = 0
+
+      const progressFor = (t: number): number => {
+        const dt = t - lastT
+        // A deadzone, so trackpad jitter around a standstill cannot flip the
+        // story back and forth and flash the charging card.
+        if (Math.abs(dt) > DIRECTION_EPSILON) {
+          const heading = dt > 0 ? 'forward' : 'reverse'
+          if (heading !== mode) {
+            mode = heading
+            anchorT = lastT
+            anchorP = lastP
+            carried = heading === 'forward' ? anchorP - routeProgressAt(anchorT) : 0
+          }
+        }
+
+        let p: number
+        if (mode === 'reverse') {
+          p = anchorT > 0 ? anchorP * clamp01(t / anchorT) : 0
+        } else {
+          const decay = 1 - spanProgress(anchorT, anchorT + BLEND, t)
+          p = clamp01(routeProgressAt(t) + carried * decay)
+        }
+
+        lastT = t
+        lastP = p
+        return p
+      }
+
+      /** Everything the page shows at master progress `t`. */
       const apply = (t: number) => {
-        const p = routeProgressAt(t)
+        const p = progressFor(t)
+        // Charging is a forward-story event. On reverse the car simply drives
+        // through, so every part of the charging UI is held at zero rather
+        // than being range-checked — that is what stops it flashing as the
+        // boundaries are crossed backwards.
+        const forward = mode === 'forward'
 
         /*
-          The master progress, published on the scene element.
-
-          One dataset write per frame — no layout read, no React. It exists
-          because the phase boundaries are otherwise unobservable from
-          outside: a test can measure where the car IS, but not which phase
-          the timeline thinks it is in, and reverse-engineering that from
-          scroll pixels got the pin offset wrong and produced a false
-          regression report. Anything checking this animation should read
-          this rather than convert pixels.
+          The master progress, published on the scene element. One dataset
+          write per frame, no layout read. It is the only external handle on
+          which phase the timeline believes it is in — reverse-engineering
+          that from scroll pixels once produced a false regression report.
         */
         sceneEl.dataset.journeyProgress = t.toFixed(4)
 
         // pathLength is 100 on both strokes, so the dash maths is in percent
-        // and never needs retiming when a waypoint moves.
-        const offset = String(100 - p * 100)
-        route.style.strokeDashoffset = offset
-        if (glow) glow.style.strokeDashoffset = offset
+        // and never needs retiming when a waypoint moves. The route retracts
+        // with the car on the way back, so the two stay connected.
+        const dash = String(100 - p * 100)
+        route.style.strokeDashoffset = dash
+        if (glow) glow.style.strokeDashoffset = dash
 
         const pose = pointAt(p)
         car.setAttribute(
@@ -200,10 +281,14 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           ).toFixed(2)})`,
         )
 
+        const charge = forward ? spanProgress(CHARGING[0], CHARGING[1], t) : 0
+        const ready = forward && charge >= 1
+
         if (popup) {
-          const shown =
-            spanProgress(POPUP_IN[0], POPUP_IN[1], t) *
-            (1 - spanProgress(POPUP_OUT[0], POPUP_OUT[1], t))
+          const shown = forward
+            ? spanProgress(POPUP_IN[0], POPUP_IN[1], t) *
+              (1 - spanProgress(POPUP_OUT[0], POPUP_OUT[1], t))
+            : 0
           popup.style.opacity = String(shown)
           // Grows out of the charging point rather than fading in place.
           popup.style.transform = `scale(${(0.94 + 0.06 * shown).toFixed(3)}) translate(0px, ${(
@@ -211,18 +296,18 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           ).toFixed(2)}px)`
         }
 
-        /*
-          ── Charging ──────────────────────────────────────────────────
-          Every value below is a pure function of `t`. There is no timer, no
-          interval and no independent CSS animation: stop scrolling and the
-          percentage stops with you, scroll back and it counts down.
-        */
-        const charge = spanProgress(CHARGING[0], CHARGING[1], t)
-        const ready = charge >= 1
-
-        if (charger) charger.style.opacity = String(spanProgress(CHARGER_WAKE[0], CHARGER_WAKE[1], t))
+        if (charger) {
+          charger.style.opacity = String(
+            forward
+              ? spanProgress(CHARGER_WAKE[0], CHARGER_WAKE[1], t) *
+                  (1 - spanProgress(CHARGER_SLEEP[0], CHARGER_SLEEP[1], t))
+              : 0,
+          )
+        }
         if (fill) fill.setAttribute('width', (BAR_WIDTH * charge).toFixed(2))
 
+        // Guarded: textContent is a layout write, and at sixty frames a
+        // second almost every one of these is a no-op.
         const whole = Math.round(charge * 100)
         if (pct && whole !== lastPct) {
           pct.textContent = `${whole}%`
