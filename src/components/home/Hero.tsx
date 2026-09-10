@@ -8,9 +8,6 @@ import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { CHARGING_STOP, WorldMap } from './WorldMap'
-import { JourneyStatus } from './JourneyStatus'
-import { useEvJourney } from './useEvJourney'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -28,12 +25,6 @@ export function Hero({ cities }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
 
-  /*
-    The journey is scrubbed against this section's scroll range. The hook owns
-    ScrollTrigger entirely; this component only says where the range is.
-  */
-  const sceneRef = React.useRef<HTMLElement>(null)
-  useEvJourney({ scene: sceneRef, stop: CHARGING_STOP })
 
   const go = (value: string) => {
     const trimmed = value.trim()
@@ -83,45 +74,31 @@ export function Hero({ cities }: HeroProps) {
        navbar, and adding it again here left a bare band above the map that
        read as a gap rather than as clearance. */
     /*
-      ── The scene, and why it is 300vh ────────────────────────────────
-      The journey is scrubbed against this element's scroll range, and the band
-      inside it is `sticky`, so the hero holds still while the range is
-      travelled. Three viewport heights is the distance the ten phases need to
-      land one at a time rather than overlapping into a blur; below about 2.4
-      the charging stop and the departure collide.
-
-      `overflow-x-clip` rather than `overflow-hidden`: hidden on a scroll
-      ancestor makes `position: sticky` inside it stop working, because the
-      element then sticks to that scroll container instead of the viewport. This
-      cost an hour the first time. Clip contains the horizontal axis without
-      creating a scroll context.
-
-      Below `lg` and under reduced motion the hook renders the finished state
-      and never builds a timeline, so the extra height would be three empty
-      screens — hence `lg:h-[300vh]` and nothing at all before it.
+      ── An ordinary band again ────────────────────────────────────────
+      This was 300vh with a sticky child, which existed for one reason: to give
+      the scroll-scrubbed journey a range to be scrubbed against. The map is
+      out, so that range would now be three viewport heights of empty
+      scrolling before the page continued. Both go with it.
     */
-    <section
-      ref={sceneRef}
-      className="relative isolate w-full overflow-x-clip bg-white lg:h-[300vh]"
-    >
-      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:grid-cols-[1.08fr_0.92fr]">
+    <section className="relative isolate w-full overflow-x-clip bg-white">
+      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
         {/*
-          ── The map ───────────────────────────────────────────────────
-          Written second, shown first on a phone and on the right from lg up —
-          see the order note above.
+          ── The visual column, deliberately empty ─────────────────────
+          Held open rather than collapsed, on the author's instruction: the
+          space is being kept free for whatever replaces the map.
 
-          No wrapper, no overlay, no reserved width. The column is sized by the
-          grid's own `0.92fr` and the SVG fills it; there is nothing between
-          the two but padding. Everything the journey needs to sit on top of
-          the map — origin, route, charging stop, destination, car — is inside
-          the SVG, in its own coordinate space, so an overlay is a child of
-          WorldMap and never an absolutely-positioned element guessing at
-          pixels.
+          It reserves width only from `lg` up. Below that the grid is a single
+          column and an empty div there would be dead vertical space above the
+          headline on a phone — so it contributes nothing until there are two
+          columns to divide.
+
+          `aria-hidden` and no children: there is nothing here to announce,
+          and without it some screen readers still walk into the node.
         */}
-        <div className="relative order-first flex min-h-[240px] items-center justify-center px-6 py-10 sm:min-h-[300px] sm:px-10 lg:order-last lg:min-h-0 lg:px-12 lg:py-16">
-          <WorldMap className="h-auto w-full max-w-[46rem]" />
-          <JourneyStatus />
-        </div>
+        <div
+          aria-hidden="true"
+          className="hidden lg:order-last lg:block lg:min-h-[34rem]"
+        />
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
         <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
