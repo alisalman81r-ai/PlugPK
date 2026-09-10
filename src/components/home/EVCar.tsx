@@ -36,7 +36,7 @@ export interface EVCarProps {
    * The default is measured, not chosen. At the hero's framing the whole route
    * is 36.6 units, so a car of 11 is 30% of the journey it is on — already
    * generous for a vehicle on a road, and the largest that still leaves the
-   * route readable underneath it. See the note in WorldMap about what this
+   * route readable underneath it. See the note in PakistanMap about what this
    * means for the 60-90px figure.
    */
   length?: number

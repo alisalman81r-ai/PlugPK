@@ -16,7 +16,7 @@ gsap.registerPlugin(ScrollTrigger)
  * no translate, no rotate, no viewBox tween, no parallax, and no opacity on
  * the <svg> that contains it. An earlier version zoomed a wrapper group from
  * the regional framing in to Pakistan; that group no longer exists in
- * WorldMap, so there is nothing here to animate even by accident.
+ * PakistanMap, so there is nothing here to animate even by accident.
  *
  * The elements that do move are all listed in PARTS below. If a selector is
  * not in that object, this hook never writes to it.

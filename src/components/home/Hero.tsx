@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
+import { PakistanMap } from './PakistanMap'
 import { cn } from '@/lib/utils'
 
 /** Enough to start from without turning the hero into a filter panel. */
@@ -104,26 +105,8 @@ export function Hero({ cities }: HeroProps) {
       three screens of empty scrolling.
     */
     <section className="relative isolate flex min-h-[calc(100svh-72px)] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
-      <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[1.08fr_0.92fr]">
-        {/*
-          ── The visual column, deliberately empty ─────────────────────
-          Held open rather than collapsed, on the author's instruction: the
-          space is being kept free for whatever replaces the map.
-
-          It reserves width only from `lg` up. Below that the grid is a single
-          column and an empty div there would be dead vertical space above the
-          headline on a phone — so it contributes nothing until there are two
-          columns to divide.
-
-          `aria-hidden` and no children: there is nothing here to announce,
-          and without it some screen readers still walk into the node.
-        */}
-        <div
-          aria-hidden="true"
-          className="hidden lg:order-last lg:block lg:min-h-[34rem]"
-        />
-
-        {/* ── Right: the solid panel ─────────────────────────────────── */}
+      <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[0.86fr_1.14fr]">
+        {/* ── The type ─────────────────────────────────────────────── */}
         <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
           {/* One quiet light source behind the type, so the solid half is not
               a flat fill. Nothing reads as a gradient; it reads as depth. */}
@@ -238,6 +221,25 @@ export function Hero({ cities }: HeroProps) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/*
+          ── The map column ────────────────────────────────────────────
+          Written after the type, not before it, and with no `order`
+          utilities. The h1 is the page's heading and should precede a
+          decorative figure in the DOM; writing it first also gives the phone
+          the stacking that was asked for — content, then Pakistan — without
+          a breakpoint-specific override to get there.
+
+          The padding is the composition. The map is centred in this column
+          rather than in the viewport, and the column is the wider half, so
+          the silhouette sits right of the page's centre line and clear of
+          the headline. `min-h-0` lets the grid row govern the height on
+          desktop; the explicit heights below `lg` are what stop it
+          collapsing once it is the only thing in a stacked row.
+        */}
+        <div className="flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14">
+          <PakistanMap className="h-full max-h-[78vh] w-full" />
         </div>
       </div>
 
