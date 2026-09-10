@@ -58,9 +58,26 @@ const PHASE = {
   driveTwoEnd: 0.94,
 } as const
 
-/** Popup fades in just after arrival and out just before departure. */
-const POPUP_IN: readonly [number, number] = [0.45, 0.5]
-const POPUP_OUT: readonly [number, number] = [0.62, 0.66]
+/**
+ * The charging sub-phases, inside the approved 0.45-0.65 hold.
+ *
+ * The hold itself is untouched — routeProgressAt() still returns exactly
+ * CHARGE_PROGRESS across the whole band, so the car does not move by so much
+ * as a rounding error while any of this happens.
+ *
+ *   0.450-0.480  arrival   charger wakes, popup enters
+ *   0.480-0.610  charging  0% to 100%, driven only by scroll
+ *   0.610-0.632  ready     complete state, held long enough to read
+ *   0.632-0.662  exit      popup leaves before the car does
+ */
+const CHARGER_WAKE: readonly [number, number] = [0.45, 0.48]
+/** Popup enters after the car has stopped, not while it is still arriving. */
+const POPUP_IN: readonly [number, number] = [0.455, 0.49]
+const CHARGING: readonly [number, number] = [0.48, 0.61]
+const POPUP_OUT: readonly [number, number] = [0.632, 0.662]
+
+/** Width of the progress bar's track, in user units. Matches JourneyLayers. */
+const BAR_WIDTH = 128
 /** The destination's arrival emphasis. */
 const ARRIVAL: readonly [number, number] = [0.94, 1]
 
@@ -133,6 +150,19 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         popup.style.transformBox = 'view-box'
         popup.style.transformOrigin = `${anchor.x}px ${anchor.y}px`
       }
+      // Cached once. These are written on every scroll frame, so they must
+      // never be re-queried inside apply().
+      const charger = sceneEl.querySelector<SVGGElement>('#journey-charger-active')
+      const title = sceneEl.querySelector<SVGTextElement>('#jc-title')
+      const pct = sceneEl.querySelector<SVGTextElement>('#jc-pct')
+      const fill = sceneEl.querySelector<SVGRectElement>('#jc-fill')
+      const bolt = sceneEl.querySelector<SVGPathElement>('#jc-bolt')
+      const check = sceneEl.querySelector<SVGPathElement>('#jc-check')
+      // Only touch the DOM when the words actually change — textContent is a
+      // layout write, and at sixty frames a second most of them are no-ops.
+      let lastPct = -1
+      let lastReady: boolean | null = null
+
       const end = pointAt(1)
       if (destination) {
         destination.style.transformBox = 'view-box'
@@ -142,6 +172,19 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
       /** Everything the page shows at master progress `t`. Pure in `t`. */
       const apply = (t: number) => {
         const p = routeProgressAt(t)
+
+        /*
+          The master progress, published on the scene element.
+
+          One dataset write per frame — no layout read, no React. It exists
+          because the phase boundaries are otherwise unobservable from
+          outside: a test can measure where the car IS, but not which phase
+          the timeline thinks it is in, and reverse-engineering that from
+          scroll pixels got the pin offset wrong and produced a false
+          regression report. Anything checking this animation should read
+          this rather than convert pixels.
+        */
+        sceneEl.dataset.journeyProgress = t.toFixed(4)
 
         // pathLength is 100 on both strokes, so the dash maths is in percent
         // and never needs retiming when a waypoint moves.
@@ -168,6 +211,30 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           ).toFixed(2)}px)`
         }
 
+        /*
+          ── Charging ──────────────────────────────────────────────────
+          Every value below is a pure function of `t`. There is no timer, no
+          interval and no independent CSS animation: stop scrolling and the
+          percentage stops with you, scroll back and it counts down.
+        */
+        const charge = spanProgress(CHARGING[0], CHARGING[1], t)
+        const ready = charge >= 1
+
+        if (charger) charger.style.opacity = String(spanProgress(CHARGER_WAKE[0], CHARGER_WAKE[1], t))
+        if (fill) fill.setAttribute('width', (BAR_WIDTH * charge).toFixed(2))
+
+        const whole = Math.round(charge * 100)
+        if (pct && whole !== lastPct) {
+          pct.textContent = `${whole}%`
+          lastPct = whole
+        }
+        if (ready !== lastReady) {
+          if (title) title.textContent = ready ? 'Ready' : 'Charging'
+          if (bolt) bolt.style.opacity = ready ? '0' : '1'
+          if (check) check.style.opacity = ready ? '1' : '0'
+          lastReady = ready
+        }
+
         if (destination) {
           const arrived = spanProgress(ARRIVAL[0], ARRIVAL[1], t)
           destination.style.opacity = String(0.85 + 0.15 * arrived)
@@ -192,6 +259,8 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           */
           if (still) {
             gsap.set([route, glow].filter(Boolean), { strokeDasharray: 'none' })
+            // apply(1) puts the journey at its end: charging complete, popup
+            // and charger faded out, car at the destination.
             apply(1)
             if (route) route.style.strokeDashoffset = '0'
             if (glow) glow.style.strokeDashoffset = '0'

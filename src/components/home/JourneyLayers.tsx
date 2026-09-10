@@ -107,6 +107,24 @@ export function JourneyLayers() {
           ring, bolt, card — is in the hidden group below.
         */}
         <circle cx={CHARGER.x} cy={CHARGER.y} r={3} className="fill-plug-blue-600" opacity={0.5} />
+
+        {/*
+          The charger waking up. Hidden until the car arrives; the hook fades
+          this group in over the arrival sub-phase. One ring and a soft halo —
+          no repeated pulsing, no radar waves.
+        */}
+        <g id="journey-charger-active" opacity={0} className="pointer-events-none">
+          <circle cx={CHARGER.x} cy={CHARGER.y} r={17} className="fill-plug-cyan-400" opacity={0.16} />
+          <circle
+            cx={CHARGER.x}
+            cy={CHARGER.y}
+            r={9}
+            fill="none"
+            className="stroke-plug-blue-500"
+            strokeWidth={2}
+          />
+          <circle cx={CHARGER.x} cy={CHARGER.y} r={4.4} className="fill-plug-blue-600" />
+        </g>
       </g>
 
       {/* ── The far end ────────────────────────────────────────────────── */}
@@ -146,6 +164,19 @@ export function JourneyLayers() {
         space. A positioned HTML card would need the SVG's letterboxing
         recomputed on every breakpoint to stay put.
       */}
+      {/*
+        ── The charging popup ────────────────────────────────────────────
+
+        One card, reused for every state. "Charging" becomes "Ready" and the
+        bolt becomes a tick — there is no second popup to keep in sync.
+
+        Everything the hook mutates carries an id: #jc-title, #jc-pct,
+        #jc-fill, #jc-bolt, #jc-check. Nothing here computes anything; this
+        file is the markup and journey/useEvJourney own the numbers.
+
+        Still SVG, still anchored off CHARGER, so it stays locked to the route
+        through every resize.
+      */}
       <g
         id="journey-charge-popup"
         data-layer="charge-popup"
@@ -153,41 +184,86 @@ export function JourneyLayers() {
         className="pointer-events-none"
       >
         <g className={MARKER_SCALE}>
-          {/* The pointer, behind the card so its seam is covered. */}
+          {/* Pointer, behind the card so its seam is covered. */}
           <path
-            d={`M ${CHARGER.x + 14} ${CHARGER.y} L ${CHARGER.x + 22} ${CHARGER.y - 6}
-                L ${CHARGER.x + 22} ${CHARGER.y + 6} Z`}
+            d={`M ${CHARGER.x + 14} ${CHARGER.y} L ${CHARGER.x + 23} ${CHARGER.y - 7}
+                L ${CHARGER.x + 23} ${CHARGER.y + 7} Z`}
             className="fill-white"
           />
           <rect
-            x={CHARGER.x + 21}
-            y={CHARGER.y - 26}
-            width={132}
-            height={52}
-            rx={10}
+            x={CHARGER.x + 22}
+            y={CHARGER.y - 31}
+            width={152}
+            height={62}
+            rx={11}
             className="fill-white stroke-slate-200"
             strokeWidth={1.4}
             filter="url(#journey-card-shadow)"
           />
-          {/* Bolt, drawn not typed: no font dependency, no translation. */}
-          <circle cx={CHARGER.x + 42} cy={CHARGER.y} r={12} className="fill-plug-blue-50" />
+
+          {/* Bolt while charging, tick when ready. Same disc, cross-faded. */}
+          <circle cx={CHARGER.x + 43} cy={CHARGER.y - 10} r={11} className="fill-plug-blue-50" />
           <path
-            d={`M ${CHARGER.x + 43.4} ${CHARGER.y - 6.5} L ${CHARGER.x + 38} ${CHARGER.y + 0.8}
-                L ${CHARGER.x + 41.6} ${CHARGER.y + 0.8} L ${CHARGER.x + 40.2} ${CHARGER.y + 6.5}
-                L ${CHARGER.x + 45.6} ${CHARGER.y - 0.8} L ${CHARGER.x + 42} ${CHARGER.y - 0.8} Z`}
+            id="jc-bolt"
+            d={`M ${CHARGER.x + 44.3} ${CHARGER.y - 16} L ${CHARGER.x + 39.2} ${CHARGER.y - 9.2}
+                L ${CHARGER.x + 42.6} ${CHARGER.y - 9.2} L ${CHARGER.x + 41.3} ${CHARGER.y - 4}
+                L ${CHARGER.x + 46.4} ${CHARGER.y - 10.8} L ${CHARGER.x + 43} ${CHARGER.y - 10.8} Z`}
             className="fill-plug-blue-600"
           />
+          <path
+            id="jc-check"
+            d={`M ${CHARGER.x + 38.6} ${CHARGER.y - 10.2} L ${CHARGER.x + 41.8} ${CHARGER.y - 7}
+                L ${CHARGER.x + 47.4} ${CHARGER.y - 13.4}`}
+            fill="none"
+            className="stroke-plug-blue-600"
+            strokeWidth={2.4}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0}
+          />
+
           <text
+            id="jc-title"
             x={CHARGER.x + 60}
-            y={CHARGER.y - 2}
+            y={CHARGER.y - 11}
             className="fill-plug-navy-900 text-[15px] font-semibold"
           >
             Charging
           </text>
+          {/* The percentage is deliberately smaller than the title. */}
           <text
-            x={CHARGER.x + 60}
-            y={CHARGER.y + 13}
-            className="fill-slate-500 text-[12px] font-medium"
+            id="jc-pct"
+            x={CHARGER.x + 166}
+            y={CHARGER.y - 11}
+            textAnchor="end"
+            className="fill-slate-500 text-[12.5px] font-semibold tabular-nums"
+          >
+            0%
+          </text>
+
+          {/* Track and fill. The hook animates the fill's width only. */}
+          <rect
+            x={CHARGER.x + 38}
+            y={CHARGER.y + 1}
+            width={128}
+            height={5}
+            rx={2.5}
+            className="fill-slate-200"
+          />
+          <rect
+            id="jc-fill"
+            x={CHARGER.x + 38}
+            y={CHARGER.y + 1}
+            width={0}
+            height={5}
+            rx={2.5}
+            className="fill-plug-blue-600"
+          />
+
+          <text
+            x={CHARGER.x + 38}
+            y={CHARGER.y + 22}
+            className="fill-slate-500 text-[11px] font-medium uppercase tracking-[0.1em]"
           >
             Fast charger
           </text>
