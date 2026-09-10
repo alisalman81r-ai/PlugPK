@@ -120,22 +120,17 @@ Three cars have no photograph, because Commons holds none: the Forthing Friday
 
 ## Unverified
 
-| File | Source | Licence |
-| --- | --- | --- |
-| `hero/hero-porsche.jpg` | supplied by the site owner | **not established** |
+None.
 
-Added at the owner's request as the landing-page hero. It did not come from
-Pexels: it arrived as `Porsche L2000 (Concept).jfif`, a filename and format that
-indicate it was saved from a web page rather than downloaded from a stock
-library, and its embedded colour profile carries no author or licence field.
+`hero/hero-porsche.jpg` was listed here and has been deleted. Its licence was
+never established: it arrived as `Porsche L2000 (Concept).jfif`, a filename and
+format indicating it was saved from a web page rather than downloaded from a
+stock library, and its embedded colour profile carried no author or licence
+field. The subject appeared to be a manufacturer concept render — normally a
+press asset, and press assets are normally editorial-use only, not cleared for
+the marketing page of a commercial product.
 
-The subject appears to be a manufacturer concept render. Those are normally
-press assets, and press assets are normally licensed for editorial use — not for
-the marketing page of a commercial product. That may be fine here; the owner may
-hold rights this file does not record. It is listed separately so that nobody
-later reads the Pexels statement at the top of this file and concludes the whole
-directory is cleared for commercial use.
-
-**Before this goes to production**, either confirm the licence and move the row
-into the Hero table with its source, or replace the file. Replacing it is one
-step and no code: drop a new image at `public/images/hero/hero-porsche.jpg`.
+The landing page no longer uses a photograph. Its hero is an inline SVG map
+drawn in `src/components/home/WorldMap.tsx`, which is code in this repository
+and carries no third-party licence at all. The risk this row recorded is gone
+rather than deferred.
