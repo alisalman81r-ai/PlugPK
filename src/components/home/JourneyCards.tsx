@@ -24,8 +24,17 @@ import { MapPin, Route, Zap } from 'lucide-react'
  * ── Placement ─────────────────────────────────────────────────────────
  *
  * A loose triangle rather than a stack or a grid: one high on the left, one
- * low on the left, one low on the right. Percentages, so they hold their
- * relationship to the silhouette as the panel scales.
+ * low on the left, one low on the right.
+ *
+ * Percentages of the PANEL, which is not quite the same as percentages of the
+ * map. The silhouette is height-constrained and letterboxes, so a wider panel
+ * puts more empty space either side of it and the same percentage drifts away
+ * from the coast. Measured: at 1440 the cards sat 39%, 49% and 24% over land;
+ * at 1920 the same values gave 29%, 10% and 0%.
+ *
+ * Hence the 2xl overrides, which pull them back in above 1536px. 2xl and not
+ * xl, because xl starts at 1280 and would also move them at 1440, where they
+ * are already right.
  *
  * They are pushed slightly INTO the map's edge — a card fully outside reads
  * as a caption, one overlapping by a fifth reads as a layer above it. The
@@ -79,7 +88,7 @@ export function JourneyCards() {
         icon={<Zap size={14} aria-hidden="true" />}
         title="Fast charging"
         detail="Find compatible stations"
-        className="journey-float-a left-[30%] top-[8%] hidden sm:flex lg:left-[36%] lg:top-[9%]"
+        className="journey-float-a left-[34%] top-[8%] hidden sm:flex lg:left-[45%] lg:top-[9%]"
       />
 
       {/*
@@ -94,7 +103,7 @@ export function JourneyCards() {
         icon={<Route size={14} aria-hidden="true" />}
         title="Route ready"
         detail="Plan charging stops"
-        className="journey-float-b bottom-[16%] left-[4%] lg:bottom-[18%] lg:left-[2%]"
+        className="journey-float-b bottom-[16%] left-[4%] lg:bottom-[18%] lg:left-[2%] 2xl:left-[7%]"
       />
 
       {/*
@@ -105,7 +114,7 @@ export function JourneyCards() {
         icon={<MapPin size={14} aria-hidden="true" />}
         title="Live network"
         detail="Explore across Pakistan"
-        className="journey-float-c bottom-[11%] right-[7%] hidden lg:flex"
+        className="journey-float-c bottom-[9%] right-[24%] hidden lg:flex 2xl:right-[29%]"
       />
     </>
   )
