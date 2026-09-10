@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
+import { JourneyCards } from './JourneyCards'
 import { JourneyLayers } from './JourneyLayers'
 import { PakistanMap } from './PakistanMap'
 import { useEvJourney } from './useEvJourney'
@@ -255,11 +256,15 @@ export function Hero({ cities }: HeroProps) {
         */}
         <div
           ref={stageRef}
-          className="flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14"
+          className="relative flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14"
         >
           <PakistanMap className="h-full max-h-[78vh] w-full">
             <JourneyLayers />
           </PakistanMap>
+
+          {/* Ambient product cards, floating around the silhouette — not a
+              frame on it. Siblings of the map, never a wrapper. */}
+          <JourneyCards />
         </div>
       </div>
 

@@ -1,20 +1,18 @@
 // src/components/home/PakistanMap.tsx
 
 /**
- * Pakistan, as a dotted silhouette, filling the right half of the hero.
+ * Pakistan, as an open silhouette, filling the right half of the hero.
  *
  * ── How the shape is made ─────────────────────────────────────────────
  *
  * One boundary polygon in lon/lat, projected once at module load into a fixed
- * SVG coordinate space, and used as a `clipPath` over a tiled dot `<pattern>`.
- * The dots are not individual elements: the whole country is a single <rect>
- * filled with the pattern and clipped to the outline.
+ * SVG coordinate space, and drawn three times: a lifted surface, a coast, and
+ * a faint inner highlight.
  *
- * That matters for more than tidiness. Generating a dot per grid cell would be
- * roughly 1,400 <circle> nodes for this outline at this density — a DOM cost
- * paid on every render, and a diff nobody can read. The pattern is four nodes
- * total and the browser tiles it on the GPU, so density is one number here
- * rather than a loop, and the dots stay perfectly aligned at any scale.
+ * It was a dot pattern clipped to that outline. The dots are gone — the shape
+ * now carries itself, and nothing in this file is a rectangle. There is no
+ * container, no frame and no panel: the hero's own background runs up to the
+ * coast and stops.
  *
  * ── Where the geometry came from ──────────────────────────────────────
  *
@@ -128,10 +126,6 @@ export const VIEW_BOX = [
   (BOUNDS.maxY - BOUNDS.minY + MARGIN * 2).toFixed(1),
 ].join(' ')
 
-/** Dot grid pitch and radius, in user units. */
-const DOT_PITCH = 15
-const DOT_R = 3.1
-
 export interface PakistanMapProps {
   className?: string
   /**
@@ -159,49 +153,58 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
     >
       <defs>
         {/*
-          The dots. `patternUnits="userSpaceOnUse"` ties the grid to the map's
-          coordinate space, not to the element's box — so the pitch is constant
-          relative to the country at every screen size, and the pattern does
-          not reflow when the container changes shape.
+          The land's surface. A near-white top falling to a pale cool blue,
+          which is what makes the shape read as lifted off the band rather
+          than painted onto it. Both stops stay close to the hero's own
+          #EEF2F8, so it is a change of level, not a change of colour.
         */}
-        <pattern
-          id="pk-dots"
-          x={0}
-          y={0}
-          width={DOT_PITCH}
-          height={DOT_PITCH}
-          patternUnits="userSpaceOnUse"
-        >
-          <circle cx={DOT_PITCH / 2} cy={DOT_PITCH / 2} r={DOT_R} className="fill-slate-500" />
-        </pattern>
+        <linearGradient id="pk-surface" x1="0" y1="0" x2="0.35" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.96" />
+          <stop offset="55%" stopColor="#F7FAFE" stopOpacity="0.92" />
+          <stop offset="100%" stopColor="#E4EBF6" stopOpacity="0.94" />
+        </linearGradient>
 
-        <clipPath id="pk-outline">
-          <path d={PATH_D} />
-        </clipPath>
+        {/*
+          The shadow that does the lifting. Wide and very soft — a tight
+          shadow would read as a sticker, which is the one thing the brief
+          rules out by name.
+        */}
+        <filter id="pk-lift" x="-12%" y="-12%" width="124%" height="124%">
+          <feDropShadow dx="0" dy="10" stdDeviation="16" floodColor="#1E3A8A" floodOpacity="0.10" />
+        </filter>
       </defs>
 
       {/*
         ── The country ───────────────────────────────────────────────────
-        One rect of dots, clipped to the outline. Dots that straddle the
-        border are cut rather than dropped, which is what gives the edge its
-        definition — dropping them leaves a soft, uncertain coastline.
+        Three passes of the SAME path: a lifted surface, a blue-grey coast,
+        and a faint brand-blue inner edge that catches the light along the
+        top-left. Nothing is clipped and nothing is tiled, so there is no
+        rectangle anywhere in this group — the only geometry present is the
+        silhouette itself, and the hero background runs straight up to it.
       */}
       <g data-layer="map-visual">
+        <path d={PATH_D} fill="url(#pk-surface)" filter="url(#pk-lift)" />
+        {/* The coast. One weight, one colour, no dashes. */}
+        <path
+          d={PATH_D}
+          fill="none"
+          className="stroke-slate-400"
+          strokeWidth={2.6}
+          strokeLinejoin="round"
+        />
         {/*
-          A very faint solid fill under the dots. On its own the dot grid
-          reads as texture; the wash is what makes the eye resolve it as one
-          landmass, and at 0.05 it is well below the dots themselves so it
-          never becomes a shape in its own right.
+          An inner highlight, inset by a hairline so it reads as an edge
+          catching light rather than as a second border. Kept to 0.35 — at
+          full strength it becomes a blue outline and the shape starts to
+          look like a badge.
         */}
-        <path d={PATH_D} className="fill-slate-400" opacity={0.08} />
-        <rect
-          x={BOUNDS.minX - MARGIN}
-          y={BOUNDS.minY - MARGIN}
-          width={BOUNDS.maxX - BOUNDS.minX + MARGIN * 2}
-          height={BOUNDS.maxY - BOUNDS.minY + MARGIN * 2}
-          fill="url(#pk-dots)"
-          clipPath="url(#pk-outline)"
-          opacity={0.5}
+        <path
+          d={PATH_D}
+          fill="none"
+          className="stroke-plug-blue-400"
+          strokeWidth={1}
+          strokeLinejoin="round"
+          opacity={0.35}
         />
       </g>
 

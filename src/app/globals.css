@@ -186,6 +186,43 @@
   }
 
   /**
+   * The hero's ambient cards drifting.
+   *
+   * Three periods, none a multiple of another, so the cards never fall into
+   * step and start reading as one moving object. Amplitudes are 3-4px: the
+   * intent is that you notice the panel is alive without being able to say
+   * what moved.
+   *
+   * transform only, so it stays on the compositor and never lays out.
+   * Reduced motion is handled at the call site with motion-reduce:animate-none
+   * — the cards stay exactly where they are, they simply stop drifting.
+   */
+  @keyframes journey-float-a {
+    0%, 100% { transform: translate3d(0, -3px, 0); }
+    50% { transform: translate3d(0, 3px, 0); }
+  }
+  @keyframes journey-float-b {
+    0%, 100% { transform: translate3d(0, -4px, 0); }
+    50% { transform: translate3d(0, 2px, 0); }
+  }
+  @keyframes journey-float-c {
+    0%, 100% { transform: translate3d(0, -2px, 0); }
+    50% { transform: translate3d(0, 4px, 0); }
+  }
+
+  .journey-float-a { animation: journey-float-a 7.5s ease-in-out infinite; }
+  .journey-float-b { animation: journey-float-b 9.2s ease-in-out infinite; }
+  .journey-float-c { animation: journey-float-c 8.3s ease-in-out infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .journey-float-a,
+    .journey-float-b,
+    .journey-float-c {
+      animation: none;
+    }
+  }
+
+  /**
    * The catalogue masthead arriving when the powertrain segment changes.
    *
    * Short and small: 260ms and 10px. The block is 150px of type near the top of
