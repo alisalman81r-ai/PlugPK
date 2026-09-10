@@ -8,7 +8,9 @@ import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { WorldMap } from './WorldMap'
+import { CHARGING_STOP, WorldMap } from './WorldMap'
+import { JourneyStatus } from './JourneyStatus'
+import { useEvJourney } from './useEvJourney'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -26,6 +28,13 @@ export function Hero({ cities }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
 
+  /*
+    The journey is scrubbed against this section's scroll range. The hook owns
+    ScrollTrigger entirely; this component only says where the range is.
+  */
+  const sceneRef = React.useRef<HTMLElement>(null)
+  useEvJourney({ scene: sceneRef, stop: CHARGING_STOP })
+
   const go = (value: string) => {
     const trimmed = value.trim()
     router.push(trimmed ? `/map?q=${encodeURIComponent(trimmed)}` : '/map')
@@ -42,72 +51,91 @@ export function Hero({ cities }: HeroProps) {
       ── A split band, not a framed panel ──────────────────────────────
       Full bleed and square-cornered. It was an inset card with a 28px radius
       floating on white, which reads as a component on a page; edge to edge, the
-      photograph is the top of the site rather than an illustration placed near
-      it.
+      hero is the top of the site rather than an illustration placed near it.
 
-      ── Where the type sits, and why this reverses an earlier decision ──
-      The content was centred over the photograph, and the note that used to be
-      here argued for it: the search field is the only thing on this page a
-      visitor can act on, and centred it sits on the frame's own axis. That
-      reasoning holds for a hero where type is ON the image. It does not survive
-      the split, because there is no longer one axis — there are two panels, and
-      the control belongs on the axis of the one it lives in. Asked for by the
-      author, and the composition it produces is the better argument: the
-      photograph is no longer something to be read through.
+      ── Where the type sits ───────────────────────────────────────────
+      The content was once centred over a full-width photograph, on the
+      argument that the search field is the only thing here a visitor can act
+      on and centred it sits on the frame's own axis. That holds for a hero
+      where type is ON an image. It does not survive the split: there is no
+      longer one axis, there are two panels, and the control belongs on the
+      axis of the one it lives in.
 
-      ── The seam ──────────────────────────────────────────────────────
-      Both halves are the same navy. The photograph does not stop at a boundary,
-      it dissolves into the panel over roughly a fifth of the width, so there is
-      no edge to notice. Below `lg` the two stack and the gradient turns
-      vertical, because a horizontal dissolve on a stacked layout fades the
-      wrong way — into nothing, rather than into what follows it.
+      ── There is no seam any more ─────────────────────────────────────
+      This used to need one. The right-hand half was a photograph, a rectangle
+      has an edge, and the edge had to be hidden — so both halves were the same
+      colour and the image dissolved into the panel over a fifth of the width,
+      with a vignette settling its corners.
 
-      ── Which side the photograph is on ───────────────────────────────
-      Type left, photograph right. The DOM order stays type-first regardless:
-      the h1 is the page's heading and should not follow a decorative figure,
-      so the photograph is moved with `order` rather than by being written
-      first. On a phone that puts it above the type, which is the reading order
-      wanted there.
+      The map replaced it and none of that survives. It is an inline SVG drawn
+      on transparency over the band's own fill, so the two halves are literally
+      the same surface and there is no boundary to disguise. The dissolve, the
+      vignette and the third colour that drove them are deleted from
+      globals.css rather than left unused.
+
+      ── Which side the map is on ──────────────────────────────────────
+      Type left, map right. The DOM order stays type-first regardless: the h1
+      is the page's heading and should not follow a decorative figure, so the
+      map is moved with `order` rather than by being written first. On a phone
+      that puts it above the type, which is the reading order wanted there.
     */
     /* No top padding: the (main) layout already offsets 72px for the fixed
-       navbar, and adding it again here left a band of bare navy above the
-       photograph that read as a gap rather than as clearance. */
-    <section className="relative isolate w-full overflow-hidden bg-white">
-      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
+       navbar, and adding it again here left a bare band above the map that
+       read as a gap rather than as clearance. */
+    /*
+      ── The scene, and why it is 300vh ────────────────────────────────
+      The journey is scrubbed against this element's scroll range, and the band
+      inside it is `sticky`, so the hero holds still while the range is
+      travelled. Three viewport heights is the distance the ten phases need to
+      land one at a time rather than overlapping into a blur; below about 2.4
+      the charging stop and the departure collide.
+
+      `overflow-x-clip` rather than `overflow-hidden`: hidden on a scroll
+      ancestor makes `position: sticky` inside it stop working, because the
+      element then sticks to that scroll container instead of the viewport. This
+      cost an hour the first time. Clip contains the horizontal axis without
+      creating a scroll context.
+
+      Below `lg` and under reduced motion the hook renders the finished state
+      and never builds a timeline, so the extra height would be three empty
+      screens — hence `lg:h-[300vh]` and nothing at all before it.
+    */
+    <section
+      ref={sceneRef}
+      className="relative isolate w-full overflow-x-clip bg-white lg:h-[300vh]"
+    >
+      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:sticky lg:top-[72px] lg:h-[calc(100vh-72px)] lg:grid-cols-[1.08fr_0.92fr]">
         {/*
           ── The map ───────────────────────────────────────────────────
           Written second, shown first on a phone and on the right from lg up —
           see the order note above.
 
-          The photograph and its two overlays are gone. A dissolve and a
-          vignette existed to solve a problem a photograph has and this does
-          not: a rectangular image has an edge, and the edge had to be hidden.
-          The map is drawn on transparency, sits on the same ground as the type
-          and has no edge to hide — so the panel is the ground, and nothing is
-          painted over it.
-
-          The height comes down from 54rem to 34rem with it. That was set to fit
-          a portrait photograph without cropping the car out of it; a landscape
-          map in a tall panel is a small graphic with empty space above and
-          below, which is not whitespace, it is a gap.
+          No wrapper, no overlay, no reserved width. The column is sized by the
+          grid's own `0.92fr` and the SVG fills it; there is nothing between
+          the two but padding. Everything the journey needs to sit on top of
+          the map — origin, route, charging stop, destination, car — is inside
+          the SVG, in its own coordinate space, so an overlay is a child of
+          WorldMap and never an absolutely-positioned element guessing at
+          pixels.
         */}
-        <div className="relative order-first flex min-h-[240px] items-center justify-center px-6 py-10 sm:min-h-[300px] sm:px-10 lg:order-last lg:min-h-[34rem] lg:px-12 lg:py-16">
+        <div className="relative order-first flex min-h-[240px] items-center justify-center px-6 py-10 sm:min-h-[300px] sm:px-10 lg:order-last lg:min-h-0 lg:px-12 lg:py-16">
           <WorldMap className="h-auto w-full max-w-[46rem]" />
+          <JourneyStatus />
         </div>
 
         {/* ── Right: the solid panel ─────────────────────────────────── */}
-        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-24 lg:pl-14 lg:pr-10 xl:pl-20">
+        <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
           {/* One quiet light source behind the type, so the solid half is not
               a flat fill. Nothing reads as a gradient; it reads as depth. */}
           <div
             aria-hidden="true"
             /*
-              Kept off the joining edge. Anchored against the seam it was
-              brighter than the photograph's faded edge immediately beside it,
-              which drew the join back as a hard line — the one thing the
-              dissolve exists to remove. The panel is on the left now, so the
-              glow moves with it: centred at 45%, away from the right-hand edge
-              where the two meet.
+              Centred left of middle, at 40%, so the light sits under the type
+              and not under the map. It was kept off the joining edge for a
+              different reason once — anchored against the seam it out-shone
+              the photograph's faded edge and drew the join back as a hard
+              line. There is no join now, but the placement is still right: a
+              glow behind the graphic would wash out the dots.
             */
             className="hero-lift pointer-events-none absolute inset-0 -z-10"
           />

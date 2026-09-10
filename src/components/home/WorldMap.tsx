@@ -407,6 +407,18 @@ function CarLayer({ progress, carLength }: { progress: number; carLength: number
   )
 }
 
+/**
+ * The charging stop, projected.
+ *
+ * The last station before the destination — Lahore. Exported so the scroll
+ * timeline can find where along the path it falls without re-deriving the
+ * projection and drifting from the marker that is actually drawn.
+ */
+export const CHARGING_STOP = project(
+  JOURNEY.stations[JOURNEY.stations.length - 1]!.lon,
+  JOURNEY.stations[JOURNEY.stations.length - 1]!.lat,
+)
+
 // ── Layers ────────────────────────────────────────────────────────────
 
 /** The dotted land. Very light grey, with Pakistan picked out in brand navy. */
@@ -427,11 +439,30 @@ function MapVisual() {
   )
 }
 
-/** A charging stop: halo, white disc, brand core. */
-function StationMarker({ x, y }: { x: number; y: number }) {
+/**
+ * A charging stop: halo, white disc, brand core.
+ *
+ * `chargingId` adds the ring that pulses while the car is plugged in. It is a
+ * separate element at zero opacity rather than an animated property of the
+ * marker, so the resting marker is untouched by the animation and looks the
+ * same whether the journey has run or not.
+ */
+function StationMarker({ x, y, chargingId }: { x: number; y: number; chargingId?: string }) {
   return (
     <>
       <circle cx={x} cy={y} r={12} fill="url(#worldmap-halo)" />
+      {chargingId ? (
+        <circle
+          id={chargingId}
+          cx={x}
+          cy={y}
+          r={7}
+          fill="none"
+          className="stroke-plug-cyan-300"
+          strokeWidth={1.6}
+          opacity={0}
+        />
+      ) : null}
       <circle cx={x} cy={y} r={4} className="fill-white" />
       <circle cx={x} cy={y} r={2.5} className="fill-plug-blue-500" />
     </>
@@ -490,30 +521,65 @@ export function WorldMap({
         <EVCarDefs />
       </defs>
 
+      {/*
+        ── The map is a static backdrop, and nothing may animate it ──────
+        There is deliberately no wrapper group around MapVisual to transform.
+        An earlier version put everything inside one <g id="journey-camera">
+        and zoomed it, which is exactly what the map must not do — so the group
+        is gone rather than merely unused. Nothing can scale, pan or rotate the
+        land without adding a new element first, which is a visible change in a
+        diff instead of a one-line tween nobody notices.
+      */}
       <MapVisual />
+
+      {/* Only what follows is ever animated. */}
       <RouteLayer />
+
+        <g data-layer="stations">
+          {JOURNEY.stations.map((station, index) => {
+            const { x, y } = project(station.lon, station.lat)
+            return (
+              <StationMarker
+                key={station.name}
+                x={x}
+                y={y}
+                // The mid-route stop is the one that charges; the origin does
+                // not, because the car leaves from there.
+                chargingId={index === JOURNEY.stations.length - 1 ? 'journey-charging' : undefined}
+              />
+            )
+          })}
+        </g>
+
+        <g data-layer="destination">
+          {/* A ring rather than a fourth dot, so the end of the journey is
+              distinguishable from the stops along it at a glance. */}
+          <circle cx={destination.x} cy={destination.y} r={13} fill="url(#worldmap-halo)" />
+          <circle
+            cx={destination.x}
+            cy={destination.y}
+            r={5.2}
+            className="fill-white stroke-plug-navy-700"
+            strokeWidth={1.8}
+          />
+          <circle cx={destination.x} cy={destination.y} r={2} className="fill-plug-navy-700" />
+
+          {/* Arrival. Hidden until the journey ends; the tick is drawn rather
+              than typed so it needs no font and no translation. */}
+          <g id="journey-success" opacity={0} transform={`translate(${destination.x} ${destination.y})`}>
+            <circle r={9} className="fill-plug-navy-900" />
+            <path
+              d="M -3.6 0.2 L -1.2 2.6 L 3.8 -2.6"
+              fill="none"
+              className="stroke-white"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
+        </g>
+
       <CarLayer progress={carProgress} carLength={carLength} />
-
-      <g data-layer="stations">
-        {JOURNEY.stations.map((station) => {
-          const { x, y } = project(station.lon, station.lat)
-          return <StationMarker key={station.name} x={x} y={y} />
-        })}
-      </g>
-
-      <g data-layer="destination">
-        {/* A ring rather than a fourth dot, so the end of the journey is
-            distinguishable from the stops along it at a glance. */}
-        <circle cx={destination.x} cy={destination.y} r={13} fill="url(#worldmap-halo)" />
-        <circle
-          cx={destination.x}
-          cy={destination.y}
-          r={5.2}
-          className="fill-white stroke-plug-navy-700"
-          strokeWidth={1.8}
-        />
-        <circle cx={destination.x} cy={destination.y} r={2} className="fill-plug-navy-700" />
-      </g>
     </svg>
   )
 }
