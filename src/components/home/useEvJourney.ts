@@ -131,6 +131,38 @@ export function routeProgressAt(t: number): number {
   return 1
 }
 
+/**
+ * The inverse of routeProgressAt: which forward time puts the car at `p`.
+ *
+ * Ambiguous across the hold, where every t from 0.45 to 0.65 gives 0.5.
+ * It returns the START of the hold on purpose — a car re-entering the
+ * charger going forward should then stop and charge, not arrive already
+ * finished.
+ */
+function forwardTimeFor(p: number): number {
+  if (p <= 0) return 0
+  if (p < CHARGE_PROGRESS) return PHASE.introEnd + (p / CHARGE_PROGRESS) * (PHASE.driveOneEnd - PHASE.introEnd)
+  if (p <= CHARGE_PROGRESS) return PHASE.driveOneEnd
+  if (p >= 1) return PHASE.driveTwoEnd
+  return PHASE.holdEnd + ((p - CHARGE_PROGRESS) / (1 - CHARGE_PROGRESS)) * (PHASE.driveTwoEnd - PHASE.holdEnd)
+}
+
+/**
+ * The reverse mapping: the same journey with the charging hold removed.
+ *
+ * Strictly increasing between introEnd and driveTwoEnd, so it has no flat
+ * region to pause in. That single property is what lets the car cross the
+ * charger backwards without stopping.
+ */
+function reverseProgressAt(t: number): number {
+  return clamp01((t - PHASE.introEnd) / (PHASE.driveTwoEnd - PHASE.introEnd))
+}
+
+function reverseTimeFor(p: number): number {
+  if (p <= 0) return 0
+  return PHASE.introEnd + p * (PHASE.driveTwoEnd - PHASE.introEnd)
+}
+
 export interface EvJourneyRefs {
   /** The hero. Pinned on desktop, and the trigger for the timeline. */
   scene: React.RefObject<HTMLElement>
@@ -213,35 +245,72 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         fraction along it is remapped.
       */
       const DIRECTION_EPSILON = 0.0004
-      const BLEND = 0.05
 
       let mode: 'forward' | 'reverse' = 'forward'
-      let anchorT = 0
-      let anchorP = 0
-      let carried = 0
+      /** The scroll position and route position at the last direction change. */
+      let pivotT = 0
+      let pivotP = 0
       let lastT = 0
       let lastP = 0
+      /** The forward-story time the charging UI is keyed to. */
+      let storyT = 0
 
+      /**
+       * Route progress, and the forward-story time that goes with it.
+       *
+       * ── Rescaled in TIME, never corrected in POSITION ─────────────────
+       *
+       * The previous version carried a position offset and decayed it back
+       * onto the canonical curve. That is what produced the defect this pass
+       * was asked to fix: inside the hold the canonical curve is flat at 0.5,
+       * so a car sitting at 0.53 was pulled DOWN to 0.5 while the user
+       * scrolled forward — measured going 0.530 -> 0.500 across t 0.568 ->
+       * 0.624. Motion opposite to input, and no amount of shortening the
+       * decay window makes that correct.
+       *
+       * Now the mapping's INPUT is rescaled instead. On a direction change we
+       * ask which time in the new mapping already produces the car's current
+       * position, and stretch that mapping to run from there to its endpoint.
+       *
+       *   forward   g: [pivotT, 1] -> [forwardTimeFor(pivotP), 1], then F(g)
+       *   reverse   h: [0, pivotT] -> [0, reverseTimeFor(pivotP)], then R(h)
+       *
+       * Both g and h are increasing, and F and R are non-decreasing, so the
+       * composition is non-decreasing in t. Forward input therefore cannot
+       * move the car backwards and reverse input cannot move it forwards —
+       * the invariant is structural, not tuned.
+       *
+       * Continuity is exact at the pivot: g(pivotT) = forwardTimeFor(pivotP),
+       * so F of it is pivotP again.
+       *
+       * The freeze survives because only time is rescaled. F still returns
+       * CHARGE_PROGRESS across its flat band, so the car still stops at
+       * exactly 0.5 — not near it.
+       */
       const progressFor = (t: number): number => {
         const dt = t - lastT
-        // A deadzone, so trackpad jitter around a standstill cannot flip the
+        // A deadzone, so trackpad jitter at a standstill cannot flip the
         // story back and forth and flash the charging card.
         if (Math.abs(dt) > DIRECTION_EPSILON) {
           const heading = dt > 0 ? 'forward' : 'reverse'
           if (heading !== mode) {
             mode = heading
-            anchorT = lastT
-            anchorP = lastP
-            carried = heading === 'forward' ? anchorP - routeProgressAt(anchorT) : 0
+            pivotT = lastT
+            pivotP = lastP
           }
         }
 
         let p: number
         if (mode === 'reverse') {
-          p = anchorT > 0 ? anchorP * clamp01(t / anchorT) : 0
+          const to = reverseTimeFor(pivotP)
+          const h = pivotT > 0 ? to * clamp01(t / pivotT) : 0
+          p = reverseProgressAt(h)
         } else {
-          const decay = 1 - spanProgress(anchorT, anchorT + BLEND, t)
-          p = clamp01(routeProgressAt(t) + carried * decay)
+          const from = forwardTimeFor(pivotP)
+          const span = 1 - pivotT
+          const g = span > 0 ? from + (1 - from) * clamp01((t - pivotT) / span) : from
+          storyT = clamp01(g)
+          p = routeProgressAt(storyT)
         }
 
         lastT = t
@@ -281,13 +350,13 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           ).toFixed(2)})`,
         )
 
-        const charge = forward ? spanProgress(CHARGING[0], CHARGING[1], t) : 0
+        const charge = forward ? spanProgress(CHARGING[0], CHARGING[1], storyT) : 0
         const ready = forward && charge >= 1
 
         if (popup) {
           const shown = forward
-            ? spanProgress(POPUP_IN[0], POPUP_IN[1], t) *
-              (1 - spanProgress(POPUP_OUT[0], POPUP_OUT[1], t))
+            ? spanProgress(POPUP_IN[0], POPUP_IN[1], storyT) *
+              (1 - spanProgress(POPUP_OUT[0], POPUP_OUT[1], storyT))
             : 0
           popup.style.opacity = String(shown)
           // Grows out of the charging point rather than fading in place.
@@ -299,8 +368,8 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         if (charger) {
           charger.style.opacity = String(
             forward
-              ? spanProgress(CHARGER_WAKE[0], CHARGER_WAKE[1], t) *
-                  (1 - spanProgress(CHARGER_SLEEP[0], CHARGER_SLEEP[1], t))
+              ? spanProgress(CHARGER_WAKE[0], CHARGER_WAKE[1], storyT) *
+                  (1 - spanProgress(CHARGER_SLEEP[0], CHARGER_SLEEP[1], storyT))
               : 0,
           )
         }
@@ -321,7 +390,7 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         }
 
         if (destination) {
-          const arrived = spanProgress(ARRIVAL[0], ARRIVAL[1], t)
+          const arrived = spanProgress(ARRIVAL[0], ARRIVAL[1], forward ? storyT : 0)
           destination.style.opacity = String(0.85 + 0.15 * arrived)
           destination.style.transform = `scale(${(1 + 0.16 * arrived).toFixed(3)})`
         }
