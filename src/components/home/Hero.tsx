@@ -74,14 +74,37 @@ export function Hero({ cities }: HeroProps) {
        navbar, and adding it again here left a bare band above the map that
        read as a gap rather than as clearance. */
     /*
-      ── An ordinary band again ────────────────────────────────────────
-      This was 300vh with a sticky child, which existed for one reason: to give
-      the scroll-scrubbed journey a range to be scrubbed against. The map is
-      out, so that range would now be three viewport heights of empty
-      scrolling before the page continued. Both go with it.
+      ── One screenful, and nothing below it visible on load ───────────
+      The section fills the viewport below the navbar, which (main) already
+      offsets with pt-[72px] — so 100svh minus that 72px, at every breakpoint.
+
+      `svh` not `vh`: on a phone 100vh is the height with the toolbar
+      retracted, so a 100vh hero is cut off on load and the section below
+      still peeks — the exact fault being fixed. `svh` is the smallest
+      viewport, toolbar showing, which is how a landing page is first seen.
+      `dvh` would resize the hero as the toolbar slides away.
+
+      BottomTabBar is padding, not a smaller box, and that distinction was a
+      bug first. It is `fixed`, so it takes no space in flow; subtracting its
+      64px from the height made the section end 64px short of the viewport and
+      the stats bar showed through the gap behind it — measured at 820x900 and
+      390x844 before the fix. The section now runs the full height and pads
+      its content clear of the bar instead.
+
+      The height is on the section, not on the band, because the
+      route-planner row is a sibling of the band. Put on the band it pushed
+      that row past the fold, which is the same bug in a new place. The band
+      takes `flex-1` and the row sits under it.
+
+      min-height, not height: on a narrow phone the type, the field and the
+      chips must be able to make this taller rather than overflow it.
+
+      This section was briefly 300vh with a sticky child, to give the
+      scroll-scrubbed journey a range. The map is gone, so that would now be
+      three screens of empty scrolling.
     */
-    <section className="relative isolate w-full overflow-x-clip bg-white">
-      <div className="hero-band mx-auto grid w-full max-w-[1800px] lg:grid-cols-[1.08fr_0.92fr]">
+    <section className="relative isolate flex min-h-[calc(100svh-72px)] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[1.08fr_0.92fr]">
         {/*
           ── The visual column, deliberately empty ─────────────────────
           Held open rather than collapsed, on the author's instruction: the
