@@ -126,6 +126,38 @@ export const VIEW_BOX = [
   (BOUNDS.maxY - BOUNDS.minY + MARGIN * 2).toFixed(1),
 ].join(' ')
 
+/**
+ * The extruded side wall, as offset copies of the same outline.
+ *
+ * ── Why a stack and not one translated copy ───────────────────────────
+ *
+ * A single silhouette shifted down and drawn behind the top face only shows
+ * a wall where the shape happens to be convex. Pakistan is not: the Wakhan
+ * notch, the Kutch inlet and the bays along the Makran coast are all
+ * concave, and there the offset copy hides BEHIND the top face and the wall
+ * vanishes. Stacking short steps builds the wall out of many thin slices, so
+ * every edge gets one regardless of which way it faces.
+ *
+ * 24 steps at 1.35 down and 0.4 across is about 32 units of depth — roughly
+ * 24px at the hero's scale. 16 steps at 1.15 was tried first and read as a
+ * drop shadow rather than a slab. They are static paths: no animation touches
+ * them, so the cost is paid once at render.
+ *
+ * The lean is down and slightly right because the surface gradient is already
+ * lit from the top-left; the wall has to fall away from the same light or the
+ * slab reads as two objects.
+ */
+const DEPTH_STEPS = 24
+const DEPTH_DX = 0.4
+const DEPTH_DY = 1.35
+
+/** Darkest at the bottom of the wall, lightening as it meets the top face. */
+function wallColour(i: number): string {
+  const t = i / (DEPTH_STEPS - 1)
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * t)
+  return `rgb(${mix(139, 199)} ${mix(158, 213)} ${mix(186, 231)})`
+}
+
 export interface PakistanMapProps {
   className?: string
   /**
@@ -183,7 +215,26 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         silhouette itself, and the hero background runs straight up to it.
       */}
       <g data-layer="map-visual">
-        <path d={PATH_D} fill="url(#pk-surface)" filter="url(#pk-lift)" />
+        {/*
+          The side wall. Drawn first so the top face lands on it and hides
+          all but the offset sliver along each edge. The drop shadow moves
+          here — it belongs to the bottom of the slab, not to its lid.
+        */}
+        <g filter="url(#pk-lift)">
+          {Array.from({ length: DEPTH_STEPS }, (_, i) => {
+            const step = DEPTH_STEPS - i
+            return (
+              <path
+                key={i}
+                d={PATH_D}
+                fill={wallColour(i)}
+                transform={`translate(${(DEPTH_DX * step).toFixed(2)} ${(DEPTH_DY * step).toFixed(2)})`}
+              />
+            )
+          })}
+        </g>
+
+        <path d={PATH_D} fill="url(#pk-surface)" />
         {/*
           The coast, in the headline's own accent — plug-navy-700, the colour
           of "on one map." Held at 0.7 rather than solid: at full strength a
