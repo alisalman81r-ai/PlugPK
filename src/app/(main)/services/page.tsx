@@ -4,8 +4,10 @@ import { Suspense } from 'react'
 import { ServiceHero } from '@/components/services/ServiceHero'
 import { ServicesDirectory } from '@/components/services/ServicesDirectory'
 import { FaqSection } from '@/components/shared/FaqSection'
+import { readOrFallback } from '@/lib/db/availability'
 import { getServices } from '@/lib/db/queries'
 import { SERVICES_FAQS } from '@/lib/faqs'
+import type { EVService } from '@/lib/types'
 
 /**
  * The EV services directory.
@@ -25,7 +27,16 @@ import { SERVICES_FAQS } from '@/lib/faqs'
 export const dynamic = 'force-dynamic'
 
 export default async function ServicesPage() {
-  const services = await getServices()
+  /*
+    An empty directory rather than an error page.
+
+    force-dynamic means this is re-read on every visit, so a database that
+    cannot answer takes the page down on every visit rather than once. The
+    directory below already renders a nothing-found state, and the hero counts
+    from the list it is given, so an empty list degrades to "no services yet"
+    instead of the error boundary. See lib/db/availability.
+  */
+  const services = await readOrFallback('/services', [] as EVService[], getServices)
   const cities = new Set(services.map((service) => service.address.city)).size
 
   return (

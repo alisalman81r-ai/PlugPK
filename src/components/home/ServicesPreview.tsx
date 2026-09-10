@@ -4,6 +4,7 @@ import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type LucideIc
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 import { AnimatedIcon, HoverLink, PillButton, type IconMotion } from '@/components/ui'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
+import { readOrFallback } from '@/lib/db/availability'
 import { getServiceCategoryCounts } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
@@ -49,7 +50,16 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 }
 
 export async function ServicesPreview() {
-  const counts = await getServiceCategoryCounts()
+  /*
+    Counts per category, or none.
+
+    This is the second data read on the landing page and it is easy to miss:
+    the page itself awaits three queries, and this component awaits a fourth
+    from inside the tree. Guarding only the page left the whole thing throwing
+    anyway — the counts below are a per-card chip, not the reason the section
+    exists, so the grid renders without them. See lib/db/availability.
+  */
+  const counts = await readOrFallback('/ service category counts', {}, getServiceCategoryCounts)
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
 
   return (

@@ -9,7 +9,9 @@ import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
+import { readOrFallback } from '@/lib/db/availability'
 import { getClubs, getCommunityCounts, getPlatformStats } from '@/lib/db/queries'
+import type { EVClub } from '@/lib/types'
 
 /**
  * Cached, not dynamic.
@@ -30,11 +32,28 @@ import { getClubs, getCommunityCounts, getPlatformStats } from '@/lib/db/queries
  */
 export const revalidate = 300
 
+/**
+ * The figures and the club rail are supplementary; the page is not.
+ *
+ * Every one of these three reads is a counter or a rail sitting between
+ * sections that need no database at all — the hero, how-it-works, the services
+ * grid, the banners. Awaiting them bare meant a database that could not answer
+ * took the whole landing page down to the error boundary, header and all, which
+ * is what a visitor met on the first deploy: a slow wait, then "This page did
+ * not load".
+ *
+ * Falling back renders the page without the numbers instead. See
+ * lib/db/availability for what is treated as unavailable and what still throws.
+ */
 export default async function HomePage() {
   const [stats, clubs, communityCounts] = await Promise.all([
-    getPlatformStats(),
-    getClubs(),
-    getCommunityCounts(),
+    readOrFallback('/ platform stats', { stations: 0, cities: 0, owners: 0 }, getPlatformStats),
+    readOrFallback('/ clubs', [] as EVClub[], () => getClubs()),
+    readOrFallback(
+      '/ community counts',
+      { discussions: 0, replies: 0, clubs: 0, cities: 0, clubMembers: 0 },
+      getCommunityCounts,
+    ),
   ])
 
   return (
