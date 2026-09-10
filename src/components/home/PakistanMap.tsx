@@ -134,9 +134,17 @@ const DOT_R = 3.1
 
 export interface PakistanMapProps {
   className?: string
+  /**
+   * The journey, drawn on top of the land.
+   *
+   * A slot rather than an import, so this file stays the geography and knows
+   * nothing about routes or cars. journey.ts imports `project` from here; if
+   * this component imported the journey back, the two would form a cycle.
+   */
+  children?: React.ReactNode
 }
 
-export function PakistanMap({ className }: PakistanMapProps) {
+export function PakistanMap({ className, children }: PakistanMapProps) {
   return (
     <svg
       viewBox={VIEW_BOX}
@@ -193,25 +201,15 @@ export function PakistanMap({ className }: PakistanMapProps) {
           height={BOUNDS.maxY - BOUNDS.minY + MARGIN * 2}
           fill="url(#pk-dots)"
           clipPath="url(#pk-outline)"
-          opacity={0.62}
+          opacity={0.5}
         />
       </g>
 
       {/*
-        ── Empty, and placed on purpose ──────────────────────────────────
-        The journey is the next step. These exist now so the stacking order is
-        settled before anything is added to it: the route sits above the land,
-        the car above the route it travels, and the markers above both so a
-        city is never painted over by the road passing through it.
-
-        Anything added here is positioned with `project(lon, lat)` — the same
-        function that drew the outline — so a waypoint lands on the geography
-        rather than on a guessed offset.
+        The journey, above the land. Its own layers and stacking order live in
+        JourneyLayers; this is only where they sit relative to the geography.
       */}
-      <g data-layer="route" />
-      <g data-layer="car" />
-      <g data-layer="stations" />
-      <g data-layer="destination" />
+      {children}
     </svg>
   )
 }
