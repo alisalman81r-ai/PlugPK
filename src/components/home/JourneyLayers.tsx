@@ -63,7 +63,9 @@ export function JourneyLayers() {
       */}
       <g data-layer="route">
         <path
+          data-route-glow
           d={ROUTE_D}
+          pathLength={100}
           fill="none"
           className="stroke-plug-blue-500"
           strokeWidth={14}
@@ -108,7 +110,7 @@ export function JourneyLayers() {
       </g>
 
       {/* ── The far end ────────────────────────────────────────────────── */}
-      <g data-layer="destination">
+      <g data-layer="destination" id="journey-destination">
         {/*
           An outlined ring, quieter than the start. It should not already look
           arrived at — the animation step fills it when the car gets there.

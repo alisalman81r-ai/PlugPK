@@ -9,6 +9,7 @@ import * as React from 'react'
 import { POPULAR_CITIES } from '@/lib/constants'
 import { JourneyLayers } from './JourneyLayers'
 import { PakistanMap } from './PakistanMap'
+import { useEvJourney } from './useEvJourney'
 import { cn } from '@/lib/utils'
 
 /** Enough to start from without turning the hero into a filter panel. */
@@ -26,6 +27,16 @@ interface HeroProps {
 export function Hero({ cities }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
+
+  /*
+    The journey is scrubbed against this section, which ScrollTrigger pins on
+    desktop. The hook owns the timeline entirely; this component only says
+    which elements to hang it on. `stage` is the map column, which is the
+    trigger on small screens where nothing is pinned.
+  */
+  const sceneRef = React.useRef<HTMLElement>(null)
+  const stageRef = React.useRef<HTMLDivElement>(null)
+  useEvJourney({ scene: sceneRef, stage: stageRef })
 
 
   const go = (value: string) => {
@@ -105,7 +116,10 @@ export function Hero({ cities }: HeroProps) {
       scroll-scrubbed journey a range. The map is gone, so that would now be
       three screens of empty scrolling.
     */
-    <section className="relative isolate flex min-h-[calc(100svh-72px)] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+    <section
+      ref={sceneRef}
+      className="relative isolate flex min-h-[calc(100svh-72px)] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0"
+    >
       <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[0.86fr_1.14fr]">
         {/* ── The type ─────────────────────────────────────────────── */}
         <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
@@ -239,7 +253,10 @@ export function Hero({ cities }: HeroProps) {
           desktop; the explicit heights below `lg` are what stop it
           collapsing once it is the only thing in a stacked row.
         */}
-        <div className="flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14">
+        <div
+          ref={stageRef}
+          className="flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14"
+        >
           <PakistanMap className="h-full max-h-[78vh] w-full">
             <JourneyLayers />
           </PakistanMap>

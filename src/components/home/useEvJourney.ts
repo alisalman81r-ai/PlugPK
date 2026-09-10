@@ -5,224 +5,240 @@ import * as React from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+import { CHARGE_PROGRESS, pointAt } from './journey'
+
 gsap.registerPlugin(ScrollTrigger)
 
 /**
- * The scroll-driven EV journey.
+ * The scroll-driven journey: the route draws, the car travels it, it stops
+ * dead at the charger, the popup appears, then it finishes the run.
  *
- * ── THE MAP IS NEVER TOUCHED ──────────────────────────────────────────
+ * ── One reversible model, not two ─────────────────────────────────────
  *
- * Nothing in this file selects, transforms or fades the dotted land. No scale,
- * no translate, no rotate, no viewBox tween, no parallax, and no opacity on
- * the <svg> that contains it. An earlier version zoomed a wrapper group from
- * the regional framing in to Pakistan; that group no longer exists in
- * PakistanMap, so there is nothing here to animate even by accident.
+ * There is no "scrolling down" code and no "scrolling up" code. A single
+ * scrubbed tween carries one number — the master progress, 0 to 1 — and
+ * `apply()` is a pure function of that number. Every element's state at
+ * progress t is computed from t alone, so reverse is not implemented; it is
+ * simply what happens when t decreases.
  *
- * The elements that do move are all listed in PARTS below. If a selector is
- * not in that object, this hook never writes to it.
+ * ── Why a piecewise map instead of a GSAP timeline of tweens ──────────
  *
- * ── Sticky, not ScrollTrigger's pin ───────────────────────────────────
+ * The brief calls the midpoint hold non-negotiable, and a timeline of
+ * consecutive tweens cannot promise it: the car's position during the hold
+ * would be whatever the previous tween last wrote, which under a scrub with
+ * smoothing can be 0.4998 rather than 0.5, and can drift a fraction further
+ * as the scrub catches up. `routeProgressAt()` returns the constant
+ * CHARGE_PROGRESS for the whole hold band — the same value, from the same
+ * branch, on every frame — so there is nothing left to drift.
  *
- * The stage is held by CSS position: sticky; ScrollTrigger only reads
- * progress. pin: true wraps the element in a generated pin-spacer and switches
- * it to position: fixed at the boundary, which is the mechanism that produces
- * the one-frame jump the brief rules out. Sticky has no such moment — the
- * element never leaves flow and the browser owns the transition.
+ * Scrub smoothing is preserved: it is applied to the master number by
+ * ScrollTrigger before `apply()` ever sees it.
  *
- * ── Written to the DOM, not to React state ────────────────────────────
+ * ── Written to the DOM, never to React state ──────────────────────────
  *
- * A scrubbed timeline updates every scroll frame. Through React state that
- * would re-render seven hundred circles sixty times a second. GSAP writes
- * transform, opacity and strokeDashoffset straight to the nodes; React does
- * not re-render during the scroll at all.
+ * A scrubbed timeline updates on every scroll frame. Through React state that
+ * would re-render the whole map — the silhouette, the pattern, the layers —
+ * sixty times a second. GSAP hands us a number; `apply()` writes
+ * strokeDashoffset, two transforms and two opacities straight to the nodes.
+ * React does not re-render during the scroll at all.
  */
-
-/** Every element this hook may write to. Nothing else is animated. */
-const PARTS = {
-  route: '.route-path',
-  car: '#car-layer',
-  charging: '#journey-charging',
-  success: '#journey-success',
-  statusCharging: '#journey-status-charging',
-  statusCharged: '#journey-status-charged',
-  statusDone: '#journey-status-done',
-} as const
-
-/** Point and tangent at `progress`, for placing the car. */
-function poseAt(path: SVGPathElement, progress: number) {
-  const total = path.getTotalLength()
-  const at = total * Math.min(Math.max(progress, 0), 1)
-  // Sampled across a span rather than differentiated: a curve's derivative at
-  // an endpoint is zero when its control point coincides with it, and
-  // atan2(0, 0) is 0 — the car would snap flat at the two most visible moments.
-  const span = Math.max(total * 0.01, 0.5)
-  const behind = path.getPointAtLength(Math.max(at - span, 0))
-  const ahead = path.getPointAtLength(Math.min(at + span, total))
-  const here = path.getPointAtLength(at)
-  return {
-    x: here.x,
-    y: here.y,
-    angle: (Math.atan2(ahead.y - behind.y, ahead.x - behind.x) * 180) / Math.PI,
-  }
-}
 
 /**
- * How far along the path the charging stop sits, 0..1.
+ * Where each phase of the story sits on the master 0-1 progress.
  *
- * Measured against the rendered path rather than assumed to be halfway.
- * Karachi to Lahore is the long leg and Lahore to Islamabad is short, so the
- * stop lands near four fifths of the way along — and it moves if a waypoint
- * does, which is why this is found rather than written down.
+ * These are SCROLL positions, not positions along the road. The car is at
+ * geometric route progress CHARGE_PROGRESS (0.5) for the whole band from
+ * `driveOneEnd` to `holdEnd` — a fifth of the scroll spent going nowhere,
+ * which is what makes the stop read as a stop rather than a stutter.
  */
-function findStop(path: SVGPathElement, stop: { x: number; y: number }): number {
-  const total = path.getTotalLength()
-  let best = 0
-  let bestDist = Infinity
-  for (let i = 0; i <= 240; i += 1) {
-    const t = i / 240
-    const p = path.getPointAtLength(total * t)
-    const d = (p.x - stop.x) ** 2 + (p.y - stop.y) ** 2
-    if (d < bestDist) {
-      bestDist = d
-      best = t
-    }
+const PHASE = {
+  introEnd: 0.08,
+  driveOneEnd: 0.45,
+  holdEnd: 0.65,
+  driveTwoEnd: 0.94,
+} as const
+
+/** Popup fades in just after arrival and out just before departure. */
+const POPUP_IN: readonly [number, number] = [0.45, 0.5]
+const POPUP_OUT: readonly [number, number] = [0.62, 0.66]
+/** The destination's arrival emphasis. */
+const ARRIVAL: readonly [number, number] = [0.94, 1]
+
+/**
+ * How much of the road's heading the car actually takes.
+ *
+ * EVCar is drawn in side elevation facing +x, so the base correction is zero
+ * degrees — no offset is needed anywhere else in this file.
+ *
+ * The route's heading runs from -37 to -93 degrees, because the journey is
+ * mostly northward. Applied in full, a side-elevation car stands on its end
+ * and reads as a dark capsule rather than a vehicle. At 0.35 the car leans
+ * between -13 and -32 degrees: it visibly turns into and out of every bend,
+ * and still looks like a car climbing the country.
+ *
+ * This is the restrained orientation strategy the brief allows, and it is the
+ * only place rotation is scaled — the timeline never touches it.
+ */
+const ROTATION_DAMPING = 0.35
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
+const spanProgress = (from: number, to: number, v: number) =>
+  to === from ? 0 : clamp01((v - from) / (to - from))
+
+/**
+ * Master progress -> progress along the road.
+ *
+ * The single source of the freeze. Between driveOneEnd and holdEnd this
+ * returns CHARGE_PROGRESS exactly, so the car, the route reveal and the
+ * popup's anchor cannot disagree about where the charger is.
+ */
+export function routeProgressAt(t: number): number {
+  if (t <= PHASE.introEnd) return 0
+  if (t <= PHASE.driveOneEnd) {
+    return lerp(0, CHARGE_PROGRESS, spanProgress(PHASE.introEnd, PHASE.driveOneEnd, t))
   }
-  return best
+  if (t <= PHASE.holdEnd) return CHARGE_PROGRESS
+  if (t <= PHASE.driveTwoEnd) {
+    return lerp(CHARGE_PROGRESS, 1, spanProgress(PHASE.holdEnd, PHASE.driveTwoEnd, t))
+  }
+  return 1
 }
 
 export interface EvJourneyRefs {
-  /** The tall element whose scroll range the journey is mapped onto. */
+  /** The hero. Pinned on desktop, and the trigger for the timeline. */
   scene: React.RefObject<HTMLElement>
-  /** The charging stop, already projected into the map's user units. */
-  stop: { x: number; y: number }
+  /** The map column. The trigger on small screens, where nothing is pinned. */
+  stage: React.RefObject<HTMLElement>
 }
 
-export function useEvJourney({ scene, stop }: EvJourneyRefs): void {
-  const stopX = stop.x
-  const stopY = stop.y
-
+export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
   React.useEffect(() => {
     const sceneEl = scene.current
     if (!sceneEl) return
 
     const context = gsap.context(() => {
-      const q = <T extends Element>(sel: string) => sceneEl.querySelector<T>(sel)
+      const route = sceneEl.querySelector<SVGPathElement>('.route-path')
+      const glow = sceneEl.querySelector<SVGPathElement>('[data-route-glow]')
+      const car = sceneEl.querySelector<SVGGElement>('#car-layer')
+      const popup = sceneEl.querySelector<SVGGElement>('#journey-charge-popup')
+      const destination = sceneEl.querySelector<SVGGElement>('#journey-destination')
+      if (!route || !car) return
 
-      const path = q<SVGPathElement>(PARTS.route)
-      const car = q<SVGGElement>(PARTS.car)
-      if (!path || !car) return
+      // The popup and the destination scale about the point they belong to,
+      // not the SVG origin. Set once — transform-origin in user units needs
+      // the view-box box, and without it both would fly off when scaled.
+      const anchor = pointAt(CHARGE_PROGRESS)
+      if (popup) {
+        popup.style.transformBox = 'view-box'
+        popup.style.transformOrigin = `${anchor.x}px ${anchor.y}px`
+      }
+      const end = pointAt(1)
+      if (destination) {
+        destination.style.transformBox = 'view-box'
+        destination.style.transformOrigin = `${end.x}px ${end.y}px`
+      }
 
-      const charging = q<SVGCircleElement>(PARTS.charging)
-      const success = q<SVGGElement>(PARTS.success)
-      const sCharging = q<HTMLElement>(PARTS.statusCharging)
-      const sCharged = q<HTMLElement>(PARTS.statusCharged)
-      const sDone = q<HTMLElement>(PARTS.statusDone)
+      /** Everything the page shows at master progress `t`. Pure in `t`. */
+      const apply = (t: number) => {
+        const p = routeProgressAt(t)
 
-      const start = poseAt(path, 0)
-      const end = poseAt(path, 1)
-      const stopAt = findStop(path, { x: stopX, y: stopY })
+        // pathLength is 100 on both strokes, so the dash maths is in percent
+        // and never needs retiming when a waypoint moves.
+        const offset = String(100 - p * 100)
+        route.style.strokeDashoffset = offset
+        if (glow) glow.style.strokeDashoffset = offset
+
+        const pose = pointAt(p)
+        car.setAttribute(
+          'transform',
+          `translate(${pose.x.toFixed(2)} ${pose.y.toFixed(2)}) rotate(${(
+            pose.angle * ROTATION_DAMPING
+          ).toFixed(2)})`,
+        )
+
+        if (popup) {
+          const shown =
+            spanProgress(POPUP_IN[0], POPUP_IN[1], t) *
+            (1 - spanProgress(POPUP_OUT[0], POPUP_OUT[1], t))
+          popup.style.opacity = String(shown)
+          // Grows out of the charging point rather than fading in place.
+          popup.style.transform = `scale(${(0.94 + 0.06 * shown).toFixed(3)}) translate(0px, ${(
+            (1 - shown) * 4
+          ).toFixed(2)}px)`
+        }
+
+        if (destination) {
+          const arrived = spanProgress(ARRIVAL[0], ARRIVAL[1], t)
+          destination.style.opacity = String(0.85 + 0.15 * arrived)
+          destination.style.transform = `scale(${(1 + 0.16 * arrived).toFixed(3)})`
+        }
+      }
 
       gsap.matchMedia().add(
         {
-          animate: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
-          still: '(max-width: 1023px), (prefers-reduced-motion: reduce)',
+          desktop: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
+          handheld: '(max-width: 1023px) and (prefers-reduced-motion: no-preference)',
+          still: '(prefers-reduced-motion: reduce)',
         },
         (ctx) => {
-          const { animate } = ctx.conditions as { animate: boolean }
+          const { desktop, handheld, still } = ctx.conditions as Record<string, boolean>
 
           /*
-            Reduced motion, and phones, get the finished picture and no
-            timeline — the end state, not a shortened version. Somebody who
-            asked for less motion should still see what the sequence was going
-            to say, and a scrubbed stage on a touch device competes with the
-            browser's own scrolling in a way that is worse than not having it.
+            Reduced motion gets the finished journey and no scroll interaction
+            at all: full route, car at the destination, popup away. Not a
+            faster version of the story — the end of it, so somebody who asked
+            for less motion still sees what it was going to say.
           */
-          if (!animate) {
-            gsap.set(path, { strokeDasharray: 100, strokeDashoffset: 0 })
-            gsap.set(car, {
-              attr: { transform: `translate(${end.x} ${end.y}) rotate(${end.angle})` },
-              opacity: 1,
-            })
-            if (success) gsap.set(success, { opacity: 1 })
-            if (sDone) gsap.set(sDone, { opacity: 1 })
+          if (still) {
+            gsap.set([route, glow].filter(Boolean), { strokeDasharray: 'none' })
+            apply(1)
+            if (route) route.style.strokeDashoffset = '0'
+            if (glow) glow.style.strokeDashoffset = '0'
             return
           }
 
-          // Resting state. The map is already drawn; the journey has not begun.
-          gsap.set(path, { strokeDasharray: 100, strokeDashoffset: 100 })
-          gsap.set(car, {
-            attr: { transform: `translate(${start.x} ${start.y}) rotate(${start.angle})` },
-            opacity: 0,
-          })
-          gsap.set([charging, success, sCharging, sCharged, sDone].filter(Boolean), { opacity: 0 })
-          if (success) gsap.set(success, { scale: 0.6, transformOrigin: 'center' })
+          gsap.set([route, glow].filter(Boolean), { strokeDasharray: 100 })
+          apply(0)
 
-          const driver = { progress: 0 }
-          const applyCar = () => {
-            const pose = poseAt(path, driver.progress)
-            car.setAttribute('transform', `translate(${pose.x} ${pose.y}) rotate(${pose.angle})`)
-          }
-
+          const driver = { t: 0 }
           const tl = gsap.timeline({
             scrollTrigger: {
-              trigger: sceneEl,
-              start: 'top top',
-              end: 'bottom bottom',
-              // A little catch-up, so the car does not stutter one-to-one with
-              // a trackpad's own jitter. Reverses exactly as it plays.
-              scrub: 0.6,
+              // Desktop pins the hero and takes its distance from the pin.
+              // Small screens pin nothing: the hero is already taller than the
+              // viewport there because the map sits under the copy, so pinning
+              // it would hold a section whose bottom is off-screen. The map
+              // scrolling past IS the interaction.
+              trigger: desktop ? sceneEl : (stage.current ?? sceneEl),
+              start: desktop ? 'top 72px' : 'top 85%',
+              end: desktop ? '+=200%' : 'bottom 25%',
+              pin: desktop ? sceneEl : false,
+              pinSpacing: desktop,
+              // Pins one frame early, which is what removes the jump you
+              // otherwise get as the element switches to fixed.
+              anticipatePin: desktop ? 1 : 0,
+              scrub: 0.7,
+              invalidateOnRefresh: true,
             },
-            defaults: { ease: 'none' },
           })
 
-          tl
-            // 1 — the route draws itself, start to finish
-            .to(path, { strokeDashoffset: 0, duration: 0.24 }, 0.04)
-            // 2 — the car appears at the start of it
-            .to(car, { opacity: 1, duration: 0.04 }, 0.26)
-            // 3/4 — it drives to the charging stop
-            .to(driver, { progress: stopAt, duration: 0.26, onUpdate: applyCar }, 0.31)
-            // 5 — plugged in: the ring expands and fades, three times
-            .to(sCharging, { opacity: 1, duration: 0.02 }, 0.58)
-            .to(charging, { opacity: 1, duration: 0.02 }, 0.58)
-            .fromTo(
-              charging,
-              { attr: { r: 6 }, opacity: 0.9 },
-              { attr: { r: 14 }, opacity: 0, duration: 0.05, repeat: 2 },
-              0.59,
-            )
-            // 6 — charged
-            .to(sCharging, { opacity: 0, duration: 0.02 }, 0.75)
-            .to(sCharged, { opacity: 1, duration: 0.02 }, 0.76)
-            // 7/8 — on to the destination
-            .to(driver, { progress: 1, duration: 0.16, onUpdate: applyCar }, 0.79)
-            // 9/10 — arrival
-            .to(sCharged, { opacity: 0, duration: 0.02 }, 0.95)
-            .to(success, { opacity: 1, scale: 1, duration: 0.04, ease: 'back.out(2)' }, 0.95)
-            .to(sDone, { opacity: 1, duration: 0.03 }, 0.96)
+          tl.to(driver, {
+            t: 1,
+            duration: 1,
+            ease: 'none',
+            onUpdate: () => apply(driver.t),
+          })
 
           /*
-            Re-measure once the page has settled.
-
-            ScrollTrigger reads the trigger's geometry when the timeline is
-            built, and at that moment this component has only just mounted:
-            the 300vh height comes from a class the stylesheet may not have
-            applied yet, and the fonts above the fold have not loaded, so the
-            page is shorter than it is about to be. The range it captured was
-            a fraction of the real one, which put progress at 1 after a few
-            pixels of scroll — the route arrived fully drawn and nothing
-            appeared to scrub.
-
-            Measured, not guessed: the section is 2424px and the range should
-            be 1616px, and before this the whole journey completed inside the
-            first screen.
-
-            Two refreshes because there are two moments the height changes:
-            the frame after mount, and whenever a webfont swaps in.
+            Re-measure once the page settles. ScrollTrigger reads geometry when
+            the timeline is built, and at that moment the hero's height comes
+            from a class the stylesheet may not have applied and the fonts
+            above the fold have not loaded. A range captured then is short, and
+            the whole journey completes in the first screen of scrolling.
           */
           requestAnimationFrame(() => ScrollTrigger.refresh())
           if (document.fonts?.ready) {
-            document.fonts.ready.then(() => ScrollTrigger.refresh())
+            void document.fonts.ready.then(() => ScrollTrigger.refresh())
           }
 
           return () => {
@@ -233,6 +249,9 @@ export function useEvJourney({ scene, stop }: EvJourneyRefs): void {
       )
     }, sceneEl)
 
+    // Kills every tween, ScrollTrigger and matchMedia this context created,
+    // and restores the inline styles it wrote. Without it, a hot reload or a
+    // client navigation leaves a second set of triggers on the same nodes.
     return () => context.revert()
-  }, [scene, stopX, stopY])
+  }, [scene, stage])
 }
