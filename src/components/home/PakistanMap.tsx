@@ -184,27 +184,33 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
       */}
       <g data-layer="map-visual">
         <path d={PATH_D} fill="url(#pk-surface)" filter="url(#pk-lift)" />
-        {/* The coast. One weight, one colour, no dashes. */}
-        <path
-          d={PATH_D}
-          fill="none"
-          className="stroke-slate-400"
-          strokeWidth={2.6}
-          strokeLinejoin="round"
-        />
         {/*
-          An inner highlight, inset by a hairline so it reads as an edge
-          catching light rather than as a second border. Kept to 0.35 — at
-          full strength it becomes a blue outline and the shape starts to
-          look like a badge.
+          The coast, in the headline's own accent — plug-navy-700, the colour
+          of "on one map." Held at 0.7 rather than solid: at full strength a
+          2.6-unit navy line at this scale outweighs the blue route, and the
+          route has to stay the strongest thing on the panel.
         */}
         <path
           d={PATH_D}
           fill="none"
-          className="stroke-plug-blue-400"
+          className="stroke-plug-navy-700"
+          strokeWidth={2.6}
+          strokeLinejoin="round"
+          opacity={0.7}
+        />
+        {/*
+          A hairline of the same navy over the top, so the edge reads as
+          drawn rather than as a soft wash. One colour for the whole coast
+          now — the previous pass put a lighter blue highlight over a grey
+          line, and two hues on one edge muddied it.
+        */}
+        <path
+          d={PATH_D}
+          fill="none"
+          className="stroke-plug-navy-700"
           strokeWidth={1}
           strokeLinejoin="round"
-          opacity={0.35}
+          opacity={0.45}
         />
       </g>
 
