@@ -33,6 +33,29 @@ import { CAR, CHARGER, END, ROUTE_D, START } from './journey'
  * marker also moves it.
  */
 
+/**
+ * Where the charging card sits relative to CHARGER, in user units.
+ *
+ * Above, not beside. Measured at 1440: with the card to the right the popup
+ * box overlapped the car's box at every sampled point of the charging phase
+ * — the car is 92 units long and centred on the charger, so its nose reached
+ * well into a card starting 22 units to the right.
+ *
+ * Measured rather than assumed: EVCar is 92 units long and its artwork is
+ * re-centred on the road, so its roof reaches about 40 units ABOVE the
+ * charger, not 14. A first attempt at dy -104 still failed the overlap check
+ * because the tail was reaching down into that roof.
+ *
+ * -132 then still failed at 820, because MARKER_SCALE grows BOTH boxes about
+ * their own centres — at sm:scale-[1.3] the car grows upward as well and the
+ * two bounding boxes met again with 1.4 units to spare. -160 clears it at
+ * every marker scale: 27 units at 1.3x and 12 at the phone's 1.55x.
+ *
+ * One constant, used by every part of the card. Do not offset pieces
+ * individually.
+ */
+const CARD = { dx: -46, dy: -160, w: 152, h: 62 } as const
+
 /** Shared by the markers so they scale together across breakpoints. */
 const MARKER_SCALE =
   '[transform-box:fill-box] origin-center scale-[1.55] sm:scale-[1.3] lg:scale-100'
@@ -184,17 +207,18 @@ export function JourneyLayers() {
         className="pointer-events-none"
       >
         <g className={MARKER_SCALE}>
-          {/* Pointer, behind the card so its seam is covered. */}
+          {/* Tail, pointing down at the charger from the card's underside. */}
           <path
-            d={`M ${CHARGER.x + 14} ${CHARGER.y} L ${CHARGER.x + 23} ${CHARGER.y - 7}
-                L ${CHARGER.x + 23} ${CHARGER.y + 7} Z`}
+            d={`M ${CHARGER.x + CARD.dx + 60} ${CHARGER.y + CARD.dy + CARD.h - 2}
+                L ${CHARGER.x + CARD.dx + 76} ${CHARGER.y + CARD.dy + CARD.h - 2}
+                L ${CHARGER.x + CARD.dx + 68} ${CHARGER.y + CARD.dy + CARD.h + 14} Z`}
             className="fill-white"
           />
           <rect
-            x={CHARGER.x + 22}
-            y={CHARGER.y - 31}
-            width={152}
-            height={62}
+            x={CHARGER.x + CARD.dx}
+            y={CHARGER.y + CARD.dy}
+            width={CARD.w}
+            height={CARD.h}
             rx={11}
             className="fill-white stroke-slate-200"
             strokeWidth={1.4}
@@ -202,18 +226,18 @@ export function JourneyLayers() {
           />
 
           {/* Bolt while charging, tick when ready. Same disc, cross-faded. */}
-          <circle cx={CHARGER.x + 43} cy={CHARGER.y - 10} r={11} className="fill-plug-blue-50" />
+          <circle cx={CHARGER.x + CARD.dx + 21} cy={CHARGER.y + CARD.dy + 21} r={11} className="fill-plug-blue-50" />
           <path
             id="jc-bolt"
-            d={`M ${CHARGER.x + 44.3} ${CHARGER.y - 16} L ${CHARGER.x + 39.2} ${CHARGER.y - 9.2}
-                L ${CHARGER.x + 42.6} ${CHARGER.y - 9.2} L ${CHARGER.x + 41.3} ${CHARGER.y - 4}
-                L ${CHARGER.x + 46.4} ${CHARGER.y - 10.8} L ${CHARGER.x + 43} ${CHARGER.y - 10.8} Z`}
+            d={`M ${CHARGER.x + CARD.dx + 22.3} ${CHARGER.y + CARD.dy + 15} L ${CHARGER.x + CARD.dx + 17.2} ${CHARGER.y + CARD.dy + 21.8}
+                L ${CHARGER.x + CARD.dx + 20.6} ${CHARGER.y + CARD.dy + 21.8} L ${CHARGER.x + CARD.dx + 19.3} ${CHARGER.y + CARD.dy + 27}
+                L ${CHARGER.x + CARD.dx + 24.4} ${CHARGER.y + CARD.dy + 20.2} L ${CHARGER.x + CARD.dx + 21} ${CHARGER.y + CARD.dy + 20.2} Z`}
             className="fill-plug-blue-600"
           />
           <path
             id="jc-check"
-            d={`M ${CHARGER.x + 38.6} ${CHARGER.y - 10.2} L ${CHARGER.x + 41.8} ${CHARGER.y - 7}
-                L ${CHARGER.x + 47.4} ${CHARGER.y - 13.4}`}
+            d={`M ${CHARGER.x + CARD.dx + 16.6} ${CHARGER.y + CARD.dy + 20.8} L ${CHARGER.x + CARD.dx + 19.8} ${CHARGER.y + CARD.dy + 24}
+                L ${CHARGER.x + CARD.dx + 25.4} ${CHARGER.y + CARD.dy + 17.6}`}
             fill="none"
             className="stroke-plug-blue-600"
             strokeWidth={2.4}
@@ -224,8 +248,8 @@ export function JourneyLayers() {
 
           <text
             id="jc-title"
-            x={CHARGER.x + 60}
-            y={CHARGER.y - 11}
+            x={CHARGER.x + CARD.dx + 38}
+            y={CHARGER.y + CARD.dy + 20}
             className="fill-plug-navy-900 text-[15px] font-semibold"
           >
             Charging
@@ -233,8 +257,8 @@ export function JourneyLayers() {
           {/* The percentage is deliberately smaller than the title. */}
           <text
             id="jc-pct"
-            x={CHARGER.x + 166}
-            y={CHARGER.y - 11}
+            x={CHARGER.x + CARD.dx + 144}
+            y={CHARGER.y + CARD.dy + 20}
             textAnchor="end"
             className="fill-slate-500 text-[12.5px] font-semibold tabular-nums"
           >
@@ -243,8 +267,8 @@ export function JourneyLayers() {
 
           {/* Track and fill. The hook animates the fill's width only. */}
           <rect
-            x={CHARGER.x + 38}
-            y={CHARGER.y + 1}
+            x={CHARGER.x + CARD.dx + 16}
+            y={CHARGER.y + CARD.dy + 32}
             width={128}
             height={5}
             rx={2.5}
@@ -252,8 +276,8 @@ export function JourneyLayers() {
           />
           <rect
             id="jc-fill"
-            x={CHARGER.x + 38}
-            y={CHARGER.y + 1}
+            x={CHARGER.x + CARD.dx + 16}
+            y={CHARGER.y + CARD.dy + 32}
             width={0}
             height={5}
             rx={2.5}
@@ -261,8 +285,8 @@ export function JourneyLayers() {
           />
 
           <text
-            x={CHARGER.x + 38}
-            y={CHARGER.y + 22}
+            x={CHARGER.x + CARD.dx + 16}
+            y={CHARGER.y + CARD.dy + 52}
             className="fill-slate-500 text-[11px] font-medium uppercase tracking-[0.1em]"
           >
             Fast charger

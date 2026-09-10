@@ -68,13 +68,13 @@ const PHASE = {
  *   0.450-0.480  arrival   charger wakes, popup enters
  *   0.480-0.610  charging  0% to 100%, driven only by scroll
  *   0.610-0.632  ready     complete state, held long enough to read
- *   0.632-0.662  exit      popup leaves before the car does
+ *   0.624-0.649  exit      popup is gone BEFORE the car moves at 0.650
  */
 const CHARGER_WAKE: readonly [number, number] = [0.45, 0.48]
 /** Popup enters after the car has stopped, not while it is still arriving. */
 const POPUP_IN: readonly [number, number] = [0.455, 0.49]
 const CHARGING: readonly [number, number] = [0.48, 0.61]
-const POPUP_OUT: readonly [number, number] = [0.632, 0.662]
+const POPUP_OUT: readonly [number, number] = [0.624, 0.649]
 
 /** Width of the progress bar's track, in user units. Matches JourneyLayers. */
 const BAR_WIDTH = 128
@@ -242,30 +242,37 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         }
       }
 
+      /*
+        ── Reduced motion, handled before GSAP gets involved ─────────────
+
+        A plain matchMedia check, not a gsap.matchMedia condition. It was a
+        condition, and it silently never fired: QA found the media query
+        matching `reduce` while the progress attribute was still undefined,
+        no inline dasharray had been written and the car sat at its JSX
+        position. The route only LOOKED finished because a path with no
+        dasharray renders whole — the reduced-motion branch had never run at
+        all, and the state was right by accident rather than by intent.
+
+        Done this way there is no ScrollTrigger to create and no condition to
+        misfire: the journey is set to its end state and the hook returns.
+      */
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gsap.set([route, glow].filter(Boolean), { strokeDasharray: 'none' })
+        // The end of the story, not a faster version of it: full route, car
+        // at the destination, charging complete, popup away.
+        apply(1)
+        route.style.strokeDashoffset = '0'
+        if (glow) glow.style.strokeDashoffset = '0'
+        return
+      }
+
       gsap.matchMedia().add(
         {
-          desktop: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)',
-          handheld: '(max-width: 1023px) and (prefers-reduced-motion: no-preference)',
-          still: '(prefers-reduced-motion: reduce)',
+          desktop: '(min-width: 1024px)',
+          handheld: '(max-width: 1023px)',
         },
         (ctx) => {
-          const { desktop, handheld, still } = ctx.conditions as Record<string, boolean>
-
-          /*
-            Reduced motion gets the finished journey and no scroll interaction
-            at all: full route, car at the destination, popup away. Not a
-            faster version of the story — the end of it, so somebody who asked
-            for less motion still sees what it was going to say.
-          */
-          if (still) {
-            gsap.set([route, glow].filter(Boolean), { strokeDasharray: 'none' })
-            // apply(1) puts the journey at its end: charging complete, popup
-            // and charger faded out, car at the destination.
-            apply(1)
-            if (route) route.style.strokeDashoffset = '0'
-            if (glow) glow.style.strokeDashoffset = '0'
-            return
-          }
+          const { desktop } = ctx.conditions as Record<string, boolean>
 
           gsap.set([route, glow].filter(Boolean), { strokeDasharray: 100 })
           apply(0)
