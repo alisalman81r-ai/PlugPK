@@ -25,6 +25,7 @@ import { notFound } from 'next/navigation'
 import { ReviewsSection } from '@/components/station/ReviewsSection'
 import { RatingStars } from '@/components/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META, SERVICE_OFFERINGS } from '@/lib/constants'
+import { prebuiltParams } from '@/lib/db/build-params'
 import { getServiceBySlug, getServiceParams } from '@/lib/db/queries'
 import type { DayHours, ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -79,7 +80,7 @@ function resolveCategory(value: string): ServiceCategory | null {
 }
 
 export async function generateStaticParams() {
-  return getServiceParams()
+  return prebuiltParams('/services/[category]/[slug]', () => getServiceParams())
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

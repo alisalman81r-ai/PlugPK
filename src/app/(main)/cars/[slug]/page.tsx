@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 
 import { CarDetails } from '@/components/cars/CarDetails'
 import { carDisplayName, carSeo } from '@/lib/cars'
+import { prebuiltParams } from '@/lib/db/build-params'
 import { getCarBySlugFromDb, getCarSlugs, listCars } from '@/lib/db/car-queries'
 
 /**
@@ -28,7 +29,9 @@ interface CarPageProps {
  * Verified: with the default, /cars/nope returns a true 404.
  */
 export async function generateStaticParams() {
-  return (await getCarSlugs()).map((slug) => ({ slug }))
+  return prebuiltParams('/cars/[slug]', async () =>
+    (await getCarSlugs()).map((slug) => ({ slug })),
+  )
 }
 
 export async function generateMetadata({ params }: CarPageProps): Promise<Metadata> {

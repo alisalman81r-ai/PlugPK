@@ -10,6 +10,7 @@ import { RelatedStations } from '@/components/station/RelatedStations'
 import { ReviewsSection } from '@/components/station/ReviewsSection'
 import { StationHeader } from '@/components/station/StationHeader'
 import { StationMobileBar, StationSidebar } from '@/components/station/StationSidebar'
+import { prebuiltParams } from '@/lib/db/build-params'
 import { getStationBySlug, getStationSlugs } from '@/lib/db/queries'
 import { isStationSaved } from '@/lib/db/session-actions'
 
@@ -18,8 +19,10 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getStationSlugs()
-  return slugs.map((slug) => ({ slug }))
+  return prebuiltParams('/station/[slug]', async () => {
+    const slugs = await getStationSlugs()
+    return slugs.map((slug) => ({ slug }))
+  })
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

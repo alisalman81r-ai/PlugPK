@@ -9,6 +9,7 @@ import { CommentSection } from '@/components/community/CommentSection'
 import { Avatar, PostCard } from '@/components/community/PostCard'
 import { Button } from '@/components/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
+import { prebuiltParams } from '@/lib/db/build-params'
 import { getPostBySlug, getPostSlugs, getPosts } from '@/lib/db/queries'
 import { cn, formatDate } from '@/lib/utils'
 
@@ -17,8 +18,10 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getPostSlugs()
-  return slugs.map((slug) => ({ slug }))
+  return prebuiltParams('/community/post/[slug]', async () => {
+    const slugs = await getPostSlugs()
+    return slugs.map((slug) => ({ slug }))
+  })
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
