@@ -24,20 +24,26 @@ import { Prisma } from '@prisma/client'
  * URL, an unreachable host, a rejected password. Those mean "there is no
  * database here", which is a deployment fact rather than a defect.
  *
- * A query that throws once connected — a renamed column, a bad `select` — is a
- * real bug, and silently shipping zero pages for it is exactly the kind of
- * quiet breakage that costs an afternoon. Those rethrow and stop the build.
+ * P2021 joins them: the connection worked but the table is not there, which
+ * means the migration has not been applied to this database yet. That is the
+ * same class of fact, and it is the state a fresh hosted database is in between
+ * being created and `prisma migrate deploy` being run against it.
+ *
+ * A query that throws once connected to a migrated database — a renamed column,
+ * a bad `select` — is a real bug, and silently shipping zero pages for it is
+ * exactly the kind of quiet breakage that costs an afternoon. P2022 and the
+ * rest rethrow and stop the build.
  */
 export async function prebuiltParams<T>(route: string, load: () => Promise<T[]>): Promise<T[]> {
   try {
     return await load()
   } catch (error) {
-    if (!isDatabaseUnreachable(error)) throw error
+    const reason = notDeployedYet(error)
+    if (!reason) throw error
 
     console.warn(
-      `  ⚠ ${route}: no database reachable at build time, so no pages were ` +
-        `prebuilt for it. They will render on first request. ` +
-        `Set DATABASE_URL to a database this build can reach to prebuild them.`,
+      `  ⚠ ${route}: ${reason}, so no pages were prebuilt for it. They will ` +
+        `render on first request instead.`,
     )
     return []
   }
@@ -49,15 +55,37 @@ export async function prebuiltParams<T>(route: string, load: () => Promise<T[]>)
  * imports — and across that boundary the check fails even for the right error.
  * The name and the P1xxx connection codes are the stable signal.
  */
-function isDatabaseUnreachable(error: unknown): boolean {
-  if (error instanceof Prisma.PrismaClientInitializationError) return true
+function notDeployedYet(error: unknown): string | null {
+  const unreachable =
+    'no database reachable at build time — set DATABASE_URL to one this build can reach'
 
-  if (typeof error !== 'object' || error === null) return false
-  const { name, errorCode } = error as { name?: string; errorCode?: string }
+  if (error instanceof Prisma.PrismaClientInitializationError) return unreachable
 
-  if (name === 'PrismaClientInitializationError') return true
+  if (typeof error !== 'object' || error === null) return null
+  const { name, errorCode, code } = error as {
+    name?: string
+    errorCode?: string
+    code?: string
+  }
+
+  if (name === 'PrismaClientInitializationError') return unreachable
 
   // P1000 authentication failed, P1001 cannot reach server, P1002 timed out,
   // P1003 database does not exist, P1017 server closed the connection.
-  return typeof errorCode === 'string' && /^P100[0-3]$|^P1017$/.test(errorCode)
+  // These arrive as `errorCode` on an initialization error and as `code` on a
+  // request error, depending on where the connection gave out.
+  const connection = /^P100[0-3]$|^P1017$/
+  if (
+    (typeof errorCode === 'string' && connection.test(errorCode)) ||
+    (typeof code === 'string' && connection.test(code))
+  ) {
+    return unreachable
+  }
+
+  // Connected, but the schema is not there yet.
+  if (code === 'P2021') {
+    return 'the database has no tables yet — run `prisma migrate deploy` against it'
+  }
+
+  return null
 }
