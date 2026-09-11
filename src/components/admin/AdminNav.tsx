@@ -67,12 +67,7 @@ const SECTIONS: NavSection[] = [
     // Content is database-backed and editable here; cars are an authored module
     // and read-only, and grouping them together would imply an Edit button that
     // does not exist. See the cars page for why.
-    items: [
-      { label: 'Cars', href: '/admin/cars', icon: Car },
-      { label: 'Review', href: '/admin/cars/review', icon: GitCompare },
-      { label: 'Sources', href: '/admin/cars/sources', icon: Database },
-      { label: 'Updates', href: '/admin/cars/updates', icon: RefreshCw },
-    ],
+    items: [{ label: 'Cars', href: '/admin/cars', icon: Car }],
   },
   {
     heading: 'Content',
@@ -109,12 +104,16 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-/** Routes under /admin/cars that have their own entry. */
-const CHILD_ROUTES = new Set([
-  '/admin/cars/review',
-  '/admin/cars/sources',
-  '/admin/cars/updates',
-])
+/**
+ * Routes under /admin/cars that have their own entry.
+ *
+ * Empty since the crawler was removed: Review, Sources and Updates were its
+ * three screens and went with it. Kept rather than deleted because /admin/cars
+ * still has a child route — /admin/cars/[slug] — and this set is what stops the
+ * parent entry highlighting for a child that owns its own nav item. The moment
+ * one is added back, this is where it goes.
+ */
+const CHILD_ROUTES = new Set<string>([])
 
 function NavContent({
   onNavigate,

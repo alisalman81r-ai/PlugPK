@@ -159,8 +159,6 @@ Set these under **Settings → Environment Variables**:
 | `ENABLE_ADMIN` | Leave **unset** unless `/admin` is meant to be reachable in production. Without it those routes 404. |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Compiled into the client bundle and readable by anyone — restrict it by HTTP referrer to the deployed domain. |
 | `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Map styling. |
-| `CRAWLER_ENABLED` | Leave off unless the crawler should run in production. |
-| `CRAWLER_TRIGGER_SECRET` | Required only if the crawler endpoint is exposed. |
 
 Anything named `NEXT_PUBLIC_` is public. That is correct for the Maps key and
 wrong for everything else, so do not rename a secret into that prefix to reach
@@ -291,9 +289,8 @@ including the middleware authorization bypass, which matters here because
 The other advisories are `eslint-config-next`, `prisma` CLI and their
 dependencies. Those are devDependencies and are not deployed.
 
-**The crawler's single-writer notes are now pessimistic.** Several comments
-(`crawler/live-deps.ts`, `src/lib/db/car-source-store.ts`,
-`src/app/api/crawler/daily/route.ts`) explain batching and concurrency limits in
-terms of a single-writer SQLite file. Postgres does not have that constraint, so
-those limits are now conservative rather than necessary. Nothing is broken; the
-reasoning behind the numbers has just stopped applying.
+**The crawler has been removed from the project.** The files this section
+used to point at are gone, along with its API route, its scheduler and its
+npm scripts. Its staging tables remain in the schema and still hold their
+rows — nothing reads them now — so the migration and the row counts above
+are unchanged.

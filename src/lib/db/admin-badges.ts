@@ -76,20 +76,17 @@ const QUEUES: Queue[] = [
     many: 'service applications to review',
     count: () => prisma.eVService.count({ where: { status: 'pending' } }),
   },
-  {
-    // Field changes the crawler proposed against the car catalogue.
-    href: '/admin/cars/review',
-    one: 'proposed change to review',
-    many: 'proposed changes to review',
-    count: () => prisma.carFieldChange.count({ where: { status: 'pending' } }),
-  },
-  {
-    // Cars a source has seen that the catalogue does not hold yet.
-    href: '/admin/cars/updates',
-    one: 'possible new car to confirm',
-    many: 'possible new cars to confirm',
-    count: () => prisma.carCandidate.count({ where: { status: 'pending' } }),
-  },
+  /*
+    The two car queues are gone with the crawler.
+
+    They counted CarFieldChange and CarCandidate rows staged by the crawl, and
+    both were cleared on /admin/cars/review and /admin/cars/updates — screens
+    that no longer exist. A badge whose page has been deleted is an alert with
+    nowhere to go, which is the exact failure this file's own notes describe.
+
+    The tables are still in the schema and still hold their rows; nothing reads
+    them now. If a review workflow ever returns, its queue belongs here.
+  */
 ]
 
 export interface PendingQueue {

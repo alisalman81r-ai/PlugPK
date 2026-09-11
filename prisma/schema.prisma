@@ -660,7 +660,27 @@ model Car {
 }
 
 /**
- * ─── Crawler staging ──────────────────────────────────────────────────
+ * ─── Crawler staging — RETAINED, NO LONGER WRITTEN ────────────────────
+ *
+ * The crawler these nine models served has been removed from the project: its
+ * code, its API route, its schedulers, its admin screens and its npm scripts
+ * are all gone. Nothing in the application reads or writes any of the tables
+ * below any more.
+ *
+ * They are kept deliberately rather than dropped. They still hold the rows the
+ * crawl left behind — the sources, the staged records and the run history that
+ * some figures in the catalogue came from — and that provenance is the only
+ * remaining account of where those numbers originated. Dropping the tables
+ * would delete it, and a migration that destroys data is not a cleanup.
+ *
+ * Nothing depends on them, so they cost a little schema and nothing else. If
+ * they are ever to be removed, that is its own forward migration, taken
+ * deliberately, with the provenance exported first.
+ *
+ * The comments below describe how the crawler worked and are left as the
+ * record of it. References they make to files under crawler/ no longer resolve.
+ *
+ * ──────────────────────────────────────────────────────────────────────
  * Two tables that sit beside the catalogue and never inside it.
  * Crawled data does not go into Car. The catalogue's governing rule is that
  * nothing in it is invented, and a scraped figure is not a verified one — write

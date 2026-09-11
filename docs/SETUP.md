@@ -104,57 +104,24 @@ Check what the server actually loaded:
 node -e "require('dotenv').config(); console.log('ENABLE_ADMIN =', JSON.stringify(process.env.ENABLE_ADMIN))"
 ```
 
-## 5. Optional: screenshots and the crawler
+## 5. Optional: screenshots
 
-Neither is needed to run the site.
+Not needed to run the site.
 
-**Screenshots.** `@playwright/test` is in `package.json`, but the browser it
-drives is roughly 115 MB and is not — and should never be — committed:
+`@playwright/test` is in `package.json`, but the browser it drives is roughly
+115 MB and is not — and should never be — committed:
 
 ```bash
 npx playwright install chromium
 node scripts/shoot.mjs login          # writes to .screenshots/
 ```
 
-**Crawler.** Lives in `crawler/` and imports nothing from `src/`. Its staging
-tables start empty and nothing populates them automatically:
-
-```bash
-npm run crawl:verify                       # 48 fixture checks, no network
-npm run crawl:source -- openev --limit 5   # fetches Open EV Data into staging
-```
-
-Crawled data lands in `CarSourceRecord` and is never written to `Car` without a
-review step. See **[CRAWLER.md](CRAWLER.md)** for the whole pipeline, the
-scheduler options, and what each source permits.
-
-One obligation attached to that source: Open EV Data is MIT-licensed **with an
-attribution requirement**. That credit is now given at **`/credits`**, linked from
-the footer of every page — and it is enforced rather than remembered: `applyChange`
-refuses to publish a proposal from any source absent from
-`src/data/dataSources.ts`, so a figure cannot reach a public page while its
-attribution is outstanding. Adding a source means adding its licence entry at the
-same time, having read its terms.
-
-## Automated crawling is built but not switched on
-
-Nothing runs on a timer. The schedulers exist — Windows Task Scheduler under
-`deploy/windows/`, a systemd timer under `deploy/linux/`, and an authenticated
-trigger at `/api/crawler/daily` for hosts with no shell — and each takes a
-deliberate command to activate.
-
-Before activating any of them, read
-**[PHASE4-PRODUCTION-CHECK.md](PHASE4-PRODUCTION-CHECK.md)**. It sets out the
-expected request and write volumes, the rollback strategy, and the one open
-decision: a first live run would raise about 1,300 new-car candidates from a
-global dataset against a 36-car Pakistani catalogue.
-
-To see what a run would do without doing it:
-
-```bash
-npm run crawl:status    # what would run, and what is stale. Contacts nothing.
-npm run crawl:dry       # a full pass that writes nothing
-```
+> The car crawler that used to be documented here has been removed from the
+> project. Its staging tables remain in the schema, holding the rows it left
+> behind, but nothing reads or writes them and there is no longer any code to
+> run. Open EV Data attribution is still published at `/credits` from
+> `src/data/dataSources.ts`, because the figures it contributed are still in
+> the catalogue.
 
 ## Known production requirement: who approved a change
 
