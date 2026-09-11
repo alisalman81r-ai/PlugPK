@@ -107,6 +107,15 @@ const ARRIVAL: readonly [number, number] = [0.94, 1]
  */
 const ROTATION_DAMPING = 0.35
 
+/**
+ * Scroll progress below which the journey is considered not to have started.
+ *
+ * Two orders of magnitude above the 1.25e-5 the pin rests at, and an eighth of
+ * the way into the intro phase — small enough that the car has begun fading in
+ * before a reader could notice it was waiting.
+ */
+const ENTRANCE_DEADZONE = 0.01
+
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
 const spanProgress = (from: number, to: number, v: number) =>
@@ -170,8 +179,37 @@ export interface EvJourneyRefs {
   stage: React.RefObject<HTMLElement>
 }
 
+/**
+ * Layout effect in the browser, plain effect on the server.
+ *
+ * ── Why this is not a style preference ────────────────────────────────
+ *
+ * ScrollTrigger's pin does not position the hero in place: it creates a
+ * `.pin-spacer` div, inserts it where the section was, and MOVES the section
+ * inside it. Verified in the browser — before the pin the section is a child
+ * of `<main>`, and during it `<main>`'s child is the spacer and the section
+ * is the spacer's child. The node React rendered has been reparented by a
+ * library React knows nothing about.
+ *
+ * That is survivable as long as the spacer is unwrapped before React tries to
+ * remove the section. `context.revert()` does exactly that unwrapping — but a
+ * passive effect's cleanup runs AFTER React's mutation phase, and the mutation
+ * phase is where the removal happens. React calls removeChild(main, section),
+ * the section's parent is the spacer, and the browser throws
+ * `NotFoundError: The node to be removed is not a child of this node`.
+ *
+ * A layout effect's cleanup runs inside the mutation phase, before the host
+ * node is detached, so the spacer is gone by the time React reaches for the
+ * section. The ordering is the fix; nothing about the animation changes.
+ *
+ * `useEffect` on the server because useLayoutEffect warns there, and neither
+ * runs during SSR anyway.
+ */
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect
+
 export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const sceneEl = scene.current
     if (!sceneEl) return
 
@@ -342,12 +380,45 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
         route.style.strokeDashoffset = dash
         if (glow) glow.style.strokeDashoffset = dash
 
+        /*
+          ── The car's entrance ────────────────────────────────────────────
+
+          Keyed to the master progress rather than to the story time, and so
+          symmetric by construction: it arrives as the first scroll begins and
+          it leaves again if the user scrolls back to the top, which is what
+          returns the panel to map-only. The direction state machine is not
+          consulted, because there is nothing directional about being present.
+
+          The markup ships the car at opacity 0 (see JourneyLayers), so this is
+          the only thing that ever makes it visible. At t=1 the span is 1, which
+          is what keeps the reduced-motion branch below — which calls apply(1)
+          and nothing else — showing a car at the destination rather than an
+          empty road.
+
+          A fade and four percent of scale. The brief allows a subtle entrance
+          and rules out flying the car in; this is the smaller half of that.
+
+          ── Why the span starts at ENTRANCE_DEADZONE and not at 0 ─────────
+
+          At rest on desktop the timeline does not sit at exactly zero. The
+          hero's top is already at 72px — the fixed navbar's offset — which is
+          the pin's own start, so ScrollTrigger engages at scrollY 0 and
+          refresh() settles progress a hair above it: measured at 1.25e-5.
+
+          Fading from t=0 turned that into an opacity of 0.0000125. Invisible,
+          but not hidden, and "the car is not there yet" should be a fact
+          rather than something that survives on rounding. Below the deadzone
+          the span returns exactly 0, so an untouched page is untouched.
+        */
+        const entrance = spanProgress(ENTRANCE_DEADZONE, PHASE.introEnd, t)
+        car.style.opacity = String(entrance)
+
         const pose = pointAt(p)
         car.setAttribute(
           'transform',
           `translate(${pose.x.toFixed(2)} ${pose.y.toFixed(2)}) rotate(${(
             pose.angle * ROTATION_DAMPING
-          ).toFixed(2)})`,
+          ).toFixed(2)}) scale(${(0.96 + 0.04 * entrance).toFixed(3)})`,
         )
 
         const charge = forward ? spanProgress(CHARGING[0], CHARGING[1], storyT) : 0

@@ -84,6 +84,27 @@ export function JourneyLayers() {
         dashoffset animation works in percentages and needs no retiming if a
         waypoint moves.
       */}
+      {/*
+        ── Undrawn at first paint ────────────────────────────────────────
+
+        `strokeDasharray`/`strokeDashoffset` are written here, in the markup,
+        rather than left for the hook to set. Both strokes normalise to
+        pathLength 100, so a dash of 100 with the offset at 100 is a road that
+        is fully retracted: present in the DOM, measurable, and drawing
+        nothing.
+
+        This is the fix for the reload flash, and it has to live in the JSX to
+        work. A path with no dash attributes renders whole, and the hook's
+        gsap.set runs in an effect — after the browser has already painted the
+        finished route once. No amount of reordering inside the effect helps,
+        because the first paint happens before any effect runs. The server
+        sends the retracted state instead, so there is no frame in which the
+        route exists on screen before the journey starts.
+
+        The hook writes the same two properties as inline styles, which win
+        over these attributes from its first frame onward, so nothing here
+        competes with the animation.
+      */}
       <g data-layer="route">
         <path
           data-route-glow
@@ -96,6 +117,8 @@ export function JourneyLayers() {
           strokeLinejoin="round"
           opacity={0.15}
           filter="url(#journey-glow)"
+          strokeDasharray={100}
+          strokeDashoffset={100}
         />
         <path
           id="route-path"
@@ -106,6 +129,8 @@ export function JourneyLayers() {
           strokeWidth={4.6}
           strokeLinecap="round"
           strokeLinejoin="round"
+          strokeDasharray={100}
+          strokeDashoffset={100}
         />
       </g>
 
@@ -307,7 +332,23 @@ export function JourneyLayers() {
         CAR.angle is still computed and exported, so the animation step can
         damp it or swap the artwork without touching this geometry.
       */}
-      <g data-layer="car" id="car-layer" transform={`translate(${CAR.x} ${CAR.y})`}>
+      {/*
+        Hidden at first paint, for the same reason as the route above: CAR is
+        CAR_PROGRESS (0.12) along the road, so without this the reload showed a
+        car parked a tenth of the way up Pakistan before the hook moved it back
+        to the start. The hook fades it in across the intro phase as the first
+        scroll begins.
+
+        `opacity` rather than `display` or a conditional render: the node stays
+        mounted and stays in the same place in the tree, so React and GSAP never
+        disagree about who owns it.
+      */}
+      <g
+        data-layer="car"
+        id="car-layer"
+        transform={`translate(${CAR.x} ${CAR.y})`}
+        opacity={0}
+      >
         <g className={MARKER_SCALE}>
           <EVCar length={92} />
         </g>

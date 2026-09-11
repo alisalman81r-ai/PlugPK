@@ -126,6 +126,25 @@ export const VIEW_BOX = [
   (BOUNDS.maxY - BOUNDS.minY + MARGIN * 2).toFixed(1),
 ].join(' ')
 
+/*
+  ── On the internal contour texture that is not here ──────────────────
+
+  The brief allows an abstract topographic texture, and one was built and
+  looked at: the boundary polygon scaled toward a point in the northern
+  interior, five rings, clipped to the coast, at 0.05 opacity.
+
+  It was removed after seeing it rendered. The boundary is a polygon with hard
+  vertices, so every scaled copy keeps those angles, and what appears on the
+  surface is a smaller Pakistan drawn inside Pakistan — the nested outline
+  reads as a stray artefact rather than as terrain. Softening it further only
+  made a faint artefact rather than an invisible one.
+
+  The premium here comes from the light and the depth instead: a two-part
+  shadow, a sheen across the face, and a lit lip just inside the coast. The
+  brief asked for only the detailing that genuinely improves the map, and this
+  particular one did not.
+*/
+
 /**
  * The extruded side wall, as offset copies of the same outline.
  *
@@ -197,13 +216,36 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         </linearGradient>
 
         {/*
-          The shadow that does the lifting. Wide and very soft — a tight
-          shadow would read as a sticker, which is the one thing the brief
-          rules out by name.
+          The shadow that does the lifting.
+
+          Two of them now, which is what a real object casts: a tight contact
+          shadow that says where the slab meets the ground, and the wide
+          ambient one that gives it height. A single soft shadow floats —
+          there is nothing anchoring the bottom edge — and a single tight one
+          reads as a sticker, which the brief rules out by name. Both are kept
+          under a tenth opacity so the effect is depth rather than darkness.
         */}
-        <filter id="pk-lift" x="-12%" y="-12%" width="124%" height="124%">
-          <feDropShadow dx="0" dy="10" stdDeviation="16" floodColor="#1E3A8A" floodOpacity="0.10" />
+        <filter id="pk-lift" x="-14%" y="-14%" width="128%" height="130%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#1E3A8A" floodOpacity="0.09" />
+          <feDropShadow dx="0" dy="14" stdDeviation="20" floodColor="#1E3A8A" floodOpacity="0.09" />
         </filter>
+
+        {/*
+          A soft light across the surface, from the same top-left the wall
+          already falls away from. Painted as the silhouette filled with a
+          radial gradient rather than as a rectangle over it, so there is still
+          no box anywhere in this file.
+        */}
+        <radialGradient id="pk-sheen" cx="0.3" cy="0.2" r="0.85">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
+          <stop offset="45%" stopColor="#FFFFFF" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#C7D6EC" stopOpacity="0.16" />
+        </radialGradient>
+
+        {/* Keeps the contour texture and the lit lip inside the coastline. */}
+        <clipPath id="pk-clip">
+          <path d={PATH_D} />
+        </clipPath>
       </defs>
 
       {/*
@@ -235,6 +277,29 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         </g>
 
         <path d={PATH_D} fill="url(#pk-surface)" />
+
+        {/*
+          A lit lip just inside the coast.
+
+          The coast path drawn in white and clipped to the landmass, so only
+          its inner half survives — the outer half is cut away by the clip.
+          That is what gives the edge a catch of light without putting a second
+          visible line outside the navy one.
+        */}
+        <g clipPath="url(#pk-clip)">
+          <path
+            d={PATH_D}
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth={3}
+            strokeLinejoin="round"
+            opacity={0.5}
+          />
+        </g>
+
+        {/* The light across the face, over the texture so it softens it. */}
+        <path d={PATH_D} fill="url(#pk-sheen)" style={{ mixBlendMode: 'soft-light' }} />
+
         {/*
           The coast, in the headline's own accent — plug-navy-700, the colour
           of "on one map." Held at 0.7 rather than solid: at full strength a
