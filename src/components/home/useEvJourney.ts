@@ -503,6 +503,7 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           apply(0)
 
           const driver = { t: 0 }
+          const handheldTrigger = stage.current ?? sceneEl
           const tl = gsap.timeline({
             scrollTrigger: {
               // Desktop pins the hero and takes its distance from the pin.
@@ -510,8 +511,32 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
               // viewport there because the map sits under the copy, so pinning
               // it would hold a section whose bottom is off-screen. The map
               // scrolling past IS the interaction.
-              trigger: desktop ? sceneEl : (stage.current ?? sceneEl),
-              start: desktop ? 'top 72px' : 'top 85%',
+              trigger: desktop ? sceneEl : handheldTrigger,
+              /*
+                ── The handheld start, clamped to the top of the document ────
+
+                'top 85%' was already behind the viewport at load on a tall
+                tablet: measured at 820x1180 the journey reported progress
+                0.3292 before a single scroll event, so the car began a third
+                of the way up Pakistan on a fresh page. The start was simply a
+                scroll position the page opens past, and ScrollTrigger was
+                right to report it.
+
+                Resolving it ourselves and clamping at zero means the trigger
+                can never begin behind the document's own top. Where the map
+                is already on screen at load the journey now starts from the
+                first pixel of scrolling instead of from a position the reader
+                never visited. Below that it is the same 85% line as before.
+
+                A function, so it is recomputed on every refresh rather than
+                frozen at the geometry of first measurement.
+              */
+              start: desktop
+                ? 'top 72px'
+                : () => {
+                    const top = handheldTrigger.getBoundingClientRect().top + window.scrollY
+                    return Math.max(0, top - window.innerHeight * 0.85)
+                  },
               end: desktop ? '+=200%' : 'bottom 25%',
               pin: desktop ? sceneEl : false,
               pinSpacing: desktop,
@@ -519,7 +544,27 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
               // otherwise get as the element switches to fixed.
               anticipatePin: desktop ? 1 : 0,
               scrub: 0.7,
-              invalidateOnRefresh: true,
+              /*
+                ── invalidateOnRefresh is deliberately absent ────────────────
+
+                It was set, and it is what lost the reader's place. Invalidate
+                resets a tween's start values, and this tween's only value is
+                `driver.t` — so every refresh put the driver back to 0 and the
+                last apply() of the refresh ran at 0.
+
+                Measured: reload at scrollY 1100, the journey reconciled
+                correctly to t=0.6111 as the trigger was built, then dropped to
+                t=0.0000 on the refresh that followed. The page stayed at 1100
+                with the hero pinned, and the car sat back at the route start —
+                a reader who reloads mid-story got an empty road and a journey
+                that restarted from wherever they already were.
+
+                Nothing here needs invalidating. The tween carries one number
+                from 0 to 1 with ease 'none'; it holds no cached layout, no
+                measured distance and no start value that a resize could
+                stale. Refresh still re-measures the trigger's geometry, which
+                is the part that does depend on layout.
+              */
             },
           })
 
@@ -531,13 +576,20 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
           })
 
           /*
-            Re-measure once the page settles. ScrollTrigger reads geometry when
-            the timeline is built, and at that moment the hero's height comes
-            from a class the stylesheet may not have applied and the fonts
-            above the fold have not loaded. A range captured then is short, and
-            the whole journey completes in the first screen of scrolling.
+            Re-measure once the page settles, once.
+
+            ScrollTrigger reads geometry when the timeline is built, and at
+            that moment the fonts above the fold have not loaded, so the hero's
+            height — and with it the pin distance — can still change under it.
+            document.fonts.ready is the deterministic signal that they have,
+            and it is the lifecycle hook PART 9 asks for rather than a timeout.
+
+            There used to be a second refresh on the next animation frame as
+            well. It fired before layout had settled, which is the one moment a
+            refresh cannot help, and every refresh re-measures the pin and
+            re-seats the scrubbed timeline. One refresh, at the point the thing
+            it is waiting for has actually happened.
           */
-          requestAnimationFrame(() => ScrollTrigger.refresh())
           if (document.fonts?.ready) {
             void document.fonts.ready.then(() => ScrollTrigger.refresh())
           }
