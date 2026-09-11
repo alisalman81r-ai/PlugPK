@@ -80,7 +80,7 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
         id="mobile-menu"
         aria-hidden={!isOpen}
         className={cn(
-          'fixed inset-0 z-40 flex flex-col bg-white pt-[72px] transition-transform duration-[350ms] ease-decelerate lg:hidden',
+          'fixed inset-0 z-40 flex flex-col bg-white pt-[var(--nav-h)] transition-transform duration-[350ms] ease-decelerate lg:hidden',
           isOpen ? 'translate-y-0' : 'pointer-events-none -translate-y-full',
         )}
       >

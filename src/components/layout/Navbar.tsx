@@ -50,7 +50,7 @@ export function Navbar({ user }: NavbarProps) {
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 h-[72px] backdrop-blur-[20px] transition-all duration-300 ease-out',
+          'fixed inset-x-0 top-0 z-50 h-[var(--nav-h)] backdrop-blur-[20px] transition-all duration-300 ease-out',
           isScrolled
             ? 'border-b border-slate-200/60 bg-white/95 shadow-nav'
             : 'border-b border-slate-200/80 bg-white/[0.85]',

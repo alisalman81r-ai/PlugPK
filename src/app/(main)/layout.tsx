@@ -28,7 +28,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           nothing; see CardSpotlight for why it is not per-card. */}
       <CardSpotlight />
       <Navbar user={user} />
-      <main className="min-h-screen pt-[72px]">{children}</main>
+      <main className="min-h-screen pt-[var(--nav-h)]">{children}</main>
       <Footer />
       <BottomTabBar />
     </>

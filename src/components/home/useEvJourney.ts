@@ -173,10 +173,22 @@ function reverseTimeFor(p: number): number {
 }
 
 export interface EvJourneyRefs {
-  /** The hero. Pinned on desktop, and the trigger for the timeline. */
+  /**
+   * The scroll runway: the tall CSS-sized section the sticky hero sits in.
+   * The desktop timeline is measured against this and nothing else.
+   */
+  story: React.RefObject<HTMLElement>
+  /** The sticky hero. Owns the journey DOM and publishes the progress. */
   scene: React.RefObject<HTMLElement>
-  /** The map column. The trigger on small screens, where nothing is pinned. */
+  /** The map column. The trigger on small screens, where nothing sticks. */
   stage: React.RefObject<HTMLElement>
+}
+
+/** The fixed navbar's height, read from the one place that defines it. */
+function navOffset(): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--nav-h')
+  const parsed = Number.parseFloat(raw)
+  return Number.isFinite(parsed) ? parsed : 72
 }
 
 /**
@@ -208,7 +220,7 @@ export interface EvJourneyRefs {
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect
 
-export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
+export function useEvJourney({ story, scene, stage }: EvJourneyRefs): void {
   useIsomorphicLayoutEffect(() => {
     const sceneEl = scene.current
     if (!sceneEl) return
@@ -504,14 +516,32 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
 
           const driver = { t: 0 }
           const handheldTrigger = stage.current ?? sceneEl
+          const storyEl = story.current ?? sceneEl
           const tl = gsap.timeline({
             scrollTrigger: {
-              // Desktop pins the hero and takes its distance from the pin.
-              // Small screens pin nothing: the hero is already taller than the
-              // viewport there because the map sits under the copy, so pinning
-              // it would hold a section whose bottom is off-screen. The map
-              // scrolling past IS the interaction.
-              trigger: desktop ? sceneEl : handheldTrigger,
+              /*
+                ── GSAP measures, CSS holds ──────────────────────────────────
+
+                The desktop trigger is the runway section, which is tall in the
+                stylesheet, and the hero inside it is held by position: sticky.
+                Nothing here pins: `pin` is absent, so ScrollTrigger creates no
+                spacer, wraps no element and moves nothing in the DOM. Its only
+                job is to turn scroll position into the 0-1 number the journey
+                reads.
+
+                It used to pin the hero itself. That worked visually but made
+                the runway a runtime artefact — the document only became tall
+                enough for the story after hydration, which is what truncated
+                scroll restoration and what made the hero jump back into place
+                on a mid-story reload. The height now exists in CSS at first
+                layout, so there is nothing left to insert.
+
+                Small screens stick nothing: the hero is already taller than
+                the viewport there because the map sits under the copy, so
+                holding it would hold a section whose bottom is off-screen.
+                The map scrolling past IS the interaction.
+              */
+              trigger: desktop ? storyEl : handheldTrigger,
               /*
                 ── The handheld start, clamped to the top of the document ────
 
@@ -532,17 +562,20 @@ export function useEvJourney({ scene, stage }: EvJourneyRefs): void {
                 frozen at the geometry of first measurement.
               */
               start: desktop
-                ? 'top 72px'
+                ? () => `top ${navOffset()}px`
                 : () => {
                     const top = handheldTrigger.getBoundingClientRect().top + window.scrollY
                     return Math.max(0, top - window.innerHeight * 0.85)
                   },
-              end: desktop ? '+=200%' : 'bottom 25%',
-              pin: desktop ? sceneEl : false,
-              pinSpacing: desktop,
-              // Pins one frame early, which is what removes the jump you
-              // otherwise get as the element switches to fixed.
-              anticipatePin: desktop ? 1 : 0,
+              /*
+                The runway's bottom reaching the viewport's bottom is the exact
+                moment the sticky hero stops sticking — both happen when the
+                page has scrolled (runway height - hero height), which the
+                stylesheet sets to 200svh. Deriving the end from the element
+                rather than writing '+=200%' means the two cannot disagree if
+                that height is ever changed.
+              */
+              end: desktop ? 'bottom bottom' : 'bottom 25%',
               scrub: 0.7,
               /*
                 ── invalidateOnRefresh is deliberately absent ────────────────

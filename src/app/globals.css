@@ -12,6 +12,23 @@
  */
 
 :root {
+  /*
+   * The fixed navbar's height, in one place.
+   *
+   * It was written as a literal 72px across five files — the navbar itself,
+   * the padding that clears it, the two viewport-height utilities below, the
+   * mobile menu, and the hero's sticky offset. The scroll trigger reads this
+   * same property at runtime rather than carrying a sixth copy.
+   *
+   * They have to agree. The hero sticks at this offset and the journey starts
+   * at the scroll position where that happens, so a change in one place and
+   * not another shows up as a jump at the top of the story.
+   *
+   * Still literal in DashboardSidebar, which is a different layout with its
+   * own sticky column and was left alone rather than swept into this change.
+   */
+  --nav-h: 72px;
+
   --color-primary: #2563EB;
   --color-accent: #06B6D4;
   --color-dark: #0A0F1E;
@@ -405,13 +422,13 @@
    the second declaration and keep the first. Desktop is unaffected, where
    the two units are identical. */
 .h-below-nav {
-  height: calc(100vh - 72px);
-  height: calc(100dvh - 72px);
+  height: calc(100vh - var(--nav-h));
+  height: calc(100dvh - var(--nav-h));
 }
 
 .min-h-below-nav {
-  min-height: calc(100vh - 72px);
-  min-height: calc(100dvh - 72px);
+  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(100dvh - var(--nav-h));
 }
 
 /* Same reasoning for full-height shells such as the auth split layout. */
