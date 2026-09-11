@@ -573,13 +573,30 @@ function Segment({
     reader cannot see, which reads as the page having decided something on its
     own.
 
-    `block: 'nearest'` is load-bearing: the rail sits about a thousand pixels
-    down the page, and the default `'start'` would scroll the document
-    vertically to it on mount.
+    `block: 'nearest'` was chosen to keep this horizontal, and it is not
+    enough. "Nearest" means the smallest scroll that brings the element into
+    view — which is zero only when it is already visible. On mount this rail is
+    about a thousand pixels down the page, so the element is not visible at
+    all, and the browser scrolls the document to it: measured landing the
+    reader at scrollY 518 on /cars, below the masthead they came to read.
+
+    So the rail is scrolled directly instead of asking the browser to reveal
+    the element. Only scrollLeft is written, on the one element that overflows,
+    so the document's own scroll position is never a party to it. The segment
+    is centred where there is room, which also reads better than flush-left.
   */
   React.useEffect(() => {
     if (!active) return
-    ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
+    const el = ref.current
+    const rail = el?.parentElement
+    if (!el || !rail) return
+
+    // Nothing to do when the rail does not overflow — every segment is visible.
+    if (rail.scrollWidth <= rail.clientWidth) return
+
+    const target = el.offsetLeft - (rail.clientWidth - el.clientWidth) / 2
+    const left = Math.max(0, Math.min(target, rail.scrollWidth - rail.clientWidth))
+    rail.scrollTo({ left, behavior: 'smooth' })
   }, [active])
 
   return (
