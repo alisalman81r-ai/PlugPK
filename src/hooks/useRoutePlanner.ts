@@ -3,9 +3,25 @@
 
 import { useCallback, useMemo, useState } from 'react'
 
+import { getCityCoordinates } from '@/lib/city-coordinates'
 import { MOCK_EV_MODELS, MOCK_STATIONS } from '@/lib/mock-data'
 import { estimateDriveMinutes, getRoadDistanceKm } from '@/lib/route-distances'
+import {
+  haversineKm,
+  spreadStopsAlongRoute,
+  stationsAlongRoute,
+} from '@/lib/route-corridor'
 import type { EVModel, PlannedRoute, RouteStop } from '@/lib/types'
+
+/**
+ * Straight-line kilometres to road kilometres.
+ *
+ * Roads bend. Checked against the distances already recorded by hand in
+ * route-distances.ts, the ratio across those pairs sits a little over 1.2 on
+ * the motorway runs and higher into the hills; 1.25 is the middle of that and
+ * is only ever used for a pair the table does not hold.
+ */
+const ROAD_WINDING_FACTOR = 1.25
 
 const DEPARTURE_BATTERY = 80
 const LEG_CONSUMPTION_PERCENT = 25
@@ -40,13 +56,17 @@ export interface UseRoutePlannerReturn {
  * Was a flat three for anything over 400 km, which put the same two-and-a-bit
  * hours of charging on a 450 km run and on the 1,215 km to Karachi. It scales
  * past that band now — roughly a stop every 350 km, which is what a 400 km-range
- * car driven between 10% and 80% actually manages — and caps at the number of
- * distinct stations there are to send anyone to.
+ * car driven between 10% and 80% actually manages.
+ *
+ * This is what the journey NEEDS. What it gets is however many of those the
+ * corridor actually holds, which is often fewer: the cap used to be the total
+ * number of stations in the country, which meant nothing once the stops had to
+ * be on the way.
  */
 function stopCountForDistance(distanceKm: number): number {
   if (distanceKm < 300) return 1
   if (distanceKm <= 400) return 2
-  return Math.min(Math.ceil(distanceKm / 350), MOCK_STATIONS.length)
+  return Math.ceil(distanceKm / 350)
 }
 
 /**
@@ -97,31 +117,67 @@ export function useRoutePlanner(): UseRoutePlannerReturn {
     setError(null)
     setIsCalculating(true)
 
-    // Stands in for the routing API.
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    const originAt = getCityCoordinates(origin)
+    const destinationAt = getCityCoordinates(destination)
 
     /**
-     * A known city pair gets its real road distance, so the journey the route
-     * card advertised is the journey that comes back. Everything else still
-     * falls back to the stand-in figure until there is a routing API here —
-     * this is the one place that guesses, and it guesses only when it must.
+     * How long the journey is.
+     *
+     * A known city pair gets the road distance recorded by hand, so the
+     * journey a route card advertised is the journey that comes back. A pair
+     * that is not in the table but whose cities are both on the map gets the
+     * straight-line distance opened out by the winding factor.
+     *
+     * It used to fall back to `250 + Math.random() * 200`, which is why
+     * Islamabad to Murree and Lahore to Karachi could come back the same
+     * length. Nothing here is random any more.
      */
+    const straightLineKm =
+      originAt && destinationAt ? haversineKm(originAt, destinationAt) : null
     const totalDistanceKm =
-      getRoadDistanceKm(origin, destination) ?? Math.round(250 + Math.random() * 200)
-    const estimatedDriveTimeMinutes = estimateDriveMinutes(totalDistanceKm)
-    const stopCount = stopCountForDistance(totalDistanceKm)
-    const legDistance = Math.round(totalDistanceKm / (stopCount + 1))
+      getRoadDistanceKm(origin, destination) ??
+      (straightLineKm !== null ? Math.round(straightLineKm * ROAD_WINDING_FACTOR) : null)
 
-    // Pick distinct stations without mutating the source array.
-    const pool = [...MOCK_STATIONS].sort(() => Math.random() - 0.5)
+    if (totalDistanceKm === null) {
+      setError(
+        `We do not have ${!originAt ? origin.trim() : destination.trim()} on the map yet, so we cannot work out this journey.`,
+      )
+      setIsCalculating(false)
+      return
+    }
+
+    const estimatedDriveTimeMinutes = estimateDriveMinutes(totalDistanceKm)
+
+    /*
+      ── The stops, chosen because they are on the way ──────────────────
+
+      Every station is placed against the line between the two cities: how far
+      to the side of it, and how far along it. Anything outside the corridor,
+      behind the start or past the destination is dropped, and what survives is
+      spread across the journey rather than taken in the order it happens to
+      appear.
+
+      This replaces `[...MOCK_STATIONS].sort(() => Math.random() - 0.5)`, which
+      is what sent a Faisalabad-to-Murree run to charge in Lahore.
+    */
+    const corridor =
+      originAt && destinationAt
+        ? stationsAlongRoute(
+            originAt,
+            destinationAt,
+            MOCK_STATIONS,
+            (station) => station.coordinates,
+          )
+        : []
+
+    const wanted = stopCountForDistance(totalDistanceKm)
+    const picked = spreadStopsAlongRoute(corridor, wanted)
 
     const stops: RouteStop[] = []
     let batteryOnArrival = batteryPercent
+    let previousAlong = 0
 
-    for (let index = 0; index < stopCount; index += 1) {
-      const station = pool[index % pool.length]
-      if (!station) break
-
+    for (const [index, candidate] of picked.entries()) {
       const arrivalBatteryPercent = Math.max(
         batteryOnArrival - LEG_CONSUMPTION_PERCENT,
         MIN_ARRIVAL_BATTERY,
@@ -130,13 +186,19 @@ export function useRoutePlanner(): UseRoutePlannerReturn {
 
       stops.push({
         order: index + 1,
-        station,
+        station: candidate.item,
         arrivalBatteryPercent,
         departureBatteryPercent: DEPARTURE_BATTERY,
         chargingTimeMinutes,
-        distanceFromPreviousKm: legDistance,
+        // The real gap to the stop before, from how far apart they fall along
+        // the journey — not the total divided by the number of stops.
+        distanceFromPreviousKm: Math.max(
+          1,
+          Math.round((candidate.along - previousAlong) * totalDistanceKm),
+        ),
       })
 
+      previousAlong = candidate.along
       batteryOnArrival = DEPARTURE_BATTERY
     }
 

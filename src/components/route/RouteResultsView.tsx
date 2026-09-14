@@ -2,6 +2,7 @@
 'use client'
 
 import { Zap } from 'lucide-react'
+import Link from 'next/link'
 
 import type { PlannedRoute } from '@/lib/types'
 import { RouteMap } from './RouteMap'
@@ -45,6 +46,38 @@ export function RouteResultsView({ route }: RouteResultsViewProps) {
             </span>
             <span className="ml-auto font-mono text-green-600">{startBattery}%</span>
           </div>
+
+          {/*
+            No stops is a real answer, not an empty list.
+
+            The planner only offers chargers that sit on the way — within a
+            corridor of the line between the two places, and between them
+            rather than behind or beyond. When a journey comes back with none,
+            it is because there is no charger on this route in the data yet,
+            and saying so is more use than a gap where the list would be.
+
+            It is also the honest state of charging coverage in Pakistan, which
+            this product should report rather than paper over.
+          */}
+          {route.stops.length === 0 ? (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-6">
+              <p className="text-ui font-semibold text-slate-900">
+                No charging stops on this route yet
+              </p>
+              <p className="mt-2 max-w-prose text-ui-sm leading-relaxed text-slate-600">
+                We only suggest chargers that are actually on the way, and we do not
+                have one listed between {route.origin} and {route.destination}. Plan
+                to arrive with enough charge, or{' '}
+                <Link
+                  href="/partners"
+                  className="font-medium text-plug-blue-600 underline-offset-2 hover:underline"
+                >
+                  list a charger
+                </Link>{' '}
+                if you know of one on this road.
+              </p>
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-4">
             {route.stops.map((stop, index) => (
