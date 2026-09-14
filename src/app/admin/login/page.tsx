@@ -3,6 +3,7 @@ import { AlertTriangle, Lock } from 'lucide-react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+import { LoginBackdrop } from '@/components/admin/LoginBackdrop'
 import {
   ADMIN_COOKIE_NAME,
   ADMIN_SESSION_MAX_AGE,
@@ -56,7 +57,15 @@ export default function AdminLoginPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="flex min-h-viewport items-center justify-center bg-plug-navy-950 px-4">
+    /*
+      `relative isolate` and `overflow-hidden` are what the backdrop needs: a
+      positioning context to fill, its own stacking context so the -z-10 canvas
+      cannot slide behind the page's background, and a clip so the streams that
+      start off-screen never extend the scroll area.
+    */
+    <main className="relative isolate flex min-h-viewport items-center justify-center overflow-hidden bg-plug-navy-950 px-4">
+      <LoginBackdrop />
+
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <span className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10">
