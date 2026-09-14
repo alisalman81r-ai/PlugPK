@@ -71,7 +71,7 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
               className={cn(
                 'h-9 rounded-full border-[1.5px] px-4 text-sm font-medium transition-all duration-150',
                 type === option
-                  ? 'border-blue-400 bg-blue-50 text-blue-700'
+                  ? 'border-plug-blue-400 bg-plug-blue-50 text-plug-blue-700'
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
               )}
             >
@@ -104,7 +104,7 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
               key={preset}
               type="button"
               onClick={() => setMaxPowerKw(preset)}
-              className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+              className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 transition-colors hover:bg-plug-blue-50 hover:text-plug-blue-700"
             >
               {preset}
             </button>
@@ -153,7 +153,7 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
             type="checkbox"
             checked={allVehicles}
             onChange={(event) => setAllVehicles(event.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 accent-blue-600"
+            className="h-4 w-4 rounded border-slate-300 accent-plug-blue-600"
           />
           <span className="text-sm text-slate-700">All EVs</span>
         </label>
@@ -166,7 +166,7 @@ export function ChargerForm({ initialData, onSubmit, onCancel, isLoading }: Char
                   type="checkbox"
                   checked={vehicles.includes(vehicle)}
                   onChange={() => toggleVehicle(vehicle)}
-                  className="h-4 w-4 rounded border-slate-300 accent-blue-600"
+                  className="h-4 w-4 rounded border-slate-300 accent-plug-blue-600"
                 />
                 <span className="truncate text-xs text-slate-600">{vehicle}</span>
               </label>

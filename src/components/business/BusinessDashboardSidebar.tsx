@@ -118,7 +118,7 @@ export function BusinessDashboardSidebar({ listing }: BusinessDashboardSidebarPr
               className={cn(
                 'flex h-[42px] items-center gap-3 rounded-xl transition-all duration-150',
                 active
-                  ? 'border-l-[3px] border-plug-blue-600 bg-blue-50 pl-[9px] pr-3'
+                  ? 'border-l-[3px] border-plug-blue-600 bg-plug-blue-50 pl-[9px] pr-3'
                   : 'px-3 hover:bg-slate-50',
               )}
             >

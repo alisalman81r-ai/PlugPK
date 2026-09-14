@@ -227,7 +227,7 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
                             the top of the file. */}
                         <span
                           aria-hidden="true"
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 transition-colors duration-300 group-hover/stat:bg-blue-100"
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 transition-colors duration-300 group-hover/stat:bg-plug-blue-100"
                         >
                           <AnimatedIcon motion={stat.motion}>
                             <Icon size={20} className="text-plug-blue-600" />

@@ -54,7 +54,7 @@ export function SaveRouteModal({ isOpen, onClose, route, onConfirm }: SaveRouteM
           <X size={18} />
         </button>
 
-        <span className="mb-5 inline-flex rounded-2xl bg-blue-50 p-3">
+        <span className="mb-5 inline-flex rounded-2xl bg-plug-blue-50 p-3">
           <BookmarkCheck size={40} className="text-plug-blue-600" aria-hidden="true" />
         </span>
 

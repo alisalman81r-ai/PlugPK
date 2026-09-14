@@ -46,7 +46,7 @@ export function ForgotPasswordForm() {
   if (isSubmitted) {
     return (
       <div className="text-center">
-        <span className="mb-6 inline-flex rounded-3xl bg-blue-50 p-4">
+        <span className="mb-6 inline-flex rounded-3xl bg-plug-blue-50 p-4">
           <Mail size={56} className="text-plug-blue-600" aria-hidden="true" />
         </span>
 

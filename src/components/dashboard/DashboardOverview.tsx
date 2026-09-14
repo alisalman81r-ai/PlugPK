@@ -52,7 +52,7 @@ function EmptyHint({ children, href, cta }: { children: React.ReactNode; href: s
 
 export function DashboardOverview({ user, stats, savedStations, reviews }: DashboardOverviewProps) {
   const cards = [
-    { icon: Bookmark, tone: 'bg-blue-50 text-plug-blue-600', value: stats.totalSaved, label: 'Saved stations' },
+    { icon: Bookmark, tone: 'bg-plug-blue-50 text-plug-blue-600', value: stats.totalSaved, label: 'Saved stations' },
     { icon: Star, tone: 'bg-amber-50 text-amber-600', value: stats.totalReviews, label: 'Reviews written' },
     { icon: Calendar, tone: 'bg-green-50 text-green-600', value: stats.memberDays, label: 'Days as a member' },
   ]

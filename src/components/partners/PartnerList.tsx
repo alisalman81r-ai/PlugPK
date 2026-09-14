@@ -189,7 +189,7 @@ export function PartnerList({ partners }: PartnerListProps) {
                     <h2 className="font-bold text-slate-900 group-hover:text-plug-blue-700">
                       {partner.name}
                     </h2>
-                    <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-ui-xs font-semibold text-plug-blue-700">
+                    <span className="shrink-0 rounded-full bg-plug-blue-50 px-2.5 py-1 text-ui-xs font-semibold text-plug-blue-700">
                       {TYPE_LABEL[partner.type] ?? partner.type}
                     </span>
                   </div>

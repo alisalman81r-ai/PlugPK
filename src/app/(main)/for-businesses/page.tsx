@@ -31,7 +31,7 @@ export default function ForBusinessesPage() {
           </p>
           <Button
             href="/business/signup"
-            className="h-14 rounded-xl bg-white px-10 text-base font-bold text-plug-blue-600 hover:bg-blue-50"
+            className="h-14 rounded-xl bg-white px-10 text-base font-bold text-plug-blue-600 hover:bg-plug-blue-50"
           >
             List Your Business Free &rarr;
           </Button>

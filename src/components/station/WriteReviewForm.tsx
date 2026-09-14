@@ -111,7 +111,7 @@ export function WriteReviewForm({
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="h-11 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 text-left text-sm text-slate-400 transition-colors duration-150 hover:border-blue-300 hover:bg-blue-50"
+          className="h-11 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 text-left text-sm text-slate-400 transition-colors duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-50"
         >
           Share your experience...
         </button>
@@ -143,7 +143,7 @@ export function WriteReviewForm({
               aria-label={`${value} star${value === 1 ? '' : 's'}`}
               aria-pressed={rating === value}
               className={cn(
-                'cursor-pointer rounded transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+                'cursor-pointer rounded transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                 rating === value && 'animate-scale-in',
               )}
             >

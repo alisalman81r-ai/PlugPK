@@ -238,8 +238,8 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
             onClick={handleSave}
             aria-pressed={isSaved}
             className={cn(
-              'group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50',
-              isSaved && 'border-blue-200 bg-blue-50',
+              'group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-plug-blue-200 hover:bg-plug-blue-50',
+              isSaved && 'border-plug-blue-200 bg-plug-blue-50',
             )}
           >
             <MorphIcon
@@ -266,7 +266,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
           <button
             type="button"
             onClick={handleShare}
-            className="group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50"
+            className="group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <Share2
               size={18}
@@ -278,7 +278,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
 
           <button
             type="button"
-            className="group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-blue-200 hover:bg-blue-50"
+            className="group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <Flag
               size={18}
@@ -325,7 +325,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
                   key={day}
                   className={cn(
                     'flex items-center justify-between rounded-lg px-2 py-1',
-                    isToday && 'bg-blue-50',
+                    isToday && 'bg-plug-blue-50',
                   )}
                 >
                   <span

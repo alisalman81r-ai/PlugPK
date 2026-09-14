@@ -281,7 +281,7 @@ export function CarsBrowser({
             <select
               value={sort}
               onChange={(event) => onSortChange(event.target.value as CarSort)}
-              className="h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-9 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-blue-500"
+              className="h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-9 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-plug-blue-500"
             >
               {(Object.keys(SORT_LABELS) as CarSort[]).map((option) => (
                 <option key={option} value={option}>

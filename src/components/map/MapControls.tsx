@@ -41,7 +41,7 @@ export function MapControls({
         aria-label={`Filters, ${resultCount} stations found`}
         className={cn(
           'flex h-11 shrink-0 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold shadow-lg transition-colors duration-150 hover:bg-slate-50',
-          activeFilterCount > 0 ? 'text-blue-700' : 'text-slate-700',
+          activeFilterCount > 0 ? 'text-plug-blue-700' : 'text-slate-700',
         )}
       >
         <SlidersHorizontal size={18} className="shrink-0" aria-hidden="true" />

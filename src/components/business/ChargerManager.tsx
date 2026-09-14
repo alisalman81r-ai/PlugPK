@@ -248,7 +248,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                   ) : null}
 
                   <label
-                    className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-dashed border-slate-300 px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:border-plug-blue-300 hover:bg-blue-50 hover:text-plug-blue-700 ${uploading === index ? 'pointer-events-none opacity-60' : ''}`}
+                    className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-dashed border-slate-300 px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50 hover:text-plug-blue-700 ${uploading === index ? 'pointer-events-none opacity-60' : ''}`}
                   >
                     {uploading === index ? (
                       <Loader2 size={16} className="animate-spin" aria-hidden="true" />

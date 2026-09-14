@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 const FIELD_BASE =
   'w-full rounded-xl border-[1.5px] bg-white text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400'
 
-const FIELD_FOCUS = 'border-slate-200 focus:border-blue-500 focus:shadow-focus'
+const FIELD_FOCUS = 'border-slate-200 focus:border-plug-blue-500 focus:shadow-focus'
 
 const FIELD_ERROR =
   'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.10)]'
@@ -183,7 +183,7 @@ export function SearchInput({
         autoFocus={autoFocus}
         className={cn(
           'h-13 w-full rounded-xl border border-slate-200 bg-white pl-12 pr-12 text-ui text-slate-900 shadow-lg transition-all duration-150',
-          'placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:shadow-focus',
+          'placeholder:text-slate-400 focus:border-plug-blue-500 focus:outline-none focus:shadow-focus',
           // Hide the browser's own clear affordance so it cannot sit beside ours.
           '[&::-webkit-search-cancel-button]:appearance-none',
         )}
@@ -198,7 +198,7 @@ export function SearchInput({
           type="button"
           onClick={handleClear}
           aria-label="Clear search"
-          className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center rounded-full text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center rounded-full text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
         >
           <X size={18} />
         </button>

@@ -105,7 +105,7 @@ export function VehicleCatalogue({ vehicles }: VehicleCatalogueProps) {
     <div>
       {/* ── Search and filters ─────────────────────────────────── */}
       <div className="mx-auto max-w-2xl">
-        <div className="flex h-13 items-center gap-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white px-4 transition-shadow focus-within:border-blue-500 focus-within:shadow-focus">
+        <div className="flex h-13 items-center gap-2.5 rounded-xl border-[1.5px] border-slate-200 bg-white px-4 transition-shadow focus-within:border-plug-blue-500 focus-within:shadow-focus">
           <Search size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
           <input
             type="search"

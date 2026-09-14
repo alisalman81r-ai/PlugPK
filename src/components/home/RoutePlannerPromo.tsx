@@ -100,7 +100,7 @@ export function RoutePlannerPromo() {
             <h2 className="text-[clamp(2rem,4.5vw,3.25rem)] font-black leading-[1.05] tracking-[-0.03em] text-white">
               Plan a long drive
               <br />
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-plug-blue-400 to-plug-cyan-300 bg-clip-text text-transparent">
                 around your range
               </span>
             </h2>
@@ -139,7 +139,7 @@ export function RoutePlannerPromo() {
                 className="mb-6 flex items-baseline justify-between gap-4"
               >
                 <p className="text-lg font-bold text-white">Islamabad → Lahore</p>
-                <p className="shrink-0 font-mono text-ui-sm font-semibold text-cyan-300">385 km</p>
+                <p className="shrink-0 font-mono text-ui-sm font-semibold text-plug-cyan-300">385 km</p>
               </div>
 
               <ol style={{ transform: 'translateZ(24px)' }} className="flex flex-col">
@@ -197,7 +197,7 @@ export function RoutePlannerPromo() {
                   const Icon = item.icon
                   return (
                     <div key={item.label}>
-                      <Icon size={15} className="mb-2 text-cyan-300" aria-hidden="true" />
+                      <Icon size={15} className="mb-2 text-plug-cyan-300" aria-hidden="true" />
                       <dd className="font-mono text-lg font-bold leading-none text-white">
                         {item.value}
                       </dd>

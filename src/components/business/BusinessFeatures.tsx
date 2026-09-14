@@ -154,7 +154,7 @@ export function BusinessFeatures() {
                     <ArrowRight
                       size={24}
                       aria-hidden="true"
-                      className="absolute -right-5 top-[52px] hidden text-blue-200 lg:block"
+                      className="absolute -right-5 top-[52px] hidden text-plug-blue-200 lg:block"
                     />
                   ) : null}
 

@@ -48,7 +48,7 @@ const STATUS_LABEL: Record<StationStatus, string> = {
 // `group` so the photo can react to a hover anywhere on the card.
 // motion-reduce keeps the lift off for users who ask for less movement.
 const HOVER =
-  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-e2 motion-reduce:transition-none motion-reduce:hover:translate-y-0'
+  'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-plug-blue-200 hover:shadow-e2 motion-reduce:transition-none motion-reduce:hover:translate-y-0'
 
 function StatusPill({ status }: { status: StationStatus }) {
   return (
@@ -252,7 +252,7 @@ export function StationCard({
             on={BookmarkCheck}
             off={Bookmark}
             size={18}
-            className={isSaved ? 'text-blue-400' : 'text-white'}
+            className={isSaved ? 'text-plug-blue-400' : 'text-white'}
           />
         </button>
       </div>

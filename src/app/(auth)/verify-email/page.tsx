@@ -45,7 +45,7 @@ function VerifyEmailContent() {
 
   return (
     <div className="mx-auto max-w-[400px] text-center">
-      <span className="mb-8 inline-flex rounded-3xl bg-blue-50 p-5">
+      <span className="mb-8 inline-flex rounded-3xl bg-plug-blue-50 p-5">
         <Mail size={64} className="text-plug-blue-600" aria-hidden="true" />
       </span>
 

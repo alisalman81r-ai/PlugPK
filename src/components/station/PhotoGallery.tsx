@@ -98,8 +98,8 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
               />
             </button>
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-blue-50 to-cyan-50">
-              <Zap size={64} className="text-blue-200" aria-hidden="true" />
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50">
+              <Zap size={64} className="text-plug-blue-200" aria-hidden="true" />
               <p className="text-sm text-slate-400">No photos yet</p>
             </div>
           )}

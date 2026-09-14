@@ -31,11 +31,11 @@ export function RouteMap({ route, className }: RouteMapProps) {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-blue-600/10 blur-[100px]"
+        className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-plug-blue-600/10 blur-[100px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-cyan-500/10 blur-[90px]"
+        className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-plug-cyan-500/10 blur-[90px]"
       />
 
       <div className="relative z-10">
@@ -45,7 +45,7 @@ export function RouteMap({ route, className }: RouteMapProps) {
             <ArrowRight size={16} className="shrink-0 text-white/40" aria-hidden="true" />
             <span className="truncate">{route.destination}</span>
           </p>
-          <p className="shrink-0 font-mono font-bold text-blue-400">
+          <p className="shrink-0 font-mono font-bold text-plug-blue-400">
             {route.totalDistanceKm.toLocaleString('en-PK')} km
           </p>
         </div>
@@ -90,7 +90,7 @@ export function RouteMap({ route, className }: RouteMapProps) {
                     <span className="block truncate font-semibold text-white">
                       {String(stop.order).padStart(2, '0')} · {stop.station.name}
                     </span>
-                    <span className="mt-0.5 block font-mono text-xs text-blue-400">
+                    <span className="mt-0.5 block font-mono text-xs text-plug-blue-400">
                       {stop.chargingTimeMinutes} min charge
                     </span>
                   </span>

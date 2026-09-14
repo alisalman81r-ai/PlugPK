@@ -56,7 +56,7 @@ export function BottomTabBar() {
               <span
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-150',
-                  active && 'bg-blue-50 px-4 py-1.5',
+                  active && 'bg-plug-blue-50 px-4 py-1.5',
                 )}
               >
                 <Icon

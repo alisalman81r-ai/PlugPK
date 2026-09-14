@@ -62,7 +62,7 @@ export function VehicleManager({ vehicle }: VehicleManagerProps) {
         <div className="flex flex-wrap items-center gap-3">
           <span
             aria-hidden="true"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50"
           >
             <Car size={22} className="text-plug-blue-600" />
           </span>
@@ -98,7 +98,7 @@ export function VehicleManager({ vehicle }: VehicleManagerProps) {
                 key={model.id}
                 type="button"
                 onClick={() => setValue(label)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-ui-sm text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-ui-sm text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50"
               >
                 <Zap size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
                 {label}

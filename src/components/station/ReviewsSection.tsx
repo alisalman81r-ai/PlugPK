@@ -91,7 +91,7 @@ function ReviewCard({ review, isLast }: { review: Review; isLast: boolean }) {
         >
           <ThumbsUp
             size={16}
-            className={cn(isHelpful ? 'fill-blue-100 text-plug-blue-600' : 'text-slate-400')}
+            className={cn(isHelpful ? 'fill-plug-blue-100 text-plug-blue-600' : 'text-slate-400')}
             aria-hidden="true"
           />
           Helpful ({review.helpfulCount + (isHelpful ? 1 : 0)})
@@ -145,7 +145,7 @@ export function ReviewsSection({
           value={sortBy}
           onChange={(event) => setSortBy(event.target.value as SortKey)}
           aria-label="Sort reviews"
-          className="cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          className="cursor-pointer rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
           <option value="recent">Most Recent</option>
           <option value="helpful">Most Helpful</option>

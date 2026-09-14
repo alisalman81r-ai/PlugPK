@@ -56,7 +56,7 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
             className={cn(
               'flex flex-col items-center rounded-2xl border p-4 text-center transition-colors duration-150',
               amenity.available
-                ? 'border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50'
+                ? 'border-slate-200 bg-white hover:border-plug-blue-200 hover:bg-plug-blue-50'
                 : 'border-slate-100 bg-[#FAFAFA] opacity-50',
             )}
           >

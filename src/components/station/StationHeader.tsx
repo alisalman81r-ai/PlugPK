@@ -39,7 +39,7 @@ export function StationHeader({ station }: StationHeaderProps) {
         </h1>
 
         {station.isVerified ? (
-          <span className="mt-2 flex shrink-0 items-center gap-1.5 self-start rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-plug-blue-600">
+          <span className="mt-2 flex shrink-0 items-center gap-1.5 self-start rounded-full border border-plug-blue-200 bg-plug-blue-50 px-3 py-1.5 text-xs font-semibold text-plug-blue-600">
             <ShieldCheck size={14} aria-hidden="true" />
             Verified
           </span>

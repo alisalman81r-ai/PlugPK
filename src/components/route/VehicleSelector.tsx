@@ -62,7 +62,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
         className={cn(
           'flex h-[52px] w-full items-center gap-3 rounded-xl border-[1.5px] bg-white px-4 text-left transition-all duration-150',
           isOpen
-            ? 'border-blue-500 shadow-focus'
+            ? 'border-plug-blue-500 shadow-focus'
             : 'border-slate-200 hover:border-slate-300',
         )}
       >
@@ -93,7 +93,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
           <div className="border-b border-slate-100 p-3">
             {/* The input clears its own outline, so the ring lives on the
                 container that visually reads as the field. */}
-            <div className="flex h-11 items-center gap-2 rounded-xl bg-slate-50 px-3 ring-blue-500/40 transition-shadow focus-within:ring-2">
+            <div className="flex h-11 items-center gap-2 rounded-xl bg-slate-50 px-3 ring-plug-blue-500/40 transition-shadow focus-within:ring-2">
               <Search size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
               <input
                 type="text"
@@ -139,7 +139,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
                         </span>
 
                         {isSelected ? (
-                          <span className="shrink-0 rounded-full bg-blue-50 p-1">
+                          <span className="shrink-0 rounded-full bg-plug-blue-50 p-1">
                             <Check size={16} className="text-plug-blue-600" aria-hidden="true" />
                           </span>
                         ) : null}

@@ -110,7 +110,7 @@ export function ClubCard({
       style={style}
       className={cn(
         'group/club flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-e1',
-        'transition-all duration-[250ms] hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
+        'transition-all duration-[250ms] hover:-translate-y-1 hover:border-plug-blue-200 hover:shadow-card-hover',
         'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
         className,
       )}

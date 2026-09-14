@@ -94,7 +94,7 @@ export function UserLocationPin() {
     <span className="relative flex h-6 w-6 items-center justify-center">
       <span
         aria-hidden="true"
-        className="absolute inset-0 animate-ping rounded-full bg-blue-200 opacity-75 motion-reduce:animate-none"
+        className="absolute inset-0 animate-ping rounded-full bg-plug-blue-200 opacity-75 motion-reduce:animate-none"
       />
       <span className="relative h-3 w-3 rounded-full border-2 border-white bg-plug-blue-600" />
     </span>

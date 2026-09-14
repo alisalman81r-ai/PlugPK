@@ -94,11 +94,11 @@ export function PartnerCTA() {
   return (
     <section className="bg-slate-50 py-24 lg:py-32">
       <div className="container-plug">
-        <div className="relative overflow-hidden rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
+        <div className="relative overflow-hidden rounded-[2rem] border border-plug-blue-200 bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50 px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
           <Zap
             size={220}
             aria-hidden="true"
-            className="pointer-events-none absolute -right-6 -top-6 text-blue-100/70"
+            className="pointer-events-none absolute -right-6 -top-6 text-plug-blue-100/70"
           />
 
         {/* ── The heading ──────────────────────────────────────── */}
@@ -126,7 +126,7 @@ export function PartnerCTA() {
             return (
               <li key={type.label}>
                 {/* Outlined, and hovering one pill moves only its own glyph. */}
-                <HoverMotion className="group/pill flex items-center gap-2.5 rounded-full border border-blue-200 bg-white px-4 py-2.5 text-ui-sm font-semibold text-slate-700 shadow-sm transition-colors duration-300 hover:border-plug-blue-400">
+                <HoverMotion className="group/pill flex items-center gap-2.5 rounded-full border border-plug-blue-200 bg-white px-4 py-2.5 text-ui-sm font-semibold text-slate-700 shadow-sm transition-colors duration-300 hover:border-plug-blue-400">
                   <AnimatedIcon motion={type.motion}>
                     <Icon
                       size={16}

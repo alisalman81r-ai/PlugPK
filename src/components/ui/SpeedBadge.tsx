@@ -15,7 +15,7 @@ const SIZE_CLASSES: Record<BadgeSize, string> = {
  * matching border tint is resolved here. Thresholds mirror getSpeedConfig().
  */
 function getSpeedBorderClass(speedKw: number): string {
-  if (speedKw >= 150) return 'border-blue-200'
+  if (speedKw >= 150) return 'border-plug-blue-200'
   if (speedKw >= 50) return 'border-amber-200'
   if (speedKw >= 7) return 'border-green-200'
   return 'border-slate-200'

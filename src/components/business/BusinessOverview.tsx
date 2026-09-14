@@ -57,7 +57,7 @@ export function BusinessOverview({
   const stats: StatCard[] = [
     {
       icon: Eye,
-      tone: 'bg-blue-50 text-plug-blue-600',
+      tone: 'bg-plug-blue-50 text-plug-blue-600',
       value: totalViews.toLocaleString('en-PK'),
       label: 'Profile Views',
       growth: viewsGrowth,
@@ -294,7 +294,7 @@ export function BusinessOverview({
 
               <Link
                 href="/business/upgrade"
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors hover:bg-blue-50"
+                className="flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors hover:bg-plug-blue-50"
               >
                 Upgrade to Premium &rarr;
               </Link>

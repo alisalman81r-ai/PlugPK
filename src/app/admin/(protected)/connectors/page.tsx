@@ -99,7 +99,7 @@ export default async function AdminConnectorsPage() {
                           <Link
                             href={`/admin/connectors/${connector.id}`}
                             aria-label={`Edit the ${connector.type} connector at ${stationName}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-plug-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
                           >
                             <Pencil size={15} />
                           </Link>

@@ -193,7 +193,7 @@ export function MemberList({ members }: MemberListProps) {
 
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   {member.businessCount > 0 ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-2.5 py-1 text-ui-xs font-semibold text-plug-blue-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-plug-blue-50 px-2.5 py-1 text-ui-xs font-semibold text-plug-blue-700">
                       <Building2 size={12} aria-hidden="true" />
                       {member.businessCount} listing{member.businessCount === 1 ? '' : 's'}
                     </span>

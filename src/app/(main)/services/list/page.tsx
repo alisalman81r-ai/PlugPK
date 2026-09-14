@@ -67,7 +67,7 @@ export default async function ListServicePage() {
 
           <h1 className="mx-auto mt-4 max-w-3xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-white">
             Fix, fit or insure EVs?{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-plug-blue-400 via-plug-cyan-300 to-plug-cyan-400 bg-clip-text text-transparent">
               Get listed
             </span>
             .

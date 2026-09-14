@@ -57,7 +57,7 @@ export function ProfileEditForm({ user, onSave }: ProfileEditFormProps) {
           <button
             type="button"
             aria-label="Change photo"
-            className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-sm transition-colors hover:border-blue-300"
+            className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-slate-200 bg-white shadow-sm transition-colors hover:border-plug-blue-300"
           >
             <Camera size={16} className="text-slate-600" aria-hidden="true" />
           </button>

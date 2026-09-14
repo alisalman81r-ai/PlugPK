@@ -66,7 +66,7 @@ export function RatingStars({
               onFocus={() => setHovered(value)}
               onBlur={() => setHovered(null)}
               aria-label={`Rate ${value} star${value === 1 ? '' : 's'}`}
-              className="cursor-pointer rounded transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+              className="cursor-pointer rounded transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-1"
             >
               <Star size={px} className={value <= active ? FILLED : EMPTY} aria-hidden="true" />
             </button>

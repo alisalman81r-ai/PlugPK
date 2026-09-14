@@ -75,7 +75,7 @@ const LINK_CLASS =
   'group/link relative inline-flex w-fit items-center text-ui-sm text-white/55 transition-colors duration-200 hover:text-white focus-visible:text-white focus-visible:outline-none motion-reduce:transition-none'
 
 const UNDERLINE_CLASS =
-  'absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-cyan-400 transition-transform duration-300 ease-out group-hover/link:scale-x-100 group-focus-visible/link:scale-x-100 motion-reduce:transition-none'
+  'absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-plug-cyan-400 transition-transform duration-300 ease-out group-hover/link:scale-x-100 group-focus-visible/link:scale-x-100 motion-reduce:transition-none'
 
 /**
  * Echoes the PortMeter used on every station card — the product's own signal
@@ -89,7 +89,7 @@ function SegmentedRule() {
           split the full width into equal segments, which read as a broken
           line instead of a level. Keeping the rule continuous and letting
           one bright run sit at its head says the same thing quietly. */}
-      <span className="footer-charge absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-plug-blue-500 to-cyan-400" />
+      <span className="footer-charge absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-plug-blue-500 to-plug-cyan-400" />
     </span>
   )
 }
@@ -111,15 +111,15 @@ export function Footer() {
         {/* ── Closing CTA ───────────────────────────────────────── */}
         <section className="footer-rise grid gap-10 py-14 sm:py-16 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-16 lg:py-20">
           <div>
-            <span className="mb-5 inline-flex items-center gap-2 text-ui-xs font-medium uppercase tracking-[0.2em] text-cyan-300/80">
-              <Zap size={13} className="fill-cyan-300 text-cyan-300" aria-hidden="true" />
+            <span className="mb-5 inline-flex items-center gap-2 text-ui-xs font-medium uppercase tracking-[0.2em] text-plug-cyan-300/80">
+              <Zap size={13} className="fill-plug-cyan-300 text-plug-cyan-300" aria-hidden="true" />
               Start charging
             </span>
 
             <h2 className="max-w-2xl text-[clamp(2rem,5.5vw,3.5rem)] font-black leading-[1.08] tracking-[-0.03em] text-white">
               Ready to find your
               <br className="hidden sm:block" />{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-plug-blue-400 via-plug-cyan-300 to-plug-cyan-400 bg-clip-text text-transparent">
                 next charge?
               </span>
             </h2>
@@ -127,7 +127,7 @@ export function Footer() {
 
           <Link
             href="/map"
-            className="group/cta inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-8 text-base font-semibold text-slate-950 transition-all duration-200 hover:bg-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none sm:w-auto"
+            className="group/cta inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 rounded-2xl bg-white px-8 text-base font-semibold text-slate-950 transition-all duration-200 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none sm:w-auto"
           >
             Find a charger
             <ArrowUpRight
@@ -172,9 +172,9 @@ export function Footer() {
             </h3>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
-              className="group/mail inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-ui-sm text-white/75 transition-colors duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 motion-reduce:transition-none"
+              className="group/mail inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-ui-sm text-white/75 transition-colors duration-200 hover:border-white/25 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 motion-reduce:transition-none"
             >
-              <Mail size={15} className="shrink-0 text-cyan-300" aria-hidden="true" />
+              <Mail size={15} className="shrink-0 text-plug-cyan-300" aria-hidden="true" />
               {SITE_CONFIG.email}
             </a>
             <p className="mt-4 text-ui-xs leading-relaxed text-white/50">

@@ -81,8 +81,8 @@ export function VehicleOnboarding({ onComplete, onSkip }: VehicleOnboardingProps
                 className={cn(
                   'flex items-center justify-between gap-4 rounded-xl border-[1.5px] bg-white px-5 py-4 text-left transition-all duration-150',
                   isSelected
-                    ? 'border-plug-blue-500 bg-blue-50'
-                    : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50/50',
+                    ? 'border-plug-blue-500 bg-plug-blue-50'
+                    : 'border-slate-200 hover:border-plug-blue-300 hover:bg-plug-blue-50/50',
                 )}
               >
                 <span className="min-w-0">
@@ -141,7 +141,7 @@ export function VehicleOnboarding({ onComplete, onSkip }: VehicleOnboardingProps
             key={group.make}
             type="button"
             onClick={() => setSelectedMake(group.make)}
-            className="rounded-2xl border-[1.5px] border-slate-200 bg-white p-4 text-center transition-all duration-150 hover:border-blue-300 hover:bg-blue-50/50"
+            className="rounded-2xl border-[1.5px] border-slate-200 bg-white p-4 text-center transition-all duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-50/50"
           >
             <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100">
               <Car size={24} className="text-slate-400" aria-hidden="true" />

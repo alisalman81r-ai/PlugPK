@@ -86,7 +86,7 @@ export function BusinessAnalytics({ analytics, isLive }: BusinessAnalyticsProps)
   }[] = [
     {
       icon: Eye,
-      tone: 'bg-blue-50 text-plug-blue-600',
+      tone: 'bg-plug-blue-50 text-plug-blue-600',
       value: analytics.thisMonth.profileViews.toLocaleString('en-PK'),
       label: 'Listing views',
       current: analytics.thisMonth.profileViews,

@@ -47,7 +47,7 @@ export function CommunitySearchBar({
       <div
         className={cn(
           'flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 shadow-e3 transition-shadow duration-200',
-          'focus-within:border-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
+          'focus-within:border-plug-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
         )}
       >
         <Search size={20} className="shrink-0 text-slate-400" aria-hidden="true" />
@@ -71,14 +71,14 @@ export function CommunitySearchBar({
 
         {hasQuery ? (
           <>
-            <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 font-mono text-ui-xs font-semibold text-plug-blue-600">
+            <span className="shrink-0 rounded-full bg-plug-blue-50 px-2.5 py-1 font-mono text-ui-xs font-semibold text-plug-blue-600">
               {resultCount} found
             </span>
             <button
               type="button"
               onClick={onClear}
               aria-label="Clear search"
-              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             >
               <X size={18} />
             </button>

@@ -76,7 +76,7 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
                 className={cn(
                   'inline-flex h-[34px] items-center gap-1.5 rounded-full border-[1.5px] px-3.5 text-sm font-medium transition-all duration-150',
                   selected
-                    ? 'border-blue-400 bg-blue-50 text-blue-700'
+                    ? 'border-plug-blue-400 bg-plug-blue-50 text-plug-blue-700'
                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50',
                 )}
               >
@@ -160,7 +160,7 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
               onClick={() => onUpdateFilter('minRating', filters.minRating === value ? 0 : value)}
               onMouseEnter={() => setHoverRating(value)}
               aria-label={`Minimum ${value} star${value === 1 ? '' : 's'}`}
-              className="cursor-pointer rounded transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="cursor-pointer rounded transition-transform duration-150 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             >
               <Star
                 size={28}
@@ -192,7 +192,7 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
                 className={cn(
                   'flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition-all duration-150',
                   selected
-                    ? 'border-blue-300 bg-blue-50 text-blue-700'
+                    ? 'border-plug-blue-300 bg-plug-blue-50 text-plug-blue-700'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
                 )}
               >

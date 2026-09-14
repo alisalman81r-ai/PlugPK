@@ -137,7 +137,7 @@ export function NotificationSettings() {
         )}
       >
         <span className="flex min-w-0 items-center">
-          <span className="mr-4 shrink-0 rounded-lg bg-blue-50 p-1.5">
+          <span className="mr-4 shrink-0 rounded-lg bg-plug-blue-50 p-1.5">
             <Icon size={20} className="text-plug-blue-600" aria-hidden="true" />
           </span>
           <span className="min-w-0">

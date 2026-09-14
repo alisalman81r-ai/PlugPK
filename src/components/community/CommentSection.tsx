@@ -59,7 +59,7 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
             onFocus={() => setIsFocused(true)}
             placeholder="Share your thoughts..."
             aria-label="Write a comment"
-            className="min-h-[80px] w-full rounded-2xl border-[1.5px] border-slate-200 bg-slate-50 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:bg-white"
+            className="min-h-[80px] w-full rounded-2xl border-[1.5px] border-slate-200 bg-slate-50 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:bg-white"
           />
 
           {isFocused ? (
@@ -123,7 +123,7 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
                       >
                         <ThumbsUp
                           size={14}
-                          className={cn(isLiked && 'fill-blue-100')}
+                          className={cn(isLiked && 'fill-plug-blue-100')}
                           aria-hidden="true"
                         />
                         <span className="text-xs">

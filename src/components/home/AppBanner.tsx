@@ -56,14 +56,14 @@ export function AppBanner() {
           <div className="relative z-10 flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16">
             {/* ── The pitch ──────────────────────────────────────── */}
             <div className="max-w-xl text-center lg:text-left">
-              <span className="inline-flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.2em] text-cyan-300/90">
+              <span className="inline-flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.2em] text-plug-cyan-300/90">
                 <Smartphone size={13} aria-hidden="true" />
                 Coming soon
               </span>
 
               <h2 className="mt-5 text-balance text-[clamp(2rem,4.5vw,3rem)] font-black leading-[1.08] tracking-[-0.03em] text-white">
                 Take Plug.pk{' '}
-                <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-plug-blue-400 via-plug-cyan-300 to-plug-cyan-400 bg-clip-text text-transparent">
                   everywhere
                 </span>
                 .
@@ -72,7 +72,7 @@ export function AppBanner() {
               {/* The cap rule, in the tone this panel uses. */}
               <span
                 aria-hidden="true"
-                className="mx-auto mt-6 block h-0.5 w-12 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 lg:mx-0"
+                className="mx-auto mt-6 block h-0.5 w-12 rounded-full bg-gradient-to-r from-plug-blue-400 to-plug-cyan-400 lg:mx-0"
               />
 
               <p className="mx-auto mt-6 max-w-md text-pretty text-ui-lg leading-relaxed text-white/60 lg:mx-0">
@@ -119,7 +119,7 @@ export function AppBanner() {
                   <span className="h-1 w-1 rounded-full bg-white/25" />
                 </span>
 
-                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-6xl leading-none text-transparent">
+                <span className="bg-gradient-to-r from-plug-blue-400 to-plug-cyan-400 bg-clip-text text-6xl leading-none text-transparent">
                   &#9889;
                 </span>
                 <span className="text-lg font-bold tracking-tight">

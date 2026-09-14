@@ -9,7 +9,7 @@ const cardVariants = cva('rounded-2xl', {
     variant: {
       default: 'border border-slate-200 bg-white shadow-card',
       hoverable:
-        'border border-slate-200 bg-white shadow-card transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-blue-200 hover:shadow-card-hover',
+        'border border-slate-200 bg-white shadow-card transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-plug-blue-200 hover:shadow-card-hover',
       flat: 'border border-slate-200 bg-white',
       elevated: 'bg-white shadow-xl',
       // `border-white/8` cannot be generated — 8 is not on Tailwind's default
@@ -69,7 +69,7 @@ export function Card({
       className={cn(
         cardVariants({ variant, padding }),
         onClick &&
-          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
         className,
       )}
       style={animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined}

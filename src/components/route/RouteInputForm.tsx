@@ -90,7 +90,7 @@ function CityField({
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
           autoComplete="off"
-          className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:shadow-focus focus:outline-none"
+          className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus focus:outline-none"
         />
 
         {showSuggestions ? (
@@ -105,7 +105,7 @@ function CityField({
                 }}
                 className="flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-slate-50"
               >
-                <span className="shrink-0 rounded-lg bg-blue-50 p-1.5">
+                <span className="shrink-0 rounded-lg bg-plug-blue-50 p-1.5">
                   <MapPin size={16} className="text-plug-blue-600" aria-hidden="true" />
                 </span>
                 <span className="text-sm font-medium text-slate-900">{city}</span>
@@ -189,7 +189,7 @@ export function RouteInputForm({
             onSwapLocations()
           }}
           aria-label="Swap origin and destination"
-          className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border-[1.5px] border-slate-200 bg-white shadow-sm transition-all duration-150 hover:border-blue-300 hover:bg-blue-50"
+          className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border-[1.5px] border-slate-200 bg-white shadow-sm transition-all duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-50"
         >
           <ArrowUpDown
             size={16}

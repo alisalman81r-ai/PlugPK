@@ -34,7 +34,7 @@ export function RouteResultsView({ route }: RouteResultsViewProps) {
           <div className="mb-6 flex flex-wrap items-center gap-3">
             <Zap size={20} className="shrink-0 text-plug-blue-600" aria-hidden="true" />
             <h2 className="text-xl font-bold text-slate-900">Charging Stops</h2>
-            <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700">
+            <span className="rounded-full border border-plug-blue-200 bg-plug-blue-50 px-3 py-1 text-sm font-semibold text-plug-blue-700">
               {route.stops.length} stop{route.stops.length === 1 ? '' : 's'}
             </span>
           </div>

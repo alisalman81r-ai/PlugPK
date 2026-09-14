@@ -60,7 +60,7 @@ export function MeetingRequestForm() {
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8">
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
           <CalendarCheck size={18} className="text-plug-blue-600" aria-hidden="true" />
         </span>
         <div>

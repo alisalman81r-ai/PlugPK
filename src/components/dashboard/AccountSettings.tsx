@@ -143,7 +143,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <label
-                className={`inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-slate-200 px-4 text-ui-sm font-medium text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-blue-50 ${avatarBusy ? 'pointer-events-none opacity-60' : ''}`}
+                className={`inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-slate-200 px-4 text-ui-sm font-medium text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50 ${avatarBusy ? 'pointer-events-none opacity-60' : ''}`}
               >
                 {avatarBusy ? (
                   <Loader2 size={15} className="animate-spin" aria-hidden="true" />

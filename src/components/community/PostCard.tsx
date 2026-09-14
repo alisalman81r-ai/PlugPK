@@ -158,7 +158,7 @@ export function PostCard({
         href={href}
         style={style}
         className={cn(
-          'flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 transition-all duration-200 hover:border-blue-200 hover:shadow-card',
+          'flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 transition-all duration-200 hover:border-plug-blue-200 hover:shadow-card',
           className,
         )}
       >
@@ -202,7 +202,7 @@ export function PostCard({
       >
         <div className={cn(FACE, 'flex flex-col gap-6 p-6 lg:flex-row')}>
           {coverPhoto ? (
-            <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-blue-50 lg:h-auto lg:w-[200px]">
+            <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-plug-blue-50 lg:h-auto lg:w-[200px]">
               <Image
                 src={coverPhoto}
                 alt=""
@@ -214,9 +214,9 @@ export function PostCard({
           ) : (
             <span
               aria-hidden="true"
-              className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 lg:h-auto lg:w-[200px]"
+              className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50 lg:h-auto lg:w-[200px]"
             >
-              <Zap size={48} className="text-blue-200" />
+              <Zap size={48} className="text-plug-blue-200" />
             </span>
           )}
 
@@ -285,7 +285,7 @@ export function PostCard({
         {coverPhoto ? (
           // Empty alt: the heading above already names the post, so announcing
           // the image again would just repeat it.
-          <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-blue-50">
+          <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-plug-blue-50">
             <Image
               src={coverPhoto}
               alt=""

@@ -198,19 +198,19 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
         <div className="grid gap-3 sm:grid-cols-3">
           <Link
             href="/business/dashboard"
-            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <span className="block font-semibold text-slate-900">Access Dashboard</span>
           </Link>
           <Link
             href="/business/profile"
-            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <span className="block font-semibold text-slate-900">Add More Details</span>
           </Link>
           <Link
             href="/for-businesses"
-            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-blue-200 hover:bg-blue-50"
+            className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <span className="block font-semibold text-slate-900">Share Your Listing</span>
           </Link>
@@ -235,7 +235,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                   className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-all duration-300',
                     isDone || isCurrent ? 'bg-plug-blue-600 text-white' : 'bg-slate-100 text-slate-400',
-                    isCurrent && 'ring-4 ring-blue-100',
+                    isCurrent && 'ring-4 ring-plug-blue-100',
                   )}
                 >
                   {isDone ? <Check size={16} aria-hidden="true" /> : step}
@@ -357,7 +357,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                       aria-pressed={selected}
                       className={cn(
                         'rounded-2xl border-[1.5px] p-4 text-left transition-all duration-150',
-                        selected ? 'border-plug-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50',
+                        selected ? 'border-plug-blue-500 bg-plug-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50',
                       )}
                     >
                       <Icon size={20} className={cn('mb-2', selected ? 'text-plug-blue-600' : 'text-slate-400')} aria-hidden="true" />
@@ -542,7 +542,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                     { connectorType: 'CCS2', maxPowerKw: 50, ports: 1 },
                   ])
                 }
-                className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-8 transition-all hover:border-blue-300 hover:bg-blue-50"
+                className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 py-8 transition-all hover:border-plug-blue-300 hover:bg-plug-blue-50"
               >
                 <Plus size={32} className="text-slate-300" aria-hidden="true" />
                 <span className="mt-2 text-sm font-medium text-slate-500">Add a Charger</span>
@@ -628,7 +628,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
             ) : null}
 
             <label className="mb-6 flex items-start gap-3">
-              <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setError(null) }} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-blue-600" />
+              <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setError(null) }} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-plug-blue-600" />
               <span className="text-sm text-slate-600">
                 {isHome
                   ? 'I agree to Plug.pk Business Terms, confirm my information is accurate, and understand my home address and phone number will be shown publicly'

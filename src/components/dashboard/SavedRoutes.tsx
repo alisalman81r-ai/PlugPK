@@ -38,7 +38,7 @@ export function SavedRoutes({ routes, onDelete }: SavedRoutesProps) {
         return (
           <article
             key={route.id}
-            className="rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:border-blue-200 hover:shadow-card"
+            className="rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:border-plug-blue-200 hover:shadow-card"
           >
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-lg font-bold text-slate-900">
@@ -49,7 +49,7 @@ export function SavedRoutes({ routes, onDelete }: SavedRoutesProps) {
                 <Link
                   href="/routes"
                   aria-label={`Open route ${route.origin} to ${route.destination}`}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-plug-blue-600 transition-colors hover:bg-blue-100"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-plug-blue-200 bg-plug-blue-50 text-plug-blue-600 transition-colors hover:bg-plug-blue-100"
                 >
                   <ExternalLink size={14} />
                 </Link>

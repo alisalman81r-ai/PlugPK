@@ -96,7 +96,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
         <Link
           href="/dashboard/settings"
           aria-label="Edit profile"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition-colors hover:border-blue-300 hover:text-plug-blue-600"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition-colors hover:border-plug-blue-300 hover:text-plug-blue-600"
         >
           <Pencil size={12} />
         </Link>
@@ -131,7 +131,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
               className={cn(
                 'flex h-[42px] items-center gap-3 rounded-xl transition-all duration-150',
                 active
-                  ? 'border-l-[3px] border-plug-blue-600 bg-blue-50 pl-[9px] pr-3'
+                  ? 'border-l-[3px] border-plug-blue-600 bg-plug-blue-50 pl-[9px] pr-3'
                   : 'px-3 hover:bg-slate-50',
               )}
             >
@@ -153,7 +153,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
                 <span
                   className={cn(
                     'ml-auto min-w-[20px] rounded-full px-2 text-center text-xs font-bold',
-                    active ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500',
+                    active ? 'bg-plug-blue-100 text-plug-blue-700' : 'bg-slate-100 text-slate-500',
                   )}
                 >
                   {badge}

@@ -257,7 +257,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               <h3 className="mb-5 font-bold text-slate-900">Contact &amp; Location</h3>
 
               <div className="mb-4 flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
                   <Phone size={20} className="text-plug-blue-600" aria-hidden="true" />
                 </span>
                 <span className="min-w-0">
@@ -278,7 +278,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
               {service.email ? (
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
                     <Mail size={20} className="text-plug-blue-600" aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
@@ -295,7 +295,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
               {service.website ? (
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
                     <Globe size={20} className="text-plug-blue-600" aria-hidden="true" />
                   </span>
                   <span className="min-w-0">
@@ -315,7 +315,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               <hr className="my-5 border-slate-100" />
 
               <div className="mb-4 flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
                   <MapPin size={20} className="text-plug-blue-600" aria-hidden="true" />
                 </span>
                 <span className="min-w-0">
@@ -362,15 +362,15 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </div>
 
             {service.isVerified ? (
-              <div className={cn('flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50 p-5')}>
+              <div className={cn('flex items-start gap-3 rounded-2xl border border-plug-blue-200 bg-plug-blue-50 p-5')}>
                 <ShieldCheck
                   size={24}
                   className="shrink-0 text-plug-blue-600"
                   aria-hidden="true"
                 />
                 <span>
-                  <span className="block font-bold text-blue-900">Verified Business</span>
-                  <span className="block text-sm text-blue-700">
+                  <span className="block font-bold text-plug-blue-900">Verified Business</span>
+                  <span className="block text-sm text-plug-blue-700">
                     This business has been verified by the Plug.pk team.
                   </span>
                 </span>

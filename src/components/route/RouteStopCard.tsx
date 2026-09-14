@@ -118,7 +118,7 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
 
         <div className="relative flex flex-1 flex-col items-center">
           <span aria-hidden="true" className="w-full border-t-2 border-dashed border-slate-300" />
-          <span className="mt-1 flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1">
+          <span className="mt-1 flex items-center gap-1.5 rounded-full border border-plug-blue-200 bg-plug-blue-50 px-2.5 py-1">
             <Zap size={14} className="text-plug-blue-600" aria-hidden="true" />
             <span className="font-mono text-xs font-medium text-plug-blue-600">
               {stop.chargingTimeMinutes} min

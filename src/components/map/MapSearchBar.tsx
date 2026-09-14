@@ -129,7 +129,7 @@ export function MapSearchBar({
         className={cn(
           'flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 transition-shadow duration-200',
           'shadow-e3',
-          'focus-within:border-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
+          'focus-within:border-plug-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
         )}
       >
         <Search size={20} className="shrink-0 text-slate-400" aria-hidden="true" />
@@ -152,14 +152,14 @@ export function MapSearchBar({
 
         {value.length > 0 ? (
           <>
-            <span className="mr-2 shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-plug-blue-600">
+            <span className="mr-2 shrink-0 rounded-full bg-plug-blue-50 px-2.5 py-1 text-xs font-medium text-plug-blue-600">
               {resultCount} found
             </span>
             <button
               type="button"
               onClick={onClear}
               aria-label="Clear search"
-              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             >
               <X size={18} />
             </button>
@@ -204,7 +204,7 @@ export function MapSearchBar({
                   onMouseEnter={() => setActiveIndex(index)}
                   className={cn(
                     'flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors duration-100',
-                    isActive ? 'bg-blue-50' : 'hover:bg-slate-50',
+                    isActive ? 'bg-plug-blue-50' : 'hover:bg-slate-50',
                   )}
                 >
                   <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-lg">

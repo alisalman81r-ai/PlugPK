@@ -50,7 +50,7 @@ export function StationPreviewCard({
         type="button"
         onClick={onClose}
         aria-label="Close station preview"
-        className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+        className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
       >
         <X size={16} />
       </button>
@@ -133,7 +133,7 @@ export function StationPreviewCard({
         <button
           type="button"
           onClick={() => onViewDetails(station)}
-          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
         >
           View Details
         </button>

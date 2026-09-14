@@ -21,11 +21,11 @@ export function BusinessHero() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-blue-600/[0.18] blur-[110px]"
+        className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-plug-blue-600/[0.18] blur-[110px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-cyan-500/[0.12] blur-[100px]"
+        className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-plug-cyan-500/[0.12] blur-[100px]"
       />
 
       <div className="container-plug relative z-10">
@@ -38,7 +38,7 @@ export function BusinessHero() {
             <h1 className="mb-6 text-5xl font-black text-white lg:text-display-xl">
               Reach Pakistan&apos;s
               <br />
-              <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-300 bg-clip-text text-transparent">
                 Growing EV Community
               </span>
             </h1>
@@ -52,7 +52,7 @@ export function BusinessHero() {
               <Button
                 href="/business/signup"
                 rightIcon={<ArrowRight size={18} />}
-                className="h-14 rounded-xl bg-white px-8 text-base font-bold text-plug-blue-600 shadow-e3 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-xl"
+                className="h-14 rounded-xl bg-white px-8 text-base font-bold text-plug-blue-600 shadow-e3 hover:-translate-y-0.5 hover:bg-plug-blue-50 hover:shadow-xl"
               >
                 List Your Business Free
               </Button>

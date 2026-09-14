@@ -203,8 +203,8 @@ export const SERVICE_CATEGORY_META: Record<ServiceCategory, ServiceCategoryMeta>
     label: 'Dealerships',
     description: 'Authorized EV dealers across Pakistan',
     icon: 'Car',
-    tone: 'bg-blue-50 text-blue-600',
-    cover: 'from-blue-50 to-blue-100',
+    tone: 'bg-plug-blue-50 text-plug-blue-600',
+    cover: 'from-plug-blue-50 to-plug-blue-100',
   },
   'service-center': {
     label: 'Service Centers',
@@ -231,8 +231,8 @@ export const SERVICE_CATEGORY_META: Record<ServiceCategory, ServiceCategoryMeta>
     label: 'Insurance',
     description: 'EV-specific insurance providers',
     icon: 'Shield',
-    tone: 'bg-cyan-50 text-cyan-600',
-    cover: 'from-cyan-50 to-cyan-100',
+    tone: 'bg-plug-cyan-50 text-plug-cyan-600',
+    cover: 'from-plug-cyan-50 to-plug-cyan-100',
   },
   'roadside-assistance': {
     label: 'Roadside Assistance',
@@ -323,8 +323,8 @@ export const POST_CATEGORIES: PostCategoryMeta[] = [
     label: 'General EV Talk',
     color: 'blue',
     icon: 'MessageCircle',
-    badge: 'border-blue-200 bg-blue-50 text-blue-700',
-    active: 'bg-blue-600 text-white',
+    badge: 'border-plug-blue-200 bg-plug-blue-50 text-plug-blue-700',
+    active: 'bg-plug-blue-600 text-white',
   },
   {
     id: 'charging-experience',
@@ -355,8 +355,8 @@ export const POST_CATEGORIES: PostCategoryMeta[] = [
     label: 'Buying Advice',
     color: 'cyan',
     icon: 'ShoppingCart',
-    badge: 'border-cyan-200 bg-cyan-50 text-cyan-700',
-    active: 'bg-cyan-600 text-white',
+    badge: 'border-plug-cyan-200 bg-plug-cyan-50 text-plug-cyan-700',
+    active: 'bg-plug-cyan-600 text-white',
   },
   {
     id: 'ev-news',

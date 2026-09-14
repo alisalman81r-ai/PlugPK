@@ -46,7 +46,7 @@ const TONES = {
     badge: 'bg-white text-slate-900',
   },
   light: {
-    pill: 'bg-white text-slate-950 focus-visible:ring-cyan-400 focus-visible:ring-offset-plug-navy-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
+    pill: 'bg-white text-slate-950 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-plug-navy-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
     badge: 'bg-plug-navy-950 text-white',
   },
   brand: {

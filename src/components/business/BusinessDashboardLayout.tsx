@@ -100,7 +100,7 @@ export function BusinessDashboardLayout({
                 <span
                   className={cn(
                     'flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-1.5',
-                    active && 'bg-blue-50',
+                    active && 'bg-plug-blue-50',
                   )}
                 >
                   <Icon

@@ -61,9 +61,9 @@ export function getConnectorConfig(type: ConnectorType) {
   const configs = {
     CCS2: {
       label: 'CCS2',
-      bgClass: 'bg-blue-50',
-      textClass: 'text-blue-700',
-      borderClass: 'border-blue-200',
+      bgClass: 'bg-plug-blue-50',
+      textClass: 'text-plug-blue-700',
+      borderClass: 'border-plug-blue-200',
       description: 'DC Fast Charging',
     },
     CHAdeMO: {
@@ -75,9 +75,9 @@ export function getConnectorConfig(type: ConnectorType) {
     },
     Type2: {
       label: 'Type 2',
-      bgClass: 'bg-cyan-50',
-      textClass: 'text-cyan-700',
-      borderClass: 'border-cyan-200',
+      bgClass: 'bg-plug-cyan-50',
+      textClass: 'text-plug-cyan-700',
+      borderClass: 'border-plug-cyan-200',
       description: 'AC Charging',
     },
     GBT: {
@@ -111,8 +111,8 @@ export function getSpeedConfig(speedKw: number) {
     return {
       label: 'Ultra Rapid',
       speed: ChargingSpeedEnum.ultra,
-      bgClass: 'bg-blue-50',
-      textClass: 'text-blue-700',
+      bgClass: 'bg-plug-blue-50',
+      textClass: 'text-plug-blue-700',
     }
   }
   if (speedKw >= 50) {

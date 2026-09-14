@@ -87,14 +87,14 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
         {sessionLoading ? null : user ? (
           <Link
             href="/community/clubs"
-            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
+            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
           >
             Browse clubs
           </Link>
         ) : (
           <Link
             href="/signup"
-            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
+            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
           >
             Join free
           </Link>
@@ -208,11 +208,11 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
             name="email"
             placeholder="Your email"
             aria-label="Email address"
-            className="field-dark h-10 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-cyan-400 focus-visible:bg-white/[0.15]"
+            className="field-dark h-10 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-plug-cyan-400 focus-visible:bg-white/[0.15]"
           />
           <button
             type="submit"
-            className="h-10 shrink-0 rounded-xl bg-cyan-500 px-4 text-sm font-semibold text-white transition-colors hover:bg-cyan-400"
+            className="h-10 shrink-0 rounded-xl bg-plug-cyan-500 px-4 text-sm font-semibold text-white transition-colors hover:bg-plug-cyan-400"
           >
             Subscribe
           </button>
