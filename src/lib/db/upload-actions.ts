@@ -39,20 +39,7 @@ import { getCurrentUser } from './session-actions'
  */
 
 const UPLOAD_ROOT = join(process.cwd(), 'public', 'uploads')
-
-/**
- * 4 MB, not the 5 MB this used to allow.
- *
- * A hosted serverless function refuses a request body over 4.5 MB before any
- * of this code runs, so a 5 MB cap was only ever reachable on a developer's
- * machine: on Vercel the same file fails as a generic request error with no
- * sentence from the action to explain it. Capping below the platform's limit
- * keeps the friendly message — "Images must be 4MB or smaller." — on the path
- * a real upload takes.
- *
- * The remaining 0.5 MB is multipart framing, not the image.
- */
-const MAX_BYTES = 4 * 1024 * 1024
+const MAX_BYTES = 5 * 1024 * 1024
 
 /** Set by Vercel when a Blob store is attached. Absent in local development. */
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN
@@ -147,7 +134,7 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
     return { ok: false, message: 'Choose an image to upload.' }
   }
   if (file.size > MAX_BYTES) {
-    return { ok: false, message: 'Images must be 4MB or smaller.' }
+    return { ok: false, message: 'Images must be 5MB or smaller.' }
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer())

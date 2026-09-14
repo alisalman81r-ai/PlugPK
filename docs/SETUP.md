@@ -8,12 +8,8 @@ Two things a clone is missing, both on purpose:
 
 | Missing | Why | Fix |
 | --- | --- | --- |
-| `.env` | holds the database URL, the admin password and the session secret | create it, step 2 |
-| a database | it holds real data, so neither the file nor a dump is committed | rebuild it, step 3 |
-
-Since the move off SQLite the engine is **PostgreSQL**, with no fallback —
-`contains` is case-insensitive on Postgres and was case-sensitive on a hosted
-one, which is exactly the class of bug that only shows up in production.
+| `.env` | holds the admin password and the session secret | create it, step 2 |
+| `prisma/dev.db` | the database is a file; committing it would publish real user data | rebuild it, step 3 |
 
 ## 1. Install
 
@@ -31,11 +27,10 @@ Copy the template and fill it in:
 cp .env.example .env
 ```
 
-`.env.example` documents every variable. The four that matter locally:
+Then edit `.env` so it contains at least these four lines:
 
 ```ini
-# Printed by `npm run db:local` in step 3, or from Neon / Supabase.
-DATABASE_URL="postgresql://plugpk:plugpk@127.0.0.1:55432/plugpk"
+DATABASE_URL="file:./dev.db"
 
 # Without this, /admin returns 404 — the portal is not merely hidden, the
 # routes refuse to resolve. This is what keeps it out of a production build.
@@ -52,46 +47,19 @@ SESSION_SECRET=paste-the-generated-value-here
 
 ## 3. Build the database
 
-Two ways. The first needs no account and no configuration.
-
-**A local Postgres, one command.** In its own terminal:
-
-```bash
-npm run db:local
-```
-
-First run downloads a Postgres server into `.localdb/` (gitignored), creates a
-UTF8 cluster, applies the migration and imports all 155 rows from
-`data/db-export/`. Later runs just start it, and it prints the `DATABASE_URL` to
-paste into `.env`. Ctrl-C stops it; the data stays.
-
-It is a real PostgreSQL, not an emulation, so `contains`, collation and
-constraints behave exactly as they will in production.
-
-**Or a hosted database.** Point `DATABASE_URL` at Neon or Supabase and run:
-
-```bash
-npx prisma migrate deploy
-npx tsx scripts/import-db.ts      # -> 155 rows imported in 1 pass
-```
-
-`import-db.ts` refuses to run against a database that already has rows, so it
-cannot double up. It works out insert order by retrying rows whose parents are
-not in yet.
-
-**Or the seeds, if you want empty-ish content rather than the export:**
+The migrations are committed, so the schema rebuilds from them:
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
 npm run db:seed                # stations, services, community, clubs
-npx tsx scripts/seed-cars.ts   # the car catalogue
+npx tsx scripts/seed-cars.ts   # the 36-car catalogue
 ```
 
-**Both seeds are needed** if you take this route. `db:seed` does not touch the
-`Car` table — cars live in their own seed, loaded from `src/data/cars.ts`. Run
-only the first and the site comes up with an entirely empty `/cars`, which looks
-like a broken build rather than a missing command.
+**Both seeds are needed.** `db:seed` does not touch the `Car` table — cars live
+in their own seed, loaded from `src/data/cars.ts`. Run only the first and the
+site comes up with an entirely empty `/cars`, which looks like a broken build
+rather than a missing command.
 
 ### Check it worked
 
@@ -103,7 +71,7 @@ Prints `ALL CHECKS PASSED` and exercises the catalogue's filters, sorts and
 price formatting against whatever is actually in the table. If the car seed did
 not run, this is where you find out.
 
-**Restart the dev server after loading data.** Next caches rendered routes, so a
+**Restart the dev server after seeding.** Next caches rendered routes, so a
 server that was running while the table was empty keeps serving a 404 for
 `/cars` afterwards — which looks exactly like a seed that failed. It was
 verified here: `/cars` returned 404 against a freshly populated database until
@@ -114,11 +82,6 @@ the server was restarted, then 200.
 ```bash
 npm run dev
 ```
-
-`npm run dev` runs a preflight check first and refuses to start on a state that
-would fail confusingly later: a port already serving, a SQLite URL left in
-`.env`, or a database URL nothing answers on. Each says what is wrong and what
-to run.
 
 Then open **http://localhost:3000/admin/login** and enter the `ADMIN_PASSWORD`
 you chose. The portal covers stations, connectors, services, community,
@@ -153,6 +116,13 @@ npx playwright install chromium
 node scripts/shoot.mjs login          # writes to .screenshots/
 ```
 
+> The car crawler that used to be documented here has been removed from the
+> project. Its staging tables remain in the schema, holding the rows it left
+> behind, but nothing reads or writes them and there is no longer any code to
+> run. Open EV Data attribution is still published at `/credits` from
+> `src/data/dataSources.ts`, because the figures it contributed are still in
+> the catalogue.
+
 ## Known production requirement: who approved a change
 
 The admin portal is one shared password, and the session cookie identifies no
@@ -167,18 +137,12 @@ invented in the meantime, and no environment variable will fix it: configuration
 is not authentication, and an audit trail that can name the wrong person is
 worse than one that says it does not know.
 
-## Three things that do not travel
+## Two things that do not travel
 
-**Uploaded images.** Charger photos, car photographs and profile pictures are
-written to `public/uploads` locally, or to Vercel Blob once
-`BLOB_READ_WRITE_TOKEN` is set. Neither directory is in the repo, so a clone
-starts with none and any listing that referenced one shows its fallback
-instead.
+**Uploaded images.** Charger photos and profile pictures are written to
+`public/uploads`, which is not in the repo. A clone starts with none, and any
+listing that referenced one will show its fallback instead.
 
-**Accounts.** The database is rebuilt from the migration and the export, and the
-export contains no users — it is the catalogue and the community content, not
-anyone's credentials. Sign up on the new machine.
-
-**Uploads over 4 MB.** The cap is below Vercel's 4.5 MB serverless request-body
-limit on purpose; a larger file would be refused by the platform before the
-action could explain why. See `src/lib/db/upload-actions.ts`.
+**Accounts.** The database is rebuilt from migrations and the seed, so it has
+no user accounts. Sign up on the new machine, or copy `prisma/dev.db` across by
+hand — it is a single file, and it holds real data, so treat it accordingly.

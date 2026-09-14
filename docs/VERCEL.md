@@ -115,18 +115,9 @@ postgresql://user:password@host/database?sslmode=require
 
 ## 2. Create the schema and load the data
 
-Run these locally, against the new database, **before the first deploy**.
-
-The ordering is not cosmetic. `/cars`, `/community` and `/station/[slug]` carry
-no cache directive, so Next renders them at build time and ships them as static
-HTML — built against an empty database they go live listing zero cars, and they
-stay that way until something revalidates them. (An *absent* database is the
-milder failure: `lib/db/build-params.ts` catches it, prebuilds nothing, and
-those pages render on first request instead.)
-
-So: data first, then deploy. If the site was already deployed against an empty
-database, load the data and redeploy — an ordinary redeploy re-renders those
-pages.
+Run these locally, against the new database, before the first deploy. The
+build prerenders 137 pages by querying the database, so an empty or absent one
+fails the build.
 
 ```bash
 export DATABASE_URL="postgresql://..."     # PowerShell: $env:DATABASE_URL="..."

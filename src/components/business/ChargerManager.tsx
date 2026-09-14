@@ -276,7 +276,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
 
                   {!row.photo && uploading !== index ? (
                     <span className="text-ui-sm text-slate-500">
-                      JPEG, PNG or WebP, up to 4MB. Shown to drivers on your listing.
+                      JPEG, PNG or WebP, up to 5MB. Shown to drivers on your listing.
                     </span>
                   ) : null}
                 </div>

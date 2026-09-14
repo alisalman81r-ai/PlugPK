@@ -45,12 +45,7 @@ export interface CarImageManagerProps {
 
 type Status = { kind: 'idle' } | { kind: 'busy'; label: string } | { kind: 'done'; message: string } | { kind: 'error'; message: string }
 
-/**
- * Must stay at or below the server's cap in lib/db/upload-actions.ts — a client
- * that allows more than the server accepts sends a file the platform rejects
- * with a body-limit error before any action can reply.
- */
-const MAX_MB = 4
+const MAX_MB = 5
 
 /** A seeded, credited asset rather than something uploaded here. */
 function isRepositoryAsset(path: string | null): boolean {

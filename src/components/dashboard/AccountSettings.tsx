@@ -138,7 +138,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
           <div>
             <p className="text-sm font-semibold text-slate-900">Profile picture</p>
             <p className="mt-0.5 text-ui-sm text-slate-500">
-              JPEG, PNG or WebP, up to 4MB. Shown in the header and on your account.
+              JPEG, PNG or WebP, up to 5MB. Shown in the header and on your account.
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
