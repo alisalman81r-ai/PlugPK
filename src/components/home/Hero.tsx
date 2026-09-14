@@ -174,13 +174,25 @@ export function Hero({ cities }: HeroProps) {
             />
   
             <div className="flex w-full max-w-[34rem] flex-col items-start text-left">
-              <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.16em] text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
+              {/*
+                ── The status pill ───────────────────────────────────────
+                Green, not brand blue. It reports a live state — how many
+                cities actually have coverage — and that is a status rather
+                than an accent, so it reads in the colour the rest of the site
+                uses for "this is on". Blue here also competed with the accent
+                in the headline directly beneath it; there is one blue in this
+                column now, and it is on the word that matters.
+
+                Raw green rather than a plug-* token on purpose: it should
+                stay green if the brand hue is ever changed.
+              */}
+              <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-green-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
                 <span
                   aria-hidden="true"
-                  className="h-1.5 w-1.5 rounded-full bg-plug-blue-500 shadow-[0_0_8px_2px_rgba(59,130,246,0.35)]"
+                  className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.4)]"
                 />
                 {cities > 0
-                  ? `Live in ${cities} ${cities === 1 ? 'city' : 'cities'}`
+                  ? `Live now in ${cities} ${cities === 1 ? 'city' : 'cities'}`
                   : 'Mapping Pakistan, city by city'}
               </span>
   
@@ -208,13 +220,49 @@ export function Hero({ cities }: HeroProps) {
                 up, and the phone value is unchanged because the panel is
                 full-width there.
               */}
-              <h1 className="text-[clamp(2.875rem,4.6vw,4.625rem)] font-extrabold leading-[0.98] tracking-[-0.038em] text-slate-900">
+              {/*
+                ── Weight and accent ─────────────────────────────────────
+
+                Black rather than extrabold. Poppins 900 is already loaded, so
+                this costs no request, and at display size the difference is
+                the whole character of the type: 800 reads as a strong website
+                heading, 900 reads as a masthead. It is the single change that
+                moves this closest to the reference.
+
+                The accent line is the brand blue now, not navy-700. Navy at
+                this size sat only a shade off the ink above it, so the third
+                line read as slightly faded rather than as the emphasis — the
+                distinction was there in the token and not on the screen.
+                plug-blue-600 is the colour every action on the page already
+                uses, and measured on this band — #EEF2F8, not white — it is
+                4.60:1. Above the 4.5 needed for body text, and far above the
+                3:1 that large display type actually has to meet. The ink line
+                above it measures 15.89:1.
+
+                Tracking tightens with the weight. Heavier letterforms carry
+                more mass per character, so the spacing that suited 800 leaves
+                900 looking loose.
+
+                Leading goes to 1.02, up from 0.98. That is not taste: at 0.98
+                the descender of "Every" reached 1.1px INTO the cap-height of
+                the line below it, measured in real glyph ink. The hero was the
+                one place left in the site with that fault, reported at the
+                time and left alone because the composition was frozen. Opening
+                it for this pass is the moment to fix it — the gap is +2px now.
+              */}
+              <h1 className="text-[clamp(2.875rem,4.7vw,4.75rem)] font-black leading-[1.02] tracking-[-0.042em] text-slate-900">
                 <span className="hero-rise hero-rise-2 block">Every charger</span>
                 <span className="hero-rise hero-rise-3 block">in Pakistan,</span>
-                <span className="hero-rise hero-rise-4 block text-plug-navy-700">on one map.</span>
+                <span className="hero-rise hero-rise-4 block text-plug-blue-600">on one map.</span>
               </h1>
   
-              <p className="hero-rise hero-rise-4 mt-6 max-w-[46ch] text-pretty text-[1.1875rem] leading-[1.62] text-slate-600">
+              {/*
+                The supporting line sits closer to the headline and holds a
+                shorter measure than before — 42 characters rather than 46, so
+                it breaks into two balanced lines under a three-line masthead
+                instead of running wider than the type it belongs to.
+              */}
+              <p className="hero-rise hero-rise-4 mt-5 max-w-[42ch] text-pretty text-[1.1875rem] leading-[1.6] text-slate-600">
                 Connector types, charging speeds, and reviews from drivers who actually
                 charged there.
               </p>
