@@ -10,7 +10,7 @@ import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
 import { readOrFallback } from '@/lib/db/availability'
-import { getClubs, getCommunityCounts, getPlatformStats } from '@/lib/db/queries'
+import { getClubs, getCommunityCounts, getHeroStats, getPlatformStats } from '@/lib/db/queries'
 import type { EVClub } from '@/lib/types'
 
 /**
@@ -46,8 +46,15 @@ export const revalidate = 300
  * lib/db/availability for what is treated as unavailable and what still throws.
  */
 export default async function HomePage() {
-  const [stats, clubs, communityCounts] = await Promise.all([
+  const [stats, heroStats, clubs, communityCounts] = await Promise.all([
     readOrFallback('/ platform stats', { stations: 0, cities: 0, owners: 0 }, getPlatformStats),
+    // Guarded like the rest: with no database the hero renders its layout with
+    // zeroes and no rating rather than taking the page down.
+    readOrFallback(
+      '/ hero stats',
+      { locations: 0, connectorTypes: 0, reviews: 0, rating: null, byCity: {} },
+      getHeroStats,
+    ),
     readOrFallback('/ clubs', [] as EVClub[], () => getClubs()),
     readOrFallback(
       '/ community counts',
@@ -61,7 +68,7 @@ export default async function HomePage() {
       {/* The hero animates on load; everything past the fold reveals on
           approach so the page reads as a sequence rather than a dump.
           StatsBar is excluded — it runs its own count-up observer. */}
-      <Hero cities={stats.cities} />
+      <Hero cities={stats.cities} stats={heroStats} />
       <StatsBar stations={stats.stations} cities={stats.cities} owners={stats.owners} />
       <Reveal>
         <HowItWorks />

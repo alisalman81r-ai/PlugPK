@@ -291,6 +291,57 @@ export interface PlatformStats {
  * unreviewed or unplaced listing is not visible to anyone, so counting it
  * would overstate what is actually out there.
  */
+export interface HeroStats {
+  /** Stations plus approved, placed businesses — the same count the band uses. */
+  locations: number
+  /** Distinct connector standards actually fitted at those locations. */
+  connectorTypes: number
+  reviews: number
+  /** Mean of every review, or null when there are none to average. */
+  rating: number | null
+  /** Charging points per city, keyed by city name, for the quick-pick chips. */
+  byCity: Record<string, number>
+}
+
+/**
+ * The three figures beside the hero's search, and the counts on its city chips.
+ *
+ * ── Every one of these is counted, not chosen ─────────────────────────
+ *
+ * The design these came from showed 247 locations, 8 connector types and
+ * 1,240+ reviews. Those are a mockup's numbers. Writing them in would put four
+ * coverage claims on the first screen of the site that nothing in the database
+ * supports — the exact fault that took "18 cities" out of this file, and the
+ * reason the station importer exists rather than a generator.
+ *
+ * So the shape of the design is kept and the numbers are real. They are small,
+ * because the platform is new. A figure that is allowed to be small is a figure
+ * somebody can trust when it grows.
+ */
+export async function getHeroStats(): Promise<HeroStats> {
+  const mappable = { status: 'approved', lat: { not: null }, lng: { not: null } } as const
+
+  const [stations, partners, connectors, reviews, rating, cityRows] = await Promise.all([
+    prisma.station.count(),
+    prisma.business.count({ where: mappable }),
+    prisma.connector.findMany({ select: { type: true }, distinct: ['type'] }),
+    prisma.review.count(),
+    prisma.review.aggregate({ _avg: { rating: true } }),
+    prisma.station.groupBy({ by: ['city'], _count: { _all: true } }),
+  ])
+
+  const byCity: Record<string, number> = {}
+  for (const row of cityRows) byCity[row.city] = row._count._all
+
+  return {
+    locations: stations + partners,
+    connectorTypes: connectors.length,
+    reviews,
+    rating: reviews > 0 ? (rating._avg.rating ?? null) : null,
+    byCity,
+  }
+}
+
 export async function getPlatformStats(): Promise<PlatformStats> {
   const mappable = {
     status: 'approved',

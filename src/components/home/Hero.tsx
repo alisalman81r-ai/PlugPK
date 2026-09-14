@@ -1,7 +1,8 @@
 // src/components/home/Hero.tsx
 'use client'
 
-import { ArrowRight, MapPin, Search } from 'lucide-react'
+import { ArrowRight, Cable, MapPin, Route, Search, Star, Zap } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -12,9 +13,51 @@ import { JourneyLayers } from './JourneyLayers'
 import { PakistanMap } from './PakistanMap'
 import { useEvJourney } from './useEvJourney'
 import { cn } from '@/lib/utils'
+import type { HeroStats } from '@/lib/db/queries'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
+
+/**
+ * One counted figure, with its icon and label.
+ *
+ * A definition list rather than three divs: each of these is a term and its
+ * value, and marking them up as one lets a screen reader read "charging
+ * locations, six" instead of two loose numbers in a row. `flex-col-reverse`
+ * puts the number above its label on screen while leaving dt before dd in the
+ * source, which is the order the element requires.
+ */
+function HeroStat({
+  icon,
+  value,
+  label,
+  note,
+}: {
+  icon: React.ReactNode
+  value: string
+  label: string
+  note?: string
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        aria-hidden="true"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+      >
+        {icon}
+      </span>
+      <div className="flex flex-col-reverse">
+        <dt className="text-ui-xs leading-tight text-slate-500">
+          {label}
+          {note ? <span className="block text-ui-xs text-slate-400">({note})</span> : null}
+        </dt>
+        <dd className="mb-0.5 text-[1.375rem] font-black leading-none tabular-nums text-slate-900">
+          {value}
+        </dd>
+      </div>
+    </div>
+  )
+}
 
 interface HeroProps {
   /**
@@ -23,9 +66,18 @@ interface HeroProps {
    * a hardcoded "18", which was a coverage claim nothing backed up.
    */
   cities: number
+  /**
+   * The three figures beside the search, and the counts on the city chips.
+   *
+   * Counted in getHeroStats, never written here. The design these came from
+   * showed 247 locations and 1,240+ reviews; those are a mockup's numbers, and
+   * putting them on the first screen would be four coverage claims nothing
+   * supports. The layout is the design's, the figures are the database's.
+   */
+  stats: HeroStats
 }
 
-export function Hero({ cities }: HeroProps) {
+export function Hero({ cities, stats }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
 
@@ -45,6 +97,30 @@ export function Hero({ cities }: HeroProps) {
   const stageRef = React.useRef<HTMLDivElement>(null)
   useEvJourney({ story: storyRef, scene: sceneRef, stage: stageRef })
 
+
+  /*
+    ── The placeholder is two strings, not one ───────────────────────────
+
+    The full wording needs 200px and the field has 195px at 390, so it was
+    clipping mid-word — measured, not guessed. Shortening it everywhere would
+    have cost the wider screens a useful hint to save a phone five pixels.
+
+    The short form is what renders on the server, so the markup the phone
+    receives is already the one that fits and nothing reflows there. Screens
+    with room swap up to the full wording on mount, and the listener keeps it
+    right if the window is resized across the breakpoint.
+  */
+  const SHORT_PLACEHOLDER = 'Search city or station'
+  const FULL_PLACEHOLDER = 'Search city, area or charging station...'
+  const [placeholder, setPlaceholder] = React.useState(SHORT_PLACEHOLDER)
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)')
+    const apply = () => setPlaceholder(mq.matches ? FULL_PLACEHOLDER : SHORT_PLACEHOLDER)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
 
   const go = (value: string) => {
     const trimmed = value.trim()
@@ -155,7 +231,7 @@ export function Hero({ cities }: HeroProps) {
         ref={sceneRef}
         className="relative isolate flex min-h-[calc(100svh-var(--nav-h))] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:sticky lg:top-[var(--nav-h)] lg:h-[calc(100svh-var(--nav-h))] lg:min-h-0 lg:pb-0"
       >
-        <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[0.86fr_1.14fr]">
+        <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[1fr_1fr]">
           {/* ── The type ─────────────────────────────────────────────── */}
           <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
             {/* One quiet light source behind the type, so the solid half is not
@@ -173,7 +249,7 @@ export function Hero({ cities }: HeroProps) {
               className="hero-lift pointer-events-none absolute inset-0 -z-10"
             />
   
-            <div className="flex w-full max-w-[34rem] flex-col items-start text-left">
+            <div className="flex w-full max-w-[38rem] flex-col items-start text-left">
               {/*
                 ── The status pill ───────────────────────────────────────
                 Green, not brand blue. It reports a live state — how many
@@ -186,15 +262,35 @@ export function Hero({ cities }: HeroProps) {
                 Raw green rather than a plug-* token on purpose: it should
                 stay green if the brand hue is ever changed.
               */}
-              <span className="hero-rise hero-rise-1 mb-8 inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-green-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
-                <span
-                  aria-hidden="true"
-                  className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.4)]"
-                />
-                {cities > 0
-                  ? `Live now in ${cities} ${cities === 1 ? 'city' : 'cities'}`
-                  : 'Mapping Pakistan, city by city'}
-              </span>
+              <div className="hero-rise hero-rise-1 mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-green-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.4)]"
+                  />
+                  {cities > 0
+                    ? `Live now in ${cities} ${cities === 1 ? 'city' : 'cities'}`
+                    : 'Mapping Pakistan, city by city'}
+                </span>
+
+                {/*
+                  Beside the pill rather than under it, as in the reference. It
+                  points at the map, which is the honest destination: there is
+                  no waiting-list page to promise, and the map is where somebody
+                  wondering about coverage can see exactly what exists.
+                */}
+                <Link
+                  href="/map"
+                  className="group/soon inline-flex items-center gap-1.5 text-ui-sm text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+                >
+                  More cities coming soon
+                  <ArrowRight
+                    size={14}
+                    className="shrink-0 transition-transform duration-200 group-hover/soon:translate-x-0.5 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </div>
   
               {/*
                 Set as three lines rather than left to wrap.
@@ -250,10 +346,11 @@ export function Hero({ cities }: HeroProps) {
                 time and left alone because the composition was frozen. Opening
                 it for this pass is the moment to fix it — the gap is +2px now.
               */}
-              <h1 className="text-[clamp(2.875rem,4.7vw,4.75rem)] font-black leading-[1.02] tracking-[-0.042em] text-slate-900">
-                <span className="hero-rise hero-rise-2 block">Every charger</span>
-                <span className="hero-rise hero-rise-3 block">in Pakistan,</span>
-                <span className="hero-rise hero-rise-4 block text-plug-blue-600">on one map.</span>
+              <h1 className="text-[clamp(2.5rem,3.6vw,4.4rem)] font-black leading-[1.05] tracking-[-0.04em] text-slate-900">
+                <span className="hero-rise hero-rise-2 block">Find every EV charger</span>
+                <span className="hero-rise hero-rise-3 block">
+                  in <span className="text-plug-blue-600">Pakistan.</span>
+                </span>
               </h1>
   
               {/*
@@ -262,9 +359,21 @@ export function Hero({ cities }: HeroProps) {
                 it breaks into two balanced lines under a three-line masthead
                 instead of running wider than the type it belongs to.
               */}
-              <p className="hero-rise hero-rise-4 mt-5 max-w-[42ch] text-pretty text-[1.1875rem] leading-[1.6] text-slate-600">
-                Connector types, charging speeds, and reviews from drivers who actually
-                charged there.
+              {/*
+                Two lines, set as two, not left to wrap. The first names what
+                the product holds, the second says who it is for — the rhythm
+                the reference uses, and it only reads as a rhythm if the break
+                lands in the same place at every width.
+
+                "Real charging speeds" and "driver reviews" are claims the data
+                actually backs: the speeds come from the connector records and
+                the reviews are written by people who used the station.
+              */}
+              <p className="hero-rise hero-rise-4 mt-4 max-w-none text-[1.1875rem] leading-[1.6] text-slate-600">
+                <span className="block">One map. Real charging speeds. Driver reviews.</span>
+                <span className="block">
+                  Everything you need for a smoother, greener journey.
+                </span>
               </p>
   
               {/* One control, shaped like a single button. The visitor's intent
@@ -275,23 +384,23 @@ export function Hero({ cities }: HeroProps) {
                   event.preventDefault()
                   go(query)
                 }}
-                className="hero-rise hero-rise-5 mt-11 flex w-full max-w-[30rem] items-center gap-2 rounded-full border border-slate-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-12px_rgba(15,23,42,0.22)] transition-colors duration-200 focus-within:border-slate-400"
+                className="hero-rise hero-rise-5 mt-7 flex w-full items-center gap-2 rounded-full border border-slate-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-12px_rgba(15,23,42,0.22)] transition-colors duration-200 focus-within:border-slate-400"
               >
                 <Search size={18} className="shrink-0 text-slate-500" aria-hidden="true" />
                 <input
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search a city or station"
+                  placeholder={placeholder}
                   aria-label="Search for a charging station by city or name"
                   className="min-w-0 flex-1 border-none bg-transparent py-2.5 text-[15px] text-slate-900 outline-none placeholder:text-slate-500 [&::-webkit-search-cancel-button]:appearance-none"
                 />
                 <button
                   type="submit"
-                  className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-plug-navy-900 px-5 text-ui font-semibold text-white transition-colors duration-200 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-navy-900 focus-visible:ring-offset-2 motion-reduce:transition-none"
+                  className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors duration-200 hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-600 focus-visible:ring-offset-2 motion-reduce:transition-none"
                 >
                   <MapPin size={16} className="shrink-0" aria-hidden="true" />
-                  <span className="hidden sm:inline">Find a station</span>
+                  <span className="hidden sm:inline">Find chargers</span>
                   <span className="sm:hidden">Go</span>
                   <ArrowRight
                     size={15}
@@ -301,23 +410,93 @@ export function Hero({ cities }: HeroProps) {
                 </button>
               </form>
   
-              <div className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center justify-center gap-2">
-                <span className="text-ui-xs uppercase tracking-[0.12em] text-slate-600">Popular</span>
-                {QUICK_CITIES.map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => go(city)}
-                    className={cn(
-                      'rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-ui-xs font-medium text-slate-700',
-                      'transition-colors duration-150 hover:border-slate-400 hover:text-slate-900',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    )}
-                  >
-                    {city}
-                  </button>
-                ))}
+              {/*
+                ── Cities, with what is actually in them ─────────────────
+
+                Each chip carries its own count, from getHeroStats. A chip that
+                says how many charging points a city holds is a different offer
+                from one that only says "Karachi": it tells somebody whether
+                the trip is worth planning before they spend a click finding
+                out. A city with none says "none yet", which is the answer, and
+                is why the count is rendered from data rather than assumed.
+              */}
+              <div className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center gap-2.5">
+                <span className="text-ui-sm text-slate-500">Popular cities</span>
+
+                {QUICK_CITIES.map((city) => {
+                  const count = stats.byCity[city] ?? 0
+                  return (
+                    <button
+                      key={city}
+                      type="button"
+                      onClick={() => go(city)}
+                      className={cn(
+                        'group/city inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-left',
+                        'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-150',
+                        'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_6px_16px_-8px_rgba(15,23,42,0.22)]',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+                        'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+                      )}
+                    >
+                      <MapPin size={15} className="shrink-0 text-plug-blue-600" aria-hidden="true" />
+                      <span className="leading-tight">
+                        <span className="block text-ui-sm font-semibold text-slate-900">{city}</span>
+                        <span className="block text-ui-xs tabular-nums text-slate-500">
+                          {count > 0
+                            ? `${count} ${count === 1 ? 'charger' : 'chargers'}`
+                            : 'none yet'}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+
+                <Link
+                  href="/map"
+                  className="group/all inline-flex items-center gap-1.5 text-ui-sm font-medium text-plug-blue-600 transition-colors duration-150 hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+                >
+                  View all
+                  <ArrowRight
+                    size={14}
+                    className="shrink-0 transition-transform duration-200 group-hover/all:translate-x-0.5 motion-reduce:transition-none"
+                    aria-hidden="true"
+                  />
+                </Link>
               </div>
+
+              {/*
+                ── Three figures, all counted ────────────────────────────
+
+                The reference puts 247 locations, 8 connector types and 4.8
+                from 1,240+ reviews here. Those numbers are a mockup's. These
+                are the database's, which means they are small — and a figure
+                that is allowed to be small is one somebody can believe when it
+                grows.
+
+                The rating hides itself rather than printing 0.0 when nothing
+                has been reviewed yet: an average of no reviews is not zero, it
+                is nothing, and showing 0.0 would read as "rated badly".
+              */}
+              <dl className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center gap-x-5 gap-y-4 sm:gap-x-7">
+                <HeroStat
+                  icon={<Zap size={17} aria-hidden="true" />}
+                  value={String(stats.locations)}
+                  label={stats.locations === 1 ? 'Charging location' : 'Charging locations'}
+                />
+                <HeroStat
+                  icon={<Cable size={17} aria-hidden="true" />}
+                  value={String(stats.connectorTypes)}
+                  label={stats.connectorTypes === 1 ? 'Connector type' : 'Connector types'}
+                />
+                {stats.rating !== null ? (
+                  <HeroStat
+                    icon={<Star size={17} aria-hidden="true" />}
+                    value={stats.rating.toFixed(1)}
+                    label="Driver rating"
+                    note={`${stats.reviews} ${stats.reviews === 1 ? 'review' : 'reviews'}`}
+                  />
+                ) : null}
+              </dl>
             </div>
           </div>
   
@@ -362,17 +541,67 @@ export function Hero({ cities }: HeroProps) {
           hero; it is aligned to the type column now, so it reads as belonging to
           what is above it rather than to the page.
         */}
-        <div className="hero-band mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 xl:pl-20">
+        <div className="hero-band mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 lg:pr-10 xl:pl-20">
+          {/*
+            ── The route bar ─────────────────────────────────────────────
+
+            The same destination as the plain link it replaces, given the
+            weight the reference gives it: a card, with the road in it.
+
+            The photograph is the one already in the repository, from the
+            community post about an M2 run. It is faded into the card from
+            60% rather than butted against the text, so it reads as the
+            surface the card is printed on instead of a picture stuck to one
+            end — and so no part of it has to be sharp enough to be examined.
+            It is decorative, marked aria-hidden, and carries no claim: it is
+            not captioned as any particular road.
+
+            Capped at the width of the type column so the bar belongs to the
+            left side rather than running under the map.
+          */}
           <Link
             href="/routes"
-            className="group/link inline-flex items-center gap-2 text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+            className={cn(
+              'group/route relative isolate flex w-full max-w-[38rem] items-center gap-4 overflow-hidden',
+              'rounded-2xl border border-slate-200 bg-white px-4 py-3.5',
+              'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-200',
+              'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.3)]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+              'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+            )}
           >
-            Driving between cities? Plan a route with charging stops
-            <ArrowRight
-              size={15}
-              className="shrink-0 transition-transform duration-200 group-hover/link:translate-x-1 motion-reduce:transition-none"
+            <span
               aria-hidden="true"
-            />
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+            >
+              <Route size={19} />
+            </span>
+
+            <span className="relative z-10 min-w-0">
+              <span className="block text-ui-sm font-bold text-slate-900">
+                Driving between cities?
+              </span>
+              <span className="mt-0.5 flex items-center gap-1.5 text-ui-xs text-slate-500">
+                Plan a route with charging stops
+                <ArrowRight
+                  size={13}
+                  className="shrink-0 transition-transform duration-200 group-hover/route:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </span>
+            </span>
+
+            <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[46%] opacity-70">
+              <Image
+                src="/images/community/m2-trip-1.jpg"
+                alt=""
+                fill
+                sizes="(max-width: 1024px) 50vw, 280px"
+                className="object-cover object-center"
+              />
+              {/* Left-to-right wash, so the words never sit on the photograph. */}
+              <span className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/45" />
+            </span>
           </Link>
         </div>
       </div>
