@@ -51,6 +51,41 @@ mein chali jati hai. Sirf Google Maps key public hai — baqi sab server par reh
 
 ---
 
+## Sab se tez rasta (agar Claude ke baghair karna ho)
+
+Prompts use na karna chahein to poori deploy itni hai. Har `npm` command `F:\plugPK` mein
+chalani hai, aur `db:local` apne alag terminal mein chalti rehni chahiye.
+
+```powershell
+# 1. Postgres (apna terminal) — pehli baar cluster + migration + 155 rows
+npm run db:local
+
+# 2. Dusre terminal mein
+copy .env.example .env      # phir .env mein DATABASE_URL (jo db:local print kare),
+                            # ENABLE_ADMIN=true, ADMIN_PASSWORD, SESSION_SECRET bhar lein
+#    SESSION_SECRET banane ke liye:
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+
+# 3. Production build ka local proof
+$env:NEXT_DIST_DIR=".next-verify"; npm run build
+
+# 4. Serve kar ke check karein: /cars par 48 cars, /services par 12, /map par 6 pins
+$env:NEXT_DIST_DIR=".next-verify"; npx next start -p 3100
+```
+
+Phir Neon (Appendix B, step 1) → naye database ke saath:
+
+```powershell
+$env:DATABASE_URL="<Direct connection string>"
+npx prisma migrate deploy
+npx tsx scripts/import-db.ts      # -> 155 rows
+```
+
+Aur aakhir mein Vercel: repo import → env vars (Appendix B, step 2) → Blob store → Deploy.
+Data Vercel se **pehle** load hona chahiye — ye rule upar likha hua hai.
+
+---
+
 ## Step 1 — Deploy-readiness audit (read-only, kuch change nahi hota)
 
 **Maqsad:** Claude poora repo parh kar bataye ke Vercel deploy mein kya kya block ho sakta
