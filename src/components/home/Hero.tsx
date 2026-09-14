@@ -9,11 +9,13 @@ import * as React from 'react'
 
 import { POPULAR_CITIES } from '@/lib/constants'
 import { JourneyCards } from './JourneyCards'
+import { MapLegend } from './MapLegend'
+import { MapStations } from './MapStations'
 import { JourneyLayers } from './JourneyLayers'
 import { PakistanMap } from './PakistanMap'
 import { useEvJourney } from './useEvJourney'
 import { cn } from '@/lib/utils'
-import type { HeroStats } from '@/lib/db/queries'
+import type { HeroStats } from '@/lib/charging'
 
 /** Enough to start from without turning the hero into a filter panel. */
 const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
@@ -520,12 +522,17 @@ export function Hero({ cities, stats }: HeroProps) {
             className="relative flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14"
           >
             <PakistanMap className="h-full max-h-[78vh] w-full">
+              {/* The real network, rendered before the journey so the route
+                  and the car always cross over the dots, never under them. */}
+              <MapStations pins={stats.pins} cityCounts={stats.byCity} />
               <JourneyLayers />
             </PakistanMap>
+
+            <MapLegend />
   
             {/* Ambient product cards, floating around the silhouette — not a
                 frame on it. Siblings of the map, never a wrapper. */}
-            <JourneyCards />
+            <JourneyCards pins={stats.pins} />
           </div>
         </div>
   

@@ -52,7 +52,7 @@ export default async function HomePage() {
     // zeroes and no rating rather than taking the page down.
     readOrFallback(
       '/ hero stats',
-      { locations: 0, connectorTypes: 0, reviews: 0, rating: null, byCity: {} },
+      { locations: 0, connectorTypes: 0, reviews: 0, rating: null, byCity: {}, pins: [] },
       getHeroStats,
     ),
     readOrFallback('/ clubs', [] as EVClub[], () => getClubs()),

@@ -3,6 +3,19 @@ import 'server-only'
 
 import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
 
+/*
+  The hero map's shapes and its fast/standard threshold live in lib/charging,
+  not here. This module is `server-only`, and the markers that use them are
+  drawn in a client component — importing the constant from here pulled the
+  whole server module toward the browser and the build refused it, which is
+  the guard working. Re-exported so callers already reaching for the query
+  find the types beside it.
+*/
+export { FAST_CHARGER_KW } from '@/lib/charging'
+export type { HeroMapPin, HeroStats } from '@/lib/charging'
+
+import type { HeroMapPin, HeroStats } from '@/lib/charging'
+
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
 import {
@@ -291,17 +304,6 @@ export interface PlatformStats {
  * unreviewed or unplaced listing is not visible to anyone, so counting it
  * would overstate what is actually out there.
  */
-export interface HeroStats {
-  /** Stations plus approved, placed businesses — the same count the band uses. */
-  locations: number
-  /** Distinct connector standards actually fitted at those locations. */
-  connectorTypes: number
-  reviews: number
-  /** Mean of every review, or null when there are none to average. */
-  rating: number | null
-  /** Charging points per city, keyed by city name, for the quick-pick chips. */
-  byCity: Record<string, number>
-}
 
 /**
  * The three figures beside the hero's search, and the counts on its city chips.
@@ -321,17 +323,38 @@ export interface HeroStats {
 export async function getHeroStats(): Promise<HeroStats> {
   const mappable = { status: 'approved', lat: { not: null }, lng: { not: null } } as const
 
-  const [stations, partners, connectors, reviews, rating, cityRows] = await Promise.all([
+  const [stations, partners, connectors, reviews, rating, cityRows, pinRows] = await Promise.all([
     prisma.station.count(),
     prisma.business.count({ where: mappable }),
     prisma.connector.findMany({ select: { type: true }, distinct: ['type'] }),
     prisma.review.count(),
     prisma.review.aggregate({ _avg: { rating: true } }),
     prisma.station.groupBy({ by: ['city'], _count: { _all: true } }),
+    prisma.station.findMany({
+      select: {
+        slug: true,
+        name: true,
+        city: true,
+        lat: true,
+        lng: true,
+        connectors: { select: { maxPowerKw: true, ports: true, availablePorts: true } },
+      },
+    }),
   ])
 
   const byCity: Record<string, number> = {}
   for (const row of cityRows) byCity[row.city] = row._count._all
+
+  const pins: HeroMapPin[] = pinRows.map((row) => ({
+    slug: row.slug,
+    name: row.name,
+    city: row.city,
+    lat: row.lat,
+    lng: row.lng,
+    maxPowerKw: row.connectors.reduce((top, c) => Math.max(top, c.maxPowerKw), 0),
+    ports: row.connectors.reduce((sum, c) => sum + c.ports, 0),
+    availablePorts: row.connectors.reduce((sum, c) => sum + c.availablePorts, 0),
+  }))
 
   return {
     locations: stations + partners,
@@ -339,6 +362,7 @@ export async function getHeroStats(): Promise<HeroStats> {
     reviews,
     rating: reviews > 0 ? (rating._avg.rating ?? null) : null,
     byCity,
+    pins,
   }
 }
 
