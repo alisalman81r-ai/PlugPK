@@ -113,7 +113,7 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
             Drivers talking to drivers
           </span>
 
-          <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.02] tracking-[-0.035em] text-slate-900">
+          <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-slate-900">
             Pakistan&apos;s EV <span className="text-plug-blue-600">community</span>.
           </h2>
 

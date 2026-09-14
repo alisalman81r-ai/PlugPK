@@ -112,7 +112,7 @@ export function CarHero({
             never left sharing a line with the phrase it is meant to close.
             Spans rather than <br>, which a screen reader announces as a pause
             mid-sentence; these are block-level and read as one heading. */}
-        <h1 className="mx-auto mt-6 max-w-4xl text-[clamp(2.25rem,5.5vw,4.25rem)] font-black leading-[0.98] tracking-[-0.04em] text-white">
+        <h1 className="mx-auto mt-6 max-w-4xl text-[clamp(2.25rem,5.5vw,4.25rem)] font-black leading-[1.08] tracking-[-0.04em] text-white">
           <span className="block">Every electrified car,</span>
           <span className="block text-plug-sky-300">compared</span>
         </h1>

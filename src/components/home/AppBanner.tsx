@@ -61,7 +61,7 @@ export function AppBanner() {
                 Coming soon
               </span>
 
-              <h2 className="mt-5 text-balance text-[clamp(2rem,4.5vw,3rem)] font-black leading-[1.04] tracking-[-0.03em] text-white">
+              <h2 className="mt-5 text-balance text-[clamp(2rem,4.5vw,3rem)] font-black leading-[1.08] tracking-[-0.03em] text-white">
                 Take Plug.pk{' '}
                 <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">
                   everywhere

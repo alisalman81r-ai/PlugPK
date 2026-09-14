@@ -190,7 +190,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 hero. The blurb below is category prose and the chips are
                 figures.
               */}
-              <h1 className="mt-2 text-[clamp(2rem,4vw,3.25rem)] font-black leading-[1.03] tracking-[-0.035em] text-slate-900">
+              <h1 className="mt-2 text-[clamp(2rem,4vw,3.25rem)] font-black leading-[1.08] tracking-[-0.035em] text-slate-900">
                 {car.model}
                 {car.variant ? (
                   <span className="mt-1.5 block text-[clamp(0.9375rem,1.4vw,1.125rem)] font-semibold leading-snug tracking-[-0.01em] text-slate-500">

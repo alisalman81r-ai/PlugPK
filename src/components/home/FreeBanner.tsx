@@ -141,7 +141,7 @@ export function FreeBanner() {
             from them (6rem against 4rem) because this section carries no
             imagery or colour block, so the heading is the whole device.
           */}
-          <h2 className="mt-5 text-balance text-[clamp(3.25rem,8vw,6rem)] font-black leading-[0.95] tracking-[-0.04em] text-slate-900">
+          <h2 className="mt-5 text-balance text-[clamp(3.25rem,8vw,6rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
             <span className="text-plug-blue-600">Free</span> to use.
           </h2>
 

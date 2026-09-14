@@ -116,7 +116,7 @@ export function Footer() {
               Start charging
             </span>
 
-            <h2 className="max-w-2xl text-[clamp(2rem,5.5vw,3.5rem)] font-black leading-[1.02] tracking-[-0.03em] text-white">
+            <h2 className="max-w-2xl text-[clamp(2rem,5.5vw,3.5rem)] font-black leading-[1.08] tracking-[-0.03em] text-white">
               Ready to find your
               <br className="hidden sm:block" />{' '}
               <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-cyan-400 bg-clip-text text-transparent">

@@ -412,7 +412,7 @@ export function CarsExplorer({
               </p>
               <h2
                 aria-live="polite"
-                className="mt-5 font-display text-[2.5rem] font-extrabold leading-[0.95] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]"
+                className="mt-5 font-display text-[2.5rem] font-extrabold leading-[1.08] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]"
               >
                 {masthead.title}
                 <br />

@@ -61,7 +61,7 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
           EV Ecosystem
         </span>
 
-        <h1 className="mx-auto mt-6 max-w-4xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.04] tracking-[-0.035em] text-white">
+        <h1 className="mx-auto mt-6 max-w-4xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-white">
           Everything your EV needs in{' '}
           <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
             one place

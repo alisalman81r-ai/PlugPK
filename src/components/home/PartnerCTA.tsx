@@ -107,7 +107,7 @@ export function PartnerCTA() {
             Partner up
           </span>
 
-          <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.02] tracking-[-0.035em] text-slate-900">
+          <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-slate-900">
             Have chargers? Reach thousands of{' '}
             <span className="text-plug-blue-600">drivers</span>.
           </h2>

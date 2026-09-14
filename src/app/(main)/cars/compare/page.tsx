@@ -112,7 +112,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
             Side by side
           </span>
-          <h1 className="mt-6 text-balance text-[clamp(2.75rem,6.4vw,4.5rem)] font-black leading-[0.98] tracking-[-0.04em] text-slate-900">
+          <h1 className="mt-6 text-balance text-[clamp(2.75rem,6.4vw,4.5rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
             Compare{' '}
             <span className="text-plug-blue-600">
               cars
