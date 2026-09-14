@@ -1,8 +1,11 @@
 // src/components/community/CommunitySidebar.tsx
+'use client'
+
 import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 import type { CommunityStats } from '@/hooks/useCommunity'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { POST_CATEGORY_META } from '@/lib/constants'
 import type { CommunityPost, EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -29,6 +32,8 @@ const CLUB_TONES = [
 ]
 
 export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarProps) {
+  const { user, loading: sessionLoading } = useCurrentUser()
+
   const figures = [
     { icon: MessageSquare, value: stats.discussions, label: 'Discussions' },
     { icon: MessageCircle, value: stats.replies, label: 'Replies' },
@@ -70,12 +75,30 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
           })}
         </dl>
 
-        <Link
-          href="/signup"
-          className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
-        >
-          Join free
-        </Link>
+        {/*
+          "Join free" is an invitation to people who have not joined.
+
+          It was shown to everybody, signed in or not, so a member already
+          reading the board was told to sign up for it — the same fault as the
+          post dialog, in a quieter place. Nothing is rendered while the
+          session is still being read, rather than the wrong thing for a
+          moment.
+        */}
+        {sessionLoading ? null : user ? (
+          <Link
+            href="/community/clubs"
+            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
+          >
+            Browse clubs
+          </Link>
+        ) : (
+          <Link
+            href="/signup"
+            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
+          >
+            Join free
+          </Link>
+        )}
       </div>
 
       {/* ── Trending ─────────────────────────────────────────── */}

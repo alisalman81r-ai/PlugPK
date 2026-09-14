@@ -5,6 +5,7 @@ import { CheckCircle2, Lock, MessageCircle, X, type LucideIcon } from 'lucide-re
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { POST_CATEGORIES } from '@/lib/constants'
 import type { CommunityPost, PostCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -25,7 +26,22 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
   const [category, setCategory] = React.useState<PostCategory | ''>('')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
-  const [showLoginPrompt, setShowLoginPrompt] = React.useState(true)
+
+  /*
+    ── Who is asking ─────────────────────────────────────────────────
+
+    This was `useState(true)`: the prompt was not a response to being signed
+    out, it was the starting state, and nothing ever checked. A member who had
+    signed in was still told to create an account every time they opened this,
+    and the only way past it was the "maybe later" button underneath.
+
+    `dismissed` keeps that escape for somebody who really is signed out and
+    wants to read the form first. It is no longer what decides whether the
+    prompt appears.
+  */
+  const { user, loading: sessionLoading } = useCurrentUser()
+  const [dismissed, setDismissed] = React.useState(false)
+  const showLoginPrompt = !sessionLoading && !user && !dismissed
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -43,10 +59,12 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     }
   }, [isOpen, onClose])
 
-  // Reset back to the gate each time the modal is reopened.
+  // Clear the form each time the modal closes. The prompt is not reset here
+  // any more — it is derived from the session, so there is no state to put
+  // back, and a signed-in member never sees it to begin with.
   React.useEffect(() => {
     if (isOpen) return
-    setShowLoginPrompt(true)
+    setDismissed(false)
     setIsSuccess(false)
     setTitle('')
     setContent('')
@@ -117,7 +135,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
               <Button href="/login" variant="secondary" fullWidth>
                 Sign In
               </Button>
-              <Button variant="ghost" fullWidth onClick={() => setShowLoginPrompt(false)}>
+              <Button variant="ghost" fullWidth onClick={() => setDismissed(true)}>
                 Continue as Guest
               </Button>
             </div>
