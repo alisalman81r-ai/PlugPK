@@ -36,10 +36,6 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
   const handleSubmit = async () => {
     if (newComment.trim().length === 0) return
 
-    setIsSubmitting(true)
-    // Stands in for the create-comment API.
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
     setNewComment('')
     setIsFocused(false)
   }

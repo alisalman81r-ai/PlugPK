@@ -38,8 +38,6 @@ export function ProfileEditForm({ user, onSave }: ProfileEditFormProps) {
 
   const handleSave = async () => {
     setIsLoading(true)
-    // Stands in for the profile API.
-    await new Promise((resolve) => setTimeout(resolve, 1200))
     onSave({ name, city })
     setIsLoading(false)
     setIsSuccess(true)

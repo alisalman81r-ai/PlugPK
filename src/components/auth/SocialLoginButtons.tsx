@@ -38,10 +38,6 @@ export function SocialLoginButtons({ mode, className }: SocialLoginButtonsProps)
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false)
 
   const handleGoogle = async () => {
-    setIsGoogleLoading(true)
-    // Stands in for the OAuth redirect until auth is wired up.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsGoogleLoading(false)
   }
 
   return (

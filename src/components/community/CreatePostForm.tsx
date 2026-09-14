@@ -78,10 +78,6 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     event.preventDefault()
     if (!canSubmit) return
 
-    setIsSubmitting(true)
-    // Stands in for the create-post API.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsSubmitting(false)
     setIsSuccess(true)
     onSubmit?.({ title, content, category: category as PostCategory })
     setTimeout(onClose, 3000)

@@ -121,9 +121,6 @@ export function NotificationSettings() {
   }
 
   const handleSave = async () => {
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    setIsLoading(false)
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 3000)
   }

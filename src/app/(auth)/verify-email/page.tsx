@@ -25,10 +25,6 @@ function VerifyEmailContent() {
   }, [cooldown])
 
   const handleResend = async () => {
-    setIsResending(true)
-    // Stands in for the resend-verification API.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsResending(false)
     setCooldown(RESEND_COOLDOWN)
   }
 

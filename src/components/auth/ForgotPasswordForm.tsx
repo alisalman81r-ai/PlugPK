@@ -34,19 +34,12 @@ export function ForgotPasswordForm() {
     }
 
     setError(null)
-    setIsLoading(true)
-    // Stands in for the reset-email API.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsLoading(false)
     setIsSubmitted(true)
     setCooldown(RESEND_COOLDOWN)
   }
 
   const handleResend = async () => {
     if (cooldown > 0) return
-    setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsLoading(false)
     setCooldown(RESEND_COOLDOWN)
   }
 

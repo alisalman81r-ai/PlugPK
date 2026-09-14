@@ -44,10 +44,6 @@ export function ResetPasswordForm() {
     setTouchedConfirm(true)
     if (Object.keys(next).length > 0) return
 
-    setIsLoading(true)
-    // Stands in for the password-reset API.
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsLoading(false)
     setIsSuccess(true)
   }
 
