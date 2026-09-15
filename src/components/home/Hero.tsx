@@ -10,10 +10,9 @@ import * as React from 'react'
 import { POPULAR_CITIES } from '@/lib/constants'
 import { JourneyCards } from './JourneyCards'
 import { MapLegend } from './MapLegend'
+import { MapHighway } from './MapHighway'
 import { MapStations } from './MapStations'
-import { JourneyLayers } from './JourneyLayers'
 import { PakistanMap } from './PakistanMap'
-import { useEvJourney } from './useEvJourney'
 import { cn } from '@/lib/utils'
 import type { HeroStats } from '@/lib/charging'
 
@@ -84,20 +83,10 @@ export function Hero({ cities, stats }: HeroProps) {
   const [query, setQuery] = React.useState('')
 
   /*
-    The journey is scrubbed against this section, which ScrollTrigger pins on
-    desktop. The hook owns the timeline entirely; this component only says
-    which elements to hang it on. `stage` is the map column, which is the
-    trigger on small screens where nothing is pinned.
+    The map column, which is all that is left to hold a ref for. `story` and
+    `scene` went with the scroll timeline they existed to drive.
   */
-  /*
-    `story` is the runway and is what the timeline is measured against;
-    `scene` is the sticky hero, which owns the journey DOM and publishes the
-    progress attribute. They were one element while GSAP did the pinning.
-  */
-  const storyRef = React.useRef<HTMLElement>(null)
-  const sceneRef = React.useRef<HTMLDivElement>(null)
   const stageRef = React.useRef<HTMLDivElement>(null)
-  useEvJourney({ story: storyRef, scene: sceneRef, stage: stageRef })
 
 
   /*
@@ -197,61 +186,20 @@ export function Hero({ cities, stats }: HeroProps) {
       min-height, not height: on a narrow phone the type, the field and the
       chips must be able to make this taller rather than overflow it.
 
-      This section was briefly 300vh with a sticky child, to give the
-      scroll-scrubbed journey a range. The map is gone, so that would now be
-      three screens of empty scrolling.
+      ── One viewport, and no runway above it ──────────────────────────
+
+      This was 300svh: one screen for the hero and two more of scroll
+      for a car to drive down the map. With the journey gone there is nothing
+      to scrub, so the extra 200% was two screens of nothing between the hero
+      and the section under it. It is plain flow again — no sticky, no pin, no
+      progress attribute, and the document is its own height.
     */
-    /*
-      ── The scroll runway ─────────────────────────────────────────────
-      This element is nothing but height. It is the distance the reader
-      scrolls while the hero inside it stays put, and it lives in CSS so the
-      browser knows the true height of the document from the first layout,
-      before any JavaScript has run.
-
-      That is the whole reason it exists. The runway used to be created by
-      ScrollTrigger, which inserts its pin spacing only after hydration, so
-      the document grew by ~1800px part way through loading. A reload at a
-      restored position was restored against a document too short to hold
-      it, and the reader lost their place: measured landing at 408 after a
-      reload at 1100, and at 1200 after a reload at 3000.
-
-      300svh less the navbar: one viewport for the hero itself and two more
-      of scrolling for the journey, which is the approved 200% distance.
-      From lg up only. Below that nothing sticks and this is simply as tall
-      as its content.
-    */
-    <section ref={storyRef} className="relative w-full lg:h-[calc(300svh-var(--nav-h))]">
-      {/*
-        The hero itself, held under the navbar by CSS rather than by GSAP.
-
-        position: sticky keeps this element in normal flow, so nothing is
-        reparented, no spacer is inserted, and the height of the document
-        never changes. GSAP pins nothing now; it only reads how far through
-        the runway above the reader has scrolled.
-      */}
-      <div
-        ref={sceneRef}
-        className="relative isolate flex min-h-[calc(100svh-var(--nav-h))] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:sticky lg:top-[var(--nav-h)] lg:h-[calc(100svh-var(--nav-h))] lg:min-h-0 lg:pb-0"
-      >
-        <div className="hero-band mx-auto grid w-full max-w-[1800px] flex-1 lg:grid-cols-[1fr_1fr]">
+    <section className="relative w-full">
+      <div className="relative isolate flex min-h-[calc(100svh-var(--nav-h))] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+        <div className="hero-band mx-auto grid w-full max-w-[2100px] flex-1 lg:grid-cols-[1fr_1fr]">
           {/* ── The type ─────────────────────────────────────────────── */}
-          <div className="relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:py-0 lg:pl-14 lg:pr-10 xl:pl-20">
-            {/* One quiet light source behind the type, so the solid half is not
-                a flat fill. Nothing reads as a gradient; it reads as depth. */}
-            <div
-              aria-hidden="true"
-              /*
-                Centred left of middle, at 40%, so the light sits under the type
-                and not under the map. It was kept off the joining edge for a
-                different reason once — anchored against the seam it out-shone
-                the photograph's faded edge and drew the join back as a hard
-                line. There is no join now, but the placement is still right: a
-                glow behind the graphic would wash out the dots.
-              */
-              className="hero-lift pointer-events-none absolute inset-0 -z-10"
-            />
-  
-            <div className="flex w-full max-w-[38rem] flex-col items-start text-left">
+          <div className="hero-type relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:pb-[var(--hero-lift,0px)] lg:pl-14 lg:pr-10 lg:pt-0 xl:pl-20">
+            <div className="flex w-full max-w-[38rem] 2xl:max-w-[50rem] flex-col items-start text-left">
               {/*
                 ── The status pill ───────────────────────────────────────
                 Green, not brand blue. It reports a live state — how many
@@ -499,6 +447,91 @@ export function Hero({ cities, stats }: HeroProps) {
                   />
                 ) : null}
               </dl>
+
+              {/*
+                ── The route planner ─────────────────────────────────────
+
+                Part of this stack, not a row underneath the whole band.
+
+                It used to sit below the grid, which made it the one thing the
+                flex slack could never reach: the band took `flex-1` and
+                absorbed every spare pixel, so the card stayed welded to the
+                bottom of the section while the gap above the heading grew with
+                the viewport. Measured, that was 183px of nothing over the pill
+                at 1080 — and at every height tested, the card's bottom edge
+                and the bottom of the viewport were the same pixel, so on a
+                laptop it read as cut off.
+
+                Inside the stack it is centred with everything else: the slack
+                falls above AND below it, and the heading rises by half of what
+                the card and its margin take up.
+
+                Alignment does not change. It was already capped at the type
+                measure and indented to the type column; the stack it now lives
+                in is that measure and that indent, so the cap comes off here
+                rather than being stated twice.
+              */}
+              {/*
+                ── The route bar ─────────────────────────────────────────────
+
+                The same destination as the plain link it replaces, given the
+                weight the reference gives it: a card, with the road in it.
+
+                The photograph is the one already in the repository, from the
+                community post about an M2 run. It is faded into the card from
+                60% rather than butted against the text, so it reads as the
+                surface the card is printed on instead of a picture stuck to one
+                end — and so no part of it has to be sharp enough to be examined.
+                It is decorative, marked aria-hidden, and carries no claim: it is
+                not captioned as any particular road.
+
+                Capped at the width of the type column so the bar belongs to the
+                left side rather than running under the map.
+              */}
+              <Link
+                href="/routes"
+                className={cn(
+                  'group/route relative isolate mt-10 flex w-full items-center gap-4 overflow-hidden',
+                  'rounded-2xl border border-slate-200 bg-white px-4 py-3.5',
+                  'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-200',
+                  'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.3)]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+                  'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+                >
+                  <Route size={19} />
+                </span>
+
+                <span className="relative z-10 min-w-0">
+                  <span className="block text-ui-sm font-bold text-slate-900">
+                    Driving between cities?
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-1.5 text-ui-xs text-slate-500">
+                    Plan a route with charging stops
+                    <ArrowRight
+                      size={13}
+                      className="shrink-0 transition-transform duration-200 group-hover/route:translate-x-1 motion-reduce:transition-none"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </span>
+
+                <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[46%] opacity-70">
+                  <Image
+                    src="/images/community/m2-trip-1.jpg"
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 280px"
+                    className="object-cover object-center"
+                  />
+                  {/* Left-to-right wash, so the words never sit on the photograph. */}
+                  <span className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/45" />
+                </span>
+              </Link>
             </div>
           </div>
   
@@ -519,13 +552,13 @@ export function Hero({ cities, stats }: HeroProps) {
           */}
           <div
             ref={stageRef}
-            className="relative flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:px-10 lg:py-10 xl:px-14"
+            className="relative flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:py-10 lg:pl-4 lg:pr-[9rem] xl:pl-8 xl:pr-[10.5rem]"
           >
-            <PakistanMap className="h-full max-h-[78vh] w-full">
-              {/* The real network, rendered before the journey so the route
-                  and the car always cross over the dots, never under them. */}
+            <PakistanMap className="hero-map-float h-full max-h-[78vh] w-full">
+              {/* Road first, network on top: a station dot must never end up
+                  underneath the line that runs past it. */}
+              <MapHighway />
               <MapStations pins={stats.pins} cityCounts={stats.byCity} />
-              <JourneyLayers />
             </PakistanMap>
 
             <MapLegend />
@@ -536,81 +569,6 @@ export function Hero({ cities, stats }: HeroProps) {
           </div>
         </div>
   
-        {/*
-          The route-planner line, on the band's own left edge.
-  
-          Back to slate-500, which is where it started. It went white/60 when the
-          band was navy and slate-500 measured 1.6:1 against #021024; on the light
-          ground that reasoning reverses and the original colour is the correct
-          one again — 4.2:1, and 8.6:1 on the slate-900 hover.
-  
-          What did not revert is the position. It sat centred under a full-width
-          hero; it is aligned to the type column now, so it reads as belonging to
-          what is above it rather than to the page.
-        */}
-        <div className="hero-band mx-auto flex w-full max-w-[1800px] px-6 pb-10 sm:px-8 lg:pb-12 lg:pl-14 lg:pr-10 xl:pl-20">
-          {/*
-            ── The route bar ─────────────────────────────────────────────
-
-            The same destination as the plain link it replaces, given the
-            weight the reference gives it: a card, with the road in it.
-
-            The photograph is the one already in the repository, from the
-            community post about an M2 run. It is faded into the card from
-            60% rather than butted against the text, so it reads as the
-            surface the card is printed on instead of a picture stuck to one
-            end — and so no part of it has to be sharp enough to be examined.
-            It is decorative, marked aria-hidden, and carries no claim: it is
-            not captioned as any particular road.
-
-            Capped at the width of the type column so the bar belongs to the
-            left side rather than running under the map.
-          */}
-          <Link
-            href="/routes"
-            className={cn(
-              'group/route relative isolate flex w-full max-w-[38rem] items-center gap-4 overflow-hidden',
-              'rounded-2xl border border-slate-200 bg-white px-4 py-3.5',
-              'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-200',
-              'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.3)]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-              'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
-            >
-              <Route size={19} />
-            </span>
-
-            <span className="relative z-10 min-w-0">
-              <span className="block text-ui-sm font-bold text-slate-900">
-                Driving between cities?
-              </span>
-              <span className="mt-0.5 flex items-center gap-1.5 text-ui-xs text-slate-500">
-                Plan a route with charging stops
-                <ArrowRight
-                  size={13}
-                  className="shrink-0 transition-transform duration-200 group-hover/route:translate-x-1 motion-reduce:transition-none"
-                  aria-hidden="true"
-                />
-              </span>
-            </span>
-
-            <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[46%] opacity-70">
-              <Image
-                src="/images/community/m2-trip-1.jpg"
-                alt=""
-                fill
-                sizes="(max-width: 1024px) 50vw, 280px"
-                className="object-cover object-center"
-              />
-              {/* Left-to-right wash, so the words never sit on the photograph. */}
-              <span className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/45" />
-            </span>
-          </Link>
-        </div>
       </div>
     </section>
   )

@@ -2,6 +2,7 @@
 
 import { FAST_CHARGER_KW, type HeroMapPin } from '@/lib/charging'
 import { project } from './PakistanMap'
+import { PIN_BOLT_D, PIN_D } from './station-pin'
 
 /**
  * The real charging network, drawn on the silhouette.
@@ -21,8 +22,8 @@ import { project } from './PakistanMap'
  *
  * ── Placed through the same projection as everything else ─────────────
  *
- * `project()` is what drew the coastline and what places the journey's route,
- * so a station at a given lat/lng lands where that lat/lng actually is on this
+ * `project()` is what drew the coastline and what places the highway, so a
+ * station at a given lat/lng lands where that lat/lng actually is on this
  * silhouette. Nothing here carries its own coordinates.
  */
 
@@ -63,9 +64,19 @@ export function MapStations({ pins, cityCounts }: MapStationsProps) {
   return (
     <g data-layer="stations-real">
       {/*
-        The dots. Drawn under the journey layers, which are rendered after this
-        in the SVG, so the route and the car always pass over the network rather
-        than under it.
+        The label cards' shadow. It used to be defined in the journey layer,
+        which no longer exists — and a filter reference that resolves to
+        nothing does not degrade to "no shadow", it stops the element being
+        rendered at all. It belongs to the thing that uses it.
+      */}
+      <defs>
+        <filter id="station-card-shadow" x="-30%" y="-40%" width="160%" height="190%">
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#0F172A" floodOpacity="0.13" />
+        </filter>
+      </defs>
+      {/*
+        The dots. Drawn over the highway, which is rendered before this in the
+        SVG, so a station is never hidden under the road that runs past it.
       */}
       {pins.map((pin) => {
         const at = project(pin.lng, pin.lat)
@@ -111,19 +122,13 @@ export function MapStations({ pins, cityCounts }: MapStationsProps) {
           >
             {/* The teardrop, drawn from the pin point upward. */}
             <g transform={`translate(${at.x} ${at.y})`}>
-              <path
-                d="M 0 0 C -6 -9 -13 -14 -13 -22 A 13 13 0 1 1 13 -22 C 13 -14 6 -9 0 0 Z"
-                className="fill-plug-blue-600"
-              />
+              <path d={PIN_D} className="fill-plug-blue-600" />
               {/* A bolt, small enough to read as a mark rather than an icon. */}
-              <path
-                d="M 1.6 -29 L -3.2 -21.4 L 0 -21.4 L -1.6 -15 L 3.4 -22.8 L 0.2 -22.8 Z"
-                className="fill-white"
-              />
+              <path d={PIN_BOLT_D} className="fill-white" />
             </g>
 
             {/* The label card. Drawn in SVG so it stays locked to the pin
-                through every resize, exactly as the charging popup does. */}
+                through every resize rather than being positioned in CSS. */}
             <g transform={`translate(${at.x + offset.dx} ${at.y + offset.dy})`}>
               <rect
                 x={offset.anchor === 'end' ? -132 : 0}
@@ -133,7 +138,7 @@ export function MapStations({ pins, cityCounts }: MapStationsProps) {
                 rx={9}
                 className="fill-white stroke-slate-200"
                 strokeWidth={1.2}
-                filter="url(#journey-card-shadow)"
+                filter="url(#station-card-shadow)"
               />
               <text
                 x={offset.anchor === 'end' ? -117 : 15}

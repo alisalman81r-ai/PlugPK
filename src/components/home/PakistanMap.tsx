@@ -16,17 +16,19 @@
  *
  * ── Where the geometry came from ──────────────────────────────────────
  *
- * Hand-authored from published coordinates, not extracted from a dataset. It
- * is a decorative silhouette at roughly 40km of detail, so tracing Natural
- * Earth or GADM would add an attribution obligation and a build step to buy
- * accuracy the eye cannot resolve at this size.
+ * Natural Earth 1:50m cultural vectors, the `Pakistan` admin-0 polygon,
+ * simplified at build-authoring time and pasted in as literal coordinates —
+ * there is no dataset in the bundle and no fetch at runtime.
  *
- * Being hand-authored, it carries no third-party licence at all — which is the
- * same reason the hero photograph was removed. The trade is that it is a
- * simplification: recognisable and correctly proportioned, but not a survey.
- * It should never be used to answer a question about where a border runs.
+ * Natural Earth is in the public domain: no permission needed, no attribution
+ * required. The note here is a courtesy and a record of where to go to redraw
+ * it, not a licence obligation.
  *
- * ── The projection ────────────────────────────────────────────────────
+ * This replaced a hand-drawn ~90-point sketch at roughly 40km of detail, which
+ * was recognisable but visibly wrong along the Makran coast and the Afghan
+ * border. It is still a simplification and should never be used to answer a
+ * question about where a border actually runs.
+ * * ── The projection ────────────────────────────────────────────────────
  *
  * Equirectangular with the standard parallel at Pakistan's mid-latitude. The
  * cos(30.35°) factor on longitude is what keeps the country from looking
@@ -48,42 +50,66 @@ const COS_LAT0 = Math.cos((LAT0 * Math.PI) / 180)
 const UNITS_PER_DEG = 60
 
 /**
- * The boundary, clockwise from the northern tip.
+ * The boundary, clockwise on screen from the northern tip.
  *
- * Reads north tip -> Kashmir -> the Indian border south through Punjab and
- * Sindh -> Sir Creek -> the Arabian Sea coast west -> the Iranian border north
- * -> the Afghan border along Balochistan and KP -> back to the north.
+ * Natural Earth 1:50m admin-0, simplified to 230 points (Douglas-Peucker at
+ * 0.0275 degrees, about 3km) with longitude scaled by cos(30.35) first so the
+ * tolerance means the same distance on the ground in both axes. The ring is
+ * rotated to begin at its northernmost vertex and wound clockwise in screen
+ * space.
+ *
+ * It reads north tip -> Gilgit-Baltistan and Kashmir -> the Indian border
+ * south through Punjab and Sindh -> Sir Creek -> the Makran coast west -> the
+ * Iranian border north -> the Afghan border along Balochistan and KP -> back
+ * to the north.
  */
 const BOUNDARY: ReadonlyArray<readonly [number, number]> = [
-  // North: Gilgit-Baltistan to the Siachen spur. Narrow on purpose — the
-  // first pass carried 77.8E at 35.5N straight out from 76.4E, which put a
-  // wide rectangular blob where the north-east should taper.
-  [74.5, 37.05], [75.1, 36.78], [75.6, 36.35], [75.95, 36.05], [76.5, 35.86],
-  [76.85, 35.62], [77.12, 35.44], [76.72, 35.06], [76.1, 34.74],
-  // Kashmir, down the eastern side.
-  [75.3, 34.62], [74.6, 34.52], [74.1, 34.28], [73.98, 33.9], [73.9, 33.22],
-  [74.35, 32.86], [75.02, 32.5], [74.62, 32.02], [74.52, 31.72],
-  // Punjab, then the Indian border across the Cholistan desert.
-  [74.0, 31.0], [73.42, 30.22], [73.0, 29.9], [72.4, 29.2], [71.9, 28.5],
-  [71.0, 28.0], [70.6, 27.7], [70.1, 27.0], [69.6, 26.4], [70.0, 25.7],
-  [70.62, 25.2], [70.9, 24.5], [71.05, 24.22],
-  // The Rann of Kutch, round to Sir Creek — the southernmost point.
-  [70.6, 24.22], [69.5, 24.3], [68.8, 23.9], [68.2, 23.72],
-  // The coast west. Not a straight line: the Makran shore bays in and out,
-  // and drawn flat it read as a ruled edge rather than a coastline.
-  [67.5, 23.92], [67.0, 24.2], [66.6, 24.82], [66.0, 25.25], [65.2, 25.12],
-  [64.6, 25.32], [64.0, 25.18], [63.4, 25.1], [62.6, 25.12], [62.05, 25.0],
-  [61.6, 25.1],
-  // North along the Iranian border, then east into Balochistan.
-  [61.6, 25.82], [61.9, 26.5], [62.0, 27.2], [62.8, 27.32], [63.3, 27.22],
-  [63.6, 27.02], [64.1, 27.02], [64.5, 27.5], [65.0, 28.0], [65.5, 28.8],
-  [66.3, 29.9], [66.4, 30.7], [66.8, 31.0], [67.0, 31.32],
-  // The Afghan border north through Zhob and Waziristan.
-  [67.8, 31.6], [68.5, 31.8], [69.3, 31.8], [69.5, 32.2], [69.3, 32.5],
-  [69.5, 33.0], [70.0, 33.2], [70.2, 33.6], [69.9, 34.0], [70.3, 34.2],
-  [71.1, 34.1], [71.1, 34.6], [71.5, 35.1], [71.6, 35.5], [71.2, 36.0],
-  // Chitral up to the Wakhan, and back to the northern tip.
-  [71.6, 36.5], [72.6, 36.82], [73.5, 36.92],
+  [74.541, 37.022], [74.039, 36.826], [73.769, 36.888], [73.117, 36.869], [72.623, 36.830],
+  [72.250, 36.735], [71.773, 36.432], [71.621, 36.436], [71.233, 36.122], [71.185, 36.042],
+  [71.398, 35.880], [71.572, 35.547], [71.601, 35.408], [71.546, 35.289], [71.621, 35.183],
+  [71.455, 34.967], [71.294, 34.868], [70.966, 34.530], [71.096, 34.369], [71.052, 34.050],
+  [70.654, 33.952], [70.326, 33.961], [69.995, 34.052], [69.890, 34.007], [69.868, 33.898],
+  [70.134, 33.621], [70.284, 33.369], [70.261, 33.289], [69.920, 33.112], [69.704, 33.095],
+  [69.502, 33.020], [69.405, 32.683], [69.241, 32.434], [69.279, 31.937], [69.083, 31.738],
+  [68.869, 31.634], [68.782, 31.646], [68.598, 31.803], [68.443, 31.754], [68.161, 31.803],
+  [68.017, 31.678], [67.578, 31.506], [67.738, 31.344], [67.453, 31.235], [67.287, 31.218],
+  [66.924, 31.306], [66.829, 31.264], [66.596, 31.020], [66.397, 30.912], [66.347, 30.803],
+  [66.287, 30.608], [66.305, 30.321], [66.238, 30.110], [66.313, 29.969], [66.177, 29.836],
+  [65.096, 29.559], [64.394, 29.544], [64.099, 29.392], [63.568, 29.498], [62.477, 29.408],
+  [60.843, 29.859], [61.318, 29.373], [61.338, 29.265], [61.623, 28.792], [61.890, 28.547],
+  [62.353, 28.415], [62.565, 28.235], [62.758, 28.244], [62.740, 28.002], [62.812, 27.497],
+  [62.763, 27.250], [62.915, 27.218], [63.167, 27.252], [63.302, 27.151], [63.242, 27.078],
+  [63.250, 26.879], [63.186, 26.838], [63.158, 26.650], [62.787, 26.644], [62.439, 26.561],
+  [62.312, 26.491], [62.239, 26.357], [62.126, 26.369], [62.089, 26.318], [61.842, 26.226],
+  [61.754, 25.843], [61.662, 25.751], [61.567, 25.186], [61.908, 25.131], [62.089, 25.155],
+  [62.199, 25.225], [62.315, 25.135], [62.665, 25.265], [63.491, 25.211], [63.496, 25.298],
+  [63.557, 25.353], [63.721, 25.386], [63.936, 25.343], [64.059, 25.403], [64.152, 25.333],
+  [64.659, 25.184], [64.777, 25.307], [65.406, 25.374], [65.680, 25.355], [66.235, 25.464],
+  [66.468, 25.445], [66.356, 25.507], [66.131, 25.493], [66.219, 25.590], [66.324, 25.602],
+  [66.534, 25.484], [66.699, 25.226], [66.703, 24.861], [67.171, 24.756], [67.309, 24.175],
+  [67.504, 23.940], [67.563, 23.882], [67.646, 23.920], [67.668, 23.811], [67.819, 23.828],
+  [67.860, 23.903], [67.951, 23.829], [68.037, 23.848], [68.116, 23.753], [68.165, 23.857],
+  [68.283, 23.928], [68.724, 23.965], [68.728, 24.266], [68.781, 24.314], [68.828, 24.264],
+  [69.559, 24.273], [69.716, 24.173], [69.805, 24.165], [70.021, 24.192], [70.098, 24.288],
+  [70.489, 24.412], [70.547, 24.418], [70.579, 24.279], [70.716, 24.238], [71.044, 24.400],
+  [70.970, 24.572], [71.048, 24.688], [70.652, 25.423], [70.648, 25.667], [70.570, 25.706],
+  [70.265, 25.707], [70.100, 25.910], [70.078, 26.072], [70.148, 26.506], [70.059, 26.579],
+  [69.736, 26.627], [69.507, 26.743], [69.470, 26.804], [69.537, 27.123], [69.896, 27.474],
+  [70.145, 27.849], [70.404, 28.025], [70.489, 28.023], [70.629, 27.937], [70.692, 27.769],
+  [70.798, 27.710], [71.185, 27.832], [71.543, 27.870], [71.870, 27.962], [71.948, 28.177],
+  [72.129, 28.346], [72.342, 28.752], [72.903, 29.029], [73.231, 29.551], [73.382, 29.934],
+  [73.809, 30.093], [73.933, 30.222], [73.899, 30.435], [74.339, 30.894], [74.633, 31.035],
+  [74.518, 31.186], [74.594, 31.465], [74.510, 31.713], [74.556, 31.819], [74.739, 31.949],
+  [75.254, 32.140], [75.333, 32.279], [75.234, 32.372], [74.987, 32.462], [74.686, 32.494],
+  [74.643, 32.608], [74.663, 32.758], [74.355, 32.769], [74.305, 32.810], [74.304, 32.992],
+  [74.004, 33.189], [74.150, 33.507], [74.004, 33.632], [73.976, 33.721], [74.001, 33.788],
+  [74.216, 33.887], [74.251, 33.946], [74.246, 33.990], [73.950, 34.019], [73.904, 34.076],
+  [73.972, 34.237], [73.810, 34.325], [73.795, 34.378], [73.961, 34.653], [74.300, 34.765],
+  [75.188, 34.639], [75.453, 34.537], [75.709, 34.503], [76.041, 34.670], [76.172, 34.668],
+  [76.457, 34.756], [76.594, 34.736], [76.783, 34.900], [77.001, 34.992], [77.049, 35.110],
+  [76.767, 35.662], [76.563, 35.773], [76.551, 35.887], [76.178, 35.811], [76.071, 35.983],
+  [75.912, 36.049], [75.969, 36.169], [75.974, 36.382], [75.840, 36.650], [75.667, 36.742],
+  [75.424, 36.738], [75.347, 36.913], [75.054, 36.987], [74.889, 36.952], [74.601, 37.037],
 ]
 
 /** lon/lat to user units. The single source of position on this map. */
@@ -170,21 +196,34 @@ const DEPTH_STEPS = 24
 const DEPTH_DX = 0.4
 const DEPTH_DY = 1.35
 
-/** Darkest at the bottom of the wall, lightening as it meets the top face. */
+/**
+ * Darkest in the crease where the wall meets the top face, lightening toward
+ * its outer edge.
+ *
+ * This was the other way round, and it was why the silhouette read as a smear
+ * rather than as a solid with a side to it. Sampled across the south-east
+ * coast, the wall ran 194 at the face down to 143 at its outer edge and then
+ * cut straight to the 238 background — a 95-level cliff with nothing between,
+ * so the darkest part of the map was its outermost pixel. A wall lit from the
+ * top-left does the opposite: the crease under the lid is occluded and the
+ * outer edge catches bounce light, which also lands the wall much nearer the
+ * background where it ends.
+ */
 function wallColour(i: number): string {
   const t = i / (DEPTH_STEPS - 1)
   const mix = (a: number, b: number) => Math.round(a + (b - a) * t)
-  return `rgb(${mix(139, 199)} ${mix(158, 213)} ${mix(186, 231)})`
+  return `rgb(${mix(203, 146)} ${mix(216, 165)} ${mix(233, 193)})`
 }
 
 export interface PakistanMapProps {
   className?: string
   /**
-   * The journey, drawn on top of the land.
+   * The network and the roads, drawn on top of the land.
    *
    * A slot rather than an import, so this file stays the geography and knows
-   * nothing about routes or cars. journey.ts imports `project` from here; if
-   * this component imported the journey back, the two would form a cycle.
+   * nothing about roads or stations. highway.ts and MapStations import
+   * `project` from here; if this component imported them back, it would be a
+   * cycle.
    */
   children?: React.ReactNode
 }
@@ -204,15 +243,20 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
     >
       <defs>
         {/*
-          The land's surface. A near-white top falling to a pale cool blue,
-          which is what makes the shape read as lifted off the band rather
-          than painted onto it. Both stops stay close to the hero's own
-          #EEF2F8, so it is a change of level, not a change of colour.
+          The land's surface: a pale cool blue, lightest at the top-left where
+          the light comes from.
+
+          It used to open on white and stay within a few levels of the band's
+          own #EEF2F8, because the band was that colour and the shape only had
+          to read as a change of LEVEL. The band is white now, so a near-white
+          land on a white page is a silhouette with nothing in it. The stops
+          carry the blue instead — it is the one place on the page still
+          holding colour, which is the point.
         */}
         <linearGradient id="pk-surface" x1="0" y1="0" x2="0.35" y2="1">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.96" />
-          <stop offset="55%" stopColor="#F7FAFE" stopOpacity="0.92" />
-          <stop offset="100%" stopColor="#E4EBF6" stopOpacity="0.94" />
+          <stop offset="0%" stopColor="#F2F7FD" />
+          <stop offset="55%" stopColor="#E6EFFA" />
+          <stop offset="100%" stopColor="#D3E1F4" />
         </linearGradient>
 
         {/*
@@ -246,6 +290,17 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         <clipPath id="pk-clip">
           <path d={PATH_D} />
         </clipPath>
+
+        {/*
+          Softens the inner shade below into a gradient rather than a band.
+
+          A wide stroke clipped to the landmass gives a hard-edged ring; blurred,
+          the same stroke becomes light falling away from the rim, which is what
+          the eye reads as a surface sitting inside a raised edge.
+        */}
+        <filter id="pk-inner-blur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
       </defs>
 
       {/*
@@ -287,6 +342,29 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           visible line outside the navy one.
         */}
         <g clipPath="url(#pk-clip)">
+          {/*
+            ── The inner shade ───────────────────────────────────────────
+
+            A wide navy stroke, blurred, clipped so only the half inside the
+            coast survives. It is the shadow a raised rim casts onto the
+            surface it surrounds, and it is what was missing: the land had a
+            lit edge and a drop shadow beneath it, so it read as a flat sheet
+            with a highlight rather than as a face set into a border.
+
+            Very low — six percent. At any strength the eye can name, a country
+            with a dark ring inside its coast stops being a map and becomes a
+            button.
+          */}
+          <path
+            d={PATH_D}
+            fill="none"
+            stroke="#1E3A8A"
+            strokeWidth={16}
+            strokeLinejoin="round"
+            opacity={0.06}
+            filter="url(#pk-inner-blur)"
+          />
+
           <path
             d={PATH_D}
             fill="none"
@@ -331,8 +409,8 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
       </g>
 
       {/*
-        The journey, above the land. Its own layers and stacking order live in
-        JourneyLayers; this is only where they sit relative to the geography.
+        Everything above the land. Each layer owns its own internal order; this
+        is only where all of them sit relative to the geography.
       */}
       {children}
     </svg>

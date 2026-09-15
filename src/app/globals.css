@@ -169,39 +169,42 @@
   /**
    * ── The hero band's colour, in one place ────────────────────────────
    *
-   * Two custom properties, two classes. Retheming the band is editing
+   * One custom property. Retheming the band is editing
    * `--hero-ground-rgb`, and nothing else moves.
    *
-   *   --hero-ground-rgb  the flat fill behind the whole band
-   *   --hero-lift-rgb    the glow behind the type
+   * Space-separated triple rather than hex, so `rgb(var(--x) / 0.28)` works.
    *
-   * Space-separated triples rather than hex, so `rgb(var(--x) / 0.28)` works.
+   * The band was #EEF2F8, which at wide viewports drew a pale blue rectangle
+   * with white margins either side of it — a panel sitting on the page rather
+   * than the page itself. It is white now and the width cap is gone, so there
+   * is no edge to see. The blue that is left is inside the map, which is the
+   * only place it was ever carrying meaning.
    *
-   * It was three properties and four classes while the right-hand half was a
-   * photograph: `.hero-vignette` settled the image's corners and
-   * `.hero-dissolve` faded its edge into this fill, both driven by a third
-   * colour, `--hero-shade-rgb`. The photograph is gone and the map is drawn on
-   * transparency over this same ground, so there is no image edge left to
-   * hide. All three are deleted rather than left sitting unused.
+   * `.hero-lift` went with it: a white radial glow over a white ground paints
+   * nothing. It existed to stop the type's half reading as a flat fill, and a
+   * flat white page next to a lifted map is the intended look now.
    */
-  .hero-band {
-    --hero-ground-rgb: 238 242 248;
-    --hero-lift-rgb: 255 255 255;
-
-    background-color: rgb(var(--hero-ground-rgb));
+  /**
+   * ── The hero stack sits above dead centre ───────────────────────────
+   *
+   * The left column is centred in the band. True centre reads low: the eye
+   * puts the optical middle above the geometric one, and the map beside it
+   * carries its own mass low down the silhouette.
+   *
+   * With justify-center, padding-bottom lifts the content by half its value.
+   *
+   * Keyed to viewport HEIGHT, not applied always. Measured, the slack above
+   * the status pill is 187px at 1080 tall and 16px at 720 — the same lift
+   * that is a correction on a desktop drives the pill up under the navbar on
+   * a short laptop, and the section would then grow and push the route card
+   * back under the fold, which is the bug this was all fixing. Under 860px
+   * tall there is nothing spare, so nothing is taken.
+   */
+  @media (min-height: 860px) {
+    .hero-type {
+      --hero-lift: 10vh;
+    }
   }
-
-  /* Keeps the type's half from reading as a flat fill. Centred left of middle,
-     away from the map, so it lifts the words and not the graphic. */
-  .hero-lift {
-    background-image: radial-gradient(
-      85% 70% at 40% 28%,
-      rgb(var(--hero-lift-rgb) / 0.60) 0%,
-      rgb(var(--hero-lift-rgb) / 0.22) 46%,
-      transparent 72%
-    );
-  }
-
   /**
    * The hero's ambient cards drifting.
    *
@@ -235,6 +238,58 @@
     .journey-float-a,
     .journey-float-b,
     .journey-float-c {
+      animation: none;
+    }
+  }
+
+  /**
+   * The country itself, floating.
+   *
+   * The slab was already built to read as a lifted object — an extruded side
+   * wall, a contact shadow and a wide ambient one — but it sat perfectly still
+   * while the three product cards drifted around it. A static object among
+   * moving ones does not read as the heaviest thing on the panel; it reads as
+   * the background.
+   *
+   * ── Why it is slower than the cards ───────────────────────────────────
+   *
+   * 11.6s against their 7.5 / 9.2 / 8.3. Mass is communicated by period, not by
+   * distance: a large slab that bobbed at the cards' rate would read as light as
+   * they are, and the whole arrangement would flatten into one drifting sheet.
+   * The number is also not a multiple of any of theirs, for the same reason the
+   * cards' three periods are mutually non-harmonic — anything that beats into
+   * step starts reading as a single object moving.
+   *
+   * 6px each way. That is larger than the cards' 3-4px in absolute terms and far
+   * smaller relative to the element, which is the ratio that makes a big thing
+   * look like it is hovering rather than sliding.
+   *
+   * ── Why the whole SVG and not the land alone ──────────────────────────
+   *
+   * The highway and the station pins are positioned through `project()` in the
+   * map's own coordinate space. Floating the land group on its own would leave
+   * them behind on the first frame and slide every charger off the country.
+   * Moving the root moves the geography and everything registered to it as one
+   * solid, which is also the only version that is physically true.
+   *
+   * transform only, so it stays on the compositor and never lays out. The
+   * ambient shadow lives inside this element and therefore travels with it;
+   * modulating it in counter-phase would be more correct, but flood-opacity is
+   * a filter property and re-rasterises a 20-unit blur over the full silhouette
+   * every frame — a real cost on the hero, for a correction at an amplitude no
+   * one can see.
+   */
+  @keyframes hero-map-float {
+    0%, 100% { transform: translate3d(0, -6px, 0); }
+    50% { transform: translate3d(0, 6px, 0); }
+  }
+
+  .hero-map-float {
+    animation: hero-map-float 11.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-map-float {
       animation: none;
     }
   }

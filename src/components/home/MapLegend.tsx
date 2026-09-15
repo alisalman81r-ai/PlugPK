@@ -17,11 +17,15 @@ import { FAST_CHARGER_KW } from '@/lib/charging'
  * Only the rows that can appear are listed. There is no "coming soon" state in
  * the schema, so there is no swatch for one — a legend describing a state the
  * product cannot produce is a promise, not a key.
+ *
+ * The line row says "major highway", not "planned route". It stopped being a
+ * route when the journey animation went: the path on the map is the N-5
+ * corridor standing still, and nothing plans anything along it.
  */
 export function MapLegend() {
   return (
     <div
-      className="pointer-events-none absolute right-[2%] top-[6%] hidden rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.24)] backdrop-blur-sm lg:block"
+      className="pointer-events-none absolute right-[4%] top-[6%] hidden rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.24)] backdrop-blur-sm lg:block"
       role="note"
       aria-label="What the markers on the map mean"
     >
@@ -35,7 +39,7 @@ export function MapLegend() {
             <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-plug-blue-500" />
           }
         >
-          Planned route
+          Major highway
         </LegendRow>
       </ul>
     </div>

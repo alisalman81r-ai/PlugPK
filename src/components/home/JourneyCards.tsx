@@ -120,7 +120,7 @@ export function JourneyCards({ pins }: JourneyCardsProps) {
           }
           note={headline.availablePorts > 0 ? 'Available' : 'All in use'}
           noteTone={headline.availablePorts > 0 ? 'good' : 'muted'}
-          className="journey-float-a left-[4%] top-[6%] hidden sm:flex lg:left-[1%] lg:top-[7%]"
+          className="journey-float-a left-[6%] top-[8%] hidden sm:flex lg:left-[18%] lg:top-[9%] xl:left-[28%]"
         />
       ) : null}
 
@@ -140,7 +140,7 @@ export function JourneyCards({ pins }: JourneyCardsProps) {
             ? `${routeKm.toLocaleString('en-PK')} km · ~${Math.floor(routeMinutes / 60)}h ${routeMinutes % 60}m`
             : 'Plan charging stops'
         }
-        className="journey-float-b bottom-[16%] left-[4%] lg:bottom-auto lg:left-auto lg:right-[1%] lg:top-[46%]"
+        className="journey-float-b bottom-[16%] left-[4%] lg:bottom-auto lg:left-auto lg:right-[4%] lg:top-[51%]"
       />
 
       {/*
@@ -154,7 +154,7 @@ export function JourneyCards({ pins }: JourneyCardsProps) {
           detail={`${spotlight.city} · ${Math.round(spotlight.maxPowerKw)} kW`}
           note={`${spotlight.availablePorts}/${spotlight.ports} available`}
           noteTone={spotlight.availablePorts > 0 ? 'good' : 'muted'}
-          className="journey-float-c bottom-[6%] right-[1%] hidden lg:flex"
+          className="journey-float-c bottom-[11%] right-[18%] hidden lg:flex xl:bottom-[13%] xl:right-[24%]"
         />
       ) : null}
     </>
