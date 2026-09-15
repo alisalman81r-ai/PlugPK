@@ -17,15 +17,44 @@ function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-export interface NavbarProps {
-  /** The signed-in account, or null. Supplied by the layout. */
-  user: { name: string; email: string; avatar?: string | null } | null
-}
+/** The signed-in account, as /api/me reports it. */
+type NavUser = { name: string; email: string; avatar?: string | null }
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar() {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+
+  /*
+    ── The account is fetched, not handed down ─────────────────────────
+
+    The layout used to read the session and pass it in as a prop, which made
+    the header right on the first frame and made every page under (main)
+    uncacheable to do it — a layout that reads cookies cannot be prerendered,
+    and that applies to everything nested beneath it. See the note in
+    (main)/layout.tsx for what that cost, measured.
+
+    Asking here instead keeps cookies() out of the render path. null until the
+    answer arrives means a signed-in visitor sees "Sign In" for a moment; that
+    is the accepted price, and it is confined to this effect.
+
+    Not cached, and aborted on unmount so a fast route change cannot set state
+    on a header that has gone.
+  */
+  const [user, setUser] = React.useState<NavUser | null>(null)
+
+  React.useEffect(() => {
+    const abort = new AbortController()
+
+    fetch('/api/me', { signal: abort.signal, cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : { user: null }))
+      .then((data) => setUser(data.user ?? null))
+      // An aborted fetch is the expected path on unmount, not a failure, and a
+      // header that cannot name you is the same signed-out state it starts in.
+      .catch(() => {})
+
+    return () => abort.abort()
+  }, [])
 
   React.useEffect(() => {
     const handleScroll = () => {

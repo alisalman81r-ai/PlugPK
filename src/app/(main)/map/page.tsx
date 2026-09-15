@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { MAP_FAQS } from '@/lib/faqs'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FilterRail } from '@/components/map/FilterRail'
 import { MapControls } from '@/components/map/MapControls'
@@ -148,6 +148,54 @@ function MapExplorer() {
   const [isLocating, setIsLocating] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
 
+  /*
+    ── The map boots after the page is usable, not before ──────────────
+
+    Measured on a production build, arriving here used to spend 4.3 seconds in
+    44 long tasks — one of them 650ms — and a blocked main thread does not
+    answer clicks. The filters, the search field and every link in the header
+    were on screen and dead while WebGL started up and the first tiles were
+    decoded. That is the "buttons don't do anything" complaint, and it is local
+    to this page: /routes and /cars block for around 100ms.
+
+    Lazy-loading MapView was already in place and does not help by itself. It
+    defers the DOWNLOAD; the cost here is the work on arrival, which ran just
+    the same as soon as the chunk landed.
+
+    So the chunk is allowed to land and mount only once the browser says it has
+    nothing better to do. requestIdleCallback yields to input, so a click on a
+    filter in the first second is handled before the map takes the thread.
+
+    The 2000ms timeout is the floor, not the target: idle usually arrives in a
+    few hundred milliseconds, and the timeout only matters on a device busy
+    enough that the map would have made it unusable anyway.
+
+    Touching the frame overrides all of it — someone reaching for the map has
+    said what they want, and waiting for idle at that point would be perverse.
+  */
+  const [isMapReady, setIsMapReady] = useState(false)
+
+  useEffect(() => {
+    if (isMapReady) return
+
+    // Safari has no requestIdleCallback; a short timer is the documented
+    // stand-in and still clears the page's own hydration.
+    const idle =
+      typeof window.requestIdleCallback === 'function'
+        ? window.requestIdleCallback(() => setIsMapReady(true), { timeout: 2000 })
+        : window.setTimeout(() => setIsMapReady(true), 600)
+
+    return () => {
+      if (typeof window.cancelIdleCallback === 'function' && typeof idle === 'number') {
+        window.cancelIdleCallback(idle)
+      } else {
+        window.clearTimeout(idle as number)
+      }
+    }
+  }, [isMapReady])
+
+  const bootMapNow = useCallback(() => setIsMapReady(true), [])
+
   const handleNavigate = useCallback((station: Station) => {
     window.open(
       `https://www.google.com/maps/dir/?api=1&destination=${station.coordinates.lat},${station.coordinates.lng}`,
@@ -259,15 +307,27 @@ function MapExplorer() {
         <div className={MOUNT}>
           <div
             ref={mapRef}
+            // Reaching for the map is a clear enough request to skip the wait.
+            onPointerEnter={bootMapNow}
+            onPointerDown={bootMapNow}
+            onFocusCapture={bootMapNow}
             className={`relative ${MAP_HEIGHT} overflow-hidden rounded-[1.6rem] bg-slate-100 ring-1 ring-slate-900/10`}
           >
-            <MapView
-              stations={filteredStations}
-              selectedStation={selectedStation}
-              onStationSelect={setSelectedStation}
-              onMapClick={() => setSelectedStation(null)}
-              userLocation={userLocation}
-            />
+            {isMapReady ? (
+              <MapView
+                stations={filteredStations}
+                selectedStation={selectedStation}
+                onStationSelect={setSelectedStation}
+                onMapClick={() => setSelectedStation(null)}
+                userLocation={userLocation}
+              />
+            ) : (
+              /* The same faint grid MapView's own loader draws, so the handover
+                 is one continuous surface rather than a swap between greys. */
+              <div aria-hidden="true" className="absolute inset-0 bg-slate-100">
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]" />
+              </div>
+            )}
 
             {/*
               One floating control: locate-me. Search and every filter already sit

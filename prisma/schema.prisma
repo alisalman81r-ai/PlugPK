@@ -21,9 +21,28 @@ generator client {
   output   = "../node_modules/.prisma/client"
 }
 
+/// Two URLs, because the database is behind a connection pooler.
+///
+/// Supabase (and Neon, and Vercel Postgres) front Postgres with PgBouncer in
+/// transaction mode. That is what makes the database survive serverless: Vercel
+/// opens a connection per function invocation, and a direct pool would be
+/// exhausted long before traffic became interesting.
+///
+/// The cost is that transaction-mode pooling cannot carry DDL, prepared
+/// statements or advisory locks — which is precisely what a migration needs. So
+/// `url` sends ordinary queries through the pooler, and `directUrl` gives
+/// `prisma migrate deploy` a path around it. Only migrations use the second one;
+/// nothing at runtime opens it.
+///
+/// The pooled URL must carry `pgbouncer=true`. Without it Prisma keeps using
+/// prepared statements and the pooler hands the same name to a different
+/// session, which surfaces as intermittent `prepared statement "s0" already
+/// exists` — an error that appears only under concurrency and reads like a
+/// random production fault rather than a configuration one.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Station {
