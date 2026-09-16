@@ -254,10 +254,30 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           holding colour, which is the point.
         */}
         <linearGradient id="pk-surface" x1="0" y1="0" x2="0.35" y2="1">
-          <stop offset="0%" stopColor="#F2F7FD" />
-          <stop offset="55%" stopColor="#E6EFFA" />
-          <stop offset="100%" stopColor="#D3E1F4" />
+          <stop offset="0%" stopColor="#FBFDFF" />
+          <stop offset="38%" stopColor="#EDF4FC" />
+          <stop offset="72%" stopColor="#DCE8F7" />
+          <stop offset="100%" stopColor="#C6D9F0" />
         </linearGradient>
+
+        {/*
+          The shadow side.
+
+          The gradient above runs corner to corner, which tilts the surface but
+          does not model it — a plane lit from one end still reads as a plane.
+          This is the falloff a solid gets away from its light: deepest in the
+          south-east, gone by the time it reaches the lit north-west, and shaped
+          by distance rather than by the outline.
+
+          Navy rather than grey, and never past 0.14. The land is the one place
+          on the page still holding colour, and a neutral shadow would grey it
+          out at exactly the point the eye reads as depth.
+        */}
+        <radialGradient id="pk-shade" cx="0.74" cy="0.86" r="0.95">
+          <stop offset="0%" stopColor="#1E3A8A" stopOpacity="0.14" />
+          <stop offset="45%" stopColor="#1E3A8A" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0" />
+        </radialGradient>
 
         {/*
           The shadow that does the lifting.
@@ -286,6 +306,36 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           <stop offset="100%" stopColor="#C7D6EC" stopOpacity="0.16" />
         </radialGradient>
 
+        {/*
+          ── The land has a surface now, not just a colour ────────────────
+
+          The note further up records a texture that was built and thrown away:
+          the boundary polygon scaled inward, which kept the outline's hard
+          vertices and read as a smaller Pakistan drawn inside Pakistan. The
+          fault was in the source, not the idea — anything derived from that
+          polygon inherits its shape.
+
+          This is generated instead. feTurbulence owes nothing to the boundary,
+          so there is no second outline to find: it is a field of noise, and
+          feDiffuseLighting reads that field as height and lights it. What lands
+          on the surface is relief — faint high ground and faint hollows — not a
+          drawing of anything.
+
+          Lit from azimuth 315, which is the top-left the wall already falls away
+          from and the sheen already opens at. Three light sources disagreeing
+          about where the sun is would undo the solidity the wall was built to
+          create.
+
+          baseFrequency is deliberately low. Higher values give a fine sand
+          grain that looks like noise on a screen; this size reads as terrain at
+          the scale a country is drawn.
+        */}
+        <filter id="pk-relief" x="-2%" y="-2%" width="104%" height="104%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves={5} seed={11} result="field" />
+          <feDiffuseLighting in="field" lightingColor="#FFFFFF" surfaceScale={3.6} diffuseConstant={1} result="relief">
+            <feDistantLight azimuth={315} elevation={58} />
+          </feDiffuseLighting>
+        </filter>
         {/* Keeps the contour texture and the lit lip inside the coastline. */}
         <clipPath id="pk-clip">
           <path d={PATH_D} />
@@ -332,6 +382,31 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         </g>
 
         <path d={PATH_D} fill="url(#pk-surface)" />
+
+        {/* The shadow side, over the fill and under everything else. */}
+        <path d={PATH_D} fill="url(#pk-shade)" />
+
+        {/*
+          The relief, laid over the fill and inside the coast.
+
+          Clipped rather than painted to shape: a lighting filter fills its whole
+          region, and that region is a rectangle. The clip is what keeps this
+          file's rule that no rectangle is ever visible in it.
+
+          soft-light at a fifth strength. The blend modulates the gradient
+          underneath rather than covering it, so the pale blue still runs
+          top-left to bottom-right and the relief only decides where that blue
+          is a shade lighter or deeper. At full strength it stops being a
+          surface and becomes a texture sample.
+        */}
+        <g clipPath="url(#pk-clip)">
+          <path
+            d={PATH_D}
+            filter="url(#pk-relief)"
+            opacity={0.26}
+            style={{ mixBlendMode: 'multiply' }}
+          />
+        </g>
 
         {/*
           A lit lip just inside the coast.
