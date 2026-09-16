@@ -25,7 +25,7 @@ import { FAST_CHARGER_KW } from '@/lib/charging'
 export function MapLegend() {
   return (
     <div
-      className="pointer-events-none absolute right-[4%] top-[6%] hidden rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.24)] backdrop-blur-sm lg:block"
+      className="pointer-events-none absolute right-[4%] top-[6%] hidden rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.24)] lg:block"
       role="note"
       aria-label="What the markers on the map mean"
     >

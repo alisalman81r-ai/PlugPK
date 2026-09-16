@@ -54,7 +54,10 @@ function Card({ icon, title, detail, note, noteTone = 'muted', iconTone = 'blue'
       aria-hidden="true"
       className={
         'pointer-events-none absolute flex items-center gap-2.5 rounded-xl border border-slate-200/90 ' +
-        'bg-white/90 px-3 py-2.5 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.28)] backdrop-blur-[2px] ' +
+        // No backdrop-blur. It was 2px under a card that is already 90%
+        // opaque — invisible, and three of these float over the hero while it
+        // scrolls, each one re-sampling what passes behind it every frame.
+        'bg-white/90 px-3 py-2.5 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.28)] ' +
         (className ?? '')
       }
     >
