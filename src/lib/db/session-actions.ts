@@ -7,6 +7,11 @@ import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 import {
+  ADMIN_COOKIE_NAME,
+  ADMIN_SESSION_MAX_AGE,
+  createSessionValue,
+} from '@/lib/admin-auth'
+import {
   USER_COOKIE_NAME,
   USER_SESSION_MAX_AGE,
   createUserSessionValue,
@@ -19,6 +24,17 @@ import { prisma } from './client'
 export interface SessionResult {
   ok: boolean
   message?: string
+  /**
+   * Where the caller should send them next.
+   *
+   * The form used to decide this on its own and always chose /dashboard. It
+   * cannot decide it any more: whether an account may use the operator portal
+   * is a fact about the row in the database, and the browser is the last place
+   * that should be trusted to know it. The server answers, the form obeys.
+   *
+   * Absent for a normal sign-in, so the existing default stands untouched.
+   */
+  redirectTo?: string
 }
 
 export interface CurrentUser {
@@ -62,6 +78,46 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   })
 
   revalidatePath('/business/dashboard')
+
+  /*
+    ── An operator is sent to the portal, and given the key to it ──────
+
+    isAdmin is read from the row that was just authenticated, not from
+    anything the browser sent. A driver and an operator submit the same form
+    to the same action; the difference is a column, checked server-side.
+
+    The second cookie is what makes the existing portal accept them. /admin
+    has always gated on ADMIN_COOKIE_NAME, and admin/login still issues it
+    from the shared password — that path is untouched and keeps working. This
+    issues the same cookie for an account the database says is an operator, so
+    the portal did not have to be rewritten to learn about users.
+
+    It is not the authorisation. The admin layout re-reads isAdmin from the
+    database on every request, so revoking the column locks someone out on
+    their next page load rather than in eight hours when this expires. This
+    cookie only carries them through the door the portal already had.
+  */
+  if (user.isAdmin) {
+    const adminValue = createSessionValue()
+    if (adminValue) {
+      cookies().set(ADMIN_COOKIE_NAME, adminValue, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: ADMIN_SESSION_MAX_AGE,
+      })
+    }
+
+    /*
+      Sent to the portal even if the cookie could not be minted. ADMIN_PASSWORD
+      is what signs it, and where that is unset the layout falls through to its
+      own check of isAdmin and lets them in anyway. Sending them to /dashboard
+      instead would hide a misconfiguration behind a wrong destination.
+    */
+    return { ok: true, redirectTo: '/admin' }
+  }
+
   return { ok: true }
 }
 
@@ -123,6 +179,33 @@ export interface CurrentProfile {
   createdAt: string
 }
 
+/**
+ * Whether the signed-in account may use the operator portal.
+ *
+ * Read from the database on every call, never from a cookie. The session
+ * cookie proves *who* is asking; it deliberately says nothing about what they
+ * are allowed to do, so that clearing isAdmin locks an operator out on their
+ * next request rather than whenever their cookie happens to expire.
+ *
+ * Selects the one column. An admin layout that pulled the whole row would be
+ * reading a profile to answer a yes/no question on every admin page load.
+ */
+export async function isCurrentUserAdmin(): Promise<boolean> {
+  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  if (!userId) return false
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isAdmin: true },
+  })
+
+  return user?.isAdmin === true
+}
+
+/** Whether a user session exists at all, regardless of what it may do. */
+export async function hasUserSession(): Promise<boolean> {
+  return readUserSession(cookies().get(USER_COOKIE_NAME)?.value) !== null
+}
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
   if (!userId) return null

@@ -1,0 +1,11 @@
+-- Adds the per-account admin flag that /admin authorisation now reads.
+--
+-- Additive and idempotent-safe: ADD COLUMN with a NOT NULL default, so every
+-- existing row is written as false in the same statement. No row is read, no
+-- row is deleted, and nobody gains access by the migration running.
+--
+-- Written by hand rather than generated. `prisma migrate dev` would have been
+-- the usual way to produce it, but it drops and recreates the database to
+-- rebuild its shadow copy, and this schema's only copy is production data on
+-- Supabase. `migrate deploy` applies this file and nothing else.
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "isAdmin" BOOLEAN NOT NULL DEFAULT false;

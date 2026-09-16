@@ -274,6 +274,21 @@ model User {
    */
   avatar       String?
   passwordHash String
+
+  /// Whether this account may use the operator portal at /admin.
+  ///
+  /// Admin used to be a single shared password with no identity attached —
+  /// admin-auth.ts still carries that gate, and /admin/login still uses it.
+  /// This column is what lets one sign-in page tell an operator from a driver,
+  /// which the shared credential could never do: it authenticates a secret,
+  /// not a person.
+  ///
+  /// Defaults to false and the migration adds it as false for every existing
+  /// row. Granting it is a deliberate act — see scripts/promote-admin.ts —
+  /// because a default that let anyone in would be a privilege escalation
+  /// shipped as a schema change.
+  isAdmin      Boolean  @default(false)
+
   createdAt    DateTime @default(now())
 
   businesses Business[]

@@ -63,7 +63,19 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
 
     if (result.ok) {
       onSuccess?.()
-      router.push(redirectTo)
+      /*
+        The server picks the destination when it has one.
+
+        An operator account is sent to /admin, and that decision is made from
+        the row that was just authenticated — never from anything this
+        component can see. There is no isAdmin in the browser to read, and no
+        query parameter to forge: the form is handed a path and follows it.
+
+        Falls back to redirectTo, which is the ?redirect= a gated page sent us
+        to, or /dashboard. A normal sign-in returns no destination, so nothing
+        about the existing flow changes.
+      */
+      router.push(result.redirectTo ?? redirectTo)
       // Without this the destination renders the router's cached copy, which
       // was produced while signed out.
       router.refresh()

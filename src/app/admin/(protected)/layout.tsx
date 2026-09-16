@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { AdminNav } from '@/components/admin/AdminNav'
 import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
 import { getAdminBadgeCounts } from '@/lib/db/admin-badges'
+import { hasUserSession, isCurrentUserAdmin } from '@/lib/db/session-actions'
 
 export const metadata = { title: { absolute: 'Plug.pk admin' } }
 
@@ -25,8 +26,36 @@ export default async function ProtectedAdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
-    redirect('/admin/login')
+  /*
+    ── Who is allowed through ──────────────────────────────────────────
+
+    Two ways in, checked in this order, because they mean different things.
+
+    A USER SESSION is authoritative when present. isAdmin is re-read from the
+    database on every request, so a revoked operator is out on their next page
+    load — not in eight hours when a cookie expires. A signed-in non-admin is
+    sent to their own dashboard: they are authenticated, just not permitted,
+    and bouncing them to a sign-in form they already satisfied would read as
+    the site being broken.
+
+    The SHARED PASSWORD cookie is the fallback, and only for someone with no
+    user session at all. It is how /admin/login has always worked and it keeps
+    working untouched. Checked second so that a user session can never be
+    escalated by also holding an old operator cookie — the database has the
+    final say about an account.
+
+    Unauthenticated goes to the one sign-in page carrying ?redirect=/admin, so
+    an operator signs in where everybody signs in and lands back here.
+
+    All of it runs server-side, before any admin page renders. Nothing here
+    reads a client flag, a query parameter or a header the browser controls.
+  */
+  if (await hasUserSession()) {
+    if (!(await isCurrentUserAdmin())) {
+      redirect('/dashboard')
+    }
+  } else if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
+    redirect('/login?redirect=%2Fadmin')
   }
 
   /*
