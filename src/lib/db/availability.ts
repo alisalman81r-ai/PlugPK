@@ -59,8 +59,36 @@ export function databaseUnavailable(error: unknown): string | null {
  *
  * A healthy query here takes single-digit milliseconds, so this never fires in
  * normal operation.
+ *
+ * ── Build time is not runtime ────────────────────────────────────────
+ *
+ * Everything above is about a request in flight, where the ceiling is the
+ * function limit and the cost of overrunning it is a 504. A prerender has
+ * neither: next build waits as long as the query takes, and giving up early
+ * costs far more — the fallback is written into static HTML and served to
+ * everyone until the next build. There is no second chance, the way a request
+ * gets one on the next revalidation.
+ *
+ * Not hypothetical. Vercel builds this project in iad1 (Washington) while the
+ * database is Supabase ap-northeast-1 (Tokyo) — about 11,000km — and a Hobby
+ * project cannot move the build region. Across three production builds, all
+ * four of the landing page reads lost the race:
+ *
+ *   / hero stats, / platform stats, / clubs, / community counts
+ *     — the database did not answer within 5000ms
+ *
+ * The build then "succeeded" and shipped a landing page reading 0 charging
+ * stations and 0 cities, against a database holding 6 stations. Moving the
+ * FUNCTION region to Tokyo does not help: that moves requests, and this runs
+ * during the build.
+ *
+ * So the build gets a budget matched to its real constraint — a cold cross-
+ * continental connection, including Prisma TLS and pooler handshake, measured
+ * at 2.3s before a row is read — and runtime keeps the five seconds the
+ * function limit demands.
  */
-const READ_TIMEOUT_MS = 5_000
+const READ_TIMEOUT_MS =
+  process.env.NEXT_PHASE === 'phase-production-build' ? 30_000 : 5_000
 
 /**
  * A read whose failure should cost its own section of the page, not the page.
