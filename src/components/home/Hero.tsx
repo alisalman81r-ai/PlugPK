@@ -40,19 +40,19 @@ function HeroStat({
   note?: string
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3.5">
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
       >
         {icon}
       </span>
       <div className="flex flex-col-reverse">
-        <dt className="text-ui-xs leading-tight text-slate-500">
+        <dt className="text-ui-xs leading-tight tracking-[0.005em] text-slate-500">
           {label}
           {note ? <span className="block text-ui-xs text-slate-400">({note})</span> : null}
         </dt>
-        <dd className="mb-0.5 text-[1.375rem] font-black leading-none tabular-nums text-slate-900">
+        <dd className="mb-1 text-[clamp(1.375rem,2.4vh,1.625rem)] font-black leading-none tracking-[-0.02em] tabular-nums text-slate-900">
           {value}
         </dd>
       </div>
@@ -212,7 +212,7 @@ export function Hero({ cities, stats }: HeroProps) {
                 Raw green rather than a plug-* token on purpose: it should
                 stay green if the brand hue is ever changed.
               */}
-              <div className="hero-rise hero-rise-1 mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div className="hero-rise hero-rise-1 mb-[clamp(1.5rem,3.4vh,2.5rem)] flex flex-wrap items-center gap-x-4 gap-y-2">
                 <span className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-green-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
                   <span
                     aria-hidden="true"
@@ -319,7 +319,7 @@ export function Hero({ cities, stats }: HeroProps) {
                 actually backs: the speeds come from the connector records and
                 the reviews are written by people who used the station.
               */}
-              <p className="hero-rise hero-rise-4 mt-4 max-w-none text-[1.1875rem] leading-[1.6] text-slate-600">
+              <p className="hero-rise hero-rise-4 mt-[clamp(1rem,2.6vh,1.85rem)] max-w-none text-[1.1875rem] leading-[1.65] tracking-[-0.011em] text-slate-600">
                 <span className="block">One map. Real charging speeds. Driver reviews.</span>
                 <span className="block">
                   Everything you need for a smoother, greener journey.
@@ -334,7 +334,7 @@ export function Hero({ cities, stats }: HeroProps) {
                   event.preventDefault()
                   go(query)
                 }}
-                className="hero-rise hero-rise-5 mt-7 flex w-full items-center gap-2 rounded-full border border-slate-200 bg-white p-1.5 pl-5 shadow-[0_10px_30px_-12px_rgba(15,23,42,0.22)] transition-colors duration-200 focus-within:border-slate-400"
+                className="hero-rise hero-rise-5 mt-[clamp(1.75rem,4.2vh,3rem)] flex w-full items-center gap-2 rounded-full border border-slate-200/90 bg-white p-2 pl-6 shadow-[0_2px_4px_-2px_rgba(15,23,42,0.06),0_14px_40px_-16px_rgba(15,23,42,0.24)] transition-[border-color,box-shadow] duration-200 focus-within:border-plug-blue-300 focus-within:shadow-[0_2px_4px_-2px_rgba(15,23,42,0.06),0_18px_46px_-16px_rgba(37,99,235,0.28)]"
               >
                 <Search size={18} className="shrink-0 text-slate-500" aria-hidden="true" />
                 <input
@@ -370,7 +370,7 @@ export function Hero({ cities, stats }: HeroProps) {
                 out. A city with none says "none yet", which is the answer, and
                 is why the count is rendered from data rather than assumed.
               */}
-              <div className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center gap-2.5">
+              <div className="hero-rise hero-rise-5 mt-[clamp(1.5rem,3.1vh,2.1rem)] flex flex-wrap items-center gap-2.5">
                 <span className="text-ui-sm text-slate-500">Popular cities</span>
 
                 {QUICK_CITIES.map((city) => {
@@ -427,7 +427,7 @@ export function Hero({ cities, stats }: HeroProps) {
                 has been reviewed yet: an average of no reviews is not zero, it
                 is nothing, and showing 0.0 would read as "rated badly".
               */}
-              <dl className="hero-rise hero-rise-5 mt-6 flex flex-wrap items-center gap-x-5 gap-y-4 sm:gap-x-7">
+              <dl className="hero-rise hero-rise-5 mt-[clamp(1.5rem,3.4vh,2.4rem)] flex flex-wrap items-center gap-x-6 gap-y-5 sm:gap-x-8">
                 <HeroStat
                   icon={<Zap size={17} aria-hidden="true" />}
                   value={String(stats.locations)}
