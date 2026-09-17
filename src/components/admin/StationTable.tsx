@@ -60,6 +60,19 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
  * browser can answer instantly. If the network grows past a few hundred
  * stations this moves to a server query with the same props.
  */
+/**
+ * The connector types a station offers, each named once.
+ *
+ * Deduped because a station commonly carries several connectors of one type —
+ * Mall Road EV Hub has two CCS2 units and a third listed separately — and
+ * repeating the word tells a reader nothing the count beside it does not.
+ * First-seen order is kept rather than sorted alphabetically, so the list
+ * reads the way the station was entered.
+ */
+function connectorTypes(station: Station): string[] {
+  return [...new Set(station.connectors.map((connector) => connector.type))]
+}
+
 export function StationTable({ stations, onDelete }: StationTableProps) {
   const [query, setQuery] = React.useState('')
   const [status, setStatus] = React.useState<StatusFilter>('all')
@@ -74,7 +87,17 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
       // fixture, or a Business shaped into a Station), so it reads as `other`.
       if (venue !== 'all' && (station.venueType ?? 'other') !== venue) return false
       if (!needle) return true
-      return [station.name, station.address.city, station.address.area, station.network, station.slug]
+      // Connector types are searchable because they are now on the face of the
+      // row: once a reader can see CCS2, typing it is the next thing they try,
+      // and a search that ignored a visible column would read as broken.
+      return [
+        station.name,
+        station.address.city,
+        station.address.area,
+        station.network,
+        station.slug,
+        ...connectorTypes(station),
+      ]
         .join(' ')
         .toLowerCase()
         .includes(needle)
@@ -102,7 +125,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search name, city, area or network"
+            placeholder="Search name, city, area, network or connector"
             aria-label="Search stations"
             className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-ui text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus-visible:border-plug-blue-500 focus-visible:shadow-focus"
           />
@@ -233,8 +256,24 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                       <td className="px-5 py-3.5">
                         <AdminStatusBadge status={station.status} />
                       </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
-                        {station.connectors.length}
+                      <td className="px-5 py-3.5">
+                        {station.connectors.length === 0 ? (
+                          <span className="text-ui-xs text-slate-400">None</span>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {connectorTypes(station).map((type) => (
+                              <span
+                                key={type}
+                                className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-700"
+                              >
+                                {type}
+                              </span>
+                            ))}
+                            <span className="ml-0.5 text-ui-xs tabular-nums text-slate-400">
+                              ({station.connectors.length})
+                            </span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
                         {ports.available}/{ports.total}
@@ -301,6 +340,23 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                       <dt className="text-ui-xs text-slate-500">Peak power</dt>
                       <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
                         {maxPower > 0 ? `${maxPower} kW` : '—'}
+                      </dd>
+                    </div>
+                    <div className="col-span-2">
+                      <dt className="text-ui-xs text-slate-500">Connectors</dt>
+                      <dd className="mt-1 flex flex-wrap items-center gap-1">
+                        {station.connectors.length === 0 ? (
+                          <span className="text-ui-xs text-slate-400">None</span>
+                        ) : (
+                          connectorTypes(station).map((type) => (
+                            <span
+                              key={type}
+                              className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-700"
+                            >
+                              {type}
+                            </span>
+                          ))
+                        )}
                       </dd>
                     </div>
                   </dl>
