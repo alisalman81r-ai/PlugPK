@@ -178,10 +178,9 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                   onClick={() => setStatus(option.value)}
                   aria-pressed={on}
                   className={cn(
-                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-medium transition-colors',
+                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100',
-                    !on && n === 0 && 'text-slate-300',
+                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100',
                   )}
                 >
                   {option.label}
@@ -189,7 +188,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                     className={cn(
                       'rounded px-1 text-[11px] tabular-nums',
                       on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
-                      !on && n === 0 && 'bg-slate-50 text-slate-300',
+                      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
                     )}
                   >
                     {n}
@@ -220,10 +219,9 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                   onClick={() => setVenue(option.value)}
                   aria-pressed={on}
                   className={cn(
-                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-medium transition-colors',
+                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-600 hover:bg-slate-100',
-                    !on && n === 0 && 'text-slate-300',
+                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100',
                   )}
                 >
                   {option.label}
@@ -231,7 +229,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                     className={cn(
                       'rounded px-1 text-[11px] tabular-nums',
                       on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
-                      !on && n === 0 && 'bg-slate-50 text-slate-300',
+                      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
                     )}
                   >
                     {n}
