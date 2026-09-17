@@ -200,8 +200,12 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 lg:flex-row lg:items-center">
-          <span className="shrink-0 text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+        {/* items-start, not items-center: once the chips wrap to a second line
+            a centred label floats between the two rows, pointing at neither.
+            The label carries the chips' own h-8 so it lines up with the first
+            row rather than its top edge. */}
+        <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 lg:flex-row lg:items-start">
+          <span className="inline-flex h-8 shrink-0 items-center text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-900">
             Venue
           </span>
 
