@@ -24,6 +24,26 @@ export type StationStatus =
   | 'offline'
   | 'unknown'
 
+/**
+ * Where a charger physically sits.
+ *
+ * Distinct from AmenityType below, which records what is NEAR a charger. A
+ * station can list a restaurant amenity and stand in a mall car park; the two
+ * answer different questions and neither can be derived from the other, which
+ * is why this is a stored column rather than something inferred.
+ *
+ * `other` is the default and the honest answer until somebody sets it.
+ */
+export type VenueType =
+  | 'hotel'
+  | 'restaurant'
+  | 'mall'
+  | 'office'
+  | 'dealership'
+  | 'service-center'
+  | 'home'
+  | 'other'
+
 export type ConnectorStatus =
   | 'available'
   | 'in-use'
@@ -159,6 +179,17 @@ export interface Station {
   rating: number
   reviewCount: number
   status: StationStatus
+  /**
+   * Hotel, mall, office and so on. See VenueType.
+   *
+   * Optional because the column is newer than the legacy fixtures in
+   * mock-data.ts and than business-to-station.ts, which shapes an approved
+   * Business into a Station. Every row that comes from the database carries it
+   * — the column is NOT NULL with a default — so `undefined` here means
+   * 'not a database station' rather than 'unset', and readers treat it as
+   * `other`.
+   */
+  venueType?: VenueType
   isVerified: boolean
   network: string
   /** Operator contact details, surfaced in the station detail sidebar. */

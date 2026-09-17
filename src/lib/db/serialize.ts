@@ -11,6 +11,7 @@ import type {
 
 import type { Vehicle } from '@/data/pakistanVehicles'
 import type {
+  VenueType,
   Amenity,
   Comment,
   CommunityPost,
@@ -108,6 +109,7 @@ export function toStation(row: StationWithRelations): Station {
     rating: row.rating,
     reviewCount: row.reviewCount,
     status: row.status as StationStatus,
+    venueType: row.venueType as VenueType,
     isVerified: row.isVerified,
     network: row.network,
     phone: row.phone ?? undefined,

@@ -86,6 +86,7 @@ export async function saveStation(id: string | null, form: FormData): Promise<Ac
     lng: readNumber(form, 'lng'),
     network: String(form.get('network') ?? '').trim(),
     status: String(form.get('status') ?? 'unknown'),
+    venueType: String(form.get('venueType') ?? 'other'),
     isVerified: form.get('isVerified') === 'on',
     phone: String(form.get('phone') ?? '').trim() || null,
     website: String(form.get('website') ?? '').trim() || null,

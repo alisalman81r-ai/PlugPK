@@ -7,7 +7,8 @@ import * as React from 'react'
 
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge'
 import { DeleteButton } from '@/components/admin/DeleteButton'
-import type { Station } from '@/lib/types'
+import type {
+  VenueType, Station } from '@/lib/types'
 import { cn, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 export interface StationTableProps {
@@ -17,6 +18,32 @@ export interface StationTableProps {
 }
 
 type StatusFilter = 'all' | 'available' | 'limited' | 'offline' | 'unknown'
+
+/**
+ * Where a charger sits, as a filter.
+ *
+ * Reads Station.venueType, a stored column — not guessed from amenities.
+ * Amenities record what is NEAR a charger; a station listing a restaurant may
+ * stand in a mall car park, and filing it under Restaurants on that basis
+ * would put stations under headings nobody chose for them.
+ *
+ * Every station that predates the column reads `other`, which is why that
+ * option is here rather than hidden: it is where six real stations currently
+ * sit, and an operator needs to find them to set a venue.
+ */
+type VenueFilter = 'all' | VenueType
+
+const VENUE_FILTERS: { value: VenueFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'hotel', label: 'Hotels' },
+  { value: 'restaurant', label: 'Restaurants' },
+  { value: 'mall', label: 'Malls' },
+  { value: 'office', label: 'Offices' },
+  { value: 'dealership', label: 'Dealerships' },
+  { value: 'service-center', label: 'Service centres' },
+  { value: 'home', label: 'Homes' },
+  { value: 'other', label: 'Unset' },
+]
 
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -36,21 +63,25 @@ const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
 export function StationTable({ stations, onDelete }: StationTableProps) {
   const [query, setQuery] = React.useState('')
   const [status, setStatus] = React.useState<StatusFilter>('all')
+  const [venue, setVenue] = React.useState<VenueFilter>('all')
 
   const filtered = React.useMemo(() => {
     const needle = query.trim().toLowerCase()
 
     return stations.filter((station) => {
       if (status !== 'all' && station.status !== status) return false
+      // Undefined means the row did not come from the database (a legacy
+      // fixture, or a Business shaped into a Station), so it reads as `other`.
+      if (venue !== 'all' && (station.venueType ?? 'other') !== venue) return false
       if (!needle) return true
       return [station.name, station.address.city, station.address.area, station.network, station.slug]
         .join(' ')
         .toLowerCase()
         .includes(needle)
     })
-  }, [stations, query, status])
+  }, [stations, query, status, venue])
 
-  const isFiltered = query.trim().length > 0 || status !== 'all'
+  const isFiltered = query.trim().length > 0 || status !== 'all' || venue !== 'all'
 
   const clear = () => {
     setQuery('')
@@ -98,6 +129,32 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
         </div>
       </div>
 
+      {/* Venue, on its own line: eight options do not share a row with status
+          and search at tablet width without wrapping into a scrolling mess. */}
+      <div
+        role="group"
+        aria-label="Filter by venue"
+        className="mt-3 flex items-center gap-1 overflow-x-auto rounded-lg border border-slate-200 bg-white p-1"
+      >
+        {VENUE_FILTERS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setVenue(option.value)}
+            aria-pressed={venue === option.value}
+            className={cn(
+              'h-8 shrink-0 whitespace-nowrap rounded-md px-3 text-ui-sm font-medium transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+              venue === option.value
+                ? 'bg-plug-navy-900 text-white'
+                : 'text-slate-600 hover:bg-slate-100',
+            )}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
       {/* Result count and reset, announced so the change is not silent. */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <p aria-live="polite" className="text-ui-sm text-slate-600">
@@ -134,7 +191,9 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                 <tr className="border-b border-slate-200 bg-slate-50 text-ui-xs uppercase tracking-wider text-slate-500">
                   <th scope="col" className="px-5 py-3 font-semibold">Station</th>
                   <th scope="col" className="px-5 py-3 font-semibold">City</th>
+                  <th scope="col" className="px-5 py-3 font-semibold">Venue</th>
                   <th scope="col" className="px-5 py-3 font-semibold">Status</th>
+                  <th scope="col" className="px-5 py-3 font-semibold">Connectors</th>
                   <th scope="col" className="px-5 py-3 font-semibold">Ports</th>
                   <th scope="col" className="px-5 py-3 font-semibold">Peak</th>
                   <th scope="col" className="px-5 py-3 text-right font-semibold">
@@ -159,8 +218,23 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                       <td className="px-5 py-3.5 text-ui-sm text-slate-700">
                         {station.address.city}
                       </td>
+                      <td className="px-5 py-3.5 text-ui-sm">
+                        {/* `Unset` rather than a blank cell or a guess: six real
+                            stations sit here, and the operator needs to see
+                            which ones still need a venue chosen. */}
+                        {station.venueType && station.venueType !== 'other' ? (
+                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-ui-xs font-medium capitalize text-slate-700">
+                            {station.venueType.replace('-', ' ')}
+                          </span>
+                        ) : (
+                          <span className="text-ui-xs text-slate-400">Unset</span>
+                        )}
+                      </td>
                       <td className="px-5 py-3.5">
                         <AdminStatusBadge status={station.status} />
+                      </td>
+                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
+                        {station.connectors.length}
                       </td>
                       <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
                         {ports.available}/{ports.total}

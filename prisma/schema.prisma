@@ -71,6 +71,22 @@ model Station {
   rating      Float   @default(0)
   reviewCount Int     @default(0)
   status      String  @default("unknown")
+
+  /// Where the charger physically is: a hotel, a mall, an office, a home.
+  ///
+  /// Not derivable from anything already stored, which is why it is a column.
+  /// `amenities` was the obvious candidate and is the wrong one: it records
+  /// what is NEAR a charger, not what the place IS. A station listing a
+  /// restaurant amenity may sit in a mall, a forecourt or an office car park,
+  /// and inferring venue from it would file stations under headings their
+  /// operators never chose.
+  ///
+  /// Defaults to `other` and the migration writes that for every existing row.
+  /// Guessing a venue for the six rows that predate this would be inventing
+  /// data; `other` is the honest state until somebody sets it.
+  ///
+  /// Values are the VenueType union in src/lib/types.ts.
+  venueType   String  @default("other")
   isVerified  Boolean @default(false)
   network     String  @default("")
   phone       String?

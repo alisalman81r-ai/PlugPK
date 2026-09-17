@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { PAKISTAN_CITIES } from '@/lib/constants'
-import type { Station, StationStatus } from '@/lib/types'
+import type {
+  VenueType, Station, StationStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface StationFormProps {
@@ -16,6 +17,25 @@ export interface StationFormProps {
 }
 
 const STATUSES: StationStatus[] = ['available', 'limited', 'offline', 'unknown']
+
+/**
+ * Where the charger sits. Labels are written out because the stored values are
+ * slugs, and `service-center` in a dropdown reads like a bug.
+ *
+ * `other` is offered last and deliberately: choosing it is a real answer for a
+ * forecourt or a roadside bay, and the alternative — forcing one of the seven
+ * — would fill the column with venues nobody meant.
+ */
+const VENUES: { value: VenueType; label: string }[] = [
+  { value: 'hotel', label: 'Hotel' },
+  { value: 'restaurant', label: 'Restaurant' },
+  { value: 'mall', label: 'Mall' },
+  { value: 'office', label: 'Office' },
+  { value: 'dealership', label: 'Dealership' },
+  { value: 'service-center', label: 'Service centre' },
+  { value: 'home', label: 'Home' },
+  { value: 'other', label: 'Other / not set' },
+]
 
 const FIELD =
   'h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-3.5 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500 focus:shadow-focus'
@@ -110,6 +130,21 @@ export function StationForm({ station, action }: StationFormProps) {
 
           <Field label="Network" htmlFor="network">
             <input id="network" name="network" defaultValue={station?.network} className={FIELD} />
+          </Field>
+
+          <Field label="Venue" htmlFor="venueType">
+            <select
+              id="venueType"
+              name="venueType"
+              defaultValue={station?.venueType ?? 'other'}
+              className={cn(FIELD, 'cursor-pointer')}
+            >
+              {VENUES.map((venue) => (
+                <option key={venue.value} value={venue.value}>
+                  {venue.label}
+                </option>
+              ))}
+            </select>
           </Field>
 
           <Field label="Status" htmlFor="status">
