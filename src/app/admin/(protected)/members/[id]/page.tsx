@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/members/[id]/page.tsx
-import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, Star } from 'lucide-react'
+import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, MessageSquare, Star, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -130,6 +130,96 @@ export default async function AdminMemberPage({ params }: PageProps) {
             )}
           </section>
 
+          {/* ── What they drive ──────────────────────────────── */}
+          {/*
+            The cars on the account, from UserVehicle.
+
+            This relation has existed since UserVehicle was added and this page
+            never read it — it showed only the free-text `vehicle` string from
+            sign-up, which is what somebody typed once rather than what they
+            actually drive. Both are shown, because they answer different
+            questions and disagreeing is itself worth seeing.
+
+            Same rows the owner sees on their own dashboard. Nothing here is an
+            admin-side copy.
+          */}
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+              <Zap size={18} className="text-slate-400" aria-hidden="true" />
+              Vehicles ({member.vehicleCount})
+            </h2>
+
+            {member.vehicles.length === 0 ? (
+              <p className="text-ui-sm text-slate-500">
+                No car added to the account
+                {member.vehicle ? ` — sign-up recorded “${member.vehicle}”.` : '.'}
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {member.vehicles.map((car) => (
+                  <li
+                    key={car.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 p-4"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900">
+                        {car.customName ?? car.name}
+                      </p>
+                      <p className="mt-0.5 text-ui-xs text-slate-500">
+                        {car.customName ? `${car.name} · ` : ''}
+                        {car.color ?? 'colour not set'}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {car.isDefault ? (
+                        <span className="rounded-md bg-plug-blue-50 px-2 py-0.5 text-ui-xs font-semibold text-plug-blue-700">
+                          Default
+                        </span>
+                      ) : null}
+                      <span className="text-ui-xs text-slate-400">
+                        {formatRelativeTime(car.addedAt)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* ── What they posted ─────────────────────────────── */}
+          {/* The same CommunityPost rows the public community renders, filtered
+              to this account. Moderation stays on /admin/community, which owns
+              the delete action — duplicating it here would mean two places to
+              keep correct. */}
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+              <MessageSquare size={18} className="text-slate-400" aria-hidden="true" />
+              Community posts ({member.postCount})
+            </h2>
+
+            {member.posts.length === 0 ? (
+              <p className="text-ui-sm text-slate-500">None written.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {member.posts.map((post) => (
+                  <li key={post.id} className="rounded-lg border border-slate-200 p-4">
+                    <Link
+                      href={`/community/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-slate-900 hover:text-plug-blue-600"
+                    >
+                      {post.title}
+                    </Link>
+                    <p className="mt-0.5 text-ui-xs text-slate-400">
+                      {post.commentCount} {post.commentCount === 1 ? 'comment' : 'comments'} ·{' '}
+                      {formatRelativeTime(post.createdAt)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
           {/* ── What they wrote ──────────────────────────────── */}
           <section className="rounded-xl border border-slate-200 bg-white p-6">
             <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">

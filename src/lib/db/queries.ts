@@ -884,6 +884,12 @@ export interface MemberRow {
   businessCount: number
   reviewCount: number
   savedCount: number
+  /** Cars on the account, from UserVehicle. Not the free-text `vehicle` field. */
+  vehicleCount: number
+  /** Posts written from this account, matched on CommunityPost.userId. */
+  postCount: number
+  /** Whether this account may use the admin portal. */
+  isAdmin: boolean
 }
 
 /**
@@ -907,8 +913,9 @@ export async function getMembers(): Promise<MemberRow[]> {
       email: true,
       city: true,
       vehicle: true,
+      isAdmin: true,
       createdAt: true,
-      _count: { select: { businesses: true, saved: true } },
+      _count: { select: { businesses: true, saved: true, vehicles: true } },
     },
   })
   if (users.length === 0) return []
@@ -922,6 +929,15 @@ export async function getMembers(): Promise<MemberRow[]> {
   })
   const reviewsById = new Map(reviewCounts.map((row) => [row.userId, row._count._all]))
 
+  // CommunityPost carries a plain userId for the same reason Review does, so
+  // its counts are grouped the same way rather than joined.
+  const postCounts = await prisma.communityPost.groupBy({
+    by: ['userId'],
+    where: { userId: { in: users.map((user) => user.id) } },
+    _count: { _all: true },
+  })
+  const postsById = new Map(postCounts.map((row) => [row.userId, row._count._all]))
+
   return users.map((user) => ({
     id: user.id,
     name: user.name,
@@ -932,6 +948,9 @@ export async function getMembers(): Promise<MemberRow[]> {
     businessCount: user._count.businesses,
     reviewCount: reviewsById.get(user.id) ?? 0,
     savedCount: user._count.saved,
+    vehicleCount: user._count.vehicles,
+    postCount: postsById.get(user.id) ?? 0,
+    isAdmin: user.isAdmin,
   }))
 }
 
@@ -939,6 +958,24 @@ export interface MemberDetail extends MemberRow {
   businesses: { id: string; name: string; status: string; city: string }[]
   reviews: MyReviewRow[]
   saved: { id: string; name: string }[]
+  /**
+   * The cars on the account.
+   *
+   * UserVehicle has always related a User to a Vehicle, and this page never
+   * read it — the profile showed the free-text `vehicle` string instead, which
+   * is what somebody typed at sign-up rather than what they actually drive.
+   * Both are shown now, because they answer different questions.
+   */
+  vehicles: {
+    id: string
+    name: string
+    customName: string | null
+    color: string | null
+    isDefault: boolean
+    addedAt: string
+  }[]
+  /** Posts written from this account. Same rows the public community renders. */
+  posts: { id: string; title: string; slug: string; commentCount: number; createdAt: string }[]
 }
 
 /** One member with everything held against them. Null when the id is unknown. */
@@ -951,18 +988,42 @@ export async function getMemberById(id: string): Promise<MemberDetail | null> {
       email: true,
       city: true,
       vehicle: true,
+      isAdmin: true,
       createdAt: true,
       businesses: {
         select: { id: true, businessName: true, status: true, city: true },
         orderBy: { createdAt: 'desc' },
       },
+      /*
+        The cars actually on the account. This relation has existed since
+        UserVehicle was added and nothing read it here, so the profile showed
+        only the free-text `vehicle` string from sign-up.
+      */
+      vehicles: {
+        select: {
+          id: true,
+          customName: true,
+          color: true,
+          isDefault: true,
+          createdAt: true,
+          // Vehicle names the manufacturer `brand`, not `make`.
+          vehicle: { select: { brand: true, model: true, modelYear: true } },
+        },
+        orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
+      },
     },
   })
   if (!user) return null
 
-  const [reviews, saved] = await Promise.all([
+  const [reviews, saved, posts] = await Promise.all([
     getReviewsByUser(id),
     getSavedStationsForUser(id),
+    // The same rows the public community renders, filtered to this account.
+    prisma.communityPost.findMany({
+      where: { userId: id },
+      select: { id: true, title: true, slug: true, commentCount: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    }),
   ])
 
   return {
@@ -975,6 +1036,26 @@ export async function getMemberById(id: string): Promise<MemberDetail | null> {
     businessCount: user.businesses.length,
     reviewCount: reviews.length,
     savedCount: saved.length,
+    vehicleCount: user.vehicles.length,
+    postCount: posts.length,
+    isAdmin: user.isAdmin,
+    vehicles: user.vehicles.map((row) => ({
+      id: row.id,
+      name: [row.vehicle.brand, row.vehicle.model, row.vehicle.modelYear]
+        .filter(Boolean)
+        .join(' '),
+      customName: row.customName,
+      color: row.color,
+      isDefault: row.isDefault,
+      addedAt: row.createdAt.toISOString(),
+    })),
+    posts: posts.map((row) => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      commentCount: row.commentCount,
+      createdAt: row.createdAt.toISOString(),
+    })),
     businesses: user.businesses.map((row) => ({
       id: row.id,
       name: row.businessName,
