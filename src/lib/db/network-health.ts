@@ -51,7 +51,17 @@ export interface NetworkHealth {
   }
   connectors: {
     total: number
-    /** Connectors reporting offline. in-use is normal operation, not a fault. */
+    /**
+     * Broken out by the states ConnectorStatus actually defines, because the
+     * difference between them matters operationally and collapsing it was a
+     * bug once already: a connector with a car on it is the product working,
+     * and counting it as degraded put four alerts on a dashboard that should
+     * have shown two.
+     */
+    available: number
+    inUse: number
+    offline: number
+    /** Offline only. Never in-use. */
     degraded: number
   }
 }
@@ -86,7 +96,7 @@ export interface NetworkAlert {
  * never disagree.
  */
 export async function getNetworkHealth(): Promise<NetworkHealth> {
-  const [stations, connectorTotal, connectorDegraded] = await Promise.all([
+  const [stations, connectorTotal, connectorsByStatus] = await Promise.all([
     prisma.station.findMany({
       select: {
         status: true,
@@ -94,8 +104,18 @@ export async function getNetworkHealth(): Promise<NetworkHealth> {
       },
     }),
     prisma.connector.count(),
-    prisma.connector.count({ where: { status: 'offline' } }),
+    prisma.connector.groupBy({ by: ['status'], _count: true }),
   ])
+
+  /*
+    Grouped in the database rather than filtered in memory, and read by name
+    rather than by 'not available'. A status this code has not heard of counts
+    toward the total and toward nothing else, which is the safe way to be
+    wrong: a new state would show as unaccounted rather than silently become
+    a fault.
+  */
+  const countConnectors = (status: string) =>
+    connectorsByStatus.find((row) => row.status === status)?._count ?? 0
 
   const byStatus = (status: StationStatus) =>
     stations.filter((station) => station.status === status).length
@@ -125,7 +145,13 @@ export async function getNetworkHealth(): Promise<NetworkHealth> {
       // with no ports is not a network that is 0% available.
       availablePct: ports.total > 0 ? (ports.available / ports.total) * 100 : null,
     },
-    connectors: { total: connectorTotal, degraded: connectorDegraded },
+    connectors: {
+      total: connectorTotal,
+      available: countConnectors('available'),
+      inUse: countConnectors('in-use'),
+      offline: countConnectors('offline'),
+      degraded: countConnectors('offline'),
+    },
   }
 }
 

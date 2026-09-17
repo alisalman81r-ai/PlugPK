@@ -23,7 +23,7 @@ import { USER_COOKIE_NAME } from '@/lib/user-auth'
 export async function POST(request: NextRequest) {
   cookies().delete(ADMIN_COOKIE_NAME)
   cookies().delete(USER_COOKIE_NAME)
-  return NextResponse.redirect(new URL('/admin/login', request.url), {
+  return NextResponse.redirect(new URL('/login', request.url), {
     // 303 so the browser follows with GET rather than repeating the POST.
     status: 303,
   })

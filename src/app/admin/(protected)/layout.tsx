@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { AdminShell } from '@/components/admin/AdminShell'
-import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
+import { isRequestAdmin } from '@/lib/db/admin-access'
 import { getAdminBadgeCounts } from '@/lib/db/admin-badges'
-import { hasUserSession, isCurrentUserAdmin } from '@/lib/db/session-actions'
+import { hasAccountSession } from '@/lib/db/admin-access'
 
 export const metadata = { title: { absolute: 'Plug.pk admin' } }
 
@@ -29,33 +29,21 @@ export default async function ProtectedAdminLayout({
   /*
     ── Who is allowed through ──────────────────────────────────────────
 
-    Two ways in, checked in this order, because they mean different things.
+    One call, shared with every server action. The check itself lives in
+    admin-access.ts because it used to live in eight places at once, and a
+    copy that is not updated is a copy that authorises the wrong people.
 
-    A USER SESSION is authoritative when present. isAdmin is re-read from the
+    An account session is authoritative and isAdmin is re-read from the
     database on every request, so a revoked operator is out on their next page
-    load — not in eight hours when a cookie expires. A signed-in non-admin is
-    sent to their own dashboard: they are authenticated, just not permitted,
-    and bouncing them to a sign-in form they already satisfied would read as
-    the site being broken.
+    load rather than in eight hours when a cookie expires.
 
-    The SHARED PASSWORD cookie is the fallback, and only for someone with no
-    user session at all. It is how /admin/login has always worked and it keeps
-    working untouched. Checked second so that a user session can never be
-    escalated by also holding an old operator cookie — the database has the
-    final say about an account.
-
-    Unauthenticated goes to the one sign-in page carrying ?redirect=/admin, so
-    an operator signs in where everybody signs in and lands back here.
-
-    All of it runs server-side, before any admin page renders. Nothing here
-    reads a client flag, a query parameter or a header the browser controls.
+    Signed in but not permitted goes to their own dashboard, not to a sign-in
+    form they have already satisfied. Not signed in goes to the one sign-in
+    page the whole product uses, carrying ?redirect=/admin so they land back
+    here. There is no separate admin login any more.
   */
-  if (await hasUserSession()) {
-    if (!(await isCurrentUserAdmin())) {
-      redirect('/dashboard')
-    }
-  } else if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
-    redirect('/login?redirect=%2Fadmin')
+  if (!(await isRequestAdmin())) {
+    redirect((await hasAccountSession()) ? '/dashboard' : '/login?redirect=%2Fadmin')
   }
 
   /*

@@ -4,7 +4,7 @@
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
-import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
+import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
 import { createSlug } from '@/lib/utils'
 
 import { prisma } from './client'
@@ -18,10 +18,11 @@ import { prisma } from './client'
  * action re-checks the session itself. Skipping that would leave the whole
  * database writable by an unauthenticated request.
  */
+// Delegates to the single check in admin-access.ts. This module used to
+// read the shared-password cookie itself, which is how seven copies of the
+// same rule came to exist.
 async function assertAdmin(): Promise<void> {
-  if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
-    throw new Error('Not authorised')
-  }
+  await requireAdminAccess()
 }
 
 export interface ActionResult {

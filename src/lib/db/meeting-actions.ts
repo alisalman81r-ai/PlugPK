@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
-import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
+import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
 
 import { prisma } from './client'
 
@@ -57,10 +57,11 @@ export async function requestMeeting(form: FormData): Promise<MeetingResult> {
   return { ok: true }
 }
 
+// Delegates to the single check in admin-access.ts. This module used to
+// read the shared-password cookie itself, which is how seven copies of the
+// same rule came to exist.
 async function assertAdmin(): Promise<void> {
-  if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
-    throw new Error('Not authorised')
-  }
+  await requireAdminAccess()
 }
 
 export async function setMeetingStatus(

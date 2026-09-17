@@ -4,7 +4,7 @@
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
-import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
+import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
 
 import { prisma } from './client'
 import { discardCarPhoto } from './upload-actions'
@@ -39,8 +39,9 @@ export interface CarActionResult {
   slug?: string
 }
 
+// Delegates to the single check in admin-access.ts.
 async function requireAdmin(): Promise<boolean> {
-  return verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)
+  return isRequestAdmin()
 }
 
 const DENIED: CarActionResult = {

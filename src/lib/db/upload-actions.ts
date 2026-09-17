@@ -303,9 +303,10 @@ export async function removeMyAvatar(): Promise<UploadResult> {
  */
 export async function uploadCarPhoto(form: FormData): Promise<UploadResult> {
   const { cookies } = await import('next/headers')
-  const { ADMIN_COOKIE_NAME, verifySessionValue } = await import('@/lib/admin-auth')
+  // Single check, shared with every other action and the admin layout.
+  const { isRequestAdmin } = await import('./admin-access')
 
-  if (!verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
+  if (!(await isRequestAdmin())) {
     return { ok: false, message: 'Your admin session has expired. Sign in again and retry.' }
   }
 

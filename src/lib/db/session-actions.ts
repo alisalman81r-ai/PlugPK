@@ -87,10 +87,13 @@ export async function signIn(form: FormData): Promise<SessionResult> {
     to the same action; the difference is a column, checked server-side.
 
     The second cookie is what makes the existing portal accept them. /admin
-    has always gated on ADMIN_COOKIE_NAME, and admin/login still issues it
-    from the shared password — that path is untouched and keeps working. This
-    issues the same cookie for an account the database says is an operator, so
-    the portal did not have to be rewritten to learn about users.
+    has always gated on ADMIN_COOKIE_NAME. The page that traded a shared
+    password for that cookie is gone, so this is now the only thing that mints
+    one, and it mints it only for an account the database says is an operator.
+
+    Authorisation does not depend on it — admin-access.ts reads isAdmin from
+    the database on every request. What it does is keep a session that was
+    already open from breaking mid-edit.
 
     It is not the authorisation. The admin layout re-reads isAdmin from the
     database on every request, so revoking the column locks someone out on

@@ -141,9 +141,9 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
 
 /** Guards the review actions. Same check the upload actions use. */
 async function isAdmin(): Promise<boolean> {
-  const { cookies } = await import('next/headers')
-  const { ADMIN_COOKIE_NAME, verifySessionValue } = await import('@/lib/admin-auth')
-  return verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)
+  // Single check, shared with every other action and the admin layout.
+  const { isRequestAdmin } = await import('./admin-access')
+  return isRequestAdmin()
 }
 
 /**
