@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { AdminNav } from '@/components/admin/AdminNav'
+import { AdminShell } from '@/components/admin/AdminShell'
 import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
 import { getAdminBadgeCounts } from '@/lib/db/admin-badges'
 import { hasUserSession, isCurrentUserAdmin } from '@/lib/db/session-actions'
@@ -88,9 +88,12 @@ export default async function ProtectedAdminLayout({
      * carry the breakpoint that hides them, so neither participates in the
      * layout it does not belong to.
      */
-    <div className="min-h-viewport bg-slate-50 lg:flex">
-      <AdminNav badges={badges} />
-      <main className="min-w-0 pb-16 lg:flex-1">{children}</main>
-    </div>
+    /*
+      The shell owns the sidebar collapse state, so it has to be a client
+      component. This layout stays a server component and keeps doing the one
+      thing only it can: reading cookies to authorise the request before any
+      admin markup is produced.
+    */
+    <AdminShell badges={badges}>{children}</AdminShell>
   )
 }

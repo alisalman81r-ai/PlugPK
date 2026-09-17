@@ -50,32 +50,30 @@ interface NavSection {
  */
 const SECTIONS: NavSection[] = [
   {
+    heading: 'Overview',
+    items: [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }],
+  },
+  {
     heading: 'Network',
     items: [
-      { label: 'Overview', href: '/admin', icon: LayoutDashboard },
       { label: 'Stations', href: '/admin/stations', icon: Zap },
       { label: 'Connectors', href: '/admin/connectors', icon: Plug },
     ],
   },
   {
     heading: 'People',
-    items: [{ label: 'Members', href: '/admin/members', icon: Users }],
-  },
-  {
-    heading: 'Catalogue',
-    // Its own group rather than an eighth entry under Content. Everything under
-    // Content is database-backed and editable here; cars are an authored module
-    // and read-only, and grouping them together would imply an Edit button that
-    // does not exist. See the cars page for why.
-    items: [{ label: 'Cars', href: '/admin/cars', icon: Car }],
+    items: [
+      { label: 'Members', href: '/admin/members', icon: Users },
+      { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
+      { label: 'Meetings', href: '/admin/meetings', icon: CalendarClock },
+    ],
   },
   {
     heading: 'Content',
     items: [
+      { label: 'Cars', href: '/admin/cars', icon: Car },
       { label: 'Services', href: '/admin/services', icon: Wrench },
       { label: 'Community', href: '/admin/community', icon: MessageSquare },
-      { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
-      { label: 'Meetings', href: '/admin/meetings', icon: CalendarClock },
     ],
   },
 ]
@@ -118,28 +116,67 @@ const CHILD_ROUTES = new Set<string>([])
 function NavContent({
   onNavigate,
   badges,
+  collapsed = false,
 }: {
   onNavigate?: () => void
   badges: AdminBadgeCounts
+  /**
+   * Icon-only mode, desktop sidebar only.
+   *
+   * The drawer never sets it: a sheet that slides over the page to show eight
+   * unlabelled icons would be a worse version of the thing it replaced.
+   */
+  collapsed?: boolean
 }) {
   const pathname = usePathname()
 
   return (
     <>
-      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-slate-200 px-5">
-        <Link href="/admin" onClick={onNavigate} className="flex items-center gap-2">
-          <Zap size={18} className="fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-          <span className="font-bold text-slate-900">plug.pk</span>
-          <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-            Admin
-          </span>
+      <div
+        className={cn(
+          'flex h-16 shrink-0 items-center border-b border-slate-200',
+          collapsed ? 'justify-center px-2' : 'gap-2 px-5',
+        )}
+      >
+        {/* Collapsed keeps the mark and drops the words. The bolt alone is
+            still the brand; a truncated wordmark is just damage. */}
+        <Link
+          href="/admin"
+          onClick={onNavigate}
+          className="flex items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          title={collapsed ? 'plug.pk admin' : undefined}
+        >
+          <Zap size={18} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
+          {collapsed ? (
+            <span className="sr-only">plug.pk admin</span>
+          ) : (
+            <>
+              <span className="font-bold text-slate-900">plug.pk</span>
+              <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                Admin
+              </span>
+            </>
+          )}
         </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
         {SECTIONS.map((section) => (
           <div key={section.heading} className="mb-5 last:mb-0">
-            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+            {collapsed ? (
+              // A hairline keeps the grouping legible without a label that
+              // would not fit. The heading stays in the tree for screen
+              // readers, which do not care how wide the sidebar is.
+              <div className="mb-2 flex justify-center" aria-hidden="true">
+                <span className="h-px w-6 bg-slate-200" />
+              </div>
+            ) : null}
+            <p
+              className={cn(
+                'mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400',
+                collapsed && 'sr-only',
+              )}
+            >
               {section.heading}
             </p>
             <ul className="flex flex-col gap-0.5">
@@ -154,16 +191,23 @@ function NavContent({
                       href={item.href}
                       onClick={onNavigate}
                       aria-current={active ? 'page' : undefined}
+                      /* The label as a tooltip when it is the only way to read
+                         the row. Native title rather than a custom tooltip: it
+                         needs no library, no portal and no timer, and it is the
+                         one place a browser default is better than anything
+                         built here. */
+                      title={collapsed ? item.label : undefined}
                       className={cn(
-                        'relative flex h-10 items-center gap-3 rounded-lg px-3 text-ui font-medium transition-colors duration-150',
+                        'relative flex h-10 items-center rounded-lg text-ui font-medium transition-colors duration-150',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+                        collapsed ? 'justify-center px-0' : 'gap-3 px-3',
                         active
                           ? 'bg-plug-navy-900 text-white'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                       )}
                     >
                       <Icon size={17} className="shrink-0" aria-hidden="true" />
-                      {item.label}
+                      <span className={collapsed ? 'sr-only' : undefined}>{item.label}</span>
 
                       {/*
                         The count of what is waiting on that page.
@@ -186,14 +230,25 @@ function NavContent({
                       {count ? (
                         <span
                           className={cn(
-                            'ml-auto flex h-5 min-w-[1.25rem] shrink-0 items-center justify-center rounded-full px-1.5',
+                            'flex shrink-0 items-center justify-center rounded-full',
                             'font-mono text-[11px] font-bold tabular-nums leading-none',
+                            /* Collapsed there is no room for digits beside a
+                               centred icon, so the badge becomes a dot pinned
+                               to the corner. It still says something is
+                               waiting, which is the badge's whole job; the
+                               count itself is one click away. The screen
+                               reader text below is unchanged either way. */
+                            collapsed
+                              ? 'absolute right-1.5 top-1.5 h-2 w-2'
+                              : 'ml-auto h-5 min-w-[1.25rem] px-1.5',
                             active
                               ? 'bg-white/20 text-white'
                               : 'bg-plug-blue-600 text-white',
                           )}
                         >
-                          <span aria-hidden="true">{count > 99 ? '99+' : count}</span>
+                          {collapsed ? null : (
+                            <span aria-hidden="true">{count > 99 ? '99+' : count}</span>
+                          )}
                           <span className="sr-only">
                             {count === 1 ? '1 item awaiting review' : `${count} items awaiting review`}
                           </span>
@@ -209,14 +264,21 @@ function NavContent({
       </div>
 
       <div className="shrink-0 border-t border-slate-200 p-3">
+        {/* Collapsed these become icons too. Left as they were, the labels
+           wrapped onto three lines inside a 64px column and the footer read
+           as broken rather than as narrow. */}
         <Link
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-9 items-center gap-2.5 rounded-lg px-3 text-ui-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          title={collapsed ? 'View live site' : undefined}
+          className={cn(
+            'flex h-9 items-center rounded-lg text-ui-sm text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+            collapsed ? 'justify-center px-0' : 'gap-2.5 px-3',
+          )}
         >
           <ExternalLink size={15} className="shrink-0" aria-hidden="true" />
-          View live site
+          <span className={collapsed ? 'sr-only' : undefined}>View live site</span>
         </Link>
 
         {/* POST, not a link: sign-out changes server state, and a GET that
@@ -224,10 +286,14 @@ function NavContent({
         <form action="/api/admin/signout" method="post">
           <button
             type="submit"
-            className="flex h-9 w-full items-center gap-2.5 rounded-lg px-3 text-ui-sm text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            title={collapsed ? 'Sign out' : undefined}
+            className={cn(
+              'flex h-9 w-full items-center rounded-lg text-ui-sm text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400',
+              collapsed ? 'justify-center px-0' : 'gap-2.5 px-3',
+            )}
           >
             <LogOut size={15} className="shrink-0" aria-hidden="true" />
-            Sign out
+            <span className={collapsed ? 'sr-only' : undefined}>Sign out</span>
           </button>
         </form>
       </div>
@@ -241,9 +307,11 @@ export interface AdminNavProps {
    * nothing is waiting; the layout omits zeroes rather than sending them.
    */
   badges?: AdminBadgeCounts
+  /** Desktop icon-only mode. Owned by AdminShell so main can widen with it. */
+  collapsed?: boolean
 }
 
-export function AdminNav({ badges }: AdminNavProps) {
+export function AdminNav({ badges, collapsed = false }: AdminNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const totalWaiting = React.useMemo(
     () => Object.values(badges ?? {}).reduce((sum, value) => sum + value, 0),
@@ -275,12 +343,19 @@ export function AdminNav({ badges }: AdminNavProps) {
 
   return (
     <>
-      {/* Desktop: a permanent column. */}
+      {/* Desktop: a permanent column, 248px or 64px. */}
       <nav
         aria-label="Admin"
-        className="sticky top-0 hidden h-viewport w-[248px] shrink-0 flex-col border-r border-slate-200 bg-white lg:flex"
+        className={cn(
+          'sticky top-0 hidden h-viewport shrink-0 flex-col border-r border-slate-200 bg-white lg:flex',
+          /* Width transitions, nothing else. Animating the labels in and out
+             would mean text reflowing mid-slide, which reads as a glitch
+             rather than as a panel resizing. */
+          'transition-[width] duration-200 ease-out motion-reduce:transition-none',
+          collapsed ? 'w-[64px]' : 'w-[248px]',
+        )}
       >
-        <NavContent badges={badges ?? {}} />
+        <NavContent badges={badges ?? {}} collapsed={collapsed} />
       </nav>
 
       {/* Mobile: a bar with the trigger. The old fixed 248px column consumed
