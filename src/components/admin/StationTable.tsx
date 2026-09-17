@@ -27,14 +27,21 @@ type StatusFilter = 'all' | 'available' | 'limited' | 'offline' | 'unknown'
  * stand in a mall car park, and filing it under Restaurants on that basis
  * would put stations under headings nobody chose for them.
  *
- * Every station that predates the column reads `other`, which is why that
- * option is here rather than hidden: it is where six real stations currently
- * sit, and an operator needs to find them to set a venue.
+ * Every station that predates the column reads `other`, which is why the Venue
+ * not set control below is here rather than hidden: that is where the unfiled
+ * stations sit, and an operator needs to find them to set a venue.
+ *
+ * `standalone` covers a site that is not inside anybody else's venue. Most of
+ * the published network is exactly that — a forecourt on Jinnah Avenue or in
+ * F-10 Markaz belongs to no hotel or mall — and without the option those rows
+ * could only be filed as `other`, which says "nobody has looked at this yet"
+ * rather than "this is what it is".
  */
 type VenueFilter = 'all' | VenueType
 
 const VENUE_FILTERS: { value: VenueFilter; label: string }[] = [
   { value: 'all', label: 'All' },
+  { value: 'standalone', label: 'Standalone' },
   { value: 'hotel', label: 'Hotels' },
   { value: 'restaurant', label: 'Restaurants' },
   { value: 'mall', label: 'Malls' },

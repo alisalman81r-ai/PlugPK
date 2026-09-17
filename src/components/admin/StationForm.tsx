@@ -27,6 +27,7 @@ const STATUSES: StationStatus[] = ['available', 'limited', 'offline', 'unknown']
  * — would fill the column with venues nobody meant.
  */
 const VENUES: { value: VenueType; label: string }[] = [
+  { value: 'standalone', label: 'Standalone charging site' },
   { value: 'hotel', label: 'Hotel' },
   { value: 'restaurant', label: 'Restaurant' },
   { value: 'mall', label: 'Mall' },

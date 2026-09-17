@@ -32,9 +32,15 @@ export type StationStatus =
  * answer different questions and neither can be derived from the other, which
  * is why this is a stored column rather than something inferred.
  *
+ * `standalone` is a charging site that is not inside anybody else's venue — a
+ * dedicated forecourt on a road or in a markaz, which is what most of the
+ * public network in Pakistan actually is. It was missing, so five real
+ * stations sat under `other` describing a venue they do not have.
+ *
  * `other` is the default and the honest answer until somebody sets it.
  */
 export type VenueType =
+  | 'standalone'
   | 'hotel'
   | 'restaurant'
   | 'mall'
