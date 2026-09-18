@@ -34,6 +34,14 @@ export default async function AdminStationsPage() {
     <>
       <AdminHeader
         title="Stations"
+          help={
+            <>
+              <b>Every charging location on your public map.</b> Adding a row here puts
+              it in front of drivers immediately, and deleting one removes it. Status
+              controls whether people are told they can charge there; venue records what
+              kind of place it sits at.
+            </>
+          }
         description={`${stations.length} published on the live site.`}
         action={
           <Link

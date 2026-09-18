@@ -21,6 +21,14 @@ export default async function AdminMembersPage() {
     <>
       <AdminHeader
         title="Members"
+          help={
+            <>
+              <b>People who created an account on the site.</b> Real sign-ups, not
+              invited users. Opening one shows the cars they added, the stations they
+              saved and the clubs they joined. The admin flag on an account is what
+              grants access to this portal.
+            </>
+          }
         description={
           members.length === 0
             ? 'Nobody has registered yet.'

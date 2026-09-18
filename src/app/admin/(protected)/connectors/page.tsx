@@ -21,6 +21,14 @@ export default async function AdminConnectorsPage() {
     <>
       <AdminHeader
         title="Connectors"
+          help={
+            <>
+              <b>The individual plugs on each station.</b> A station is a location; a
+              connector is one physical socket with a type (CCS2, Type 2, CHAdeMO), a
+              power rating and a port count. The free-ports figure drivers see is added
+              up from these rows.
+            </>
+          }
         description={`${freePorts} of ${totalPorts} ports free across ${rows.length} connectors.`}
         action={
           <Link

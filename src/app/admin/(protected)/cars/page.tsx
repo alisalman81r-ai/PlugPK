@@ -35,6 +35,14 @@ export default async function AdminCarsPage() {
     <>
       <AdminHeader
         title="Cars"
+          help={
+            <>
+              <b>The EV catalogue shown on the public car pages</b> — specs, prices,
+              photos. Completeness on each row is how much of a car&rsquo;s data is
+              filled in; a car missing a battery figure or a photo still publishes, it
+              just looks thin to a buyer comparing models.
+            </>
+          }
         description={`${summary.total} models from ${summary.brands} brands.`}
         action={
           <div className="flex items-center gap-2">

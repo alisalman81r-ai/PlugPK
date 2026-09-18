@@ -18,6 +18,13 @@ export default async function AdminMeetingsPage() {
     <>
       <AdminHeader
         title="Meeting requests"
+        help={
+          <>
+            <b>Callback requests from businesses that want to partner with you.</b>{' '}
+            Each row is a real person who filled in the partner form and is expecting to
+            hear back. Marking one handled clears it from the dashboard queue.
+          </>
+        }
         description={
           rows.length === 0
             ? 'Businesses asking to talk will appear here.'

@@ -143,6 +143,15 @@ export default async function AdminOverviewPage() {
                     .join(' · ')
             }
             tone={allOnline ? 'good' : stations.offline > 0 ? 'critical' : 'warn'}
+            help={
+              <>
+                <b>How many of your charging stations are usable right now.</b> The
+                second number is every station you have published; the first is how
+                many are in the <b>available</b> state. Counted live from the Stations
+                table, not stored. Click the card to open Stations and fix whatever is
+                offline.
+              </>
+            }
             icon={Zap}
             href="/admin/stations"
           />
@@ -151,24 +160,58 @@ export default async function AdminOverviewPage() {
             value={`${ports.available} / ${ports.total}`}
             detail={pct === null ? 'No ports recorded' : `${pct.toFixed(1)}% currently available`}
             tone={pct !== null && pct < 25 ? 'warn' : 'good'}
+            help={
+              <>
+                <b>Charging points free for a driver to plug into.</b> Added up across
+                every connector on every station — a station with 4 ports where 1 car
+                is charging contributes 3 free of 4. This is the same figure the public
+                site shows drivers, so it can never disagree with it. Click to open
+                Connectors.
+              </>
+            }
             icon={Plug}
             href="/admin/connectors"
           />
           <MetricCard
             label="Charging sessions"
             value={null}
+            help={
+              <>
+                <b>This will show how many cars actually charged.</b> It is empty
+                because nothing in the system records a charging session — there is no
+                table for it and no charger hardware reporting in. It stays empty until
+                a charger integration is built; a number here before then would be
+                invented.
+              </>
+            }
             unavailableReason="No session is recorded anywhere yet — needs a charger integration."
             icon={BatteryCharging}
           />
           <MetricCard
             label="Revenue today"
             value={null}
+            help={
+              <>
+                <b>This will show money billed today.</b> It is empty because connectors
+                carry no price and there is no payments table, so there is nothing to
+                add up. It needs pricing and a payment provider before it can show
+                anything true.
+              </>
+            }
             unavailableReason="Connectors carry no pricing, so there is nothing to total."
             icon={Receipt}
           />
           <MetricCard
             label="Network uptime"
             value={null}
+            help={
+              <>
+                <b>This will show the percentage of time your network was working.</b>
+                It is empty because only a station&rsquo;s state <i>right now</i> is
+                stored, never a history of it. Uptime is a measure over time, so it
+                needs somewhere to record every state change first.
+              </>
+            }
             unavailableReason="Station state is stored, but not its history — no uptime to compute."
             icon={ShieldCheck}
           />
@@ -176,6 +219,14 @@ export default async function AdminOverviewPage() {
             label="Active alerts"
             value={String(alerts.length)}
             detail={alerts.length === 0 ? 'Nothing needs attention' : 'Requires attention'}
+            help={
+              <>
+                <b>Things wrong with the network right now.</b> An offline station
+                counts as one, and so does an offline connector. A connector that is
+                in use does <b>not</b> — a car charging is the product working. This is
+                the present state read live, not a log of past problems.
+              </>
+            }
             tone={alerts.length === 0 ? 'good' : 'critical'}
             icon={AlertTriangle}
           />
@@ -186,6 +237,14 @@ export default async function AdminOverviewPage() {
           <DashboardPanel
             title="Live network"
             description="Counted from published stations, right now."
+            help={
+              <>
+                <b>The health of your whole network on one bar.</b> It breaks your
+                stations into online, limited, offline and unconfirmed, and shows how
+                many charging ports are free. Same query as the Active stations card
+                above, so the two can never disagree.
+              </>
+            }
             className="lg:col-span-3"
             action={
               <Link
@@ -203,6 +262,14 @@ export default async function AdminOverviewPage() {
           <DashboardPanel
             title="Active alerts"
             description="Present conditions, not a log."
+            help={
+              <>
+                <b>Your to-do list, worst first.</b> Each row is a station or connector
+                that is currently offline, and clicking it opens the exact record that
+                can fix it. There is no &ldquo;dismiss&rdquo; because these are not
+                stored events — fix the row and the alert disappears by itself.
+              </>
+            }
             className="lg:col-span-2"
           >
             {alerts.length > 0 ? (
@@ -222,6 +289,13 @@ export default async function AdminOverviewPage() {
           <DashboardPanel
             title="Needs attention"
             description="Queues with something in them. Acting on an item clears it here."
+            help={
+              <>
+                <b>Work waiting on you from other people.</b> Businesses that applied to
+                be listed, service providers awaiting review, meeting requests. Empty
+                means nobody is waiting — it is not a sign anything is broken.
+              </>
+            }
           >
             <ul className="divide-y divide-slate-100">
               {pending.map((queue) => (
@@ -250,14 +324,32 @@ export default async function AdminOverviewPage() {
 
         {/* ── Performance ───────────────────────────────────────────── */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <DashboardPanel title="Charging sessions" description="Sessions completed over time.">
+          <DashboardPanel
+            title="Charging sessions"
+            description="Sessions completed over time."
+            help={
+              <>
+                <b>This chart will plot charging sessions per day once they exist.</b>{' '}
+                It is drawn empty rather than hidden so the shape of the finished page
+                is visible. Nothing writes a session row today; when a charger
+                integration lands, this reads it with no change to the page.
+              </>
+            }
+          >
             <PerformanceChart
               data={[]}
               emptyReason="Nothing writes a session row yet. When a charger integration lands, this chart reads it with no change to the page."
             />
           </DashboardPanel>
 
-          <DashboardPanel title="Revenue" description="Billed across the network.">
+          <DashboardPanel title="Revenue" description="Billed across the network."
+            help={
+              <>
+                <b>This will plot money billed per day.</b> Empty because connectors
+                carry no price and nothing records a payment. It needs pricing and a
+                payment provider before a line here would mean anything.
+              </>
+            }>
             <PerformanceChart
               data={[]}
               unitPrefix="Rs "
@@ -270,6 +362,13 @@ export default async function AdminOverviewPage() {
         <DashboardPanel
           title="Recent charging sessions"
           description="Who charged, where, and for how long."
+          help={
+            <>
+              <b>This will list individual charging sessions</b> — which driver, which
+              station, how long, how much energy. Empty for the same reason as the
+              chart above: no session is recorded anywhere yet.
+            </>
+          }
         >
           <PanelEmpty
             icon={Activity}
@@ -284,6 +383,13 @@ export default async function AdminOverviewPage() {
           <DashboardPanel
             title="Latest community activity"
             description="Newest posts first."
+            help={
+              <>
+                <b>The newest discussions your users have posted</b> on the public
+                community pages. Real posts from real accounts. Use it to spot a
+                question nobody has answered or a post that should not be up.
+              </>
+            }
             className="lg:col-span-2"
             action={
               <Link

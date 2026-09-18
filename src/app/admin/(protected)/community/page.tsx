@@ -17,6 +17,14 @@ export default async function AdminCommunityPage() {
     <>
       <AdminHeader
         title="Community"
+          help={
+            <>
+              <b>Discussions your users posted publicly</b>, newest first, with their
+              comment and like counts. Use it to moderate: spot an unanswered question,
+              or take down a post that should not be up. You are reading the same rows
+              the public community pages show.
+            </>
+          }
         description={`${posts.length} posts. Deleting one removes its comments too.`}
       />
 

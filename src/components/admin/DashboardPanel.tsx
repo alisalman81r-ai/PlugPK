@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
 
+import { InfoHint } from '@/components/admin/InfoHint'
 import { cn } from '@/lib/utils'
 
 /**
@@ -14,6 +15,12 @@ import { cn } from '@/lib/utils'
 export interface DashboardPanelProps {
   title: string
   description?: string
+  /**
+   * Plain-language answer to "what is this panel for?", shown behind a ? beside
+   * the title. Say what it lists, where it comes from, and what to do with it.
+   * See InfoHint.
+   */
+  help?: React.ReactNode
   /** Filters, a link, a menu — anything right-aligned in the header. */
   action?: React.ReactNode
   className?: string
@@ -23,6 +30,7 @@ export interface DashboardPanelProps {
 export function DashboardPanel({
   title,
   description,
+  help,
   action,
   className,
   children,
@@ -36,7 +44,10 @@ export function DashboardPanel({
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div className="min-w-0">
-          <h2 className="text-ui font-bold text-slate-900">{title}</h2>
+          <div className="flex items-center gap-1.5">
+            <h2 className="text-ui font-bold text-slate-900">{title}</h2>
+            {help ? <InfoHint label={title}>{help}</InfoHint> : null}
+          </div>
           {description ? (
             <p className="mt-0.5 text-ui-xs text-slate-500">{description}</p>
           ) : null}

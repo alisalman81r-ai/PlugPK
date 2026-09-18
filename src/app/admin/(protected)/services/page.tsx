@@ -41,6 +41,14 @@ export default async function AdminServicesPage() {
     <>
       <AdminHeader
         title="Services"
+          help={
+            <>
+              <b>Workshops, installers and dealerships listed in the services
+              directory.</b> Reviewing one decides whether it appears publicly. This is
+              the directory drivers search when they need a charger installed or a car
+              serviced.
+            </>
+          }
         description={
           pending.length > 0
             ? `${pending.length} awaiting review · ${approved} live in the directory.`

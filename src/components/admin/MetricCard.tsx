@@ -2,6 +2,7 @@
 import type { LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
+import { InfoHint } from '@/components/admin/InfoHint'
 import { cn } from '@/lib/utils'
 
 /**
@@ -49,6 +50,13 @@ export interface MetricCardProps {
   tone?: MetricTone
   /** Makes the whole card a link to where the figure can be acted on. */
   href?: string
+  /**
+   * Plain-language answer to "what is this card for?", shown behind a ? in the
+   * corner. Say what it counts, where the number comes from, and what to do
+   * about it — a hint that restates the label adds a control and answers
+   * nothing. See InfoHint.
+   */
+  help?: React.ReactNode
 }
 
 export function MetricCard({
@@ -59,6 +67,7 @@ export function MetricCard({
   icon: Icon,
   tone = 'neutral',
   href,
+  help,
 }: MetricCardProps) {
   const unavailable = value === null
 
@@ -117,13 +126,35 @@ export function MetricCard({
     unavailable && 'bg-slate-50/60',
   )
 
-  if (href && !unavailable) {
-    return (
-      <Link href={href} className={cn(shell, 'block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500')}>
+  /*
+    The hint sits outside the card, not inside it.
+
+    A card with an href is a Link, and a <button> inside an <a> is invalid
+    markup that navigates instead of opening. Positioning it over the corner
+    keeps one control per job: the card goes somewhere, the ? explains.
+  */
+  const card =
+    href && !unavailable ? (
+      <Link
+        href={href}
+        className={cn(shell, 'block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500')}
+      >
         {body}
       </Link>
+    ) : (
+      <div className={shell}>{body}</div>
     )
-  }
 
-  return <div className={shell}>{body}</div>
+  if (!help) return card
+
+  return (
+    <div className="relative">
+      {card}
+      <span className="absolute right-3.5 top-3.5">
+        <InfoHint label={label} align="left">
+          {help}
+        </InfoHint>
+      </span>
+    </div>
+  )
 }

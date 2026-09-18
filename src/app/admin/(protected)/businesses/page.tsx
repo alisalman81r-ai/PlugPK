@@ -35,6 +35,13 @@ export default async function AdminBusinessesPage() {
     <>
       <AdminHeader
         title="Business applications"
+        help={
+          <>
+            <b>Hotels, malls and cafés that applied to be listed</b> through the public
+            form. Approving one publishes it to the site; until then only you can see
+            it. Anything still pending is a real business waiting on a reply from you.
+          </>
+        }
         description={
           rows.length === 0
             ? 'Businesses applying to list their chargers will appear here.'
