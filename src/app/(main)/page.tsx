@@ -2,7 +2,7 @@
 import { AppBanner } from '@/components/home/AppBanner'
 import { PartnerCTA } from '@/components/home/PartnerCTA'
 import { CommunityPreview } from '@/components/home/CommunityPreview'
-import { FreeBanner } from '@/components/home/FreeBanner'
+import { ValueBanner } from '@/components/home/ValueBanner'
 import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
@@ -81,7 +81,7 @@ export default async function HomePage() {
         <ServicesPreview />
       </Reveal>
       <Reveal>
-        <FreeBanner />
+        <ValueBanner />
       </Reveal>
       <Reveal>
         <CommunityPreview clubs={clubs.slice(0, 3)} counts={communityCounts} />
