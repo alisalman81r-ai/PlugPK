@@ -40,35 +40,34 @@ interface Plan {
 }
 
 const PLANS: Plan[] = [
+  /*
+    One paid plan, not two at the same price.
+
+    This was Free (PKR 0) and Premium (PKR 4,999). Pricing the free tier at
+    4,999 as instructed left two plans costing the same while one withheld
+    priority placement and homepage features — a tier nobody could rationally
+    buy. Raising Premium instead would have meant inventing a second figure,
+    and a published price is a promise that has to be honoured.
+
+    So the two are one: everything both tiers offered, at the one price given.
+    If Premium should sit above this, it needs its own real number.
+  */
   {
-    name: 'Free',
-    price: 'PKR 0',
-    cadence: 'forever',
+    name: 'Standard',
+    price: 'PKR 4,999',
+    cadence: 'per month',
     tagline: 'Everything you need to be found.',
     features: [
       { label: 'Listed on the map and in Partner Up', included: true },
       { label: 'Photos of your chargers', included: true },
       { label: 'Reviews from drivers', included: true },
       { label: 'Views and directions dashboard', included: true },
-      { label: 'Priority placement in search', included: false },
-      { label: 'Featured on the homepage', included: false },
-    ],
-    cta: { label: 'List your charger', href: '/business/signup' },
-  },
-  {
-    name: 'Premium',
-    price: 'PKR 4,999',
-    cadence: 'per month',
-    tagline: 'For venues that want the traffic.',
-    features: [
-      { label: 'Everything in Free', included: true },
       { label: 'Priority placement in search', included: true },
       { label: 'Featured on the homepage', included: true },
       { label: 'Highlighted pin on the map', included: true },
-      { label: 'Longer analytics history', included: true },
       { label: 'Named account contact', included: false },
     ],
-    cta: { label: 'Talk to us about Premium', href: '/for-businesses#meeting' },
+    cta: { label: 'List your charger', href: '/business/signup' },
     featured: true,
   },
   {
@@ -76,7 +75,7 @@ const PLANS: Plan[] = [
     price: 'Let’s talk',
     tagline: 'Fleets, chains and multi-site operators.',
     features: [
-      { label: 'Everything in Premium', included: true },
+      { label: 'Everything in Standard', included: true },
       { label: 'Multiple sites under one account', included: true },
       { label: 'Named account contact', included: true },
       { label: 'Bulk listing import', included: true },
@@ -94,12 +93,12 @@ export function PartnerPricing() {
         <SectionIntro
           eyebrow="Plans"
           icon={<Tag size={13} aria-hidden="true" />}
-          title="Listing is free. Growing is optional."
-          lead="You keep what drivers pay you either way — Plug.pk never takes a cut of your charging revenue."
+          title="One price to list. Growing is optional."
+          lead="You keep what drivers pay you on every plan — Plug.pk never takes a cut of your charging revenue."
           className="mb-16"
         />
 
-        <div className="mx-auto grid max-w-6xl items-start gap-6 lg:grid-cols-3 lg:gap-8">
+        <div className="mx-auto grid max-w-6xl items-start gap-6 lg:grid-cols-2 lg:gap-8">
           {PLANS.map((plan) => (
             <div
               key={plan.name}
@@ -194,7 +193,7 @@ export function PartnerPricing() {
             people rightly get annoyed about. */}
         <p className="mx-auto mt-12 max-w-2xl text-balance text-center text-ui-sm text-slate-500">
           Paid plans are arranged with us directly — there is no card payment on the site yet.
-          Free listings go live as soon as we have verified the details.
+          Listings go live as soon as we have verified the details.
         </p>
       </div>
     </section>

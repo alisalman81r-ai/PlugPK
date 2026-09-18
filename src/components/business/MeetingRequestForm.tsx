@@ -146,7 +146,7 @@ export function MeetingRequestForm() {
       </button>
 
       <p className="mt-3 text-center text-ui-xs leading-relaxed text-slate-500">
-        Listing your business is free. We will talk through what you need before anything
+        Listing your business is PKR 4,999 a month. We will talk through what you need before anything
         is agreed.
       </p>
     </form>

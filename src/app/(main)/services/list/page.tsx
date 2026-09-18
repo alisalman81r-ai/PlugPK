@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 export const metadata: Metadata = {
   title: 'List your EV service',
   description:
-    'Workshops, installers, dealers and insurers — apply to be listed in the Plug.pk EV services directory. Free to list, checked before it goes live.',
+    'Workshops, installers, dealers and insurers — apply to be listed in the Plug.pk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
 }
 
 /** One measure, matching /map, /routes, /community and Partner Up. */
@@ -75,7 +75,7 @@ export default async function ListServicePage() {
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-ui-lg leading-relaxed text-white/60">
             Workshops, home charger installers, dealers, accessory shops, insurers and
-            roadside assistance. Free to list, and checked by a person before it goes live.
+            roadside assistance. PKR 4,999 a month to list, and checked by a person before it goes live.
           </p>
 
           {listed > 0 ? (

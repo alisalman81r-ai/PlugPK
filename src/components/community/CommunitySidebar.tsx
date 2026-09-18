@@ -96,7 +96,7 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
             href="/signup"
             className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
           >
-            Join free
+            Join
           </Link>
         )}
       </div>

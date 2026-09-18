@@ -83,7 +83,7 @@ export function SaveRouteModal({ isOpen, onClose, route, onConfirm }: SaveRouteM
             Sign in to Save
           </Button>
           <Button href="/signup" variant="secondary" fullWidth>
-            Create Free Account
+            Create Account
           </Button>
           <Button variant="ghost" fullWidth onClick={onClose}>
             Maybe later

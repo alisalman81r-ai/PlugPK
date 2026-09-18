@@ -39,7 +39,7 @@ import { PARTNER_FAQS } from '@/lib/faqs'
 export const metadata: Metadata = {
   title: 'Partner Up',
   description:
-    'List your charger on Plug.pk — hotels, restaurants, offices and homes across Pakistan. Free to list, you set your own rates.',
+    'List your charger on Plug.pk — hotels, restaurants, offices and homes across Pakistan. PKR 4,999 a month to list, and you set your own rates.',
 }
 
 /** One measure, matching /map, /routes and /community. */

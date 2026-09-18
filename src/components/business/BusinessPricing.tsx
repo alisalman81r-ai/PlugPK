@@ -26,7 +26,7 @@ const FAQS = [
   {
     question: 'What does it cost to list my business?',
     answer:
-      'Listing is free. Appearing on the map, receiving reviews and being found by drivers cost nothing, with no time limit and no card required. If you need something beyond a standard listing, that is what the meeting is for.',
+      'A listing is PKR 4,999 a month. That covers appearing on the map, receiving reviews and being found by drivers. If you need something beyond a standard listing, that is what the meeting is for.',
   },
   {
     question: 'How quickly will my listing go live?',
@@ -54,7 +54,7 @@ export function BusinessPricing() {
           eyebrow="Talk to us"
           eyebrowColor="blue"
           title="Let’s work out what you need"
-          subtitle="Listing is free. Tell us about your sites and we will find a time to talk it through."
+          subtitle="A listing is PKR 4,999 a month. Tell us about your sites and we will find a time to talk it through."
         />
 
         <div className="mt-12 grid items-start gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">

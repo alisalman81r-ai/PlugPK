@@ -189,7 +189,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
           href={redirectTo === '/dashboard' ? '/signup' : `/signup?redirect=${encodeURIComponent(redirectTo)}`}
           className="font-semibold text-plug-blue-600 hover:underline"
         >
-          Create one free
+          Create one
         </Link>
       </p>
     </form>

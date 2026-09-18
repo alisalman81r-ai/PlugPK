@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { Button, ConnectorBadge } from '@/components/ui'
 
-const TRUST = ['Free to list', 'No commission', 'Live in 24 hours']
+const TRUST = ['PKR 4,999 a month', 'No commission', 'Live in 24 hours']
 
 const PREVIEW_STATS = [
   { value: '1,240', label: 'Views' },
@@ -54,7 +54,7 @@ export function BusinessHero() {
                 rightIcon={<ArrowRight size={18} />}
                 className="h-14 rounded-xl bg-white px-8 text-base font-bold text-plug-blue-600 shadow-e3 hover:-translate-y-0.5 hover:bg-plug-blue-50 hover:shadow-xl"
               >
-                List Your Business Free
+                List Your Business
               </Button>
 
               <Button href="#how-it-works" variant="outline-white" className="h-14 rounded-xl px-8">

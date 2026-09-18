@@ -167,7 +167,7 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
           >
             Apply to be listed
           </Link>{' '}
-          — free, and checked before it goes live.
+          — PKR 4,999 a month, and checked before it goes live.
         </p>
       </div>
     </section>

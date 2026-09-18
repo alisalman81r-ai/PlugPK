@@ -33,7 +33,7 @@ export default function ForBusinessesPage() {
             href="/business/signup"
             className="h-14 rounded-xl bg-white px-10 text-base font-bold text-plug-blue-600 hover:bg-plug-blue-50"
           >
-            List Your Business Free &rarr;
+            List Your Business &rarr;
           </Button>
         </div>
       </section>

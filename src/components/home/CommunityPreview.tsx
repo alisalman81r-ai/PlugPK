@@ -246,7 +246,7 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
 
                 <div className="mt-7 flex justify-center">
                   <PillButton href="/signup">
-                    Join free
+                    Join
                   </PillButton>
                 </div>
               </div>

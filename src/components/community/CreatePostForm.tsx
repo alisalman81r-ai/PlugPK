@@ -121,12 +121,12 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             </h2>
 
             <p className="mb-8 text-slate-500">
-              Create a free account to post, comment, and connect with Pakistan&apos;s EV community.
+              Create an account to post, comment, and connect with Pakistan&apos;s EV community.
             </p>
 
             <div className="flex flex-col gap-3">
               <Button href="/signup" fullWidth>
-                Create Free Account
+                Create Account
               </Button>
               <Button href="/login" variant="secondary" fullWidth>
                 Sign In

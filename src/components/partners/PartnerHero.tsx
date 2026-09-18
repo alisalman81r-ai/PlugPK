@@ -61,7 +61,7 @@ export interface PartnerHeroProps {
   }
 }
 
-const PROMISES = ['Free to list', 'You set your rates', 'Verified before it goes live']
+const PROMISES = ['PKR 4,999 a month', 'You set your rates', 'Verified before it goes live']
 
 export function PartnerHero({ stats }: PartnerHeroProps) {
   /**
