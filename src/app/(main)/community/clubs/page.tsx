@@ -5,6 +5,7 @@ import Link from 'next/link'
 
 import { ClubsDirectory } from '@/components/community/ClubsDirectory'
 import { PillButton } from '@/components/ui'
+import { getCurrentUser } from '@/lib/db/session-actions'
 import { getClubs } from '@/lib/db/queries'
 
 export const metadata: Metadata = {
@@ -17,8 +18,24 @@ export const metadata: Metadata = {
  * Clubs come from the database now rather than the fixture, so the member
  * counts move when somebody joins instead of being the same eight numbers for
  * everyone forever.
+ *
+ * ── Why this is no longer cached ──────────────────────────────────────
+ *
+ * It was `revalidate = 300`, and that made the Join button lie. A cached page
+ * is one page shared by everybody, so it cannot say whether *you* are a member
+ * — `isJoined` was false in the cached HTML for a member and a stranger alike,
+ * and the button offered to sell a membership its owner already had.
+ *
+ * Reading the session makes the route dynamic whether it is declared or not;
+ * saying so here means the page is not quietly reclassified by a cookie read
+ * three files away. The cost is a render per visit on one page, which is the
+ * right trade for a page whose entire purpose is a per-user decision.
+ *
+ * The homepage rail is deliberately NOT changed: it calls getClubs() with no
+ * user, stays cached, and shows no membership state. It is a preview, not a
+ * place to join from.
  */
-export const revalidate = 300
+export const dynamic = 'force-dynamic'
 
 /**
  * One measure, matching /community, /map and /routes.
@@ -33,7 +50,12 @@ const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
 
 export default async function CommunityClubsPage() {
-  const clubs = await getClubs()
+  /*
+    The session is read here and the id handed down, rather than each club
+    card asking for itself. One read, one place that knows who is looking.
+  */
+  const user = await getCurrentUser()
+  const clubs = await getClubs(user?.id)
 
   /**
    * Counted at render time, like every other figure in this band.

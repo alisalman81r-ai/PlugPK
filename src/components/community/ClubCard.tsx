@@ -4,7 +4,6 @@
 import { motion } from 'framer-motion'
 import { Check, MapPin, UserPlus, Users } from 'lucide-react'
 import Image from 'next/image'
-import * as React from 'react'
 
 import { hoverTrigger } from '@/components/ui'
 import type { EVClub } from '@/lib/types'
@@ -57,18 +56,28 @@ export function ClubCard({
   animationDelay,
   className,
 }: ClubCardProps) {
-  const [isJoined, setIsJoined] = React.useState(club.isJoined ?? false)
+  /*
+    Read from the server, never from a click.
+
+    This was React state that a click toggled, so the button reported a
+    membership nobody had: nothing was written, and a reload put it straight
+    back to "Join club". It looked like the feature worked, which is worse than
+    it plainly not existing — the one bug a Join button must not have.
+
+    Phase 1 removes the pretence. The button now renders the truth the database
+    gave it and does nothing when pressed; the action that opens checkout
+    arrives with Stripe in a later phase.
+  */
+  const isJoined = club.isJoined ?? false
   const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
 
-  /**
-   * The count as it stands plus this session's membership.
-   *
-   * `club.isJoined` is already counted in `memberCount` by the query, so only a
-   * join made here adds to it — otherwise a member reloading the page would see
-   * themselves counted twice.
-   */
-  const wasJoined = club.isJoined ?? false
-  const memberCount = club.memberCount + (isJoined && !wasJoined ? 1 : 0)
+  /*
+    The count as the query gave it. The local adjustment that used to sit here
+    existed only to make the fake join look real; with nothing joining
+    client-side there is nothing to adjust, and an unadjusted figure is one
+    fewer place for the page to disagree with the database.
+  */
+  const memberCount = club.memberCount
 
   /* ── Compact ──────────────────────────────────────────────────── */
   if (variant === 'compact') {
@@ -201,14 +210,24 @@ export function ClubCard({
             row of buttons level without capping what the copy can say. */}
         <button
           type="button"
-          onClick={() => setIsJoined((joined) => !joined)}
+          /*
+            Deliberately inert in Phase 1. Wiring it to a server action that
+            creates a membership would give away for free the thing the next
+            phase exists to sell, so it waits for checkout rather than being
+            hooked up to something that skips payment.
+          */
+          disabled
           aria-pressed={isJoined}
+          title={isJoined ? undefined : 'Joining opens with card payment shortly.'}
           className={cn(
             'mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-ui font-bold transition-colors duration-150',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             isJoined
-              ? 'border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 focus-visible:ring-green-500'
-              : 'bg-plug-blue-600 text-white hover:bg-plug-blue-700 focus-visible:ring-plug-blue-500',
+              ? 'border border-green-200 bg-green-50 text-green-700 focus-visible:ring-green-500'
+              : 'bg-plug-blue-600 text-white focus-visible:ring-plug-blue-500',
+            // No hover lift and a blocked cursor: a control that cannot be
+            // pressed should not answer the pointer as though it can.
+            'disabled:cursor-not-allowed disabled:opacity-60',
           )}
         >
           {isJoined ? (

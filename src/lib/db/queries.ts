@@ -18,6 +18,7 @@ import type { HeroMapPin, HeroStats } from '@/lib/charging'
 
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
+import { countActiveMembers, listActiveMembershipIds } from './membership'
 import {
   toConnector,
   toPost,
@@ -1271,21 +1272,33 @@ export async function getUserVehicles(userId: string): Promise<OwnedVehicle[]> {
 /**
  * Owners' clubs.
  *
- * memberCount is the stored baseline plus rows in ClubMember. Those seeded
- * totals are historical — they predate the join table — so counting rows alone
+ * memberCount is the stored baseline plus active memberships. Those seeded
+ * totals are historical — they predate any join table — so counting rows alone
  * would show every club dropping to zero the moment this shipped.
  *
  * `userId` is optional: pass it and each club reports whether that driver has
- * joined, which is what the Join button needs to render its own state.
+ * joined, which is what the Join button needs to render its own state. Leave it
+ * out on a cached page — reading the session would make that page dynamic, and
+ * the homepage rail is a preview rather than a place to join from.
+ *
+ * ── Reads Membership, not ClubMember ──────────────────────────────────
+ *
+ * Membership is the only thing that decides who is in a club from Phase 1
+ * onward, because it is the only one that knows whether the payment behind a
+ * join was ever confirmed. ClubMember still exists and is still empty; it is
+ * read by nothing now, and a later phase can drop it.
+ *
+ * Three queries rather than one include, because Membership has no relation to
+ * Club — `scopeId` is a plain column so the same table can hold a community
+ * membership later. Two of the three are grouped or filtered in the database
+ * and neither grows with the number of clubs on the page.
  */
 export async function getClubs(userId?: string): Promise<EVClub[]> {
-  const rows = await prisma.club.findMany({
-    include: {
-      members: userId ? { where: { userId }, select: { id: true } } : false,
-      _count: { select: { members: true } },
-    },
-    orderBy: { memberCount: 'desc' },
-  })
+  const [rows, memberCounts, joined] = await Promise.all([
+    prisma.club.findMany({ orderBy: { memberCount: 'desc' } }),
+    countActiveMembers('club'),
+    listActiveMembershipIds(userId, 'club'),
+  ])
 
   return rows.map((row) => ({
     id: row.id,
@@ -1293,8 +1306,8 @@ export async function getClubs(userId?: string): Promise<EVClub[]> {
     city: row.city,
     description: row.description,
     coverPhoto: row.coverPhoto ?? undefined,
-    memberCount: row.memberCount + row._count.members,
-    isJoined: Array.isArray(row.members) ? row.members.length > 0 : false,
+    memberCount: row.memberCount + (memberCounts.get(row.id) ?? 0),
+    isJoined: joined.has(row.id),
   }))
 }
 

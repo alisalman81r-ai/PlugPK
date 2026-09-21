@@ -311,8 +311,81 @@ model User {
   saved      SavedStation[]
   vehicles   UserVehicle[]
   clubs      ClubMember[]
+  memberships Membership[]
 
   @@index([createdAt])
+}
+
+/// A paid, one-time membership of something.
+///
+/// ── Why this is not a column on ClubMember ────────────────────────────
+///
+/// ClubMember records that a join happened. This records that it was bought:
+/// what was paid, which Stripe session paid it, and whether that payment was
+/// ever confirmed. Those are different lifetimes — a refund leaves the payment
+/// record standing and takes the access away — and squeezing both into one row
+/// would mean a table that cannot answer either question cleanly.
+///
+/// ClubMember is deliberately left in place and untouched by this phase. It
+/// holds no rows today, so nothing has to be migrated; a later phase can drop
+/// it once nothing reads it. Two tables answering "is this user in this club?"
+/// is the bug this codebase has fixed twice already, so exactly one of them
+/// gets to be the answer, and from Phase 1 that is this one.
+///
+/// ── scope, and why it is not a ClubId foreign key ─────────────────────
+///
+/// `scope` plus `scopeId` rather than `clubId` because the same purchase flow
+/// is meant to cover a community later, and a second nullable foreign key per
+/// type is how a membership table becomes six of them. The cost is real and
+/// worth naming: the database cannot enforce that `scopeId` points at a Club
+/// that exists. The query helpers are the only place that reads it, so that is
+/// where the check lives.
+///
+/// ── One membership per user per thing ─────────────────────────────────
+///
+/// The unique constraint is the last line of defence against a double
+/// purchase, not the first. The UI hides the button, the server refuses to
+/// open a second checkout, and this refuses the insert. A race between two
+/// tabs gets a constraint violation rather than two charges.
+model Membership {
+  id String @id
+
+  userId String
+
+  /// 'club' today. 'community' when there is a community to join.
+  scope String
+
+  /// The id of the thing being joined — a Club.id while scope is 'club'.
+  scopeId String
+
+  /// 'pending' until Stripe confirms, then 'active'. 'refunded' ends access
+  /// without deleting the record of what was paid.
+  status String
+
+  /// Set when checkout opens, so the webhook can find this row again. Unique
+  /// because Stripe retries webhooks, and replaying one must not grant a
+  /// second membership. Nullable so a membership granted by other means —
+  /// a comp, an import — does not need a fake session id.
+  stripeCheckoutSessionId String? @unique
+
+  stripePaymentIntentId String?
+
+  /// Minor units, as Stripe reports them. Never a float: 4999.00 in a double
+  /// is not 4999.00.
+  amount   Int
+  currency String
+
+  createdAt DateTime @default(now())
+
+  /// Null until a verified payment activates it. This, not `status`, is what
+  /// says when access began.
+  activatedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scope, scopeId])
+  @@index([userId])
+  @@index([scope, scopeId])
 }
 
 /**
