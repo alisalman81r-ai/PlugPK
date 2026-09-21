@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { Avatar, Button } from '@/components/ui'
@@ -42,15 +42,13 @@ function isActivePath(pathname: string, href: string): boolean {
 }
 
 export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
-  const router = useRouter()
   const [isSigningOut, setIsSigningOut] = React.useState(false)
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
     await signOut()
     onClose()
-    router.push('/')
-    router.refresh()
+    window.location.assign('/')
   }
   const pathname = usePathname()
 

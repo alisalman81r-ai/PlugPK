@@ -124,9 +124,34 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   return { ok: true }
 }
 
+/**
+ * Ends the session — both halves of it.
+ *
+ * ── Why the admin cookie is deleted here ──────────────────────────────
+ *
+ * It was not, and that was a hole rather than an oversight to shrug at.
+ * admin-access.ts falls back to the shared-password cookie when there is no
+ * account session, so deleting only the account session left `plugpk_admin`
+ * standing and /admin open for the eight hours until it expired. Somebody who
+ * pressed Sign out on a shared machine was still signed in to the portal.
+ *
+ * /api/admin/signout already cleared both; this is the same rule for the
+ * header's route through.
+ *
+ * ── Why revalidatePath('/') is gone ───────────────────────────────────
+ *
+ * It threw away the homepage's cached render on every sign-out, and the very
+ * next thing the caller does is navigate to the homepage — so the person
+ * signing out paid for a cold rebuild of the most expensive public page, four
+ * database round trips to another region, caused by their own click.
+ *
+ * It bought nothing. The layout above the homepage does not read the session
+ * at all — the header asks /api/me from the browser — so there is nothing on
+ * that page whose content depends on who is signed in.
+ */
 export async function signOut(): Promise<SessionResult> {
   cookies().delete(USER_COOKIE_NAME)
-  revalidatePath('/')
+  cookies().delete(ADMIN_COOKIE_NAME)
   return { ok: true }
 }
 

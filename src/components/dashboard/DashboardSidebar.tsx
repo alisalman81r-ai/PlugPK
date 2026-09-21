@@ -14,7 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 import { Avatar } from '@/components/ui'
 import { signOut } from '@/lib/db/session-actions'
@@ -69,7 +69,6 @@ export function isDashboardItemActive(
 
 export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
   const pathname = usePathname()
-  const router = useRouter()
 
   return (
     <div className="scrollbar-hide sticky top-[72px] flex h-[calc(100vh-72px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
@@ -172,8 +171,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
             // place, so "Sign Out" signed nobody out — the next visit to
             // /dashboard was still logged in.
             await signOut()
-            router.push('/')
-            router.refresh()
+            window.location.assign('/')
           }}
           className="flex h-[42px] w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
         >

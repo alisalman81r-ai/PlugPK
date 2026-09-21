@@ -3,7 +3,6 @@
 
 import { Building2, ChevronDown, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Avatar, TurnIcon } from '@/components/ui'
@@ -52,7 +51,6 @@ function linksFor(isAdmin: boolean) {
 
 export function AccountMenu({ user }: AccountMenuProps) {
   const LINKS = linksFor(user.isAdmin === true)
-  const router = useRouter()
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSigningOut, setIsSigningOut] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -79,12 +77,16 @@ export function AccountMenu({ user }: AccountMenuProps) {
 
   const handleSignOut = async () => {
     setIsSigningOut(true)
-    await signOut()
-    setIsOpen(false)
-    // refresh, not just push: the header is server-rendered, so the page has to
-    // be re-read for it to stop showing this menu.
-    router.push('/')
-    router.refresh()
+    try {
+      await signOut()
+      setIsOpen(false)
+      window.location.assign('/')
+    } finally {
+      // Without this the button is stuck on "Signing out…" for good if the
+      // action throws. On success the navigation unmounts it first, so this
+      // only ever runs on the path that needs it.
+      setIsSigningOut(false)
+    }
   }
 
   return (
