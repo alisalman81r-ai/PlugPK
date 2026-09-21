@@ -19,16 +19,39 @@ import { cn } from '@/lib/utils'
  */
 
 export interface AccountMenuProps {
-  user: { name: string; email: string; avatar?: string | null }
+  user: { name: string; email: string; avatar?: string | null; isAdmin?: boolean }
 }
 
-const LINKS = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/business/dashboard', label: 'My listings', icon: Building2 },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-]
+/**
+ * Where "Dashboard" goes depends on who is reading.
+ *
+ * It was always /dashboard — the driver dashboard: saved stations, saved
+ * routes, vehicles, reviews. For a driver that is right and it is the only
+ * dashboard they have. For an operator it is the wrong building: they press
+ * Dashboard expecting the console they run the network from and land on a page
+ * telling them they have saved no stations.
+ *
+ * So an operator's Dashboard points at /admin, and the driver pages stay
+ * reachable from the portal's own "View live site". The label changes with the
+ * destination rather than one word meaning two places.
+ *
+ * This is presentation only. `isAdmin` arrives from /api/me and decides a menu
+ * item; it authorises nothing. Every /admin route re-reads the column from the
+ * database on its own request, so a tampered value changes a link and gets a
+ * redirect at the other end.
+ */
+function linksFor(isAdmin: boolean) {
+  return [
+    isAdmin
+      ? { href: '/admin', label: 'Admin dashboard', icon: LayoutDashboard }
+      : { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/business/dashboard', label: 'My listings', icon: Building2 },
+    { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  ]
+}
 
 export function AccountMenu({ user }: AccountMenuProps) {
+  const LINKS = linksFor(user.isAdmin === true)
   const router = useRouter()
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSigningOut, setIsSigningOut] = React.useState(false)

@@ -18,7 +18,7 @@ function isActivePath(pathname: string, href: string): boolean {
 }
 
 /** The signed-in account, as /api/me reports it. */
-type NavUser = { name: string; email: string; avatar?: string | null }
+type NavUser = { name: string; email: string; avatar?: string | null; isAdmin?: boolean }
 
 export function Navbar() {
   const pathname = usePathname()

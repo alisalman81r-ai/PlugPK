@@ -25,7 +25,7 @@ export interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
   /** The signed-in account, or null. Mirrors the desktop header. */
-  user?: { name: string; email: string; avatar?: string | null } | null
+  user?: { name: string; email: string; avatar?: string | null; isAdmin?: boolean } | null
 }
 
 /** NAV_LINKS carries no icon component, so routes are mapped to icons here. */
@@ -133,11 +133,11 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
                   variant="secondary"
                   size="lg"
                   fullWidth
-                  href="/dashboard"
+                  href={user?.isAdmin ? '/admin' : '/dashboard'}
                   onClick={onClose}
                   tabIndex={isOpen ? undefined : -1}
                 >
-                  Dashboard
+                  {user?.isAdmin ? 'Admin dashboard' : 'Dashboard'}
                 </Button>
 
                 <button

@@ -34,7 +34,18 @@ export async function GET() {
   const profile = await getCurrentProfile()
 
   const user = profile
-    ? { name: profile.name, email: profile.email, avatar: profile.avatar }
+    ? {
+        name: profile.name,
+        email: profile.email,
+        avatar: profile.avatar,
+        /*
+          So the header can send an operator to the portal rather than to the
+          driver dashboard. It is a display hint and nothing more — every
+          /admin page re-reads isAdmin from the database on its own request,
+          so a forged value here changes a menu label and grants nothing.
+        */
+        isAdmin: profile.isAdmin,
+      }
     : null
 
   return NextResponse.json(

@@ -179,6 +179,13 @@ export interface CurrentProfile {
   city: string | null
   vehicle: string | null
   avatar: string | null
+  /**
+   * Carried so the header can point an operator at the portal rather than at
+   * the driver dashboard. It is a display hint: isCurrentUserAdmin() below and
+   * admin-access.ts are what authorise anything, and both re-read the column
+   * on every request.
+   */
+  isAdmin: boolean
   createdAt: string
 }
 
@@ -219,6 +226,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
       id: true,
       name: true,
       email: true,
+      isAdmin: true,
       city: true,
       vehicle: true,
       avatar: true,
