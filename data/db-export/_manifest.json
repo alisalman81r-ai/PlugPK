@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-09-15T13:20:40.466Z",
+  "exportedAt": "2026-09-21T12:54:47.664Z",
   "totalRows": 155,
   "models": [
     {
@@ -40,6 +40,11 @@
     {
       "model": "User",
       "file": "user.json",
+      "rows": 0
+    },
+    {
+      "model": "Membership",
+      "file": "membership.json",
       "rows": 0
     },
     {
@@ -127,5 +132,6 @@
       "file": "crawlLogEntry.json",
       "rows": 0
     }
-  ]
+  ],
+  "note": "User rows are intentionally excluded from this export — the repository is public and the User table holds password hashes. Create an account on the target machine and grant it with scripts/promote-admin.ts."
 }

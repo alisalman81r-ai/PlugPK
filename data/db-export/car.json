@@ -1977,7 +1977,7 @@
     "priceDisplay": "PKR 4,899,000 – 4,999,999",
     "batteryCapacity": 30.24,
     "range": 271,
-    "rangeMax": null,
+    "rangeMax": 271,
     "electricRange": null,
     "electricRangeMax": null,
     "power": 67,
@@ -2013,7 +2013,7 @@
     "image": "/images/cars/jmev-ev3.jpg",
     "notes": "JMEV EV3 in two trims, Comfort at PKR 4,899,000 and Premium at PKR 4,999,999, with booking around 490,000. 30.24 kWh LFP, 67 hp (about 50 kW), 125 Nm, FWD, top speed about 102 km/h. 271 km WLTP is stored; one listing quotes 330 km without naming a cycle. About 200–250 km is the realistic expectation. AC charging takes about 7 hours at roughly 6.6 kW. DC fast charging IS supported but no kW rating and no charge window were published, so both DC fields are blank — read that as unstated, not as absent. CCS2 and Type 2. 3720×1640×1535 mm, wheelbase 2390 mm, ground clearance about 177 mm, 177 L boot, kerb about 1060 kg. Seating is recorded as 5 because most sources say so; a minority say 4. Sold by Capital Smart Motors. 0–100 km/h, consumption and warranty are unconfirmed.",
     "createdAt": "2026-09-02T14:20:51.042Z",
-    "updatedAt": "2026-09-08T10:27:30.780Z"
+    "updatedAt": "2026-09-17T13:52:31.952Z"
   },
   {
     "id": "kia-ev5",

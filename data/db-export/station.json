@@ -19,13 +19,14 @@
     "rating": 4.8,
     "reviewCount": 142,
     "status": "available",
+    "venueType": "service-center",
     "isVerified": true,
     "network": "Atlas Power",
     "phone": "+92 42 3628 4410",
     "website": "https://atlaspower.example.pk/mall-road",
     "businessId": "biz-001",
     "createdAt": "2024-11-14T04:30:00.000Z",
-    "updatedAt": "2026-07-29T13:12:00.000Z"
+    "updatedAt": "2026-09-18T14:07:38.833Z"
   },
   {
     "id": "stn-002",
@@ -47,13 +48,14 @@
     "rating": 4.6,
     "reviewCount": 88,
     "status": "available",
+    "venueType": "office",
     "isVerified": true,
     "network": "PSO EV Charge",
     "phone": null,
     "website": null,
     "businessId": null,
     "createdAt": "2025-01-22T05:00:00.000Z",
-    "updatedAt": "2026-07-30T03:45:00.000Z"
+    "updatedAt": "2026-09-18T14:08:11.146Z"
   },
   {
     "id": "stn-003",
@@ -74,14 +76,15 @@
     "coverPhoto": "/images/stations/clifton-fast-charge-1.jpg",
     "rating": 4.2,
     "reviewCount": 64,
-    "status": "limited",
+    "status": "available",
+    "venueType": "restaurant",
     "isVerified": true,
     "network": "K-Electric ChargeUp",
     "phone": null,
     "website": null,
     "businessId": null,
     "createdAt": "2024-08-03T07:00:00.000Z",
-    "updatedAt": "2026-07-30T02:20:00.000Z"
+    "updatedAt": "2026-09-18T14:09:10.304Z"
   },
   {
     "id": "stn-004",
@@ -103,13 +106,14 @@
     "rating": 4.4,
     "reviewCount": 51,
     "status": "available",
+    "venueType": "mall",
     "isVerified": false,
     "network": "EVolve Pakistan",
     "phone": null,
     "website": null,
     "businessId": "biz-002",
     "createdAt": "2025-03-17T06:30:00.000Z",
-    "updatedAt": "2026-07-28T11:00:00.000Z"
+    "updatedAt": "2026-09-18T14:08:43.308Z"
   },
   {
     "id": "stn-005",
@@ -131,13 +135,14 @@
     "rating": 4,
     "reviewCount": 37,
     "status": "available",
+    "venueType": "dealership",
     "isVerified": true,
     "network": "Renergent",
     "phone": null,
     "website": null,
     "businessId": null,
     "createdAt": "2025-05-09T09:15:00.000Z",
-    "updatedAt": "2026-08-28T14:11:20.459Z"
+    "updatedAt": "2026-09-18T14:14:02.166Z"
   },
   {
     "id": "stn-006",
@@ -159,12 +164,13 @@
     "rating": 4.9,
     "reviewCount": 176,
     "status": "available",
+    "venueType": "mall",
     "isVerified": true,
     "network": "Shell Recharge",
     "phone": "+92 21 3584 9022",
     "website": null,
     "businessId": "biz-003",
     "createdAt": "2024-06-28T03:00:00.000Z",
-    "updatedAt": "2026-07-30T01:30:00.000Z"
+    "updatedAt": "2026-09-17T14:20:43.025Z"
   }
 ]

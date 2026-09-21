@@ -56,7 +56,7 @@
     "maxPowerKw": 50,
     "ports": 2,
     "availablePorts": 1,
-    "status": "in-use",
+    "status": "available",
     "compatibleVehicles": "[\"BYD Atto 3\",\"MG ZS EV\",\"Changan Lumin\"]"
   },
   {
@@ -95,8 +95,8 @@
     "type": "CCS2",
     "maxPowerKw": 150,
     "ports": 2,
-    "availablePorts": 0,
-    "status": "offline",
+    "availablePorts": 2,
+    "status": "available",
     "compatibleVehicles": "[\"BYD Seal\",\"BYD Han\",\"BMW iX\",\"Mercedes EQS\",\"KIA EV6\"]"
   },
   {
@@ -105,8 +105,8 @@
     "type": "Type2",
     "maxPowerKw": 22,
     "ports": 2,
-    "availablePorts": 0,
-    "status": "offline",
+    "availablePorts": 2,
+    "status": "available",
     "compatibleVehicles": "[\"BYD Atto 3\",\"BMW i4\",\"Mercedes EQS\"]"
   },
   {
