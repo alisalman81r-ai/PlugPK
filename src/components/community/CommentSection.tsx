@@ -2,9 +2,12 @@
 'use client'
 
 import { MessageSquare, ThumbsUp } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { createComment } from '@/lib/db/community-actions'
 import type { Comment } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
 import { Avatar } from './PostCard'
@@ -18,9 +21,12 @@ export interface CommentSectionProps {
 const PAGE_SIZE = 5
 
 export function CommentSection({ comments, postId, totalComments }: CommentSectionProps) {
+  const router = useRouter()
+  const { user } = useCurrentUser()
   const [newComment, setNewComment] = React.useState('')
   const [isFocused, setIsFocused] = React.useState(false)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
   const [likedComments, setLikedComments] = React.useState<Set<string>>(new Set())
   const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE)
 
@@ -33,11 +39,36 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
     })
   }
 
-  const handleSubmit = async () => {
-    if (newComment.trim().length === 0) return
+  /*
+    This used to clear the textarea and stop. Nothing was written, so a member
+    could type a reply, press the button, watch it vanish and reasonably
+    believe it had posted.
 
-    setNewComment('')
-    setIsFocused(false)
+    router.refresh() rather than pushing the comment into local state: the
+    server action revalidates the post page, so the refresh brings back the
+    row as the database actually stored it. Optimistically rendering a comment
+    that might not have saved is the same lie in a smaller font.
+  */
+  const handleSubmit = async () => {
+    const body = newComment.trim()
+    if (body.length === 0) return
+
+    setIsSubmitting(true)
+    setError(null)
+    try {
+      const result = await createComment(postId, body)
+      if (!result.ok) {
+        setError(result.message ?? 'Could not post that.')
+        return
+      }
+      setNewComment('')
+      setIsFocused(false)
+      router.refresh()
+    } catch {
+      setError('Could not post that. Try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const visible = comments.slice(0, visibleCount)
@@ -50,19 +81,26 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
       </h2>
 
       <div className="mb-8 flex gap-4">
-        <Avatar name="Guest" size={40} />
+        <Avatar name={user?.name ?? 'Guest'} size={40} />
 
         <div className="min-w-0 flex-1">
           <textarea
             value={newComment}
             onChange={(event) => setNewComment(event.target.value)}
             onFocus={() => setIsFocused(true)}
-            placeholder="Share your thoughts..."
+            placeholder={user ? 'Share your thoughts...' : 'Sign in to join the conversation'}
+            disabled={!user}
             aria-label="Write a comment"
             className="min-h-[80px] w-full rounded-2xl border-[1.5px] border-slate-200 bg-slate-50 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:bg-white"
           />
 
-          {isFocused ? (
+          {error ? (
+            <p role="alert" className="mt-2 text-sm text-red-600">
+              {error}
+            </p>
+          ) : null}
+
+          {isFocused && user ? (
             <div className="mt-3 flex justify-end gap-3">
               <Button
                 variant="ghost"

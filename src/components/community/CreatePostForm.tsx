@@ -4,8 +4,11 @@
 import { CheckCircle2, Lock, MessageCircle, X, type LucideIcon } from 'lucide-react'
 import * as React from 'react'
 
+import { useRouter } from 'next/navigation'
+
 import { Button } from '@/components/ui'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { createPost } from '@/lib/db/community-actions'
 import { POST_CATEGORIES } from '@/lib/constants'
 import type { CommunityPost, PostCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -26,6 +29,8 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
   const [category, setCategory] = React.useState<PostCategory | ''>('')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+  const router = useRouter()
 
   /*
     ── Who is asking ─────────────────────────────────────────────────
@@ -66,6 +71,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     if (isOpen) return
     setDismissed(false)
     setIsSuccess(false)
+    setError(null)
     setTitle('')
     setContent('')
     setCategory('')
@@ -74,13 +80,45 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
   const canSubmit =
     title.trim().length > 0 && content.trim().length > 0 && category !== '' && !isSubmitting
 
+  /*
+    This announced success and threw the post away.
+
+    It set isSuccess, called an onSubmit callback that the community page
+    never passes, and closed the modal three seconds later. Nothing was ever
+    written. The author saw a tick and lost what they wrote — a failure that
+    is indistinguishable from working until they reload and find nothing.
+
+    The success state is now set only after the server says the row exists,
+    and router.refresh() brings the feed back from the database rather than
+    inserting an optimistic copy that may not be there.
+  */
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!canSubmit) return
 
-    setIsSuccess(true)
-    onSubmit?.({ title, content, category: category as PostCategory })
-    setTimeout(onClose, 3000)
+    setIsSubmitting(true)
+    setError(null)
+
+    const form = new FormData()
+    form.set('title', title)
+    form.set('content', content)
+    form.set('category', category)
+
+    try {
+      const result = await createPost(form)
+      if (!result.ok) {
+        setError(result.message ?? 'Could not publish that.')
+        return
+      }
+      setIsSuccess(true)
+      onSubmit?.({ title, content, category: category as PostCategory })
+      router.refresh()
+      setTimeout(onClose, 2000)
+    } catch {
+      setError('Could not publish that. Try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!isOpen) return null
@@ -212,6 +250,17 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 {content.length}/{MAX_CONTENT}
               </p>
             </div>
+
+            {/* Above the buttons, not below them: a message under the fold of
+                a scrolled modal is a message nobody reads. */}
+            {error ? (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700"
+              >
+                {error}
+              </p>
+            ) : null}
 
             <div className="mt-6 flex items-center justify-between gap-4">
               <p className="text-xs text-slate-400">Fields marked * are required</p>
