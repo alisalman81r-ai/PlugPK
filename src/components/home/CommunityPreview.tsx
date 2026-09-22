@@ -227,10 +227,10 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
                             the top of the file. */}
                         <span
                           aria-hidden="true"
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 transition-colors duration-300 group-hover/stat:bg-plug-blue-100"
+                          className="flex h-11 w-11 shrink-0 items-center justify-center"
                         >
                           <AnimatedIcon motion={stat.motion}>
-                            <Icon size={20} className="text-plug-blue-600" />
+                            <Icon size={20} className="text-plug-blue-600 transition-colors duration-300 group-hover/stat:text-plug-blue-700" />
                           </AnimatedIcon>
                         </span>
                         <span>
@@ -259,7 +259,7 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
             <HoverMotion className="group/clubs rounded-3xl bg-gradient-brand p-7 shadow-[0_14px_34px_-14px_rgba(37,99,235,0.55)] transition-shadow duration-300 hover:shadow-[0_20px_44px_-14px_rgba(37,99,235,0.65)]">
               <span
                 aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-inset ring-white/25"
+                className="flex h-11 w-11 shrink-0 items-center justify-center"
               >
                 <AnimatedIcon motion="scan">
                   <MapPin size={20} className="text-white" />

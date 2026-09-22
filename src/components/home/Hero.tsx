@@ -466,7 +466,7 @@ export function Hero({ stats }: HeroProps) {
               >
                 <span
                   aria-hidden="true"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center text-plug-blue-600"
                 >
                   <Route size={19} />
                 </span>

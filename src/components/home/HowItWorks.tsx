@@ -127,7 +127,7 @@ export function HowItWorks() {
 
                     <span
                       aria-hidden="true"
-                      className={`${ICON_FRAME} mb-6 h-16 w-16 bg-slate-50`}
+                      className={`${ICON_FRAME} mb-6 h-16 w-16`}
                     >
                       <AnimatedIcon motion={step.motion}>
                         <Icon size={28} strokeWidth={1.5} className={ICON_GLYPH} />

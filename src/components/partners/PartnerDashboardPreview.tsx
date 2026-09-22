@@ -90,9 +90,9 @@ export function PartnerDashboardPreview({ className }: PartnerDashboardPreviewPr
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
             <span
               aria-hidden="true"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand"
+              className="flex h-11 w-11 shrink-0 items-center justify-center"
             >
-              <Zap size={20} className="fill-white text-white" />
+              <Zap size={20} className="fill-plug-blue-600 text-plug-blue-600" />
             </span>
             <div className="min-w-0">
               <p className="truncate font-display font-bold text-slate-900">Your listing</p>
