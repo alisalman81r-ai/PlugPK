@@ -41,9 +41,21 @@ function HeroStat({
 }) {
   return (
     <div className="flex items-center gap-3.5">
+      {/*
+        The glyph sits on the page, not in a chip.
+
+        This was a filled plug-blue-50 square. Three of them in a row under the
+        hero read as three buttons rather than three figures, and the fill
+        competed with the numbers beside it — which are the thing the row
+        exists to show.
+
+        The box is gone; the 40px measure is not. It keeps the icon's optical
+        centre level with the value above the label across all three stats,
+        which an intrinsically-sized glyph would not.
+      */}
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center rounded-xl bg-plug-blue-50 text-plug-blue-600"
+        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center text-plug-blue-600"
       >
         {icon}
       </span>

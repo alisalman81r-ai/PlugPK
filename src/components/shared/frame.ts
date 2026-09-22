@@ -51,11 +51,27 @@ export const FACE =
   'relative flex h-full flex-col rounded-[calc(1.5rem-1.5px)] bg-white ' +
   'transition-transform duration-300 group-hover:-translate-y-0.5'
 
-/** An outlined icon holder, replacing the filled chips these sections had. */
-export const ICON_FRAME =
-  'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-[1.5px] border-slate-300 ' +
-  'transition-all duration-300 group-hover:border-plug-blue-400 ' +
-  'group-hover:shadow-[0_0_0_4px_rgba(37,99,235,0.06)]'
+/**
+ * The icon holder — now a position, not a container.
+ *
+ * It was an outlined box: a 56px rounded square with a 1.5px slate border that
+ * warmed to brand and grew a soft ring on hover. That replaced filled chips,
+ * and it has now gone the rest of the way. Two frames nested inside each other
+ * — the card's own edge, then a second edge around the glyph — is one border
+ * too many, and at this size the box drew more attention than the icon it was
+ * holding.
+ *
+ * The dimensions stay. Every section that uses this lays its icon out above a
+ * cap rule and a heading, and dropping to the glyph's intrinsic size would
+ * shift all of them up by a few pixels and leave the rules no longer aligned
+ * across a row of cards. So the 56px square remains as space; only the border,
+ * the radius and the hover ring are gone.
+ *
+ * Hover now lives entirely on the glyph — see ICON_GLYPH, which still warms to
+ * brand. The card keeps its own edge transition, so a card still responds; it
+ * just responds once instead of three times.
+ */
+export const ICON_FRAME = 'flex h-14 w-14 shrink-0 items-center justify-center'
 
 export const ICON_GLYPH =
   'text-slate-500 transition-colors duration-300 group-hover:text-plug-blue-600'
