@@ -1,11 +1,12 @@
 // src/components/dashboard/DashboardLayout.tsx
 'use client'
 
-import { Bookmark, Car, LayoutDashboard, Settings, Star, type LucideIcon } from 'lucide-react'
+import { Bookmark, Building2, Car, LayoutDashboard, Settings, Star, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
+import { BackButton } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import {
   DashboardSidebar,
@@ -39,6 +40,7 @@ const MOBILE_TABS: MobileTab[] = [
   { label: 'Vehicles', href: '/dashboard/vehicles', icon: Car },
   { label: 'Saved', href: '/dashboard/saved', icon: Bookmark },
   { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
+  { label: 'Listings', href: '/business/dashboard', icon: Building2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
@@ -61,8 +63,13 @@ export function DashboardLayout({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white px-6 py-5 lg:px-8">
           <div className="min-w-0">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-            {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+            <div className="flex items-center gap-3">
+              {pathname !== '/dashboard' ? <BackButton fallbackHref="/dashboard" /> : null}
+              <div>
+                <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
+                {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+              </div>
+            </div>
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>
@@ -77,7 +84,7 @@ export function DashboardLayout({
         aria-label="Dashboard"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-[20px] lg:hidden"
       >
-        <div className="grid h-16 grid-cols-5">
+        <div className="grid h-16 grid-cols-6">
           {MOBILE_TABS.map((tab) => {
             const active = isDashboardItemActive(pathname, tab)
             const Icon = tab.icon

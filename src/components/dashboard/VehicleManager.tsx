@@ -1,12 +1,12 @@
 // src/components/dashboard/VehicleManager.tsx
 'use client'
 
-import { Car, Check, Loader2, Zap } from 'lucide-react'
+import { Car, Check, ChevronDown, Loader2, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import type { Car as CatalogueCar } from '@/data/cars'
 import { saveMyVehicle } from '@/lib/db/session-actions'
-import { MOCK_EV_MODELS } from '@/lib/mock-data'
 
 /**
  * The vehicle on the signed-in account.
@@ -25,14 +25,26 @@ import { MOCK_EV_MODELS } from '@/lib/mock-data'
 
 export interface VehicleManagerProps {
   vehicle: string | null
+  cars: CatalogueCar[]
 }
 
-export function VehicleManager({ vehicle }: VehicleManagerProps) {
+export function VehicleManager({ vehicle, cars }: VehicleManagerProps) {
   const [value, setValue] = React.useState(vehicle ?? '')
   const [isSaving, setIsSaving] = React.useState(false)
   const [isSaved, setIsSaved] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [saved, setSaved] = React.useState(vehicle ?? '')
+  const [expandedBrands, setExpandedBrands] = React.useState<Set<string>>(new Set())
+
+  const carsByBrand = React.useMemo(() => {
+    const groups = new Map<string, CatalogueCar[]>()
+    for (const car of cars) {
+      const group = groups.get(car.brand)
+      if (group) group.push(car)
+      else groups.set(car.brand, [car])
+    }
+    return Array.from(groups.entries()).sort(([first], [second]) => first.localeCompare(second))
+  }, [cars])
 
   const handleSave = async (next: string) => {
     setIsSaving(true)
@@ -88,21 +100,59 @@ export function VehicleManager({ vehicle }: VehicleManagerProps) {
         />
 
         <p className="mb-2 mt-5 text-ui-xs font-semibold uppercase tracking-wide text-slate-400">
-          Or pick one
+          Or pick from the catalogue ({cars.length} cars)
         </p>
-        <div className="flex flex-wrap gap-2">
-          {MOCK_EV_MODELS.slice(0, 8).map((model) => {
-            const label = `${model.make} ${model.model}`
+        <div className="overflow-hidden rounded-xl border border-slate-200">
+          {carsByBrand.map(([brand, brandCars]) => {
+            const isExpanded = expandedBrands.has(brand)
+
             return (
-              <button
-                key={model.id}
-                type="button"
-                onClick={() => setValue(label)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-ui-sm text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50"
-              >
-                <Zap size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
-                {label}
-              </button>
+              <div key={brand} className="border-b border-slate-200 last:border-b-0">
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  onClick={() => {
+                    setExpandedBrands((current) => {
+                      const next = new Set(current)
+                      if (next.has(brand)) next.delete(brand)
+                      else next.add(brand)
+                      return next
+                    })
+                  }}
+                  className="flex w-full items-center justify-between gap-3 bg-slate-50 px-4 py-3 text-left transition-colors hover:bg-plug-blue-50"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-900">{brand}</span>
+                    <span className="text-ui-xs text-slate-400">
+                      {brandCars.length} model{brandCars.length === 1 ? '' : 's'}
+                    </span>
+                  </span>
+                  <ChevronDown
+                    size={17}
+                    className={`shrink-0 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                {isExpanded ? (
+                  <div className="flex flex-wrap gap-2 border-t border-slate-200 bg-white p-3">
+                    {brandCars.map((car) => {
+                      const label = `${car.brand} ${car.model}`
+                      return (
+                        <button
+                          key={car.id}
+                          type="button"
+                          onClick={() => setValue(label)}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-ui-sm text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50"
+                        >
+                          <Zap size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
+                          {car.model}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : null}
+              </div>
             )
           })}
         </div>

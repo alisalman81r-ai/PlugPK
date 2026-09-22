@@ -19,7 +19,7 @@ export default async function EditServicePage({ params }: { params: { id: string
 
   return (
     <>
-      <AdminHeader title={service.name} description="Editing a published listing." />
+      <AdminHeader title={service.name} description="Editing a published listing." backHref="/admin/services" />
       <ServiceForm service={service} action={update} />
     </>
   )

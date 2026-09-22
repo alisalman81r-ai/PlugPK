@@ -62,12 +62,6 @@ function HeroStat({
 
 interface HeroProps {
   /**
-   * Cities that actually have a station on the platform — counted from the
-   * database, not from the list of cities somebody could pick from. This was
-   * a hardcoded "18", which was a coverage claim nothing backed up.
-   */
-  cities: number
-  /**
    * The three figures beside the search, and the counts on the city chips.
    *
    * Counted in getHeroStats, never written here. The design these came from
@@ -78,7 +72,7 @@ interface HeroProps {
   stats: HeroStats
 }
 
-export function Hero({ cities, stats }: HeroProps) {
+export function Hero({ stats }: HeroProps) {
   const router = useRouter()
   const [query, setQuery] = React.useState('')
 
@@ -200,47 +194,6 @@ export function Hero({ cities, stats }: HeroProps) {
           {/* ── The type ─────────────────────────────────────────────── */}
           <div className="hero-type relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:pb-[var(--hero-lift,0px)] lg:pl-14 lg:pr-10 lg:pt-0 xl:pl-20">
             <div className="flex w-full max-w-[38rem] 2xl:max-w-[50rem] flex-col items-start text-left">
-              {/*
-                ── The status pill ───────────────────────────────────────
-                Green, not brand blue. It reports a live state — how many
-                cities actually have coverage — and that is a status rather
-                than an accent, so it reads in the colour the rest of the site
-                uses for "this is on". Blue here also competed with the accent
-                in the headline directly beneath it; there is one blue in this
-                column now, and it is on the word that matters.
-
-                Raw green rather than a plug-* token on purpose: it should
-                stay green if the brand hue is ever changed.
-              */}
-              <div className="hero-rise hero-rise-1 mb-[clamp(1.5rem,3.4vh,2.5rem)] flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="inline-flex items-center gap-2.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-green-700 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
-                  <span
-                    aria-hidden="true"
-                    className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_8px_2px_rgba(34,197,94,0.4)]"
-                  />
-                  {cities > 0
-                    ? `Live now in ${cities} ${cities === 1 ? 'city' : 'cities'}`
-                    : 'Mapping Pakistan, city by city'}
-                </span>
-
-                {/*
-                  Beside the pill rather than under it, as in the reference. It
-                  points at the map, which is the honest destination: there is
-                  no waiting-list page to promise, and the map is where somebody
-                  wondering about coverage can see exactly what exists.
-                */}
-                <Link
-                  href="/map"
-                  className="group/soon inline-flex items-center gap-1.5 text-ui-sm text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-                >
-                  More cities coming soon
-                  <ArrowRight
-                    size={14}
-                    className="shrink-0 transition-transform duration-200 group-hover/soon:translate-x-0.5 motion-reduce:transition-none"
-                    aria-hidden="true"
-                  />
-                </Link>
-              </div>
   
               {/*
                 Set as three lines rather than left to wrap.
@@ -488,7 +441,7 @@ export function Hero({ cities, stats }: HeroProps) {
                 Capped at the width of the type column so the bar belongs to the
                 left side rather than running under the map.
               */}
-              <Link
+              {false && <Link
                 href="/routes"
                 className={cn(
                   'group/route relative isolate mt-10 flex w-full items-center gap-4 overflow-hidden',
@@ -531,7 +484,7 @@ export function Hero({ cities, stats }: HeroProps) {
                   {/* Left-to-right wash, so the words never sit on the photograph. */}
                   <span className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/45" />
                 </span>
-              </Link>
+              </Link>}
             </div>
           </div>
   

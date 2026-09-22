@@ -54,7 +54,7 @@ export default async function AdminMemberPage({ params }: PageProps) {
 
   return (
     <>
-      <AdminHeader title={member.name} description={member.email} />
+      <AdminHeader title={member.name} description={member.email} backHref="/admin/members" />
 
       <div className="px-4 py-6 lg:px-8 lg:py-8">
         <Link

@@ -15,6 +15,7 @@ export default function NewBusinessPage() {
     <>
       <AdminHeader
         title="Add business"
+        backHref="/admin/businesses"
         description="Enter a business directly. Set it to approved with coordinates and it appears on the map straight away."
       />
       <BusinessForm action={create} />

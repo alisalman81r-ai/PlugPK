@@ -26,6 +26,7 @@ import { getCurrentUser } from './session-actions'
 export interface BusinessResult {
   ok: boolean
   message?: string
+  businessId?: string
 }
 
 export interface DraftCharger {
@@ -34,6 +35,10 @@ export interface DraftCharger {
   ports: number
   /** Set once a photo has been uploaded for this charger. */
   photo?: string
+  photoLabel?: 'charger' | 'port' | 'location' | 'signage'
+  photoStatus?: 'pending' | 'approved' | 'needs-better-photo'
+  portPhoto?: string
+  portPhotoStatus?: 'pending' | 'approved' | 'needs-better-photo'
 }
 
 export interface BusinessApplication {
@@ -145,9 +150,11 @@ export async function registerBusiness(
         }))
     : []
 
+  const businessId = randomUUID()
+
   await prisma.business.create({
     data: {
-      id: randomUUID(),
+      id: businessId,
       userId: user.id,
       ownerName,
       email,
@@ -171,7 +178,7 @@ export async function registerBusiness(
   revalidatePath('/')
   revalidatePath('/map')
   revalidatePath('/business/dashboard')
-  return { ok: true }
+  return { ok: true, businessId: businessId }
 }
 
 // Delegates to the single check in admin-access.ts. This module used to
@@ -186,11 +193,83 @@ export async function setBusinessStatus(
   status: 'pending' | 'approved' | 'rejected',
 ): Promise<BusinessResult> {
   await assertAdmin()
-  await prisma.business.update({ where: { id }, data: { status } })
+  if (status === 'approved') {
+    const business = await prisma.business.findUnique({ where: { id }, select: { chargers: true } })
+    let chargers: DraftCharger[] = []
+    try {
+      const parsed: unknown = JSON.parse(business?.chargers ?? '[]')
+      if (Array.isArray(parsed)) chargers = parsed as DraftCharger[]
+    } catch {
+      chargers = []
+    }
+    if (chargers.length === 0 || chargers.some((charger) => !charger.photo)) {
+      return { ok: false, message: 'Add a primary charger photo for every charger before approving.' }
+    }
+  }
+  const existing = await prisma.business.findUnique({ where: { id }, select: { chargers: true } })
+  let chargers: DraftCharger[] = []
+  try {
+    const parsed: unknown = JSON.parse(existing?.chargers ?? '[]')
+    if (Array.isArray(parsed)) chargers = parsed as DraftCharger[]
+  } catch {
+    chargers = []
+  }
+  await prisma.business.update({
+    where: { id },
+    data: {
+      status,
+      ...(status === 'approved'
+        ? { chargers: JSON.stringify(chargers.map((charger) => ({ ...charger, photoStatus: charger.photo ? 'approved' : charger.photoStatus, portPhotoStatus: charger.portPhoto ? 'approved' : charger.portPhotoStatus }))) }
+        : {}),
+    },
+  })
   revalidatePath('/admin/businesses')
   revalidatePath('/admin')
   // The homepage counter and the map both read this table and are cached.
   revalidatePath('/')
+  revalidatePath('/map')
+  return { ok: true }
+}
+
+export async function reviewBusinessPhoto(
+  businessId: string,
+  photoUrl: string,
+  status: 'approved' | 'needs-better-photo',
+): Promise<BusinessResult> {
+  await assertAdmin()
+  const business = await prisma.business.findUnique({ where: { id: businessId }, select: { chargers: true } })
+  if (!business) return { ok: false, message: 'That listing no longer exists.' }
+
+  let chargers: DraftCharger[] = []
+  try {
+    const parsed: unknown = JSON.parse(business.chargers)
+    if (Array.isArray(parsed)) chargers = parsed as DraftCharger[]
+  } catch {
+    return { ok: false, message: 'That listing has invalid charger data.' }
+  }
+
+  let found = false
+  const next = chargers.map((charger) => {
+    if (charger.photo === photoUrl) {
+      found = true
+      return { ...charger, photoStatus: status }
+    }
+    if (charger.portPhoto === photoUrl) {
+      found = true
+      return { ...charger, portPhotoStatus: status }
+    }
+    return charger
+  })
+  if (!found) return { ok: false, message: 'That photo is not part of this listing.' }
+
+  await prisma.business.update({ where: { id: businessId }, data: { chargers: JSON.stringify(next) } })
+  await prisma.businessPhotoReport.updateMany({
+    where: { businessId, photoUrl, status: 'new' },
+    data: { status: 'resolved' },
+  })
+  revalidatePath('/admin/businesses')
+  revalidatePath('/admin')
+  revalidatePath(`/station/${businessId}`)
   revalidatePath('/map')
   return { ok: true }
 }
@@ -389,9 +468,21 @@ export async function saveMyChargers(
       // Only paths this application wrote are kept. Anything else in the field
       // would let a saved listing point at an arbitrary URL.
       ...(typeof charger.photo === 'string' && charger.photo.startsWith('/uploads/chargers/')
-        ? { photo: charger.photo }
+        ? {
+            photo: charger.photo,
+            photoLabel: charger.photoLabel ?? 'charger',
+            photoStatus: charger.photoStatus ?? 'pending',
+          }
+        : {}),
+      ...(typeof charger.portPhoto === 'string' && charger.portPhoto.startsWith('/uploads/chargers/')
+        ? { portPhoto: charger.portPhoto, portPhotoStatus: charger.portPhotoStatus ?? 'pending' }
         : {}),
     }))
+
+  if (cleaned.length === 0) return { ok: false, message: 'Add at least one charger before saving.' }
+  if (cleaned.some((charger) => !charger.photo)) {
+    return { ok: false, message: 'Each charger needs a primary charger photo before saving.' }
+  }
 
   await prisma.business.update({
     where: { id: businessId },

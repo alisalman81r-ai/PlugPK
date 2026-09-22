@@ -54,7 +54,7 @@ export interface UseCommunityReturn {
   stats: CommunityStats
 }
 
-export function useCommunity(): UseCommunityReturn {
+export function useCommunity(initialPosts: CommunityPost[] = []): UseCommunityReturn {
   const [selectedCategory, setSelectedCategory] = useState<PostCategory | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<CommunitySort>('latest')
@@ -67,7 +67,7 @@ export function useCommunity(): UseCommunityReturn {
    */
   const isLoading = false
 
-  const posts = MOCK_POSTS
+  const posts = initialPosts.length > 0 ? initialPosts : MOCK_POSTS
 
   const toggleLike = useCallback((postId: string) => {
     setLikedPosts((current) => {

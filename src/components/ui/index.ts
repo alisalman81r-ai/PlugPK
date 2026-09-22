@@ -18,6 +18,7 @@ export { MorphIcon, TurnIcon } from './MorphIcon'
 export { HoverMotion, HoverLink, HoverButton, hoverTrigger } from './Hover'
 export { TiltCard } from './TiltCard'
 export { SectionHeader } from './SectionHeader'
+export { BackButton } from './BackButton'
 export { Container, Section } from './Container'
 
 export type { AnimatedIconProps, IconMotion } from './AnimatedIcon'

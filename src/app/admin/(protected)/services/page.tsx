@@ -1,13 +1,12 @@
 // src/app/admin/(protected)/services/page.tsx
-import { ExternalLink, Inbox, Pencil, Plus, ShieldCheck } from 'lucide-react'
+import { Inbox, Pencil, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { DeleteButton } from '@/components/admin/DeleteButton'
+import { AdminServicesDirectory } from '@/components/admin/AdminServicesDirectory'
 import { ServiceReviewControl } from '@/components/admin/ServiceReviewControl'
 import { deleteService } from '@/lib/db/actions'
 import { listServicesForAdmin } from '@/lib/db/queries'
-import { cn } from '@/lib/utils'
 
 /**
  * The services directory, and the queue of people asking to join it.
@@ -24,12 +23,6 @@ import { cn } from '@/lib/utils'
  */
 
 export const dynamic = 'force-dynamic'
-
-const STATUS_CHIP: Record<string, string> = {
-  pending: 'border-amber-300 bg-amber-50 text-amber-700',
-  approved: 'border-emerald-300 bg-emerald-50 text-emerald-700',
-  rejected: 'border-slate-300 bg-slate-50 text-slate-500',
-}
 
 export default async function AdminServicesPage() {
   const all = await listServicesForAdmin()
@@ -123,88 +116,7 @@ export default async function AdminServicesPage() {
           </section>
         ) : null}
 
-        {/* ── The directory ────────────────────────────────────────── */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <caption className="sr-only">
-                Every service in the directory, with its approval status.
-              </caption>
-              <thead>
-                <tr className="border-b border-slate-100 text-ui-xs uppercase tracking-wider text-slate-400">
-                  <th scope="col" className="px-5 py-3 font-semibold">Business</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Category</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">City</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Status</th>
-                  <th scope="col" className="px-5 py-3 text-right font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listed.map((row) => (
-                  <tr key={row.id} className="border-b border-slate-50 last:border-0">
-                    <td className="px-5 py-4">
-                      <p className="flex items-center gap-1.5 font-semibold text-slate-900">
-                        {row.name}
-                        {row.isVerified ? (
-                          <ShieldCheck
-                            size={14}
-                            className="shrink-0 text-plug-blue-600"
-                            aria-label="Verified"
-                          />
-                        ) : null}
-                      </p>
-                      <p className="mt-0.5 font-mono text-ui-xs text-slate-400">{row.slug}</p>
-                    </td>
-                    <td className="px-5 py-4 text-ui-sm capitalize text-slate-600">
-                      {row.category.replace(/-/g, ' ')}
-                    </td>
-                    <td className="px-5 py-4 text-ui-sm text-slate-600">{row.city}</td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={cn(
-                          'inline-flex rounded-full border px-2.5 py-0.5 text-ui-xs font-semibold capitalize',
-                          STATUS_CHIP[row.status] ?? STATUS_CHIP.rejected,
-                        )}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-end gap-1">
-                        {/* Only an approved listing has a public page to open. */}
-                        {row.status === 'approved' ? (
-                          <Link
-                            href={`/services/${row.category}/${row.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`View ${row.name} on the live site`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                          >
-                            <ExternalLink size={15} />
-                          </Link>
-                        ) : null}
-                        <Link
-                          href={`/admin/services/${row.id}`}
-                          aria-label={`Edit ${row.name}`}
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-plug-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                        >
-                          <Pencil size={15} />
-                        </Link>
-                        <DeleteButton
-                          label={row.name}
-                          action={async () => {
-                            'use server'
-                            return deleteService(row.id)
-                          }}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <AdminServicesDirectory services={listed} onDelete={deleteService} />
       </div>
     </>
   )

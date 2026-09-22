@@ -6,10 +6,13 @@ import Image from 'next/image'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { reportBusinessPhoto } from '@/lib/db/actions'
 
 export interface PhotoGalleryProps {
   photos: string[]
   stationName: string
+  businessId?: string
+  photosVerified?: boolean
 }
 
 const MAX_THUMBS = 5
@@ -44,9 +47,11 @@ function PhotoSlot({
   )
 }
 
-export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, stationName, businessId, photosVerified }: PhotoGalleryProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false)
+  const [reportMessage, setReportMessage] = React.useState<string | null>(null)
+  const [isReporting, setIsReporting] = React.useState(false)
 
   // Bound once so noUncheckedIndexedAccess narrowing carries into the JSX.
   const currentPhoto = photos[selectedIndex]
@@ -60,6 +65,14 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
   const goNext = React.useCallback(() => {
     setSelectedIndex((index) => (index + 1) % photos.length)
   }, [photos.length])
+
+  const reportCurrentPhoto = async () => {
+    if (!businessId || !currentPhoto || isReporting) return
+    setIsReporting(true)
+    const result = await reportBusinessPhoto(businessId, currentPhoto, 'Incorrect, blurry, or misleading photo')
+    setReportMessage(result.ok ? 'Report sent to the Plug.pk team.' : result.message ?? 'Could not send report.')
+    setIsReporting(false)
+  }
 
   React.useEffect(() => {
     if (!isLightboxOpen) return
@@ -112,6 +125,23 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
             <span className="text-xs font-medium text-white">Add Photo</span>
           </button>
 
+          {businessId && currentPhoto ? (
+            <button
+              type="button"
+              onClick={() => void reportCurrentPhoto()}
+              disabled={isReporting}
+              className="absolute bottom-3 right-3 rounded-lg bg-black/60 px-3 py-1.5 text-xs font-medium text-white hover:bg-black/80 disabled:opacity-60"
+            >
+              {isReporting ? 'Reporting…' : 'Report photo'}
+            </button>
+          ) : null}
+
+          {photosVerified && photos.length > 0 ? (
+            <span className="absolute left-3 top-3 rounded-lg bg-emerald-600/90 px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
+              Photos verified
+            </span>
+          ) : null}
+
           {photos.length > 1 ? (
             <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-md">
               <Images size={14} className="text-white" aria-hidden="true" />
@@ -153,6 +183,8 @@ export function PhotoGallery({ photos, stationName }: PhotoGalleryProps) {
           </div>
         ) : null}
       </div>
+
+      {reportMessage ? <p role="status" className="mt-3 text-ui-sm text-slate-500">{reportMessage}</p> : null}
 
       {isLightboxOpen && currentPhoto ? (
         <div

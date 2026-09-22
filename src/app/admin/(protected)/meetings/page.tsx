@@ -107,6 +107,15 @@ export default async function AdminMeetingsPage() {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
+                      {!isNew ? (
+                        <a
+                          href={`mailto:${row.email}?subject=${encodeURIComponent(`Meeting follow-up for ${row.company}`)}&body=${encodeURIComponent(`Hi ${row.name},\n\nThank you for requesting a meeting with Plug.pk. We would like to discuss your listing and confirm a suitable time.\n\nYour preferred timing was: ${row.preferredDate ?? 'any date'}${row.preferredTime ? ` at ${row.preferredTime}` : ''}.\n\nPlease let us know what works for you.\n\nBest,\nPlug.pk`)}`}
+                          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-plug-blue-600 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+                        >
+                          <Mail size={14} aria-hidden="true" />
+                          Reply
+                        </a>
+                      ) : null}
                       <MeetingStatusToggle
                         isHandled={!isNew}
                         action={async (next: 'new' | 'handled') => {

@@ -26,6 +26,7 @@ export function MeetingRequestForm() {
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
   const [sent, setSent] = React.useState(false)
+  const formRef = React.useRef<HTMLFormElement>(null)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -43,22 +44,33 @@ export function MeetingRequestForm() {
     return (
       <div
         role="status"
-        className="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center"
+        className="rounded-2xl border border-plug-blue-200 bg-plug-blue-50 p-8 text-center"
       >
-        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle2 size={22} className="text-emerald-700" aria-hidden="true" />
+        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white">
+          <CheckCircle2 size={22} className="text-plug-blue-600" aria-hidden="true" />
         </span>
-        <p className="text-lg font-bold text-slate-900">Request received</p>
+        <p className="text-lg font-bold text-slate-900">Meeting request sent</p>
         <p className="mx-auto mt-2 max-w-sm text-pretty text-ui-sm leading-relaxed text-slate-600">
-          We have your details and will be in touch to confirm a time. Nothing is booked
-          yet — the date you gave is a preference, not a reservation.
+          Your request has been delivered from your account. We will contact you to confirm a
+          suitable time. Nothing is booked yet.
         </p>
+        <button
+          type="button"
+          onClick={() => {
+            formRef.current?.reset()
+            setError(null)
+            setSent(false)
+          }}
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-xl border border-plug-blue-200 bg-white px-5 text-ui-sm font-semibold text-plug-blue-700 transition-colors hover:bg-plug-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+        >
+          Request another meeting
+        </button>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8">
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
           <CalendarCheck size={18} className="text-plug-blue-600" aria-hidden="true" />

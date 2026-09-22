@@ -20,6 +20,7 @@ export default async function NewConnectorPage() {
     <>
       <AdminHeader
         title="Add connector"
+        backHref="/admin/connectors"
         description="Appears on the station's public page and counts toward its ports."
       />
 

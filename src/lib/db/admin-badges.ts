@@ -53,11 +53,25 @@ interface Queue {
 
 const QUEUES: Queue[] = [
   {
+    // A community post is a notification until the admin opens Community.
+    href: '/admin/community',
+    one: 'new community post',
+    many: 'new community posts',
+    count: () =>
+      prisma.communityPost.count({ where: { adminViewedAt: null } }),
+  },
+  {
     // Applications from the public "list your business" form.
     href: '/admin/businesses',
-    one: 'business awaiting approval',
-    many: 'businesses awaiting approval',
-    count: () => prisma.business.count({ where: { status: 'pending' } }),
+    one: 'business or charger photo item to review',
+    many: 'businesses or charger photo items to review',
+    count: async () => {
+      const [businesses, reports] = await Promise.all([
+        prisma.business.count({ where: { status: 'pending' } }),
+        prisma.businessPhotoReport.count({ where: { status: 'new' } }),
+      ])
+      return businesses + reports
+    },
   },
   {
     // Meeting requests nobody has opened. 'new' rather than 'pending': that is

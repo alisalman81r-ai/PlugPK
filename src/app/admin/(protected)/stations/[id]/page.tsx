@@ -19,7 +19,7 @@ export default async function EditStationPage({ params }: { params: { id: string
 
   return (
     <>
-      <AdminHeader title={station.name} description="Editing a published station." />
+      <AdminHeader title={station.name} description="Editing a published station." backHref="/admin/stations" />
       <StationForm station={station} action={update} />
     </>
   )

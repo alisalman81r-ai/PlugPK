@@ -250,6 +250,7 @@ model CommunityPost {
   commentCount Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  adminViewedAt DateTime?
 
   comments Comment[]
 
@@ -493,9 +494,25 @@ model Business {
 
   reviews    Review[]
   dailyStats BusinessDailyStat[]
+  photoReports BusinessPhotoReport[]
 
   @@index([status])
   @@index([createdAt])
+}
+
+model BusinessPhotoReport {
+  id         String   @id
+  businessId String
+  photoUrl   String
+  reason     String
+  status     String   @default("new")
+  reporterId String?
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, status])
+  @@index([status])
 }
 
 /**

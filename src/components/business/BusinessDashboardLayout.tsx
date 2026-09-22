@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { BackButton } from '@/components/ui'
 import { BUSINESS_NAV, BusinessDashboardSidebar, isBusinessItemActive } from './BusinessDashboardSidebar'
 
 export interface BusinessDashboardLayoutProps {
@@ -71,8 +72,16 @@ export function BusinessDashboardLayout({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white px-6 py-5 lg:px-8">
             <div className="min-w-0">
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-              {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+              <div className="flex items-center gap-3">
+                <BackButton
+                  fallbackHref={pathname === '/business/dashboard' ? '/dashboard' : '/business/dashboard'}
+                  label="Back"
+                />
+                <div>
+                  <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
+                  {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+                </div>
+              </div>
             </div>
             {action ? <div className="shrink-0">{action}</div> : null}
           </div>

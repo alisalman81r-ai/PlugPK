@@ -15,6 +15,7 @@ import {
   ShieldAlert,
   ShoppingBag,
   Trash2,
+  ImagePlus,
   Utensils,
   Wrench,
   type LucideIcon,
@@ -25,7 +26,8 @@ import * as React from 'react'
 import { Button } from '@/components/ui'
 import { LocationPicker } from './LocationPicker'
 import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
-import { registerBusiness } from '@/lib/db/business-actions'
+import { registerBusiness, saveMyChargers } from '@/lib/db/business-actions'
+import { uploadChargerPhoto } from '@/lib/db/upload-actions'
 import type { BusinessType, ConnectorType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -33,6 +35,8 @@ interface DraftCharger {
   connectorType: ConnectorType
   maxPowerKw: number
   ports: number
+  photoFile?: File
+  portPhotoFile?: File
 }
 
 export interface BusinessSignUpFormProps {
@@ -129,6 +133,12 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
       if (data.lat === null || data.lng === null)
         return 'Set your location — use the current-location button or type the coordinates.'
     }
+    if (step === 3) {
+      if (data.chargers.length === 0) return 'Add at least one charger to your listing.'
+      if (data.chargers.some((charger) => !charger.photoFile)) {
+        return 'Add a primary photo of every charger before continuing.'
+      }
+    }
     return null
   }
 
@@ -171,6 +181,50 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
         ports: charger.ports,
       })),
     })
+
+    if (result.ok && result.businessId) {
+      const uploaded = []
+      for (const charger of data.chargers) {
+        const primary = new FormData()
+        primary.set('file', charger.photoFile as File)
+        const primaryResult = await uploadChargerPhoto(result.businessId, primary)
+        if (!primaryResult.ok || !primaryResult.url) {
+          setIsLoading(false)
+          setError(primaryResult.message ?? 'Could not upload a charger photo.')
+          return
+        }
+
+        let portPhoto: string | undefined
+        if (charger.portPhotoFile) {
+          const port = new FormData()
+          port.set('file', charger.portPhotoFile)
+          const portResult = await uploadChargerPhoto(result.businessId, port)
+          if (!portResult.ok || !portResult.url) {
+            setIsLoading(false)
+            setError(portResult.message ?? 'Could not upload the port photo.')
+            return
+          }
+          portPhoto = portResult.url
+        }
+
+        uploaded.push({
+          connectorType: charger.connectorType,
+          maxPowerKw: charger.maxPowerKw,
+          ports: charger.ports,
+          photo: primaryResult.url,
+          photoLabel: 'charger' as const,
+          photoStatus: 'pending' as const,
+          ...(portPhoto ? { portPhoto, portPhotoStatus: 'pending' as const } : {}),
+        })
+      }
+
+      const saved = await saveMyChargers(result.businessId, uploaded)
+      if (!saved.ok) {
+        setIsLoading(false)
+        setError(saved.message ?? 'Could not save the charger evidence.')
+        return
+      }
+    }
 
     setIsLoading(false)
 
@@ -468,7 +522,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
         {currentStep === 3 ? (
           <>
             <h2 className="mb-2 text-2xl font-bold text-slate-900">Add your chargers</h2>
-            <p className="mb-8 text-slate-500">You can always add more later</p>
+            <p className="mb-8 text-slate-500">Add one clear charger photo for every charger. A port close-up is recommended.</p>
 
             <div className="mb-5 flex flex-col gap-3">
               {data.chargers.map((charger, index) => (
@@ -529,6 +583,43 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                       />
                     </label>
                   </div>
+
+                  <div className="mt-4 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-2">
+                    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm font-medium text-slate-600 hover:border-plug-blue-300 hover:bg-plug-blue-50">
+                      <ImagePlus size={17} aria-hidden="true" />
+                      {charger.photoFile ? charger.photoFile.name : 'Add charger photo *'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="sr-only"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0]
+                          event.target.value = ''
+                          if (!file) return
+                          const next = [...data.chargers]
+                          next[index] = { ...charger, photoFile: file }
+                          update('chargers', next)
+                        }}
+                      />
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm font-medium text-slate-600 hover:border-plug-blue-300 hover:bg-plug-blue-50">
+                      <ImagePlus size={17} aria-hidden="true" />
+                      {charger.portPhotoFile ? charger.portPhotoFile.name : 'Add port close-up (recommended)'}
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="sr-only"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0]
+                          event.target.value = ''
+                          if (!file) return
+                          const next = [...data.chargers]
+                          next[index] = { ...charger, portPhotoFile: file }
+                          update('chargers', next)
+                        }}
+                      />
+                    </label>
+                  </div>
                 </div>
               ))}
             </div>
@@ -548,14 +639,6 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                 <span className="mt-2 text-sm font-medium text-slate-500">Add a Charger</span>
               </button>
             ) : null}
-
-            <button
-              type="button"
-              onClick={() => setCurrentStep(4)}
-              className="mt-4 w-full text-center text-sm text-slate-400 hover:text-slate-600"
-            >
-              I&apos;ll add chargers later
-            </button>
 
             <div className="mt-6 flex gap-3">
               <Button variant="secondary" size="lg" className="h-12" onClick={() => setCurrentStep(2)}>Back</Button>

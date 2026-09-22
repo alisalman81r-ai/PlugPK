@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 import { Avatar, RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
-import type { Station } from '@/lib/types'
+import type { CommunityPost, Station } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 
 import type { DashboardStats } from './DashboardSidebar'
@@ -32,6 +32,7 @@ export interface DashboardOverviewProps {
   stats: DashboardStats
   savedStations: Station[]
   reviews: MyReviewRow[]
+  posts: CommunityPost[]
 }
 
 const PREVIEW = 3
@@ -50,7 +51,7 @@ function EmptyHint({ children, href, cta }: { children: React.ReactNode; href: s
   )
 }
 
-export function DashboardOverview({ user, stats, savedStations, reviews }: DashboardOverviewProps) {
+export function DashboardOverview({ user, stats, savedStations, reviews, posts }: DashboardOverviewProps) {
   const cards = [
     { icon: Bookmark, tone: 'bg-plug-blue-50 text-plug-blue-600', value: stats.totalSaved, label: 'Saved stations' },
     { icon: Star, tone: 'bg-amber-50 text-amber-600', value: stats.totalReviews, label: 'Reviews written' },
@@ -81,6 +82,31 @@ export function DashboardOverview({ user, stats, savedStations, reviews }: Dashb
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-slate-900">Your discussions</h2>
+          <Link href="/community" className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+            Community
+          </Link>
+        </div>
+        {posts.length === 0 ? (
+          <EmptyHint href="/community" cta="Start a discussion">
+            Your posts will appear here after you share them with the community.
+          </EmptyHint>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {posts.slice(0, PREVIEW).map((post) => (
+              <li key={post.id}>
+                <Link href={`/community/post/${post.slug}`} className="block rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50">
+                  <span className="block font-semibold text-slate-900">{post.title}</span>
+                  <span className="mt-1 block text-ui-sm text-slate-500">{post.commentCount} comments · {formatRelativeTime(post.createdAt)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

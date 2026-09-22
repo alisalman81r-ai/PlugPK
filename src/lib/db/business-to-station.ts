@@ -45,8 +45,15 @@ export function businessToStation(
   rating: BusinessRating = { rating: 0, reviewCount: 0 },
 ): Station {
   const photos = business.chargers
-    .map((charger) => charger.photo)
+    .flatMap((charger) => [
+      charger.photoStatus === 'approved' || charger.photoStatus === undefined ? charger.photo : undefined,
+      charger.portPhotoStatus === 'approved' ? charger.portPhoto : undefined,
+    ])
     .filter((photo): photo is string => typeof photo === 'string' && photo.length > 0)
+
+  const hasVerifiedPrimaryPhoto = business.chargers.some(
+    (charger) => charger.photo && (charger.photoStatus === 'approved' || charger.photoStatus === undefined),
+  )
 
   const connectors = business.chargers.map((charger, index) => {
     const type = KNOWN_CONNECTORS.includes(charger.connectorType as ConnectorType)
@@ -95,7 +102,7 @@ export function businessToStation(
     rating: rating.rating,
     reviewCount: rating.reviewCount,
     status: 'available',
-    isVerified: true,
+    isVerified: business.status === 'approved' && hasVerifiedPrimaryPhoto,
     // The network label is what the map shows under the name, so a home charger
     // says so rather than being presented as a commercial site. Someone
     // deciding whether to drive there should know it is a driveway.

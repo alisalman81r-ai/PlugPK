@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview'
-import { getDashboardShell, getReviewsByUser, getSavedStationsForUser } from '@/lib/db/queries'
+import { getDashboardShell, getPostsByUser, getReviewsByUser, getSavedStationsForUser } from '@/lib/db/queries'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
 /**
@@ -20,9 +20,10 @@ export default async function Page() {
 
   const shell = await getDashboardShell(profile)
 
-  const [saved, reviews] = await Promise.all([
+  const [saved, reviews, posts] = await Promise.all([
     getSavedStationsForUser(profile.id),
     getReviewsByUser(profile.id),
+    getPostsByUser(profile.id),
   ])
 
   return (
@@ -37,6 +38,7 @@ export default async function Page() {
         stats={shell.stats}
         savedStations={saved}
         reviews={reviews}
+        posts={posts}
       />
     </DashboardLayout>
   )

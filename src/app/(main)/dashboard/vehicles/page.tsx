@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { VehicleManager } from '@/components/dashboard/VehicleManager'
+import { listCars } from '@/lib/db/car-queries'
 import { getDashboardShell } from '@/lib/db/queries'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
@@ -19,6 +20,7 @@ export default async function Page() {
   if (!profile) redirect('/login?redirect=/dashboard/vehicles')
 
   const shell = await getDashboardShell(profile)
+  const cars = await listCars()
 
   return (
     <DashboardLayout
@@ -27,7 +29,7 @@ export default async function Page() {
       user={shell.user}
       stats={shell.stats}
     >
-      <VehicleManager vehicle={profile.vehicle} />
+      <VehicleManager vehicle={profile.vehicle} cars={cars} />
     </DashboardLayout>
   )
 }

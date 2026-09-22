@@ -61,7 +61,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
    * judge a thumbnail you have not seen. The path it returns is held in the
    * row like any other field, so it is Save that commits it to the listing.
    */
-  const attachPhoto = async (index: number, file: File) => {
+  const attachPhoto = async (index: number, file: File, target: 'photo' | 'portPhoto') => {
     setUploading(index)
     setError(null)
 
@@ -77,10 +77,13 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
     }
 
     // Replacing an existing photo leaves the old file behind otherwise.
-    const previous = rows[index]?.photo
+    const previous = rows[index]?.[target]
     if (previous) void deleteChargerPhoto(businessId, previous).catch(() => {})
 
-    patch(index, { photo: result.url })
+    patch(index, {
+      [target]: result.url,
+      [target === 'photo' ? 'photoStatus' : 'portPhotoStatus']: 'pending',
+    })
   }
 
   const removePhoto = async (index: number) => {
@@ -269,16 +272,56 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                         // Cleared so choosing the same file twice in a row
                         // still fires a change event.
                         event.target.value = ''
-                        if (file) void attachPhoto(index, file)
+                        if (file) void attachPhoto(index, file, 'photo')
                       }}
                     />
                   </label>
 
                   {!row.photo && uploading !== index ? (
                     <span className="text-ui-sm text-slate-500">
-                      JPEG, PNG or WebP, up to 4MB. Shown to drivers on your listing.
+                      Primary charger photo required. JPEG, PNG or WebP, up to 4MB.
                     </span>
                   ) : null}
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3">
+                  {row.portPhoto ? (
+                    <span className="relative shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={row.portPhoto}
+                        alt={`Port type for charger ${index + 1}`}
+                        className="h-20 w-20 rounded-xl border border-slate-200 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          patch(index, { portPhoto: undefined, portPhotoStatus: undefined })
+                          void deleteChargerPhoto(businessId, row.portPhoto!).catch(() => {})
+                        }}
+                        aria-label={`Remove the port photo of charger ${index + 1}`}
+                        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ) : null}
+
+                  <label className={`inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-dashed border-slate-300 px-3 text-ui-sm font-medium text-slate-600 hover:border-plug-blue-300 hover:bg-plug-blue-50 ${uploading === index ? 'pointer-events-none opacity-60' : ''}`}>
+                    <ImagePlus size={15} aria-hidden="true" />
+                    {row.portPhoto ? 'Replace port photo' : 'Add port photo'}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0]
+                        event.target.value = ''
+                        if (file) void attachPhoto(index, file, 'portPhoto')
+                      }}
+                    />
+                  </label>
+                  <span className="text-ui-sm text-slate-500">Recommended: close-up of the connector.</span>
                 </div>
               </li>
             ))}

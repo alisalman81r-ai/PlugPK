@@ -173,6 +173,32 @@ export async function getPosts(): Promise<CommunityPost[]> {
   return rows.map(toPost)
 }
 
+export interface AdminCommunityPost {
+  post: CommunityPost
+  isNew: boolean
+}
+
+export async function getAdminCommunityPosts(): Promise<AdminCommunityPost[]> {
+  const rows = await prisma.communityPost.findMany({ orderBy: { createdAt: 'desc' } })
+  return rows.map((row) => ({ post: toPost(row), isNew: row.adminViewedAt === null }))
+}
+
+export async function markCommunityPostsViewed(ids: string[]): Promise<void> {
+  if (ids.length === 0) return
+  await prisma.communityPost.updateMany({
+    where: { id: { in: ids }, adminViewedAt: null },
+    data: { adminViewedAt: new Date() },
+  })
+}
+
+export async function getPostsByUser(userId: string): Promise<CommunityPost[]> {
+  const rows = await prisma.communityPost.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  })
+  return rows.map(toPost)
+}
+
 export async function getPostBySlug(slug: string): Promise<CommunityPost | null> {
   const row = await prisma.communityPost.findUnique({
     where: { slug },
@@ -431,6 +457,10 @@ export interface BusinessCharger {
   ports: number
   /** Path to an uploaded photo, e.g. /uploads/chargers/<id>.jpg. */
   photo?: string
+  photoLabel?: 'charger' | 'port' | 'location' | 'signage'
+  photoStatus?: 'pending' | 'approved' | 'needs-better-photo'
+  portPhoto?: string
+  portPhotoStatus?: 'pending' | 'approved' | 'needs-better-photo'
 }
 
 export interface BusinessRow {
@@ -510,6 +540,33 @@ export async function getBusinessesForUser(userId: string): Promise<BusinessRow[
     }
     return { ...row, chargers, createdAt: row.createdAt.toISOString() }
   })
+}
+
+export interface BusinessPhotoReportRow {
+  id: string
+  businessId: string
+  businessName: string
+  photoUrl: string
+  reason: string
+  status: string
+  createdAt: string
+}
+
+export async function getBusinessPhotoReports(): Promise<BusinessPhotoReportRow[]> {
+  const rows = await prisma.businessPhotoReport.findMany({
+    where: { status: 'new' },
+    include: { business: { select: { businessName: true } } },
+    orderBy: { createdAt: 'desc' },
+  })
+  return rows.map((row) => ({
+    id: row.id,
+    businessId: row.businessId,
+    businessName: row.business.businessName,
+    photoUrl: row.photoUrl,
+    reason: row.reason,
+    status: row.status,
+    createdAt: row.createdAt.toISOString(),
+  }))
 }
 
 export async function getPendingBusinessCount(): Promise<number> {

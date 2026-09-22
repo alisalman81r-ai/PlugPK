@@ -29,6 +29,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
   const [category, setCategory] = React.useState<PostCategory | ''>('')
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
+  const [postSlug, setPostSlug] = React.useState<string | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
 
@@ -71,6 +72,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     if (isOpen) return
     setDismissed(false)
     setIsSuccess(false)
+    setPostSlug(null)
     setError(null)
     setTitle('')
     setContent('')
@@ -110,6 +112,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
         setError(result.message ?? 'Could not publish that.')
         return
       }
+      setPostSlug(result.slug ?? null)
       setIsSuccess(true)
       onSubmit?.({ title, content, category: category as PostCategory })
       router.refresh()
@@ -143,7 +146,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             </p>
             <p className="mt-2 text-slate-500">Your post is now live.</p>
             <div className="mt-6">
-              <Button href="/community" onClick={onClose}>
+              <Button href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
                 View Post
               </Button>
             </div>
@@ -263,7 +266,9 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             ) : null}
 
             <div className="mt-6 flex items-center justify-between gap-4">
-              <p className="text-xs text-slate-400">Fields marked * are required</p>
+              <p className="text-xs text-rose-600" role={error ? 'alert' : undefined}>
+                {error ?? 'Fields marked * are required'}
+              </p>
               <div className="flex gap-3">
                 <Button type="button" variant="ghost" onClick={onClose}>
                   Cancel

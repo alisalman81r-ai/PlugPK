@@ -62,7 +62,12 @@ export default async function StationDetailPage({ params }: PageProps) {
         <div className="mt-8 grid items-start gap-16 lg:grid-cols-[1fr_340px]">
           <div className="min-w-0">
             <div className="mb-10">
-              <PhotoGallery photos={station.photos} stationName={station.name} />
+              <PhotoGallery
+                photos={station.photos}
+                stationName={station.name}
+                businessId={station.businessId}
+                photosVerified={station.isVerified}
+              />
             </div>
 
             <Divider />

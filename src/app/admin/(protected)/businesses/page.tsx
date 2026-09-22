@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { BusinessStatusControl, type BusinessStatus } from '@/components/admin/BusinessStatusControl'
 import { DeleteButton } from '@/components/admin/DeleteButton'
+import { BusinessPhotoReview } from '@/components/admin/BusinessPhotoReview'
 import { deleteBusiness, setBusinessStatus } from '@/lib/db/business-actions'
-import { getBusinesses } from '@/lib/db/queries'
+import { getBusinesses, getBusinessPhotoReports } from '@/lib/db/queries'
 import { formatRelativeTime } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +30,7 @@ const STATUS_CHIP: Record<string, string> = {
 
 export default async function AdminBusinessesPage() {
   const rows = await getBusinesses()
+  const reports = await getBusinessPhotoReports()
   const pending = rows.filter((row) => row.status === 'pending').length
 
   return (
@@ -59,6 +61,7 @@ export default async function AdminBusinessesPage() {
       />
 
       <div className="px-4 py-6 lg:px-8 lg:py-8">
+        <BusinessPhotoReview reports={reports} />
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
             <Building2 size={24} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
@@ -152,21 +155,89 @@ export default async function AdminBusinessesPage() {
                       )}
 
                       {row.chargers.length > 0 ? (
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-ui-xs font-semibold text-slate-700">
-                            <Zap size={12} className="shrink-0" aria-hidden="true" />
-                            {row.chargers.length} charger{row.chargers.length === 1 ? '' : 's'} ·{' '}
-                            {totalPorts} port{totalPorts === 1 ? '' : 's'}
-                          </span>
-
-                          {row.chargers.map((charger, index) => (
-                            <span
-                              key={`${row.id}-c${index}`}
-                              className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-mono text-ui-xs text-slate-600"
-                            >
-                              {charger.connectorType} · {charger.maxPowerKw}kW ×{charger.ports}
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+                          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                            <p className="inline-flex items-center gap-1.5 text-ui-sm font-bold text-slate-800">
+                              <Zap size={14} className="text-plug-blue-600" aria-hidden="true" />
+                              Charger details
+                            </p>
+                            <span className="text-ui-xs text-slate-500">
+                              {row.chargers.length} charger{row.chargers.length === 1 ? '' : 's'} · {totalPorts} port{totalPorts === 1 ? '' : 's'}
                             </span>
-                          ))}
+                          </div>
+
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {row.chargers.map((charger, index) => (
+                              <div
+                                key={`${row.id}-c${index}`}
+                                className="rounded-xl border border-slate-200 bg-white p-3"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <p className="text-ui-sm font-bold text-slate-900">
+                                      Charger {index + 1}
+                                    </p>
+                                    <p className="mt-1 text-ui-xs text-slate-500">
+                                      {charger.connectorType} · {charger.maxPowerKw} kW · {charger.ports} port{charger.ports === 1 ? '' : 's'}
+                                    </p>
+                                  </div>
+                                  <span
+                                    className={
+                                      charger.photoStatus === 'approved'
+                                        ? 'rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700'
+                                        : charger.photoStatus === 'needs-better-photo'
+                                          ? 'rounded-full bg-red-50 px-2 py-1 text-[11px] font-semibold text-red-700'
+                                          : 'rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700'
+                                    }
+                                  >
+                                    {charger.photoStatus === 'approved'
+                                      ? 'Photo approved'
+                                      : charger.photoStatus === 'needs-better-photo'
+                                        ? 'Needs better photo'
+                                        : 'Photo pending'}
+                                  </span>
+                                </div>
+
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                  {charger.photo ? (
+                                    <figure>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={charger.photo}
+                                        alt={`Charger ${index + 1}`}
+                                        className="aspect-[4/3] w-full rounded-lg border border-slate-200 object-cover"
+                                      />
+                                      <figcaption className="mt-1 text-[11px] font-medium text-slate-500">
+                                        Charger photo
+                                      </figcaption>
+                                    </figure>
+                                  ) : (
+                                    <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-red-200 bg-red-50 px-2 text-center text-[11px] font-semibold text-red-600">
+                                      Primary photo missing
+                                    </div>
+                                  )}
+
+                                  {charger.portPhoto ? (
+                                    <figure>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                        src={charger.portPhoto}
+                                        alt={`Port type for charger ${index + 1}`}
+                                        className="aspect-[4/3] w-full rounded-lg border border-slate-200 object-cover"
+                                      />
+                                      <figcaption className="mt-1 text-[11px] font-medium text-slate-500">
+                                        Port close-up
+                                      </figcaption>
+                                    </figure>
+                                  ) : (
+                                    <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-2 text-center text-[11px] text-slate-400">
+                                      No port close-up
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ) : (
                         <p className="mt-3 text-ui-xs text-slate-400">No chargers listed.</p>

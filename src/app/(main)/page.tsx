@@ -68,7 +68,7 @@ export default async function HomePage() {
       {/* The hero animates on load; everything past the fold reveals on
           approach so the page reads as a sequence rather than a dump.
           StatsBar is excluded — it runs its own count-up observer. */}
-      <Hero cities={stats.cities} stats={heroStats} />
+      <Hero stats={heroStats} />
       <StatsBar stations={stats.stations} cities={stats.cities} owners={stats.owners} />
       <Reveal>
         <HowItWorks />

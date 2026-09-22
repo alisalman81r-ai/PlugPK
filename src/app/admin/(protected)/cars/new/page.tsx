@@ -29,6 +29,7 @@ export default async function NewCarPage() {
     <>
       <AdminHeader
         title="Add a car"
+        backHref="/admin/cars"
         description="Goes live on the public catalogue as soon as it is saved."
         action={
           <Link

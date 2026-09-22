@@ -3,11 +3,13 @@
 
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { randomUUID } from 'node:crypto'
 
 import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
 import { createSlug } from '@/lib/utils'
 
 import { prisma } from './client'
+import { getCurrentUser } from './session-actions'
 
 /**
  * Every write in the product goes through this file.
@@ -190,6 +192,48 @@ export async function deleteService(id: string): Promise<ActionResult> {
 }
 
 // ─── Community ──────────────────────────────────────
+
+export async function markCommunityPostReviewed(id: string): Promise<ActionResult> {
+  await assertAdmin()
+  await prisma.communityPost.update({
+    where: { id },
+    data: { adminViewedAt: new Date() },
+  })
+  revalidatePath('/admin/community')
+  revalidatePath('/admin')
+  return { ok: true }
+}
+
+export async function reportBusinessPhoto(
+  businessId: string,
+  photoUrl: string,
+  reason: string,
+): Promise<ActionResult> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, message: 'Sign in to report a photo.' }
+
+  const business = await prisma.business.findUnique({ where: { id: businessId }, select: { chargers: true } })
+  if (!business) return { ok: false, message: 'That listing no longer exists.' }
+
+  let chargers: Array<{ photo?: string; portPhoto?: string }> = []
+  try {
+    const parsed: unknown = JSON.parse(business.chargers)
+    if (Array.isArray(parsed)) chargers = parsed as Array<{ photo?: string; portPhoto?: string }>
+  } catch {
+    return { ok: false, message: 'That listing has invalid photo data.' }
+  }
+
+  if (!chargers.some((charger) => charger.photo === photoUrl || charger.portPhoto === photoUrl)) {
+    return { ok: false, message: 'That photo is not part of this listing.' }
+  }
+
+  await prisma.businessPhotoReport.create({
+    data: { id: randomUUID(), businessId, photoUrl, reason: reason.trim() || 'Incorrect or misleading photo', reporterId: user.id },
+  })
+  revalidatePath('/admin/businesses')
+  revalidatePath('/admin')
+  return { ok: true }
+}
 
 export async function deletePost(id: string): Promise<ActionResult> {
   await assertAdmin()
