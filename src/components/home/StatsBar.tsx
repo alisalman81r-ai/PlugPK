@@ -123,15 +123,18 @@ function StatItem({ stat, active }: { stat: Stat; active: boolean }) {
         )}
       </span>
 
-      {/* The cap rule, drawn under the figure rather than above the heading —
-          the same device the cards use, turned to point at the number. Grown
-          from the centre here, because the column is centred. */}
-      <span
-        aria-hidden="true"
-        className="mt-4 block h-0.5 w-10 rounded-full bg-slate-300 transition-all duration-300 group-hover:w-16 group-hover:bg-gradient-brand"
-      />
+      {/*
+        The cap rule that sat here is gone.
 
-      <span className="mt-4 block text-ui font-bold tracking-tight text-slate-900">
+        It was the cards' device turned to point at the number, and under a
+        3.5rem figure it did not point at anything — the size already says
+        which line matters. What it did instead was cut the column in two, so
+        the figure and its label read as separate items rather than one fact.
+
+        The label's own top margin absorbs the space the rule occupied, which
+        is why this went from mt-4 to mt-5 rather than closing up.
+      */}
+      <span className="mt-5 block text-ui font-bold tracking-tight text-slate-900">
         {stat.label}
       </span>
       <span className="mt-1 block max-w-[24ch] text-ui-sm leading-relaxed text-slate-500">
