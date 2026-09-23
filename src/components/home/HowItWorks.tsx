@@ -1,34 +1,36 @@
 // src/components/home/HowItWorks.tsx
 'use client'
 
-import { motion } from 'framer-motion'
 import { STAGGER } from '@/lib/motion'
 import { Navigation2, Search, SlidersHorizontal, Star, type LucideIcon } from 'lucide-react'
 
-import { AnimatedIcon, Reveal, type IconMotion } from '@/components/ui'
-import { ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
+import { AnimatedIcon, HoverMotion, Reveal, type IconMotion } from '@/components/ui'
+import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 
 /**
- * The four steps, redesigned.
+ * The four steps, as cards.
  *
- * Three things were asked for and one was already available. The heading now
- * matches the ecosystem band — same size, weight and tracking, with a single
- * word in blue. The steps enter in sequence rather than all at once, using the
- * Reveal primitive the home page already wraps its sections in, so no second
- * observer was needed for it.
+ * They were borderless columns under a dashed rail — a number, an outlined
+ * icon, a title and a paragraph floating on the band's own slate. That read as
+ * a diagram rather than as four things, and with the descriptions running to
+ * different lengths the columns drifted apart with nothing to say where one
+ * step ended.
  *
- * Nothing is filled and nothing is tinted beyond that one word. The number
- * chips were a blue pill on a blue background and the icon holders were solid
- * white with a coloured glyph; both are outlines now, which is the treatment
- * Partner Up and the ecosystem band use.
+ * Each is now a card in the frame the rest of the site uses: a 1.5px gradient
+ * edge over an inset white face, so the border grades to brand on hover
+ * without the card itself ever being painted. The primitives come from
+ * components/shared/frame, the same ones Partner Up's steps and the value band
+ * use, so all three are tuned in one place.
  *
- * The icons animate on card hover rather than on their own. Each step is a
- * motion.div declaring whileHover="hover", and framer-motion passes that label
- * down to the AnimatedIcon inside — so the glyph moves in step with the border
- * and halo the CSS already changes, instead of waiting for the pointer to
- * reach the 64px holder itself. Which is also why this file is now a client
- * component: motion.div needs one, and the steps are static data, so there was
- * nothing on the server to give up.
+ * Hover is one gesture. HoverMotion wraps the whole card and framer passes the
+ * state down, so the glyph animates, the cap rule draws across, the stroked
+ * numeral warms and the frame's edge and shadow lift together — one pointer
+ * crossing one boundary should read as one thing happening, not four.
+ *
+ * The heading is unchanged: it matches the ecosystem band, one word in blue.
+ *
+ * This is a client component because HoverMotion and Reveal are. The steps are
+ * static data, so there was nothing on the server to give up for it.
  */
 
 interface Step {
@@ -91,61 +93,79 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <div className="relative mt-20">
-          {/*
-            The rail through the icon centres. It arrives first and the steps
-            follow, which is what makes the sequence read as a sequence.
+        {/*
+          ── Four cards, not four columns ──────────────────────────────
 
-            Its offset is measured, not guessed: 28px number row + 24px gap +
-            half of the 64px icon frame, plus the column's 32px top padding.
-          */}
-          <Reveal className="pointer-events-none absolute inset-x-0 top-0 z-0 hidden lg:block">
-            <span
-              aria-hidden="true"
-              className="absolute left-[12.5%] right-[12.5%] top-[116px] border-t border-dashed border-slate-300"
-            />
-          </Reveal>
+          These were borderless columns under a dashed rail: a number, an
+          outlined icon, a title, a paragraph, all floating on the band's own
+          slate. It read as a diagram rather than as four things, and at this
+          width the eye had nothing telling it where one step ended and the
+          next began — the descriptions ran to different lengths and the
+          columns drifted apart.
 
-          <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
-            {STEPS.map((step, index) => {
-              const Icon = step.icon
+          They are cards now, in the frame the rest of the site already uses:
+          a 1.5px gradient edge with an inset white face, so the border grades
+          to brand on hover without the card ever being painted. Same
+          primitives as Partner Up's steps and the value band, from
+          components/shared/frame, so all three are tuned in one place.
 
-              return (
-                // Staggered by 110ms. Enough to read as one-after-another,
-                // short enough that the last step is not still arriving after
-                // the eye has moved on.
-                <Reveal key={step.number} delay={index * STAGGER.STEP}>
-                  <motion.div
-                    initial="rest"
-                    whileHover="hover"
-                    className="group relative z-10 flex flex-col items-center p-4 text-center sm:p-8"
-                  >
-                    {/* Outlined, not a filled pill. */}
-                    <span className="mb-6 font-mono text-ui-sm font-bold tracking-[0.2em] text-slate-400 transition-colors duration-300 group-hover:text-plug-blue-600">
-                      {step.number}
-                    </span>
+          ── What the hover does, and why it is one gesture ────────────
 
-                    <span
-                      aria-hidden="true"
-                      className={`${ICON_FRAME} mb-6 h-16 w-16`}
-                    >
-                      <AnimatedIcon motion={step.motion}>
-                        <Icon size={28} strokeWidth={1.5} className={ICON_GLYPH} />
-                      </AnimatedIcon>
-                    </span>
+          HoverMotion is the whole card. Framer passes the hover state down,
+          so the glyph animates, the cap rule draws across, the stroked
+          numeral warms and the frame's edge and shadow lift — together,
+          because one pointer crossing one boundary should read as one thing
+          happening.
 
-                    <h3 className="mb-3 text-xl font-bold tracking-tight text-slate-900">
-                      {step.title}
-                    </h3>
-                    <p className="mx-auto max-w-[220px] text-ui-sm leading-relaxed text-slate-500">
-                      {step.description}
-                    </p>
-                  </motion.div>
+          ── The rail is gone ─────────────────────────────────────────
+
+          It ran through the icon centres and only made sense while the
+          columns had no edges of their own. Drawn across cards it would cut
+          through four borders to join them. The sequence is carried by the
+          numerals and the stagger instead.
+        */}
+        <ol className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          {STEPS.map((step, index) => {
+            const Icon = step.icon
+
+            return (
+              // Staggered by 110ms: enough to read as one-after-another, short
+              // enough that the fourth is not still arriving after the eye has
+              // moved on.
+              <li key={step.number} className="h-full">
+                <Reveal className="h-full" delay={index * STAGGER.STEP}>
+                  <HoverMotion className={FRAME}>
+                    <div className={`${FACE} overflow-hidden p-7 lg:p-8`}>
+                      {/* The step number, as a stroked outline in the corner.
+                          It is the card's ordinal, not a label to read — so it
+                          is large and hollow rather than small and solid. */}
+                      <span aria-hidden="true" className={NUMERAL}>
+                        {step.number}
+                      </span>
+
+                      <span aria-hidden="true" className={ICON_FRAME}>
+                        <AnimatedIcon motion={step.motion}>
+                          <Icon size={26} strokeWidth={1.5} className={ICON_GLYPH} />
+                        </AnimatedIcon>
+                      </span>
+
+                      {/* Draws from 40px to 64px on hover — motion with a
+                          purpose, marking the card being read. */}
+                      <span aria-hidden="true" className={`mt-7 ${CAP_RULE}`} />
+
+                      <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 text-ui-sm leading-relaxed text-slate-500">
+                        {step.description}
+                      </p>
+                    </div>
+                  </HoverMotion>
                 </Reveal>
-              )
-            })}
-          </div>
-        </div>
+              </li>
+            )
+          })}
+        </ol>
       </div>
     </section>
   )
