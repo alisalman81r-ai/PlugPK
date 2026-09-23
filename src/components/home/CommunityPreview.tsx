@@ -266,13 +266,10 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
                 </AnimatedIcon>
               </span>
 
-              {/* The ink cap rule would vanish here, so it takes the white. */}
-              <span
-                aria-hidden="true"
-                className="mt-6 block h-0.5 w-10 origin-left rounded-full bg-white/40 transition-all duration-300 group-hover/clubs:w-16 group-hover/clubs:bg-white"
-              />
-
-              <h3 className="mt-5 text-lg font-bold tracking-tight text-white">
+              {/* This card's own white cap rule went with the shared one in
+                  frame.ts — see CAP_RULE for why. The heading takes the space
+                  the rule held, so the card's rhythm does not change. */}
+              <h3 className="mt-7 text-lg font-bold tracking-tight text-white">
                 EV clubs near you
               </h3>
 

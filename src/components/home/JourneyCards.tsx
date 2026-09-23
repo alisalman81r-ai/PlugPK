@@ -61,12 +61,19 @@ function Card({ icon, title, detail, note, noteTone = 'muted', iconTone = 'blue'
         (className ?? '')
       }
     >
+      {/*
+        The glyph, unboxed.
+
+        It sat on a 28px tinted square inside a card that is already 90% white
+        and floating over a map — three surfaces stacked to hold one 14px
+        icon, and at that size the tint read as a smudge rather than as a
+        container. The colour moves onto the glyph, which is what carried the
+        meaning anyway: green for available, blue for everything else.
+      */}
       <span
         className={
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ' +
-          (iconTone === 'green'
-            ? 'bg-green-50 text-green-600'
-            : 'bg-plug-blue-50 text-plug-blue-600')
+          'flex h-7 w-7 shrink-0 items-center justify-center ' +
+          (iconTone === 'green' ? 'text-green-600' : 'text-plug-blue-600')
         }
       >
         {icon}

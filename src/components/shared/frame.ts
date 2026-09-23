@@ -76,10 +76,23 @@ export const ICON_FRAME = 'flex h-14 w-14 shrink-0 items-center justify-center'
 export const ICON_GLYPH =
   'text-slate-500 transition-colors duration-300 group-hover:text-plug-blue-600'
 
-/** The rule above a heading, which draws wider and warms on hover. */
-export const CAP_RULE =
-  'block h-0.5 w-10 origin-left rounded-full bg-slate-300 transition-all duration-300 ' +
-  'group-hover:w-16 group-hover:bg-gradient-brand'
+/**
+ * The rule that sat between a card's icon and its heading — now nothing.
+ *
+ * It was a 40px slate bar that drew to 64px and warmed to brand on hover. On
+ * a card that already carries its own edge, a second horizontal line inside
+ * it divides two things that were never separate: the glyph and the title are
+ * one idea, and ruling between them broke each card into halves.
+ *
+ * Kept as an exported empty string rather than deleted. Ten sections spread
+ * this into a className, and every one of them would otherwise need its span
+ * removing by hand; emptying it here clears all ten at once and leaves a
+ * single place to put the rule back.
+ *
+ * The margins stay on the call sites, so the spacing those layouts were tuned
+ * against does not shift.
+ */
+export const CAP_RULE = ''
 
 /**
  * The stroke-only numeral that sits in a card's corner.
@@ -104,7 +117,22 @@ export const CAP_RULE =
  * Slightly smaller than before as a result: at 88px the digit had to overhang
  * to fit at all, which is what led to the crop in the first place.
  */
+/*
+  Sans, not mono, and the reason is the zero.
+
+  JetBrains Mono draws its 0 with a dot in the counter — that is the only zero
+  it has. Measured against the loaded font: the `zero` OpenType feature makes
+  no difference at 1 or at 0, because the dotted form is the default glyph
+  rather than an alternate. At 4.5rem and hollow, that dot reads as a bullet
+  someone left inside the numeral, and every step card starts with one.
+
+  So the numeral takes the interface face, whose 0 is a plain oval. It loses
+  the technical character the mono gave it; a stroked outline at this size is
+  carrying the character anyway. Every other mono figure on the site — port
+  counts, distances, slugs — keeps JetBrains, where a dotted zero is an
+  advantage rather than a blemish.
+*/
 export const NUMERAL =
   'pointer-events-none absolute right-7 top-8 flex h-14 select-none items-center ' +
-  'font-mono text-[4.5rem] font-black leading-none text-transparent transition-all duration-300 ' +
+  'font-sans text-[4.5rem] font-black leading-none tracking-[-0.04em] text-transparent transition-all duration-300 ' +
   '[-webkit-text-stroke:2px_#CBD5E1] group-hover:[-webkit-text-stroke:2px_#60A5FA]'
