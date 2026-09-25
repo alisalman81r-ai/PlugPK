@@ -42,7 +42,30 @@ export interface RoutePlannerPromoProps {
 
 export function RoutePlannerPromo({ pins = [] }: RoutePlannerPromoProps) {
   const stageRef = React.useRef<HTMLDivElement>(null)
+  const sectionRef = React.useRef<HTMLElement>(null)
   const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
+
+  /*
+    The map's roads light when the pointer is over the band (pure CSS, on the
+    group). A touch screen has no hover, so there the band lights itself once
+    most of it is on screen, and stays lit.
+  */
+  const [lit, setLit] = React.useState(false)
+  React.useEffect(() => {
+    const node = sectionRef.current
+    if (!node || window.matchMedia('(hover: hover)').matches) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setLit(true)
+          io.disconnect()
+        }
+      },
+      { threshold: 0.45 },
+    )
+    io.observe(node)
+    return () => io.disconnect()
+  }, [])
 
   /**
    * The card sits on a perspective stage and rotates toward the pointer, with
@@ -91,16 +114,24 @@ export function RoutePlannerPromo({ pins = [] }: RoutePlannerPromoProps) {
   }, [])
 
   return (
-    <section className="relative overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
-      {/* A night map of the country behind the band: the network, the
-          corridor and the leg the card plans, lit. The scrim keeps the copy
-          on the quiet side of it. */}
+    <section
+      ref={sectionRef}
+      data-lit={lit ? 'true' : undefined}
+      className="group/route relative overflow-hidden bg-plug-navy-950 py-20 lg:py-28"
+    >
+      {/* A night map of the country behind the band: the cities and the roads
+          between them, which light up across the country when the pointer
+          comes onto the band. The scrim keeps the copy on the quiet side. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <RouteMapBackdrop
           pins={pins}
           className="absolute left-1/2 top-1/2 h-[125%] w-auto max-w-none -translate-x-[40%] -translate-y-1/2 lg:left-[38%] lg:h-[118%] lg:-translate-x-1/2"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,36,30,0.9)_0%,rgba(5,36,30,0.55)_28%,transparent_52%)]" />
+        {/* The scrims keep the lit roads off the words: from the left on a
+            wide screen, where the copy is the left column, and from the
+            bottom on a narrow one, where it sits under the card. */}
+        <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,rgba(5,36,30,0.96)_0%,rgba(5,36,30,0.88)_36%,rgba(5,36,30,0.45)_45%,transparent_54%)] lg:block" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_40%,rgba(5,36,30,0.9)_56%,rgba(5,36,30,0.97)_100%)] lg:hidden" />
         <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_50%,rgba(38,205,178,0.08),transparent_70%)]" />
       </div>
 

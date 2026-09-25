@@ -949,3 +949,29 @@ html::-webkit-scrollbar {
     }
   }
 }
+
+@layer components {
+  /*
+    The pulse running along the route planner's roads (RouteMapBackdrop).
+    Against pathLength="1", so one period is one full length of any road,
+    whatever its real length. It only runs while the band is lit.
+  */
+  @keyframes route-pulse {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+  }
+  .route-pulse {
+    animation: route-pulse 2.2s linear infinite;
+    animation-play-state: paused;
+  }
+  .group\/route:hover .route-pulse,
+  .group\/route:focus-within .route-pulse,
+  .group\/route[data-lit='true'] .route-pulse {
+    animation-play-state: running;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-pulse {
+      animation: none;
+    }
+  }
+}
