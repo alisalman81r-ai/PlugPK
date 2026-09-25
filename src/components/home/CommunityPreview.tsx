@@ -1,50 +1,30 @@
 // src/components/home/CommunityPreview.tsx
 'use client'
 
-import { ArrowRight, Clock, Heart, MapPin, MessageSquare, Route, Users } from 'lucide-react'
+import { Heart, MapPin, MessageCircle, MessageSquare, Route, TrendingUp, Users, type LucideIcon } from 'lucide-react'
 
-import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'
-import {
-  AnimatedIcon,
-  Badge,
-  HoverLink,
-  DiscButton,
-  HoverMotion,
-  type BadgeVariant,
-  type IconMotion,
-} from '@/components/ui'
+import { Badge, DiscButton, HoverLink, type BadgeVariant } from '@/components/ui'
 import type { CommunityCounts } from '@/lib/db/queries'
 import { MOCK_POSTS } from '@/lib/mock-data'
 import type { PostCategory } from '@/lib/types'
-import { cn, formatRelativeTime, getPostCategoryConfig } from '@/lib/utils'
+import { cn, getPostCategoryConfig } from '@/lib/utils'
 
 /**
- * The community band, brought onto the page's pattern.
+ * The community band: four equal cards in a two-by-two grid.
  *
- * It was the last section still doing its own thing. Four differences, all of
- * them now gone:
+ * Each card is a picture of the feature above the words for it. The top is a
+ * soft inset panel with a small, slightly turned piece of the product floating
+ * in it — the posts, the chat, the clubs, the numbers — fading out at its
+ * foot; under it an icon in a tinted circle, a large light title and one
+ * sentence. The four read as one set because every card is built the same
+ * way, and nothing is filled but the icon circles.
  *
- *   - The heading was left-aligned in the first column with a cyan pill above
- *     it, so it read as a column header rather than as the section's title.
- *     It is now the centred eyebrow / black heading with one blue word / lead
- *     paragraph that the ecosystem band, the four steps and the free band all
- *     open with.
- *   - The cards were a plain border with a hover shadow, rather than the
- *     graded hairline edge that warms to brand on hover.
- *   - "Join Free" was a plain filled button. It is the pill-and-badge shape
- *     the other sections use, in its brand tone.
+ * The figures are the database's: the clubs and their member counts, and the
+ * community counts on the last card. The two posts and the chat are the same
+ * sample content the section already showed.
  *
- * The colour is deliberate here and stays. Elsewhere on the page prominence
- * comes from the edge and the space rather than from painting the surface, but
- * this section is the one asked to keep its blue: the avatars, the stat chips
- * and the clubs list are all filled as they were. The clubs card carries the
- * radius and shadow of the framed cards beside it, and its cap rule is white
- * rather than ink, so it still reads as part of the same set rather than a
- * panel from another page.
- *
- * The avatar keeps a fill, and deliberately: it is an identity marker rather
- * than a surface, and initials reversed out of ink stay legible at 40px where
- * an outlined circle would not. Ink, though — not brand.
+ * The one action, Join, sits under the grid rather than inside a card, so
+ * the four stay equal.
  */
 
 /** getPostCategoryConfig().color is a plain string; map it to a Badge variant. */
@@ -57,53 +37,232 @@ const CATEGORY_VARIANT: Record<PostCategory, BadgeVariant> = {
   'ev-news': 'red',
 }
 
-interface CommunityStat {
-  icon: typeof Users
-  /** Matched to the glyph — see AnimatedIcon for the set. */
-  motion: IconMotion
-  value: number
-  label: string
-}
-
-/**
- * The four figures, counted rather than claimed.
- *
- * These were '5,000+ Active EV Owners', '1,200+ Discussions', '450+ Trip
- * Reports' and '18 Cities Active' written into this file, against a database
- * holding no registered users, twelve posts and eight cities — overstating by
- * roughly a hundred times, on the home page, above a link to the very page that
- * would have shown the real numbers.
- *
- * Members are the figure the clubs themselves report, which is what /community
- * shows and is the only membership number this product actually holds.
- */
-function communityStats(counts: CommunityCounts): CommunityStat[] {
-  return [
-    { icon: Users, motion: 'pulse', value: counts.clubMembers, label: counts.clubMembers === 1 ? 'Club member' : 'Club members' },
-    { icon: MessageSquare, motion: 'pop', value: counts.discussions, label: counts.discussions === 1 ? 'Discussion' : 'Discussions' },
-    { icon: Route, motion: 'slide', value: counts.replies, label: counts.replies === 1 ? 'Reply' : 'Replies' },
-    { icon: MapPin, motion: 'scan', value: counts.cities, label: counts.cities === 1 ? 'City active' : 'Cities active' },
-  ]
-}
-
 const POSTS = MOCK_POSTS.slice(0, 2)
 
+interface ChatLine {
+  name: string
+  car?: string
+  text: string
+  mine?: boolean
+}
+
+const CHAT: ChatLine[] = [
+  { name: 'Ayesha', car: 'MG ZS EV', text: 'Lahore to Islamabad on Friday. Where should I stop to charge?' },
+  { name: 'Hamza', car: 'BYD Atto 3', text: 'Put it in the route planner. It places the stops around your real range.' },
+  { name: 'You', text: 'Exactly what I needed. Joining!', mine: true },
+]
+
 export interface CommunityPreviewProps {
-  /**
-   * The three biggest clubs, read from the database by the page above.
-   *
-   * These were three hardcoded rows here — the same names and the same member
-   * counts for every visitor, drifting further from the clubs table every time
-   * somebody joined one.
-   */
   clubs: Array<{ id: string; name: string; city: string; memberCount: number }>
-  /** Counted figures from the page above, not written here. */
   counts: CommunityCounts
 }
 
-export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
-  const stats = communityStats(counts)
+/* ── The card shell ─────────────────────────────────────────────────── */
 
+interface FeatureCardProps {
+  href: string
+  icon: LucideIcon
+  title: string
+  body: string
+  children: React.ReactNode
+}
+
+function FeatureCard({ href, icon: Icon, title, body, children }: FeatureCardProps) {
+  return (
+    <HoverLink
+      href={href}
+      className={cn(
+        'group flex h-full flex-col rounded-[1.75rem] border border-slate-200/80 bg-white p-4 sm:p-5',
+        'shadow-[0_1px_2px_rgba(5,36,30,0.04),0_18px_40px_-28px_rgba(5,36,30,0.25)]',
+        'transition-[box-shadow,border-color] duration-300 hover:border-slate-300/80 hover:shadow-[0_2px_4px_rgba(5,36,30,0.05),0_26px_50px_-28px_rgba(5,36,30,0.35)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
+      )}
+    >
+      {/* The picture: an inset panel, its contents fading out at the foot. */}
+      <div aria-hidden="true" className="relative h-[15.5rem] overflow-hidden rounded-[1.25rem] bg-slate-50 sm:h-[16.5rem]">
+        <div
+          className={cn(
+            'absolute inset-0 [mask-image:linear-gradient(to_bottom,#000_62%,transparent_100%)]',
+            'transition-transform duration-500 ease-out group-hover:-translate-y-1.5 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0',
+          )}
+        >
+          {children}
+        </div>
+      </div>
+
+      {/* The words. */}
+      <div className="px-2 pb-3 pt-7 sm:px-3">
+        <span
+          aria-hidden="true"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E9FAF3] text-[#159E89] transition-colors duration-300 group-hover:bg-[#D6F5E8]"
+        >
+          <Icon size={19} strokeWidth={1.9} />
+        </span>
+        <h3 className="mt-5 text-[clamp(1.6rem,2.2vw,2rem)] font-medium leading-[1.12] tracking-[-0.035em] text-slate-900">
+          {title}
+        </h3>
+        <p className="mt-3 max-w-[30rem] text-[15px] leading-[1.7] text-slate-500">{body}</p>
+      </div>
+    </HoverLink>
+  )
+}
+
+/** A floating piece of UI: white, hairline edge, soft shadow. */
+const PIECE = 'rounded-2xl border border-slate-200/80 bg-white shadow-[0_10px_28px_-16px_rgba(5,36,30,0.3)]'
+
+/* ── The four pictures ──────────────────────────────────────────────── */
+
+function PostsPicture() {
+  return (
+    <div className="flex flex-col gap-3 px-[9%] pt-5">
+      {POSTS.map((post, i) => {
+        const config = getPostCategoryConfig(post.category)
+        return (
+          <div key={post.id} className={cn(PIECE, 'p-4', i === 1 && 'ml-[6%]')}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-plug-navy-900 text-[12px] font-bold text-white">
+                  {post.userName.charAt(0)}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[13px] font-semibold text-slate-900">{post.userName}</span>
+                  {post.userVehicle ? <span className="block truncate text-[11px] text-slate-400">{post.userVehicle}</span> : null}
+                </span>
+              </span>
+              <Badge variant={CATEGORY_VARIANT[post.category]} size="sm">
+                {config.label}
+              </Badge>
+            </div>
+            <p className="mt-3 line-clamp-1 text-[14px] font-bold tracking-tight text-slate-900">{post.title}</p>
+            <div className="mt-2.5 flex items-center gap-4 text-[11px] text-slate-400">
+              <span className="flex items-center gap-1">
+                <Heart size={11} /> {post.likeCount}
+              </span>
+              <span className="flex items-center gap-1">
+                <MessageSquare size={11} /> {post.commentCount}
+              </span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function ChatPicture() {
+  return (
+    <div className={cn(PIECE, 'absolute left-[9%] right-[7%] top-6 origin-top-left rotate-[-1.6deg] p-5')}>
+      <div className="flex items-center gap-2.5">
+        <span className="flex -space-x-2">
+          {['A', 'H', 'S'].map((initial, i) => (
+            <span
+              key={initial}
+              className={cn(
+                'flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white',
+                ['bg-plug-cyan-400 text-plug-navy-950', 'bg-amber-300 text-plug-navy-950', 'bg-plug-navy-900 text-white'][i],
+              )}
+            >
+              {initial}
+            </span>
+          ))}
+        </span>
+        <span className="min-w-0">
+          <span className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900">
+            EV Drivers Pakistan <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          </span>
+          <span className="block text-[11px] text-slate-400">Drivers helping drivers</span>
+        </span>
+      </div>
+      <ul className="mt-4 flex flex-col gap-2">
+        {CHAT.map((line) => (
+          <li key={line.text} className={cn('flex max-w-[86%]', line.mine && 'self-end')}>
+            <span
+              className={cn(
+                'rounded-2xl px-3 py-2 text-[12px] leading-snug',
+                line.mine ? 'rounded-br-md bg-[#0B332C] text-white' : 'rounded-bl-md bg-slate-100 text-slate-700',
+              )}
+            >
+              {!line.mine && (
+                <span className="mb-0.5 block text-[10.5px] font-semibold text-[#159E89]">
+                  {line.name}
+                  {line.car && <span className="font-normal text-slate-400"> · {line.car}</span>}
+                </span>
+              )}
+              {line.text}
+            </span>
+          </li>
+        ))}
+        <li className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md bg-slate-100 px-3 py-2.5">
+          {['[animation-delay:0ms]', '[animation-delay:150ms]', '[animation-delay:300ms]'].map((d) => (
+            <span key={d} className={cn('h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 motion-reduce:animate-none', d)} />
+          ))}
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
+  const max = Math.max(1, ...clubs.map((c) => c.memberCount))
+  if (clubs.length === 0)
+    return (
+      <div className={cn(PIECE, 'mx-[9%] mt-6 p-5 text-[13px] text-slate-500')}>Clubs are forming in your city.</div>
+    )
+  return (
+    <div className="flex flex-col gap-3 px-[9%] pt-5">
+      {clubs.slice(0, 3).map((club) => (
+        <div key={club.id} className={cn(PIECE, 'px-4 py-3.5')}>
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="min-w-0 truncate text-[13.5px] font-bold text-slate-900">{club.name}</span>
+            <span className="shrink-0 text-[11px] tabular-nums text-slate-400">
+              {club.memberCount} {club.memberCount === 1 ? 'member' : 'members'}
+            </span>
+          </div>
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+              <span
+                className="block h-full rounded-full bg-gradient-to-r from-[#159E89] to-[#46E3B5]"
+                style={{ width: `${Math.max(8, (club.memberCount / max) * 100)}%` }}
+              />
+            </span>
+            <span className="flex shrink-0 items-center gap-1 text-[10.5px] text-slate-400">
+              <MapPin size={10} /> {club.city}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function StatsPicture({ counts }: { counts: CommunityCounts }) {
+  const rows: { icon: LucideIcon; label: string; value: number }[] = [
+    { icon: Users, label: counts.clubMembers === 1 ? 'Club member' : 'Club members', value: counts.clubMembers },
+    { icon: MessageSquare, label: counts.discussions === 1 ? 'Discussion' : 'Discussions', value: counts.discussions },
+    { icon: Route, label: counts.replies === 1 ? 'Reply' : 'Replies', value: counts.replies },
+    { icon: MapPin, label: counts.cities === 1 ? 'City active' : 'Cities active', value: counts.cities },
+  ]
+  return (
+    <div className={cn(PIECE, 'absolute left-[9%] right-[8%] top-5 origin-top-right rotate-[1.4deg] px-5 pb-3 pt-4')}>
+      <p className="text-[13px] font-bold text-slate-900">This month on plug.pk</p>
+      <ul className="mt-2">
+        {rows.map(({ icon: Icon, label, value }) => (
+          <li key={label} className="flex items-center justify-between border-t border-slate-100 py-2.5 first:border-t-0">
+            <span className="flex items-center gap-2.5 text-[13px] text-slate-500">
+              <Icon size={14} className="text-[#159E89]" strokeWidth={2} />
+              {label}
+            </span>
+            <span className="text-[15px] font-bold tabular-nums text-slate-900">{value.toLocaleString('en-PK')}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/* ── The section ────────────────────────────────────────────────────── */
+
+export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
   return (
     <section className="bg-white py-24 lg:py-32">
       <div className="container-plug">
@@ -123,307 +282,52 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
           </p>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-8">
-          {/* ── Recent posts ───────────────────────────────────── */}
-          <div className="flex flex-col gap-6">
-            {POSTS.map((post) => {
-              const config = getPostCategoryConfig(post.category)
+        {/* ── Four equal cards ─────────────────────────────────── */}
+        <div className="mx-auto mt-16 grid max-w-[76rem] gap-5 md:grid-cols-2 lg:gap-6">
+          <FeatureCard
+            href="/community"
+            icon={MessageSquare}
+            title="Real questions, real answers"
+            body="Ask about charging, range and routes, and hear from drivers who have already done the trip."
+          >
+            <PostsPicture />
+          </FeatureCard>
 
-              return (
-                <HoverLink key={post.id} href="/community" className={FRAME}>
-                  <div className={cn(FACE, 'p-6')}>
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <span
-                          aria-hidden="true"
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-sm font-bold text-white"
-                        >
-                          {post.userName.charAt(0)}
-                        </span>
-                        <span>
-                          <span className="block text-ui-sm font-semibold text-slate-900">
-                            {post.userName}
-                          </span>
-                          {post.userVehicle ? (
-                            <span className="block text-ui-xs text-slate-400">
-                              {post.userVehicle}
-                            </span>
-                          ) : null}
-                        </span>
-                      </div>
+          <FeatureCard
+            href="/community"
+            icon={MessageCircle}
+            title="Drivers helping drivers"
+            body="Plan a trip in the open. Someone has already charged where you are going and will tell you how it went."
+          >
+            <ChatPicture />
+          </FeatureCard>
 
-                      <Badge variant={CATEGORY_VARIANT[post.category]} size="sm">
-                        {config.label}
-                      </Badge>
-                    </div>
+          <FeatureCard
+            href="/community"
+            icon={MapPin}
+            title="EV clubs near you"
+            body="Meet owners in your own city, swap tips on the cars you drive, and join drives and meetups."
+          >
+            <ClubsPicture clubs={clubs} />
+          </FeatureCard>
 
-                    <span aria-hidden="true" className={cn('mt-5', CAP_RULE)} />
+          <FeatureCard
+            href="/community"
+            icon={TrendingUp}
+            title="A community that keeps growing"
+            body="More drivers, more discussions and more cities every month, all of it open to read before you join."
+          >
+            <StatsPicture counts={counts} />
+          </FeatureCard>
+        </div>
 
-                    <h3 className="mt-4 line-clamp-2 text-lg font-bold leading-snug tracking-tight text-slate-900">
-                      {post.title}
-                    </h3>
-                    <p className="mt-2.5 line-clamp-2 text-ui-sm leading-relaxed text-slate-500">
-                      {post.content}
-                    </p>
-
-                    {/* Meta stays still: these name a thing rather than being
-                        the thing, and moving them is noise. */}
-                    <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-                      <span className="flex items-center gap-1.5 text-ui-xs text-slate-400">
-                        <Clock size={12} aria-hidden="true" />
-                        {formatRelativeTime(post.createdAt)}
-                      </span>
-                      <span className="flex items-center gap-4 text-ui-xs text-slate-400">
-                        <span className="flex items-center gap-1.5">
-                          <Heart size={12} aria-hidden="true" />
-                          {post.likeCount}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <MessageSquare size={12} aria-hidden="true" />
-                          {post.commentCount}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </HoverLink>
-              )
-            })}
-
-            <HoverLink
-              href="/community"
-              className="group/cta mt-1 inline-flex items-center gap-2 self-start text-ui-sm font-semibold text-slate-600 transition-colors duration-200 hover:text-plug-blue-700"
-            >
-              View all discussions
-              <AnimatedIcon motion="travel">
-                <ArrowRight size={14} aria-hidden="true" />
-              </AnimatedIcon>
-            </HoverLink>
-          </div>
-
-          {/* ── Stats and clubs ────────────────────────────────── */}
-          <div className="flex flex-col gap-6">
-            <div className={cn(FRAME, 'group/join')}>
-              <div className={cn(FACE, 'relative overflow-hidden p-7 lg:p-8')}>
-                {/* The chat, over the stats while Join is hovered. See JoinChat. */}
-                <JoinChat />
-
-                <div className="transition-[opacity,filter,transform] duration-500 ease-out group-has-[.disc-cta:hover]/join:scale-[0.98] group-has-[.disc-cta:hover]/join:opacity-0 group-has-[.disc-cta:hover]/join:blur-sm group-has-[.disc-cta:focus-visible]/join:opacity-0 motion-reduce:transition-none">
-                <p className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
-                  Join the community
-                </p>
-
-                <div className="mt-7 flex flex-col">
-                  {stats.map((stat, index) => {
-                    const Icon = stat.icon
-
-                    return (
-                      /* Per row rather than per card, so only the figure being
-                         read moves — four icons animating at once is jitter. */
-                      <HoverMotion
-                        key={stat.label}
-                        className={cn(
-                          'group/stat flex items-center gap-4 py-4',
-                          index > 0 && 'border-t border-slate-100',
-                        )}
-                      >
-                        {/* Filled, and staying that way: this section was
-                            explicitly asked to keep its blue. See the note at
-                            the top of the file. */}
-                        <span
-                          aria-hidden="true"
-                          className="flex h-11 w-11 shrink-0 items-center justify-center"
-                        >
-                          <AnimatedIcon motion={stat.motion}>
-                            <Icon size={20} className="text-plug-blue-600 transition-colors duration-300 group-hover/stat:text-plug-blue-700" />
-                          </AnimatedIcon>
-                        </span>
-                        <span>
-                          <span className="block text-2xl font-black tracking-tight text-slate-900">
-                            {stat.value.toLocaleString('en-PK')}
-                          </span>
-                          <span className="block text-ui-sm text-slate-500">{stat.label}</span>
-                        </span>
-                      </HoverMotion>
-                    )
-                  })}
-                </div>
-
-                </div>
-
-                <div className="relative z-10 mt-7 flex justify-center">
-                  <DiscButton href="/signup" tone="light" width="17.5rem" icon={<Users size={20} />}>
-                    Join the community
-                  </DiscButton>
-                </div>
-              </div>
-            </div>
-
-            {/* The one painted block on the page, and kept that way on
-                request: the clubs list is where the section's colour lives.
-                Its radius and shadow match the framed cards beside it so it
-                still reads as part of the same set. */}
-            <HoverMotion className="group/clubs rounded-3xl bg-gradient-brand p-7 shadow-[0_14px_34px_-14px_rgba(11,51,44,0.55)] transition-shadow duration-300 hover:shadow-[0_20px_44px_-14px_rgba(11,51,44,0.65)]">
-              <span
-                aria-hidden="true"
-                className="flex h-11 w-11 shrink-0 items-center justify-center"
-              >
-                <AnimatedIcon motion="scan">
-                  <MapPin size={20} className="text-white" />
-                </AnimatedIcon>
-              </span>
-
-              {/* This card's own white cap rule went with the shared one in
-                  frame.ts — see CAP_RULE for why. The heading takes the space
-                  the rule held, so the card's rhythm does not change. */}
-              <h3 className="mt-7 text-lg font-bold tracking-tight text-white">
-                EV clubs near you
-              </h3>
-
-              <ul className="mt-4 flex flex-col">
-                {clubs.map((club, index) => (
-                  <li
-                    key={club.id}
-                    className={cn(
-                      'flex items-center justify-between gap-3 py-3',
-                      index > 0 && 'border-t border-white/20',
-                    )}
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-ui-sm font-semibold text-white">
-                        {club.name}
-                      </span>
-                      <span className="block text-ui-xs text-white/60">{club.city}</span>
-                    </span>
-                    <span className="shrink-0 font-mono text-ui-xs tabular-nums text-white/80">
-                      {club.memberCount} members
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </HoverMotion>
-          </div>
+        {/* ── The one action ───────────────────────────────────── */}
+        <div className="mt-12 flex justify-center lg:mt-14">
+          <DiscButton href="/signup" tone="light" width="17.5rem" icon={<Users size={20} />}>
+            Join the community
+          </DiscButton>
         </div>
       </div>
     </section>
-  )
-}
-
-/* ── The chat behind Join ─────────────────────────────────────────── */
-
-interface ChatLine {
-  name: string
-  car?: string
-  text: string
-  mine?: boolean
-}
-
-/**
- * An illustration of what joining gets you, not a transcript: first names
- * only, and advice rather than claims — no station, price or meetup that
- * somebody could go looking for and not find.
- */
-const CHAT: ChatLine[] = [
-  { name: 'Ayesha', car: 'MG ZS EV', text: 'Lahore to Islamabad on Friday. Where should I stop to charge?' },
-  { name: 'Hamza', car: 'BYD Atto 3', text: 'Put it in the route planner. It places the stops around your real range.' },
-  { name: 'Sana', car: 'Honri VE', text: 'And pre-cool the cabin while it’s still plugged in. Saves a lot in summer.' },
-  { name: 'You', text: 'This is exactly what I needed. Joining!', mine: true },
-]
-
-/**
- * Enter delays, written out whole so Tailwind can see them. Only the hovered
- * state carries a delay, so the lines arrive one after another and all leave
- * together the moment the pointer does.
- */
-const ENTER_DELAY = [
-  'group-has-[.disc-cta:hover]/join:delay-[120ms]',
-  'group-has-[.disc-cta:hover]/join:delay-[320ms]',
-  'group-has-[.disc-cta:hover]/join:delay-[520ms]',
-  'group-has-[.disc-cta:hover]/join:delay-[720ms]',
-  'group-has-[.disc-cta:hover]/join:delay-[920ms]',
-]
-
-const LINE = cn(
-  'translate-y-3 scale-95 opacity-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none',
-  'group-has-[.disc-cta:hover]/join:translate-y-0 group-has-[.disc-cta:hover]/join:scale-100 group-has-[.disc-cta:hover]/join:opacity-100',
-  'group-has-[.disc-cta:focus-visible]/join:translate-y-0 group-has-[.disc-cta:focus-visible]/join:scale-100 group-has-[.disc-cta:focus-visible]/join:opacity-100',
-)
-
-function JoinChat() {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 flex flex-col bg-plug-navy-950 px-5 pb-28 pt-5 opacity-0 transition-opacity duration-500 ease-out group-has-[.disc-cta:focus-visible]/join:opacity-100 group-has-[.disc-cta:hover]/join:opacity-100 motion-reduce:transition-none"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:22px_22px]" />
-      <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-plug-cyan-500/20 blur-[80px]" />
-
-      {/* Header */}
-      <div className="relative flex items-center gap-3 border-b border-white/10 pb-4">
-        <span className="flex -space-x-2">
-          {['A', 'H', 'S'].map((initial, i) => (
-            <span
-              key={initial}
-              className={cn(
-                'flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold ring-2 ring-plug-navy-950',
-                ['bg-plug-cyan-400 text-plug-navy-950', 'bg-amber-300 text-plug-navy-950', 'bg-white text-plug-navy-950'][i],
-              )}
-            >
-              {initial}
-            </span>
-          ))}
-        </span>
-        <span className="min-w-0">
-          <span className="block truncate text-ui-sm font-bold text-white">EV Drivers Pakistan</span>
-          <span className="flex items-center gap-1.5 text-ui-xs text-white/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            Drivers helping drivers
-          </span>
-        </span>
-      </div>
-
-      {/* Messages */}
-      <ul className="relative mt-4 flex min-h-0 flex-1 flex-col justify-end gap-2.5 overflow-hidden">
-        {CHAT.map((line, i) => (
-          <li
-            key={line.text}
-            className={cn(
-              LINE,
-              ENTER_DELAY[i],
-              'flex max-w-[88%] items-end gap-2',
-              line.mine ? 'origin-bottom-right self-end' : 'origin-bottom-left',
-            )}
-          >
-            {!line.mine && (
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-plug-cyan-300">
-                {line.name.charAt(0)}
-              </span>
-            )}
-            <span
-              className={cn(
-                'rounded-2xl px-3.5 py-2 text-[13px] leading-snug',
-                line.mine
-                  ? 'rounded-br-md bg-plug-cyan-500 text-plug-navy-950'
-                  : 'rounded-bl-md bg-white/[0.08] text-white/90 ring-1 ring-white/10',
-              )}
-            >
-              {!line.mine && (
-                <span className="mb-0.5 block text-[11px] font-semibold text-plug-cyan-300">
-                  {line.name}
-                  {line.car && <span className="font-normal text-white/40"> · {line.car}</span>}
-                </span>
-              )}
-              {line.text}
-            </span>
-          </li>
-        ))}
-
-        {/* Somebody is already typing a welcome. */}
-        <li className={cn(LINE, ENTER_DELAY[4], 'ml-8 flex w-fit origin-bottom-left items-center gap-1 rounded-2xl rounded-bl-md bg-white/[0.08] px-3.5 py-3 ring-1 ring-white/10')}>
-          {['[animation-delay:0ms]', '[animation-delay:150ms]', '[animation-delay:300ms]'].map((d) => (
-            <span key={d} className={cn('h-1.5 w-1.5 animate-bounce rounded-full bg-white/60 motion-reduce:animate-none', d)} />
-          ))}
-        </li>
-      </ul>
-    </div>
   )
 }
