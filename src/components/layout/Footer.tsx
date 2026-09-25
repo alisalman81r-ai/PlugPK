@@ -11,11 +11,11 @@ import { POPULAR_CITIES, SITE_CONFIG } from '@/lib/constants'
  *
  * ── Two layers, and a curtain ─────────────────────────────────────────
  *
- * A dark navy panel (#142936) holds everything: the link columns on the
+ * A dark pine panel (the navbar's #05241E) holds everything: the link columns on the
  * left, contact and the app on the right, and a small row at its foot. Its
  * bottom-right corner is one large curve.
  *
- * Behind it, on teal (#3E8A91), the legal line and "plug.pk" set in solid
+ * Behind it, on the brand teal (#159E89), the legal line and "plug.pk" set in solid
  * white, edge to edge. That layer is `position: sticky; bottom: 0`, so it
  * pins itself to the bottom of the viewport as soon as the footer arrives and
  * waits there, hidden under the panel. The panel scrolls up at normal speed
@@ -35,8 +35,9 @@ import { POPULAR_CITIES, SITE_CONFIG } from '@/lib/constants'
  * open the real map search for that city.
  */
 
-const NAVY = '#142936'
-const TEAL = '#3E8A91'
+/** The site's own palette: the navbar and hero pine, and the brand teal (plug-cyan-600). */
+const NAVY = '#05241E'
+const TEAL = '#159E89'
 
 interface FooterLink {
   label: string
@@ -194,9 +195,9 @@ export function Footer() {
           >
             <span
               className="absolute -top-7 flex h-14 w-14 items-center justify-center rounded-2xl"
-              style={{ backgroundColor: TEAL }}
+              style={{ backgroundColor: NAVY }}
             >
-              <LogoMark color="#FFFFFF" className="h-8 w-8" />
+              <LogoMark className="h-8 w-8" />
             </span>
             <span className="text-[14px] leading-snug" style={{ color: NAVY }}>
               The plug.pk app
