@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
  * The EV ecosystem band.
  *
  * Plain white. Each card is a card inside a card: a pale outer shell, and in
- * it a white face with the icon in a rounded tile, a short uppercase tag set
+ * it a white face with the icon standing on its own (no tile behind it), a short uppercase tag set
  * against it on the right, the title and a two-line description, a hairline,
  * and a status line at the foot — a green dot and the real listed count, or a
  * grey one where the category is still empty. No numbering: the categories
@@ -152,10 +152,10 @@ export async function ServicesPreview() {
                   <div className="flex items-start justify-between gap-4">
                     <span
                       aria-hidden="true"
-                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-700 transition-colors duration-300 group-hover:border-plug-cyan-500/40 group-hover:text-plug-blue-600"
+                      className="flex h-12 w-12 shrink-0 items-center justify-start text-slate-700 transition-colors duration-300 group-hover:text-plug-blue-600"
                     >
                       <AnimatedIcon motion={CATEGORY_MOTION[category.id] ?? 'pop'}>
-                        <Icon size={21} strokeWidth={1.75} />
+                        <Icon size={26} strokeWidth={1.6} />
                       </AnimatedIcon>
                     </span>
                     <span className="pt-1 text-right text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
