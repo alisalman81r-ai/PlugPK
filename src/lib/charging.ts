@@ -49,3 +49,20 @@ export interface HeroStats {
   /** Every station with a real pin, for the dots on the hero map. */
   pins: HeroMapPin[]
 }
+
+/**
+ * The station the "how it works" carousel shows on its phones: the one drivers
+ * have reviewed most, with its real average, its star breakdown and two of its
+ * verified reviews. Step 3 navigates to it and step 4 reviews it, so the two
+ * slides tell one story.
+ */
+export interface ShowcaseStation {
+  slug: string
+  name: string
+  city: string
+  rating: number
+  reviewCount: number
+  /** Count of reviews at 5, 4, 3, 2 and 1 stars, in that order. */
+  breakdown: [number, number, number, number, number]
+  reviews: { userName: string; userVehicle: string; rating: number; comment: string; date: string; verified: boolean }[]
+}

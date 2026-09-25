@@ -12,9 +12,9 @@ import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
   find the types beside it.
 */
 export { FAST_CHARGER_KW } from '@/lib/charging'
-export type { HeroMapPin, HeroStats } from '@/lib/charging'
+export type { HeroMapPin, HeroStats, ShowcaseStation } from '@/lib/charging'
 
-import type { HeroMapPin, HeroStats } from '@/lib/charging'
+import type { HeroMapPin, HeroStats, ShowcaseStation } from '@/lib/charging'
 
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
@@ -1410,5 +1410,59 @@ export async function getCommunityCounts(): Promise<CommunityCounts> {
     clubs: clubs.length,
     cities: new Set(clubs.map((club) => club.city)).size,
     clubMembers: clubs.reduce((sum, club) => sum + club.memberCount, 0),
+  }
+}
+
+/**
+ * The station for the "how it works" phones: most-reviewed, ties broken by
+ * the higher average. Its two reviews are verified, highest-rated first, and
+ * the shorter of equals first, because they are read on a phone-sized card.
+ * Returns null when no station has a review yet, and the carousel falls back to
+ * a photograph for those two steps.
+ */
+export async function getShowcaseStation(): Promise<ShowcaseStation | null> {
+  const groups = await prisma.review.groupBy({
+    by: ['stationId'],
+    where: { stationId: { not: null } },
+    _avg: { rating: true },
+    _count: { _all: true },
+  })
+  const top = groups
+    .filter((g) => g.stationId)
+    .sort((a, b) => b._count._all - a._count._all || (b._avg.rating ?? 0) - (a._avg.rating ?? 0))[0]
+  if (!top?.stationId) return null
+
+  const [station, reviews] = await Promise.all([
+    prisma.station.findUnique({ where: { id: top.stationId }, select: { slug: true, name: true, city: true } }),
+    prisma.review.findMany({
+      where: { stationId: top.stationId },
+      select: { userName: true, userVehicle: true, rating: true, comment: true, date: true, isVerified: true },
+    }),
+  ])
+  if (!station) return null
+
+  const breakdown: ShowcaseStation['breakdown'] = [0, 0, 0, 0, 0]
+  for (const r of reviews) breakdown[5 - Math.min(5, Math.max(1, r.rating))]! += 1
+
+  const picked = reviews
+    .filter((r) => r.isVerified)
+    .sort((a, b) => b.rating - a.rating || a.comment.length - b.comment.length)
+    .slice(0, 2)
+
+  return {
+    slug: station.slug,
+    name: station.name,
+    city: station.city,
+    rating: top._avg.rating ?? 0,
+    reviewCount: top._count._all,
+    breakdown,
+    reviews: picked.map((r) => ({
+      userName: r.userName,
+      userVehicle: r.userVehicle,
+      rating: r.rating,
+      comment: r.comment,
+      date: r.date.toISOString(),
+      verified: r.isVerified,
+    })),
   }
 }
