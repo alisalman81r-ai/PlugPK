@@ -1,23 +1,29 @@
 // src/components/home/HowItWorks.tsx
 'use client'
 
-import { AnimatePresence, motion, useReducedMotion, type PanInfo } from 'framer-motion'
+import { AnimatePresence, motion, useInView, useReducedMotion, type PanInfo } from 'framer-motion'
 import {
   BadgeCheck,
+  Car,
+  Check,
   ChevronLeft,
   ChevronRight,
   CornerUpRight,
+  LocateFixed,
   MapPin,
   Navigation2,
   Plug,
+  Search,
+  SlidersHorizontal,
   Star,
+  X,
   Zap,
   type LucideIcon,
 } from 'lucide-react'
 import Image from 'next/image'
 import * as React from 'react'
 
-import type { HeroMapPin, ShowcaseStation } from '@/lib/charging'
+import type { HeroMapPin, ShowcaseConnectors, ShowcaseSearch, ShowcaseStation } from '@/lib/charging'
 
 /**
  * How it works, as four slides: a statement on the left, the picture that
@@ -31,13 +37,15 @@ import type { HeroMapPin, ShowcaseStation } from '@/lib/charging'
  *
  * ── Each picture shows that exact thing ───────────────────────────────
  *
- *   Find       a row of chargers waiting — what the search turns up
- *   Filter     the plug itself, close up — the connector is what you filter on
+ *   Find       the app, with a city being typed and its chargers appearing
+ *   Filter     the app's connector filter, each plug drawn as its face
  *   Navigate   the app on a phone, giving turn-by-turn directions to a charger
  *   Review     the app on a phone, showing that charger's rating and reviews
  *
- * Steps 3 and 4 are the product itself, drawn as live screens rather than
- * photographs, and they follow one real station: the one drivers have
+ * All four are the product itself, drawn as live screens rather than
+ * photographs. Steps 1 and 2 read the network (getHowItWorksData): the real
+ * stations of the city with the most ports as the search results, and the
+ * real station count per connector type. Steps 3 and 4 follow one real station: the one drivers have
  * reviewed most (getShowcaseStation). Step 3 drives to it, with its real
  * power and free ports; step 4 shows its real average, its real star
  * breakdown and two of its verified reviews, word for word. The distance and
@@ -64,6 +72,8 @@ import type { HeroMapPin, ShowcaseStation } from '@/lib/charging'
 
 type Visual =
   | { kind: 'photo'; image: string; focusX: string }
+  | { kind: 'search'; search: ShowcaseSearch }
+  | { kind: 'connectors'; connectors: ShowcaseConnectors }
   | { kind: 'directions'; station: ShowcaseStation; pin?: HeroMapPin }
   | { kind: 'reviews'; station: ShowcaseStation }
 
@@ -85,12 +95,16 @@ interface Slide {
 export interface HowItWorksProps {
   stats?: { locations: number; rating: number | null; reviews: number }
   showcase?: ShowcaseStation | null
+  search?: ShowcaseSearch | null
+  connectors?: ShowcaseConnectors | null
   pins?: readonly HeroMapPin[]
 }
 
+const EASE = [0.22, 1, 0.36, 1] as const
+
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
-function buildSlides({ stats, showcase, pins }: HowItWorksProps): Slide[] {
+function buildSlides({ stats, showcase, search, connectors, pins }: HowItWorksProps): Slide[] {
   const locations = stats?.locations ?? 0
   const pin = showcase ? pins?.find((p) => p.slug === showcase.slug) : undefined
 
@@ -138,23 +152,47 @@ function buildSlides({ stats, showcase, pins }: HowItWorksProps): Slide[] {
         target: { x: 55, y: 40 },
       }
 
+  const locationsText = locations > 0 ? `${plural(locations, 'location', 'locations')} mapped` : 'Chargers on one map'
+
+  const find: Slide = search
+    ? {
+        label: 'Search',
+        title: 'Find a charger near you.',
+        body: 'Type a city or share your location, and every charger around you shows up on one map.',
+        visual: { kind: 'search', search },
+        chip: { icon: MapPin, text: locationsText },
+        chipY: 60,
+      }
+    : {
+        label: 'Search',
+        title: 'Find a charger near you.',
+        body: 'Type a city or share your location, and every charger around you shows up on one map.',
+        visual: { kind: 'photo', image: '/images/stations/dha-charging-hub-1.jpg', focusX: '72%' },
+        chip: { icon: MapPin, text: locationsText },
+        target: { x: 56, y: 42 },
+      }
+
+  const filter: Slide = connectors
+    ? {
+        label: 'Filter',
+        title: 'See only the chargers that fit your car.',
+        body: 'Pick your connector and the charging speed you need. Everything else is filtered out.',
+        visual: { kind: 'connectors', connectors },
+        chip: { icon: Plug, text: `${plural(connectors.types.length, 'connector type', 'connector types')}` },
+        chipY: 60,
+      }
+    : {
+        label: 'Filter',
+        title: 'See only the chargers that fit your car.',
+        body: 'Pick your connector and the charging speed you need. Everything else is filtered out.',
+        visual: { kind: 'photo', image: '/images/community/m2-trip-2.jpg', focusX: '55%' },
+        chip: { icon: Plug, text: 'Type 2 connector' },
+        target: { x: 62, y: 56 },
+      }
+
   return [
-    {
-      label: 'Search',
-      title: 'Find a charger near you.',
-      body: 'Type a city or share your location, and every charger around you shows up on one map.',
-      visual: { kind: 'photo', image: '/images/stations/dha-charging-hub-1.jpg', focusX: '72%' },
-      chip: { icon: MapPin, text: locations > 0 ? `${plural(locations, 'location', 'locations')} mapped` : 'Chargers on one map' },
-      target: { x: 56, y: 42 },
-    },
-    {
-      label: 'Filter',
-      title: 'See only the chargers that fit your car.',
-      body: 'Pick your connector and the charging speed you need. Everything else is filtered out.',
-      visual: { kind: 'photo', image: '/images/community/m2-trip-2.jpg', focusX: '55%' },
-      chip: { icon: Plug, text: 'Type 2 connector' },
-      target: { x: 62, y: 56 },
-    },
+    find,
+    filter,
     navigate,
     review,
   ]
@@ -395,7 +433,321 @@ function ReviewsScreen({ station }: { station: ShowcaseStation }) {
   )
 }
 
+/* ── Step 1: search ─────────────────────────────────────────────────── */
+
+/**
+ * Types `text` one letter at a time once `active`, then reports done. It
+ * starts at nothing on the server and in the browser alike, so hydration
+ * agrees; under reduced motion it jumps straight to the whole word.
+ */
+function useTyping(text: string, active: boolean) {
+  const reduce = useReducedMotion()
+  const [n, setN] = React.useState(0)
+  React.useEffect(() => {
+    if (!active) return
+    if (reduce) {
+      setN(text.length)
+      return
+    }
+    setN(0)
+    let i = 0
+    let tick: ReturnType<typeof setInterval> | undefined
+    const start = setTimeout(() => {
+      tick = setInterval(() => {
+        i += 1
+        setN(i)
+        if (i >= text.length && tick) clearInterval(tick)
+      }, 115)
+    }, 550)
+    return () => {
+      clearTimeout(start)
+      if (tick) clearInterval(tick)
+    }
+  }, [text, active, reduce])
+  return { typed: text.slice(0, n), done: n >= text.length }
+}
+
+/** Where the results sit on the little street map, in its 290 × 170 space. */
+const SEARCH_PINS = [
+  { x: 176, y: 58 },
+  { x: 96, y: 112 },
+  { x: 226, y: 124 },
+]
+
+function SearchScreen({ search }: { search: ShowcaseSearch }) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.4 })
+  const { typed, done } = useTyping(search.city, inView)
+  const results = search.results.slice(0, 2)
+  const reveal = (delay: number) => ({
+    initial: { opacity: 0, y: 8 },
+    animate: done ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 },
+    transition: { duration: 0.4, delay: done ? delay : 0, ease: EASE },
+  })
+
+  return (
+    <div ref={ref} className="absolute inset-0 px-[1.4em] pt-[4.6em]">
+      {/* The field, focused, with the city being typed into it. */}
+      <div className="flex h-[4.6em] items-center gap-[0.9em] rounded-[1.4em] bg-white/[0.08] px-[1.3em] ring-[0.16em] ring-[#46E3B5]">
+        <Search className="h-[1.6em] w-[1.6em] shrink-0 text-[#46E3B5]" strokeWidth={2.2} />
+        <span className="flex min-w-0 flex-1 items-center text-[1.45em] font-medium">
+          {typed ? <span>{typed}</span> : <span className="text-white/40">Search city or station</span>}
+          <span className="hiw-caret ml-[0.08em] inline-block h-[1.05em] w-[0.1em] rounded-full bg-[#46E3B5]" />
+        </span>
+        {typed ? <X className="h-[1.4em] w-[1.4em] shrink-0 text-white/50" strokeWidth={2} /> : null}
+      </div>
+
+      <div className="mt-[1em] flex gap-[0.6em] text-[1.05em] font-medium text-white/75">
+        <span className="flex items-center gap-[0.35em] rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">
+          <LocateFixed className="h-[1.05em] w-[1.05em] text-[#46E3B5]" strokeWidth={2} /> Near me
+        </span>
+        <span className="rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">Fast 50 kW+</span>
+        <span className="rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">Available</span>
+      </div>
+
+      {/* The map: the results appear on it as the search lands. */}
+      <div className="relative mt-[1.2em] h-[15em] overflow-hidden rounded-[1.6em]">
+        <svg viewBox="0 0 290 170" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
+          <rect width="290" height="170" fill="#0D211D" />
+          <g stroke="#1B3832" strokeLinecap="round" fill="none">
+            <path d="M-10 128 L300 84" strokeWidth="12" />
+            <path d="M60 -10 L104 190" strokeWidth="10" />
+            <path d="M200 -10 L214 190" strokeWidth="9" />
+            <path d="M-10 44 L300 30" strokeWidth="7" />
+            <path d="M140 -10 L150 190" strokeWidth="4" opacity="0.7" />
+            <path d="M-10 90 L300 60" strokeWidth="4" opacity="0.6" />
+          </g>
+          <g fill="#122C27">
+            <rect x="112" y="92" width="24" height="18" rx="4" />
+            <rect x="236" y="40" width="26" height="22" rx="4" />
+            <rect x="20" y="60" width="22" height="20" rx="4" />
+          </g>
+          {/* You. */}
+          <circle cx="132" cy="146" r="12" fill="#5CF0C3" fillOpacity="0.22" />
+          <circle cx="132" cy="146" r="6" fill="#FFFFFF" />
+          {results.map((r, i) => {
+            const p = SEARCH_PINS[i]!
+            return (
+              <motion.g
+                key={r.slug}
+                initial={{ opacity: 0, y: -6 }}
+                animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.35, delay: done ? 0.05 + i * 0.1 : 0 }}
+              >
+                <g transform={`translate(${p.x} ${p.y})`}>
+                  <path d="M0 0 C -3 -7 -12 -12 -12 -21 A 12 12 0 1 1 12 -21 C 12 -12 3 -7 0 0 Z" fill="#46E3B5" />
+                  <path d="M1.6 -29 L -4.8 -19.4 L -0.8 -19.4 L -2.4 -13.2 L 4.8 -22.6 L 0.8 -22.6 Z" fill="#06231D" />
+                </g>
+              </motion.g>
+            )
+          })}
+        </svg>
+      </div>
+
+      <motion.div className="mt-[1.3em] flex items-baseline justify-between" {...reveal(0.1)}>
+        <span className="text-[1.35em] font-semibold">
+          {plural(search.results.length, 'charger', 'chargers')} in {search.city}
+        </span>
+        <span className="text-[1.05em] text-white/50">Fastest first</span>
+      </motion.div>
+
+      <div className="mt-[0.9em] flex flex-col gap-[0.8em]">
+        {results.map((r, i) => (
+          <motion.div key={r.slug} className="rounded-[1.4em] bg-white/[0.06] p-[1.2em]" {...reveal(0.18 + i * 0.1)}>
+            <div className="flex items-start justify-between gap-[0.8em]">
+              <span className="min-w-0">
+                <span className="block truncate text-[1.4em] font-bold">{r.name}</span>
+                <span className="mt-[0.2em] flex items-center gap-[0.35em] text-[1.1em] text-white/60">
+                  <Zap className="h-[1em] w-[1em] fill-[#46E3B5] text-[#46E3B5]" strokeWidth={1.5} />
+                  {r.area} · {Math.round(r.maxPowerKw)} kW
+                </span>
+              </span>
+              <span className={'shrink-0 text-[1.15em] font-semibold ' + (r.availablePorts > 0 ? 'text-[#5CF0C3]' : 'text-white/50')}>
+                {r.availablePorts}/{r.ports} free
+              </span>
+            </div>
+            <div className="mt-[0.8em] flex gap-[0.45em]">
+              {r.connectors.map((c) => (
+                <span key={c} className="rounded-full border border-white/15 px-[0.75em] py-[0.2em] text-[0.95em] font-semibold text-white/80">
+                  {CONNECTOR_INFO[c]?.label ?? c}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Step 2: connectors ─────────────────────────────────────────────── */
+
+const CONNECTOR_INFO: Record<string, { label: string; kind: string }> = {
+  CCS2: { label: 'CCS2', kind: 'DC fast' },
+  CHAdeMO: { label: 'CHAdeMO', kind: 'DC fast' },
+  Type2: { label: 'Type 2', kind: 'AC' },
+  Type1: { label: 'Type 1', kind: 'AC' },
+  GBT: { label: 'GB/T', kind: 'DC / AC' },
+}
+
+/** The face of each plug, as a driver would recognise it on the car. */
+function ConnectorGlyph({ type, className }: { type: string; className?: string }) {
+  const hole = (x: number, y: number, r: number) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} fill="currentColor" stroke="none" />
+  const type2Face = (cy: number, r: number) => {
+    const top = cy - r * 0.72
+    const half = Math.sqrt(r * r - (cy - top) * (cy - top))
+    const s = r / 12
+    return (
+      <>
+        <path d={`M ${16 - half} ${top} H ${16 + half} A ${r} ${r} 0 1 1 ${16 - half} ${top} Z`} />
+        {[
+          [-3.5, -4], [3.5, -4], [-6, 1], [0, 1], [6, 1], [-3.5, 6], [3.5, 6],
+        ].map(([dx, dy]) => hole(16 + dx! * s, cy + dy! * s, 1.5 * s))}
+      </>
+    )
+  }
+  let body: React.ReactNode
+  if (type === 'CCS2')
+    body = (
+      <>
+        {type2Face(13, 10)}
+        <rect x={7} y={27} width={18} height={11} rx={5.5} />
+        {hole(12, 32.5, 2.3)}
+        {hole(20, 32.5, 2.3)}
+      </>
+    )
+  else if (type === 'CHAdeMO')
+    body = (
+      <>
+        <circle cx={16} cy={20} r={13} />
+        <path d="M13 7.2 H19" />
+        {hole(10.5, 17, 3)}
+        {hole(21.5, 17, 3)}
+        {hole(12, 25.5, 1.5)}
+        {hole(16, 27, 1.5)}
+        {hole(20, 25.5, 1.5)}
+      </>
+    )
+  else if (type === 'Type1')
+    body = (
+      <>
+        <circle cx={16} cy={20} r={12} />
+        <path d="M14 8 L16 5.5 L18 8" />
+        {hole(11, 17, 2.4)}
+        {hole(21, 17, 2.4)}
+        {hole(16, 25.5, 2.4)}
+        {hole(11.5, 24, 1.2)}
+        {hole(20.5, 24, 1.2)}
+      </>
+    )
+  else body = type2Face(20, 12)
+  return (
+    <svg viewBox="0 0 32 40" className={className} fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" aria-hidden="true">
+      {body}
+    </svg>
+  )
+}
+
+function ConnectorsScreen({ connectors }: { connectors: ShowcaseConnectors }) {
+  // Four fit the grid; the selected one is always among them.
+  const shown = [
+    ...connectors.types.filter((t) => t.type === connectors.selected),
+    ...connectors.types.filter((t) => t.type !== connectors.selected),
+  ].slice(0, 4)
+  const speeds = [0, 22, connectors.minKw]
+
+  return (
+    <div className="absolute inset-0 px-[1.8em] pt-[4.6em]">
+      <div className="flex items-center justify-between text-[1.25em] font-semibold">
+        <span className="flex items-center gap-[0.4em] text-slate-900">
+          <SlidersHorizontal className="h-[1.1em] w-[1.1em]" strokeWidth={2.2} />
+          Filters
+        </span>
+        <span className="text-[#159E89]">Reset</span>
+      </div>
+
+      {/* The car the filter is for. */}
+      <div className="mt-[1.2em] flex items-center gap-[1em] rounded-[1.4em] bg-slate-50 px-[1.3em] py-[1.1em]">
+        <span className="flex h-[3.4em] w-[3.4em] shrink-0 items-center justify-center rounded-full bg-[#E3F6EF] text-[#0B332C]">
+          <Car className="h-[1.7em] w-[1.7em]" strokeWidth={1.9} />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-[1.35em] font-bold text-slate-900">BYD Atto 3</span>
+          <span className="block text-[1.1em] text-slate-500">
+            Charges on {CONNECTOR_INFO[connectors.selected]?.label ?? connectors.selected}
+          </span>
+        </span>
+      </div>
+
+      <p className="mt-[1.6em] text-[1em] font-bold uppercase tracking-[0.14em] text-slate-400">Connector</p>
+      <div className="mt-[0.7em] grid grid-cols-2 gap-[0.8em]">
+        {shown.map((t, i) => {
+          const on = t.type === connectors.selected
+          const info = CONNECTOR_INFO[t.type] ?? { label: t.type, kind: '' }
+          return (
+            <motion.div
+              key={t.type}
+              className={
+                'relative rounded-[1.4em] border-[0.15em] p-[1.1em] ' +
+                (on ? 'border-[#159E89] bg-[#EAFAF3]' : 'border-slate-100 bg-white')
+              }
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.45 + i * 0.07, ease: EASE }}
+            >
+              {on ? (
+                <span className="absolute right-[0.8em] top-[0.8em] flex h-[1.8em] w-[1.8em] items-center justify-center rounded-full bg-[#159E89] text-white">
+                  <Check className="h-[1.1em] w-[1.1em]" strokeWidth={3} />
+                </span>
+              ) : null}
+              <ConnectorGlyph type={t.type} className={'h-[3.6em] w-[2.9em] ' + (on ? 'text-[#0B332C]' : 'text-slate-400')} />
+              <span className="mt-[0.7em] block text-[1.3em] font-bold text-slate-900">{info.label}</span>
+              <span className="block text-[1em] text-slate-500">
+                {info.kind} · {Math.round(t.maxPowerKw * 10) / 10} kW
+              </span>
+              <span className={'mt-[0.3em] block text-[1em] font-semibold ' + (on ? 'text-[#159E89]' : 'text-slate-400')}>
+                {plural(t.stations, 'station', 'stations')}
+              </span>
+            </motion.div>
+          )
+        })}
+      </div>
+
+      <p className="mt-[1.4em] text-[1em] font-bold uppercase tracking-[0.14em] text-slate-400">Minimum speed</p>
+      <div className="mt-[0.7em] flex rounded-[1.2em] bg-slate-100 p-[0.3em] text-[1.1em] font-semibold">
+        {speeds.map((kw) => (
+          <span
+            key={kw}
+            className={
+              'flex-1 rounded-[0.9em] py-[0.55em] text-center ' +
+              (kw === connectors.minKw ? 'bg-white text-slate-900 shadow-[0_0.2em_0.6em_rgba(5,36,30,0.12)]' : 'text-slate-500')
+            }
+          >
+            {kw === 0 ? 'Any' : kw === connectors.minKw ? `${kw} kW+` : `${kw} kW`}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-[1.4em] flex h-[4.4em] items-center justify-center rounded-[1.3em] bg-[#0B332C] text-[1.3em] font-semibold text-white">
+        Show {plural(connectors.matches, 'charger', 'chargers')}
+      </div>
+    </div>
+  )
+}
+
 function Visual({ visual, priority }: { visual: Visual; priority?: boolean }) {
+  if (visual.kind === 'search')
+    return (
+      <PhoneStage tone="dark">
+        <SearchScreen search={visual.search} />
+      </PhoneStage>
+    )
+  if (visual.kind === 'connectors')
+    return (
+      <PhoneStage tone="light">
+        <ConnectorsScreen connectors={visual.connectors} />
+      </PhoneStage>
+    )
   if (visual.kind === 'directions')
     return (
       <PhoneStage tone="dark">
@@ -433,10 +785,11 @@ function PeekVisual({ visual }: { visual: Visual }) {
 
 const visualKey = (v: Visual) => (v.kind === 'photo' ? v.image : v.kind)
 
-const EASE = [0.22, 1, 0.36, 1] as const
-
-export function HowItWorks({ stats, showcase, pins }: HowItWorksProps) {
-  const slides = React.useMemo(() => buildSlides({ stats, showcase, pins }), [stats, showcase, pins])
+export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItWorksProps) {
+  const slides = React.useMemo(
+    () => buildSlides({ stats, showcase, search, connectors, pins }),
+    [stats, showcase, search, connectors, pins],
+  )
   const [[index, dir], setState] = React.useState<[number, 1 | -1]>([0, 1])
   const reduce = useReducedMotion()
   const clipId = React.useId().replace(/:/g, '')
@@ -642,7 +995,16 @@ export function HowItWorks({ stats, showcase, pins }: HowItWorksProps) {
           </AnimatePresence>
 
           {/* The chip, over the card's left edge. */}
-          <div className="absolute -left-[clamp(1rem,3.5vw,3.5rem)] -translate-y-1/2" style={{ top: `${chipY}%` }}>
+          {/* On the phone slides it stands further out, beside the phone rather than
+              over its screen, so it never covers a word of the app. Below lg there
+              is no room beside it, and the screen already says it, so it goes. */}
+          <div
+            className={
+              'absolute -left-[clamp(1rem,3.5vw,3.5rem)] -translate-y-1/2 transition-[left] duration-500 ' +
+              (slide.visual.kind === 'photo' ? '' : 'hidden lg:block lg:-left-[6rem]')
+            }
+            style={{ top: `${chipY}%` }}
+          >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={index}

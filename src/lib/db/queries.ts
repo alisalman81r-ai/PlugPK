@@ -12,9 +12,9 @@ import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
   find the types beside it.
 */
 export { FAST_CHARGER_KW } from '@/lib/charging'
-export type { HeroMapPin, HeroStats, ShowcaseStation } from '@/lib/charging'
+export type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/lib/charging'
 
-import type { HeroMapPin, HeroStats, ShowcaseStation } from '@/lib/charging'
+import type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/lib/charging'
 
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
@@ -1464,5 +1464,72 @@ export async function getShowcaseStation(): Promise<ShowcaseStation | null> {
       date: r.date.toISOString(),
       verified: r.isVerified,
     })),
+  }
+}
+
+/**
+ * Real data for the first two "how it works" phones. See ShowcaseSearch and
+ * ShowcaseConnectors. Either half is null when there is nothing to show, and
+ * that step falls back to its photograph.
+ */
+export async function getHowItWorksData(): Promise<HowItWorksData> {
+  const stations = await prisma.station.findMany({
+    select: {
+      slug: true,
+      name: true,
+      city: true,
+      area: true,
+      connectors: { select: { type: true, maxPowerKw: true, ports: true, availablePorts: true } },
+    },
+  })
+  if (stations.length === 0) return { search: null, connectors: null }
+
+  // ── The search: the city with the most ports ───────────────────────
+  const portsByCity = new Map<string, number>()
+  for (const s of stations) {
+    const ports = s.connectors.reduce((n, c) => n + c.ports, 0)
+    portsByCity.set(s.city, (portsByCity.get(s.city) ?? 0) + ports)
+  }
+  const city = [...portsByCity.entries()].sort((a, b) => b[1] - a[1])[0]![0]
+  const results = stations
+    .filter((s) => s.city === city)
+    .map((s) => {
+      const sorted = [...s.connectors].sort((a, b) => b.maxPowerKw - a.maxPowerKw)
+      return {
+        slug: s.slug,
+        name: s.name,
+        area: s.area,
+        maxPowerKw: sorted[0]?.maxPowerKw ?? 0,
+        ports: s.connectors.reduce((n, c) => n + c.ports, 0),
+        availablePorts: s.connectors.reduce((n, c) => n + c.availablePorts, 0),
+        connectors: [...new Set(sorted.map((c) => c.type))],
+      }
+    })
+    .sort((a, b) => b.maxPowerKw - a.maxPowerKw)
+
+  // ── The connector filter ───────────────────────────────────────────
+  const byType = new Map<string, { stations: Set<string>; maxPowerKw: number }>()
+  for (const s of stations)
+    for (const c of s.connectors) {
+      const t = byType.get(c.type) ?? { stations: new Set<string>(), maxPowerKw: 0 }
+      t.stations.add(s.slug)
+      t.maxPowerKw = Math.max(t.maxPowerKw, c.maxPowerKw)
+      byType.set(c.type, t)
+    }
+  const types = [...byType.entries()]
+    .map(([type, t]) => ({ type, stations: t.stations.size, maxPowerKw: t.maxPowerKw }))
+    .sort((a, b) => b.stations - a.stations || b.maxPowerKw - a.maxPowerKw)
+
+  // Shown selected: the most widely fitted DC fast connector, as a fast-
+  // charging car would pick. CCS2 on this network.
+  const selected = types.find((t) => t.type === 'CCS2')?.type ?? types[0]?.type ?? 'CCS2'
+  const minKw = 50
+  const matches = stations.filter((s) =>
+    s.connectors.some((c) => c.type === selected && c.maxPowerKw >= minKw && c.availablePorts > 0),
+  ).length
+
+  return {
+    search: results.length > 0 ? { city, results } : null,
+    connectors: types.length > 0 ? { types, selected, minKw, matches } : null,
   }
 }

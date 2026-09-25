@@ -66,3 +66,37 @@ export interface ShowcaseStation {
   breakdown: [number, number, number, number, number]
   reviews: { userName: string; userVehicle: string; rating: number; comment: string; date: string; verified: boolean }[]
 }
+
+/**
+ * The live data behind the first two "how it works" phones: a search for the
+ * city with the most charging ports, with its real stations as the results,
+ * and the connector filter with real station counts per connector type.
+ */
+export interface ShowcaseSearch {
+  city: string
+  results: {
+    slug: string
+    name: string
+    area: string
+    maxPowerKw: number
+    ports: number
+    availablePorts: number
+    /** Connector types fitted, most powerful first. */
+    connectors: string[]
+  }[]
+}
+
+export interface ShowcaseConnectors {
+  /** One row per connector type present in the network, most stations first. */
+  types: { type: string; stations: number; maxPowerKw: number }[]
+  /** The type shown selected, and the speed floor applied with it. */
+  selected: string
+  minKw: number
+  /** Stations with that connector at or above the floor, with a port free. */
+  matches: number
+}
+
+export interface HowItWorksData {
+  search: ShowcaseSearch | null
+  connectors: ShowcaseConnectors | null
+}

@@ -10,7 +10,7 @@ import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
 import { Reveal } from '@/components/ui'
 import { readOrFallback } from '@/lib/db/availability'
-import { getClubs, getCommunityCounts, getHeroStats, getShowcaseStation } from '@/lib/db/queries'
+import { getClubs, getCommunityCounts, getHeroStats, getHowItWorksData, getShowcaseStation } from '@/lib/db/queries'
 import type { EVClub } from '@/lib/types'
 
 /**
@@ -46,7 +46,7 @@ export const revalidate = 300
  * lib/db/availability for what is treated as unavailable and what still throws.
  */
 export default async function HomePage() {
-  const [heroStats, clubs, communityCounts, showcase] = await Promise.all([
+  const [heroStats, clubs, communityCounts, showcase, howItWorks] = await Promise.all([
     // Guarded like the rest: with no database the hero renders its layout with
     // zeroes and no rating rather than taking the page down.
     readOrFallback(
@@ -63,6 +63,7 @@ export default async function HomePage() {
     // The station the how-it-works phones navigate to and review. Null when
     // nothing is reviewed yet, and those two steps show photographs instead.
     readOrFallback('/ showcase station', null, getShowcaseStation),
+    readOrFallback('/ how-it-works data', { search: null, connectors: null }, getHowItWorksData),
   ])
 
   return (
@@ -77,6 +78,8 @@ export default async function HomePage() {
         <HowItWorks
           stats={{ locations: heroStats.locations, rating: heroStats.rating, reviews: heroStats.reviews }}
           showcase={showcase}
+          search={howItWorks.search}
+          connectors={howItWorks.connectors}
           pins={heroStats.pins}
         />
       </Reveal>
