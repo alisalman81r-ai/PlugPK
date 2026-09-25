@@ -33,10 +33,11 @@ import { PIN_BOLT_D, PIN_HEAD_Y } from './station-pin'
  *
  * ── The roads ─────────────────────────────────────────────────────────
  *
- * Straight lines between cities along the country's real corridors — M-9,
- * N-5 / M-5, M-3 / M-4, M-2, GT Road, M-1, the Karakoram Highway, the Indus
- * Highway, N-50, N-65, N-25 and the Makran coast — so the shape of the network
- * is true even though no line follows a road's actual curves.
+ * Fourteen cities and sixteen roads, deliberately few: with more, the lit
+ * network read as a tangle rather than a country. Straight lines along the real
+ * corridors — M-1, M-2, M-3 / M-4, N-5 / M-5, M-9, the Karakoram and Indus
+ * highways, N-65, N-25 and the Makran coast — so the shape is true even though
+ * no line follows a road's actual curves.
  */
 
 type Anchor = 'start' | 'end'
@@ -49,74 +50,46 @@ const CITIES: ReadonlyArray<{ key: string; name: string; major?: boolean; anchor
   { key: 'peshawar', name: 'Peshawar', major: true, anchor: 'end' },
   { key: 'quetta', name: 'Quetta', major: true, anchor: 'end' },
   { key: 'multan', name: 'Multan', major: true },
-  { key: 'faisalabad', name: 'Faisalabad', major: true },
-  { key: 'hyderabad', name: 'Hyderabad', major: true, anchor: 'end' },
-  { key: 'sukkur', name: 'Sukkur', major: true },
-  { key: 'gujranwala', name: 'Gujranwala', anchor: 'end' },
+  { key: 'faisalabad', name: 'Faisalabad', anchor: 'end' },
+  { key: 'hyderabad', name: 'Hyderabad' },
+  { key: 'sukkur', name: 'Sukkur' },
   { key: 'sialkot', name: 'Sialkot' },
-  { key: 'sargodha', name: 'Sargodha', anchor: 'end' },
-  { key: 'abbottabad', name: 'Abbottabad' },
-  { key: 'gilgit', name: 'Gilgit', anchor: 'end' },
-  { key: 'skardu', name: 'Skardu' },
+  { key: 'gilgit', name: 'Gilgit' },
   { key: 'dera ismail khan', name: 'D.I. Khan', anchor: 'end' },
-  { key: 'dera ghazi khan', name: 'D.G. Khan', anchor: 'end' },
   { key: 'bahawalpur', name: 'Bahawalpur' },
-  { key: 'rahim yar khan', name: 'Rahim Yar Khan' },
-  { key: 'larkana', name: 'Larkana', anchor: 'end' },
-  { key: 'nawabshah', name: 'Nawabshah' },
-  { key: 'mirpur khas', name: 'Mirpur Khas' },
-  { key: 'zhob', name: 'Zhob', anchor: 'end' },
-  { key: 'sibi', name: 'Sibi' },
-  { key: 'khuzdar', name: 'Khuzdar', anchor: 'end' },
   { key: 'gwadar', name: 'Gwadar', dy: 18 },
 ]
 
 /** The roads, as pairs of city keys. */
 const ROADS: ReadonlyArray<readonly [string, string]> = [
-  // M-1, M-2 and the GT Road around the capital and Lahore
+  // M-1, M-2 and the Sialkot motorway
   ['islamabad', 'peshawar'],
-  ['islamabad', 'sargodha'],
-  ['sargodha', 'lahore'],
-  ['islamabad', 'gujranwala'],
-  ['gujranwala', 'lahore'],
-  ['gujranwala', 'sialkot'],
-  ['sialkot', 'lahore'],
-  // M-4 and M-3
-  ['sargodha', 'faisalabad'],
+  ['islamabad', 'lahore'],
+  ['lahore', 'sialkot'],
+  // M-3 / M-4
   ['lahore', 'faisalabad'],
   ['faisalabad', 'multan'],
-  ['lahore', 'multan'],
   // The north: Karakoram Highway
-  ['islamabad', 'abbottabad'],
-  ['abbottabad', 'gilgit'],
-  ['gilgit', 'skardu'],
+  ['islamabad', 'gilgit'],
   // Indus Highway and N-50
   ['peshawar', 'dera ismail khan'],
-  ['dera ismail khan', 'dera ghazi khan'],
-  ['dera ghazi khan', 'multan'],
-  ['dera ismail khan', 'zhob'],
-  ['zhob', 'quetta'],
-  // N-5 / M-5 south
+  ['dera ismail khan', 'multan'],
+  ['dera ismail khan', 'quetta'],
+  // N-5 / M-5 south, and M-9
   ['multan', 'bahawalpur'],
-  ['bahawalpur', 'rahim yar khan'],
-  ['rahim yar khan', 'sukkur'],
-  ['sukkur', 'larkana'],
-  ['sukkur', 'nawabshah'],
-  ['nawabshah', 'hyderabad'],
-  ['hyderabad', 'mirpur khas'],
+  ['bahawalpur', 'sukkur'],
+  ['sukkur', 'hyderabad'],
   ['hyderabad', 'karachi'],
   // N-65 and N-25 to Quetta, the Makran coast
-  ['sukkur', 'sibi'],
-  ['sibi', 'quetta'],
-  ['quetta', 'khuzdar'],
-  ['khuzdar', 'karachi'],
+  ['sukkur', 'quetta'],
+  ['quetta', 'karachi'],
   ['karachi', 'gwadar'],
 ]
 
 /** Where the light starts. */
 const ORIGIN = 'islamabad'
 /** Seconds between one hop of the spread and the next. */
-const HOP = 0.2
+const HOP = 0.24
 /** Seconds each road takes to draw. */
 const DRAW = 0.55
 
@@ -228,7 +201,7 @@ export function RouteMapBackdrop({ pins, className }: RouteMapBackdropProps) {
         </g>
 
         {/* The roads lit: a soft glow, then the line, both drawing outward. */}
-        <g fill="none" strokeLinecap="round" filter="url(#rmb-glow)" className="stroke-plug-cyan-400" strokeWidth={7} opacity={0.55}>
+        <g fill="none" strokeLinecap="round" filter="url(#rmb-glow)" className="stroke-plug-cyan-400" strokeWidth={6} opacity={0.38}>
           {EDGES.map((e) => (
             <path key={e.key} d={e.d} pathLength={1} className={DRAW_IN} style={delayOf(e.delay)} />
           ))}
