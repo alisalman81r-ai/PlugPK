@@ -71,7 +71,9 @@ export default async function HomePage() {
           Not wrapped in Reveal — it runs its own scroll-linked entrance. */}
       <FreedomBand />
       <Reveal>
-        <HowItWorks />
+        <HowItWorks
+          stats={{ locations: heroStats.locations, rating: heroStats.rating, reviews: heroStats.reviews }}
+        />
       </Reveal>
       <Reveal>
         <RoutePlannerPromo pins={heroStats.pins} />
