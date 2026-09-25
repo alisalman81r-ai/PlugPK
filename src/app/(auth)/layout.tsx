@@ -3,6 +3,7 @@ import { MapPin, Route, Zap, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 
 import { getPlatformStats } from '@/lib/db/queries'
+import { Logo } from '@/components/ui/Logo'
 
 /**
  * The split shell every auth page renders inside.
@@ -83,15 +84,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
             className="flex items-center gap-2 rounded-lg transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             aria-label="Plug.pk home"
           >
-            <Zap
-              size={22}
-              className="shrink-0 fill-plug-blue-600 text-plug-blue-600"
-              aria-hidden="true"
-            />
-            <span className="font-display text-xl font-bold tracking-tight">
-              <span className="text-slate-900">plug</span>
-              <span className="text-plug-blue-600">.pk</span>
-            </span>
+            <Logo tone="light" size="text-xl" />
           </Link>
 
           {/* slate-500, not slate-400: this is the way out of a screen somebody

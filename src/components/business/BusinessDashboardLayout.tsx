@@ -1,7 +1,7 @@
 // src/components/business/BusinessDashboardLayout.tsx
 'use client'
 
-import { ExternalLink, Zap } from 'lucide-react'
+import { ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -9,6 +9,7 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { BackButton } from '@/components/ui'
 import { BUSINESS_NAV, BusinessDashboardSidebar, isBusinessItemActive } from './BusinessDashboardSidebar'
+import { Logo } from '@/components/ui/Logo'
 
 export interface BusinessDashboardLayoutProps {
   children: React.ReactNode
@@ -43,11 +44,7 @@ export function BusinessDashboardLayout({
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
-          <Zap size={20} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-          <span className="text-lg font-bold tracking-tight">
-            <span className="text-slate-900">plug</span>
-            <span className="text-plug-blue-600">.pk</span>
-          </span>
+          <Logo tone="light" size="text-lg" />
           <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             Business
           </span>

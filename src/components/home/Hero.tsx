@@ -7,17 +7,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { POPULAR_CITIES } from '@/lib/constants'
-import { JourneyCards } from './JourneyCards'
-import { MapLegend } from './MapLegend'
-import { MapHighway } from './MapHighway'
-import { MapStations } from './MapStations'
-import { PakistanMap } from './PakistanMap'
+import { HeroShowcase } from './HeroShowcase'
 import { cn } from '@/lib/utils'
 import type { HeroStats } from '@/lib/charging'
-
-/** Enough to start from without turning the hero into a filter panel. */
-const QUICK_CITIES = POPULAR_CITIES.slice(0, 3)
 
 /**
  * One counted figure, with its icon and label.
@@ -55,16 +47,16 @@ function HeroStat({
       */}
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center text-plug-blue-600"
+        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center text-plug-cyan-400"
       >
         {icon}
       </span>
       <div className="flex flex-col-reverse">
-        <dt className="text-ui-xs leading-tight tracking-[0.005em] text-slate-500">
+        <dt className="text-ui-xs leading-tight tracking-[0.005em] text-slate-400">
           {label}
-          {note ? <span className="block text-ui-xs text-slate-400">({note})</span> : null}
+          {note ? <span className="block text-ui-xs text-slate-400/80">({note})</span> : null}
         </dt>
-        <dd className="mb-1 text-[clamp(1.375rem,2.4vh,1.625rem)] font-black leading-none tracking-[-0.02em] tabular-nums text-slate-900">
+        <dd className="mb-1 text-[clamp(1.375rem,2.4vh,1.625rem)] font-bold leading-none tracking-[-0.02em] tabular-nums text-white">
           {value}
         </dd>
       </div>
@@ -201,11 +193,39 @@ export function Hero({ stats }: HeroProps) {
       progress attribute, and the document is its own height.
     */
     <section className="relative w-full">
-      <div className="relative isolate flex min-h-[calc(100svh-var(--nav-h))] w-full flex-col overflow-x-clip bg-white pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
-        <div className="hero-band mx-auto grid w-full max-w-[2100px] flex-1 lg:grid-cols-[1fr_1fr]">
+      <div className="relative isolate flex min-h-[calc(100svh-var(--nav-h))] w-full flex-col overflow-x-clip pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+        {/*
+          ── A dark ground, and the map as the light on it ─────────────────
+
+          Pine, deepening to ink at the edges and lifting toward forest behind
+          the map, so the band has a direction: the eye is pulled right, to
+          the country, and the type sits on the quietest part of the field.
+
+          Four layers, all decoration and all behind the content:
+            the field       one radial gradient, pine to forest to ink
+            the grid        a faint mint dot lattice, masked to fade out
+                            before it reaches the type — a survey sheet under
+                            the map, not wallpaper behind the words
+            the glow        a turquoise bloom behind the silhouette, which is
+                            what makes pale land read as lit rather than cut out
+            the grain       the site's own .grain, so the dark never goes flat
+
+          Full bleed at the sides and solid to the foot: the green holds all
+          the way down and meets the section below on a clean edge, with no
+          fade between them. Every section keeps its own solid ground.
+        */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute inset-0 bg-plug-navy-950" />
+          <div className="absolute inset-0 bg-[radial-gradient(120%_95%_at_74%_46%,#0B332C_0%,#05241E_52%,#0D1817_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(rgba(196,248,236,0.10)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:radial-gradient(58%_70%_at_72%_50%,#000_20%,transparent_75%)]" />
+          <div className="absolute right-[6%] top-1/2 h-[46rem] w-[46rem] -translate-y-1/2 rounded-full bg-plug-cyan-500/[0.13] blur-[150px]" />
+          <div className="absolute -bottom-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-plug-cyan-500/[0.06] blur-[120px]" />
+          <div className="grain" />
+        </div>
+        <div className="hero-band mx-auto grid w-full max-w-[2100px] flex-1 lg:grid-cols-[0.92fr_1.08fr]">
           {/* ── The type ─────────────────────────────────────────────── */}
-          <div className="hero-type relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:pb-[var(--hero-lift,0px)] lg:pl-14 lg:pr-10 lg:pt-0 xl:pl-20">
-            <div className="flex w-full max-w-[38rem] 2xl:max-w-[50rem] flex-col items-start text-left">
+          <div className="hero-type relative flex flex-col justify-center px-6 pb-16 pt-10 sm:px-8 lg:pb-0 lg:pl-14 lg:pr-10 lg:pt-0 xl:pl-20">
+            <div className="flex w-full max-w-[38rem] 2xl:max-w-[44rem] flex-col items-start text-left">
   
               {/*
                 Set as three lines rather than left to wrap.
@@ -232,41 +252,28 @@ export function Hero({ stats }: HeroProps) {
                 full-width there.
               */}
               {/*
-                ── Weight and accent ─────────────────────────────────────
+                ── Two shades, one heading ───────────────────────────────
 
-                Black rather than extrabold. Poppins 900 is already loaded, so
-                this costs no request, and at display size the difference is
-                the whole character of the type: 800 reads as a strong website
-                heading, 900 reads as a masthead. It is the single change that
-                moves this closest to the reference.
+                White for the offer, turquoise for the place. The accent runs
+                turquoise into mint as a clipped gradient, so the word that
+                names the country catches the same light the map does.
 
-                The accent line is the brand blue now, not navy-700. Navy at
-                this size sat only a shade off the ink above it, so the third
-                line read as slightly faded rather than as the emphasis — the
-                distinction was there in the token and not on the screen.
-                plug-blue-600 is the colour every action on the page already
-                uses, and measured on this band — #EEF2F8, not white — it is
-                4.60:1. Above the 4.5 needed for body text, and far above the
-                3:1 that large display type actually has to meet. The ink line
-                above it measures 15.89:1.
+                No eyebrow and no rule down the left: the heading opens the
+                column and sits flush with the copy under it.
 
-                Tracking tightens with the weight. Heavier letterforms carry
-                more mass per character, so the spacing that suited 800 leaves
-                900 looking loose.
-
-                Leading goes to 1.02, up from 0.98. That is not taste: at 0.98
-                the descender of "Every" reached 1.1px INTO the cap-height of
-                the line below it, measured in real glyph ink. The hero was the
-                one place left in the site with that fault, reported at the
-                time and left alone because the composition was frozen. Opening
-                it for this pass is the moment to fix it — the gap is +2px now.
+                White on pine is 16.4:1; turquoise on pine 8.2:1.
               */}
-              <h1 className="text-[clamp(2.5rem,3.6vw,4.4rem)] font-black leading-[1.05] tracking-[-0.04em] text-slate-900">
-                <span className="hero-rise hero-rise-2 block">Find every EV charger</span>
-                <span className="hero-rise hero-rise-3 block">
-                  in <span className="text-plug-blue-600">Pakistan.</span>
-                </span>
-              </h1>
+              <div className="relative">
+                <h1 className="text-[clamp(2.5rem,3.7vw,4.5rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
+                  <span className="hero-rise hero-rise-2 block">Find every EV charger</span>
+                  <span className="hero-rise hero-rise-3 block">
+                    in{' '}
+                    <span className="bg-gradient-to-r from-plug-cyan-500 via-plug-cyan-400 to-plug-cyan-200 bg-clip-text text-transparent">
+                      Pakistan.
+                    </span>
+                  </span>
+                </h1>
+              </div>
   
               {/*
                 The supporting line sits closer to the headline and holds a
@@ -284,7 +291,7 @@ export function Hero({ stats }: HeroProps) {
                 actually backs: the speeds come from the connector records and
                 the reviews are written by people who used the station.
               */}
-              <p className="hero-rise hero-rise-4 mt-[clamp(1rem,2.6vh,1.85rem)] max-w-none text-[1.1875rem] leading-[1.65] tracking-[-0.011em] text-slate-600">
+              <p className="hero-rise hero-rise-4 mt-[clamp(1rem,2.6vh,1.85rem)] max-w-none text-[1.1875rem] leading-[1.65] tracking-[-0.011em] text-slate-300">
                 <span className="block">One map. Real charging speeds. Driver reviews.</span>
                 <span className="block">
                   Everything you need for a smoother, greener journey.
@@ -299,7 +306,7 @@ export function Hero({ stats }: HeroProps) {
                   event.preventDefault()
                   go(query)
                 }}
-                className="hero-rise hero-rise-5 mt-[clamp(1.75rem,4.2vh,3rem)] flex w-full items-center gap-2 rounded-full border border-slate-200/90 bg-white p-2 pl-6 shadow-[0_2px_4px_-2px_rgba(15,23,42,0.06),0_14px_40px_-16px_rgba(15,23,42,0.24)] transition-[border-color,box-shadow] duration-200 focus-within:border-plug-blue-300 focus-within:shadow-[0_2px_4px_-2px_rgba(15,23,42,0.06),0_18px_46px_-16px_rgba(37,99,235,0.28)]"
+                className="hero-rise hero-rise-5 mt-[clamp(1.75rem,4.2vh,3rem)] flex w-full items-center gap-2 rounded-full border border-white/10 bg-white p-2 pl-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] ring-0 ring-plug-cyan-500/40 transition-[box-shadow] duration-200 focus-within:ring-4"
               >
                 <Search size={18} className="shrink-0 text-slate-500" aria-hidden="true" />
                 <input
@@ -312,7 +319,7 @@ export function Hero({ stats }: HeroProps) {
                 />
                 <button
                   type="submit"
-                  className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors duration-200 hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-600 focus-visible:ring-offset-2 motion-reduce:transition-none"
+                  className="group/go inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors duration-200 hover:bg-plug-cyan-500 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-600 focus-visible:ring-offset-2 motion-reduce:transition-none"
                 >
                   <MapPin size={16} className="shrink-0" aria-hidden="true" />
                   <span className="hidden sm:inline">Find chargers</span>
@@ -326,60 +333,6 @@ export function Hero({ stats }: HeroProps) {
               </form>
   
               {/*
-                ── Cities, with what is actually in them ─────────────────
-
-                Each chip carries its own count, from getHeroStats. A chip that
-                says how many charging points a city holds is a different offer
-                from one that only says "Karachi": it tells somebody whether
-                the trip is worth planning before they spend a click finding
-                out. A city with none says "none yet", which is the answer, and
-                is why the count is rendered from data rather than assumed.
-              */}
-              <div className="hero-rise hero-rise-5 mt-[clamp(1.5rem,3.1vh,2.1rem)] flex flex-wrap items-center gap-2.5">
-                <span className="text-ui-sm text-slate-500">Popular cities</span>
-
-                {QUICK_CITIES.map((city) => {
-                  const count = stats.byCity[city] ?? 0
-                  return (
-                    <button
-                      key={city}
-                      type="button"
-                      onClick={() => go(city)}
-                      className={cn(
-                        'group/city inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3.5 py-2 text-left',
-                        'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-150',
-                        'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_6px_16px_-8px_rgba(15,23,42,0.22)]',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-                        'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-                      )}
-                    >
-                      <MapPin size={15} className="shrink-0 text-plug-blue-600" aria-hidden="true" />
-                      <span className="leading-tight">
-                        <span className="block text-ui-sm font-semibold text-slate-900">{city}</span>
-                        <span className="block text-ui-xs tabular-nums text-slate-500">
-                          {count > 0
-                            ? `${count} ${count === 1 ? 'charger' : 'chargers'}`
-                            : 'none yet'}
-                        </span>
-                      </span>
-                    </button>
-                  )
-                })}
-
-                <Link
-                  href="/map"
-                  className="group/all inline-flex items-center gap-1.5 text-ui-sm font-medium text-plug-blue-600 transition-colors duration-150 hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-                >
-                  View all
-                  <ArrowRight
-                    size={14}
-                    className="shrink-0 transition-transform duration-200 group-hover/all:translate-x-0.5 motion-reduce:transition-none"
-                    aria-hidden="true"
-                  />
-                </Link>
-              </div>
-
-              {/*
                 ── Three figures, all counted ────────────────────────────
 
                 The reference puts 247 locations, 8 connector types and 4.8
@@ -392,7 +345,7 @@ export function Hero({ stats }: HeroProps) {
                 has been reviewed yet: an average of no reviews is not zero, it
                 is nothing, and showing 0.0 would read as "rated badly".
               */}
-              <dl className="hero-rise hero-rise-5 mt-[clamp(1.5rem,3.4vh,2.4rem)] flex flex-wrap items-center gap-x-6 gap-y-5 sm:gap-x-8">
+              <dl className="hero-rise hero-rise-5 mt-[clamp(1.75rem,3.8vh,2.6rem)] flex w-full flex-wrap items-center gap-x-6 gap-y-5 border-t border-white/10 pt-[clamp(1.25rem,2.8vh,1.75rem)] sm:gap-x-8">
                 <HeroStat
                   icon={<Zap size={17} aria-hidden="true" />}
                   value={String(stats.locations)}
@@ -458,8 +411,8 @@ export function Hero({ stats }: HeroProps) {
                 className={cn(
                   'group/route relative isolate mt-10 flex w-full items-center gap-4 overflow-hidden',
                   'rounded-2xl border border-slate-200 bg-white px-4 py-3.5',
-                  'shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-all duration-200',
-                  'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.3)]',
+                  'shadow-[0_1px_3px_rgba(5,36,30,0.05)] transition-all duration-200',
+                  'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_10px_24px_-14px_rgba(5,36,30,0.3)]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
                   'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
                 )}
@@ -515,22 +468,19 @@ export function Hero({ stats }: HeroProps) {
             desktop; the explicit heights below `lg` are what stop it
             collapsing once it is the only thing in a stacked row.
           */}
+          {/*
+            The phone, the car and the country, as one scaled drawing. The
+            cap on width keeps its height inside the band on a short laptop:
+            the drawing is 935 × 760, so it may be 1.23× as wide as the band
+            is tall, less a little for breathing room.
+          */}
           <div
             ref={stageRef}
-            className="relative flex h-[21rem] items-center justify-center px-5 pb-6 sm:h-[26rem] sm:px-10 lg:h-auto lg:py-10 lg:pl-4 lg:pr-[9rem] xl:pl-8 xl:pr-[10.5rem]"
+            className="relative flex items-center justify-center px-5 pb-10 sm:px-10 lg:py-6 lg:pl-[1.3vw] lg:pr-0"
           >
-            <PakistanMap className="hero-map-float h-full max-h-[78vh] w-full">
-              {/* Road first, network on top: a station dot must never end up
-                  underneath the line that runs past it. */}
-              <MapHighway />
-              <MapStations pins={stats.pins} cityCounts={stats.byCity} />
-            </PakistanMap>
-
-            <MapLegend />
-  
-            {/* Ambient product cards, floating around the silhouette — not a
-                frame on it. Siblings of the map, never a wrapper. */}
-            <JourneyCards pins={stats.pins} />
+            <div className="w-full max-w-[min(100%,calc((100svh-var(--nav-h)-3rem)*1.23))]">
+              <HeroShowcase pins={stats.pins} />
+            </div>
           </div>
         </div>
   

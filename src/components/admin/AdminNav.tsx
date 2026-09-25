@@ -26,6 +26,7 @@ import * as React from 'react'
 
 import type { AdminBadgeCounts } from '@/lib/db/admin-badges'
 import { cn } from '@/lib/utils'
+import { Logo, LogoMark } from '@/components/ui/Logo'
 
 interface NavItem {
   label: string
@@ -146,12 +147,14 @@ function NavContent({
           className="flex items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
           title={collapsed ? 'plug.pk admin' : undefined}
         >
-          <Zap size={18} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
           {collapsed ? (
-            <span className="sr-only">plug.pk admin</span>
+            <>
+              <LogoMark color="#159E89" className="h-5 w-5 shrink-0" />
+              <span className="sr-only">plug.pk admin</span>
+            </>
           ) : (
             <>
-              <span className="font-bold text-slate-900">plug.pk</span>
+              <Logo tone="light" size="text-base" />
               <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                 Admin
               </span>
@@ -392,8 +395,7 @@ export function AdminNav({ badges, collapsed = false }: AdminNavProps) {
         </button>
 
         <Link href="/admin" className="flex items-center gap-2">
-          <Zap size={16} className="fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-          <span className="font-bold text-slate-900">plug.pk</span>
+          <Logo tone="light" size="text-base" />
           <span className="rounded-md bg-plug-navy-900 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             Admin
           </span>

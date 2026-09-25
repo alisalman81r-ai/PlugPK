@@ -1,11 +1,11 @@
 // src/app/business/signup/page.tsx
-import { Zap } from 'lucide-react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { BusinessSignUpForm } from '@/components/business/BusinessSignUpForm'
 import { EyebrowBadge } from '@/components/ui'
 import { getCurrentProfile } from '@/lib/db/session-actions'
+import { Logo } from '@/components/ui/Logo'
 
 /**
  * Listing a business requires an account first.
@@ -31,11 +31,7 @@ export default async function BusinessSignUpPage() {
     <div className="min-h-screen bg-slate-50">
       <header className="flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-8 py-5">
         <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
-          <Zap size={22} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-slate-900">plug</span>
-            <span className="text-plug-blue-600">.pk</span>
-          </span>
+          <Logo tone="light" size="text-xl" />
         </Link>
 
         <Link

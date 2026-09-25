@@ -3,14 +3,14 @@ import { AppBanner } from '@/components/home/AppBanner'
 import { PartnerCTA } from '@/components/home/PartnerCTA'
 import { CommunityPreview } from '@/components/home/CommunityPreview'
 import { ValueBanner } from '@/components/home/ValueBanner'
+import { FreedomBand } from '@/components/home/FreedomBand'
 import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
 import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
-import { StatsBar } from '@/components/home/StatsBar'
 import { Reveal } from '@/components/ui'
 import { readOrFallback } from '@/lib/db/availability'
-import { getClubs, getCommunityCounts, getHeroStats, getPlatformStats } from '@/lib/db/queries'
+import { getClubs, getCommunityCounts, getHeroStats } from '@/lib/db/queries'
 import type { EVClub } from '@/lib/types'
 
 /**
@@ -35,7 +35,7 @@ export const revalidate = 300
 /**
  * The figures and the club rail are supplementary; the page is not.
  *
- * Every one of these three reads is a counter or a rail sitting between
+ * Every one of these reads is a counter or a rail sitting between
  * sections that need no database at all — the hero, how-it-works, the services
  * grid, the banners. Awaiting them bare meant a database that could not answer
  * took the whole landing page down to the error boundary, header and all, which
@@ -46,8 +46,7 @@ export const revalidate = 300
  * lib/db/availability for what is treated as unavailable and what still throws.
  */
 export default async function HomePage() {
-  const [stats, heroStats, clubs, communityCounts] = await Promise.all([
-    readOrFallback('/ platform stats', { stations: 0, cities: 0, owners: 0 }, getPlatformStats),
+  const [heroStats, clubs, communityCounts] = await Promise.all([
     // Guarded like the rest: with no database the hero renders its layout with
     // zeroes and no rating rather than taking the page down.
     readOrFallback(
@@ -66,15 +65,16 @@ export default async function HomePage() {
   return (
     <>
       {/* The hero animates on load; everything past the fold reveals on
-          approach so the page reads as a sequence rather than a dump.
-          StatsBar is excluded — it runs its own count-up observer. */}
+          approach so the page reads as a sequence rather than a dump. */}
       <Hero stats={heroStats} />
-      <StatsBar stations={stats.stations} cities={stats.cities} owners={stats.owners} />
+      {/* The breath after the hero: what the product is for, before how it works.
+          Not wrapped in Reveal — it runs its own scroll-linked entrance. */}
+      <FreedomBand />
       <Reveal>
         <HowItWorks />
       </Reveal>
       <Reveal>
-        <RoutePlannerPromo />
+        <RoutePlannerPromo pins={heroStats.pins} />
       </Reveal>
       {/* The services grid sits where the featured-stations rail used to. */}
       <Reveal>

@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.tsx
 'use client'
 
-import { Menu, Smartphone, X, Zap } from 'lucide-react'
+import { Menu, Smartphone, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -11,6 +11,7 @@ import { NAV_LINKS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
 import { MobileMenu } from './MobileMenu'
+import { Logo } from '@/components/ui/Logo'
 
 /** True for the link's own route and anything nested beneath it. */
 function isActivePath(pathname: string, href: string): boolean {
@@ -70,6 +71,20 @@ export function Navbar() {
     }
   }, [])
 
+  /*
+    The bar is pine, on every page and at every scroll position.
+
+    It used to turn white once the page scrolled. On the home page that meant
+    the header flipped colour a few pixels in, while the dark hero was still
+    the thing in view, and it read as the bar changing its mind. A fixed dark
+    bar is also the steadier frame for pages whose heroes are dark — /map,
+    /cars, /partners — and it sits cleanly over the light ones.
+
+    The one exception is the open mobile sheet, which is white; the bar goes
+    white with it so the two read as one panel.
+  */
+  const onDark = !isMobileMenuOpen
+
   // A route change while the sheet is open would otherwise leave it mounted.
   React.useEffect(() => {
     setIsMobileMenuOpen(false)
@@ -99,9 +114,16 @@ export function Navbar() {
             So the look survives and the cost does not.
           */
           'fixed inset-x-0 top-0 z-50 h-[var(--nav-h)] transition-all duration-300 ease-out',
-          isScrolled
-            ? 'border-b border-slate-200/60 bg-white/95 shadow-nav'
-            : 'border-b border-slate-200/80 bg-white/[0.85] backdrop-blur-[20px]',
+          onDark
+            ? cn(
+                'border-b border-white/[0.08] bg-plug-navy-950',
+                // Once content passes under it, a soft shadow separates the
+                // bar from a dark band that would otherwise run into it.
+                isScrolled && 'shadow-[0_10px_30px_-14px_rgba(0,0,0,0.55)]',
+              )
+            : isScrolled
+              ? 'border-b border-slate-200/60 bg-white/95 shadow-nav'
+              : 'border-b border-slate-200/80 bg-white/[0.85] backdrop-blur-[20px]',
         )}
       >
         <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-6">
@@ -110,16 +132,8 @@ export function Navbar() {
             className="flex items-center gap-2 transition-opacity duration-150 hover:opacity-90"
             aria-label="Plug.pk home"
           >
-              {/* Sized and weighted as a wordmark rather than a label: the
-                reference sets its name at around 24px in the heaviest weight
-                it has, tightened, and sits it against the left edge. The
-                lightning stays — it is the brand's mark — but shrinks so the
-                  name carries the block. */}
-            <Zap size={20} className="shrink-0 fill-plug-blue-600 text-plug-blue-600" aria-hidden="true" />
-            <span className="text-2xl font-black leading-none tracking-[-0.03em]">
-              <span className="text-slate-900">plug</span>
-              <span className="text-plug-blue-600">.pk</span>
-            </span>
+            {/* The brand logo, in the tone of whatever the bar is over. */}
+            <Logo tone={onDark ? 'dark' : 'light'} size="text-2xl" />
           </Link>
 
           <div className="hidden items-center gap-1 lg:flex">
@@ -148,7 +162,13 @@ export function Navbar() {
                   aria-current={active ? 'page' : undefined}
                   className={cn(
                     'group/nav relative whitespace-nowrap px-3 py-2 text-ui font-medium transition-colors duration-200',
-                    active ? 'text-plug-blue-600' : 'text-slate-900 hover:text-plug-blue-600',
+                    onDark
+                      ? active
+                        ? 'text-white'
+                        : 'text-white/75 hover:text-white'
+                      : active
+                        ? 'text-plug-blue-600'
+                        : 'text-slate-900 hover:text-plug-blue-600',
                   )}
                 >
                   {link.label}
@@ -156,7 +176,7 @@ export function Navbar() {
                     aria-hidden="true"
                     className={cn(
                       'absolute bottom-1 left-3 right-3 h-0.5 origin-left rounded-full',
-                      'bg-gradient-brand transition-transform duration-300 ease-out motion-reduce:transition-none',
+                      'bg-plug-cyan-500 transition-transform duration-300 ease-out motion-reduce:transition-none',
                       active
                         ? 'scale-x-100'
                         : 'scale-x-0 group-hover/nav:scale-x-100 group-focus-visible/nav:scale-x-100',
@@ -168,12 +188,12 @@ export function Navbar() {
           </div>
 
           <div className="hidden shrink-0 items-center gap-2 lg:flex">
-            {user ? <AccountMenu user={user} /> : (
+            {user ? <AccountMenu user={user} onDark={onDark} /> : (
               <Button
                 variant="ghost"
                 size="sm"
                 href="/login"
-                className="text-slate-900 hover:text-plug-blue-600"
+                className={onDark ? 'text-white hover:bg-white/10 hover:text-white' : 'text-slate-900 hover:text-plug-blue-600'}
               >
                 Sign In
               </Button>
@@ -187,11 +207,21 @@ export function Navbar() {
               */}
             <Link
               href="/#app"
-              className="inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-plug-navy-900 px-5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-plug-navy-800"
+              className={cn(
+                'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition-colors duration-200',
+                onDark
+                  ? 'bg-plug-cyan-500 text-plug-blue-600 hover:bg-plug-cyan-400'
+                  : 'bg-plug-navy-900 text-white hover:bg-plug-navy-800',
+              )}
             >
               <Smartphone size={15} className="shrink-0" aria-hidden="true" />
               Download App
-              <span className="rounded-full bg-white/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/80">
+              <span
+                className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide',
+                  onDark ? 'bg-plug-blue-600/15 text-plug-blue-600' : 'bg-white/15 text-white/80',
+                )}
+              >
                 Soon
               </span>
             </Link>
@@ -202,7 +232,10 @@ export function Navbar() {
             onClick={() => setIsMobileMenuOpen((open) => !open)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 lg:hidden"
+            className={cn(
+              'flex h-10 w-10 items-center justify-center rounded-xl bg-transparent transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 lg:hidden',
+              onDark ? 'text-white hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100',
+            )}
           >
               {/* The bars and the cross now turn through each other rather than
                 one being swapped for the other under a CSS rotate — the old
