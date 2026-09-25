@@ -1,6 +1,7 @@
 // src/components/home/CommunityPreview.tsx
 'use client'
 
+import { motion, useReducedMotion } from 'framer-motion'
 import { Heart, MapPin, MessageCircle, MessageSquare, Route, TrendingUp, Users, type LucideIcon } from 'lucide-react'
 
 import { Badge, DiscButton, HoverLink, type BadgeVariant } from '@/components/ui'
@@ -203,6 +204,7 @@ function ChatPicture() {
 }
 
 function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
+  const reduce = useReducedMotion()
   const max = Math.max(1, ...clubs.map((c) => c.memberCount))
   if (clubs.length === 0)
     return (
@@ -210,7 +212,7 @@ function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
     )
   return (
     <div className="flex flex-col gap-3 px-[9%] pt-5">
-      {clubs.slice(0, 3).map((club) => (
+      {clubs.slice(0, 3).map((club, i) => (
         <div key={club.id} className={cn(PIECE, 'px-4 py-3.5')}>
           <div className="flex items-baseline justify-between gap-3">
             <span className="min-w-0 truncate text-[13.5px] font-bold text-slate-900">{club.name}</span>
@@ -219,11 +221,25 @@ function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
             </span>
           </div>
           <div className="mt-2.5 flex items-center gap-2">
+            {/*
+              The bar fills from empty to its share of members when the card
+              comes into view, the three one after another; then a soft light
+              keeps sweeping along it. Under reduced motion it is simply full.
+            */}
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
-              <span
-                className="block h-full rounded-full bg-gradient-to-r from-[#159E89] to-[#46E3B5]"
+              <motion.span
+                className="relative block h-full origin-left overflow-hidden rounded-full bg-gradient-to-r from-[#159E89] to-[#46E3B5]"
                 style={{ width: `${Math.max(8, (club.memberCount / max) * 100)}%` }}
-              />
+                initial={reduce ? false : { scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: 1.1, delay: 0.2 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <span
+                  className="club-bar-sheen absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent"
+                  style={{ animationDelay: `${1.3 + i * 0.35}s` }}
+                />
+              </motion.span>
             </span>
             <span className="flex shrink-0 items-center gap-1 text-[10.5px] text-slate-400">
               <MapPin size={10} /> {club.city}

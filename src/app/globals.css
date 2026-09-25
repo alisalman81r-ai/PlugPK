@@ -975,3 +975,21 @@ html::-webkit-scrollbar {
     }
   }
 }
+
+@layer components {
+  /* The light that sweeps along the community card's club bars. */
+  @keyframes club-bar-sheen {
+    0% { transform: translateX(-100%); }
+    60%, 100% { transform: translateX(260%); }
+  }
+  .club-bar-sheen {
+    transform: translateX(-100%);
+    animation: club-bar-sheen 2.6s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .club-bar-sheen {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}
