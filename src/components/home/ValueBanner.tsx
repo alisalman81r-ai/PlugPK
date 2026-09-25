@@ -173,8 +173,11 @@ export function ValueBanner() {
                 transition={{ delay: i * 0.12, duration: 0.5, ease: 'easeOut' }}
                 viewOptions={{ amount: 0.3 }}
               >
-                <HoverMotion className={cn(FRAME, 'h-full')}>
-                  <div className={cn(FACE, 'p-8')}>
+                {/* The card's shape: square on three corners, one large curve at the
+                    top right. Set here, over the shared frame's all-round radius,
+                    so no other section changes. */}
+                <HoverMotion className={cn(FRAME, 'h-full rounded-none rounded-tr-[4.5rem]')}>
+                  <div className={cn(FACE, 'rounded-none rounded-tr-[calc(4.5rem-1.5px)] p-8')}>
                     <span aria-hidden="true" className={ICON_FRAME}>
                       <AnimatedIcon motion={feature.motion}>
                         <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
