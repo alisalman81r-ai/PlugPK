@@ -1,11 +1,12 @@
 // src/components/home/ValueBanner.tsx
 'use client'
 
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { MapPin, Route, Users, type LucideIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
-import { AnimatedIcon, HoverMotion, PillButton, ScrollReveal, type IconMotion } from '@/components/ui'
+import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 /**
@@ -50,10 +51,40 @@ import { cn } from '@/lib/utils'
  *
  * ── The entrance ──────────────────────────────────────────────────────
  *
- * The three cards rise into place as they come on screen, one after
- * another: ScrollReveal's fade-up (24px, 0.5s, easeOut) with 0.12s between
- * them, once 30% of each is showing, and only the first time.
+ * The three cards start as one: the middle card in the centre, the other two
+ * tucked behind it, smaller and tilted, peeking out either side. When most of
+ * the row is on screen the stack splits — the first card slides out to the
+ * left, the last to the right — on a spring, and settles into the grid.
+ *
+ * The distance each side card travels is measured from the layout, not
+ * assumed, so the stack is centred at any width. Where the cards stack in one
+ * column (a phone) there is nothing to split, and each simply fades up. Under
+ * reduced motion they are in place from the start. Once only.
  */
+
+/** How far the tucked cards peek out from behind the middle one, in px. */
+const PEEK = 30
+
+function useSplitOffsets(grid: React.RefObject<HTMLDivElement | null>) {
+  // Distance from each card's place in the grid to the middle card's, or
+  // null when the cards are not side by side.
+  const [offsets, setOffsets] = React.useState<number[] | null>(null)
+  React.useEffect(() => {
+    const node = grid.current
+    if (!node) return
+    const measure = () => {
+      const items = Array.from(node.children) as HTMLElement[]
+      const middle = items[1]
+      if (!middle || items.some((el) => el.offsetTop !== middle.offsetTop)) return setOffsets(null)
+      setOffsets(items.map((el) => middle.offsetLeft - el.offsetLeft))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(node)
+    return () => ro.disconnect()
+  }, [grid])
+  return offsets
+}
 
 interface Feature {
   icon: LucideIcon
@@ -94,6 +125,10 @@ const FEATURES: Feature[] = [
 
 export function ValueBanner() {
   const stageRef = React.useRef<HTMLDivElement>(null)
+  const gridRef = React.useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  const offsets = useSplitOffsets(gridRef)
+  const split = useInView(gridRef, { once: true, amount: 0.55 })
   const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
 
   /** Same motion language as the hero and the route planner. */
@@ -160,18 +195,34 @@ export function ValueBanner() {
 
         {/* ── The three things the product does ────────────────── */}
         <div
+          ref={gridRef}
           style={{ transform: `translate3d(0, ${tilt.y * -6}px, 0)` }}
           className="mt-16 grid gap-5 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:grid-cols-3 lg:gap-6"
         >
           {FEATURES.map((feature, i) => {
             const Icon = feature.icon
 
+            // Side by side: tucked behind the middle card until the split.
+            // Stacked in a column: a plain fade-up.
+            const side = i === 1 ? 0 : i === 0 ? -1 : 1
+            const stacked = offsets
+              ? { x: (offsets[i] ?? 0) + side * PEEK, scale: side ? 0.9 : 1, rotate: side * 4, opacity: 1, y: 0 }
+              : { x: 0, scale: 1, rotate: 0, opacity: 0, y: 24 }
+            const settled = { x: 0, scale: 1, rotate: 0, opacity: 1, y: 0 }
+
             return (
-              <ScrollReveal
+              <motion.div
                 key={feature.label}
-                className="h-full"
-                transition={{ delay: i * 0.12, duration: 0.5, ease: 'easeOut' }}
-                viewOptions={{ amount: 0.3 }}
+                className={cn('relative h-full', i === 1 ? 'z-10' : 'z-0')}
+                initial={false}
+                animate={reduce || split ? settled : stacked}
+                transition={
+                  !split
+                    ? { duration: 0 }
+                    : offsets
+                      ? { type: 'spring', stiffness: 48, damping: 14, mass: 1, delay: side ? 0.2 : 0 }
+                      : { duration: 0.5, ease: 'easeOut', delay: i * 0.12 }
+                }
               >
                 {/* The card's shape: square on three corners, one large curve at the
                     top right. Set here, over the shared frame's all-round radius,
@@ -198,7 +249,7 @@ export function ValueBanner() {
                     </p>
                   </div>
                 </HoverMotion>
-              </ScrollReveal>
+              </motion.div>
             )
           })}
         </div>
