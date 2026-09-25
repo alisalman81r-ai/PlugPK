@@ -8,8 +8,8 @@ import {
   AnimatedIcon,
   Badge,
   HoverLink,
+  DiscButton,
   HoverMotion,
-  PillButton,
   type BadgeVariant,
   type IconMotion,
 } from '@/components/ui'
@@ -202,8 +202,12 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
 
           {/* ── Stats and clubs ────────────────────────────────── */}
           <div className="flex flex-col gap-6">
-            <div className={FRAME}>
-              <div className={cn(FACE, 'p-7 lg:p-8')}>
+            <div className={cn(FRAME, 'group/join')}>
+              <div className={cn(FACE, 'relative overflow-hidden p-7 lg:p-8')}>
+                {/* The chat, over the stats while Join is hovered. See JoinChat. */}
+                <JoinChat />
+
+                <div className="transition-[opacity,filter,transform] duration-500 ease-out group-has-[.disc-cta:hover]/join:scale-[0.98] group-has-[.disc-cta:hover]/join:opacity-0 group-has-[.disc-cta:hover]/join:blur-sm group-has-[.disc-cta:focus-visible]/join:opacity-0 motion-reduce:transition-none">
                 <p className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
                   Join the community
                 </p>
@@ -244,10 +248,12 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
                   })}
                 </div>
 
-                <div className="mt-7 flex justify-center">
-                  <PillButton href="/signup">
-                    Join
-                  </PillButton>
+                </div>
+
+                <div className="relative z-10 mt-7 flex justify-center">
+                  <DiscButton href="/signup" tone="light" width="17.5rem" icon={<Users size={20} />}>
+                    Join the community
+                  </DiscButton>
                 </div>
               </div>
             </div>
@@ -256,7 +262,7 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
                 request: the clubs list is where the section's colour lives.
                 Its radius and shadow match the framed cards beside it so it
                 still reads as part of the same set. */}
-            <HoverMotion className="group/clubs rounded-3xl bg-gradient-brand p-7 shadow-[0_14px_34px_-14px_rgba(37,99,235,0.55)] transition-shadow duration-300 hover:shadow-[0_20px_44px_-14px_rgba(37,99,235,0.65)]">
+            <HoverMotion className="group/clubs rounded-3xl bg-gradient-brand p-7 shadow-[0_14px_34px_-14px_rgba(11,51,44,0.55)] transition-shadow duration-300 hover:shadow-[0_20px_44px_-14px_rgba(11,51,44,0.65)]">
               <span
                 aria-hidden="true"
                 className="flex h-11 w-11 shrink-0 items-center justify-center"
@@ -299,5 +305,125 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
         </div>
       </div>
     </section>
+  )
+}
+
+/* ── The chat behind Join ─────────────────────────────────────────── */
+
+interface ChatLine {
+  name: string
+  car?: string
+  text: string
+  mine?: boolean
+}
+
+/**
+ * An illustration of what joining gets you, not a transcript: first names
+ * only, and advice rather than claims — no station, price or meetup that
+ * somebody could go looking for and not find.
+ */
+const CHAT: ChatLine[] = [
+  { name: 'Ayesha', car: 'MG ZS EV', text: 'Lahore to Islamabad on Friday. Where should I stop to charge?' },
+  { name: 'Hamza', car: 'BYD Atto 3', text: 'Put it in the route planner. It places the stops around your real range.' },
+  { name: 'Sana', car: 'Honri VE', text: 'And pre-cool the cabin while it’s still plugged in. Saves a lot in summer.' },
+  { name: 'You', text: 'This is exactly what I needed. Joining!', mine: true },
+]
+
+/**
+ * Enter delays, written out whole so Tailwind can see them. Only the hovered
+ * state carries a delay, so the lines arrive one after another and all leave
+ * together the moment the pointer does.
+ */
+const ENTER_DELAY = [
+  'group-has-[.disc-cta:hover]/join:delay-[120ms]',
+  'group-has-[.disc-cta:hover]/join:delay-[320ms]',
+  'group-has-[.disc-cta:hover]/join:delay-[520ms]',
+  'group-has-[.disc-cta:hover]/join:delay-[720ms]',
+  'group-has-[.disc-cta:hover]/join:delay-[920ms]',
+]
+
+const LINE = cn(
+  'translate-y-3 scale-95 opacity-0 transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none',
+  'group-has-[.disc-cta:hover]/join:translate-y-0 group-has-[.disc-cta:hover]/join:scale-100 group-has-[.disc-cta:hover]/join:opacity-100',
+  'group-has-[.disc-cta:focus-visible]/join:translate-y-0 group-has-[.disc-cta:focus-visible]/join:scale-100 group-has-[.disc-cta:focus-visible]/join:opacity-100',
+)
+
+function JoinChat() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 flex flex-col bg-plug-navy-950 px-5 pb-28 pt-5 opacity-0 transition-opacity duration-500 ease-out group-has-[.disc-cta:focus-visible]/join:opacity-100 group-has-[.disc-cta:hover]/join:opacity-100 motion-reduce:transition-none"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:22px_22px]" />
+      <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-plug-cyan-500/20 blur-[80px]" />
+
+      {/* Header */}
+      <div className="relative flex items-center gap-3 border-b border-white/10 pb-4">
+        <span className="flex -space-x-2">
+          {['A', 'H', 'S'].map((initial, i) => (
+            <span
+              key={initial}
+              className={cn(
+                'flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold ring-2 ring-plug-navy-950',
+                ['bg-plug-cyan-400 text-plug-navy-950', 'bg-amber-300 text-plug-navy-950', 'bg-white text-plug-navy-950'][i],
+              )}
+            >
+              {initial}
+            </span>
+          ))}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-ui-sm font-bold text-white">EV Drivers Pakistan</span>
+          <span className="flex items-center gap-1.5 text-ui-xs text-white/50">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Drivers helping drivers
+          </span>
+        </span>
+      </div>
+
+      {/* Messages */}
+      <ul className="relative mt-4 flex min-h-0 flex-1 flex-col justify-end gap-2.5 overflow-hidden">
+        {CHAT.map((line, i) => (
+          <li
+            key={line.text}
+            className={cn(
+              LINE,
+              ENTER_DELAY[i],
+              'flex max-w-[88%] items-end gap-2',
+              line.mine ? 'origin-bottom-right self-end' : 'origin-bottom-left',
+            )}
+          >
+            {!line.mine && (
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-[10px] font-bold text-plug-cyan-300">
+                {line.name.charAt(0)}
+              </span>
+            )}
+            <span
+              className={cn(
+                'rounded-2xl px-3.5 py-2 text-[13px] leading-snug',
+                line.mine
+                  ? 'rounded-br-md bg-plug-cyan-500 text-plug-navy-950'
+                  : 'rounded-bl-md bg-white/[0.08] text-white/90 ring-1 ring-white/10',
+              )}
+            >
+              {!line.mine && (
+                <span className="mb-0.5 block text-[11px] font-semibold text-plug-cyan-300">
+                  {line.name}
+                  {line.car && <span className="font-normal text-white/40"> · {line.car}</span>}
+                </span>
+              )}
+              {line.text}
+            </span>
+          </li>
+        ))}
+
+        {/* Somebody is already typing a welcome. */}
+        <li className={cn(LINE, ENTER_DELAY[4], 'ml-8 flex w-fit origin-bottom-left items-center gap-1 rounded-2xl rounded-bl-md bg-white/[0.08] px-3.5 py-3 ring-1 ring-white/10')}>
+          {['[animation-delay:0ms]', '[animation-delay:150ms]', '[animation-delay:300ms]'].map((d) => (
+            <span key={d} className={cn('h-1.5 w-1.5 animate-bounce rounded-full bg-white/60 motion-reduce:animate-none', d)} />
+          ))}
+        </li>
+      </ul>
+    </div>
   )
 }

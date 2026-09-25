@@ -4,7 +4,7 @@ import { cn, getStatusConfig } from '@/lib/utils'
 
 type DotSize = 'sm' | 'md' | 'lg'
 
-/** #22C55E / #F59E0B / #EF4444 / #94A3B8 as Tailwind tokens. */
+/** #22C55E / #F59E0B / #EF4444 / #989FA1 as Tailwind tokens. */
 const DOT_COLOR: Record<StationStatus, string> = {
   available: 'bg-green-500',
   limited: 'bg-amber-500',

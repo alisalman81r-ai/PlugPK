@@ -236,7 +236,7 @@ export function FilterRail({
                   <span
                     className={cn(
                       'mt-0.5 block whitespace-nowrap font-mono text-[10px]',
-                      selected ? 'text-plug-blue-500' : 'text-slate-400',
+                      selected ? 'text-plug-cyan-700' : 'text-slate-400',
                     )}
                   >
                     {option.range}
@@ -367,7 +367,7 @@ function Chip({
         'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-all duration-150',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
         active
-          ? 'border-plug-blue-300 bg-plug-blue-50 text-plug-blue-700 shadow-[0_1px_2px_rgba(37,99,235,0.12)]'
+          ? 'border-plug-blue-300 bg-plug-blue-50 text-plug-blue-700 shadow-[0_1px_2px_rgba(11,51,44,0.12)]'
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900',
       )}
     >

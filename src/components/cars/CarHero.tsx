@@ -82,7 +82,7 @@ export function CarHero({
           whole width rather than reading as a circle sitting on a dark panel. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(140%_70%_at_50%_-10%,rgba(84,131,179,0.34)_0%,rgba(15,76,147,0.16)_38%,transparent_72%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(140%_70%_at_50%_-10%,rgba(52,90,83,0.34)_0%,rgba(15,76,147,0.16)_38%,transparent_72%)]"
       />
       {/* The floor. A cool lift at the bottom edge, much weaker than the key
           light above it — the light that has bounced back up off the stand. It
@@ -90,7 +90,7 @@ export function CarHero({
           of ending on a hard dark line. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-64 bg-[linear-gradient(to_top,rgba(84,131,179,0.14)_0%,transparent_100%)]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-64 bg-[linear-gradient(to_top,rgba(52,90,83,0.14)_0%,transparent_100%)]"
       />
       {/* A hairline catching the top edge, kept: it is what stops the navbar
           above from bleeding into the section. */}
@@ -177,7 +177,7 @@ export function CarHero({
             <button
               type="submit"
               /* The cyan halo this carried is gone. It was a 36px glow in
-                 rgba(34,211,238,.6), which made sense while a cyan pool was
+                 rgba(38,205,178,.6), which made sense while a cyan pool was
                  blurred across the bottom right of the section — the button was
                  picking up a colour that was already in the frame. With the
                  lighting reduced to one source, that glow was the only cyan

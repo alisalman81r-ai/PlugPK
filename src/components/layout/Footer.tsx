@@ -104,7 +104,7 @@ export function Footer() {
           photography, and text this large needs a clean field to sit on. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-[radial-gradient(ellipse_at_bottom,rgba(37,99,235,0.22),transparent_65%)]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-[radial-gradient(ellipse_at_bottom,rgba(11,51,44,0.22),transparent_65%)]"
       />
 
       <div className="container-plug relative z-10">

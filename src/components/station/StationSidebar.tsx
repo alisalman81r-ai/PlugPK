@@ -61,7 +61,7 @@ export function StationMobileBar({ station }: StationSidebarProps) {
       <button
         type="button"
         onClick={() => openDirections(station)}
-        className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_8px_20px_rgba(37,99,235,0.30)]"
+        className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_8px_20px_rgba(11,51,44,0.30)]"
       >
         Navigate
         <Navigation2 size={18} aria-hidden="true" />
@@ -224,7 +224,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
         <HoverButton
           type="button"
           onClick={handleNavigate}
-          className="mt-6 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-brand text-base font-bold text-white shadow-[0_12px_35px_rgba(37,99,235,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_45px_rgba(37,99,235,0.45)]"
+          className="mt-6 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-brand text-base font-bold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_45px_rgba(11,51,44,0.45)]"
         >
           Navigate
           <AnimatedIcon motion="travel">

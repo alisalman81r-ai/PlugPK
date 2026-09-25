@@ -1,6 +1,5 @@
 // src/components/home/index.ts
 export { Hero } from './Hero'
-export { StatsBar } from './StatsBar'
 export { HowItWorks } from './HowItWorks'
 export { StationCard } from './StationCard'
 export { FeaturedStations } from './FeaturedStations'

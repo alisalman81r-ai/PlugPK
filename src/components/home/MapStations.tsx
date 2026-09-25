@@ -71,7 +71,7 @@ export function MapStations({ pins, cityCounts }: MapStationsProps) {
       */}
       <defs>
         <filter id="station-card-shadow" x="-30%" y="-40%" width="160%" height="190%">
-          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#0F172A" floodOpacity="0.13" />
+          <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#05241E" floodOpacity="0.13" />
         </filter>
       </defs>
       {/*

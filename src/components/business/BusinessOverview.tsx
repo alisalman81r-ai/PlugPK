@@ -267,7 +267,7 @@ export function BusinessOverview({
                 <span className="mt-1 block h-2 w-full overflow-hidden rounded-full bg-slate-100">
                   {/* Width is data-driven, so it cannot be a static utility. */}
                   <span
-                    className="block h-full rounded-full bg-gradient-brand"
+                    className="block h-full rounded-full bg-gradient-accent"
                     style={{ width: `${referrer.percent}%` }}
                   />
                 </span>

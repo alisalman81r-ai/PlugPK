@@ -181,7 +181,7 @@ export function PartnerList({ partners }: PartnerListProps) {
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={partner.photo} alt="" className="h-40 w-full object-cover" />
                 ) : (
-                  <span aria-hidden="true" className="block h-1.5 w-full bg-gradient-brand" />
+                  <span aria-hidden="true" className="block h-1.5 w-full bg-gradient-accent" />
                 )}
 
                 <div className="flex flex-1 flex-col p-5">

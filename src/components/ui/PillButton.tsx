@@ -33,7 +33,7 @@ export interface PillButtonProps {
   /**
    * Which surface it sits on. `dark` is the reference: a dark pill with a
    * white badge, for light sections. `light` inverts it for dark sections —
-   * a white pill takes the dark badge. `brand` is the blue fill, for the one
+   * a white pill takes the dark badge. `brand` is the forest gradient, for the one
    * or two places that want the CTA to read as the loudest thing in view.
    */
   tone?: 'dark' | 'light' | 'brand'
@@ -42,7 +42,7 @@ export interface PillButtonProps {
 
 const TONES = {
   dark: {
-    pill: 'bg-plug-navy-900 text-white hover:bg-plug-navy-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(37,99,235,0.45)]',
+    pill: 'bg-plug-navy-900 text-white hover:bg-plug-navy-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(11,51,44,0.45)]',
     badge: 'bg-white text-slate-900',
   },
   light: {
@@ -50,7 +50,7 @@ const TONES = {
     badge: 'bg-plug-navy-950 text-white',
   },
   brand: {
-    pill: 'bg-gradient-brand text-white focus-visible:ring-plug-blue-500 hover:shadow-[0_16px_38px_-12px_rgba(37,99,235,0.55)]',
+    pill: 'bg-gradient-brand text-white focus-visible:ring-plug-blue-500 hover:shadow-[0_16px_38px_-12px_rgba(11,51,44,0.55)]',
     badge: 'bg-white text-plug-blue-600',
   },
 } as const

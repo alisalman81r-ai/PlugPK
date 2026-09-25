@@ -1,202 +1,68 @@
 // src/components/home/PartnerCTA.tsx
-import {
-  Building2,
-  Car,
-  Check,
-  Hotel,
-  ShoppingBag,
-  Utensils,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react'
+import { PlugZap } from 'lucide-react'
+import Image from 'next/image'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
-import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { DiscButton } from '@/components/ui'
 
 /**
  * Partner Up, on the home page.
  *
- * Renamed from BusinessCTA, and pointed at /partners rather than
- * /for-businesses. Those are two pages doing the same job — one titled
- * "Partner Up" and built on the shared card treatment, the other an older
- * "For Businesses" — and a home page section calling itself Partner Up while
- * linking to the other one would just teach visitors that the two names mean
- * different things.
+ * One dark band, one question and one button. The band is solid pine at rest;
+ * pointing at (or tabbing to) the button fades a photograph of someone
+ * plugging in up through it, and leaving the button fades it back out. The
+ * picture is the answer to the question — this is what hosting a charger
+ * looks like — so it only arrives when the reader shows interest.
  *
- * The blue stays, by request — it is what set this band apart from the white
- * sections either side of it. The tinted card and its Zap watermark are back,
- * with the structure the redesign brought: centred eyebrow, black heading with
- * one blue word, the five kinds of host as pills, then one card and one
- * button. The watermark sits behind everything at low contrast and the card
- * inside it stays white, so the fill is a ground rather than something the
- * text has to fight.
+ * The reveal is CSS alone: the panel is a named group and the photo listens
+ * for `:has(.disc-cta:hover)` on it, so there is no client boundary and no
+ * state. Touch screens have no hover, so they simply keep the solid band.
  *
- * "Free to list, Premium available" stays because it is true — PartnerPricing
- * publishes a real Premium tier at PKR 4,999 a month. It does not contradict
- * the free band above: that promise is to drivers, who are never charged for
- * anything. This one is to hosts.
+ * The button is the shared DiscButton, whose `disc-cta` class is what the
+ * photo listens for.
+ *
+ * The copy says "free to list" because that is true — PartnerPricing publishes
+ * a free tier. It deliberately does not promise "no cost, no maintenance":
+ * plug.pk lists chargers, it does not install or service them.
  */
-
-interface HostType {
-  label: string
-  icon: LucideIcon
-  motion: IconMotion
-}
-
-/** Who this is for, in the order a reader is likeliest to recognise. */
-const HOST_TYPES: HostType[] = [
-  { label: 'Hotels & resorts', icon: Hotel, motion: 'lift' },
-  { label: 'Restaurants & cafés', icon: Utensils, motion: 'pop' },
-  { label: 'Shopping malls', icon: ShoppingBag, motion: 'lift' },
-  { label: 'Office buildings', icon: Building2, motion: 'pop' },
-  { label: 'Dealerships', icon: Car, motion: 'travel' },
-]
-
-interface Benefit {
-  title: string
-  description: string
-}
-
-/** Each line maps to something the application actually does today. */
-const BENEFITS: Benefit[] = [
-  {
-    title: 'Appear on the Plug.pk map',
-    description: 'Your chargers show up the moment drivers search nearby.',
-  },
-  {
-    /*
-      No figure here, deliberately.
-
-      This read 'Visible to 5,000+ active EV owners' against a database with no
-      registered users — and contradicted the note on PartnerHero, which says
-      this product does not invent metrics and leaves a count out rather than
-      dressing it up. The promise underneath is true without a number.
-    */
-    title: 'Visible to every driver who opens the map',
-    description: 'Reach drivers actively looking for somewhere to charge.',
-  },
-  {
-    title: 'Manage charger details and availability',
-    description: 'Update connectors, pricing and hours whenever they change.',
-  },
-  {
-    title: 'Receive and respond to reviews',
-    description: 'Build trust by replying to feedback in public.',
-  },
-  {
-    title: 'Analytics on visits and navigation clicks',
-    description: 'See how many drivers viewed and routed to your site.',
-  },
-]
-
 export function PartnerCTA() {
   return (
-    <section className="bg-slate-50 py-24 lg:py-32">
+    <section className="bg-white py-16 lg:py-24">
       <div className="container-plug">
-        <div className="relative overflow-hidden rounded-[2rem] border border-plug-blue-200 bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50 px-6 py-14 sm:px-10 lg:px-14 lg:py-20">
-          <Zap
-            size={220}
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-6 -top-6 text-plug-blue-100/70"
-          />
+        <div className="group/panel relative isolate overflow-hidden rounded-[2rem] bg-plug-navy-950 px-6 py-20 text-center sm:px-10 sm:py-24 lg:rounded-tr-[9rem] lg:py-32">
+          {/* ── The ground: solid at rest, the photo on hover ───────── */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:26px_26px]" />
+            <div className="absolute -top-40 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-plug-cyan-500/15 blur-[120px]" />
 
-        {/* ── The heading ──────────────────────────────────────── */}
-        <div className="relative z-10 mx-auto max-w-3xl text-center">
-          <span className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
+            <div className="absolute inset-0 scale-105 opacity-0 transition-[opacity,transform] duration-700 ease-out group-has-[.disc-cta:hover]/panel:scale-100 group-has-[.disc-cta:hover]/panel:opacity-100 group-has-[.disc-cta:focus-visible]/panel:scale-100 group-has-[.disc-cta:focus-visible]/panel:opacity-100 motion-reduce:transition-none">
+              <Image
+                src="/images/stations/mall-road-ev-hub-3.jpg"
+                alt=""
+                fill
+                sizes="(min-width: 1280px) 1280px, 100vw"
+                className="object-cover"
+              />
+              {/* Keeps the white type readable over any part of the photo. */}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,36,30,0.6)_0%,rgba(5,36,30,0.5)_50%,rgba(5,36,30,0.7)_100%)]" />
+            </div>
+          </div>
+
+          {/* ── The ask ────────────────────────────────────────────── */}
+          <span className="text-ui-sm font-bold uppercase tracking-[0.2em] text-plug-cyan-300">
             Partner up
           </span>
 
-          <h2 className="mt-4 text-balance text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-slate-900">
-            Have chargers? Reach thousands of{' '}
-            <span className="text-plug-blue-600">drivers</span>.
+          <h2 className="mx-auto mt-5 max-w-4xl text-balance text-[clamp(2.25rem,6vw,4.5rem)] font-black leading-[1.05] tracking-[-0.035em] text-white">
+            Own a hotel, restaurant or shopping mall?
           </h2>
 
-          <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
-            List your charger on Plug.pk and become the place Pakistan&apos;s EV drivers stop
-            at — you set the rate, you keep it.
+          <p className="mx-auto mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-white/80 sm:text-xl">
+            Host a charger and give EV drivers a reason to stop at yours. Listing on plug.pk is free.
           </p>
-        </div>
 
-        {/* ── Who it is for ────────────────────────────────────── */}
-        <ul className="relative z-10 mt-12 flex flex-wrap justify-center gap-3">
-          {HOST_TYPES.map((type) => {
-            const Icon = type.icon
-
-            return (
-              <li key={type.label}>
-                {/* Outlined, and hovering one pill moves only its own glyph. */}
-                <HoverMotion className="group/pill flex items-center gap-2.5 rounded-full border border-plug-blue-200 bg-white px-4 py-2.5 text-ui-sm font-semibold text-slate-700 shadow-sm transition-colors duration-300 hover:border-plug-blue-400">
-                  <AnimatedIcon motion={type.motion}>
-                    <Icon
-                      size={16}
-                      aria-hidden="true"
-                      className="shrink-0 text-plug-blue-600"
-                    />
-                  </AnimatedIcon>
-                  {type.label}
-                </HoverMotion>
-              </li>
-            )
-          })}
-        </ul>
-
-        {/* ── What a host gets ─────────────────────────────────── */}
-        <HoverMotion className={cn(FRAME, 'relative z-10 mx-auto mt-8 max-w-5xl')}>
-          <div className={cn(FACE, 'p-8 lg:p-10')}>
-            {/* Outlined, matching every other holder in this card system.
-                It was a filled blue chip sitting inside the same FRAME/FACE
-                card the steps on Partner Up use — the one place on the page
-                where the rule "prominence from the edge, never the fill" was
-                broken, and directly above a CAP_RULE that follows it. */}
-            <span aria-hidden="true" className={ICON_FRAME}>
-              <AnimatedIcon motion="pulse">
-                <Building2 size={24} className={ICON_GLYPH} />
-              </AnimatedIcon>
-            </span>
-
-            <span aria-hidden="true" className={cn('mt-7', CAP_RULE)} />
-
-            <h3 className="mt-5 text-[1.375rem] font-extrabold leading-[1.15] tracking-[-0.02em] text-slate-900">
-              What a listing gets you
-            </h3>
-
-            <ul className="mt-7 grid gap-x-10 gap-y-5 sm:grid-cols-2">
-              {BENEFITS.map((benefit) => (
-                <li key={benefit.title} className="flex items-start gap-3">
-                  {/* Outlined rather than filled, matching the tick list on
-                      the Partner Up pricing cards. Blue rather than the green
-                      it used to be — green was the only third colour anywhere
-                      on the page. */}
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-plug-blue-200"
-                  >
-                    <Check size={11} strokeWidth={3} className="text-plug-blue-600" />
-                  </span>
-                  <span>
-                    <span className="block text-ui font-semibold text-slate-900">
-                      {benefit.title}
-                    </span>
-                    <span className="mt-0.5 block text-ui-sm leading-relaxed text-slate-500">
-                      {benefit.description}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-9 flex flex-col items-center gap-4 border-t border-slate-100 pt-8">
-              <PillButton href="/partners">
-                List your charger
-              </PillButton>
-
-              <p className="text-ui-xs text-slate-500">
-                Free to list. Premium available if you want more.
-              </p>
-            </div>
-          </div>
-        </HoverMotion>
+          <DiscButton href="/partners" icon={<PlugZap size={20} />} className="mx-auto mt-12">
+            Partner up
+          </DiscButton>
         </div>
       </div>
     </section>

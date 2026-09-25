@@ -12,10 +12,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        /*
+          Forest at rest, turquoise under the pointer. The type flips to forest
+          with the fill: white on turquoise is 2.0:1, forest on it is 6.9:1.
+        */
         primary:
-          'bg-plug-blue-600 text-white hover:-translate-y-0.5 hover:bg-plug-blue-700 hover:shadow-blue active:scale-[0.98] focus-visible:ring-plug-blue-500',
+          'bg-plug-blue-600 text-white hover:-translate-y-0.5 hover:bg-plug-cyan-500 hover:text-plug-blue-600 hover:shadow-cyan active:scale-[0.98] focus-visible:ring-plug-blue-500',
         secondary:
-          'border-[1.5px] border-plug-blue-200 bg-white text-plug-blue-600 hover:border-plug-blue-300 hover:bg-plug-blue-50 focus-visible:ring-plug-blue-500',
+          'border-[1.5px] border-slate-300 bg-white text-plug-blue-600 hover:border-plug-blue-600 hover:bg-slate-50 focus-visible:ring-plug-blue-500',
         ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-400',
         destructive: 'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-500',
         gradient:

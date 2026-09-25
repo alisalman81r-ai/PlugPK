@@ -110,7 +110,7 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
     <div className="relative flex h-full w-full items-center justify-center bg-slate-100">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
       />
       <div className="relative flex flex-col items-center gap-4">
         <div className="h-11 w-11 animate-spin rounded-full border-[3px] border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
@@ -325,7 +325,7 @@ function MapExplorer() {
               /* The same faint grid MapView's own loader draws, so the handover
                  is one continuous surface rather than a swap between greys. */
               <div aria-hidden="true" className="absolute inset-0 bg-slate-100">
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]" />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]" />
               </div>
             )}
 

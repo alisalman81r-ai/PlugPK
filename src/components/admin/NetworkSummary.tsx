@@ -58,7 +58,7 @@ export function NetworkSummary({ health }: { health: NetworkHealth }) {
   return (
     <section
       aria-label="Network summary"
-      className="grid grid-cols-2 divide-x divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0"
+      className="grid grid-cols-2 divide-x divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(5,36,30,0.04)] sm:grid-cols-3 lg:grid-cols-6 lg:divide-y-0"
     >
       <Figure label="Stations" value={stations.total} sub="on the live site" />
       <Figure label="Online" value={stations.online} dot="bg-green-500" sub="fully available" />

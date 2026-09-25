@@ -65,11 +65,11 @@ export function FaqSection({
               key={item.question}
               className={cn(
                 'group rounded-2xl bg-gradient-to-b from-slate-300 via-slate-300 to-slate-200 p-[1.5px]',
-                'shadow-[0_1px_2px_rgba(15,23,42,0.05),0_12px_28px_-20px_rgba(15,23,42,0.35)]',
+                'shadow-[0_1px_2px_rgba(5,36,30,0.05),0_12px_28px_-20px_rgba(5,36,30,0.35)]',
                 'transition-all duration-300',
                 'hover:from-plug-blue-500 hover:via-plug-cyan-400 hover:to-plug-blue-300',
                 'open:from-plug-blue-500 open:via-plug-cyan-400 open:to-plug-blue-300',
-                'open:shadow-[0_12px_26px_-8px_rgba(37,99,235,0.20),0_28px_60px_-24px_rgba(37,99,235,0.34)]',
+                'open:shadow-[0_12px_26px_-8px_rgba(11,51,44,0.20),0_28px_60px_-24px_rgba(11,51,44,0.34)]',
               )}
             >
               <summary

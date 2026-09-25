@@ -80,7 +80,7 @@ export function RouteMap({ route, className }: RouteMapProps) {
               <div key={stop.station.id} className="relative mb-8">
                 <span
                   aria-hidden="true"
-                  className="absolute -left-[28px] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white/20 bg-plug-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.55)]"
+                  className="absolute -left-[28px] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white/20 bg-plug-blue-600 shadow-[0_0_12px_rgba(11,51,44,0.55)]"
                 >
                   <Zap size={8} className="fill-white text-white" />
                 </span>

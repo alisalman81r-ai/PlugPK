@@ -25,18 +25,18 @@ import { FAST_CHARGER_KW } from '@/lib/charging'
 export function MapLegend() {
   return (
     <div
-      className="pointer-events-none absolute right-[4%] top-[6%] hidden rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(15,23,42,0.24)] lg:block"
+      className="pointer-events-none absolute right-[4%] top-[6%] hidden rounded-2xl border border-white/15 bg-[#808080] px-4 py-3 shadow-[0_10px_28px_-12px_rgba(0,0,0,0.55)] lg:block"
       role="note"
       aria-label="What the markers on the map mean"
     >
       <ul className="flex flex-col gap-2">
-        <LegendRow swatch={<Dot className="bg-plug-blue-600" />}>
+        <LegendRow swatch={<Dot className="bg-plug-blue-600 ring-1 ring-white/80" />}>
           Fast charger ({FAST_CHARGER_KW}kW+)
         </LegendRow>
-        <LegendRow swatch={<Dot className="bg-green-600" />}>Standard charger</LegendRow>
+        <LegendRow swatch={<Dot className="bg-green-300" />}>Standard charger</LegendRow>
         <LegendRow
           swatch={
-            <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-plug-blue-500" />
+            <span aria-hidden="true" className="h-0.5 w-3.5 rounded-full bg-plug-cyan-300" />
           }
         >
           Major highway
@@ -52,7 +52,7 @@ function Dot({ className }: { className: string }) {
 
 function LegendRow({ swatch, children }: { swatch: React.ReactNode; children: React.ReactNode }) {
   return (
-    <li className="flex items-center gap-2.5 text-[12.5px] leading-none text-slate-600">
+    <li className="flex items-center gap-2.5 text-[12.5px] font-medium leading-none text-white">
       <span className="flex w-3.5 shrink-0 items-center justify-center">{swatch}</span>
       {children}
     </li>

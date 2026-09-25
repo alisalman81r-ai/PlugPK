@@ -65,7 +65,7 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
     <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-shadow duration-200 hover:shadow-card-hover">
       <span
         aria-hidden="true"
-        className="absolute bottom-0 left-0 top-0 w-1 bg-gradient-brand"
+        className="absolute bottom-0 left-0 top-0 w-1 bg-gradient-accent"
       />
 
       <span

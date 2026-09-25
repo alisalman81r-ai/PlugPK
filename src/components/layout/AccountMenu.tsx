@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils'
 
 export interface AccountMenuProps {
   user: { name: string; email: string; avatar?: string | null; isAdmin?: boolean }
+  /** Sitting on the dark home hero rather than the white bar. */
+  onDark?: boolean
 }
 
 /**
@@ -49,7 +51,7 @@ function linksFor(isAdmin: boolean) {
   ]
 }
 
-export function AccountMenu({ user }: AccountMenuProps) {
+export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
   const LINKS = linksFor(user.isAdmin === true)
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSigningOut, setIsSigningOut] = React.useState(false)
@@ -97,13 +99,14 @@ export function AccountMenu({ user }: AccountMenuProps) {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
-          'flex h-10 items-center gap-2 rounded-xl border border-slate-200 pl-1.5 pr-2.5 transition-colors duration-150',
-          'hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-          isOpen && 'bg-slate-50',
+          'flex h-10 items-center gap-2 rounded-xl border pl-1.5 pr-2.5 transition-colors duration-150',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+          onDark ? 'border-white/15 hover:bg-white/10' : 'border-slate-200 hover:bg-slate-50',
+          isOpen && (onDark ? 'bg-white/10' : 'bg-slate-50'),
         )}
       >
         <Avatar name={user.name} src={user.avatar} size={28} />
-        <span className="max-w-[120px] truncate text-sm font-semibold text-slate-700">
+        <span className={cn('max-w-[120px] truncate text-sm font-semibold', onDark ? 'text-white' : 'text-slate-700')}>
           {user.name}
         </span>
         <TurnIcon active={isOpen} className="text-slate-400">

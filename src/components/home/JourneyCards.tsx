@@ -53,11 +53,13 @@ function Card({ icon, title, detail, note, noteTone = 'muted', iconTone = 'blue'
     <div
       aria-hidden="true"
       className={
-        'pointer-events-none absolute flex items-center gap-2.5 rounded-xl border border-slate-200/90 ' +
-        // No backdrop-blur. It was 2px under a card that is already 90%
-        // opaque — invisible, and three of these float over the hero while it
-        // scrolls, each one re-sampling what passes behind it every frame.
-        'bg-white/90 px-3 py-2.5 shadow-[0_8px_24px_-10px_rgba(15,23,42,0.28)] ' +
+        'pointer-events-none absolute flex items-center gap-2.5 rounded-xl border border-white/15 ' +
+        // Solid neutral grey, #808080. White cards on the dark hero were the
+        // brightest things on the band and pulled the eye off the headline;
+        // grey sits back, reads as a quiet instrument panel, and leaves the map
+        // as the one light object. No backdrop-blur: it is opaque, and three of
+        // these float over the hero while it scrolls.
+        'bg-[#808080] px-3 py-2.5 shadow-[0_10px_28px_-12px_rgba(0,0,0,0.55)] ' +
         (className ?? '')
       }
     >
@@ -73,19 +75,19 @@ function Card({ icon, title, detail, note, noteTone = 'muted', iconTone = 'blue'
       <span
         className={
           'flex h-7 w-7 shrink-0 items-center justify-center ' +
-          (iconTone === 'green' ? 'text-green-600' : 'text-plug-blue-600')
+          (iconTone === 'green' ? 'text-green-200' : 'text-white')
         }
       >
         {icon}
       </span>
       <span className="flex flex-col leading-tight">
-        <span className="text-[12.5px] font-semibold text-plug-navy-900">{title}</span>
-        <span className="text-[11px] font-medium text-slate-500">{detail}</span>
+        <span className="text-[12.5px] font-semibold text-white">{title}</span>
+        <span className="text-[11px] font-medium text-white/85">{detail}</span>
         {note ? (
           <span
             className={
               'mt-0.5 text-[11px] font-semibold ' +
-              (noteTone === 'good' ? 'text-green-600' : 'text-slate-400')
+              (noteTone === 'good' ? 'text-green-200' : 'text-white/80')
             }
           >
             {note}

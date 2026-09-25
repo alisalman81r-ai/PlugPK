@@ -199,7 +199,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               href={directionsHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-12 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_12px_35px_rgba(37,99,235,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
+              className="flex h-12 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
             >
               <Navigation2 size={18} aria-hidden="true" />
               Get Directions

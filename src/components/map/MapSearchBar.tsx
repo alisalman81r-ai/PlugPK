@@ -129,7 +129,7 @@ export function MapSearchBar({
         className={cn(
           'flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 transition-shadow duration-200',
           'shadow-e3',
-          'focus-within:border-plug-blue-300 focus-within:shadow-[0_4px_24px_rgba(37,99,235,0.15)]',
+          'focus-within:border-plug-blue-300 focus-within:shadow-[0_4px_24px_rgba(11,51,44,0.15)]',
         )}
       >
         <Search size={20} className="shrink-0 text-slate-400" aria-hidden="true" />

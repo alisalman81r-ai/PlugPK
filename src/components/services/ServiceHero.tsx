@@ -123,7 +123,7 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
 
             <button
               type="submit"
-              className="h-12 shrink-0 rounded-full bg-white px-6 text-ui font-semibold text-slate-950 shadow-[0_0_36px_-8px_rgba(34,211,238,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="h-12 shrink-0 rounded-full bg-white px-6 text-ui font-semibold text-slate-950 shadow-[0_0_36px_-8px_rgba(38,205,178,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               Search
             </button>

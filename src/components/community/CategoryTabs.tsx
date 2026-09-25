@@ -149,7 +149,7 @@ export function CategoryTabs({
                 <span
                   className={cn(
                     'mt-0.5 block whitespace-nowrap font-mono text-[10px]',
-                    selected ? 'text-plug-blue-500' : 'text-slate-400',
+                    selected ? 'text-plug-cyan-700' : 'text-slate-400',
                   )}
                 >
                   {sort.by}

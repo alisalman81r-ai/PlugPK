@@ -487,7 +487,7 @@ export function CarsBrowser({
           without it the tray overlaps the bar by the home indicator's height on
           an iPhone.
         */
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-y border-slate-200 bg-white/95 p-4 shadow-[0_-8px_30px_-12px_rgba(15,23,42,0.25)] backdrop-blur lg:bottom-0 lg:border-b-0">
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-y border-slate-200 bg-white/95 p-4 shadow-[0_-8px_30px_-12px_rgba(5,36,30,0.25)] backdrop-blur lg:bottom-0 lg:border-b-0">
           <div className="container-plug flex flex-wrap items-center justify-between gap-3">
             {/* nowrap, and the cap hidden on the narrowest screens. The tray
                 only became visible on a phone once it cleared the tab bar, and
@@ -608,7 +608,7 @@ function Segment({
       className={cn(
         'inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
         active
-          ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(15,23,42,0.5)]'
+          ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(5,36,30,0.5)]'
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
         count === 0 && !active && 'opacity-45',
       )}

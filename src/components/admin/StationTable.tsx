@@ -153,7 +153,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
         A filter row that shows what it will find before you press it is the
         difference between a control panel and a set of buttons.
       */}
-      <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+      <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative flex-1">
             <Search

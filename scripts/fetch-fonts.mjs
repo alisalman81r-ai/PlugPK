@@ -37,7 +37,7 @@ const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
 const FAMILIES = [
-  { name: 'Poppins', file: 'poppins', weights: [400, 500, 600, 700, 800, 900] },
+  { name: 'Figtree', file: 'figtree', weights: [400, 500, 600, 700] },
   { name: 'JetBrains Mono', file: 'jetbrains-mono', weights: [400, 500, 600, 700] },
 ]
 

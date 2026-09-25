@@ -4,71 +4,54 @@ import localFont from 'next/font/local'
 import './globals.css'
 
 /**
- * One face for the whole interface: Poppins, headings included.
+ * One face for the whole interface: Figtree, headings included.
  *
- * ── What this replaced, and why the pairing went ───────────────────────
+ * ── Why Figtree ────────────────────────────────────────────────────────
  *
- * Body was Inter and every h1–h6 was Playfair Display, a high-contrast serif.
- * That pairing is a legitimate one and it is not what this product wants: a
- * serif heading over a technical dashboard reads editorial, and the site is a
- * charging map, a route planner and an operator console. A single geometric sans
- * across both is quieter and more consistent, which is what "professional" means
- * here far more than any particular typeface does.
+ * The palette is taken from a fintech reference set in Matter, a commercial
+ * geometric grotesque. Figtree is the closest open face to it: low contrast,
+ * round but not circular, and narrower than Poppins, which it replaced. Poppins
+ * is almost compass-drawn, so at display sizes its counters closed up and
+ * headings read heavy; Figtree keeps them open, and its tighter set means a
+ * heading holds on fewer lines.
  *
  * ── Why these are local files and not next/font/google ─────────────────
  *
  * They were fetched from fonts.googleapis.com at compile time until that proved
  * unreliable here: TLS on this machine is intercepted by antivirus, Node's
  * connections are intermittently aborted, and the loader's answer to a failed
- * download is three retries and then silence. One dev session logged 76
- * failures and served the entire site in a fallback serif — the build succeeds,
- * the page renders, and nothing anywhere says the typeface is missing.
+ * download is three retries and then silence. One dev session served the
+ * entire site in a fallback face — the build succeeds, the page renders, and
+ * nothing anywhere says the typeface is missing.
  *
- * scripts/fetch-fonts.mjs pulls the same latin-subset files into
- * src/app/fonts/, 169KB for all ten, and next/font/local self-hosts and
- * preloads them exactly as the Google loader did. Run it again to add a weight.
- * A typeface is not a build-time network dependency worth keeping.
+ * scripts/fetch-fonts.mjs pulls the latin-subset files into src/app/fonts/,
+ * and next/font/local self-hosts and preloads them exactly as the Google
+ * loader did. Run it again to add a weight.
  *
- * ── Weights, and why all six are loaded ────────────────────────────────
- *
- * Poppins is not a variable font, so every weight is a separate file.
- * Six is more than one would choose from scratch, and each one is answering an
- * existing call site rather than a guess:
+ * ── Weights ────────────────────────────────────────────────────────────
  *
  *   400  body copy
- *   500  font-medium        — 134 uses
- *   600  font-semibold      — 469 uses
- *   700  font-bold          — 315 uses
- *   800  font-extrabold and the display-lg/xl/2xl steps
- *   900  font-black         —  62 uses
+ *   500  font-medium
+ *   600  font-semibold   — headings and card titles
+ *   700  font-bold
  *
- * 900 was very nearly dropped, on the grounds that Poppins Black is close to
- * circular and its counters tighten at display sizes. That was the wrong call:
- * 62 places ask for `font-black` explicitly, and a weight that is asked for and
- * not loaded is not absent — the browser fakes it by smearing the 800, which
- * looks far worse than a heavy face used deliberately.
- *
- * What did change is the display scale in tailwind.config.ts: `display-2xl` and
- * `display-xl` moved from 900 to 800, because at 4.5rem the open letterforms
- * carry the weight better. `font-black` still renders a real 900 wherever an
- * author reached for it.
+ * font-extrabold and font-black both resolve to 700 — see the fontWeight note
+ * in tailwind.config.ts — so no heavier file is shipped.
  */
-const poppins = localFont({
-  variable: '--font-poppins',
+const figtree = localFont({
+  variable: '--font-sans',
   /*
     `swap` rather than `optional`: the fallback stack in tailwind.config.ts is
-    metric-different from Poppins, so a failed swap would leave the site in
+    metric-different from Figtree, so a failed swap would leave the site in
     system-ui permanently on a slow connection. A brief flash of the fallback is
     the better trade for a face this central.
   */
   display: 'swap',
   src: [
-    { path: './fonts/poppins-400.woff2', weight: '400', style: 'normal' },
-    { path: './fonts/poppins-500.woff2', weight: '500', style: 'normal' },
-    { path: './fonts/poppins-600.woff2', weight: '600', style: 'normal' },
-    { path: './fonts/poppins-700.woff2', weight: '700', style: 'normal' },
-    { path: './fonts/poppins-800.woff2', weight: '800', style: 'normal' },
-    { path: './fonts/poppins-900.woff2', weight: '900', style: 'normal' },
+    { path: './fonts/figtree-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/figtree-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/figtree-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/figtree-700.woff2', weight: '700', style: 'normal' },
   ],
 })
 
@@ -135,8 +118,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${jetbrainsMono.variable}`}>
-      <body className="bg-white font-sans text-slate-900 antialiased">{children}</body>
+    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable}`}>
+      <body className="bg-slate-50 font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )
 }

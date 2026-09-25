@@ -34,8 +34,8 @@
  */
 export const FRAME =
   'group card-frame block h-full rounded-3xl p-[1.5px] ' +
-  'shadow-[0_1px_2px_rgba(15,23,42,0.05),0_16px_36px_-20px_rgba(15,23,42,0.35)] ' +
-  'hover:shadow-[0_16px_34px_-10px_rgba(37,99,235,0.24),0_36px_72px_-26px_rgba(37,99,235,0.42)]'
+  'shadow-[0_1px_2px_rgba(5,36,30,0.05),0_16px_36px_-20px_rgba(5,36,30,0.35)] ' +
+  'hover:shadow-[0_16px_34px_-10px_rgba(11,51,44,0.24),0_36px_72px_-26px_rgba(11,51,44,0.42)]'
 
 /**
  * For the one card that should already look chosen — the recommended plan.
@@ -43,8 +43,8 @@ export const FRAME =
  */
 export const FRAME_FEATURED =
   'group card-frame--featured block h-full rounded-3xl p-[1.5px] ' +
-  'shadow-[0_14px_30px_-10px_rgba(37,99,235,0.28),0_34px_70px_-28px_rgba(37,99,235,0.45)] ' +
-  'transition-all duration-300 hover:shadow-[0_18px_38px_-10px_rgba(37,99,235,0.36),0_40px_80px_-28px_rgba(37,99,235,0.55)]'
+  'shadow-[0_14px_30px_-10px_rgba(11,51,44,0.28),0_34px_70px_-28px_rgba(11,51,44,0.45)] ' +
+  'transition-all duration-300 hover:shadow-[0_18px_38px_-10px_rgba(11,51,44,0.36),0_40px_80px_-28px_rgba(11,51,44,0.55)]'
 
 /** The unpainted face. The radius is the frame's minus its padding. */
 export const FACE =
@@ -135,4 +135,4 @@ export const CAP_RULE = ''
 export const NUMERAL =
   'pointer-events-none absolute right-7 top-8 flex h-14 select-none items-center ' +
   'font-sans text-[4.5rem] font-black leading-none tracking-[-0.04em] text-transparent transition-all duration-300 ' +
-  '[-webkit-text-stroke:2px_#CBD5E1] group-hover:[-webkit-text-stroke:2px_#60A5FA]'
+  '[-webkit-text-stroke:2px_#BAC2C0] group-hover:[-webkit-text-stroke:2px_#26CDB2]'

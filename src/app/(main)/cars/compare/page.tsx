@@ -61,10 +61,10 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
      * a blur still takes its colour from whichever pool is behind it, which is
      * the effect the dark version was getting and the flat white page was not.
      */
-    <section className="relative isolate overflow-hidden bg-[#F4F7FC] py-14 lg:py-20">
+    <section className="relative isolate overflow-hidden bg-[#E9EEEC] py-14 lg:py-20">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(15,23,42,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(5,36,30,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
       />
       <div
         aria-hidden="true"
@@ -77,7 +77,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
       <span aria-hidden="true" className="grain -z-10" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(148,163,184,0.6)_20%,rgba(148,163,184,0.6)_80%,transparent_100%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(152,159,161,0.6)_20%,rgba(152,159,161,0.6)_80%,transparent_100%)]"
       />
       <div className="container-plug relative z-10">
         {/*
@@ -97,7 +97,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         */}
         <Link
           href="/cars"
-          className="group/back inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 py-1.5 pl-2.5 pr-4 text-ui-sm font-semibold text-slate-600 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
+          className="group/back inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 py-1.5 pl-2.5 pr-4 text-ui-sm font-semibold text-slate-600 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E9EEEC]"
         >
           <ArrowLeft
             size={15}
@@ -108,7 +108,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         </Link>
 
         <div className="mx-auto mt-8 max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3.5 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.14em] text-plug-navy-800 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3.5 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.14em] text-plug-navy-800 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
             Side by side
           </span>
@@ -130,7 +130,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
           ) : (
             /* One car is not a comparison — that is the detail page. Rather
                than render a single column, this says what is missing. */
-            <div className="rounded-2xl border border-white/80 bg-white/65 p-10 text-center shadow-[0_18px_50px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl">
+            <div className="rounded-2xl border border-white/80 bg-white/65 p-10 text-center shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl">
               <p className="text-ui font-semibold text-slate-900">
                 {cars.length === 1 ? 'Pick one more car' : 'Nothing selected yet'}
               </p>

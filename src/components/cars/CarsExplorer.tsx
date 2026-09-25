@@ -296,7 +296,7 @@ export function CarsExplorer({
         surfaces that should read as controls — the filter panel, the brand
         tiles, the segments, the sort — read as controls.
 
-        slate-100 rather than slate-50: at #F8FAFC the cards were not reliably
+        slate-100 rather than slate-50: at #F1F4F3 the cards were not reliably
         distinguishable from the page on a dim laptop screen, which defeats the
         point of the change.
       */}
@@ -330,7 +330,7 @@ export function CarsExplorer({
         <span aria-hidden="true" className="grain" />
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(148,163,184,0.55)_18%,rgba(148,163,184,0.55)_82%,transparent_100%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(152,159,161,0.55)_18%,rgba(152,159,161,0.55)_82%,transparent_100%)]"
         />
         <div className="container-plug relative">
           <BrandRail

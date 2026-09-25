@@ -712,7 +712,7 @@ export function CarCard({
             }
             className={cn(
               'absolute right-2.5 top-2.5 z-20 flex h-11 w-11 items-center justify-center rounded-full',
-              'bg-white/90 shadow-[0_2px_10px_rgba(15,23,42,0.10)] ring-1 ring-slate-900/[0.06] backdrop-blur-md',
+              'bg-white/90 shadow-[0_2px_10px_rgba(5,36,30,0.10)] ring-1 ring-slate-900/[0.06] backdrop-blur-md',
               'transition-[background-color,transform] duration-200 hover:bg-white active:scale-95',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
               'motion-reduce:transition-none',

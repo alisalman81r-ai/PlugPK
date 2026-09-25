@@ -212,7 +212,7 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
           />
           <button
             type="submit"
-            className="h-10 shrink-0 rounded-xl bg-plug-cyan-500 px-4 text-sm font-semibold text-white transition-colors hover:bg-plug-cyan-400"
+            className="h-10 shrink-0 rounded-xl bg-plug-cyan-500 px-4 text-sm font-semibold text-plug-blue-600 transition-colors hover:bg-plug-cyan-400"
           >
             Subscribe
           </button>

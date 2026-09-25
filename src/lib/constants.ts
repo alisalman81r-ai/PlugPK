@@ -231,7 +231,7 @@ export const SERVICE_CATEGORY_META: Record<ServiceCategory, ServiceCategoryMeta>
     label: 'Insurance',
     description: 'EV-specific insurance providers',
     icon: 'Shield',
-    tone: 'bg-plug-cyan-50 text-plug-cyan-600',
+    tone: 'bg-plug-cyan-50 text-plug-cyan-700',
     cover: 'from-plug-cyan-50 to-plug-cyan-100',
   },
   'roadside-assistance': {
@@ -356,7 +356,7 @@ export const POST_CATEGORIES: PostCategoryMeta[] = [
     color: 'cyan',
     icon: 'ShoppingCart',
     badge: 'border-plug-cyan-200 bg-plug-cyan-50 text-plug-cyan-700',
-    active: 'bg-plug-cyan-600 text-white',
+    active: 'bg-plug-cyan-700 text-white',
   },
   {
     id: 'ev-news',

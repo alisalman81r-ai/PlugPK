@@ -123,7 +123,7 @@ export function project(lon: number, lat: number): { x: number; y: number } {
 const PROJECTED = BOUNDARY.map(([lon, lat]) => project(lon, lat))
 
 /** The outline, closed. */
-const PATH_D =
+export const PATH_D =
   PROJECTED.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') +
   ' Z'
 
@@ -212,7 +212,7 @@ const DEPTH_DY = 1.35
 function wallColour(i: number): string {
   const t = i / (DEPTH_STEPS - 1)
   const mix = (a: number, b: number) => Math.round(a + (b - a) * t)
-  return `rgb(${mix(203, 146)} ${mix(216, 165)} ${mix(233, 193)})`
+  return `rgb(${mix(178, 64)} ${mix(214, 116)} ${mix(203, 105)})`
 }
 
 export interface PakistanMapProps {
@@ -243,21 +243,18 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
     >
       <defs>
         {/*
-          The land's surface: a pale cool blue, lightest at the top-left where
-          the light comes from.
+          The land's surface: near-white mist running into pale mint,
+          lightest at the top-left where the light comes from.
 
-          It used to open on white and stay within a few levels of the band's
-          own #EEF2F8, because the band was that colour and the shape only had
-          to read as a change of LEVEL. The band is white now, so a near-white
-          land on a white page is a silhouette with nothing in it. The stops
-          carry the blue instead — it is the one place on the page still
-          holding colour, which is the point.
+          The hero band is pine, so the land is the lightest thing on it by a
+          wide margin and reads as the subject of the band rather than as a
+          shape in its background.
         */}
         <linearGradient id="pk-surface" x1="0" y1="0" x2="0.35" y2="1">
-          <stop offset="0%" stopColor="#FBFDFF" />
-          <stop offset="38%" stopColor="#EDF4FC" />
-          <stop offset="72%" stopColor="#DCE8F7" />
-          <stop offset="100%" stopColor="#C6D9F0" />
+          <stop offset="0%" stopColor="#FBFDFC" />
+          <stop offset="38%" stopColor="#EDF6F2" />
+          <stop offset="72%" stopColor="#DAEAE4" />
+          <stop offset="100%" stopColor="#BFDCD3" />
         </linearGradient>
 
         {/*
@@ -274,24 +271,23 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           out at exactly the point the eye reads as depth.
         */}
         <radialGradient id="pk-shade" cx="0.74" cy="0.86" r="0.95">
-          <stop offset="0%" stopColor="#1E3A8A" stopOpacity="0.14" />
-          <stop offset="45%" stopColor="#1E3A8A" stopOpacity="0.06" />
-          <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0" />
+          <stop offset="0%" stopColor="#0B332C" stopOpacity="0.14" />
+          <stop offset="45%" stopColor="#0B332C" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="#0B332C" stopOpacity="0" />
         </radialGradient>
 
         {/*
-          The shadow that does the lifting.
+          The shadow that does the lifting, and the light it gives off.
 
-          Two of them now, which is what a real object casts: a tight contact
-          shadow that says where the slab meets the ground, and the wide
-          ambient one that gives it height. A single soft shadow floats —
-          there is nothing anchoring the bottom edge — and a single tight one
-          reads as a sticker, which the brief rules out by name. Both are kept
-          under a tenth opacity so the effect is depth rather than darkness.
+          The hero ground is pine, so a forest shadow would vanish into it. The
+          slab gets a near-black contact shadow instead, which says where it
+          meets the ground, and a wide turquoise halo that makes the pale land
+          read as lit from within — the one glowing object on a dark band.
         */}
-        <filter id="pk-lift" x="-14%" y="-14%" width="128%" height="130%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#1E3A8A" floodOpacity="0.09" />
-          <feDropShadow dx="0" dy="14" stdDeviation="20" floodColor="#1E3A8A" floodOpacity="0.09" />
+        <filter id="pk-lift" x="-20%" y="-20%" width="140%" height="145%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#020D0B" floodOpacity="0.55" />
+          <feDropShadow dx="0" dy="22" stdDeviation="30" floodColor="#020D0B" floodOpacity="0.5" />
+          <feDropShadow dx="0" dy="0" stdDeviation="26" floodColor="#26CDB2" floodOpacity="0.28" />
         </filter>
 
         {/*
@@ -303,7 +299,7 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         <radialGradient id="pk-sheen" cx="0.3" cy="0.2" r="0.85">
           <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.55" />
           <stop offset="45%" stopColor="#FFFFFF" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="#C7D6EC" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="#C4D9D2" stopOpacity="0.16" />
         </radialGradient>
 
         {/*
@@ -433,7 +429,7 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           <path
             d={PATH_D}
             fill="none"
-            stroke="#1E3A8A"
+            stroke="#0B332C"
             strokeWidth={16}
             strokeLinejoin="round"
             opacity={0.06}

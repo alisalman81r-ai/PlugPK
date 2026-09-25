@@ -89,7 +89,7 @@ function useDismiss(open: boolean, close: () => void) {
 }
 
 const POPOVER =
-  'absolute right-0 z-40 mt-1.5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_12px_32px_-12px_rgba(15,23,42,0.22)]'
+  'absolute right-0 z-40 mt-1.5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_12px_32px_-12px_rgba(5,36,30,0.22)]'
 
 export interface AdminTopbarProps {
   collapsed: boolean

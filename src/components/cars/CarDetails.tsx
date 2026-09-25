@@ -85,8 +85,8 @@ const CATEGORY_BLURB: Record<CarCategory, string> = {
 /** The rail and quick-action buttons share one surface treatment. */
 const TILE =
   'group inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white ' +
-  'text-slate-500 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 ' +
-  'hover:border-plug-blue-300 hover:text-plug-blue-600 hover:shadow-[0_6px_16px_-8px_rgba(37,99,235,0.35)] ' +
+  'text-slate-500 shadow-[0_1px_2px_rgba(5,36,30,0.04)] transition-all duration-200 ' +
+  'hover:border-plug-blue-300 hover:text-plug-blue-600 hover:shadow-[0_6px_16px_-8px_rgba(11,51,44,0.35)] ' +
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2'
 
 export function CarDetails({ car, pool }: CarDetailsProps) {
@@ -137,7 +137,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           One surface holding the whole hero. Three tones of depth, which is what
           gives the reference its layered feel: the section behind is tinted, this
           panel is white, and the stage the car sits on is tinted again. */}
-      <div className="rounded-[2rem] border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_60px_-32px_rgba(15,23,42,0.28)] sm:p-6">
+      <div className="rounded-[2rem] border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(5,36,30,0.04),0_24px_60px_-32px_rgba(5,36,30,0.28)] sm:p-6">
         <div className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-b from-slate-50 to-slate-100/70">
           {/*
             Two columns: everything textual on the tinted left, the photograph
@@ -301,7 +301,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               payment, because this product has none of them.
             */}
             <div className="p-6 pt-0 sm:p-8 sm:pt-0 lg:col-start-1 lg:row-start-2">
-              <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
                 <p className="px-1 pb-2.5 text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-400">
                   Where next
                 </p>

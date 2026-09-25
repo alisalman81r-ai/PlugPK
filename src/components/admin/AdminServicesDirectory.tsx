@@ -64,7 +64,7 @@ export function AdminServicesDirectory({
 
   return (
     <div>
-      <div className="mb-8 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_-20px_rgba(15,23,42,0.35)]">
+      <div className="mb-8 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_-20px_rgba(5,36,30,0.35)]">
         <div className="flex flex-wrap items-center gap-2.5 p-1.5">
           <span className="mr-1 inline-flex items-center gap-2 px-2 text-ui-sm font-bold text-slate-800">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-plug-blue-50 text-plug-blue-600">
@@ -107,7 +107,7 @@ export function AdminServicesDirectory({
           {grouped.map(([categoryKey, rows]) => {
             const label = SERVICE_CATEGORY_META[categoryKey as keyof typeof SERVICE_CATEGORY_META]?.label ?? categoryKey
             return (
-              <section key={categoryKey} className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_10px_30px_-26px_rgba(15,23,42,0.55)]">
+              <section key={categoryKey} className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_10px_30px_-26px_rgba(5,36,30,0.55)]">
                 <div className="flex items-center justify-between border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-white px-5 py-4">
                   <div className="flex items-center gap-3">
                     <span className={`h-8 w-1 rounded-full bg-gradient-to-b ${CATEGORY_ACCENT[categoryKey] ?? 'from-plug-blue-500 to-cyan-400'}`} aria-hidden="true" />

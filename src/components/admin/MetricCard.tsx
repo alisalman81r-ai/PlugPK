@@ -118,11 +118,11 @@ export function MetricCard({
   )
 
   const shell = cn(
-    'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]',
+    'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(5,36,30,0.04)]',
     // Hover is a border and a shadow, never a transform: six cards lifting on a
     // grid is motion for its own sake, and this page is read at a glance.
     href &&
-      'transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-[0_4px_16px_-4px_rgba(15,23,42,0.10)]',
+      'transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-[0_4px_16px_-4px_rgba(5,36,30,0.10)]',
     unavailable && 'bg-slate-50/60',
   )
 

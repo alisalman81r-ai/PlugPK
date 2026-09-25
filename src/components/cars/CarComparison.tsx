@@ -421,7 +421,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           return (
             <div
               key={car.id}
-              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/80 hover:shadow-[0_26px_60px_-26px_rgba(15,23,42,0.35)]"
+              className="relative flex flex-col overflow-hidden rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white hover:bg-white/80 hover:shadow-[0_26px_60px_-26px_rgba(5,36,30,0.35)]"
             >
               <button
                 type="button"
@@ -562,7 +562,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E9EEEC]"
             >
               <Plus size={14} aria-hidden="true" />
               Add a car
@@ -576,7 +576,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(15,23,42,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F4F7FC]"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 text-ui-sm font-semibold text-slate-700 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E9EEEC]"
         >
           {copied ? (
             <Check size={14} aria-hidden="true" className="text-emerald-600" />
@@ -590,7 +590,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       {/* ── The table ───────────────────────────────────────────── */}
       {/* One pane, one blur. The scroll container carries the glass so the
           table inside it composites once rather than per cell. */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(15,23,42,0.28)] backdrop-blur-xl">
+      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
             Specification comparison of {cars.map((car) => carDisplayName(car)).join(', ')}

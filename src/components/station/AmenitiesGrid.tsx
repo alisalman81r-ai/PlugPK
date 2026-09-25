@@ -31,7 +31,7 @@ const AMENITY_META: Record<AmenityType, AmenityMeta> = {
   restaurant: { label: 'Restaurant', icon: Utensils, motion: 'pop', tone: 'bg-orange-50 text-orange-500' },
   hotel: { label: 'Hotel', icon: Bed, motion: 'lift', tone: 'bg-purple-50 text-purple-500' },
   parking: { label: 'Parking', icon: ParkingSquare, motion: 'slide', tone: 'bg-blue-50 text-blue-500' },
-  washroom: { label: 'Washroom', icon: DoorOpen, motion: 'swing', tone: 'bg-cyan-50 text-cyan-500' },
+  washroom: { label: 'Washroom', icon: DoorOpen, motion: 'swing', tone: 'bg-cyan-50 text-cyan-700' },
   wifi: { label: 'WiFi', icon: Wifi, motion: 'pulse', tone: 'bg-green-50 text-green-500' },
   shopping: { label: 'Shopping', icon: ShoppingBag, motion: 'lift', tone: 'bg-pink-50 text-pink-500' },
   prayer: { label: 'Prayer', icon: Star, motion: 'pop', tone: 'bg-emerald-50 text-emerald-500' },
@@ -57,7 +57,7 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
               'flex flex-col items-center rounded-2xl border p-4 text-center transition-colors duration-150',
               amenity.available
                 ? 'border-slate-200 bg-white hover:border-plug-blue-200 hover:bg-plug-blue-50'
-                : 'border-slate-100 bg-[#FAFAFA] opacity-50',
+                : 'border-slate-100 bg-[#FAFBFA] opacity-50',
             )}
           >
             <span

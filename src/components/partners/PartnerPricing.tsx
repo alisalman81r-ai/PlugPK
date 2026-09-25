@@ -111,7 +111,7 @@ export function PartnerPricing() {
             >
               <div className={cn(FACE, 'p-8')}>
                 {plan.featured ? (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-brand px-3.5 py-1 text-ui-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-brand px-3.5 py-1 text-ui-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(11,51,44,0.35)]">
                     Most popular
                   </span>
                 ) : null}
@@ -135,8 +135,8 @@ export function PartnerPricing() {
                   className={cn(
                     'mt-6 block h-0.5 origin-left rounded-full transition-all duration-300',
                     plan.featured
-                      ? 'w-16 bg-gradient-brand'
-                      : 'w-10 bg-slate-300 group-hover:w-16 group-hover:bg-gradient-brand',
+                      ? 'w-16 bg-gradient-accent'
+                      : 'w-10 bg-slate-300 group-hover:w-16 group-hover:bg-gradient-accent',
                   )}
                 />
 
@@ -172,7 +172,7 @@ export function PartnerPricing() {
                   className={cn(
                     'group/cta mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-xl text-ui font-semibold transition-all duration-200',
                     plan.featured
-                      ? 'bg-gradient-brand text-white shadow-[0_8px_25px_rgba(37,99,235,0.25)] hover:-translate-y-0.5'
+                      ? 'bg-gradient-brand text-white shadow-[0_8px_25px_rgba(11,51,44,0.25)] hover:-translate-y-0.5'
                       : 'border-[1.5px] border-slate-300 text-slate-700 hover:border-plug-blue-400 hover:text-plug-blue-700',
                   )}
                 >

@@ -61,7 +61,7 @@ export default function MapLoading() {
       {/* The rail and the map wear the same white mount as the real console,
           and the map keeps its exact working height. */}
       <div className={`${STAGE} -mt-16 lg:-mt-24`}>
-        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.35)]">
+        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)]">
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <div className="flex flex-wrap items-center gap-3">
               <div className="h-11 flex-1 animate-pulse rounded-full bg-slate-100" />
@@ -72,13 +72,13 @@ export default function MapLoading() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(15,23,42,0.35)]">
+        <div className="mt-4 rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)]">
           {/* The faint grid the real map's own loader uses, so the two agree
               rather than handing off between different greys. */}
           <div className={`relative ${MAP_HEIGHT} w-full overflow-hidden rounded-2xl bg-slate-100`}>
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
+              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
             />
           </div>
         </div>

@@ -83,7 +83,7 @@ export function PerformanceChart({
             className={cn(
               'rounded-[0.4rem] px-2.5 py-1 text-ui-xs font-semibold transition-colors duration-150',
               range === option
-                ? 'bg-white text-slate-900 shadow-[0_1px_2px_rgba(15,23,42,0.08)]'
+                ? 'bg-white text-slate-900 shadow-[0_1px_2px_rgba(5,36,30,0.08)]'
                 : 'text-slate-500 hover:text-slate-700',
             )}
           >
@@ -97,29 +97,29 @@ export function PerformanceChart({
           <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -18 }}>
             <defs>
               <linearGradient id="perf-fill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2563EB" stopOpacity={0.18} />
-                <stop offset="100%" stopColor="#2563EB" stopOpacity={0} />
+                <stop offset="0%" stopColor="#26CDB2" stopOpacity={0.32} />
+                <stop offset="100%" stopColor="#26CDB2" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke="#DCE3E0" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="label"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: '#94A3B8' }}
+              tick={{ fontSize: 11, fill: '#626D6B' }}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
               width={52}
-              tick={{ fontSize: 11, fill: '#94A3B8' }}
+              tick={{ fontSize: 11, fill: '#626D6B' }}
             />
             <Tooltip
-              cursor={{ stroke: '#CBD5E1', strokeWidth: 1 }}
+              cursor={{ stroke: '#BAC2C0', strokeWidth: 1 }}
               contentStyle={{
                 borderRadius: 12,
-                border: '1px solid #E2E8F0',
-                boxShadow: '0 8px 24px -12px rgba(15,23,42,0.24)',
+                border: '1px solid #DCE3E0',
+                boxShadow: '0 8px 24px -12px rgba(5,36,30,0.24)',
                 fontSize: 12,
               }}
               formatter={(value) => [`${unitPrefix}${Number(value ?? 0).toLocaleString('en-PK')}`, '']}
@@ -127,7 +127,7 @@ export function PerformanceChart({
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#2563EB"
+              stroke="#0B332C"
               strokeWidth={2}
               fill="url(#perf-fill)"
             />

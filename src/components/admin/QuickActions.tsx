@@ -75,7 +75,7 @@ export function QuickActions() {
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-[0_12px_32px_-12px_rgba(15,23,42,0.22)]"
+          className="absolute right-0 z-20 mt-1.5 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-[0_12px_32px_-12px_rgba(5,36,30,0.22)]"
         >
           {ACTIONS.map((action) => {
             const Icon = action.icon

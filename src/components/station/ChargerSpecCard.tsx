@@ -45,7 +45,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
     <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-6">
       <span
         aria-hidden="true"
-        className="absolute bottom-0 left-0 top-0 w-1 rounded-l-2xl bg-gradient-brand"
+        className="absolute bottom-0 left-0 top-0 w-1 rounded-l-2xl bg-gradient-accent"
       />
 
       <div className="mb-6 flex items-center justify-between gap-4">

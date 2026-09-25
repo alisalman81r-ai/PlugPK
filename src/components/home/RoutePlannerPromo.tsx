@@ -5,7 +5,9 @@ import { BatteryCharging, Clock, Zap } from 'lucide-react'
 import * as React from 'react'
 
 import { PillButton } from '@/components/ui'
+import type { HeroMapPin } from '@/lib/charging'
 import { cn } from '@/lib/utils'
+import { RouteMapBackdrop } from './RouteMapBackdrop'
 
 interface RouteStop {
   name: string
@@ -33,7 +35,12 @@ const SUMMARY = [
 /** Degrees of tilt at the far edge of the card. */
 const MAX_TILT = 7
 
-export function RoutePlannerPromo() {
+export interface RoutePlannerPromoProps {
+  /** The live network, drawn on the backdrop map. */
+  pins?: readonly HeroMapPin[]
+}
+
+export function RoutePlannerPromo({ pins = [] }: RoutePlannerPromoProps) {
   const stageRef = React.useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = React.useState({ x: 0, y: 0 })
 
@@ -85,13 +92,17 @@ export function RoutePlannerPromo() {
 
   return (
     <section className="relative overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
-      {/* One background idea, not three. The previous version stacked two
-          blur glows and a dot grid behind a panel that already had its own
-          shadow. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(37,99,235,0.16),transparent_70%)]"
-      />
+      {/* A night map of the country behind the band: the network, the
+          corridor and the leg the card plans, lit. The scrim keeps the copy
+          on the quiet side of it. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <RouteMapBackdrop
+          pins={pins}
+          className="absolute left-1/2 top-1/2 h-[125%] w-auto max-w-none -translate-x-[40%] -translate-y-1/2 lg:left-[38%] lg:h-[118%] lg:-translate-x-1/2"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,36,30,0.9)_0%,rgba(5,36,30,0.55)_28%,transparent_52%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_70%_50%,rgba(38,205,178,0.08),transparent_70%)]" />
+      </div>
 
       <div className="container-plug relative z-10">
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.05fr] lg:gap-20">

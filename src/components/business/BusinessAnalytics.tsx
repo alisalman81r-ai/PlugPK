@@ -181,7 +181,7 @@ export function BusinessAnalytics({ analytics, isLive }: BusinessAnalyticsProps)
                 <span
                   key={point.date}
                   title={`${point.date}: ${point.views} view${point.views === 1 ? '' : 's'}, ${point.clicks} directions`}
-                  className="flex-1 rounded-t-sm bg-gradient-brand"
+                  className="flex-1 rounded-t-sm bg-gradient-accent"
                   // A day with no views still draws a hairline, so the bar chart
                   // reads as "a day with nothing" rather than a gap in the axis.
                   style={{ height: `${Math.max((point.views / maxViews) * 100, 1.5)}%` }}

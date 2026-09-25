@@ -201,7 +201,7 @@ export default function RoutesPage() {
             <RouteIcon size={48} className="animate-pulse text-plug-blue-600" aria-hidden="true" />
 
             <span className="h-1 w-[200px] overflow-hidden rounded-full bg-slate-100">
-              <span className="block h-full origin-left animate-grow-x rounded-full bg-gradient-brand [animation-duration:2s]" />
+              <span className="block h-full origin-left animate-grow-x rounded-full bg-gradient-accent [animation-duration:2s]" />
             </span>
 
             <span className="text-center">

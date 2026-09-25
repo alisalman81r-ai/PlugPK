@@ -128,8 +128,8 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
                       'group flex h-full items-start gap-3.5 rounded-2xl border bg-white p-5 transition-all duration-200',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
                       count > 0
-                        ? 'border-plug-blue-200 hover:border-plug-blue-400 hover:shadow-[0_10px_28px_-14px_rgba(37,99,235,0.4)]'
-                        : 'border-slate-200 hover:border-slate-300 hover:shadow-[0_10px_28px_-16px_rgba(15,23,42,0.3)]',
+                        ? 'border-plug-blue-200 hover:border-plug-blue-400 hover:shadow-[0_10px_28px_-14px_rgba(11,51,44,0.4)]'
+                        : 'border-slate-200 hover:border-slate-300 hover:shadow-[0_10px_28px_-16px_rgba(5,36,30,0.3)]',
                     )}
                   >
                     <span
