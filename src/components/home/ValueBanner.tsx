@@ -5,7 +5,7 @@ import { MapPin, Route, Users, type LucideIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
-import { AnimatedIcon, HoverMotion, PillButton, type IconMotion } from '@/components/ui'
+import { AnimatedIcon, HoverMotion, PillButton, ScrollReveal, type IconMotion } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 /**
@@ -47,6 +47,12 @@ import { cn } from '@/lib/utils'
  *
  * Nothing is filled. The blue is only ever an edge, a glyph or a single word;
  * every card face stays white on white.
+ *
+ * ── The entrance ──────────────────────────────────────────────────────
+ *
+ * The three cards rise into place as they come on screen, one after
+ * another: ScrollReveal's fade-up (24px, 0.5s, easeOut) with 0.12s between
+ * them, once 30% of each is showing, and only the first time.
  */
 
 interface Feature {
@@ -157,32 +163,39 @@ export function ValueBanner() {
           style={{ transform: `translate3d(0, ${tilt.y * -6}px, 0)` }}
           className="mt-16 grid gap-5 transition-transform duration-[400ms] ease-out motion-reduce:!transform-none motion-reduce:transition-none sm:grid-cols-3 lg:gap-6"
         >
-          {FEATURES.map((feature) => {
+          {FEATURES.map((feature, i) => {
             const Icon = feature.icon
 
             return (
-              <HoverMotion key={feature.label} className={FRAME}>
-                <div className={cn(FACE, 'p-8')}>
-                  <span aria-hidden="true" className={ICON_FRAME}>
-                    <AnimatedIcon motion={feature.motion}>
-                      <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
-                    </AnimatedIcon>
-                  </span>
+              <ScrollReveal
+                key={feature.label}
+                className="h-full"
+                transition={{ delay: i * 0.12, duration: 0.5, ease: 'easeOut' }}
+                viewOptions={{ amount: 0.3 }}
+              >
+                <HoverMotion className={cn(FRAME, 'h-full')}>
+                  <div className={cn(FACE, 'p-8')}>
+                    <span aria-hidden="true" className={ICON_FRAME}>
+                      <AnimatedIcon motion={feature.motion}>
+                        <Icon size={24} strokeWidth={1.75} className={ICON_GLYPH} />
+                      </AnimatedIcon>
+                    </span>
 
-                  <span aria-hidden="true" className={cn('mt-7', CAP_RULE)} />
+                    <span aria-hidden="true" className={cn('mt-7', CAP_RULE)} />
 
-                  {/* A step above the ecosystem cards' text-xl, and heavier.
-                      These three lines are the section's actual argument, so
-                      they should read before the sentence under them does. */}
-                  <h3 className="mt-5 text-[1.375rem] font-extrabold leading-[1.15] tracking-[-0.02em] text-slate-900">
-                    {feature.label}
-                  </h3>
+                    {/* A step above the ecosystem cards' text-xl, and heavier.
+                        These three lines are the section's actual argument, so
+                        they should read before the sentence under them does. */}
+                    <h3 className="mt-5 text-[1.375rem] font-extrabold leading-[1.15] tracking-[-0.02em] text-slate-900">
+                      {feature.label}
+                    </h3>
 
-                  <p className="mt-3 text-ui leading-relaxed text-slate-500">
-                    {feature.detail}
-                  </p>
-                </div>
-              </HoverMotion>
+                    <p className="mt-3 text-ui leading-relaxed text-slate-500">
+                      {feature.detail}
+                    </p>
+                  </div>
+                </HoverMotion>
+              </ScrollReveal>
             )
           })}
         </div>

@@ -12,6 +12,8 @@ export { Skeleton, StationCardSkeleton, NavSkeleton, TextSkeleton } from './Skel
 export { PhotoFrame } from './PhotoFrame'
 export { PortMeter } from './PortMeter'
 export { Reveal } from './Reveal'
+export { ScrollReveal } from './ScrollReveal'
+export type { ScrollRevealProps } from './ScrollReveal'
 export { PillButton } from './PillButton'
 export { DiscButton } from './DiscButton'
 export { AnimatedIcon } from './AnimatedIcon'
