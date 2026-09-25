@@ -11,11 +11,11 @@ import { POPULAR_CITIES, SITE_CONFIG } from '@/lib/constants'
  *
  * ── Two layers, and a curtain ─────────────────────────────────────────
  *
- * A dark pine panel (the navbar's #05241E) holds everything: the link columns on the
+ * A near-black green panel (the hero's edge, #031914) holds everything: the link columns on the
  * left, contact and the app on the right, and a small row at its foot. Its
  * bottom-right corner is one large curve.
  *
- * Behind it, on the brand teal (#159E89), the legal line and "plug.pk" set in solid
+ * Behind it, on the hero's dark green (#10362C), the legal line and "plug.pk" set in solid
  * white, edge to edge. That layer is `position: sticky; bottom: 0`, so it
  * pins itself to the bottom of the viewport as soon as the footer arrives and
  * waits there, hidden under the panel. The panel scrolls up at normal speed
@@ -35,9 +35,9 @@ import { POPULAR_CITIES, SITE_CONFIG } from '@/lib/constants'
  * open the real map search for that city.
  */
 
-/** The site's own palette: the navbar and hero pine, and the brand teal (plug-cyan-600). */
-const NAVY = '#05241E'
-const TEAL = '#159E89'
+/** The landing page's greens: the hero's deepest edge for the panel, its lit green for the reveal. */
+const NAVY = '#031914'
+const TEAL = '#10362C'
 
 interface FooterLink {
   label: string
@@ -191,7 +191,7 @@ export function Footer() {
             href="/#app"
             aria-hidden="false"
             aria-label="The plug.pk app, coming soon"
-            className="absolute bottom-6 right-6 hidden w-44 flex-col items-center rounded-2xl bg-white/45 px-4 pb-4 pt-9 text-center shadow-[0_18px_40px_-18px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors hover:bg-white/55 lg:flex"
+            className="absolute bottom-6 right-6 hidden w-44 flex-col items-center rounded-2xl border border-white/15 bg-white/10 px-4 pb-4 pt-9 text-center shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)] backdrop-blur-md transition-colors hover:bg-white/15 lg:flex"
           >
             <span
               className="absolute -top-7 flex h-14 w-14 items-center justify-center rounded-2xl"
@@ -199,7 +199,7 @@ export function Footer() {
             >
               <LogoMark className="h-8 w-8" />
             </span>
-            <span className="text-[14px] leading-snug" style={{ color: NAVY }}>
+            <span className="text-[14px] leading-snug text-white">
               The plug.pk app
             </span>
             <span className="mt-3 flex h-24 w-full flex-col items-center justify-center rounded-xl bg-white text-[13px] font-semibold" style={{ color: NAVY }}>
