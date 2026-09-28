@@ -1,5 +1,5 @@
 // src/components/ui/ConnectorBadge.tsx
-import { Plug } from 'lucide-react'
+import { Plug } from '@/components/ui/icons'
 
 import type { Connector, ConnectorType } from '@/lib/types'
 import { cn, getConnectorConfig } from '@/lib/utils'

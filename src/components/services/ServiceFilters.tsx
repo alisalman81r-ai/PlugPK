@@ -1,7 +1,7 @@
 // src/components/services/ServiceFilters.tsx
 'use client'
 
-import { LayoutGrid, LayoutList, Loader2, Search } from 'lucide-react'
+import { LayoutGrid, LayoutList, Loader2, Search } from '@/components/ui/icons'
 
 import { Skeleton } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'

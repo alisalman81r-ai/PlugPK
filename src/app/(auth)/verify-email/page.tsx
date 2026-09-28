@@ -1,7 +1,7 @@
 // src/app/(auth)/verify-email/page.tsx
 'use client'
 
-import { CheckCircle2, Mail } from 'lucide-react'
+import { CheckCircle2, Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'

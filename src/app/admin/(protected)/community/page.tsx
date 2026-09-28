@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/community/page.tsx
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'

@@ -1,7 +1,7 @@
 // src/app/(main)/routes/page.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, ChevronLeft, Route as RouteIcon, Share2 } from 'lucide-react'
+import { Bookmark, BookmarkCheck, ChevronLeft, Route as RouteIcon, Share2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { MorphIcon } from '@/components/ui'

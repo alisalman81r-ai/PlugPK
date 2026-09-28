@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { Route } from 'lucide-react'
+import { Route } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { getDashboardShell } from '@/lib/db/queries'

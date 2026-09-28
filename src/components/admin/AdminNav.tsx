@@ -18,8 +18,8 @@ import {
   Wrench,
   X,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -31,7 +31,7 @@ import { Logo, LogoMark } from '@/components/ui/Logo'
 interface NavItem {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconType
 }
 
 interface NavSection {

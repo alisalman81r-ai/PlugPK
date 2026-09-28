@@ -1,7 +1,7 @@
 // src/components/station/ReviewsSection.tsx
 'use client'
 
-import { Car, MessageSquare, ShieldCheck, ThumbsUp } from 'lucide-react'
+import { Car, MessageSquare, ShieldCheck, ThumbsUp } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button, RatingStars } from '@/components/ui'

@@ -1,7 +1,7 @@
 // src/components/dashboard/NotificationSettings.tsx
 'use client'
 
-import { CheckCircle2, Mail, MapPin, Newspaper, Route, Users, Zap, type LucideIcon } from 'lucide-react'
+import { CheckCircle2, Mail, MapPin, Newspaper, Route, Users, Zap, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
@@ -20,7 +20,7 @@ type NotificationKey = keyof NotificationState
 
 interface NotificationRow {
   key: NotificationKey
-  icon: LucideIcon
+  icon: IconType
   label: string
   description: string
 }

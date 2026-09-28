@@ -1,6 +1,6 @@
 // src/app/(main)/partners/page.tsx
 import type { Metadata } from 'next'
-import { Building2, Plug } from 'lucide-react'
+import { Building2, Plug } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { PartnerDashboardPreview } from '@/components/partners/PartnerDashboardPreview'

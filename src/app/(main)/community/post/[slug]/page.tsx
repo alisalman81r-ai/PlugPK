@@ -1,5 +1,5 @@
 // src/app/(main)/community/post/[slug]/page.tsx
-import { Bookmark, ChevronLeft, Heart, Link as LinkIcon, Share2, Twitter } from 'lucide-react'
+import { Bookmark, ChevronLeft, Heart, Link as LinkIcon, Share2, Twitter } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'

@@ -1,7 +1,7 @@
 // src/components/route/RouteMap.tsx
 'use client'
 
-import { ArrowRight, BatteryCharging, Clock, Route, Zap } from 'lucide-react'
+import { ArrowRight, BatteryCharging, Clock, Route, Zap } from '@/components/ui/icons'
 
 import { ConnectorBadgeGroup } from '@/components/ui'
 import type { PlannedRoute } from '@/lib/types'

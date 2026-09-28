@@ -10,8 +10,8 @@ import {
   Newspaper,
   ShoppingCart,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { POST_CATEGORIES } from '@/lib/constants'
 import type { PostCategory } from '@/lib/types'
@@ -51,7 +51,7 @@ export interface CategoryTabsProps {
 }
 
 /** Resolves the icon names stored in POST_CATEGORIES to components. */
-export const POST_ICON: Record<string, LucideIcon> = {
+export const POST_ICON: Record<string, IconType> = {
   MessageCircle,
   Zap,
   Map,
@@ -223,7 +223,7 @@ function Tab({
   activeClass,
   onClick,
 }: {
-  icon: LucideIcon
+  icon: IconType
   label: string
   count: number
   selected: boolean

@@ -1,7 +1,7 @@
 // src/components/community/PostCard.tsx
 'use client'
 
-import { Car, Clock, Heart, Images, MessageSquare, Share2, Zap } from 'lucide-react'
+import { Car, Clock, Heart, Images, MessageSquare, Share2, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'

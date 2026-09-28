@@ -1,7 +1,7 @@
 // src/components/map/StationPreviewCard.tsx
 'use client'
 
-import { MapPin, Navigation2, ShieldCheck, X } from 'lucide-react'
+import { MapPin, Navigation2, ShieldCheck, X } from '@/components/ui/icons'
 
 import {
   ConnectorBadgeGroup,

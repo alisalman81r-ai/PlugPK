@@ -7,8 +7,8 @@ import {
   MapPinned,
   Route,
   Users,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 import { SectionIntro } from '@/components/shared/SectionIntro'
@@ -37,7 +37,7 @@ import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
 const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 
 interface Card {
-  icon: LucideIcon
+  icon: IconType
   motion: IconMotion
   title: string
   body: string

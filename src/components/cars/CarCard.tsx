@@ -1,7 +1,7 @@
 // src/components/cars/CarCard.tsx
 'use client'
 
-import { ArrowRight, Check, GitCompareArrows, Heart } from 'lucide-react'
+import { ArrowRight, Check, GitCompareArrows, Heart } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

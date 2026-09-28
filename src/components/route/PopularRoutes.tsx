@@ -1,7 +1,7 @@
 // src/components/route/PopularRoutes.tsx
 'use client'
 
-import { ArrowRight, Clock, Route as RouteIcon } from 'lucide-react'
+import { ArrowRight, Clock, Route as RouteIcon } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { FACE, FRAME } from '@/components/shared/frame'

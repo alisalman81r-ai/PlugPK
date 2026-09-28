@@ -1,6 +1,6 @@
 // src/components/home/JourneyCards.tsx
 
-import { MapPin, Route, Zap } from 'lucide-react'
+import { MapPin, Route, Zap } from '@/components/ui/icons'
 
 import { FAST_CHARGER_KW, type HeroMapPin } from '@/lib/charging'
 import { estimateDriveMinutes, getRoadDistanceKm } from '@/lib/route-distances'

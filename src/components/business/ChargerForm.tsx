@@ -1,7 +1,7 @@
 // src/components/business/ChargerForm.tsx
 'use client'
 
-import { Minus, Plus } from 'lucide-react'
+import { Minus, Plus } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

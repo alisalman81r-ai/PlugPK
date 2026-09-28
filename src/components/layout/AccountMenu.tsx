@@ -1,7 +1,7 @@
 // src/components/layout/AccountMenu.tsx
 'use client'
 
-import { Building2, ChevronDown, LayoutDashboard, LogOut, Settings } from 'lucide-react'
+import { Building2, ChevronDown, LayoutDashboard, LogOut, Settings } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

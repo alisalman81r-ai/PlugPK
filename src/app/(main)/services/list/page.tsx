@@ -1,6 +1,6 @@
 // src/app/(main)/services/list/page.tsx
 import type { Metadata } from 'next'
-import { BadgeCheck, MapPinned, Wrench } from 'lucide-react'
+import { BadgeCheck, MapPinned, Wrench } from '@/components/ui/icons'
 
 import { ServiceApplicationForm } from '@/components/services/ServiceApplicationForm'
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'

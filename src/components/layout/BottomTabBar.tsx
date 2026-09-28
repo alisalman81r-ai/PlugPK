@@ -1,7 +1,7 @@
 // src/components/layout/BottomTabBar.tsx
 'use client'
 
-import { MapPin, Route, UserCircle, Users, Wrench, type LucideIcon } from 'lucide-react'
+import { MapPin, Route, UserCircle, Users, Wrench, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 interface Tab {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconType
 }
 
 const tabs: Tab[] = [

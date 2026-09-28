@@ -1,7 +1,7 @@
 // src/components/map/MapHero.tsx
 'use client'
 
-import { LocateFixed, MapPin, Zap, type LucideIcon } from 'lucide-react'
+import { LocateFixed, MapPin, Zap, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 /**
@@ -156,7 +156,7 @@ function Stat({
   label,
   tone = 'plain',
 }: {
-  icon?: LucideIcon
+  icon?: IconType
   value: number
   total?: number
   label: string

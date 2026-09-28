@@ -16,6 +16,7 @@
     "import:stations": "tsx scripts/import-stations.ts"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@prisma/client": "^6.19.3",
     "@vercel/blob": "^2.8.0",
     "@vis.gl/react-google-maps": "^1.9.0",

@@ -1,7 +1,7 @@
 // src/components/cars/CarComparison.tsx
 'use client'
 
-import { Check, Link2, Plus, Trophy, X } from 'lucide-react'
+import { Check, Link2, Plus, Trophy, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

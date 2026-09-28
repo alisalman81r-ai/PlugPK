@@ -8,8 +8,8 @@ import {
   Star,
   TrendingUp,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -37,7 +37,7 @@ export interface BusinessDashboardSidebarProps {
 interface BusinessNavItem {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconType
   exact?: boolean
 }
 

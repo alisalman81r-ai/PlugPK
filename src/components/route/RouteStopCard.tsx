@@ -11,8 +11,8 @@ import {
   Utensils,
   Wifi,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { ConnectorBadgeGroup, RatingStars, SpeedBadge } from '@/components/ui'
@@ -26,7 +26,7 @@ export interface RouteStopCardProps {
   totalStops: number
 }
 
-const AMENITY_ICON: Record<AmenityType, LucideIcon> = {
+const AMENITY_ICON: Record<AmenityType, IconType> = {
   restaurant: Utensils,
   hotel: Bed,
   parking: ParkingSquare,

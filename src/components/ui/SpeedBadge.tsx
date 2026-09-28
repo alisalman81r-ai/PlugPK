@@ -1,5 +1,5 @@
 // src/components/ui/SpeedBadge.tsx
-import { Zap } from 'lucide-react'
+import { Zap } from '@/components/ui/icons'
 
 import { cn, getSpeedConfig } from '@/lib/utils'
 

@@ -1,7 +1,7 @@
 // src/components/partners/PartnerList.tsx
 'use client'
 
-import { Globe, MapPin, Phone, Search, Zap } from 'lucide-react'
+import { Globe, MapPin, Phone, Search, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

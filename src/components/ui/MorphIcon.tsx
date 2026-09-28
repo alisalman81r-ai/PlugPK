@@ -2,7 +2,7 @@
 'use client'
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import type { LucideIcon } from 'lucide-react'
+import type { IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -28,8 +28,8 @@ import { cn } from '@/lib/utils'
 export interface MorphIconProps {
   /** True shows `on`, false shows `off`. */
   active: boolean
-  on: LucideIcon
-  off: LucideIcon
+  on: IconType
+  off: IconType
   size?: number
   strokeWidth?: number
   /** Degrees the outgoing icon turns as it leaves. */

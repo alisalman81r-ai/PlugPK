@@ -1,5 +1,5 @@
 // src/app/business/dashboard/page.tsx
-import { Building2, CheckCircle2, Clock, Globe, MapPin, Phone, XCircle, Zap } from 'lucide-react'
+import { Building2, CheckCircle2, Clock, Globe, MapPin, Phone, XCircle, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 

@@ -1,7 +1,7 @@
 // src/components/business/BusinessOverview.tsx
 'use client'
 
-import { ArrowRight, CheckCircle2, Eye, Navigation2, Star, TrendingUp, Zap, type LucideIcon } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Eye, Navigation2, Star, TrendingUp, Zap, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { ConnectorBadge, RatingStars, SpeedBadge } from '@/components/ui'
@@ -20,7 +20,7 @@ export interface BusinessOverviewProps {
 }
 
 interface StatCard {
-  icon: LucideIcon
+  icon: IconType
   tone: string
   value: string
   label: string

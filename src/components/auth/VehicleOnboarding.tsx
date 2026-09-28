@@ -1,7 +1,7 @@
 // src/components/auth/VehicleOnboarding.tsx
 'use client'
 
-import { ArrowRight, Car as CarIcon, Check, ChevronLeft } from 'lucide-react'
+import { ArrowRight, Car as CarIcon, Check, ChevronLeft } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { Car } from '@/data/cars'

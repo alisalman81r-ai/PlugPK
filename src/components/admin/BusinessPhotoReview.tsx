@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, ImageOff, Loader2 } from 'lucide-react'
+import { Check, ImageOff, Loader2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { reviewBusinessPhoto } from '@/lib/db/business-actions'

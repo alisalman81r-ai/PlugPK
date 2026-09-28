@@ -1,5 +1,5 @@
 // src/components/services/ServiceHero.tsx
-import { Search } from 'lucide-react'
+import { Search } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS } from '@/lib/constants'

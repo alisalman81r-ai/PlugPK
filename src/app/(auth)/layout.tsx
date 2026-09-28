@@ -1,5 +1,5 @@
 // src/app/(auth)/layout.tsx
-import { MapPin, Route, Zap, type LucideIcon } from 'lucide-react'
+import { MapPin, Route, Zap, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { getPlatformStats } from '@/lib/db/queries'
@@ -34,7 +34,7 @@ import { Logo } from '@/components/ui/Logo'
  */
 
 /** Only what a signed-in account genuinely changes about using the site. */
-const VALUE: { icon: LucideIcon; title: string; body: string }[] = [
+const VALUE: { icon: IconType; title: string; body: string }[] = [
   {
     icon: Zap,
     title: 'Every charger on one map',

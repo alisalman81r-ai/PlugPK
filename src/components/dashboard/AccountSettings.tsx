@@ -1,7 +1,7 @@
 // src/components/dashboard/AccountSettings.tsx
 'use client'
 
-import { Check, ImagePlus, Loader2, Trash2 } from 'lucide-react'
+import { Check, ImagePlus, Loader2, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

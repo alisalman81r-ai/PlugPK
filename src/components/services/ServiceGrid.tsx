@@ -1,7 +1,7 @@
 // src/components/services/ServiceGrid.tsx
 'use client'
 
-import { Package } from 'lucide-react'
+import { Package } from '@/components/ui/icons'
 
 import { FACE, FRAME } from '@/components/shared/frame'
 import { Button, Skeleton } from '@/components/ui'

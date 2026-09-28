@@ -1,7 +1,7 @@
 // src/components/business/ChargerManager.tsx
 'use client'
 
-import { Check, ImagePlus, Loader2, Plus, Trash2, X, Zap } from 'lucide-react'
+import { Check, ImagePlus, Loader2, Plus, Trash2, X, Zap } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

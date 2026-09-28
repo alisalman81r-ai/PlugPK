@@ -1,5 +1,5 @@
 // src/components/dashboard/ActivityFeed.tsx
-import { Bookmark, Clock, Route, Star, UserPlus, type LucideIcon } from 'lucide-react'
+import { Bookmark, Clock, Route, Star, UserPlus, type IconType } from '@/components/ui/icons'
 
 import type { ActivityItem, ActivityType } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
@@ -9,7 +9,7 @@ export interface ActivityFeedProps {
   maxItems?: number
 }
 
-const ACTIVITY_ICON: Record<ActivityType, { icon: LucideIcon; tone: string }> = {
+const ACTIVITY_ICON: Record<ActivityType, { icon: IconType; tone: string }> = {
   review: { icon: Star, tone: 'text-amber-500' },
   save: { icon: Bookmark, tone: 'text-plug-blue-600' },
   route: { icon: Route, tone: 'text-purple-600' },

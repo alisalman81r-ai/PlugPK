@@ -1,7 +1,7 @@
 // src/components/community/CommunityHero.tsx
 'use client'
 
-import { MessageCircle, MessageSquare, PenSquare, Users, type LucideIcon } from 'lucide-react'
+import { MessageCircle, MessageSquare, PenSquare, Users, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { PillButton } from '@/components/ui'
@@ -156,7 +156,7 @@ function Stat({
   label,
   tone = 'plain',
 }: {
-  icon?: LucideIcon
+  icon?: IconType
   value: number
   label: string
   tone?: 'plain' | 'cyan'

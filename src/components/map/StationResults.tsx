@@ -1,7 +1,7 @@
 // src/components/map/StationResults.tsx
 'use client'
 
-import { ChevronDown, List } from 'lucide-react'
+import { ChevronDown, List } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { Station } from '@/lib/types'

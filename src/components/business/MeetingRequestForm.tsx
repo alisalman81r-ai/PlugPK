@@ -1,7 +1,7 @@
 // src/components/business/MeetingRequestForm.tsx
 'use client'
 
-import { CalendarCheck, CheckCircle2, Loader2 } from 'lucide-react'
+import { CalendarCheck, CheckCircle2, Loader2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { requestMeeting } from '@/lib/db/meeting-actions'

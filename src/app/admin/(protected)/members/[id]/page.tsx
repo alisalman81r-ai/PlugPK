@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/members/[id]/page.tsx
-import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, MessageSquare, Star, Zap } from 'lucide-react'
+import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, MessageSquare, Star, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 

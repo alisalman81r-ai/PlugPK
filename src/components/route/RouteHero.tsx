@@ -1,7 +1,7 @@
 // src/components/route/RouteHero.tsx
 'use client'
 
-import { Car, MapPin, Zap, type LucideIcon } from 'lucide-react'
+import { Car, MapPin, Zap, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 /**
@@ -77,7 +77,7 @@ function Stat({
   label,
   tone = 'plain',
 }: {
-  icon?: LucideIcon
+  icon?: IconType
   value: number
   label: string
   tone?: 'plain' | 'cyan'

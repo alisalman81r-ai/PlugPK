@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.tsx
 'use client'
 
-import { Menu, Smartphone, X } from 'lucide-react'
+import { Menu, Smartphone, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'

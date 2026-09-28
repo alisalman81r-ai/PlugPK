@@ -1,7 +1,7 @@
 // src/app/(main)/error.tsx
 'use client'
 
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

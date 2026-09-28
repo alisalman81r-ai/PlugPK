@@ -1,7 +1,7 @@
 // src/components/admin/DeleteButton.tsx
 'use client'
 
-import { Loader2, Trash2 } from 'lucide-react'
+import { Loader2, Trash2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

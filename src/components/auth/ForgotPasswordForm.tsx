@@ -1,7 +1,7 @@
 // src/components/auth/ForgotPasswordForm.tsx
 'use client'
 
-import { Mail } from 'lucide-react'
+import { Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

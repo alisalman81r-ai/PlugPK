@@ -1,7 +1,7 @@
 // src/components/cars/CarFilters.tsx
 'use client'
 
-import { ChevronDown, RotateCcw } from 'lucide-react'
+import { ChevronDown, RotateCcw } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { TurnIcon } from '@/components/ui'

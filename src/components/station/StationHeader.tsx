@@ -1,5 +1,5 @@
 // src/components/station/StationHeader.tsx
-import { ChevronLeft, MapPin, ShieldCheck } from 'lucide-react'
+import { ChevronLeft, MapPin, ShieldCheck } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { ConnectorBadgeGroup, RatingStars, SpeedBadge, StatusBadge } from '@/components/ui'

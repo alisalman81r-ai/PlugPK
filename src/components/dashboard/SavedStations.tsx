@@ -1,7 +1,7 @@
 // src/components/dashboard/SavedStations.tsx
 'use client'
 
-import { Bookmark, Search } from 'lucide-react'
+import { Bookmark, Search } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

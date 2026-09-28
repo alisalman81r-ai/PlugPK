@@ -1,7 +1,7 @@
 // src/components/business/BusinessReviews.tsx
 'use client'
 
-import { MessageSquare, Star } from 'lucide-react'
+import { MessageSquare, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Avatar, RatingStars } from '@/components/ui'

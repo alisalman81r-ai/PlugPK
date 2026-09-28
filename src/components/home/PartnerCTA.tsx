@@ -1,5 +1,5 @@
 // src/components/home/PartnerCTA.tsx
-import { PlugZap } from 'lucide-react'
+import { PlugZap } from '@/components/ui/icons'
 import Image from 'next/image'
 
 import { DiscButton } from '@/components/ui'

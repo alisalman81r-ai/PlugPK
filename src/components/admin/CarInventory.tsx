@@ -1,7 +1,7 @@
 // src/components/admin/CarInventory.tsx
 'use client'
 
-import { AlertTriangle, ChevronRight, ExternalLink, ImageOff, Search, X } from 'lucide-react'
+import { AlertTriangle, ChevronRight, ExternalLink, ImageOff, Search, X } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'

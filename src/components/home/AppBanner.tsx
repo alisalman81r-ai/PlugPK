@@ -1,5 +1,5 @@
 // src/components/home/AppBanner.tsx
-import { BatteryCharging, Car, Navigation2, Search, Zap } from 'lucide-react'
+import { BatteryCharging, Car, Navigation2, Search, Zap } from '@/components/ui/icons'
 
 import { getCityCoordinates } from '@/lib/city-coordinates'
 import { PATH_D, VIEW_BOX, project } from './PakistanMap'

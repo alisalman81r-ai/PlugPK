@@ -1,5 +1,5 @@
 // src/components/ui/PhotoFrame.tsx
-import { ImageOff } from 'lucide-react'
+import { ImageOff } from '@/components/ui/icons'
 import Image from 'next/image'
 
 import { cn } from '@/lib/utils'

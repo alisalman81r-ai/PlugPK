@@ -1,7 +1,7 @@
 // src/components/admin/AdminTopbar.tsx
 'use client'
 
-import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, User } from 'lucide-react'
+import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, User } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'

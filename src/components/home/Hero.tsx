@@ -1,7 +1,7 @@
 // src/components/home/Hero.tsx
 'use client'
 
-import { ArrowRight, Cable, MapPin, Route, Search, Star, Zap } from 'lucide-react'
+import { ArrowRight, Cable, MapPin, Route, Search, Star, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

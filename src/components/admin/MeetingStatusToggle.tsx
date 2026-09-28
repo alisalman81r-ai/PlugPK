@@ -1,7 +1,7 @@
 // src/components/admin/MeetingStatusToggle.tsx
 'use client'
 
-import { Check, Loader2, Undo2 } from 'lucide-react'
+import { Check, Loader2, Undo2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

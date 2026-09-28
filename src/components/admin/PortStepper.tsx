@@ -1,7 +1,7 @@
 // src/components/admin/PortStepper.tsx
 'use client'
 
-import { Check, Loader2, Minus, Plus } from 'lucide-react'
+import { Check, Loader2, Minus, Plus } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

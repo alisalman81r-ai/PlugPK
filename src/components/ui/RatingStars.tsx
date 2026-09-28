@@ -1,7 +1,7 @@
 // src/components/ui/RatingStars.tsx
 'use client'
 
-import { Star } from 'lucide-react'
+import { Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn, formatRating } from '@/lib/utils'

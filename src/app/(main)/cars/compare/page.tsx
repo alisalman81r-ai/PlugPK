@@ -1,5 +1,5 @@
 // src/app/(main)/cars/compare/page.tsx
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import * as React from 'react'

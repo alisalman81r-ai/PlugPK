@@ -1,7 +1,7 @@
 // src/components/station/PhotoGallery.tsx
 'use client'
 
-import { Camera, ChevronLeft, ChevronRight, Images, X, Zap } from 'lucide-react'
+import { Camera, ChevronLeft, ChevronRight, Images, X, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import * as React from 'react'
 

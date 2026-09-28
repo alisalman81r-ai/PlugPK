@@ -1,5 +1,5 @@
 // src/components/ui/PillButton.tsx
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

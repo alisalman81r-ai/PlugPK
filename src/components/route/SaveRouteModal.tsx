@@ -1,7 +1,7 @@
 // src/components/route/SaveRouteModal.tsx
 'use client'
 
-import { BookmarkCheck, MapPin, X } from 'lucide-react'
+import { BookmarkCheck, MapPin, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

@@ -1,7 +1,7 @@
 // src/components/business/BusinessProfileEditor.tsx
 'use client'
 
-import { Building2, Check, Loader2, MapPin } from 'lucide-react'
+import { Building2, Check, Loader2, MapPin } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

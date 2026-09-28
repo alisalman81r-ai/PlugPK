@@ -2,7 +2,7 @@
 'use client'
 
 import { motion, useReducedMotion } from 'framer-motion'
-import { Heart, MapPin, MessageCircle, MessageSquare, Route, TrendingUp, Users, type LucideIcon } from 'lucide-react'
+import { Heart, MapPin, MessageCircle, MessageSquare, Route, TrendingUp, Users, type IconType } from '@/components/ui/icons'
 
 import { Badge, DiscButton, HoverLink, type BadgeVariant } from '@/components/ui'
 import type { CommunityCounts } from '@/lib/db/queries'
@@ -62,7 +62,7 @@ export interface CommunityPreviewProps {
 
 interface FeatureCardProps {
   href: string
-  icon: LucideIcon
+  icon: IconType
   title: string
   body: string
   children: React.ReactNode
@@ -252,7 +252,7 @@ function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
 }
 
 function StatsPicture({ counts }: { counts: CommunityCounts }) {
-  const rows: { icon: LucideIcon; label: string; value: number }[] = [
+  const rows: { icon: IconType; label: string; value: number }[] = [
     { icon: Users, label: counts.clubMembers === 1 ? 'Club member' : 'Club members', value: counts.clubMembers },
     { icon: MessageSquare, label: counts.discussions === 1 ? 'Discussion' : 'Discussions', value: counts.discussions },
     { icon: Route, label: counts.replies === 1 ? 'Reply' : 'Replies', value: counts.replies },

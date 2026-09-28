@@ -1,5 +1,5 @@
 // src/components/business/BusinessPricing.tsx
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from '@/components/ui/icons'
 
 import { MeetingRequestForm } from '@/components/business/MeetingRequestForm'
 import { SectionHeader } from '@/components/ui'

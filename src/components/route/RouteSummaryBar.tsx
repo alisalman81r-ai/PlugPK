@@ -1,5 +1,5 @@
 // src/components/route/RouteSummaryBar.tsx
-import { BatteryCharging, Clock, Route, Zap, type LucideIcon } from 'lucide-react'
+import { BatteryCharging, Clock, Route, Zap, type IconType } from '@/components/ui/icons'
 
 import type { PlannedRoute } from '@/lib/types'
 import { formatDuration } from '@/lib/utils'
@@ -9,7 +9,7 @@ export interface RouteSummaryBarProps {
 }
 
 interface SummaryStat {
-  icon: LucideIcon
+  icon: IconType
   value: string
   label: string
 }

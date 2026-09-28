@@ -1,7 +1,7 @@
 // src/components/station/WriteReviewForm.tsx
 'use client'
 
-import { CheckCircle2, Star, User } from 'lucide-react'
+import { CheckCircle2, Star, User } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

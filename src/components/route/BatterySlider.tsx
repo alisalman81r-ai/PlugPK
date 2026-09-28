@@ -1,7 +1,7 @@
 // src/components/route/BatterySlider.tsx
 'use client'
 
-import { BatteryCharging } from 'lucide-react'
+import { BatteryCharging } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { EVModel } from '@/lib/types'

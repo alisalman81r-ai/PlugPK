@@ -11,8 +11,8 @@ import {
   ShoppingCart,
   Users,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button, Skeleton } from '@/components/ui'
@@ -44,7 +44,7 @@ export interface PostFeedProps {
   onClearSearch?: () => void
 }
 
-const EMPTY_ICON: Record<string, LucideIcon> = {
+const EMPTY_ICON: Record<string, IconType> = {
   MessageCircle,
   Zap,
   Map,

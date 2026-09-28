@@ -1,5 +1,5 @@
 // src/components/community/ClubsDirectory.tsx
-import { MapPin, Users } from 'lucide-react'
+import { MapPin, Users } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { cityPhoto } from '@/lib/city-photos'

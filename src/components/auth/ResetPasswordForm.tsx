@@ -1,7 +1,7 @@
 // src/components/auth/ResetPasswordForm.tsx
 'use client'
 
-import { Check, CheckCircle2, Eye, EyeOff, Lock } from 'lucide-react'
+import { Check, CheckCircle2, Eye, EyeOff, Lock } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button, MorphIcon } from '@/components/ui'

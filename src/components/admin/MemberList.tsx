@@ -1,7 +1,7 @@
 // src/components/admin/MemberList.tsx
 'use client'
 
-import { Bookmark, Building2, Car, Loader2, MapPin, Search, Star, Trash2 } from 'lucide-react'
+import { Bookmark, Building2, Car, Loader2, MapPin, Search, Star, Trash2 } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

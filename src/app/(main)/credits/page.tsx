@@ -1,4 +1,4 @@
-import { Database, Image as ImageIcon, MapPin } from 'lucide-react'
+import { Database, Image as ImageIcon, MapPin } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 
 import { carImageCredits } from '@/data/carImageCredits'

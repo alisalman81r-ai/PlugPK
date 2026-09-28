@@ -1,7 +1,7 @@
 // src/components/community/CreatePostForm.tsx
 'use client'
 
-import { CheckCircle2, Lock, MessageCircle, X, type LucideIcon } from 'lucide-react'
+import { CheckCircle2, Lock, MessageCircle, X, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { useRouter } from 'next/navigation'
@@ -197,7 +197,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
               <legend className="mb-3 text-sm font-semibold text-slate-700">Category *</legend>
               <div className="grid grid-cols-2 gap-2">
                 {POST_CATEGORIES.map((option) => {
-                  const Icon: LucideIcon = POST_ICON[option.icon] ?? MessageCircle
+                  const Icon: IconType = POST_ICON[option.icon] ?? MessageCircle
                   const isSelected = category === option.id
 
                   return (

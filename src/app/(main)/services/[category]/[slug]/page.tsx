@@ -15,8 +15,8 @@ import {
   Shield,
   ShieldCheck,
   Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -34,7 +34,7 @@ interface PageProps {
   params: { category: string; slug: string }
 }
 
-const ICONS: Record<string, LucideIcon> = { Car, Wrench, Home, Package, Shield, LifeBuoy }
+const ICONS: Record<string, IconType> = { Car, Wrench, Home, Package, Shield, LifeBuoy }
 
 const DAYS = [
   'monday',

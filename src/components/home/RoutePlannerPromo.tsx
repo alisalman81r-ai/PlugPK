@@ -1,7 +1,7 @@
 // src/components/home/RoutePlannerPromo.tsx
 'use client'
 
-import { BatteryCharging, Clock, Zap } from 'lucide-react'
+import { BatteryCharging, Clock, Zap } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { PillButton } from '@/components/ui'

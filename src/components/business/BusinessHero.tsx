@@ -1,5 +1,5 @@
 // src/components/business/BusinessHero.tsx
-import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ShieldCheck } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { Button, ConnectorBadge } from '@/components/ui'

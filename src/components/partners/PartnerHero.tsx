@@ -1,5 +1,5 @@
 // src/components/partners/PartnerHero.tsx
-import { ArrowRight, Building2, Check, MapPin, Plug, Zap, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Building2, Check, MapPin, Plug, Zap, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { PillButton } from '@/components/ui'
@@ -211,7 +211,7 @@ function Stat({
   label,
   tone = 'plain',
 }: {
-  icon?: LucideIcon
+  icon?: IconType
   value: number
   label: string
   tone?: 'plain' | 'cyan'

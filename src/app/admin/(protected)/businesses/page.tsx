@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/businesses/page.tsx
-import { Building2, Globe, Mail, MapPin, Pencil, Phone, Plus, Zap } from 'lucide-react'
+import { Building2, Globe, Mail, MapPin, Pencil, Phone, Plus, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'

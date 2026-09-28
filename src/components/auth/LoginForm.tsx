@@ -1,7 +1,7 @@
 // src/components/auth/LoginForm.tsx
 'use client'
 
-import { AlertCircle, Eye, EyeOff, Lock, Mail } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff, Lock, Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

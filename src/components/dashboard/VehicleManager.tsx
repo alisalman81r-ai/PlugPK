@@ -1,7 +1,7 @@
 // src/components/dashboard/VehicleManager.tsx
 'use client'
 
-import { Car, Check, ChevronDown, Loader2, Zap } from 'lucide-react'
+import { Car, Check, ChevronDown, Loader2, Zap } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

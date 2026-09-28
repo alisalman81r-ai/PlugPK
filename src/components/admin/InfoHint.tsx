@@ -1,7 +1,7 @@
 // src/components/admin/InfoHint.tsx
 'use client'
 
-import { HelpCircle, X } from 'lucide-react'
+import { HelpCircle, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

@@ -1,5 +1,5 @@
 // src/components/station/RatingBreakdown.tsx
-import { Star } from 'lucide-react'
+import { Star } from '@/components/ui/icons'
 
 import { RatingStars } from '@/components/ui'
 import type { Review } from '@/lib/types'

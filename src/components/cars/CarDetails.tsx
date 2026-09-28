@@ -10,7 +10,7 @@ import {
   Route,
   Timer,
   Zap,
-} from 'lucide-react'
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

@@ -1,5 +1,5 @@
 // src/components/dashboard/DashboardOverview.tsx
-import { Bookmark, Calendar, Car, MapPin, Star } from 'lucide-react'
+import { Bookmark, Calendar, Car, MapPin, Star } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { Avatar, RatingStars } from '@/components/ui'

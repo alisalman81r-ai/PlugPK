@@ -1,7 +1,7 @@
 // src/components/route/RouteResultsView.tsx
 'use client'
 
-import { Zap } from 'lucide-react'
+import { Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import type { PlannedRoute } from '@/lib/types'

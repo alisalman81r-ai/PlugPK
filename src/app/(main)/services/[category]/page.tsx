@@ -1,5 +1,5 @@
 // src/app/services/[category]/page.tsx
-import { Car, ChevronLeft, Home, LifeBuoy, Package, Shield, Wrench, type LucideIcon } from 'lucide-react'
+import { Car, ChevronLeft, Home, LifeBuoy, Package, Shield, Wrench, type IconType } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -13,7 +13,7 @@ interface PageProps {
   params: { category: string }
 }
 
-const ICONS: Record<string, LucideIcon> = { Car, Wrench, Home, Package, Shield, LifeBuoy }
+const ICONS: Record<string, IconType> = { Car, Wrench, Home, Package, Shield, LifeBuoy }
 
 function resolveCategory(value: string): ServiceCategory | null {
   return SERVICE_CATEGORY_KEYS.find((key) => key === value) ?? null

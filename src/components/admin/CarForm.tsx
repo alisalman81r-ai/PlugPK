@@ -1,7 +1,7 @@
 // src/components/admin/CarForm.tsx
 'use client'
 
-import { AlertTriangle, Check, Loader2, Save } from 'lucide-react'
+import { AlertTriangle, Check, Loader2, Save } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

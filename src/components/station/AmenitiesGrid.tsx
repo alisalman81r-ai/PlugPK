@@ -8,8 +8,8 @@ import {
   Star,
   Utensils,
   Wifi,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
 import type { Amenity, AmenityType } from '@/lib/types'
@@ -21,7 +21,7 @@ export interface AmenitiesGridProps {
 
 interface AmenityMeta {
   label: string
-  icon: LucideIcon
+  icon: IconType
   /** Matched to the glyph: the kettle steams, the bed settles, wifi pulses. */
   motion: IconMotion
   tone: string

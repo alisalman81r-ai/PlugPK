@@ -1,7 +1,7 @@
 // src/components/cars/CarHero.tsx
 'use client'
 
-import { Search } from 'lucide-react'
+import { Search } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { CarCategory } from '@/data/cars'

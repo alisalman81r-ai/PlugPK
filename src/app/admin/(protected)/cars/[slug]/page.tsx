@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/cars/[slug]/page.tsx
-import { AlertTriangle, ArrowLeft, ExternalLink, Info, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, ExternalLink, Info, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -169,7 +169,7 @@ export default async function AdminCarDetailPage({ params }: PageProps) {
 }
 
 function IssueIcon({ level }: { level: 'warn' | 'info' }) {
-  const Icon: LucideIcon = level === 'warn' ? AlertTriangle : Info
+  const Icon: IconType = level === 'warn' ? AlertTriangle : Info
   return (
     <Icon
       size={15}

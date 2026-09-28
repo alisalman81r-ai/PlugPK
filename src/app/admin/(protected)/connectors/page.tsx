@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/connectors/page.tsx
-import { Pencil, Plus } from 'lucide-react'
+import { Pencil, Plus } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'

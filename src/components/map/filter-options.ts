@@ -8,8 +8,8 @@ import {
   Star,
   Utensils,
   Wifi,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import type { AmenityType, ChargingSpeed, ConnectorType } from '@/lib/types'
 
@@ -41,7 +41,7 @@ export const SPEED_OPTIONS: SpeedOption[] = [
 export interface AmenityOption {
   type: AmenityType
   label: string
-  icon: LucideIcon
+  icon: IconType
 }
 
 export const AMENITY_OPTIONS: AmenityOption[] = [

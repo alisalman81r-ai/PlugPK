@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/not-found.tsx
-import { FileQuestion } from 'lucide-react'
+import { FileQuestion } from '@/components/ui/icons'
 import Link from 'next/link'
 
 /**

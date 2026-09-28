@@ -1,7 +1,7 @@
 // src/components/services/ServiceApplicationForm.tsx
 'use client'
 
-import { CheckCircle2, Send } from 'lucide-react'
+import { CheckCircle2, Send } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'

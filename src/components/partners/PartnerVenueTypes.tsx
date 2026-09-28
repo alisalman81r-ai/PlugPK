@@ -7,8 +7,8 @@ import {
   ShoppingBag,
   UtensilsCrossed,
   Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 
 import type { BusinessType } from '@/lib/types'
@@ -56,7 +56,7 @@ interface VenueType {
   type: Exclude<BusinessType, 'other'>
   label: string
   detail: string
-  icon: LucideIcon
+  icon: IconType
 }
 
 /**

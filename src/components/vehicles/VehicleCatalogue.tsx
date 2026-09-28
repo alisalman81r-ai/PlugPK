@@ -1,7 +1,7 @@
 // src/components/vehicles/VehicleCatalogue.tsx
 'use client'
 
-import { Car, Search, X, Zap } from 'lucide-react'
+import { Car, Search, X, Zap } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME } from '@/components/shared/frame'

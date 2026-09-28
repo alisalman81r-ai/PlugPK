@@ -1,5 +1,5 @@
 // src/components/route/RouteHowItWorks.tsx
-import { BatteryCharging, Car, MapPin, type LucideIcon } from 'lucide-react'
+import { BatteryCharging, Car, MapPin, type IconType } from '@/components/ui/icons'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
  */
 
 interface Step {
-  icon: LucideIcon
+  icon: IconType
   /** Matched to what the glyph depicts, not picked for variety. */
   motion: IconMotion
   title: string

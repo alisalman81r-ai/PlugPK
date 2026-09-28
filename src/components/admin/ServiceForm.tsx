@@ -1,7 +1,7 @@
 // src/components/admin/ServiceForm.tsx
 'use client'
 
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

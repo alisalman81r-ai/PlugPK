@@ -1,7 +1,7 @@
 // src/components/cars/CarsBrowser.tsx
 'use client'
 
-import { Car as CarIcon, GitCompareArrows, SlidersHorizontal, X } from 'lucide-react'
+import { Car as CarIcon, GitCompareArrows, SlidersHorizontal, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

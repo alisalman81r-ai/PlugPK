@@ -1,7 +1,7 @@
 // src/components/admin/QuickActions.tsx
 'use client'
 
-import { Car, ChevronDown, Plug, Plus, Store, Wrench, Zap } from 'lucide-react'
+import { Car, ChevronDown, Plug, Plus, Store, Wrench, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

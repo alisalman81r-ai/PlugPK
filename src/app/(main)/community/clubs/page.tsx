@@ -1,5 +1,5 @@
 // src/app/(main)/community/clubs/page.tsx
-import { ChevronLeft, MapPin, Users, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, MapPin, Users, type IconType } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
@@ -187,7 +187,7 @@ function Stat({
   label,
   tone = 'plain',
 }: {
-  icon?: LucideIcon
+  icon?: IconType
   value: number
   label: string
   tone?: 'plain' | 'cyan'

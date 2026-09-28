@@ -10,8 +10,8 @@ import {
   Route,
   Users,
   Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -29,7 +29,7 @@ export interface MobileMenuProps {
 }
 
 /** NAV_LINKS carries no icon component, so routes are mapped to icons here. */
-const NAV_ICONS: Record<string, LucideIcon> = {
+const NAV_ICONS: Record<string, IconType> = {
   '/map': MapPin,
   '/routes': Route,
   '/services': Wrench,

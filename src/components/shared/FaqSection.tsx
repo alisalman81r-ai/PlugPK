@@ -1,5 +1,5 @@
 // src/components/shared/FaqSection.tsx
-import { ChevronDown, HelpCircle } from 'lucide-react'
+import { ChevronDown, HelpCircle } from '@/components/ui/icons'
 
 import { cn } from '@/lib/utils'
 

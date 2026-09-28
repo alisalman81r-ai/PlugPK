@@ -1,7 +1,7 @@
 // src/components/map/MapSearchBar.tsx
 'use client'
 
-import { Search, X } from 'lucide-react'
+import { Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { PhotoFrame, StatusDot } from '@/components/ui'

@@ -8,8 +8,8 @@ import {
   Star,
   Users,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 import { AnimatedIcon, HoverMotion, SectionHeader, type IconMotion } from '@/components/ui'
@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 
 interface Feature {
   motion: IconMotion
-  icon: LucideIcon
+  icon: IconType
   title: string
   description: string
 }
@@ -69,7 +69,7 @@ const FEATURES: Feature[] = [
 
 interface Step {
   number: string
-  icon: LucideIcon
+  icon: IconType
   motion: IconMotion
   title: string
   description: string

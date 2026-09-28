@@ -1,7 +1,7 @@
 // src/components/admin/StationTable.tsx
 'use client'
 
-import { AlertTriangle, ExternalLink, Pencil, Search, SearchX, X } from 'lucide-react'
+import { AlertTriangle, ExternalLink, Pencil, Search, SearchX, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

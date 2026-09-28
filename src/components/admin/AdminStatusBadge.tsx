@@ -1,6 +1,6 @@
 // src/components/admin/AdminStatusBadge.tsx
-import { AlertTriangle, CircleSlash, HelpCircle, Zap } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { AlertTriangle, CircleSlash, HelpCircle, Zap } from '@/components/ui/icons'
+import type { IconType } from '@/components/ui/icons'
 
 import { cn } from '@/lib/utils'
 
@@ -8,7 +8,7 @@ export type AdminStatus = 'available' | 'limited' | 'offline' | 'unknown'
 
 interface StatusConfig {
   label: string
-  icon: LucideIcon
+  icon: IconType
   className: string
 }
 

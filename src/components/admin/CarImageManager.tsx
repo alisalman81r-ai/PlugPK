@@ -1,7 +1,7 @@
 // src/components/admin/CarImageManager.tsx
 'use client'
 
-import { AlertTriangle, Check, ImageOff, Loader2, Trash2, Upload } from 'lucide-react'
+import { AlertTriangle, Check, ImageOff, Loader2, Trash2, Upload } from '@/components/ui/icons'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

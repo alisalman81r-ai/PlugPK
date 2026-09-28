@@ -1,7 +1,7 @@
 // src/components/home/FeaturedStations.tsx
 'use client'
 
-import { ArrowRight, Zap } from 'lucide-react'
+import { ArrowRight, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

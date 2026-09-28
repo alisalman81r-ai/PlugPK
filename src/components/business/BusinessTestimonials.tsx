@@ -11,8 +11,8 @@ import {
   Utensils,
   Wrench,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 import { SectionHeader } from '@/components/ui'
@@ -55,7 +55,7 @@ import { cn } from '@/lib/utils'
  */
 
 interface Capability {
-  icon: LucideIcon
+  icon: IconType
   title: string
   body: string
 }
@@ -78,7 +78,7 @@ const CAPABILITIES: Capability[] = [
   },
 ]
 
-const BUSINESS_TYPES: { label: string; icon: LucideIcon }[] = [
+const BUSINESS_TYPES: { label: string; icon: IconType }[] = [
   { label: 'Hotels', icon: Hotel },
   { label: 'Restaurants', icon: Utensils },
   { label: 'Shopping Malls', icon: ShoppingBag },

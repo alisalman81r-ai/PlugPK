@@ -1,7 +1,7 @@
 // src/components/admin/CarDeleteCard.tsx
 'use client'
 
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react'
+import { AlertTriangle, Loader2, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { ExternalLink, Filter, Pencil, ShieldCheck } from 'lucide-react'
+import { ExternalLink, Filter, Pencil, ShieldCheck } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

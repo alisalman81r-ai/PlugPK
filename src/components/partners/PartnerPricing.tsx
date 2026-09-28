@@ -1,5 +1,5 @@
 // src/components/partners/PartnerPricing.tsx
-import { ArrowRight, Check, Minus, Tag } from 'lucide-react'
+import { ArrowRight, Check, Minus, Tag } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'

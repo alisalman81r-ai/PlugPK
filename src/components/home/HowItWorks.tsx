@@ -18,8 +18,8 @@ import {
   Star,
   X,
   Zap,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Image from 'next/image'
 import * as React from 'react'
 
@@ -82,7 +82,7 @@ interface Slide {
   title: string
   body: string
   visual: Visual
-  chip: { icon: LucideIcon; text: string }
+  chip: { icon: IconType; text: string }
   /**
    * Where the hairline lands, as % of the card. None on the phone slides: the
    * screen explains itself, and a line across it only cut through the words.

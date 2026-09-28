@@ -12,8 +12,8 @@ import {
   Route,
   Settings,
   Star,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -46,7 +46,7 @@ export interface DashboardSidebarProps {
 export interface DashboardNavItem {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconType
   exact?: boolean
   badgeKey?: keyof DashboardStats
 }

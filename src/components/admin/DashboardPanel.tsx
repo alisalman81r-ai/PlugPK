@@ -1,6 +1,6 @@
 // src/components/admin/DashboardPanel.tsx
 import Link from 'next/link'
-import type { LucideIcon } from 'lucide-react'
+import type { IconType } from '@/components/ui/icons'
 
 import { InfoHint } from '@/components/admin/InfoHint'
 import { cn } from '@/lib/utils'
@@ -73,7 +73,7 @@ export function PanelEmpty({
   reason,
   action,
 }: {
-  icon: LucideIcon
+  icon: IconType
   title: string
   reason: string
   action?: { label: string; href: string }

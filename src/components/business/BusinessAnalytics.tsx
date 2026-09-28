@@ -1,7 +1,7 @@
 // src/components/business/BusinessAnalytics.tsx
 'use client'
 
-import { Eye, MessageSquare, Navigation2, Star, TrendingDown, TrendingUp, type LucideIcon } from 'lucide-react'
+import { Eye, MessageSquare, Navigation2, Star, TrendingDown, TrendingUp, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { BusinessAnalyticsData } from '@/lib/db/queries'
@@ -77,7 +77,7 @@ export function BusinessAnalytics({ analytics, isLive }: BusinessAnalyticsProps)
   const hasAnyActivity = analytics.chartData.some((point) => point.views > 0 || point.clicks > 0)
 
   const stats: {
-    icon: LucideIcon
+    icon: IconType
     tone: string
     value: string
     label: string

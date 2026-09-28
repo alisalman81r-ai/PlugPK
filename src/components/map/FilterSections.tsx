@@ -1,7 +1,7 @@
 // src/components/map/FilterSections.tsx
 'use client'
 
-import { Check, Star } from 'lucide-react'
+import { Check, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'

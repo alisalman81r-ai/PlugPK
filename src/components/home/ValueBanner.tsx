@@ -2,7 +2,7 @@
 'use client'
 
 import { motion, useInView, useReducedMotion } from 'framer-motion'
-import { MapPin, Route, Users, type LucideIcon } from 'lucide-react'
+import { MapPin, Route, Users, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
@@ -87,7 +87,7 @@ function useSplitOffsets(grid: React.RefObject<HTMLDivElement | null>) {
 }
 
 interface Feature {
-  icon: LucideIcon
+  icon: IconType
   /** Matched to the glyph: a pin drops, a route travels, a group rises. */
   motion: IconMotion
   label: string

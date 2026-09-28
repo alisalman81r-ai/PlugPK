@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/meetings/page.tsx
-import { CalendarClock, Mail, Phone } from 'lucide-react'
+import { CalendarClock, Mail, Phone } from '@/components/ui/icons'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { DeleteButton } from '@/components/admin/DeleteButton'

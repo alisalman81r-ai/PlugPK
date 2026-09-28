@@ -14,7 +14,7 @@ import {
   Phone,
   Share2,
   ShieldCheck,
-} from 'lucide-react'
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

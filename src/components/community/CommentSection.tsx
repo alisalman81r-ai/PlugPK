@@ -1,7 +1,7 @@
 // src/components/community/CommentSection.tsx
 'use client'
 
-import { MessageSquare, ThumbsUp } from 'lucide-react'
+import { MessageSquare, ThumbsUp } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 

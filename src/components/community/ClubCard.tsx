@@ -2,7 +2,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, MapPin, UserPlus, Users } from 'lucide-react'
+import { Check, MapPin, UserPlus, Users } from '@/components/ui/icons'
 import Image from 'next/image'
 
 import { hoverTrigger } from '@/components/ui'

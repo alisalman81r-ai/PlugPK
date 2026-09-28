@@ -1,5 +1,5 @@
 // src/components/home/ServicesPreview.tsx
-import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type IconType } from '@/components/ui/icons'
 
 import { AnimatedIcon, HoverLink, PillButton, type IconMotion } from '@/components/ui'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
@@ -74,7 +74,7 @@ const CATEGORY_COPY: Record<string, { tag: string; body: string }> = {
 }
 
 /** SERVICE_CATEGORIES stores its icon as a string; resolve it here. */
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
+const CATEGORY_ICONS: Record<string, IconType> = {
   dealership: Car,
   'service-center': Wrench,
   'home-charger-installer': Home,

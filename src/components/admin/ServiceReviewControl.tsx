@@ -1,7 +1,7 @@
 // src/components/admin/ServiceReviewControl.tsx
 'use client'
 
-import { Check, Loader2, X } from 'lucide-react'
+import { Check, Loader2, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { reviewServiceApplication } from '@/lib/db/service-application-actions'

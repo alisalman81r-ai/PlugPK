@@ -1,7 +1,7 @@
 // src/components/vehicles/VehicleSelector.tsx
 'use client'
 
-import { Car, Check, ChevronDown, Search, X } from 'lucide-react'
+import { Car, Check, ChevronDown, Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { AnimatedIcon, TurnIcon } from '@/components/ui'

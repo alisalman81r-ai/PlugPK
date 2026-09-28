@@ -1,5 +1,5 @@
 // src/components/partners/PartnerDashboardPreview.tsx
-import { LayoutDashboard, MapPin, TrendingUp, Zap } from 'lucide-react'
+import { LayoutDashboard, MapPin, TrendingUp, Zap } from '@/components/ui/icons'
 
 import { cn } from '@/lib/utils'
 

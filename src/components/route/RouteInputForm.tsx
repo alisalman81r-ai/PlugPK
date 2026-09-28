@@ -1,7 +1,7 @@
 // src/components/route/RouteInputForm.tsx
 'use client'
 
-import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from 'lucide-react'
+import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { PAKISTAN_CITIES } from '@/lib/constants'

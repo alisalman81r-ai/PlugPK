@@ -1,7 +1,7 @@
 // src/app/admin/(protected)/error.tsx
 'use client'
 
-import { AlertTriangle, RotateCw } from 'lucide-react'
+import { AlertTriangle, RotateCw } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 

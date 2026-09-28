@@ -1,7 +1,7 @@
 // src/components/map/StationList.tsx
 'use client'
 
-import { MapPin, Navigation2, SearchX, Star } from 'lucide-react'
+import { MapPin, Navigation2, SearchX, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import {

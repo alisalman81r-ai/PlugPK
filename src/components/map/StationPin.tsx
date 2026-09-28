@@ -1,7 +1,7 @@
 // src/components/map/StationPin.tsx
 'use client'
 
-import { Zap } from 'lucide-react'
+import { Zap } from '@/components/ui/icons'
 
 import type { Station, StationStatus } from '@/lib/types'
 import { cn, getMaxPower } from '@/lib/utils'

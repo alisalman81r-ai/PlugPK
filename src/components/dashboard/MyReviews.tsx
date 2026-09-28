@@ -1,7 +1,7 @@
 // src/components/dashboard/MyReviews.tsx
 'use client'
 
-import { Star, Trash2 } from 'lucide-react'
+import { Star, Trash2 } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'

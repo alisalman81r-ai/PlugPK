@@ -1,7 +1,7 @@
 // src/components/dashboard/SavedRoutes.tsx
 'use client'
 
-import { BatteryCharging, Clock, ExternalLink, Route as RouteIcon, Trash2, Zap } from 'lucide-react'
+import { BatteryCharging, Clock, ExternalLink, Route as RouteIcon, Trash2, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui'

@@ -1,7 +1,7 @@
 // src/components/map/FilterRail.tsx
 'use client'
 
-import { ChevronDown, RotateCcw, SlidersHorizontal, Star, Zap } from 'lucide-react'
+import { ChevronDown, RotateCcw, SlidersHorizontal, Star, Zap } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'

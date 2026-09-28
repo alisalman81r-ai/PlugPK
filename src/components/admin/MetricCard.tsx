@@ -1,5 +1,5 @@
 // src/components/admin/MetricCard.tsx
-import type { LucideIcon } from 'lucide-react'
+import type { IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { InfoHint } from '@/components/admin/InfoHint'
@@ -46,7 +46,7 @@ export interface MetricCardProps {
   detail?: string
   /** Why there is no value. Only read when `value` is null. */
   unavailableReason?: string
-  icon: LucideIcon
+  icon: IconType
   tone?: MetricTone
   /** Makes the whole card a link to where the figure can be acted on. */
   href?: string

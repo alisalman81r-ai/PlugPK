@@ -13,7 +13,7 @@ import {
   Search,
   User,
   Zap,
-} from 'lucide-react'
+} from '@/components/ui/icons'
 import Image from 'next/image'
 
 import { FAST_CHARGER_KW, type HeroMapPin } from '@/lib/charging'

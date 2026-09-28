@@ -1,7 +1,7 @@
 // src/components/cars/BrandRail.tsx
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'

@@ -9,8 +9,8 @@ import {
   Package,
   Shield,
   Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { ServiceCategory } from '@/lib/types'
@@ -23,7 +23,7 @@ export interface ServiceCategoryTabsProps {
 }
 
 /** Resolves the icon names stored in SERVICE_CATEGORY_META to components. */
-export const CATEGORY_ICON: Record<string, LucideIcon> = {
+export const CATEGORY_ICON: Record<string, IconType> = {
   Car,
   Wrench,
   Home,
@@ -37,7 +37,7 @@ export function ServiceCategoryTabs({
   onCategoryChange,
   categoryCount,
 }: ServiceCategoryTabsProps) {
-  const tabs: { key: ServiceCategory | 'all'; label: string; icon: LucideIcon }[] = [
+  const tabs: { key: ServiceCategory | 'all'; label: string; icon: IconType }[] = [
     { key: 'all', label: 'All Services', icon: LayoutGrid },
     ...SERVICE_CATEGORY_KEYS.map((key) => ({
       key,

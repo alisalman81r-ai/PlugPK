@@ -1,7 +1,7 @@
 // src/components/dashboard/DashboardLayout.tsx
 'use client'
 
-import { Bookmark, Building2, Car, LayoutDashboard, Settings, Star, type LucideIcon } from 'lucide-react'
+import { Bookmark, Building2, Car, LayoutDashboard, Settings, Star, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -31,7 +31,7 @@ export interface DashboardLayoutProps {
 interface MobileTab {
   label: string
   href: string
-  icon: LucideIcon
+  icon: IconType
   exact?: boolean
 }
 

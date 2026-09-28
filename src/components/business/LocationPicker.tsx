@@ -1,7 +1,7 @@
 // src/components/business/LocationPicker.tsx
 'use client'
 
-import { Check, Crosshair, Loader2, MapPin, Undo2 } from 'lucide-react'
+import { Check, Crosshair, Loader2, MapPin, Undo2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { reverseGeocode } from '@/lib/geocode-actions'

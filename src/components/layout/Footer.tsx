@@ -1,6 +1,6 @@
 // src/components/layout/Footer.tsx
 
-import { ArrowUpRight, Mail } from 'lucide-react'
+import { ArrowUpRight, Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { LogoMark } from '@/components/ui/Logo'

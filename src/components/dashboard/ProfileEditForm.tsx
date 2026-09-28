@@ -1,7 +1,7 @@
 // src/components/dashboard/ProfileEditForm.tsx
 'use client'
 
-import { Calendar, Camera, CheckCircle2, Lock, MapPin, User as UserIcon } from 'lucide-react'
+import { Calendar, Camera, CheckCircle2, Lock, MapPin, User as UserIcon } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'

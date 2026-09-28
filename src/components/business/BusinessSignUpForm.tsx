@@ -18,8 +18,8 @@ import {
   ImagePlus,
   Utensils,
   Wrench,
-  type LucideIcon,
-} from 'lucide-react'
+  type IconType,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -62,7 +62,7 @@ interface FormData {
 
 const STEPS = ['Your details', 'Business', 'Chargers', 'Review'] as const
 
-const TYPE_OPTIONS: { value: BusinessType; label: string; icon: LucideIcon; note: string }[] = [
+const TYPE_OPTIONS: { value: BusinessType; label: string; icon: IconType; note: string }[] = [
   { value: 'hotel', label: 'Hotel', icon: Hotel, note: 'Guests charge overnight' },
   { value: 'restaurant', label: 'Restaurant', icon: Utensils, note: 'Charge over a meal' },
   { value: 'mall', label: 'Shopping Mall', icon: ShoppingBag, note: 'Charge while shopping' },

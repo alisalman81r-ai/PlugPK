@@ -1,7 +1,7 @@
 // src/components/home/StationCard.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from 'lucide-react'
+import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import {

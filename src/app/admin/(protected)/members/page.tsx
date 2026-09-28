@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/members/page.tsx
-import { Users } from 'lucide-react'
+import { Users } from '@/components/ui/icons'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { MemberList } from '@/components/admin/MemberList'

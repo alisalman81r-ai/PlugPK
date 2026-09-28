@@ -1,7 +1,7 @@
 // src/components/business/BusinessDashboardLayout.tsx
 'use client'
 
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'

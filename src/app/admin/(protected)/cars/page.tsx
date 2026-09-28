@@ -1,5 +1,5 @@
 // src/app/admin/(protected)/cars/page.tsx
-import { AlertTriangle, Car as CarIcon, ImageOff, Layers, Plus, type LucideIcon } from 'lucide-react'
+import { AlertTriangle, Car as CarIcon, ImageOff, Layers, Plus, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
@@ -120,7 +120,7 @@ function Tile({
   detail,
   tone = 'plain',
 }: {
-  icon: LucideIcon
+  icon: IconType
   value: number | string
   label: string
   detail: string

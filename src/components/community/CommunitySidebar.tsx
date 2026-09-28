@@ -1,7 +1,7 @@
 // src/components/community/CommunitySidebar.tsx
 'use client'
 
-import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users, Zap } from 'lucide-react'
+import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import type { CommunityStats } from '@/hooks/useCommunity'

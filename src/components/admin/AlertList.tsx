@@ -1,5 +1,5 @@
 // src/components/admin/AlertList.tsx
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import type { NetworkAlert } from '@/lib/db/network-health'

@@ -1,7 +1,7 @@
 // src/components/services/ServiceCard.tsx
 'use client'
 
-import { ArrowRight, MapPin, Package, Phone, ShieldCheck, Star } from 'lucide-react'
+import { ArrowRight, MapPin, Package, Phone, ShieldCheck, Star } from '@/components/ui/icons'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 

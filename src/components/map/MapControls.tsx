@@ -1,7 +1,7 @@
 // src/components/map/MapControls.tsx
 'use client'
 
-import { LocateFixed, SlidersHorizontal } from 'lucide-react'
+import { LocateFixed, SlidersHorizontal } from '@/components/ui/icons'
 
 import { cn } from '@/lib/utils'
 
