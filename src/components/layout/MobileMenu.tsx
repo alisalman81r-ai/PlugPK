@@ -2,6 +2,7 @@
 'use client'
 
 import {
+  BatteryCharging,
   ChevronRight,
   Handshake,
   LogOut,
@@ -32,6 +33,7 @@ export interface MobileMenuProps {
 const NAV_ICONS: Record<string, IconType> = {
   '/map': MapPin,
   '/routes': Route,
+  '/charging-calculator': BatteryCharging,
   '/services': Wrench,
   '/community': Users,
   '/partners': Handshake,

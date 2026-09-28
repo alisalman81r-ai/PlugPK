@@ -18,6 +18,9 @@ export const SITE_CONFIG = {
 export const NAV_LINKS: NavLink[] = [
   { label: 'Map',       href: '/map' },
   { label: 'Routes',    href: '/routes' },
+  // Beside Routes on purpose: both answer "can I make this trip?", one in
+  // stops and one in minutes on the plug.
+  { label: 'Calculator', href: '/charging-calculator' },
   { label: 'Services',  href: '/services' },
   { label: 'Community', href: '/community' },
   // Partner Up covers listing a charger: it explains the offer, shows the

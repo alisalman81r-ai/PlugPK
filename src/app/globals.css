@@ -590,6 +590,67 @@ html::-webkit-scrollbar {
 .plug-range.is-mid  { --range-color: #F59E0B; }
 .plug-range.is-low  { --range-color: #EF4444; }
 
+/*
+ * ── The charge calculator's two-handle battery ────────────────────────
+ *
+ * Two range inputs stacked over the battery drawing. The inputs take no
+ * pointer events and their thumbs do, so each handle can be dragged while the
+ * other one's invisible track stays out of the way.
+ *
+ * The -6px overhang is measured, not decorative. The battery's inner fill
+ * starts 6px in (2px border + 4px padding), and a 24px thumb's centre starts
+ * 12px in from the input's edge. Widening the input by 6px each side puts the
+ * centre of each handle exactly on the edge of the segment it controls, at
+ * every value, so the handle never drifts off the colour it is moving.
+ *
+ * 24 x 44 is the thumb: a grip rather than a dot, and past the 24px minimum
+ * touch target in both directions.
+ */
+.soc-range {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  width: calc(100% + 12px);
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.soc-range:focus { outline: none; }
+.soc-range::-webkit-slider-runnable-track { height: 44px; background: transparent; }
+.soc-range::-moz-range-track { height: 44px; background: transparent; }
+.soc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 24px;
+  height: 44px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #0B332C;
+  box-shadow: 0 2px 8px rgba(5, 36, 30, 0.28);
+  cursor: grab;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.soc-range::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 38px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #0B332C;
+  box-shadow: 0 2px 8px rgba(5, 36, 30, 0.28);
+  cursor: grab;
+}
+.soc-range:active::-webkit-slider-thumb { cursor: grabbing; transform: scaleY(1.06); }
+.soc-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(38, 205, 178, 0.45); }
+.soc-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(38, 205, 178, 0.45); }
+@media (prefers-reduced-motion: reduce) {
+  .soc-range::-webkit-slider-thumb { transition: none; }
+}
+
 .plug-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -992,4 +1053,19 @@ html::-webkit-scrollbar {
       opacity: 0;
     }
   }
+}
+
+/*
+  The calculator's number fields carry their unit on the right ("kWh", "kW",
+  "/ kWh"), and the browser's up/down spinner drew over it. The fields are for
+  typing a value, not nudging one by 0.1, so the spinner goes.
+*/
+.calc-card input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.calc-card input[type='number']::-webkit-inner-spin-button,
+.calc-card input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

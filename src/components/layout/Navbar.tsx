@@ -161,7 +161,7 @@ export function Navbar() {
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group/nav relative whitespace-nowrap px-3 py-2 text-ui font-medium transition-colors duration-200',
+                    'group/nav relative whitespace-nowrap px-2 py-2 text-ui xl:px-3 font-medium transition-colors duration-200',
                     onDark
                       ? active
                         ? 'text-white'
@@ -175,7 +175,7 @@ export function Navbar() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      'absolute bottom-1 left-3 right-3 h-0.5 origin-left rounded-full',
+                      'absolute bottom-1 left-2 right-2 h-0.5 origin-left rounded-full xl:left-3 xl:right-3',
                       'bg-plug-cyan-500 transition-transform duration-300 ease-out motion-reduce:transition-none',
                       active
                         ? 'scale-x-100'
