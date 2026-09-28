@@ -332,20 +332,27 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             connection — use the rate shown at the charger.
           </p>
         </div>
+      </div>
 
-        {/* ── The same charge, everywhere ───────────────────────────── */}
-        <div className="min-w-0 border-t border-slate-100 pt-8 lg:col-span-2">
-          <ChargerComparison
-            batteryKwh={parse(batteryText)}
-            from={from}
-            to={to}
-            car={car}
-            ratePerKwh={parse(rateText)}
-            selectedMode={presetKw != null ? mode : null}
-            selectedKw={presetKw}
-            onChoose={choosePreset}
-          />
-        </div>
+      {/*
+        ── The same charge, everywhere ─────────────────────────────────
+
+        Outside the grid on purpose. A sticky element is held inside its
+        containing block, and for the result panel that is the grid: had this
+        section been a grid row, the panel would have kept sliding down over
+        it. Ending the grid here makes the panel stop at the rate step.
+      */}
+      <div className="mt-8 min-w-0 border-t border-slate-100 pt-8 lg:mt-10">
+        <ChargerComparison
+          batteryKwh={parse(batteryText)}
+          from={from}
+          to={to}
+          car={car}
+          ratePerKwh={parse(rateText)}
+          selectedMode={presetKw != null ? mode : null}
+          selectedKw={presetKw}
+          onChoose={choosePreset}
+        />
       </div>
     </div>
   )
