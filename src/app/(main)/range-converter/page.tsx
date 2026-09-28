@@ -8,7 +8,7 @@ import { RangeFactors } from '@/components/range/RangeFactors'
 import { StandardsGuide } from '@/components/range/StandardsGuide'
 import type { RangeCar, StandardCounts } from '@/components/range/types'
 import { FaqSection } from '@/components/shared/FaqSection'
-import { ArrowRight, Route } from '@/components/ui/icons'
+import { ArrowRight } from '@/components/ui/icons'
 import { readOrFallback } from '@/lib/db/availability'
 import { listCars } from '@/lib/db/car-queries'
 import { RANGE_FAQS } from '@/lib/faqs'
@@ -67,12 +67,7 @@ export default async function RangeConverterPage() {
 
         <div className={`relative ${STAGE}`}>
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-plug-cyan-300">
-              <Route size={12} aria-hidden="true" />
-              EV range converter
-            </span>
-
-            <h1 className="mt-5 text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
+            <h1 className="text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
               What does that range figure really mean?
             </h1>
 

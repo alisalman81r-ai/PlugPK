@@ -4,13 +4,16 @@
 import Link from 'next/link'
 import * as React from 'react'
 
-import { ArrowUpRight, ChevronDown } from '@/components/ui/icons'
+import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { ArrowUpRight, Check, Link2 } from '@/components/ui/icons'
 import { Input } from '@/components/ui'
 import { estimateCharge, rangeAddedKm, readyAt, type ChargeMode } from '@/lib/charging-time'
+import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
 import { cn } from '@/lib/utils'
 
 import { ChargeResult } from './ChargeResult'
 import { ChargerComparison } from './ChargerComparison'
+import { ShortOnTime } from './ShortOnTime'
 import { SocBattery } from './SocBattery'
 import type { CalculatorCar } from './types'
 
@@ -29,7 +32,15 @@ import type { CalculatorCar } from './types'
  * screen the result is a column of its own and stays in view while anything
  * on the left moves. On a phone it sits directly under step 3, the last
  * control that changes the time; the rate only changes the cost, so it can
- * wait below. Under everything, the same charge on every common charger.
+ * wait below. Under everything, the same charge on every common charger, and
+ * the reverse question — what a set time on the charger gets you.
+ *
+ * ── Memory ────────────────────────────────────────────────────────────
+ *
+ * The settings live in the address (?car=&from=&to=&mode=&kw=&rate=), so a
+ * result can be sent as a link and opens as it was. The car is also
+ * remembered on this device and shared with the range converter; a link's
+ * own ?car= always wins over the remembered one.
  */
 
 const AC_PRESETS = [
@@ -48,9 +59,20 @@ const DC_PRESETS = [
 
 const DEFAULT_KW: Record<ChargeMode, number> = { ac: 7.4, dc: 60 }
 
-/** Mirrors the Input component's field, so the select reads as one of them. */
-const SELECT =
-  'h-12 w-full cursor-pointer appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-11 text-ui text-slate-900 transition-all duration-150 focus:border-plug-blue-500 focus:shadow-focus focus:outline-none'
+/** Reads a 0–100 level from the address, or null if it is not one. */
+function parsePct(value: string | null): number | null {
+  if (value == null || value.trim() === '') return null
+  const n = Number(value)
+  return Number.isInteger(n) && n >= 0 && n <= 100 ? n : null
+}
+
+/** The numbers a driver tells trims apart by, for the car picker's rows. */
+function pickerMeta(c: CalculatorCar): string {
+  const parts = [`${c.batteryKwh} kWh`]
+  parts.push(c.acKw ? `AC ${c.acKw} kW` : 'AC not listed')
+  parts.push(c.dcKw ? `DC ${c.dcKw} kW` : 'no DC listed')
+  return (c.category !== 'EV' ? `${c.category} · ` : '') + parts.join(' · ')
+}
 
 /** Parses a text field without letting "", "-", "." or "abc" become a number. */
 function parse(text: string): number | null {
@@ -76,19 +98,80 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
 
   const car = cars.find((c) => c.slug === slug) ?? null
 
-  // Grouped by make, in the order the catalogue sorts them.
-  const byBrand = React.useMemo(() => {
-    const groups = new Map<string, CalculatorCar[]>()
-    for (const c of cars) groups.set(c.brand, [...(groups.get(c.brand) ?? []), c])
-    return [...groups.entries()]
-  }, [cars])
+  const pickerCars: PickerCar[] = React.useMemo(
+    () =>
+      cars.map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        brand: c.brand,
+        meta: pickerMeta(c),
+      })),
+    [cars],
+  )
 
   const chooseCar = (next: string) => {
     setSlug(next)
+    rememberCar(next || null)
+    setFromMemory(false)
     const picked = cars.find((c) => c.slug === next)
     // Fills the pack size from the catalogue, and leaves it editable: a driver
     // with a different trim should not have to un-pick the car to fix it.
     if (picked) setBatteryText(String(picked.batteryKwh))
+  }
+
+  /*
+    After mount only: the page is static, so the server never sees the query
+    or the device's memory. A link's settings first, then the remembered car.
+  */
+  const [hydrated, setHydrated] = React.useState(false)
+  const [fromMemory, setFromMemory] = React.useState(false)
+  React.useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const linked = cars.find((c) => c.slug === q.get('car'))
+    const remembered = linked ? null : cars.find((c) => c.slug === readRememberedCar())
+    const start = linked ?? remembered
+    if (start) {
+      setSlug(start.slug)
+      setBatteryText(String(start.batteryKwh))
+      setFromMemory(!!remembered)
+    } else {
+      // A car we don't list, shared by its battery size.
+      const qBattery = Number(q.get('battery'))
+      if (q.get('battery') && Number.isFinite(qBattery) && qBattery > 0 && qBattery <= 250) setBatteryText(String(qBattery))
+    }
+    const qFrom = parsePct(q.get('from'))
+    const qTo = parsePct(q.get('to'))
+    if (qFrom != null && qTo != null && qTo > qFrom) {
+      setFrom(qFrom)
+      setTo(qTo)
+    }
+    const qMode = q.get('mode') === 'dc' ? 'dc' : q.get('mode') === 'ac' ? 'ac' : null
+    if (qMode) setMode(qMode)
+    const qKw = Number(q.get('kw'))
+    if (q.get('kw') && Number.isFinite(qKw) && qKw > 0 && qKw <= 400) {
+      const presetsFor = (qMode ?? 'ac') === 'ac' ? AC_PRESETS : DC_PRESETS
+      if (presetsFor.some((pr) => pr.kw === qKw)) setPresetKw(qKw)
+      else {
+        setPresetKw(null)
+        setCustomText(String(qKw))
+      }
+    } else if (qMode) {
+      setPresetKw(DEFAULT_KW[qMode])
+    }
+    const qRate = q.get('rate')
+    if (qRate != null && qRate.trim() !== '' && Number.isFinite(Number(qRate)) && Number(qRate) >= 0) setRateText(qRate)
+    setHydrated(true)
+  }, [cars])
+
+  const [copied, setCopied] = React.useState<'idle' | 'done' | 'failed'>('idle')
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied('done')
+    } catch {
+      setCopied('failed')
+    }
+    window.setTimeout(() => setCopied('idle'), 2500)
   }
 
   const chooseMode = (next: ChargeMode) => {
@@ -97,6 +180,21 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
     setPresetKw(DEFAULT_KW[next])
     setCustomText('')
   }
+
+  // Keep the address in step, without adding a history entry per change.
+  React.useEffect(() => {
+    if (!hydrated) return
+    const q = new URLSearchParams()
+    if (slug) q.set('car', slug)
+    else if (batteryText.trim()) q.set('battery', batteryText.trim())
+    q.set('from', String(from))
+    q.set('to', String(to))
+    q.set('mode', mode)
+    const kw = presetKw ?? (customText.trim() ? customText.trim() : null)
+    if (kw != null) q.set('kw', String(kw))
+    if (rateText.trim()) q.set('rate', rateText.trim())
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}?${q.toString()}`)
+  }, [hydrated, slug, batteryText, from, to, mode, presetKw, customText, rateText])
 
   const chargerKw = presetKw ?? parse(customText)
   const carLimitKw = car ? (mode === 'ac' ? car.acKw : car.dcKw) : null
@@ -128,37 +226,16 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
         <div className="min-w-0 space-y-8">
           <div>
             <StepHeading step={1} title="Your car" />
-            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_10.5rem]">
-              <div>
-                <label htmlFor="calc-car" className="mb-1.5 block text-sm font-medium text-slate-700">
-                  Model
-                </label>
-                <div className="relative">
-                  <select
-                    id="calc-car"
-                    value={slug}
-                    onChange={(e) => chooseCar(e.target.value)}
-                    className={SELECT}
-                  >
-                    <option value="">My car isn&rsquo;t listed</option>
-                    {byBrand.map(([brand, list]) => (
-                      <optgroup key={brand} label={brand}>
-                        {list.map((c) => (
-                          <option key={c.slug} value={c.slug}>
-                            {c.name}
-                            {c.category !== 'EV' ? ` (${c.category})` : ''}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <ChevronDown
-                    size={18}
-                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
+            <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_10.5rem]">
+              <CarPicker
+                id="calc-car"
+                label="Model"
+                cars={pickerCars}
+                value={slug}
+                onChange={chooseCar}
+                placeholder="Select your EV"
+                noneLabel="Not in the list — I’ll enter the battery"
+              />
 
               <Input
                 label="Battery size"
@@ -175,24 +252,25 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
               />
             </div>
 
-            {/* What the catalogue knows about the car, stated plainly. */}
+            {/* The picker shows the car's limits; this line is where to go next. */}
             {car ? (
-              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-ui-sm text-slate-500">
-                <span>
-                  AC up to{' '}
-                  <strong className="font-semibold text-slate-700">
-                    {car.acKw ? `${car.acKw} kW` : 'not listed'}
-                  </strong>
-                </span>
-                <span aria-hidden="true" className="text-slate-300">
-                  ·
-                </span>
-                <span>
-                  DC up to{' '}
-                  <strong className="font-semibold text-slate-700">
-                    {car.dcKw ? `${car.dcKw} kW` : 'not listed'}
-                  </strong>
-                </span>
+              <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm text-slate-500">
+                {fromMemory ? (
+                  <span>
+                    Remembered from last time.{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        chooseCar('')
+                        setBatteryText('')
+                        setFromMemory(false)
+                      }}
+                      className="font-medium text-slate-700 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
+                    >
+                      Clear
+                    </button>
+                  </span>
+                ) : null}
                 <Link
                   href={`/cars/${car.slug}`}
                   className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
@@ -200,10 +278,19 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
                   Full specs
                   <ArrowUpRight size={14} aria-hidden="true" />
                 </Link>
+                {car.category === 'EV' && car.rangeKm ? (
+                  <Link
+                    href={`/range-converter?car=${car.slug}`}
+                    className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
+                  >
+                    What its range means here
+                    <ArrowUpRight size={14} aria-hidden="true" />
+                  </Link>
+                ) : null}
               </p>
             ) : (
               <p className="mt-3 text-ui-sm text-slate-500">
-                Picking your car fills in the battery and applies its own charging limits.
+                Not in the list? Skip this and enter your battery size.
               </p>
             )}
           </div>
@@ -309,6 +396,24 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             readyText={result.ok && now ? readyAt(now, result.minutes) : null}
             waiting={batteryText.trim() === ''}
           />
+          {result.ok ? (
+            <button
+              type="button"
+              onClick={copyLink}
+              className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2"
+            >
+              {copied === 'done' ? (
+                <Check size={16} className="text-plug-cyan-700" aria-hidden="true" />
+              ) : (
+                <Link2 size={16} aria-hidden="true" />
+              )}
+              {copied === 'done'
+                ? 'Link copied'
+                : copied === 'failed'
+                  ? 'Copy the address bar instead'
+                  : 'Copy link to this result'}
+            </button>
+          ) : null}
         </div>
 
         {/* ── What it costs ──────────────────────────────────────────── */}
@@ -352,6 +457,17 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
           selectedMode={presetKw != null ? mode : null}
           selectedKw={presetKw}
           onChoose={choosePreset}
+        />
+      </div>
+
+      <div className="mt-8 min-w-0 border-t border-slate-100 pt-8">
+        <ShortOnTime
+          batteryKwh={batteryKwh && batteryKwh > 0 ? batteryKwh : null}
+          fromPct={from}
+          mode={mode}
+          chargerKw={chargerKw}
+          carLimitKw={carLimitKw}
+          rangeKm={car?.rangeKm ?? null}
         />
       </div>
     </div>

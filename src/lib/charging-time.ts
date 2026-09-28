@@ -237,3 +237,54 @@ export function readyAt(start: Date, minutes: number): string | null {
   if (days === 1) return `${time} tomorrow`
   return `${time}, in ${days} days`
 }
+
+/**
+ * The reverse question: with this long on the charger, where does the battery
+ * get to?
+ *
+ * Walks the same half-percent steps as the forward DC estimate — and a flat
+ * rate on AC — spending time until it runs out, so the two directions agree:
+ * asking for the time from 20% to the level this returns gives back roughly
+ * the minutes put in. Capped at 100%.
+ */
+export interface TimeBoxedCharge {
+  toPct: number
+  energyKwh: number
+  /** True when the battery fills before the time is up. */
+  full: boolean
+}
+
+export function chargeWithin(input: {
+  batteryKwh: number | null
+  fromPct: number
+  mode: ChargeMode
+  chargerKw: number | null
+  carLimitKw: number | null
+  minutes: number
+}): TimeBoxedCharge | null {
+  const { batteryKwh, fromPct, mode, chargerKw, carLimitKw, minutes } = input
+  if (!valid(batteryKwh) || !valid(chargerKw) || !valid(minutes)) return null
+  if (!Number.isFinite(fromPct) || fromPct < 0 || fromPct >= 100) return null
+
+  const powerKw = valid(carLimitKw) ? Math.min(chargerKw, carLimitKw) : chargerKw
+  const STEP = 0.5
+  let soc = fromPct
+  let left = minutes / 60
+
+  while (soc < 100 && left > 0) {
+    const width = Math.min(STEP, 100 - soc)
+    const stored = (batteryKwh * width) / 100
+    const rate = mode === 'ac' ? powerKw : powerKw * dcTaper(soc + width / 2)
+    const hours = stored / EFFICIENCY[mode] / rate
+    if (hours > left) {
+      soc += width * (left / hours)
+      left = 0
+    } else {
+      soc += width
+      left -= hours
+    }
+  }
+
+  const toPct = Math.min(100, Math.floor(soc))
+  return { toPct, energyKwh: (batteryKwh * (toPct - fromPct)) / 100, full: toPct >= 100 }
+}

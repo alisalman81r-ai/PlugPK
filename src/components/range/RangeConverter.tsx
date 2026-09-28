@@ -4,7 +4,8 @@
 import Link from 'next/link'
 import * as React from 'react'
 
-import { AlertCircle, ArrowDown, ArrowUpRight, Check, ChevronDown, Info, Link2 } from '@/components/ui/icons'
+import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { AlertCircle, ArrowDown, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
 import {
   convertRange,
   roadEstimates,
@@ -12,6 +13,7 @@ import {
   STANDARDS,
   type RangeStandard,
 } from '@/lib/range-standards'
+import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
 import { cn } from '@/lib/utils'
 
 import { EquivalentChart } from './EquivalentChart'
@@ -57,8 +59,11 @@ function parseStandardParam(value: string | null): RangeStandard | null {
   return v === 'EPA' || v === 'WLTP' || v === 'NEDC' || v === 'CLTC' ? v : null
 }
 
-const SELECT =
-  'h-12 w-full cursor-pointer appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-11 text-ui text-slate-900 transition-all duration-150 focus:border-plug-blue-500 focus:shadow-focus focus:outline-none'
+/** The picker row: the quoted figure and the test it came from. */
+function pickerMeta(c: RangeCar): string {
+  const figure = c.rangeMaxKm ? `${c.rangeKm}–${c.rangeMaxKm} km` : `${c.rangeKm} km`
+  return c.standard ? `${figure} ${c.standard}` : figure
+}
 
 const MAX_KM = 2000
 
@@ -86,10 +91,15 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     step through.
   */
   const [hydrated, setHydrated] = React.useState(false)
+  const [fromMemory, setFromMemory] = React.useState(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    const fromCar = cars.find((c) => c.slug === q.get('car'))
+    const linkHasState = q.has('car') || q.has('km') || q.has('std')
+    const fromCar =
+      cars.find((c) => c.slug === q.get('car')) ??
+      (linkHasState ? undefined : cars.find((c) => c.slug === readRememberedCar()))
     if (fromCar) {
+      setFromMemory(!q.has('car'))
       setSlug(fromCar.slug)
       setKmText(String(fromCar.rangeKm))
       setStandard(fromCar.standard)
@@ -128,14 +138,22 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     setStandard(e.standard)
   }
 
-  const byBrand = React.useMemo(() => {
-    const groups = new Map<string, RangeCar[]>()
-    for (const c of cars) groups.set(c.brand, [...(groups.get(c.brand) ?? []), c])
-    return [...groups.entries()]
-  }, [cars])
+  const pickerCars: PickerCar[] = React.useMemo(
+    () =>
+      cars.map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        brand: c.brand,
+        meta: pickerMeta(c),
+        flag: c.standard ? null : 'standard not stated',
+      })),
+    [cars],
+  )
 
   const chooseCar = (next: string) => {
     setSlug(next)
+    setFromMemory(false)
+    rememberCar(next || null)
     const picked = cars.find((c) => c.slug === next)
     if (!picked) return
     setKmText(String(picked.rangeKm))
@@ -167,43 +185,43 @@ export function RangeConverter({ cars }: RangeConverterProps) {
           <p className="mt-1 text-ui-sm text-slate-500">Type it in, or start from a car we list.</p>
 
           <div className="mt-5">
-            <label htmlFor="range-car" className="mb-1.5 block text-sm font-medium text-slate-700">
-              EV <span className="font-normal text-slate-400">(optional)</span>
-            </label>
-            <div className="relative">
-              <select id="range-car" value={slug} onChange={(e) => chooseCar(e.target.value)} className={SELECT}>
-                <option value="">I&rsquo;ll type my own figure</option>
-                {byBrand.map(([brand, list]) => (
-                  <optgroup key={brand} label={brand}>
-                    {list.map((c) => (
-                      <option key={c.slug} value={c.slug}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <ChevronDown
-                size={18}
-                className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
-                aria-hidden="true"
-              />
-            </div>
-
-            {car ? (
-              <p className="mt-2.5 text-ui-sm leading-relaxed text-slate-500">
-                {car.rangeMaxKm
-                  ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}. Change it for yours.`
-                  : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}{' '}
-                <Link
-                  href={`/cars/${car.slug}`}
-                  className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
-                >
-                  Full specs
-                  <ArrowUpRight size={14} aria-hidden="true" />
-                </Link>
-              </p>
-            ) : null}
+            <CarPicker
+              id="range-car"
+              label="EV (optional)"
+              cars={pickerCars}
+              value={slug}
+              onChange={chooseCar}
+              placeholder="Select your EV"
+              noneLabel="Not in the list — I’ll type the range"
+              hint={
+                car ? (
+                  <p className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm leading-relaxed text-slate-500">
+                    <span>
+                      {fromMemory ? 'Remembered from last time. ' : ''}
+                      {car.rangeMaxKm
+                        ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}.`
+                        : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}
+                    </span>
+                    <Link
+                      href={`/cars/${car.slug}`}
+                      className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
+                    >
+                      Full specs
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </Link>
+                    <Link
+                      href={`/charging-calculator?car=${car.slug}`}
+                      className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
+                    >
+                      How long to charge it
+                      <ArrowUpRight size={14} aria-hidden="true" />
+                    </Link>
+                  </p>
+                ) : (
+                  <p className="text-ui-sm text-slate-500">Not in the list? Skip this and type the range below.</p>
+                )
+              }
+            />
           </div>
 
           <div className="mt-6">
