@@ -21,6 +21,7 @@ export const NAV_LINKS: NavLink[] = [
   // Beside Routes on purpose: both answer "can I make this trip?", one in
   // stops and one in minutes on the plug.
   { label: 'Calculator', href: '/charging-calculator' },
+  { label: 'Range Converter', href: '/range-converter' },
   { label: 'Services',  href: '/services' },
   { label: 'Community', href: '/community' },
   // Partner Up covers listing a charger: it explains the offer, shows the

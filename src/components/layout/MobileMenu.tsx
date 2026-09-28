@@ -4,6 +4,7 @@
 import {
   BatteryCharging,
   ChevronRight,
+  Gauge,
   Handshake,
   LogOut,
   Smartphone,
@@ -34,6 +35,7 @@ const NAV_ICONS: Record<string, IconType> = {
   '/map': MapPin,
   '/routes': Route,
   '/charging-calculator': BatteryCharging,
+  '/range-converter': Gauge,
   '/services': Wrench,
   '/community': Users,
   '/partners': Handshake,

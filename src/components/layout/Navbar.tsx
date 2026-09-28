@@ -126,7 +126,7 @@ export function Navbar() {
               : 'border-b border-slate-200/80 bg-white/[0.85] backdrop-blur-[20px]',
         )}
       >
-        <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-6">
+        <nav className="mx-auto flex h-full max-w-[1600px] items-center justify-between gap-4 px-3 sm:px-4 lg:px-4 xl:px-6">
           <Link
             href="/"
             className="flex items-center gap-2 transition-opacity duration-150 hover:opacity-90"
@@ -136,7 +136,7 @@ export function Navbar() {
             <Logo tone={onDark ? 'dark' : 'light'} size="text-2xl" />
           </Link>
 
-          <div className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
             {NAV_LINKS.map((link) => {
               const active = isActivePath(pathname, link.href)
 
@@ -161,7 +161,7 @@ export function Navbar() {
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'group/nav relative whitespace-nowrap px-2 py-2 text-ui xl:px-3 font-medium transition-colors duration-200',
+                    'group/nav relative whitespace-nowrap px-1.5 py-2 text-ui xl:px-3 font-medium transition-colors duration-200',
                     onDark
                       ? active
                         ? 'text-white'
@@ -175,7 +175,7 @@ export function Navbar() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      'absolute bottom-1 left-2 right-2 h-0.5 origin-left rounded-full xl:left-3 xl:right-3',
+                      'absolute bottom-1 left-1.5 right-1.5 h-0.5 origin-left rounded-full xl:left-3 xl:right-3',
                       'bg-plug-cyan-500 transition-transform duration-300 ease-out motion-reduce:transition-none',
                       active
                         ? 'scale-x-100'
@@ -208,14 +208,16 @@ export function Navbar() {
             <Link
               href="/#app"
               className={cn(
-                'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-semibold transition-colors duration-200',
+                'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-sm xl:px-5 font-semibold transition-colors duration-200',
                 onDark
                   ? 'bg-plug-cyan-500 text-plug-blue-600 hover:bg-plug-cyan-400'
                   : 'bg-plug-navy-900 text-white hover:bg-plug-navy-800',
               )}
             >
               <Smartphone size={15} className="shrink-0" aria-hidden="true" />
-              Download App
+              {/* "Download" drops below 1280px so eight links fit beside it;
+                  the Soon chip stays, so the button still says what it is. */}
+              <span><span className="hidden xl:inline">Download </span>App</span>
               <span
                 className={cn(
                   'rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide',
