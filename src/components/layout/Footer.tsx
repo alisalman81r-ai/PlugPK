@@ -61,6 +61,8 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     heading: 'We are Plug.pk',
     links: [
       { label: 'Plan a route', href: '/routes' },
+      { label: 'Charging calculator', href: '/charging-calculator' },
+      { label: 'EV range converter', href: '/range-converter' },
       { label: 'EV services', href: '/services' },
       { label: 'Cars', href: '/cars' },
       { label: 'Community', href: '/community' },

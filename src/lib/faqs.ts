@@ -144,3 +144,61 @@ export const PARTNER_FAQS: FaqItem[] = [
       'By arrangement with us, not on the site — there is no card payment here yet. Send a meeting request and we will go through what you need and what it costs before anything is agreed.',
   },
 ]
+
+/*
+  The range converter's questions. Every figure in these answers is one the
+  converter itself uses (lib/range-standards), so the page never says one thing
+  in the tool and another in the FAQ.
+*/
+export const RANGE_FAQS: FaqItem[] = [
+  {
+    question: "What's the difference between EPA, WLTP, NEDC and CLTC?",
+    answer:
+      'They are four official test drives for measuring range. WLTP is the European standard and the most common reference. EPA is the US rating and usually the strictest, because it is corrected for faster driving and climate control. NEDC is the older European test WLTP replaced, and CLTC is the Chinese one — both are gentler, so they give higher figures.',
+  },
+  {
+    question: 'Why does the same EV have different range figures?',
+    answer:
+      'Because each figure comes from a different test, not a different car. The BYD Atto 3 with the 60.48 kWh battery, for example, is published at 510 km on CLTC and 420 km on WLTP. Slower, gentler tests with more idling use less energy per km, so the same battery goes further on paper.',
+  },
+  {
+    question: 'Is WLTP my actual driving range?',
+    answer:
+      'No. WLTP is a lab drive at 23°C with a fixed speed pattern. In one comparison of 15 EVs, the range actually observed in mixed driving averaged about 79% of the WLTP figure, between 73% and 86% depending on the car. A Pakistani summer is a good deal harder on a battery than 23°C.',
+  },
+  {
+    question: 'Why are CLTC figures often higher?',
+    answer:
+      'CLTC is modelled on Chinese city traffic: an average of about 29 km/h, a top speed of 114 km/h, and over a fifth of the test spent standing still. WLTP averages 46.5 km/h and reaches 131 km/h. Slow driving costs an EV very little, so CLTC figures typically come out around a quarter higher than WLTP for the same car.',
+  },
+  {
+    question: 'How much range can I realistically expect in Pakistan?',
+    answer:
+      'It depends most on speed and heat. As a rough guide from published tests: about 73–86% of the WLTP figure in mild mixed driving, around 60–70% in 35°C-plus heat with the AC on, and roughly 60–80% on a motorway at 120 km/h. The converter works these out for your figure. They are estimates for a healthy battery, not guarantees.',
+  },
+  {
+    question: 'Does using AC reduce EV range?',
+    answer:
+      'Yes. In testing by AAA, range fell by 17% at 35°C with the AC running, compared with mild weather; without the AC it fell by only 4%. The effect is largest in slow traffic, where the AC is a bigger share of what the car uses. Pre-cooling the cabin while the car is still plugged in helps.',
+  },
+  {
+    question: 'Does motorway driving reduce range?',
+    answer:
+      'Yes, more than anything else you control. Air resistance rises steeply with speed. In one test of 57 EVs at a steady 130 km/h, most reached only 60–75% of their WLTP range. Driving at 100–110 km/h instead of 120 makes a noticeable difference on a long run.',
+  },
+  {
+    question: 'Does hot weather affect EV range?',
+    answer:
+      'Yes. The battery has to be kept cool, and the cabin needs cooling too. Heat alone costs a little; heat with the AC running costs a lot more. A battery that has been sitting in the sun may also charge more slowly until it cools down.',
+  },
+  {
+    question: 'How accurate is this converter?',
+    answer:
+      'It gives an approximate comparison, not a conversion. The typical figures come from cars published or measured on more than one standard, and each result shows a likely spread because cars differ in how they cope with each test. Two cars with the same WLTP figure can have quite different EPA or CLTC figures. Where a car publishes a figure on the standard you want, that figure beats this estimate.',
+  },
+  {
+    question: 'Which range standard should I look at when comparing EVs?',
+    answer:
+      'Any one — as long as both cars are on the same one. WLTP is the most widely published, so it is usually the easiest common ground. If one car only has a CLTC figure, convert it to WLTP here and compare the spreads as well as the middle figures. And remember range is one factor among several, alongside battery size, charging speed and where you can charge.',
+  },
+]
