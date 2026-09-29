@@ -86,9 +86,22 @@ export function databaseUnavailable(error: unknown): string | null {
  * continental connection, including Prisma TLS and pooler handshake, measured
  * at 2.3s before a row is read — and runtime keeps the five seconds the
  * function limit demands.
+ *
+ * ── Local development is not runtime either ─────────────────────────
+ *
+ * `next dev` has no function limit, so the five seconds protect nothing
+ * there — and they were being lost. From Pakistan each round of queries to
+ * the Tokyo pooler takes about two seconds (measured: 1.9–2.1s whether the
+ * connection was cold or warm), and the landing page makes several rounds
+ * while the dev server is also compiling. A first load after starting the
+ * server, or one made while it was busy, would miss the five seconds and
+ * render the fallback: the How it works slides showed their stand-in
+ * photographs instead of the live screens, and a reload — with warm
+ * connections — brought the real ones back. Locally a fallback is only ever
+ * misleading, so development waits as long as the build does.
  */
 const READ_TIMEOUT_MS =
-  process.env.NEXT_PHASE === 'phase-production-build' ? 30_000 : 5_000
+  process.env.NEXT_PHASE === 'phase-production-build' || process.env.NODE_ENV === 'development' ? 30_000 : 5_000
 
 /**
  * A read whose failure should cost its own section of the page, not the page.
