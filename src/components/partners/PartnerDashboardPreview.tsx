@@ -70,18 +70,14 @@ export function PartnerDashboardPreview({ className }: PartnerDashboardPreviewPr
           >
             What you see once you are listed
           </h2>
+          {/* The sample-figures note is plain text in the card's own subtitle
+              rather than a badge — still on the card itself, not in a caption
+              below it, so a screenshot of the preview keeps it. */}
           <p className="mt-1.5 text-ui text-slate-500">
             Counted from real visits to your page — not estimated, and not shared with
-            anyone else.
+            anyone else. The figures shown here are an example.
           </p>
         </div>
-
-        {/* Said on the card itself, not in a caption underneath. A preview that
-            is only labelled below the fold is a preview somebody will screenshot
-            without the label. */}
-        <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1.5 text-ui-xs font-bold uppercase tracking-[0.1em] text-amber-700">
-          Example — no real figures
-        </span>
       </div>
 
       <div className="grid gap-5 px-5 py-6 sm:px-6 lg:grid-cols-[1fr_1.15fr] lg:gap-8 lg:px-8 lg:py-8">
