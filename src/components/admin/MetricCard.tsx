@@ -73,22 +73,12 @@ export function MetricCard({
 
   const body = (
     <>
-      <div className="flex items-start justify-between gap-3">
-        {/* The glyph on its own — no tile behind it. */}
-        <Icon
-          size={22}
-          aria-hidden="true"
-          className={cn('shrink-0', unavailable ? 'text-slate-400' : 'text-plug-cyan-700')}
-        />
-
-        {/* The status dot is the only colour on a healthy card, so a row of six
-            can be read for trouble without reading a single number. */}
-        {!unavailable && tone !== 'neutral' ? (
-          <span className="flex items-center gap-1.5">
-            <span aria-hidden="true" className={cn('h-1.5 w-1.5 rounded-full', TONE_DOT[tone])} />
-          </span>
-        ) : null}
-      </div>
+      {/* The glyph on its own — no tile behind it. */}
+      <Icon
+        size={22}
+        aria-hidden="true"
+        className={cn('shrink-0', unavailable ? 'text-slate-400' : 'text-plug-cyan-700')}
+      />
 
       <p className="mt-4 text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
         {label}
@@ -107,7 +97,19 @@ export function MetricCard({
             {value}
           </p>
           {detail ? (
-            <p className={cn('mt-2 text-ui-xs leading-snug', TONE_TEXT[tone])}>{detail}</p>
+            <p className={cn('mt-2 flex items-center gap-2 text-ui-xs leading-snug', TONE_TEXT[tone])}>
+              {/*
+                The status dot, a solid circle at the start of the status line.
+                It sat in the card's top-right corner, which is also where the ?
+                help button is placed, and the two overlapped into what looked
+                like a broken ring. Here it has a place of its own, and reads
+                with the words it summarises.
+              */}
+              {tone !== 'neutral' ? (
+                <span aria-hidden="true" className={cn('h-2.5 w-2.5 shrink-0 rounded-full', TONE_DOT[tone])} />
+              ) : null}
+              {detail}
+            </p>
           ) : null}
         </>
       )}
