@@ -73,8 +73,8 @@ export default async function ChargingCalculatorPage() {
           {/* Centred, in two colours, like the Map, Routes and Cars heroes. */}
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mx-auto text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-              <span className="block">How long will</span>
-              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">your charge take?</span>
+              <span className="block">Charging time and cost</span>
+              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">for your EV</span>
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
