@@ -43,12 +43,7 @@ export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroPr
 
       <div className="container-plug relative">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-bold uppercase tracking-[0.16em] text-plug-cyan-300 backdrop-blur-sm">
-            <Zap size={12} aria-hidden="true" />
-            EV route planner
-          </span>
-
-          <h1 className="mt-5 text-balance font-display text-[clamp(2rem,4.4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
+          <h1 className="text-balance font-display text-[clamp(2rem,4.4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
             <span className="block">Plan the drive,</span>
             <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">charging stops and all</span>
           </h1>

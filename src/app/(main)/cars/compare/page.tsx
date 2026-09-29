@@ -108,11 +108,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         </Link>
 
         <div className="mx-auto mt-8 max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-3.5 py-1.5 text-ui-xs font-semibold uppercase tracking-[0.14em] text-plug-navy-800 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
-            Side by side
-          </span>
-          <h1 className="mt-6 text-balance text-[clamp(2.75rem,6.4vw,4.5rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
+          <h1 className="text-balance text-[clamp(2.75rem,6.4vw,4.5rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
             Compare{' '}
             <span className="text-plug-blue-600">
               cars

@@ -31,10 +31,6 @@ export function BusinessHero() {
       <div className="container-plug relative z-10">
         <div className="grid items-center gap-20 lg:grid-cols-2">
           <div>
-            <span className="mb-6 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs uppercase tracking-widest text-white/80">
-              For Businesses
-            </span>
-
             <h1 className="mb-6 text-5xl font-black text-white lg:text-display-xl">
               Reach Pakistan&apos;s
               <br />

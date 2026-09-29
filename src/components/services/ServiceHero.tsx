@@ -58,12 +58,7 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
       />
 
       <div className="container-plug relative z-10 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
-          EV Ecosystem
-        </span>
-
-        <h1 className="mx-auto mt-6 max-w-4xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-white">
+        <h1 className="mx-auto max-w-4xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-white">
           Everything your EV needs in{' '}
           <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
             one place

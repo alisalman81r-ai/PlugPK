@@ -112,11 +112,6 @@ export function CarHero({
       />
 
       <div className="container-plug relative z-10 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-ui-xs font-medium uppercase tracking-[0.14em] text-white/85 backdrop-blur-sm">
-          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-plug-cyan-400" />
-          Pakistan market
-        </span>
-
         {/* Two explicit lines rather than a balanced wrap, so the accent
             phrase always has a line of its own. The heading says what this
             section is: the EVs, plug-in hybrids and range extenders sold in
