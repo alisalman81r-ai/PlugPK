@@ -39,6 +39,7 @@ export default function LoginPage({ searchParams }: PageProps) {
   return (
     <>
       <AuthHeader
+        eyebrow="Sign in"
         title="Welcome back"
         subtitle={
           redirectTo === '/business/signup'

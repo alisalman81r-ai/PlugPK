@@ -1,7 +1,7 @@
 // src/components/auth/LoginForm.tsx
 'use client'
 
-import { AlertCircle, Eye, EyeOff, Lock, Mail } from '@/components/ui/icons'
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -179,8 +179,13 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         </div>
       ) : null}
 
-      <Button type="submit" size="lg" fullWidth isLoading={isLoading}>
+      <Button type="submit" size="lg" fullWidth isLoading={isLoading} className="group/submit">
         Sign In
+        <ArrowRight
+          size={18}
+          aria-hidden="true"
+          className="transition-transform duration-200 group-hover/submit:translate-x-0.5 motion-reduce:transition-none"
+        />
       </Button>
 
       <p className="mt-6 text-center text-sm text-slate-500">

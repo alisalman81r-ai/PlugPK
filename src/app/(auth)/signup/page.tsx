@@ -35,7 +35,7 @@ export default function SignUpPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <AuthHeader title="Create your account" subtitle="Join the EV owners on Plug.pk" />
+      <AuthHeader eyebrow="Get started" title="Create your account" subtitle="Join the EV owners on Plug.pk" />
       <SignUpForm redirectTo={redirectTo} />
     </>
   )

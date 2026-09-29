@@ -1,6 +1,7 @@
 # Photo credits
 
-Every photograph here is real and human-taken. No AI-generated imagery is used.
+Every photograph here is real and human-taken, with one exception listed under
+"Unverified" at the foot of this file, whose origin is not established.
 
 Almost all of them come from [Pexels](https://www.pexels.com) under the
 [Pexels License](https://www.pexels.com/license/): free for commercial and
@@ -120,7 +121,17 @@ Three cars have no photograph, because Commons holds none: the Forthing Friday
 
 ## Unverified
 
-None.
+| File | Source | Status |
+| --- | --- | --- |
+| `auth/islamabad-charging.jpg` | Supplied by the site owner, cropped from their design reference for the sign-in page | Origin and licence not established |
+
+The sign-in panel's image — an EV charging with the Faisal Mosque behind it —
+was chosen by the site owner and taken from a design mock-up they provided, not
+from a stock library, so neither its author nor its licence is known here. It
+may be a generated image rather than a photograph, which is why the claim at
+the top of this file is narrowed rather than left to cover it. Before relying
+on it long term, confirm its source and licence, and replace this crop with the
+original full-resolution file: the crop is 383×884, taken from a screenshot.
 
 `hero/hero-porsche.jpg` was listed here and has been deleted. Its licence was
 never established: it arrived as `Porsche L2000 (Concept).jfif`, a filename and
