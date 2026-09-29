@@ -2,6 +2,7 @@
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
+import { ScrollProgress } from '@/components/layout/ScrollProgress'
 import { CardSpotlight } from '@/components/ui'
 
 /**
@@ -33,6 +34,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* One delegated pointer listener for every card on the page. Renders
           nothing; see CardSpotlight for why it is not per-card. */}
       <CardSpotlight />
+      {/* How far down the page, shown only while scrolling. */}
+      <ScrollProgress />
       <Navbar />
       <main className="min-h-screen pt-[var(--nav-h)]">{children}</main>
       <Footer />
