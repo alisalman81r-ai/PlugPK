@@ -263,6 +263,16 @@ export function CarsExplorer({
     [shown, cars.length],
   )
 
+  // The four makes with the most cars in the catalogue, for the hero's shortcuts.
+  const popularBrands = React.useMemo(() => {
+    const count = new Map<string, number>()
+    for (const car of cars) count.set(car.brand, (count.get(car.brand) ?? 0) + 1)
+    return [...count.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 4)
+      .map(([name]) => name)
+  }, [cars])
+
   const scrollToResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -280,6 +290,7 @@ export function CarsExplorer({
         }
         brands={brands}
         stats={stats}
+        popularBrands={popularBrands}
         onSubmit={scrollToResults}
       />
 

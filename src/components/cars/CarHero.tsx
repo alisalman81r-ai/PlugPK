@@ -62,6 +62,8 @@ export interface CarHeroProps {
   onBrandChange: (brand: string | null) => void
   brands: string[]
   stats: Array<{ value: string; label: string }>
+  /** The makes with the most cars, offered as one-tap shortcuts. */
+  popularBrands?: string[]
   /** Scrolls the results into view — see the button below for why. */
   onSubmit: () => void
 }
@@ -74,6 +76,7 @@ export function CarHero({
   brands,
   stats,
   onSubmit,
+  popularBrands = [],
 }: CarHeroProps) {
   return (
     <section className="relative isolate overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
@@ -91,6 +94,13 @@ export function CarHero({
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-64 bg-[linear-gradient(to_top,rgba(52,90,83,0.14)_0%,transparent_100%)]"
+      />
+      {/* The stand itself: a faint grid in perspective, like the floor of a
+          showroom, fading out before it reaches the search row. It is the
+          one piece of decoration, and it is about cars. */}
+      <div
+        aria-hidden="true"
+        className="showroom-floor pointer-events-none absolute inset-x-[-25%] bottom-0 -z-10 h-72"
       />
       {/* A hairline catching the top edge, kept: it is what stops the navbar
           above from bleeding into the section. */}
@@ -114,8 +124,23 @@ export function CarHero({
             mid-sentence; these are block-level and read as one heading. */}
         <h1 className="mx-auto mt-6 max-w-4xl text-[clamp(2.25rem,5.5vw,4.25rem)] font-black leading-[1.08] tracking-[-0.04em] text-white">
           <span className="block">Every electrified car,</span>
-          <span className="block text-plug-sky-300">compared</span>
+          {/* The logo's own mint (Logo.tsx MINT), as on the mark and ".pk". */}
+          <span className="block text-[#6FE8B6]">compared</span>
         </h1>
+
+        {/* A battery gauge under the accent word, filling once cell by cell —
+            the site's subject in one small line. The last cell is the
+            terminal nub. */}
+        <span aria-hidden="true" className="mx-auto mt-5 flex h-2.5 w-44 items-center gap-1 sm:w-52">
+          {Array.from({ length: 10 }, (_, i) => (
+            <span
+              key={i}
+              className="charge-cell h-full flex-1 rounded-[2px] bg-[#6FE8B6]"
+              style={{ animationDelay: `${250 + i * 90}ms` }}
+            />
+          ))}
+          <span className="ml-0.5 h-1.5 w-1 rounded-r-sm bg-[#6FE8B6]/60" />
+        </span>
 
         <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-white/70">
           Prices in rupees, real battery and range figures, nothing estimated — EVs,
@@ -192,6 +217,32 @@ export function CarHero({
             </button>
           </div>
         </form>
+
+        {popularBrands.length > 0 ? (
+          <div className="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-center gap-2">
+            <span className="text-ui-sm text-white/55">Popular:</span>
+            {popularBrands.map((entry) => {
+              const on = brand === entry
+              return (
+                <button
+                  key={entry}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => onBrandChange(on ? null : entry)}
+                  className={
+                    'inline-flex min-h-9 items-center rounded-full border px-3.5 text-ui-sm font-medium transition-colors ' +
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FE8B6]/60 ' +
+                    (on
+                      ? 'border-[#6FE8B6] bg-[#6FE8B6] text-plug-navy-950'
+                      : 'border-white/15 bg-white/[0.05] text-white/80 hover:border-white/30 hover:text-white')
+                  }
+                >
+                  {entry}
+                </button>
+              )
+            })}
+          </div>
+        ) : null}
 
         {/*
           A rail, not a panel.
