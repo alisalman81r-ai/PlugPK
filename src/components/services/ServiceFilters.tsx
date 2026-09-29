@@ -5,6 +5,7 @@ import { LayoutGrid, LayoutList, Loader2, Search } from '@/components/ui/icons'
 
 import { Skeleton } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
+import { SearchSelect } from '@/components/ui/SearchSelect'
 import { cn } from '@/lib/utils'
 
 export type ServiceSortOption = 'rating' | 'name' | 'reviews'
@@ -74,19 +75,17 @@ export function ServiceFilters({
           />
         </div>
 
-        <select
+        {/* The same in-window city list as the hero — a native select of
+            103 cities runs off the screen. */}
+        <SearchSelect
           value={selectedCity}
-          onChange={(event) => onCityChange(event.target.value)}
-          aria-label="Filter by city"
-          className={SELECT_CLASS}
-        >
-          <option value="all">All Cities</option>
-          {PAKISTAN_CITIES.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
+          onChange={onCityChange}
+          ariaLabel="Filter by city"
+          allLabel="All Cities"
+          options={PAKISTAN_CITIES}
+              searchPlaceholder="Type a city"
+          className="w-full sm:w-44"
+        />
 
         <select
           value={sortBy}

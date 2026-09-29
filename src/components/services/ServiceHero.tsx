@@ -2,6 +2,8 @@
 import { Search } from '@/components/ui/icons'
 import Link from 'next/link'
 
+import { SearchSelect } from '@/components/ui/SearchSelect'
+
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS } from '@/lib/constants'
 
 export interface ServiceHeroProps {
@@ -105,21 +107,18 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Solid dark fill rather than a translucent one: a native select
-                paints its option list from its own background, and a
-                see-through control gives the browser nothing to work with. */}
-            <select
+            {/* Not a native select: with 103 cities the browser drew its list
+                the full height of the screen, up into its own tab bar. This
+                one opens within the window and scrolls. The hidden input it
+                renders keeps the form's ?city= exactly as before. */}
+            <SearchSelect
               name="city"
-              aria-label="Filter by city"
-              className="h-12 min-w-0 flex-1 cursor-pointer rounded-full border border-white/15 bg-plug-navy-900 px-4 text-ui font-medium text-white outline-none transition-colors hover:border-white/25 focus-visible:border-plug-cyan-400 focus-visible:ring-2 focus-visible:ring-plug-cyan-400/40 sm:flex-none"
-            >
-              <option value="all">All cities</option>
-              {PAKISTAN_CITIES.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+              ariaLabel="Filter by city"
+              options={PAKISTAN_CITIES}
+              searchPlaceholder="Type a city"
+              tone="dark"
+              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+            />
 
             <button
               type="submit"
