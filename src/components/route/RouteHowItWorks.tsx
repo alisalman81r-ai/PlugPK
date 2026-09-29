@@ -92,7 +92,7 @@ export function RouteHowItWorks() {
               {index < STEPS.length - 1 ? (
                 <span
                   aria-hidden="true"
-                  className="absolute left-full top-[60px] z-10 hidden h-px w-8 border-t-2 border-dashed border-slate-300 lg:block"
+                  className="flow-dashes absolute left-full top-[60px] z-10 hidden h-0.5 w-8 rounded-full lg:block"
                 />
               ) : null}
 

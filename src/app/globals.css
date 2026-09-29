@@ -1103,3 +1103,32 @@ html::-webkit-scrollbar {
   mask-image: linear-gradient(to top, black 0%, rgba(0, 0, 0, 0.5) 45%, transparent 90%);
   -webkit-mask-image: linear-gradient(to top, black 0%, rgba(0, 0, 0, 0.5) 45%, transparent 90%);
 }
+
+/*
+  Routes "How it works": the thread between the step cards, as marching
+  dashes that keep flowing left to right — the direction the three steps are
+  done in. One dash period (12px) per cycle, so the loop is seamless. Under
+  reduced motion the dashes simply stand still.
+*/
+.flow-dashes {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(38, 205, 178, 0.9) 0 6px,
+    transparent 6px 12px
+  );
+  background-size: 12px 100%;
+  animation: flow-dashes 0.7s linear infinite;
+}
+@keyframes flow-dashes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 12px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow-dashes {
+    animation: none;
+  }
+}
