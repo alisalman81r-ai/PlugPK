@@ -66,12 +66,7 @@ export default async function AdminServicesPage() {
         {pending.length > 0 ? (
           <section className="mb-8 rounded-2xl border border-amber-200 bg-white">
             <div className="flex items-center gap-3 border-b border-amber-100 bg-amber-50/60 px-6 py-4">
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-amber-300 text-amber-700"
-              >
-                <Inbox size={17} />
-              </span>
+              <Inbox size={22} aria-hidden="true" className="shrink-0 text-amber-700" />
               <div>
                 <h2 className="font-bold text-slate-900">
                   {pending.length} {pending.length === 1 ? 'application' : 'applications'} to review

@@ -67,9 +67,7 @@ export function AdminServicesDirectory({
       <div className="mb-8 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_-20px_rgba(5,36,30,0.35)]">
         <div className="flex flex-wrap items-center gap-2.5 p-1.5">
           <span className="mr-1 inline-flex items-center gap-2 px-2 text-ui-sm font-bold text-slate-800">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-plug-blue-50 text-plug-blue-600">
-              <Filter size={15} aria-hidden="true" />
-            </span>
+            <Filter size={18} aria-hidden="true" className="text-plug-cyan-700" />
             Browse directory
           </span>
           <select
@@ -120,7 +118,7 @@ export function AdminServicesDirectory({
                     {rows.length} service{rows.length === 1 ? '' : 's'}
                   </span>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="relative overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-slate-100 bg-slate-50/50 text-ui-xs uppercase tracking-wider text-slate-400">

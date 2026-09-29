@@ -23,12 +23,7 @@ export default function AdminNotFound() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-8 py-16">
       <div className="max-w-md text-center">
-        <span
-          aria-hidden="true"
-          className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400"
-        >
-          <FileQuestion size={24} />
-        </span>
+        <FileQuestion size={36} aria-hidden="true" className="mx-auto text-slate-400" />
 
         <h1 className="mt-5 text-xl font-bold text-slate-900">Nothing at this address</h1>
         <p className="mt-2 text-ui-sm leading-relaxed text-slate-500">

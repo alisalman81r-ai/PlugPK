@@ -29,9 +29,7 @@ export default function AdminError({
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
       <div className="w-full max-w-md text-center">
-        <span className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
-          <AlertTriangle size={22} className="text-red-600" aria-hidden="true" />
-        </span>
+        <AlertTriangle size={32} className="mx-auto mb-5 text-red-600" aria-hidden="true" />
 
         <h1 className="text-lg font-semibold text-slate-900">This screen failed to load</h1>
         <p className="mt-2 text-ui-sm leading-relaxed text-slate-500">

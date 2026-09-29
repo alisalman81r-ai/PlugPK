@@ -1,14 +1,11 @@
 // src/app/admin/(protected)/page.tsx
 import {
-  Activity,
   AlertTriangle,
   ArrowRight,
-  BatteryCharging,
   CheckCircle2,
+  Inbox,
   MessageSquare,
   Plug,
-  Receipt,
-  ShieldCheck,
   Star,
   Users,
   Wrench,
@@ -20,9 +17,8 @@ import { AlertList } from '@/components/admin/AlertList'
 import { DashboardPanel, PanelEmpty } from '@/components/admin/DashboardPanel'
 import { LiveNetwork } from '@/components/admin/LiveNetwork'
 import { MetricCard } from '@/components/admin/MetricCard'
-import { PerformanceChart } from '@/components/admin/PerformanceChart'
 import { QuickActions } from '@/components/admin/QuickActions'
-import { listPendingQueues } from '@/lib/db/admin-badges'
+import { listAllQueues } from '@/lib/db/admin-badges'
 import { getNetworkHealth, listNetworkAlerts } from '@/lib/db/network-health'
 import { getContentCounts, getMemberCount, getPosts } from '@/lib/db/queries'
 
@@ -65,16 +61,18 @@ function greeting(): string {
 }
 
 export default async function AdminOverviewPage() {
-  const [counts, posts, memberCount, pending, health, alerts] = await Promise.all([
+  const [counts, posts, memberCount, queues, health, alerts] = await Promise.all([
     getContentCounts(),
     getPosts(),
     getMemberCount(),
-    listPendingQueues(),
+    listAllQueues(),
     getNetworkHealth(),
     listNetworkAlerts(),
   ])
 
   const { stations, ports } = health
+  const waiting = queues.filter((queue) => queue.count > 0)
+  const waitingTotal = waiting.reduce((sum, queue) => sum + queue.count, 0)
   // Every station accounted for, not just the absence of offline ones. This
   // read `offline === 0 && unknown === 0` and so printed 'All systems
   // operational' over a 5 / 6 figure, because the sixth was `limited` and fell
@@ -173,47 +171,50 @@ export default async function AdminOverviewPage() {
             href="/admin/connectors"
           />
           <MetricCard
-            label="Charging sessions"
-            value={null}
+            label="Waiting on you"
+            value={String(waitingTotal)}
+            detail={
+              waitingTotal === 0
+                ? 'Every queue is clear'
+                : `In ${waiting.length} ${waiting.length === 1 ? 'queue' : 'queues'}`
+            }
+            tone={waitingTotal === 0 ? 'good' : 'warn'}
             help={
               <>
-                <b>This will show how many cars actually charged.</b> It is empty
-                because nothing in the system records a charging session — there is no
-                table for it and no charger hardware reporting in. It stays empty until
-                a charger integration is built; a number here before then would be
-                invented.
+                <b>Work other people are waiting on you for.</b> Business applications,
+                service applications, meeting requests and new community posts, added
+                up. The panel below breaks it down and links to each one.
               </>
             }
-            unavailableReason="No session is recorded anywhere yet — needs a charger integration."
-            icon={BatteryCharging}
+            icon={Inbox}
+            href={waiting[0]?.href}
           />
           <MetricCard
-            label="Revenue today"
-            value={null}
+            label="Members"
+            value={memberCount.toLocaleString('en-PK')}
+            detail="Accounts on the site"
+            tone="neutral"
             help={
               <>
-                <b>This will show money billed today.</b> It is empty because connectors
-                carry no price and there is no payments table, so there is nothing to
-                add up. It needs pricing and a payment provider before it can show
-                anything true.
+                <b>People with a Plug.pk account.</b> Counted from the members table, so
+                it rises the moment someone signs up. Click to see and manage them.
               </>
             }
-            unavailableReason="Connectors carry no pricing, so there is nothing to total."
-            icon={Receipt}
+            icon={Users}
+            href="/admin/members"
           />
           <MetricCard
-            label="Network uptime"
-            value={null}
+            label="Driver reviews"
+            value={counts.reviews.toLocaleString('en-PK')}
+            detail="Ratings left on stations"
+            tone="neutral"
             help={
               <>
-                <b>This will show the percentage of time your network was working.</b>
-                It is empty because only a station&rsquo;s state <i>right now</i> is
-                stored, never a history of it. Uptime is a measure over time, so it
-                needs somewhere to record every state change first.
+                <b>Reviews drivers have left on charging stations.</b> Every one is shown
+                on the public station page it belongs to.
               </>
             }
-            unavailableReason="Station state is stored, but not its history — no uptime to compute."
-            icon={ShieldCheck}
+            icon={Star}
           />
           <MetricCard
             label="Active alerts"
@@ -231,6 +232,56 @@ export default async function AdminOverviewPage() {
             icon={AlertTriangle}
           />
         </div>
+
+        {/*
+          ── Needs your attention ─────────────────────────────────────
+          Always shown, with every queue listed. It used to appear only when a
+          queue had something in it, so an admin could not tell "all clear"
+          from "not checked". Now each queue is a row that says either how many
+          are waiting or that there is nothing to do, and opens the page that
+          clears it.
+        */}
+        <DashboardPanel
+          title="Needs your attention"
+          description={
+            waitingTotal === 0
+              ? 'All clear — nothing is waiting on you.'
+              : `${waitingTotal} ${waitingTotal === 1 ? 'item is' : 'items are'} waiting. Open a row to deal with it.`
+          }
+        >
+          <ul className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4">
+            {queues.map((queue) => {
+              const busy = queue.count > 0
+              return (
+                <li key={queue.href} className="sm:border-slate-100 sm:[&:not(:last-child)]:border-r">
+                  <Link
+                    href={queue.href}
+                    className="group/queue flex h-full items-start gap-3 px-5 py-4 transition-colors duration-150 hover:bg-slate-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-blue-500"
+                  >
+                    {busy ? (
+                      <span className="mt-0.5 text-2xl font-bold leading-none tabular-nums text-amber-600">
+                        {queue.count}
+                      </span>
+                    ) : (
+                      <CheckCircle2 size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-green-600" />
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-ui-sm font-semibold text-slate-900">{queue.title}</span>
+                      <span className="mt-0.5 block text-ui-xs text-slate-500">
+                        {busy ? queue.label : 'Nothing waiting'}
+                      </span>
+                    </span>
+                    <ArrowRight
+                      size={15}
+                      aria-hidden="true"
+                      className="mt-1 shrink-0 text-slate-300 transition-all duration-200 group-hover/queue:translate-x-0.5 group-hover/queue:text-plug-blue-600"
+                    />
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </DashboardPanel>
 
         {/* ── Live network + alerts ─────────────────────────────────── */}
         <div className="grid gap-6 lg:grid-cols-5">
@@ -283,100 +334,6 @@ export default async function AdminOverviewPage() {
             )}
           </DashboardPanel>
         </div>
-
-        {/* ── Queues that already worked, kept ──────────────────────── */}
-        {pending.length > 0 ? (
-          <DashboardPanel
-            title="Needs attention"
-            description="Queues with something in them. Acting on an item clears it here."
-            help={
-              <>
-                <b>Work waiting on you from other people.</b> Businesses that applied to
-                be listed, service providers awaiting review, meeting requests. Empty
-                means nobody is waiting — it is not a sign anything is broken.
-              </>
-            }
-          >
-            <ul className="divide-y divide-slate-100">
-              {pending.map((queue) => (
-                <li key={queue.href}>
-                  <Link
-                    href={queue.href}
-                    className="group/queue flex items-center gap-3 px-5 py-3.5 transition-colors duration-150 hover:bg-slate-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-blue-500"
-                  >
-                    <span className="flex h-6 min-w-[1.5rem] shrink-0 items-center justify-center rounded-full bg-plug-blue-600 px-1.5 text-ui-xs font-bold tabular-nums text-white">
-                      {queue.count}
-                    </span>
-                    <span className="min-w-0 flex-1 text-ui-sm font-medium text-slate-900">
-                      {queue.label}
-                    </span>
-                    <ArrowRight
-                      size={15}
-                      aria-hidden="true"
-                      className="shrink-0 text-slate-300 transition-all duration-200 group-hover/queue:translate-x-0.5 group-hover/queue:text-plug-blue-600"
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </DashboardPanel>
-        ) : null}
-
-        {/* ── Performance ───────────────────────────────────────────── */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <DashboardPanel
-            title="Charging sessions"
-            description="Sessions completed over time."
-            help={
-              <>
-                <b>This chart will plot charging sessions per day once they exist.</b>{' '}
-                It is drawn empty rather than hidden so the shape of the finished page
-                is visible. Nothing writes a session row today; when a charger
-                integration lands, this reads it with no change to the page.
-              </>
-            }
-          >
-            <PerformanceChart
-              data={[]}
-              emptyReason="Nothing writes a session row yet. When a charger integration lands, this chart reads it with no change to the page."
-            />
-          </DashboardPanel>
-
-          <DashboardPanel title="Revenue" description="Billed across the network."
-            help={
-              <>
-                <b>This will plot money billed per day.</b> Empty because connectors
-                carry no price and nothing records a payment. It needs pricing and a
-                payment provider before a line here would mean anything.
-              </>
-            }>
-            <PerformanceChart
-              data={[]}
-              unitPrefix="Rs "
-              emptyReason="Connectors hold no price, so revenue cannot be totalled. Adding pricing is the prerequisite, not a change here."
-            />
-          </DashboardPanel>
-        </div>
-
-        {/* ── Recent sessions ───────────────────────────────────────── */}
-        <DashboardPanel
-          title="Recent charging sessions"
-          description="Who charged, where, and for how long."
-          help={
-            <>
-              <b>This will list individual charging sessions</b> — which driver, which
-              station, how long, how much energy. Empty for the same reason as the
-              chart above: no session is recorded anywhere yet.
-            </>
-          }
-        >
-          <PanelEmpty
-            icon={Activity}
-            title="No sessions recorded"
-            reason="This table is built and waiting on a source. The product stores stations, connectors and their live port counts, but never records an individual charge."
-            action={{ label: 'Review connectors', href: '/admin/connectors' }}
-          />
-        </DashboardPanel>
 
         {/* ── Community, deliberately last ──────────────────────────── */}
         <div className="grid gap-6 lg:grid-cols-3">

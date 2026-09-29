@@ -80,12 +80,7 @@ export function PanelEmpty({
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-      <span
-        aria-hidden="true"
-        className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-400"
-      >
-        <Icon size={19} />
-      </span>
+      <Icon size={28} aria-hidden="true" className="text-slate-400" />
       <p className="mt-3 text-ui-sm font-semibold text-slate-700">{title}</p>
       <p className="mt-1 max-w-sm text-ui-xs leading-relaxed text-slate-500">{reason}</p>
       {action ? (

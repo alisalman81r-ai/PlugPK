@@ -45,6 +45,8 @@ export type AdminBadgeCounts = Record<string, number>
  */
 interface Queue {
   href: string
+  /** The queue's name, for the dashboard's list of everything checked. */
+  title: string
   /** Singular and plural, so the dashboard never prints "1 items". */
   one: string
   many: string
@@ -55,6 +57,7 @@ const QUEUES: Queue[] = [
   {
     // A community post is a notification until the admin opens Community.
     href: '/admin/community',
+    title: 'Community posts',
     one: 'new community post',
     many: 'new community posts',
     count: () =>
@@ -63,6 +66,7 @@ const QUEUES: Queue[] = [
   {
     // Applications from the public "list your business" form.
     href: '/admin/businesses',
+    title: 'Businesses and photos',
     one: 'business or charger photo item to review',
     many: 'businesses or charger photo items to review',
     count: async () => {
@@ -77,6 +81,7 @@ const QUEUES: Queue[] = [
     // Meeting requests nobody has opened. 'new' rather than 'pending': that is
     // the default the schema gives a fresh request.
     href: '/admin/meetings',
+    title: 'Meeting requests',
     one: 'meeting request unanswered',
     many: 'meeting requests unanswered',
     count: () => prisma.meetingRequest.count({ where: { status: 'new' } }),
@@ -86,6 +91,7 @@ const QUEUES: Queue[] = [
     // shape as the charger-host queue above: submitted by the public, invisible
     // on the site until a person approves it.
     href: '/admin/services',
+    title: 'Service applications',
     one: 'service application to review',
     many: 'service applications to review',
     count: () => prisma.eVService.count({ where: { status: 'pending' } }),
@@ -117,6 +123,21 @@ export interface PendingQueue {
  * said "nothing waiting" while a sidebar badge showed 5 would make both
  * untrustworthy, and two separate lists is how that happens.
  */
+/**
+ * Every queue, including the empty ones.
+ *
+ * The dashboard's "Needs your attention" panel lists all of them so an admin
+ * can see at a glance that each one was checked and is clear, rather than
+ * inferring it from a panel that only appears when something is waiting.
+ */
+export async function listAllQueues(): Promise<(PendingQueue & { title: string })[]> {
+  const counts = await getAdminBadgeCounts()
+  return QUEUES.map((queue) => {
+    const count = counts[queue.href] ?? 0
+    return { href: queue.href, title: queue.title, count, label: count === 1 ? queue.one : queue.many }
+  })
+}
+
 export async function listPendingQueues(): Promise<PendingQueue[]> {
   const counts = await getAdminBadgeCounts()
 

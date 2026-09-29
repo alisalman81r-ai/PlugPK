@@ -74,15 +74,12 @@ export function MetricCard({
   const body = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <span
+        {/* The glyph on its own — no tile behind it. */}
+        <Icon
+          size={22}
           aria-hidden="true"
-          className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-            unavailable ? 'bg-slate-100 text-slate-400' : 'bg-plug-blue-50 text-plug-blue-600',
-          )}
-        >
-          <Icon size={17} />
-        </span>
+          className={cn('shrink-0', unavailable ? 'text-slate-400' : 'text-plug-cyan-700')}
+        />
 
         {/* The status dot is the only colour on a healthy card, so a row of six
             can be read for trouble without reading a single number. */}

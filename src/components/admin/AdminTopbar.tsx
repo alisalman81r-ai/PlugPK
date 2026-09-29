@@ -261,12 +261,16 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
           aria-haspopup="menu"
           className="flex items-center gap-1.5 rounded-lg p-1 pr-1.5 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
-          <span
-            aria-hidden="true"
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-plug-navy-900 text-ui-xs font-bold text-white"
-          >
-            {user ? user.name.slice(0, 1).toUpperCase() : <User size={14} />}
-          </span>
+          {user ? (
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-plug-navy-900 text-ui-xs font-bold text-white"
+            >
+              {user.name.slice(0, 1).toUpperCase()}
+            </span>
+          ) : (
+            <User size={20} aria-hidden="true" className="text-slate-600" />
+          )}
           <span className="hidden max-w-[8rem] truncate text-ui-sm font-medium text-slate-700 sm:inline">
             {user?.name ?? 'Admin'}
           </span>

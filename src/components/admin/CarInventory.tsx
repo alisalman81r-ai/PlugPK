@@ -201,7 +201,10 @@ export function CarInventory({ audits }: CarInventoryProps) {
 
       {/* ── The list ─────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-        <div className="overflow-x-auto">
+        {/* relative: the header's sr-only label is absolutely positioned, and
+            without a positioned ancestor inside the scroller it escaped it and
+            widened the whole page by ~110px. */}
+        <div className="relative overflow-x-auto">
           <table className="w-full text-left">
             <caption className="sr-only">
               Every car in the catalogue, with its data completeness and outstanding issues.
