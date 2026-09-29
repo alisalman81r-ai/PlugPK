@@ -49,10 +49,8 @@ export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroPr
           </span>
 
           <h1 className="mt-5 text-balance font-display text-[clamp(2rem,4.4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-            Plan the drive —{' '}
-            <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
-              charging stops and all
-            </span>
+            <span className="block">Plan the drive,</span>
+            <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">charging stops and all</span>
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">

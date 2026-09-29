@@ -66,12 +66,14 @@ export default async function RangeConverterPage() {
         </div>
 
         <div className={`relative ${STAGE}`}>
-          <div className="max-w-2xl">
-            <h1 className="text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-              What does that range figure really mean?
+          {/* Centred, in two colours, like the Map, Routes and Cars heroes. */}
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="mx-auto text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
+              <span className="block">What does that range figure</span>
+              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">really mean?</span>
             </h1>
 
-            <p className="mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
               EVs in Pakistan are sold with range figures from four different tests — WLTP, EPA, NEDC and CLTC.
               Compare a figure across all four, then see what it might come to on the road here.
             </p>

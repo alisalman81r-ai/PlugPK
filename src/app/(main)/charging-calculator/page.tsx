@@ -70,12 +70,14 @@ export default async function ChargingCalculatorPage() {
         </div>
 
         <div className={`relative ${STAGE}`}>
-          <div className="max-w-2xl">
-            <h1 className="text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-              How long will your charge take?
+          {/* Centred, in two colours, like the Map, Routes and Cars heroes. */}
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="mx-auto text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
+              <span className="block">How long will</span>
+              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">your charge take?</span>
             </h1>
 
-            <p className="mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
+            <p className="mx-auto mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
               Pick your car, drag the battery to where you are and where you want to be, and choose the
               charger. We&rsquo;ll work out the time and what it costs — using your car&rsquo;s own charging
               limits wherever we have them.
