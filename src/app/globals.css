@@ -1071,29 +1071,9 @@ html::-webkit-scrollbar {
 }
 
 /*
-  Cars hero: a battery gauge under "compared" that fills once on load, and a
-  showroom floor in perspective at the foot of the section. Both decorative
-  and aria-hidden; under reduced motion the gauge is simply drawn full.
+  Cars hero: a showroom floor in perspective at the foot of the section.
+  Decorative and aria-hidden.
 */
-.charge-cell {
-  transform: scaleY(0.35);
-  opacity: 0.22;
-  animation: charge-cell-on 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes charge-cell-on {
-  to {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .charge-cell {
-    animation: none;
-    transform: none;
-    opacity: 1;
-  }
-}
-
 .showroom-floor {
   background-image:
     repeating-linear-gradient(90deg, rgba(111, 232, 182, 0.09) 0 1px, transparent 1px 64px),

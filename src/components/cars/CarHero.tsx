@@ -4,6 +4,8 @@
 import { Search } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { SearchSelect } from '@/components/ui/SearchSelect'
+
 import type { CarCategory } from '@/data/cars'
 
 /**
@@ -115,32 +117,16 @@ export function CarHero({
           Pakistan market
         </span>
 
-        {/* Two explicit lines rather than a balanced wrap. "Every electrified
-            car, compared" breaks after "car," at every width this heading is
-            ever set at, so stating the break makes the silhouette a decision
-            instead of a coincidence — and it guarantees the accent word is
-            never left sharing a line with the phrase it is meant to close.
-            Spans rather than <br>, which a screen reader announces as a pause
-            mid-sentence; these are block-level and read as one heading. */}
+        {/* Two explicit lines rather than a balanced wrap, so the accent
+            phrase always has a line of its own. The heading says what this
+            section is: the EVs, plug-in hybrids and range extenders sold in
+            Pakistan, laid out to be compared. Spans rather than <br>, which a
+            screen reader announces as a pause mid-sentence. */}
         <h1 className="mx-auto mt-6 max-w-4xl text-[clamp(2.25rem,5.5vw,4.25rem)] font-black leading-[1.08] tracking-[-0.04em] text-white">
-          <span className="block">Every electrified car,</span>
+          <span className="block">Every EV in Pakistan,</span>
           {/* The logo's own mint (Logo.tsx MINT), as on the mark and ".pk". */}
-          <span className="block text-[#6FE8B6]">compared</span>
+          <span className="block text-[#6FE8B6]">side by side</span>
         </h1>
-
-        {/* A battery gauge under the accent word, filling once cell by cell —
-            the site's subject in one small line. The last cell is the
-            terminal nub. */}
-        <span aria-hidden="true" className="mx-auto mt-5 flex h-2.5 w-44 items-center gap-1 sm:w-52">
-          {Array.from({ length: 10 }, (_, i) => (
-            <span
-              key={i}
-              className="charge-cell h-full flex-1 rounded-[2px] bg-[#6FE8B6]"
-              style={{ animationDelay: `${250 + i * 90}ms` }}
-            />
-          ))}
-          <span className="ml-0.5 h-1.5 w-1 rounded-r-sm bg-[#6FE8B6]/60" />
-        </span>
 
         <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-white/70">
           Prices in rupees, real battery and range figures, nothing estimated — EVs,
@@ -177,24 +163,20 @@ export function CarHero({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Solid dark fill, not translucent: a native select paints its
-                option list from its own background, and a see-through control
-                gives the browser nothing to work with. */}
-            <select
+            {/* Not a native select: the browser draws a native list at any
+                height it likes, over the page and past the window. This one
+                opens inside the window and scrolls, like the city picker on
+                Services. */}
+            <SearchSelect
               value={brand ?? 'all'}
-              onChange={(event) =>
-                onBrandChange(event.target.value === 'all' ? null : event.target.value)
-              }
-              aria-label="Filter by brand"
-              className="h-12 min-w-0 flex-1 cursor-pointer rounded-full border border-white/15 bg-plug-navy-900 px-4 text-ui font-medium text-white outline-none transition-colors hover:border-white/25 focus-visible:border-plug-cyan-400 focus-visible:ring-2 focus-visible:ring-plug-cyan-400/40 sm:flex-none"
-            >
-              <option value="all">All brands</option>
-              {brands.map((entry) => (
-                <option key={entry} value={entry}>
-                  {entry}
-                </option>
-              ))}
-            </select>
+              onChange={(next) => onBrandChange(next === 'all' ? null : next)}
+              ariaLabel="Filter by brand"
+              allLabel="All brands"
+              options={brands}
+              searchPlaceholder="Type a brand"
+              tone="dark"
+              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+            />
 
             {/* Labelled Search but it scrolls, because the searching already
                 happened. Kept because the row reads as a search bar without it
