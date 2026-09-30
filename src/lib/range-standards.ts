@@ -239,49 +239,6 @@ export const SOURCES = [
   },
 ] as const
 
-// ── Trip check ─────────────────────────────────────────────────────────
-
-export type TripVerdict = 'likely' | 'tight' | 'stop'
-
-export interface TripResult {
-  scenario: Scenario
-  /** Range available for the trip, after the starting charge. */
-  low: number
-  high: number
-  verdict: TripVerdict
-}
-
-/**
- * Share of the battery kept in hand at arrival. Nobody should plan to roll in
- * on empty, and the estimate itself is a band, so the verdicts ask for this
- * much left over rather than for the figure to merely cover the distance.
- */
-export const TRIP_RESERVE = 0.1
-
-/**
- * Whether a trip fits inside each road estimate, from a given starting charge.
- *
- *   likely  even the low end of the band covers the trip with the reserve left
- *   tight   only the upper part of the band does — a top-up on the way is wise
- *   stop    not even the high end does — plan a charging stop
- *
- * The reserve is taken from the range at the start (10% of a full-battery
- * estimate scaled by the starting charge), so a lower starting charge does not
- * also shrink the safety margin.
- */
-export function checkTrip(estimates: RoadEstimate[], distanceKm: number, startPct: number): TripResult[] | null {
-  if (!Number.isFinite(distanceKm) || distanceKm <= 0 || !Number.isFinite(startPct) || startPct <= 0) return null
-  const share = Math.min(100, startPct) / 100
-  return estimates.map((e) => {
-    const low = roundKm(e.low * share)
-    const high = roundKm(e.high * share)
-    const reserve = e.typical * TRIP_RESERVE
-    const verdict: TripVerdict =
-      e.low * share - distanceKm >= reserve ? 'likely' : e.high * share - distanceKm >= reserve ? 'tight' : 'stop'
-    return { scenario: e.scenario, low, high, verdict }
-  })
-}
-
 // ── Two listings ───────────────────────────────────────────────────────
 
 export interface ListingComparison {

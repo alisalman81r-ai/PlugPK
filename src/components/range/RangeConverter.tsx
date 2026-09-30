@@ -12,7 +12,6 @@ import { cn } from '@/lib/utils'
 
 import { ListingCompare } from './ListingCompare'
 import { RoadEstimates } from './RoadEstimates'
-import { TripCheck } from './TripCheck'
 import type { RangeCar } from './types'
 
 /**
@@ -398,10 +397,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
 
       <div className={`${STAGE} mt-16 space-y-16 lg:mt-20 lg:space-y-20`}>
         {road && km != null && standard ? (
-          <div className="space-y-4">
-            <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
-            <TripCheck estimates={road} />
-          </div>
+          <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
         ) : null}
 
         <ListingCompare initialKm={ready ? km : null} initialStandard={ready ? standard : null} />
