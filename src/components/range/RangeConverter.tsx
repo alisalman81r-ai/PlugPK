@@ -5,18 +5,11 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
-import { AlertCircle, ArrowDown, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
-import {
-  convertRange,
-  roadEstimates,
-  STANDARD_ORDER,
-  STANDARDS,
-  type RangeStandard,
-} from '@/lib/range-standards'
+import { AlertCircle, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
+import { convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
 import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
 import { cn } from '@/lib/utils'
 
-import { EquivalentChart } from './EquivalentChart'
 import { ListingCompare } from './ListingCompare'
 import { RoadEstimates } from './RoadEstimates'
 import { TripCheck } from './TripCheck'
@@ -25,13 +18,14 @@ import type { RangeCar } from './types'
 /**
  * The converter: what the driver has, and what it comes to.
  *
- * Two cards side by side rather than one: the left is the question — a
- * figure and the standard it was quoted on, optionally filled from a car —
- * and the right is the answer. Under both, the part a generic converter
+ * One card, read top to bottom: pick the standard, type the figure, and the
+ * four equivalents appear under it in the same card. It sits in the hero
+ * beside the page's introduction, so the tool is the first thing on the page
+ * rather than something scrolled to. Under it, the part a generic converter
  * leaves out: what that figure might mean on a road in Pakistan.
  *
  * Nothing here computes. lib/range-standards does, and every number it
- * returns is a band; this file only decides how the driver asks.
+ * returns is a band; this file only decides how the driver asks and reads.
  *
  * A car whose catalogue row states no standard fills the figure but leaves
  * the standard unset, and the answer waits for the driver to choose it.
@@ -42,16 +36,38 @@ import type { RangeCar } from './types'
  * and opens showing the same answer.
  */
 
-/** Real published figures, one per common case, so the first tap teaches something. */
-const EXAMPLES: { km: number; standard: RangeStandard; label: string }[] = [
-  { km: 510, standard: 'CLTC', label: 'A China-spec listing' },
-  { km: 410, standard: 'NEDC', label: 'An older-standard brochure' },
-  { km: 420, standard: 'WLTP', label: 'A European-spec sheet' },
-]
+/** Same measure as the charging calculator and /community. */
+const STAGE = 'mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10'
 
-/** "a, b and c", for the summary sentence. */
-function listJoin(parts: string[]): string {
-  return parts.length < 2 ? parts.join('') : `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`
+/** The tabs, in the order people meet them on a Pakistani listing. */
+const TAB_ORDER: RangeStandard[] = ['EPA', 'WLTP', 'NEDC', 'CLTC']
+
+/**
+ * How far each standard's figure tends to sit from the road, strictest first.
+ * The results list uses this order, so reading down is reading from the
+ * number to trust most to the one to trust least.
+ */
+const REALISM: Record<RangeStandard, { badge: string; tone: string; note: string }> = {
+  EPA: {
+    badge: 'Most realistic',
+    tone: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    note: 'The US rating. It adds fast and cold driving, then adjusts down, so it lands nearest to what you will see.',
+  },
+  WLTP: {
+    badge: 'Realistic',
+    tone: 'bg-plug-cyan-50 text-plug-cyan-800 ring-plug-cyan-600/20',
+    note: 'Europe’s current test and the baseline here. A fair guide to everyday mixed driving.',
+  },
+  NEDC: {
+    badge: 'Optimistic',
+    tone: 'bg-amber-50 text-amber-800 ring-amber-600/20',
+    note: 'Europe’s old, gentle test, retired in 2018. Expect noticeably less on the road.',
+  },
+  CLTC: {
+    badge: 'Least realistic',
+    tone: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+    note: 'China’s slow, stop-start city test. Most Chinese imports quote it, and real range is well below.',
+  },
 }
 
 function parseStandardParam(value: string | null): RangeStandard | null {
@@ -75,9 +91,11 @@ function parseKm(text: string): number | null {
 
 export interface RangeConverterProps {
   cars: RangeCar[]
+  /** The page's heading and introduction, set beside the card in the hero. */
+  intro: React.ReactNode
 }
 
-export function RangeConverter({ cars }: RangeConverterProps) {
+export function RangeConverter({ cars, intro }: RangeConverterProps) {
   const [slug, setSlug] = React.useState('')
   const [kmText, setKmText] = React.useState('420')
   const [standard, setStandard] = React.useState<RangeStandard | null>('WLTP')
@@ -132,12 +150,6 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     window.setTimeout(() => setCopied('idle'), 2500)
   }
 
-  const applyExample = (e: (typeof EXAMPLES)[number]) => {
-    setSlug('')
-    setKmText(String(e.km))
-    setStandard(e.standard)
-  }
-
   const pickerCars: PickerCar[] = React.useMemo(
     () =>
       cars.map((c) => ({
@@ -171,247 +183,245 @@ export function RangeConverter({ cars }: RangeConverterProps) {
         : km > MAX_KM
           ? `No production EV is rated past ${MAX_KM.toLocaleString('en-PK')} km — check the figure.`
           : null
+  const showProblem = kmProblem != null && kmText.trim() !== ''
 
   const ready = !kmProblem && km != null && standard != null
-  const rows = ready ? convertRange(km, standard) : null
+  const converted = ready ? convertRange(km, standard) : null
+  // Strictest first, so the list reads from the figure to trust most.
+  const rows = converted ? TAB_ORDER.map((s) => converted.find((r) => r.standard === s)!) : null
   const road = ready ? roadEstimates(km, standard) : null
 
   return (
-    <div className="space-y-16 lg:space-y-20">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6">
-        {/* ── The question ─────────────────────────────────────────── */}
-        <div className="rounded-[1.75rem] border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(5,36,30,0.05),0_24px_60px_-32px_rgba(5,36,30,0.35)] sm:p-7">
-          <h2 className="text-ui font-semibold text-slate-900">Your range figure</h2>
-          <p className="mt-1 text-ui-sm text-slate-500">Type it in, or start from a car we list.</p>
-
-          <div className="mt-5">
-            <CarPicker
-              id="range-car"
-              label="EV (optional)"
-              cars={pickerCars}
-              value={slug}
-              onChange={chooseCar}
-              placeholder="Select your EV"
-              noneLabel="Not in the list — I’ll type the range"
-              hint={
-                car ? (
-                  <p className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm leading-relaxed text-slate-500">
-                    <span>
-                      {fromMemory ? 'Remembered from last time. ' : ''}
-                      {car.rangeMaxKm
-                        ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}.`
-                        : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}
-                    </span>
-                    <Link
-                      href={`/cars/${car.slug}`}
-                      className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
-                    >
-                      Full specs
-                      <ArrowUpRight size={14} aria-hidden="true" />
-                    </Link>
-                    <Link
-                      href={`/charging-calculator?car=${car.slug}`}
-                      className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
-                    >
-                      How long to charge it
-                      <ArrowUpRight size={14} aria-hidden="true" />
-                    </Link>
-                  </p>
-                ) : (
-                  <p className="text-ui-sm text-slate-500">Not in the list? Skip this and type the range below.</p>
-                )
-              }
-            />
-          </div>
-
-          <div className="mt-6">
-            <label htmlFor="range-km" className="mb-1.5 block text-sm font-medium text-slate-700">
-              Quoted range
-            </label>
-            <div
-              className={cn(
-                'flex items-baseline rounded-2xl border-[1.5px] bg-white px-5 py-3 transition-all duration-150 focus-within:shadow-focus',
-                kmProblem && kmText.trim() !== ''
-                  ? 'border-red-300 focus-within:border-red-400'
-                  : 'border-slate-200 focus-within:border-plug-blue-500',
-              )}
-            >
-              <input
-                id="range-km"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={MAX_KM}
-                step={1}
-                value={kmText}
-                onChange={(e) => setKmText(e.target.value)}
-                aria-invalid={kmProblem ? true : undefined}
-                aria-describedby="range-km-help"
-                className="w-full min-w-0 appearance-none bg-transparent text-[2.5rem] font-bold leading-none tracking-tight tabular-nums text-slate-900 outline-none placeholder:text-slate-300 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                placeholder="420"
-              />
-              <span className="ml-2 shrink-0 text-xl font-semibold text-slate-400">km</span>
-            </div>
-            <p id="range-km-help" className={cn('mt-2 text-ui-sm', kmProblem && kmText.trim() !== '' ? 'text-red-600' : 'text-slate-500')}>
-              {kmProblem && kmText.trim() !== '' ? kmProblem : 'The figure on the brochure, listing or spec sheet.'}
-            </p>
-
-            {/* Not shown once a car is chosen: the car's own figure is the example. */}
-            {car ? null : (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-ui-sm text-slate-500">Try:</span>
-                {EXAMPLES.map((e) => {
-                  const on = kmText === String(e.km) && standard === e.standard
-                  return (
-                    <button
-                      key={e.standard}
-                      type="button"
-                      onClick={() => applyExample(e)}
-                      aria-pressed={on}
-                      title={e.label}
-                      className={cn(
-                        'inline-flex min-h-9 items-center gap-1 rounded-full border px-3 text-ui-sm font-medium tabular-nums transition-colors',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
-                        on
-                          ? 'border-plug-blue-600 bg-plug-blue-600/[0.06] text-plug-blue-600'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300',
-                      )}
-                    >
-                      {e.km} km <span className={on ? 'text-plug-blue-600/70' : 'text-slate-400'}>{e.standard}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          <fieldset className="mt-6">
-            <legend className="mb-1.5 text-sm font-medium text-slate-700">Quoted on which standard?</legend>
-            {car && !car.standard && standard == null ? (
-              <p className="mb-2.5 flex gap-2 rounded-xl bg-amber-50 px-3.5 py-2.5 text-ui-sm text-amber-900">
-                <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
-                We don&rsquo;t know which standard this car&rsquo;s figure uses. Check the brochure and pick it here.
-              </p>
-            ) : null}
-            <div role="radiogroup" aria-label="Range standard" className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
-              {STANDARD_ORDER.map((s) => {
-                const on = standard === s
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => setStandard(s)}
-                    className={cn(
-                      'flex min-h-[4.25rem] flex-col items-start justify-center rounded-xl border-[1.5px] px-3.5 py-2.5 text-left transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
-                      on
-                        ? 'border-plug-blue-600 bg-plug-blue-600 text-white'
-                        : 'border-slate-200 bg-white text-slate-900 hover:border-slate-300',
-                    )}
-                  >
-                    <span className="text-lg font-bold leading-tight tracking-wide">{s}</span>
-                    <span className={cn('text-ui-sm leading-snug', on ? 'text-white/70' : 'text-slate-500')}>
-                      {STANDARDS[s].region}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
+    <>
+      <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-14 pt-10 sm:rounded-b-[2.5rem] sm:pb-16 lg:pb-20 lg:pt-14">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
+          <div className="absolute -left-40 top-0 size-[36rem] rounded-full bg-plug-cyan-500/[0.08] blur-3xl" />
         </div>
 
-        {/* ── The answer ───────────────────────────────────────────── */}
-        <section
-          aria-live="polite"
-          aria-label="Approximate comparison"
-          className="rounded-[1.75rem] border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(5,36,30,0.05),0_24px_60px_-32px_rgba(5,36,30,0.35)] sm:p-7"
+        <div
+          className={`relative grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] ${STAGE}`}
         >
-          {rows && km != null && standard ? (
-            <>
-              <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-                <div>
-                  <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-400">You have</p>
-                  <p className="mt-1 text-[clamp(2.25rem,5vw,3rem)] font-bold leading-none tracking-tight tabular-nums text-slate-900">
-                    {km.toLocaleString('en-PK')} km
-                    <span className="ml-2 align-middle text-ui font-bold tracking-wide text-plug-blue-600">
-                      {standard}
-                    </span>
+          <div className="lg:sticky lg:top-24 lg:pt-6">{intro}</div>
+
+          {/* ── The card: question on top, answer underneath ─────────── */}
+          <div className="overflow-hidden rounded-[1.75rem] bg-white shadow-[0_1px_2px_rgba(5,36,30,0.08),0_32px_80px_-32px_rgba(0,0,0,0.55)] ring-1 ring-black/5">
+            <div className="space-y-5 p-5 sm:p-7">
+              <CarPicker
+                id="range-car"
+                label="Your EV (optional)"
+                cars={pickerCars}
+                value={slug}
+                onChange={chooseCar}
+                placeholder="Select your EV to fill this in"
+                noneLabel="Not in the list — I’ll type the range"
+                hint={
+                  car ? (
+                    <p className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm leading-relaxed text-slate-500">
+                      <span>
+                        {fromMemory ? 'Remembered from last time. ' : ''}
+                        {car.rangeMaxKm
+                          ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}.`
+                          : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}
+                      </span>
+                      <Link
+                        href={`/cars/${car.slug}`}
+                        className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
+                      >
+                        Full specs
+                        <ArrowUpRight size={14} aria-hidden="true" />
+                      </Link>
+                      <Link
+                        href={`/charging-calculator?car=${car.slug}`}
+                        className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
+                      >
+                        How long to charge it
+                        <ArrowUpRight size={14} aria-hidden="true" />
+                      </Link>
+                    </p>
+                  ) : null
+                }
+              />
+
+              <fieldset>
+                <legend className="mb-2 text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Convert from
+                </legend>
+                {car && !car.standard && standard == null ? (
+                  <p className="mb-2.5 flex gap-2 rounded-xl bg-amber-50 px-3.5 py-2.5 text-ui-sm text-amber-900">
+                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
+                    We don&rsquo;t know which standard this car&rsquo;s figure uses. Check the brochure and pick it here.
                   </p>
+                ) : null}
+                <div role="radiogroup" aria-label="Range standard" className="grid grid-cols-4 gap-1 rounded-2xl bg-slate-100 p-1">
+                  {TAB_ORDER.map((s) => {
+                    const on = standard === s
+                    return (
+                      <button
+                        key={s}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        title={STANDARDS[s].region}
+                        onClick={() => setStandard(s)}
+                        className={cn(
+                          'min-h-11 rounded-xl text-ui-sm font-bold tracking-wide transition-all duration-150 sm:text-ui',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
+                          on
+                            ? 'bg-plug-blue-600 text-white shadow-blue'
+                            : 'text-slate-600 hover:bg-white/70 hover:text-slate-900',
+                        )}
+                      >
+                        {s}
+                      </button>
+                    )
+                  })}
                 </div>
-                <p className="flex items-center gap-1.5 pb-1 text-ui-sm font-semibold text-plug-cyan-700">
-                  <ArrowDown size={16} aria-hidden="true" />
-                  Approximate comparison
+                {standard ? (
+                  <p className="mt-2 text-ui-sm text-slate-500">
+                    {standard} is used in {STANDARDS[standard].region}.
+                  </p>
+                ) : null}
+              </fieldset>
+
+              <div>
+                <label
+                  htmlFor="range-km"
+                  className="mb-2 block text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500"
+                >
+                  Quoted range
+                </label>
+                <div
+                  className={cn(
+                    'flex items-baseline rounded-2xl border-[1.5px] bg-white px-5 py-3 transition-all duration-150 focus-within:shadow-focus',
+                    showProblem
+                      ? 'border-red-300 focus-within:border-red-400'
+                      : 'border-slate-200 focus-within:border-plug-blue-500',
+                  )}
+                >
+                  <input
+                    id="range-km"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={MAX_KM}
+                    step={1}
+                    value={kmText}
+                    onChange={(e) => setKmText(e.target.value)}
+                    aria-invalid={kmProblem ? true : undefined}
+                    aria-describedby="range-km-help"
+                    className="w-full min-w-0 appearance-none bg-transparent text-[2.25rem] font-bold leading-none tracking-tight tabular-nums text-slate-900 outline-none placeholder:text-slate-300 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    placeholder="420"
+                  />
+                  <span className="ml-2 shrink-0 text-lg font-semibold text-slate-400">km</span>
+                </div>
+                <p id="range-km-help" className={`mt-2 text-ui-sm ${showProblem ? 'text-red-600' : 'text-slate-500'}`}>
+                  {showProblem ? kmProblem : 'The figure on the brochure, listing or spec sheet.'}
                 </p>
               </div>
-
-              {/* The whole answer in one sentence, for anyone who doesn't read charts. */}
-              <p className="mt-5 text-ui leading-relaxed text-slate-700">
-                <strong className="font-semibold text-slate-900">
-                  {km.toLocaleString('en-PK')} km on {standard}
-                </strong>{' '}
-                is roughly{' '}
-                {listJoin(
-                  rows
-                    .filter((r) => !r.quoted)
-                    .map((r) => `${r.typical.toLocaleString('en-PK')} km on ${r.standard}`),
-                )}
-                .
-              </p>
-
-              <div className="mt-6">
-                <EquivalentChart rows={rows} />
-              </div>
-
-              <p className="mt-6 flex gap-2 border-t border-slate-100 pt-4 text-ui-sm leading-relaxed text-slate-500">
-                <Info size={16} className="mt-0.5 shrink-0 text-plug-cyan-700" aria-hidden="true" />
-                <span>
-                  Estimated equivalents, not conversions. Each standard is a different test drive, and cars differ
-                  in how they cope with each — so the spread matters as much as the middle figure.
-                </span>
-              </p>
-
-              <button
-                type="button"
-                onClick={copyLink}
-                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2"
-              >
-                {copied === 'done' ? (
-                  <Check size={16} className="text-plug-cyan-700" aria-hidden="true" />
-                ) : (
-                  <Link2 size={16} aria-hidden="true" />
-                )}
-                {copied === 'done'
-                  ? 'Link copied'
-                  : copied === 'failed'
-                    ? 'Copy the address bar instead'
-                    : 'Copy link to this result'}
-              </button>
-            </>
-          ) : (
-            <div className="flex h-full min-h-[16rem] flex-col items-center justify-center text-center">
-              <p className="text-ui font-semibold text-slate-900">
-                {standard == null ? 'Pick the standard to compare' : 'Enter a range to compare'}
-              </p>
-              <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
-                {standard == null
-                  ? 'The same figure means different things on each standard, so we need to know which one it is.'
-                  : kmProblem}
-              </p>
             </div>
-          )}
-        </section>
-      </div>
 
-      {road && km != null && standard ? (
-        <div className="space-y-4">
-          <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
-          <TripCheck estimates={road} />
+            {/* ── The answer ───────────────────────────────────────────── */}
+            <section
+              aria-live="polite"
+              aria-label="Your range on each standard"
+              className="border-t border-slate-100 bg-slate-50/70 px-5 pb-5 pt-4 sm:px-7 sm:pb-6"
+            >
+              {rows && km != null && standard ? (
+                <>
+                  <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                    {km.toLocaleString('en-PK')} km {standard} is roughly
+                  </p>
+
+                  <ul className="mt-2 divide-y divide-slate-200/70">
+                    {rows.map((row) => {
+                      const r = REALISM[row.standard]
+                      return (
+                        <li
+                          key={row.standard}
+                          className={cn(
+                            'grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-4 py-4 sm:grid-cols-[6.5rem_minmax(0,1fr)]',
+                            row.quoted && '-mx-3 rounded-2xl border-0 bg-white px-3 ring-1 ring-plug-blue-600/15',
+                          )}
+                        >
+                          <div className="leading-tight">
+                            <p className="text-[1.75rem] font-bold tracking-tight tabular-nums text-slate-900">
+                              {row.quoted ? '' : <span className="mr-0.5 text-slate-400">≈</span>}
+                              {row.typical.toLocaleString('en-PK')}
+                            </p>
+                            <p className="mt-1 text-ui-sm tabular-nums text-slate-500">
+                              {row.quoted ? 'km · entered' : `${row.low}–${row.high} km`}
+                            </p>
+                          </div>
+                          <div className="min-w-0">
+                            <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              <span className="text-ui font-bold text-slate-900">{row.standard}</span>
+                              <span
+                                className={cn(
+                                  'inline-flex items-center rounded-full px-2 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wider ring-1 ring-inset',
+                                  r.tone,
+                                )}
+                              >
+                                {r.badge}
+                              </span>
+                            </p>
+                            <p className="mt-0.5 text-ui-sm font-medium text-slate-600">{STANDARDS[row.standard].name}</p>
+                            <p className="mt-1 text-ui-sm leading-relaxed text-slate-500">{r.note}</p>
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
+
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-4">
+                    <p className="flex max-w-sm gap-2 text-ui-sm leading-relaxed text-slate-500">
+                      <Info size={16} className="mt-0.5 shrink-0 text-plug-cyan-700" aria-hidden="true" />
+                      Estimates, not exact conversions — the small range under each figure is the likely spread.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={copyLink}
+                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2"
+                    >
+                      {copied === 'done' ? (
+                        <Check size={16} className="text-plug-cyan-700" aria-hidden="true" />
+                      ) : (
+                        <Link2 size={16} aria-hidden="true" />
+                      )}
+                      {copied === 'done' ? 'Link copied' : copied === 'failed' ? 'Copy the address bar instead' : 'Copy link'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="flex min-h-[10rem] flex-col items-center justify-center py-4 text-center">
+                  <p className="text-ui font-semibold text-slate-900">
+                    {standard == null ? 'Pick the standard to compare' : 'Enter a range to compare'}
+                  </p>
+                  <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
+                    {standard == null
+                      ? 'The same figure means different things on each standard, so we need to know which one it is.'
+                      : kmProblem}
+                  </p>
+                </div>
+              )}
+            </section>
+          </div>
         </div>
-      ) : null}
+      </header>
 
-      <ListingCompare initialKm={ready ? km : null} initialStandard={ready ? standard : null} />
-    </div>
+      <div className={`${STAGE} mt-16 space-y-16 lg:mt-20 lg:space-y-20`}>
+        {road && km != null && standard ? (
+          <div className="space-y-4">
+            <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
+            <TripCheck estimates={road} />
+          </div>
+        ) : null}
+
+        <ListingCompare initialKm={ready ? km : null} initialStandard={ready ? standard : null} />
+      </div>
+    </>
   )
 }
