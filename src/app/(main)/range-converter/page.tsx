@@ -54,35 +54,34 @@ export default async function RangeConverterPage() {
 
   return (
     <div className="min-h-below-nav bg-slate-50">
-      <RangeConverter
-        cars={cars}
-        intro={
-          <>
-            <h1 className="text-balance font-display text-[clamp(2.25rem,5vw,3.5rem)] font-bold leading-[1.05] tracking-tight text-white">
+      <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-28 pt-12 sm:rounded-b-[2.5rem] sm:pb-32 lg:pb-36 lg:pt-16">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
+          {/* A road's centre line, running out of the header: the one piece of
+              decoration, and it is the subject. */}
+          <div className="absolute bottom-0 right-[12%] top-0 hidden w-0 border-l-2 border-dashed border-white/[0.07] lg:block" />
+        </div>
+
+        <div className={`relative ${STAGE}`}>
+          {/* Centred, in two colours, like the Map, Routes and Cars heroes. */}
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="mx-auto text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
               <span className="block">Compare EV range</span>
-              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
-                across every test
-              </span>
+              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">across every test</span>
             </h1>
 
-            <div className="mt-6 max-w-xl space-y-4 text-pretty text-ui leading-relaxed text-white/70 sm:text-base">
-              <p>
-                One car can be sold with four different range figures. WLTP, EPA, NEDC and CLTC are four different
-                test drives, so the number on the brochure depends on which one was used, not on the car.
-              </p>
-              <p>
-                That matters in Pakistan: many EVs here are Chinese imports quoted on CLTC, the most generous of the
-                four, so the brochure figure sits well above what the car will do on the road.
-              </p>
-              <p>
-                Pick the standard and type the figure to see it on all four, with a plain note on how far to trust
-                each. Further down, see what it might come to here: in summer heat, with the AC on, and on the
-                motorway.
-              </p>
-            </div>
-          </>
-        }
-      />
+            <p className="mx-auto mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
+              EVs in Pakistan are sold with range figures from four different tests — WLTP, EPA, NEDC and CLTC.
+              Compare a figure across all four, then see what it might come to on the road here.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <RangeConverter cars={cars} />
 
       <div className={`${STAGE} mt-16 space-y-20 pb-20 lg:mt-20 lg:space-y-28 lg:pb-28`}>
         <RangeFactors />

@@ -18,11 +18,11 @@ import type { RangeCar } from './types'
 /**
  * The converter: what the driver has, and what it comes to.
  *
- * One card, read top to bottom: pick the standard, type the figure, and the
- * four equivalents appear under it in the same card. It sits in the hero
- * beside the page's introduction, so the tool is the first thing on the page
- * rather than something scrolled to. Under it, the part a generic converter
- * leaves out: what that figure might mean on a road in Pakistan.
+ * One card: pick the standard and type the figure on one side, and the four
+ * equivalents appear on the other, each marked by how far to trust it. It
+ * rises into the page header like the other tools' cards. Under it, the part
+ * a generic converter leaves out: what that figure might mean on a road in
+ * Pakistan.
  *
  * Nothing here computes. lib/range-standards does, and every number it
  * returns is a band; this file only decides how the driver asks and reads.
@@ -91,11 +91,9 @@ function parseKm(text: string): number | null {
 
 export interface RangeConverterProps {
   cars: RangeCar[]
-  /** The page's heading and introduction, set beside the card in the hero. */
-  intro: React.ReactNode
 }
 
-export function RangeConverter({ cars, intro }: RangeConverterProps) {
+export function RangeConverter({ cars }: RangeConverterProps) {
   const [slug, setSlug] = React.useState('')
   const [kmText, setKmText] = React.useState('420')
   const [standard, setStandard] = React.useState<RangeStandard | null>('WLTP')
@@ -193,23 +191,10 @@ export function RangeConverter({ cars, intro }: RangeConverterProps) {
 
   return (
     <>
-      <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-14 pt-10 sm:rounded-b-[2.5rem] sm:pb-16 lg:pb-20 lg:pt-14">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
-          <div className="absolute -left-40 top-0 size-[36rem] rounded-full bg-plug-cyan-500/[0.08] blur-3xl" />
-        </div>
-
-        <div
-          className={`relative grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] ${STAGE}`}
-        >
-          <div className="lg:sticky lg:top-24 lg:pt-6">{intro}</div>
-
-          {/* ── The card: question on top, answer underneath ─────────── */}
-          <div className="overflow-hidden rounded-[1.75rem] bg-white shadow-[0_1px_2px_rgba(5,36,30,0.08),0_32px_80px_-32px_rgba(0,0,0,0.55)] ring-1 ring-black/5">
-            <div className="space-y-5 p-5 sm:p-7">
+      <div className={`relative -mt-20 sm:-mt-24 ${STAGE}`}>
+        {/* ── The card: question on the left, answer on the right ───── */}
+        <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(5,36,30,0.05),0_24px_60px_-32px_rgba(5,36,30,0.35)] lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+            <div className="space-y-5 p-5 sm:p-7 lg:p-8">
               <CarPicker
                 id="range-car"
                 label="Your EV (optional)"
@@ -328,7 +313,7 @@ export function RangeConverter({ cars, intro }: RangeConverterProps) {
             <section
               aria-live="polite"
               aria-label="Your range on each standard"
-              className="border-t border-slate-100 bg-slate-50/70 px-5 pb-5 pt-4 sm:px-7 sm:pb-6"
+              className="border-t border-slate-100 bg-slate-50/70 px-5 pb-5 pt-4 sm:px-7 sm:pb-6 lg:border-l lg:border-t-0 lg:p-8"
             >
               {rows && km != null && standard ? (
                 <>
@@ -408,9 +393,8 @@ export function RangeConverter({ cars, intro }: RangeConverterProps) {
                 </div>
               )}
             </section>
-          </div>
         </div>
-      </header>
+      </div>
 
       <div className={`${STAGE} mt-16 space-y-16 lg:mt-20 lg:space-y-20`}>
         {road && km != null && standard ? (
