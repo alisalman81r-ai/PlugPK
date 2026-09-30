@@ -4468,4 +4468,320 @@ export const cars: Car[] = [
       'Type 2. Battery warranty is 8 years, quoted as 120,000 km by Capital Smart Motors and ' +
       '150,000 km elsewhere. Consumption is unpublished.',
   },
+
+  /* ─── Audi: four electric lineups, imported ─────────────────────────
+
+     Four rows supplied as a researched spec sheet: Q6 e-tron, Q8 e-tron,
+     A6 e-tron and the e-tron GT. None is sold new through a local assembler;
+     each is a CBU import, so every price is an estimate for an imported car
+     and says "(estimated)" inside `price.display`, where it travels to every
+     surface that prints it.
+
+     Each row is a lineup of three trims, so `variant` is null (the batch rule
+     above). Every headline figure is the entry trim's, matching `price.min`;
+     the other trims' figures are in `notes`. Where the entry trim has the
+     longest range (Q6, A6, e-tron GT), `rangeMax` is null rather than holding
+     a shorter figure from a dearer trim.
+
+     `batteryCapacity` is the usable figure where the sheet gave both, because
+     usable is what the range and the charging calculator run on; the gross
+     figure is in `notes`. `kerbWeightKg` holds the low end of the quoted span.
+
+     `image` is null on all four until licensed files land.
+  */
+  {
+    id: 'audi-q6-e-tron',
+    slug: 'audi-q6-e-tron',
+    brand: 'Audi',
+    model: 'Q6 e-tron',
+    variant: null,
+    fullName: 'Audi Q6 e-tron',
+    category: 'EV',
+    price: { min: crore(3.5), max: crore(4.5), display: 'PKR 3.5–4.5 Cr (estimated)' },
+    // Performance RWD, the entry trim. quattro and SQ6 are in `notes`.
+    batteryCapacity: 94.9,
+    batteryUnit: 'kWh',
+    range: 641,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 322,
+    powerUnit: 'hp',
+    acceleration: 6.6,
+    accelerationUnit: 'sec',
+    dcCharging: 270,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 485,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Luxury electric SUV (5-door)',
+    driveType: 'RWD / AWD (quattro)',
+    motorPowerKw: 240,
+    rangeStandard: 'WLTP',
+    realWorldRange: 480,
+    realWorldRangeMax: 550,
+    consumption: 16.5,
+    consumptionMax: 19.4,
+    acChargingHours: 10,
+    dcChargingMinutes: 21,
+    batteryTech: 'Lithium-ion (800V architecture)',
+    lengthMm: 4771,
+    widthMm: 1939,
+    heightMm: 1648,
+    wheelbaseMm: 2899,
+    groundClearanceMm: 185,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 526,
+    kerbWeightKg: 2200,
+    availability: 'Launched globally; available in Pakistan as an import (estimated, not confirmed locally).',
+    distributor: 'Audi Pakistan (Premier Systems)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: null,
+    notes:
+      'Audi Q6 e-tron, 2025–2026 model years, in three trims: Performance RWD, quattro and ' +
+      'SQ6 e-tron. Headline figures are the Performance RWD. 100 kWh gross / 94.9 kWh usable ' +
+      'lithium-ion on an 800-volt architecture. Performance RWD: 240 kW / 322 hp, 485 Nm, ' +
+      '0–100 km/h 6.6 s, 210 km/h, 641 km WLTP. quattro: 285 kW / 382 hp, 535 Nm, 5.9 s, ' +
+      '210 km/h, 625 km WLTP. SQ6 e-tron: 380 kW / 510 hp, 820 Nm, 4.3 s, 230 km/h, 598 km ' +
+      'WLTP. Real-world range about 480–550 km (estimated). 16.5–19.4 kWh/100 km. DC up to ' +
+      '270 kW, 10–80% in about 21 minutes; AC 11 kW (22 kW optional), about 10 hours from ' +
+      'empty. CCS2 and Type 2. 4771×1939×1648 mm, wheelbase 2899 mm, ground clearance 185 mm. ' +
+      'Boot 526 L plus a 64 L front trunk. Kerb weight 2200–2350 kg. 5 seats, 5 doors. ' +
+      'PRICE IS AN ESTIMATE for a CBU import (PKR 3.5–4.5 crore), not a dealer list price, and ' +
+      'availability is stated as launched globally / grey import — confirm both with the ' +
+      'distributor. Battery warranty 8 years / 160,000 km; vehicle warranty not supplied.',
+  },
+  {
+    id: 'audi-q8-e-tron',
+    slug: 'audi-q8-e-tron',
+    brand: 'Audi',
+    model: 'Q8 e-tron',
+    variant: null,
+    fullName: 'Audi Q8 e-tron',
+    category: 'EV',
+    price: { min: crore(3.8), max: crore(5.2), display: 'PKR 3.8–5.2 Cr (estimated)' },
+    /*
+      50 quattro, the entry trim. The sheet gives its pack as 95 kWh with no
+      gross/usable split (Audi's 95 is the gross figure); the 55 and SQ8 carry
+      114 kWh gross / 106 kWh usable, in `notes`.
+    */
+    batteryCapacity: 95,
+    batteryUnit: 'kWh',
+    // 491 km is the 50's; 600 km is the 55 Sportback, the longest of the lineup.
+    range: 491,
+    rangeMax: 600,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 340,
+    powerUnit: 'hp',
+    acceleration: 6.0,
+    accelerationUnit: 'sec',
+    // The 50's rate. The 55 and SQ8 take 170 kW.
+    dcCharging: 150,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 664,
+    topSpeed: 200,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Full-size luxury SUV / Sportback (5-door)',
+    driveType: 'AWD (quattro)',
+    motorPowerKw: 250,
+    rangeStandard: 'WLTP',
+    realWorldRange: 420,
+    realWorldRangeMax: 490,
+    consumption: 20.1,
+    consumptionMax: 24.4,
+    acChargingHours: 11.5,
+    dcChargingMinutes: 31,
+    batteryTech: 'Lithium-ion (NMC)',
+    lengthMm: 4915,
+    widthMm: 1937,
+    heightMm: 1633,
+    wheelbaseMm: 2928,
+    groundClearanceMm: 176,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 569,
+    kerbWeightKg: 2510,
+    availability: 'Available on order as an import (estimated, not confirmed locally).',
+    distributor: 'Audi Pakistan (Premier Systems)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: null,
+    notes:
+      'Audi Q8 e-tron, 2025 model year, SUV or Sportback, in three trims: 50 quattro, 55 ' +
+      'quattro and SQ8 e-tron. Headline figures are the 50 quattro. 50: 95 kWh, 250 kW / ' +
+      '340 hp, 664 Nm, 0–100 km/h 6.0 s, 200 km/h, 491 km WLTP, DC 150 kW. 55: 114 kWh gross / ' +
+      '106 kWh usable, 300 kW / 408 hp, 664 Nm, 5.6 s, 200 km/h, 582 km WLTP as an SUV and ' +
+      '600 km as a Sportback, DC 170 kW. SQ8 e-tron: 114 / 106 kWh, three motors, 370 kW / ' +
+      '503 hp with boost, 973 Nm, 4.5 s, 210 km/h, DC 170 kW. Lithium-ion NMC. Real-world ' +
+      'range about 420–490 km (estimated). 20.1–24.4 kWh/100 km. DC 10–80% in about 31 ' +
+      'minutes; AC 11 kW (22 kW optional), about 11.5 hours from empty. CCS2 and Type 2. ' +
+      'Quattro AWD on every trim. 4915×1937×1633 mm, wheelbase 2928 mm, ground clearance ' +
+      '176 mm on adaptive air suspension. Boot 569 L plus a 62 L front trunk. Kerb weight ' +
+      '2510–2650 kg. 5 seats, 5 doors. PRICE IS AN ESTIMATE for an import (PKR 3.8–5.2 ' +
+      'crore), not a dealer list price — confirm with the distributor. Battery warranty ' +
+      '8 years / 160,000 km; vehicle warranty not supplied.',
+  },
+  {
+    id: 'audi-a6-e-tron',
+    slug: 'audi-a6-e-tron',
+    brand: 'Audi',
+    model: 'A6 e-tron',
+    variant: null,
+    fullName: 'Audi A6 e-tron Sportback',
+    category: 'EV',
+    price: { min: crore(3.6), max: crore(4.8), display: 'PKR 3.6–4.8 Cr (estimated)' },
+    // Sportback Performance RWD, the entry trim. quattro and S6 are in `notes`.
+    batteryCapacity: 94.9,
+    batteryUnit: 'kWh',
+    range: 756,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 362,
+    powerUnit: 'hp',
+    acceleration: 5.4,
+    accelerationUnit: 'sec',
+    dcCharging: 270,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 565,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Executive sportback (5-door, Cd 0.21)',
+    driveType: 'RWD / AWD (quattro)',
+    motorPowerKw: 270,
+    rangeStandard: 'WLTP',
+    realWorldRange: 580,
+    realWorldRangeMax: 660,
+    consumption: 14.0,
+    consumptionMax: 16.5,
+    acChargingHours: 10,
+    dcChargingMinutes: 21,
+    batteryTech: 'Lithium-ion (800V architecture)',
+    lengthMm: 4928,
+    widthMm: 1923,
+    heightMm: 1487,
+    wheelbaseMm: 2946,
+    groundClearanceMm: 142,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 502,
+    kerbWeightKg: 2175,
+    availability: 'Launched globally; pre-orders open (estimated, not confirmed locally).',
+    distributor: 'Audi Pakistan',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: null,
+    notes:
+      'Audi A6 e-tron Sportback, 2025–2026 model years, in three trims: Sportback Performance ' +
+      'RWD, quattro and S6 Sportback. Headline figures are the Performance RWD. 100 kWh gross / ' +
+      '94.9 kWh usable lithium-ion on an 800-volt architecture. Performance RWD: 270 kW / ' +
+      '362 hp, 565 Nm, 0–100 km/h 5.4 s, 210 km/h, 756 km WLTP — the longest range in this ' +
+      'catalogue. quattro: 315 kW / 422 hp, 4.5 s. S6 Sportback: 405 kW / 543 hp with boost, ' +
+      '855 Nm, 3.9 s, 240 km/h, 675 km WLTP. Drag coefficient 0.21. Real-world range about ' +
+      '580–660 km (estimated). 14.0–16.5 kWh/100 km. DC up to 270 kW, quoted as adding about ' +
+      '310 km in 10 minutes and 10–80% in about 21 minutes; AC 11 kW (22 kW optional), about ' +
+      '10 hours from empty. CCS2 and Type 2. 4928×1923×1487 mm, wheelbase 2946 mm, ground ' +
+      'clearance 142 mm. Boot 502 L plus a 27 L front trunk. Kerb weight 2175–2325 kg. ' +
+      '5 seats, 5 doors. PRICE IS AN ESTIMATE for a CBU import (PKR 3.6–4.8 crore), not a ' +
+      'dealer list price — confirm with the distributor. Battery warranty 8 years / ' +
+      '160,000 km; vehicle warranty not supplied.',
+  },
+  {
+    id: 'audi-e-tron-gt',
+    slug: 'audi-e-tron-gt',
+    brand: 'Audi',
+    model: 'e-tron GT',
+    variant: null,
+    /*
+      The sheet names the row "Audi RS e-tron GT Performance", the top trim.
+      The row describes the whole lineup from the S e-tron GT up, and its price
+      starts at the S, so the name is the lineup's.
+    */
+    fullName: 'Audi e-tron GT',
+    category: 'EV',
+    price: { min: crore(5.5), max: crore(8.5), display: 'PKR 5.5–8.5 Cr (estimated)' },
+    // S e-tron GT, the entry trim. RS and RS Performance are in `notes`.
+    batteryCapacity: 97,
+    batteryUnit: 'kWh',
+    range: 609,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 670,
+    powerUnit: 'hp',
+    acceleration: 3.4,
+    accelerationUnit: 'sec',
+    dcCharging: 320,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    // Supplied for the RS (865 Nm) and RS Performance (1027 Nm) only, not the
+    // S this row's headline figures describe. Both are in `notes`.
+    torque: null,
+    topSpeed: 245,
+    seats: 4,
+
+    modelYear: 2025,
+    bodyType: 'Four-door electric gran turismo',
+    driveType: 'AWD (electric quattro)',
+    motorPowerKw: 500,
+    rangeStandard: 'WLTP',
+    realWorldRange: 450,
+    realWorldRangeMax: 520,
+    consumption: 18.0,
+    consumptionMax: 21.1,
+    acChargingHours: 9.5,
+    dcChargingMinutes: 18,
+    batteryTech: 'Lithium-ion (800V)',
+    lengthMm: 4989,
+    widthMm: 1964,
+    heightMm: 1413,
+    wheelbaseMm: 2900,
+    groundClearanceMm: 120,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 405,
+    kerbWeightKg: 2275,
+    availability: 'Available globally; import on order (estimated, not confirmed locally).',
+    distributor: 'Audi Pakistan (Premier Systems)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: null,
+    notes:
+      'Audi e-tron GT, 2025 facelift, in three trims: S e-tron GT, RS e-tron GT and RS e-tron ' +
+      'GT Performance. Headline figures are the S. 105 kWh gross / 97 kWh usable lithium-ion, ' +
+      '800 volts. S: 500 kW / 670 hp, 0–100 km/h 3.4 s, 245 km/h, 609 km WLTP (torque not ' +
+      'supplied). RS: 630 kW / 844 hp, 865 Nm, 2.8 s, 250 km/h, 598 km WLTP. RS Performance: ' +
+      '680 kW / 912 hp with boost, 1027 Nm, 2.5 s, 250 km/h. Electric quattro AWD. Real-world ' +
+      'range about 450–520 km (estimated). 18.0–21.1 kWh/100 km. DC up to 320 kW, 10–80% in ' +
+      'about 18 minutes; AC 11 kW (22 kW available), about 9.5 hours from empty. CCS2 and ' +
+      'Type 2. 4989×1964×1413 mm, wheelbase 2900 mm, ground clearance 120 mm on active ' +
+      'suspension. Boot 405 L plus an 81 L front trunk. Kerb weight 2275–2320 kg. 4 seats, ' +
+      '4 doors. PRICE IS AN ESTIMATE (PKR 5.5–8.5 crore from the S to the RS Performance), ' +
+      'not a dealer list price — confirm with the distributor. Battery warranty 8 years / ' +
+      '160,000 km; vehicle warranty not supplied.',
+  },
 ]
