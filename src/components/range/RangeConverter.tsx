@@ -11,7 +11,9 @@ import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
 import { cn } from '@/lib/utils'
 
 import { ListingCompare } from './ListingCompare'
+import { REALISM, REALISM_ORDER } from './realism'
 import { RoadEstimates } from './RoadEstimates'
+import { StandardsTable } from './StandardsTable'
 import type { RangeCar } from './types'
 
 /**
@@ -38,36 +40,8 @@ import type { RangeCar } from './types'
 /** Same measure as the charging calculator and /community. */
 const STAGE = 'mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10'
 
-/** The tabs, in the order people meet them on a Pakistani listing. */
-const TAB_ORDER: RangeStandard[] = ['EPA', 'WLTP', 'NEDC', 'CLTC']
-
-/**
- * How far each standard's figure tends to sit from the road, strictest first.
- * The results list uses this order, so reading down is reading from the
- * number to trust most to the one to trust least.
- */
-const REALISM: Record<RangeStandard, { badge: string; tone: string; note: string }> = {
-  EPA: {
-    badge: 'Most realistic',
-    tone: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
-    note: 'The US rating. It adds fast and cold driving, then adjusts down, so it lands nearest to what you will see.',
-  },
-  WLTP: {
-    badge: 'Realistic',
-    tone: 'bg-plug-cyan-50 text-plug-cyan-800 ring-plug-cyan-600/20',
-    note: 'Europe’s current test and the baseline here. A fair guide to everyday mixed driving.',
-  },
-  NEDC: {
-    badge: 'Optimistic',
-    tone: 'bg-amber-50 text-amber-800 ring-amber-600/20',
-    note: 'Europe’s old, gentle test, retired in 2018. Expect noticeably less on the road.',
-  },
-  CLTC: {
-    badge: 'Least realistic',
-    tone: 'bg-rose-50 text-rose-700 ring-rose-600/20',
-    note: 'China’s slow, stop-start city test. Most Chinese imports quote it, and real range is well below.',
-  },
-}
+/** The tabs and the results both run strictest first. */
+const TAB_ORDER = REALISM_ORDER
 
 function parseStandardParam(value: string | null): RangeStandard | null {
   const v = value?.trim().toUpperCase()
@@ -396,6 +370,8 @@ export function RangeConverter({ cars }: RangeConverterProps) {
       </div>
 
       <div className={`${STAGE} mt-16 space-y-16 lg:mt-20 lg:space-y-20`}>
+        <StandardsTable />
+
         {road && km != null && standard ? (
           <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
         ) : null}
