@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ListingsGuide } from '@/components/range/ListingsGuide'
 import { RangeConverter } from '@/components/range/RangeConverter'
 import { RangeFactors } from '@/components/range/RangeFactors'
-import { StandardsGuide } from '@/components/range/StandardsGuide'
 import type { RangeCar, StandardCounts } from '@/components/range/types'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { ArrowRight } from '@/components/ui/icons'
@@ -85,7 +84,6 @@ export default async function RangeConverterPage() {
 
       <div className={`${STAGE} mt-16 space-y-20 pb-20 lg:mt-20 lg:space-y-28 lg:pb-28`}>
         <RangeFactors />
-        <StandardsGuide />
         <ListingsGuide counts={counts} />
       </div>
 
