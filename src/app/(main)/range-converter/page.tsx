@@ -83,8 +83,8 @@ export default async function RangeConverterPage() {
       <RangeConverter cars={cars} />
 
       <div className={`${STAGE} mt-16 space-y-20 pb-20 lg:mt-20 lg:space-y-28 lg:pb-28`}>
-        <RangeFactors />
         <ListingsGuide counts={counts} />
+        <RangeFactors />
       </div>
 
       <FaqSection items={RANGE_FAQS} title="EV range questions" tone="white" />
