@@ -372,6 +372,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             >
               Wikimedia Commons
             </a>
+            {credit.changes ? <> · {credit.changes}</> : null}
           </p>
         ) : null}
 

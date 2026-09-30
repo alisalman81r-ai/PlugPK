@@ -85,7 +85,7 @@
     {
       "model": "Car",
       "file": "car.json",
-      "rows": 52
+      "rows": 104
     },
     {
       "model": "CarSource",

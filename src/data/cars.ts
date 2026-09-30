@@ -4487,7 +4487,9 @@ export const cars: Car[] = [
      usable is what the range and the charging calculator run on; the gross
      figure is in `notes`. `kerbWeightKg` holds the low end of the quoted span.
 
-     `image` is null on all four until licensed files land.
+     `image` is a Wikimedia Commons photograph, cut out onto white to match the
+     other cards, with its credit in carImageCredits.ts — except the A6 e-tron,
+     whose photograph was uploaded through the admin portal.
   */
   {
     id: 'audi-q6-e-tron',
@@ -4544,7 +4546,7 @@ export const cars: Car[] = [
     distributor: 'Audi Pakistan (Premier Systems)',
     warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
 
-    image: null,
+    image: '/images/cars/audi-q6-e-tron.jpg',
     notes:
       'Audi Q6 e-tron, 2025–2026 model years, in three trims: Performance RWD, quattro and ' +
       'SQ6 e-tron. Headline figures are the Performance RWD. 100 kWh gross / 94.9 kWh usable ' +
@@ -4620,7 +4622,7 @@ export const cars: Car[] = [
     distributor: 'Audi Pakistan (Premier Systems)',
     warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
 
-    image: null,
+    image: '/images/cars/audi-q8-e-tron.jpg',
     notes:
       'Audi Q8 e-tron, 2025 model year, SUV or Sportback, in three trims: 50 quattro, 55 ' +
       'quattro and SQ8 e-tron. Headline figures are the 50 quattro. 50: 95 kWh, 250 kW / ' +
@@ -4691,7 +4693,7 @@ export const cars: Car[] = [
     distributor: 'Audi Pakistan',
     warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
 
-    image: null,
+    image: '/images/cars/audi-a6-e-tron.jpg',
     notes:
       'Audi A6 e-tron Sportback, 2025–2026 model years, in three trims: Sportback Performance ' +
       'RWD, quattro and S6 Sportback. Headline figures are the Performance RWD. 100 kWh gross / ' +
@@ -4769,7 +4771,7 @@ export const cars: Car[] = [
     distributor: 'Audi Pakistan (Premier Systems)',
     warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
 
-    image: null,
+    image: '/images/cars/audi-e-tron-gt.jpg',
     notes:
       'Audi e-tron GT, 2025 facelift, in three trims: S e-tron GT, RS e-tron GT and RS e-tron ' +
       'GT Performance. Headline figures are the S. 105 kWh gross / 97 kWh usable lithium-ion, ' +
@@ -4783,5 +4785,3659 @@ export const cars: Car[] = [
       '4 doors. PRICE IS AN ESTIMATE (PKR 5.5–8.5 crore from the S to the RS Performance), ' +
       'not a dealer list price — confirm with the distributor. Battery warranty 8 years / ' +
       '160,000 km; vehicle warranty not supplied.',
+  },
+
+  /* ─── BMW: seven electric lineups, Dewan Motors ─────────────────────
+
+     iX1, iX2, iX3, i4, i5, iX and i7, each at its latest version. BMW is
+     imported by Dewan Motors, and every price here is a Dewan promotional
+     ex-factory price as reported by PakWheels — not a standing list price —
+     so `price.display` says "promo" and `notes` gives the month:
+       https://www.pakwheels.com/blog/dewan-motors-bmw-i7-special-prices-bev-range/ (Sep 2026)
+       https://www.pakwheels.com/blog/bmw-ev-price-cuts-pakistan-dewan-motors-mid-year-special/ (Jun 2026)
+
+     Headline figures are the trim Dewan actually prices, so the specs match
+     the price beside them. That is often not Europe's entry trim: Pakistan
+     gets the iX1 and iX2 as xDrive30, the iX as xDrive60. Where two trims are
+     priced (i4, i5), `price.min` is the cheaper one, whose figures are the
+     headline. Other trims are in `notes`.
+
+     Figures come from BMW Group PressClub technical data and BMW spec sheets;
+     real-world range spans, gross battery figures and consumption spans BMW
+     does not publish are from ev-database.org. `batteryCapacity` is usable.
+     `kerbWeightKg` is the EU figure (with driver). A figure no source gave for
+     the headline trim is null rather than borrowed from another trim.
+
+     The i7 is the April 2026 facelift, whose entry trim is the 50 xDrive. Dewan's
+     September 2026 price is for the outgoing eDrive50; the row says so.
+
+     `image` is a Wikimedia Commons photograph, cut out onto white to match the
+     other cards, with its credit in carImageCredits.ts.
+  */
+  {
+    id: 'bmw-ix1',
+    slug: 'bmw-ix1',
+    brand: 'BMW',
+    model: 'iX1',
+    variant: null,
+    fullName: 'BMW iX1',
+    category: 'EV',
+    price: { min: crore(2.49), max: crore(2.49), display: 'PKR 2.49 Cr (promo)' },
+    // xDrive30, the trim Dewan prices. eDrive20 is in `notes`.
+    batteryCapacity: 64.7,
+    batteryUnit: 'kWh',
+    range: 468,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 313,
+    powerUnit: 'hp',
+    acceleration: 5.6,
+    accelerationUnit: 'sec',
+    dcCharging: 130,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 494,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact luxury electric SUV (5-door)',
+    driveType: 'AWD (xDrive)',
+    motorPowerKw: 230,
+    rangeStandard: 'WLTP',
+    realWorldRange: 390,
+    realWorldRangeMax: null,
+    consumption: 15.6,
+    consumptionMax: 17.2,
+    acChargingHours: 6.5,
+    dcChargingMinutes: 29,
+    batteryTech: 'Lithium-ion NMC, prismatic cells (400V)',
+    lengthMm: 4500,
+    widthMm: 1845,
+    heightMm: 1616,
+    wheelbaseMm: 2692,
+    groundClearanceMm: 170,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 490,
+    kerbWeightKg: 2085,
+    availability: 'On sale through Dewan Motors; promotional price reported September 2026.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-ix1.jpg',
+    notes:
+      'BMW iX1, 2026 model year. Headline figures are the xDrive30, the trim Dewan Motors ' +
+      'prices: 230 kW / 313 hp, 494 Nm, 0–100 km/h 5.6 s, 180 km/h, 468 km WLTP (426 km on ' +
+      'the least efficient spec). 64.7 kWh usable / 66.5 kWh gross. DC 130 kW, 10–80% in 29 ' +
+      'minutes; AC 11 kW, about 6.5 hours. 15.6–17.2 kWh/100 km. Real-world range about ' +
+      '390 km (ev-database estimate). Kerb weight 2085 kg EU / 2010 kg DIN. Also built as the ' +
+      'front-drive eDrive20 (150 kW / 204 hp, 250 Nm, 8.6 s, 170 km/h, 516 km WLTP), not ' +
+      'priced in Pakistan. PRICE is Dewan\'s September 2026 promotional ex-factory price of ' +
+      'PKR 24,900,000, down from PKR 30,143,750 — confirm with the dealer.',
+  },
+  {
+    id: 'bmw-ix2',
+    slug: 'bmw-ix2',
+    brand: 'BMW',
+    model: 'iX2',
+    variant: null,
+    fullName: 'BMW iX2',
+    category: 'EV',
+    price: { min: crore(2.56), max: crore(2.56), display: 'PKR 2.56 Cr (promo)' },
+    // xDrive30, the trim Dewan prices. eDrive20 is in `notes`.
+    batteryCapacity: 64.8,
+    batteryUnit: 'kWh',
+    range: 477,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 313,
+    powerUnit: 'hp',
+    acceleration: 5.6,
+    accelerationUnit: 'sec',
+    dcCharging: 130,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 494,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact luxury electric coupé-SUV (5-door)',
+    driveType: 'AWD (xDrive)',
+    motorPowerKw: 230,
+    rangeStandard: 'WLTP',
+    realWorldRange: 395,
+    realWorldRangeMax: null,
+    consumption: 15.4,
+    consumptionMax: 16.7,
+    acChargingHours: 6.5,
+    dcChargingMinutes: 29,
+    batteryTech: 'Lithium-ion NMC, prismatic cells (400V)',
+    lengthMm: 4554,
+    widthMm: 1845,
+    heightMm: 1560,
+    wheelbaseMm: 2692,
+    groundClearanceMm: 167,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 525,
+    kerbWeightKg: 2095,
+    availability: 'On sale through Dewan Motors; promotional price reported September 2026.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-ix2.jpg',
+    notes:
+      'BMW iX2, 2026 model year. Headline figures are the xDrive30, the trim Dewan Motors ' +
+      'prices: 230 kW / 313 hp, 494 Nm, 0–100 km/h 5.6 s, 180 km/h, 477 km WLTP (443 km on ' +
+      'the least efficient spec). 64.8 kWh usable / 66.5 kWh gross. DC 130 kW, 10–80% in 29 ' +
+      'minutes; AC 11 kW, about 6.5 hours. 15.4–16.7 kWh/100 km, drag coefficient 0.25. ' +
+      'Real-world range about 395 km (ev-database estimate). Kerb weight 2095 kg EU / 2020 kg ' +
+      'DIN. Also built as the front-drive eDrive20 (204 hp, 516 km WLTP), not priced in ' +
+      'Pakistan. PRICE is Dewan\'s September 2026 promotional ex-factory price of PKR ' +
+      '25,600,000 — confirm with the dealer.',
+  },
+  {
+    id: 'bmw-ix3',
+    slug: 'bmw-ix3',
+    brand: 'BMW',
+    model: 'iX3',
+    variant: null,
+    fullName: 'BMW iX3',
+    category: 'EV',
+    price: { min: crore(3.74), max: crore(3.74), display: 'PKR 3.74 Cr (pre-order)' },
+    // 50 xDrive, the Neue Klasse launch trim. iX3 40 is in `notes`.
+    batteryCapacity: 108.7,
+    batteryUnit: 'kWh',
+    range: 805,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 469,
+    powerUnit: 'hp',
+    acceleration: 4.9,
+    accelerationUnit: 'sec',
+    dcCharging: 400,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 645,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Luxury electric SUV (5-door)',
+    driveType: 'AWD (xDrive)',
+    motorPowerKw: 345,
+    rangeStandard: 'WLTP',
+    realWorldRange: 465,
+    realWorldRangeMax: 930,
+    consumption: 15.1,
+    consumptionMax: 17.9,
+    acChargingHours: 11,
+    dcChargingMinutes: 21,
+    batteryTech: 'Lithium-ion NMC, Gen6 cylindrical cells (800V)',
+    lengthMm: 4782,
+    widthMm: 1895,
+    heightMm: 1635,
+    wheelbaseMm: 2897,
+    groundClearanceMm: 176,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 520,
+    kerbWeightKg: 2360,
+    availability: 'Pre-orders opened through Dewan Motors in January 2026.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-ix3.jpg',
+    notes:
+      'BMW iX3, the Neue Klasse generation (2026 model year), which replaces the earlier ' +
+      'G08 iX3 (286 hp, 74 kWh, 460 km WLTP, DC 150 kW). Headline figures are the 50 xDrive, ' +
+      'the launch trim when Dewan opened pre-orders: 345 kW / 469 hp, 645 Nm, 0–100 km/h ' +
+      '4.9 s, 210 km/h, 805 km WLTP (679 km on the least efficient spec). 108.7 kWh net, ' +
+      'Gen6 cylindrical cells, 800 volts. DC up to 400 kW, 10–80% in 21 minutes; AC 11 kW in ' +
+      'about 11 hours, or 22 kW (optional) in about 5 h 45 min. 15.1–17.9 kWh/100 km. ' +
+      'Real-world range 465–930 km (ev-database estimate, cold motorway to mild city). Boot ' +
+      '520 L plus a 58 L front trunk. Kerb weight 2360 kg EU / 2285 kg DIN. A cheaper iX3 40 ' +
+      '(235 kW / 320 hp, 500 Nm, 5.9 s, 82.6 kWh, 637 km WLTP, DC 300 kW) followed later. ' +
+      'PRICE is the PKR 37,400,000 pre-order price reported in January 2026; the variant was ' +
+      'not named — confirm with the dealer.',
+  },
+  {
+    id: 'bmw-i4',
+    slug: 'bmw-i4',
+    brand: 'BMW',
+    model: 'i4',
+    variant: null,
+    fullName: 'BMW i4',
+    category: 'EV',
+    price: { min: crore(2.4999), max: crore(3.8), display: 'PKR 2.50–3.80 Cr (promo)' },
+    // eDrive35, the cheaper of the two trims Dewan prices. M60 is in `notes`.
+    batteryCapacity: 67.1,
+    batteryUnit: 'kWh',
+    range: 514,
+    rangeMax: 551,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 286,
+    powerUnit: 'hp',
+    acceleration: 6.0,
+    accelerationUnit: 'sec',
+    dcCharging: 180,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 400,
+    topSpeed: 190,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Electric Gran Coupé (5-door liftback)',
+    driveType: 'RWD / AWD (M60 xDrive)',
+    motorPowerKw: 210,
+    rangeStandard: 'WLTP',
+    realWorldRange: 315,
+    realWorldRangeMax: 630,
+    consumption: 14.7,
+    consumptionMax: 17.5,
+    acChargingHours: 7.25,
+    dcChargingMinutes: 31,
+    batteryTech: 'Lithium-ion NMC, Gen5 prismatic cells (400V)',
+    lengthMm: 4783,
+    widthMm: 1852,
+    heightMm: 1448,
+    wheelbaseMm: 2856,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 470,
+    kerbWeightKg: 2070,
+    availability: 'On sale through Dewan Motors; promotional prices reported June and September 2026.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-i4.jpg',
+    notes:
+      'BMW i4 Gran Coupé, 2026 model year, in the two trims Dewan Motors prices. Headline ' +
+      'figures are the eDrive35: 210 kW / 286 hp, 400 Nm, 0–100 km/h 6.0 s, 190 km/h, 514 km ' +
+      'WLTP (428 km on the least efficient spec), 67.1 kWh usable / 70.3 kWh gross, DC 180 kW ' +
+      '(10–80% in 31 minutes), AC 11 kW in about 7 h 15 min, 14.7–17.5 kWh/100 km, kerb ' +
+      '2070 kg EU. Real-world range 315–630 km (ev-database estimate). M60 xDrive: 442 kW / ' +
+      '601 hp, 795 Nm, 3.7 s, 225 km/h, 433–551 km WLTP, 81.3 kWh usable, 2285 kg — the ' +
+      '`rangeMax` of 551 km is this trim. eDrive40 and xDrive40 are sold in Europe but not ' +
+      'priced here. Ground clearance not published. PRICES are Dewan promotional ex-factory ' +
+      'prices: eDrive35 PKR 24,999,000 (June 2026), M60 xDrive PKR 38,000,000 (September ' +
+      '2026) — confirm with the dealer.',
+  },
+  {
+    id: 'bmw-i5',
+    slug: 'bmw-i5',
+    brand: 'BMW',
+    model: 'i5',
+    variant: null,
+    fullName: 'BMW i5',
+    category: 'EV',
+    price: { min: crore(3.6999), max: crore(5.2635), display: 'PKR 3.70–5.26 Cr (promo)' },
+    // eDrive40, the cheaper of the two trims Dewan prices. M60 is in `notes`.
+    batteryCapacity: 81.2,
+    batteryUnit: 'kWh',
+    range: 627,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 340,
+    powerUnit: 'hp',
+    acceleration: 6.0,
+    accelerationUnit: 'sec',
+    dcCharging: 205,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 400,
+    topSpeed: 193,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Executive electric sedan (4-door)',
+    driveType: 'RWD / AWD (M60 xDrive)',
+    motorPowerKw: 250,
+    rangeStandard: 'WLTP',
+    realWorldRange: 345,
+    realWorldRangeMax: 685,
+    consumption: 14.7,
+    consumptionMax: 18.0,
+    acChargingHours: 8.5,
+    dcChargingMinutes: 30,
+    batteryTech: 'Lithium-ion NMC, Gen5 prismatic cells',
+    lengthMm: 5060,
+    widthMm: 1900,
+    heightMm: 1515,
+    wheelbaseMm: 2995,
+    groundClearanceMm: 146,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 490,
+    kerbWeightKg: 2205,
+    availability: 'On sale through Dewan Motors; promotional prices reported February and June 2026.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-i5.jpg',
+    notes:
+      'BMW i5 sedan, 2025 model year, in the two trims Dewan Motors prices. Headline figures ' +
+      'are the eDrive40: 250 kW / 340 hp, 400 Nm, 0–100 km/h 6.0 s, 193 km/h, 627 km WLTP ' +
+      '(512 km on the least efficient spec), 81.2 kWh usable / 84.4 kWh gross, DC 205 kW ' +
+      '(10–80% in 30 minutes), AC 11 kW in about 8.5 hours, 14.7–18.0 kWh/100 km, kerb ' +
+      '2205 kg EU / 2130 kg DIN. Real-world range 345–685 km (ev-database estimate). M60 ' +
+      'xDrive: 442 kW / 601 hp in its sport mode (380 kW otherwise), 795 Nm, 3.8 s, 230 km/h, ' +
+      '472–540 km WLTP, 2380 kg EU. PRICES are Dewan promotional ex-factory prices: eDrive40 ' +
+      'PKR 36,999,000 (June 2026), M60 xDrive PKR 52,635,000 (February 2026) — confirm with ' +
+      'the dealer.',
+  },
+  {
+    id: 'bmw-ix',
+    slug: 'bmw-ix',
+    brand: 'BMW',
+    model: 'iX',
+    variant: null,
+    fullName: 'BMW iX',
+    category: 'EV',
+    price: { min: crore(4.99), max: crore(4.99), display: 'PKR 4.99 Cr (promo)' },
+    // xDrive60, the trim Dewan prices. xDrive45 and M70 are in `notes`.
+    batteryCapacity: 109.1,
+    batteryUnit: 'kWh',
+    range: 701,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 544,
+    powerUnit: 'hp',
+    acceleration: 4.6,
+    accelerationUnit: 'sec',
+    dcCharging: 195,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 765,
+    topSpeed: 200,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Large luxury electric SUV (5-door)',
+    driveType: 'AWD (xDrive)',
+    motorPowerKw: 400,
+    rangeStandard: 'WLTP',
+    realWorldRange: 380,
+    realWorldRangeMax: 750,
+    consumption: 17.9,
+    consumptionMax: 21.0,
+    acChargingHours: 11.25,
+    dcChargingMinutes: 35,
+    batteryTech: 'Lithium-ion NMC, Gen5 prismatic cells',
+    lengthMm: 4965,
+    widthMm: 1970,
+    heightMm: 1695,
+    wheelbaseMm: 3000,
+    groundClearanceMm: 202,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 500,
+    kerbWeightKg: 2580,
+    availability: 'On sale through Dewan Motors; promotional price reported June 2026. The M70 is also sold.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-ix.jpg',
+    notes:
+      'BMW iX, 2025 facelift. Headline figures are the xDrive60, the trim Dewan Motors ' +
+      'prices: 400 kW / 544 hp, 765 Nm, 0–100 km/h 4.6 s, 200 km/h, 701 km WLTP (563 km on ' +
+      'the least efficient spec). 109.1 kWh usable / 115 kWh gross. DC 195 kW, 10–80% in 35 ' +
+      'minutes (ev-database: 32); AC 11 kW in about 11 h 15 min, or 22 kW (optional) in ' +
+      'about 5 h 45 min. Consumption 17.9–21.0 kWh/100 km is ev-database\'s span, as BMW ' +
+      'publishes a single figure (21.0 in the UK release, 21.9 on the spec sheet). ' +
+      'Real-world range 380–750 km (ev-database estimate). Kerb weight 2580 kg EU / 2505 kg ' +
+      'DIN. xDrive45: 408 hp, 94.8 kWh, 602 km WLTP, DC 175 kW. M70 xDrive: 485 kW / 659 hp, ' +
+      '1015 Nm, 3.8 s, 250 km/h, 521–600 km WLTP; sold here, price not published. PRICE is ' +
+      'Dewan\'s June 2026 promotional ex-factory price of PKR 49,900,000 — confirm with the ' +
+      'dealer.',
+  },
+  {
+    id: 'bmw-i7',
+    slug: 'bmw-i7',
+    brand: 'BMW',
+    model: 'i7',
+    variant: null,
+    fullName: 'BMW i7',
+    category: 'EV',
+    price: { min: crore(6.79), max: crore(6.79), display: 'PKR 6.79 Cr (promo, outgoing eDrive50)' },
+    // 50 xDrive, the facelift's entry trim. 60 xDrive and M70 are in `notes`.
+    batteryCapacity: 112.5,
+    batteryUnit: 'kWh',
+    range: 728,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 455,
+    powerUnit: 'hp',
+    acceleration: 5.5,
+    accelerationUnit: 'sec',
+    dcCharging: 250,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 660,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2027,
+    bodyType: 'Luxury electric sedan (4-door)',
+    driveType: 'AWD (xDrive)',
+    motorPowerKw: 335,
+    rangeStandard: 'WLTP',
+    realWorldRange: 410,
+    realWorldRangeMax: 780,
+    consumption: 18.1,
+    consumptionMax: 21.8,
+    acChargingHours: 12,
+    dcChargingMinutes: 28,
+    batteryTech: 'Lithium-ion NMC, Gen6 cylindrical cells',
+    lengthMm: 5395,
+    widthMm: 1950,
+    heightMm: 1550,
+    wheelbaseMm: 3215,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 500,
+    kerbWeightKg: 2770,
+    availability: 'Sold through Dewan Motors as the outgoing eDrive50; the facelift is not yet priced locally.',
+    distributor: 'Dewan Motors (BMW Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle warranty not stated.',
+
+    image: '/images/cars/bmw-i7.jpg',
+    notes:
+      'BMW i7, the April 2026 facelift (2027 model year). Headline figures are its entry ' +
+      'trim, the 50 xDrive: 335 kW / 455 hp, 660 Nm, 0–100 km/h 5.5 s, 210 km/h, 728 km WLTP ' +
+      '(591 km on the least efficient spec). 112.5 kWh usable / 117 kWh gross, Gen6 ' +
+      'cylindrical cells. DC 250 kW, 10–80% in 28 minutes; AC 11 kW in about 12 hours, or ' +
+      '22 kW (optional) in about 6 hours. 18.1–21.8 kWh/100 km. Real-world range 410–780 km ' +
+      '(ev-database estimate). Kerb weight 2770 kg EU. 60 xDrive: 544 hp, 581–727 km WLTP. ' +
+      'M70 xDrive: 680 hp, 1015 Nm, 3.8 s, 250 km/h, 566–686 km WLTP. Ground clearance not ' +
+      'confirmed. PRICE is Dewan\'s September 2026 promotional ex-factory price of PKR ' +
+      '67,900,000 for the pre-facelift i7 eDrive50 (rear-drive), the version on sale here; ' +
+      'the facelift has not been priced in Pakistan — confirm with the dealer.',
+  },
+  /* ─── The second catalogue expansion: 45 electrified models ─────────
+
+     Added from a list of cars on sale or announced in Pakistan (September 2026).
+     Each row was researched against the maker's own spec sheet first, then
+     ev-database.org, motoring press, and PakWheels / PakNEV for Pakistan facts.
+     Headline figures are the trim sold here where one is known, otherwise the
+     entry trim; other trims are in `notes`. A figure no source gave is null.
+
+     Prices say what they are inside `price.display`: "(promo)", "(launch price)",
+     "(pre-order)", or "(indicative)" where the figure is a market estimate rather
+     than a distributor's list price — for several imported Mercedes it matches
+     PakWheels' used-listing prices, and `notes` says so. Each row's notes end
+     with the price source and date.
+
+     Cars with no Pakistani price at all (Tesla Model 3 and Model Y, the new
+     Porsche Taycan, Nissan Leaf, Denza B8, Avatr 11, Mercedes CLA, GAC Aion ES,
+     Jaecoo J6 REEV, Geely EX2) are not listed: a row cannot be published
+     without a price, and none was invented.
+
+     Photographs are Wikimedia Commons files cut out onto white to match the
+     rest of the catalogue, credited in carImageCredits.ts. Nora and the Honri
+     VE have no licensed photograph anywhere, so those two are null.
+  */
+  {
+    id: 'mercedes-eqa',
+    slug: 'mercedes-eqa',
+    brand: 'Mercedes-Benz',
+    model: 'EQA',
+    variant: null,
+    fullName: 'Mercedes-Benz EQA',
+    category: 'EV',
+    price: { min: crore(1.75), max: crore(1.75), display: 'PKR 1.75 Cr (indicative)' },
+    // EQA 250+, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 70.5,
+    batteryUnit: 'kWh',
+    range: 560,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 190,
+    powerUnit: 'hp',
+    acceleration: 8.6,
+    accelerationUnit: 'sec',
+    dcCharging: 102,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 385,
+    topSpeed: 160,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact luxury electric SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 140,
+    rangeStandard: 'WLTP',
+    realWorldRange: 350,
+    realWorldRangeMax: 485,
+    consumption: 14.4,
+    consumptionMax: 16.4,
+    acChargingHours: 7.75,
+    dcChargingMinutes: 35,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 4463,
+    widthMm: 1834,
+    heightMm: 1620,
+    wheelbaseMm: 2729,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 340,
+    kerbWeightKg: 2050,
+    availability: 'Listed on the Shahnawaz Mercedes-Benz Pakistan site as the EQA 250+ (Sept 2026), no public price; also traded on PakWheels. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: 'Battery: 8 years / 160,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/mercedes-eqa.jpg',
+    notes:
+      'H243 facelift (2023-2026). Headline EQA 250+: 140 kW (190 PS), 385 Nm, 0-100 8.6 s, ' +
+      '160 km/h (Shahnawaz page, matches EV Database); 70.5 kWh usable / 73.9 kWh gross; ' +
+      'WLTP 496-560 km; rated 14.4-16.4 kWh/100 km; 102 kW DC (10-80% 35 min), 11 kW AC ' +
+      '(7h45m). Real-world range is EV Database\'s combined cold (350 km) to combined mild ' +
+      '(485 km) estimate. EV Database shows European ordering ending July-August 2026 (the ' +
+      'EQA is being succeeded by the new electric GLA), so 2026 is its last model year. ' +
+      'Ground clearance not published in sources read. Price source: ' +
+      'https://paknev.com/cars/mercedes-benz-eqa (2026-09).',
+  },
+  {
+    id: 'mercedes-eqb',
+    slug: 'mercedes-eqb',
+    brand: 'Mercedes-Benz',
+    model: 'EQB',
+    variant: null,
+    fullName: 'Mercedes-Benz EQB',
+    category: 'EV',
+    price: { min: crore(1.5), max: crore(1.5), display: 'PKR 1.5 Cr (indicative)' },
+    // EQB 250+, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 70.5,
+    batteryUnit: 'kWh',
+    range: 536,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 190,
+    powerUnit: 'hp',
+    acceleration: 8.9,
+    accelerationUnit: 'sec',
+    dcCharging: 102,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 385,
+    topSpeed: 160,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Compact luxury electric SUV, 5+2 seats (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 140,
+    rangeStandard: 'WLTP',
+    realWorldRange: 350,
+    realWorldRangeMax: 480,
+    consumption: 15.2,
+    consumptionMax: 17.5,
+    acChargingHours: 7.75,
+    dcChargingMinutes: 35,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 4684,
+    widthMm: 1834,
+    heightMm: 1667,
+    wheelbaseMm: 2829,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 495,
+    kerbWeightKg: 2105,
+    availability: 'Listed on the Shahnawaz Mercedes-Benz Pakistan site as the EQB 250+ (Sept 2026), no public price; also traded on PakWheels. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: 'Battery: 8 years / 160,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/mercedes-eqb.jpg',
+    notes:
+      'X243 facelift (2023-2026). Headline EQB 250+: 140 kW (190 PS), 385 Nm, 0-100 8.9 s, ' +
+      '160 km/h (Shahnawaz page and EV Database agree); 70.5 kWh usable / 73.9 kWh gross; ' +
+      'WLTP 463-536 km; rated 15.2-17.5 kWh/100 km; 102 kW DC (10-80% 35 min); 11 kW AC ' +
+      '(7h45m). Seats: EV Database lists 7, Shahnawaz says \'up to seven\' (third row is ' +
+      'typically optional). Boot 495 L. Other trims: EQB 300 4MATIC and 350 4MATIC (dual ' +
+      'motor). EV Database shows European orders ended January 2026 (successor is the new ' +
+      'electric GLB). Price source: https://paknev.com/cars/mercedes-benz-eqb (2026-09).',
+  },
+  {
+    id: 'mercedes-eqc',
+    slug: 'mercedes-eqc',
+    brand: 'Mercedes-Benz',
+    model: 'EQC',
+    variant: null,
+    fullName: 'Mercedes-Benz EQC',
+    category: 'EV',
+    price: { min: crore(1.508), max: crore(1.508), display: 'PKR 1.51 Cr (indicative)' },
+    // EQC 400 4MATIC, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 80,
+    batteryUnit: 'kWh',
+    range: 411,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 408,
+    powerUnit: 'hp',
+    acceleration: 5.1,
+    accelerationUnit: 'sec',
+    dcCharging: 112,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 760,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2023,
+    bodyType: 'Mid-size luxury electric SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 300,
+    rangeStandard: 'WLTP',
+    realWorldRange: 315,
+    realWorldRangeMax: 420,
+    consumption: 22.3,
+    consumptionMax: null,
+    acChargingHours: 8.75,
+    dcChargingMinutes: 36,
+    batteryTech: 'Lithium-ion NMC622 (400V)',
+    lengthMm: 4762,
+    widthMm: 1884,
+    heightMm: 1624,
+    wheelbaseMm: 2873,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 500,
+    kerbWeightKg: 2495,
+    availability: 'Discontinued in 2023 and not on the Shahnawaz Pakistan model list (Sept 2026); only available used/reconditioned via PakWheels.',
+    distributor: null,
+    warranty: null,
+
+    image: '/images/cars/mercedes-eqc.jpg',
+    notes:
+      'N293, final 2020-2023 version (EV Database). EQC 400 4MATIC: 300 kW (408 PS), 760 ' +
+      'Nm, 0-100 5.1 s, 180 km/h; 80 kWh usable / 85 kWh gross; WLTP 411 km (NEDC 462 km); ' +
+      'rated 22.3 kWh/100 km; 112 kW DC (10-80% 36 min); 11 kW AC (8h45m). Only one trim ' +
+      'was sold. Real-world range is EV Database combined cold-mild estimate. Price source: ' +
+      'https://paknev.com/cars/mercedes-benz-eqc (2026-09).',
+  },
+  {
+    id: 'mercedes-eqs',
+    slug: 'mercedes-eqs',
+    brand: 'Mercedes-Benz',
+    model: 'EQS Sedan',
+    variant: null,
+    fullName: 'Mercedes-Benz EQS Sedan',
+    category: 'EV',
+    price: { min: crore(8.2), max: crore(9.5), display: 'PKR 8.2–9.5 Cr (indicative)' },
+    // EQS 450+, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 122,
+    batteryUnit: 'kWh',
+    range: 920,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 408,
+    powerUnit: 'hp',
+    acceleration: 5.9,
+    accelerationUnit: 'sec',
+    dcCharging: 350,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 505,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Full-size luxury electric saloon (5-door liftback)',
+    driveType: 'RWD',
+    motorPowerKw: 300,
+    rangeStandard: 'WLTP',
+    realWorldRange: 605,
+    realWorldRangeMax: 835,
+    consumption: 15.5,
+    consumptionMax: 19.3,
+    acChargingHours: 13.25,
+    dcChargingMinutes: 28,
+    batteryTech: 'Lithium-ion NMC (800V)',
+    lengthMm: 5225,
+    widthMm: 1926,
+    heightMm: 1510,
+    wheelbaseMm: 3210,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 610,
+    kerbWeightKg: 2550,
+    availability: 'Shahnawaz lists both the EQS Sedan and \'The All-New Electric EQS Sedan\' (EQS 450+) on its Pakistan site (Sept 2026), with no public price. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: 'Battery: 10 years / 250,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/mercedes-eqs.jpg',
+    notes:
+      'V297 MY26 update (on sale from April 2026). Headline EQS 450+ (MY26): 300 kW (408 ' +
+      'PS), 505 Nm, 210 km/h (Shahnawaz page and EV Database); 0-100 5.9 s per EV Database ' +
+      '(the Shahnawaz page\'s figure is garbled as \'5.p s\'); 122 kWh usable / 129 kWh gross, ' +
+      '800V; WLTP 745-920 km; rated 15.5-19.3 kWh/100 km; 350 kW DC (10-80% 28 min); 11 kW ' +
+      'AC (13h15m). Other trims: EQS 580 4MATIC (430 kW / 585 PS, 800 Nm, 0-100 4.1 s, WLTP ' +
+      '652-869 km), EQS 400, EQS 500 4MATIC. Shahnawaz\'s older EQS Sedan page lists the ' +
+      'pre-update EQS 450+ at 265 kW (360 hp) / 568 Nm / 6.2 s. PakNEV\'s 118 kWh and 560 km ' +
+      'real-world figures belong to the pre-MY26 car; not used. Price source: ' +
+      'https://paknev.com/cars/mercedes-benz-eqs-sedan (2026-09).',
+  },
+  {
+    id: 'mercedes-eqs-suv',
+    slug: 'mercedes-eqs-suv',
+    brand: 'Mercedes-Benz',
+    model: 'EQS SUV',
+    variant: null,
+    fullName: 'Mercedes-Benz EQS SUV',
+    category: 'EV',
+    price: { min: crore(8.5), max: crore(9.5), display: 'PKR 8.5–9.5 Cr' },
+    // EQS 450+ SUV, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 118,
+    batteryUnit: 'kWh',
+    range: 720,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 360,
+    powerUnit: 'hp',
+    acceleration: 6.8,
+    accelerationUnit: 'sec',
+    dcCharging: 200,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 568,
+    topSpeed: 210,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Full-size luxury electric SUV, up to 7 seats (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 265,
+    rangeStandard: 'WLTP',
+    realWorldRange: 465,
+    realWorldRangeMax: 615,
+    consumption: 18.8,
+    consumptionMax: 22.5,
+    acChargingHours: 12.75,
+    dcChargingMinutes: 33,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 5125,
+    widthMm: 1959,
+    heightMm: 1718,
+    wheelbaseMm: 3210,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 645,
+    kerbWeightKg: 2730,
+    availability: 'Sold new through Shahnawaz: PakWheels lists the EQS 450+ SUV at an ex-factory price with 6-month delivery, and the Shahnawaz site shows an EQS 450 4MATIC SUV page (Sept 2026). Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: 'Battery: 10 years / 250,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/mercedes-eqs-suv.jpg',
+    notes:
+      'X296 (EV Database 2023-2026 spec). Headline EQS 450+ SUV (the trim PakWheels ' +
+      'prices): 265 kW (360 PS), 568 Nm, 0-100 6.8 s, 210 km/h; 118 kWh usable / 125 kWh ' +
+      'gross; WLTP 605-720 km; rated 18.8-22.5 kWh/100 km; 200 kW DC (10-80% 33 min); 11 kW ' +
+      'AC (12h45m); boot 645 L (2,100 L max). Seats: EV Database lists 7 (third row ' +
+      'optional). Shahnawaz\'s own page shows the EQS 450 4MATIC SUV: 265 kW (360 hp), 800 ' +
+      'Nm, 0-100 6.9 s (EV Database: 6.1 s, WLTP 594-673 km, 2,840 kg). Also EQS 500 ' +
+      '4MATIC, 580 4MATIC and Maybach EQS 680 SUV. Price source: ' +
+      'https://www.pakwheels.com/new-cars/mercedes-benz/eqs/450-suv/ (2026-09).',
+  },
+  {
+    id: 'mercedes-glc-eq',
+    slug: 'mercedes-glc-eq',
+    brand: 'Mercedes-Benz',
+    model: 'GLC with EQ Technology',
+    variant: null,
+    fullName: 'Mercedes-Benz GLC with EQ Technology',
+    category: 'EV',
+    price: { min: crore(3.999), max: crore(4.5), display: 'PKR 4–4.5 Cr (indicative)' },
+    // GLC 300 4MATIC with EQ Technology, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 85,
+    batteryUnit: 'kWh',
+    range: 613,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 421,
+    powerUnit: 'hp',
+    acceleration: 4.7,
+    accelerationUnit: 'sec',
+    dcCharging: 320,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 800,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size luxury electric SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 310,
+    rangeStandard: 'WLTP',
+    realWorldRange: 410,
+    realWorldRangeMax: 565,
+    consumption: 16,
+    consumptionMax: null,
+    acChargingHours: 9.25,
+    dcChargingMinutes: 23,
+    batteryTech: 'Lithium-ion NMC (800V)',
+    lengthMm: 4845,
+    widthMm: 1913,
+    heightMm: 1644,
+    wheelbaseMm: 2972,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 570,
+    kerbWeightKg: 2485,
+    availability: 'Listed on the Shahnawaz Pakistan site as \'GLC Electric\' (GLC 300 4MATIC) with a view-stock option in Karachi, Lahore and Islamabad (Sept 2026); no public price. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: 'Battery: 8 years / 160,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/mercedes-glc-eq.jpg',
+    notes:
+      'New electric GLC (revealed IAA 2025, on sale 2026). Headline GLC 300 4MATIC ' +
+      '(Shahnawaz\'s listed trim): 310 kW (421 PS), 800 Nm, 0-100 4.7 s, 210 km/h (Shahnawaz ' +
+      'and EV Database agree); 85 kWh usable / 90 kWh gross, 800V; WLTP 613 km (single ' +
+      'value on EV Database); rated 16.0 kWh/100 km; 320 kW DC (10-80% 23 min); 11 kW AC ' +
+      '(9h15m); boot 570 L + 128 L frunk. GLC 400 4MATIC: 94 kWh usable / 100 kWh gross, ' +
+      '360 kW (489 PS), 800 Nm, 0-100 4.3 s, WLTP 568-715 km, 330 kW DC (22 min). PakNEV\'s ' +
+      '200 kW DC for the 300 conflicts with EV Database\'s 320 kW; used EV Database. Price ' +
+      'source: https://paknev.com/cars/mercedes-benz-glc-with-eq-technology (2026-09).',
+  },
+  {
+    id: 'mercedes-g580-eq',
+    slug: 'mercedes-g580-eq',
+    brand: 'Mercedes-Benz',
+    model: 'G 580 with EQ Technology',
+    variant: null,
+    fullName: 'Mercedes-Benz G 580 with EQ Technology',
+    category: 'EV',
+    price: { min: crore(11.45), max: crore(11.45), display: 'PKR 11.45 Cr (indicative)' },
+    // G 580 with EQ Technology, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 116,
+    batteryUnit: 'kWh',
+    range: 473,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 587,
+    powerUnit: 'hp',
+    acceleration: 4.7,
+    accelerationUnit: 'sec',
+    dcCharging: 200,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 1164,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Large luxury electric off-road SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 432,
+    rangeStandard: 'WLTP',
+    realWorldRange: 345,
+    realWorldRangeMax: 435,
+    consumption: 27.7,
+    consumptionMax: 30.3,
+    acChargingHours: 12.5,
+    dcChargingMinutes: 34,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 4624,
+    widthMm: 1931,
+    heightMm: 1986,
+    wheelbaseMm: 2890,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 555,
+    kerbWeightKg: 3085,
+    availability: 'Listed on the Shahnawaz Pakistan site as \'Electric G-Class\' (G 580 with EQ Technology), Sept 2026, no public price; also traded on PakWheels. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: null,
+
+    image: '/images/cars/mercedes-g580-eq.jpg',
+    notes:
+      'W465 (2024-). Single trim: four motors, 432 kW (587 PS), 1,164 Nm, 0-100 4.7 s, 180 ' +
+      'km/h (Shahnawaz and EV Database agree); 116 kWh usable / 124 kWh gross; WLTP 434-473 ' +
+      'km; rated 27.7-30.3 kWh/100 km; 200 kW DC (10-80% 34 min); 11 kW AC (12h30m). ' +
+      'Dimensions from EV Database (4,624 x 1,931 x 1,986 mm, 3,085 kg); PakWheels/PakNEV ' +
+      'give 4,730 x 1,985 x 1,990 mm and 3,218 kg (likely with spare wheel and mirrors / ' +
+      'different weight basis); used EV Database. Boot 555 L (PakNEV says 620 L). Wading ' +
+      'depth 850 mm (Shahnawaz). Ground clearance not found in sources read. Price source: ' +
+      'https://paknev.com/cars/mercedes-benz-g-580-with-eq (2026-09).',
+  },
+  {
+    id: 'mercedes-c-class-electric',
+    slug: 'mercedes-c-class-electric',
+    brand: 'Mercedes-Benz',
+    model: 'C-Class Electric',
+    variant: null,
+    fullName: 'Mercedes-Benz C-Class with EQ Technology',
+    category: 'EV',
+    price: { min: crore(3.608), max: crore(3.608), display: 'PKR 3.61 Cr (indicative)' },
+    // C 400 4MATIC, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 94,
+    batteryUnit: 'kWh',
+    range: 762,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 489,
+    powerUnit: 'hp',
+    acceleration: 4,
+    accelerationUnit: 'sec',
+    dcCharging: 330,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 800,
+    topSpeed: 210,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size luxury electric saloon (4-door)',
+    driveType: 'AWD',
+    motorPowerKw: 360,
+    rangeStandard: 'WLTP',
+    realWorldRange: 465,
+    realWorldRangeMax: 640,
+    consumption: 14.1,
+    consumptionMax: 18.5,
+    acChargingHours: 10.25,
+    dcChargingMinutes: 22,
+    batteryTech: 'Lithium-ion NMC (800V)',
+    lengthMm: 4883,
+    widthMm: 1892,
+    heightMm: 1503,
+    wheelbaseMm: 2962,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 470,
+    kerbWeightKg: 2460,
+    availability: 'Listed on the Shahnawaz Pakistan site as \'The All-New Electric C-Class\' (C 400 4MATIC), Sept 2026, no public price. Mercedes-Benz in Pakistan is distributed by Shahnawaz (Pvt.) Ltd (not "Shaw Motors"), with showrooms in Karachi, Lahore and Islamabad; its site lists models but publishes no prices.',
+    distributor: 'Shahnawaz (Pvt.) Ltd',
+    warranty: null,
+
+    image: '/images/cars/mercedes-c-class-electric.jpg',
+    notes:
+      'Identification: PakNEV\'s \'Electric C-Class / CLA\' page mixes two cars; its ' +
+      'dimensions (4,883 x 1,892 x 1,503 mm), 94 kWh, 489 hp and 470 L boot are the new ' +
+      'electric C-Class (W520, debut April 2026, production July 2026), while its blurb ' +
+      '(MMA platform, 85 kWh, 335 Nm) describes the electric CLA. Returned as two objects; ' +
+      'this is the C-Class. Headline C 400 4MATIC (Shahnawaz\'s listed trim): 360 kW (489 ' +
+      'PS), 800 Nm, 0-100 4.0 s, 210 km/h (Shahnawaz and EV Database agree); 94 kWh usable ' +
+      '/ 100 kWh gross, 800V; WLTP 592-762 km; rated 14.1-18.5 kWh/100 km; 330 kW DC ' +
+      '(10-80% 22 min); 11 kW AC (10h15m); boot 470 L + 101 L frunk. C 300 4MATIC: 85 kWh ' +
+      'usable, 310 kW (421 PS), 0-100 4.5 s, WLTP 549-690 km, 320 kW DC. Price source: ' +
+      'https://paknev.com/cars/mercedes-benz-electric-c-class-cla (2026-09).',
+  },
+  {
+    id: 'gwm-ora-03',
+    slug: 'gwm-ora-03',
+    brand: 'GWM',
+    model: 'ORA 03',
+    variant: null,
+    fullName: 'GWM ORA 03',
+    category: 'EV',
+    price: { min: lakh(89.99), max: lakh(89.99), display: 'PKR 89.99 Lakh (launch price)' },
+    // 400 Pro (47.78 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 47.78,
+    batteryUnit: 'kWh',
+    range: 400,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 141,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: 64,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 219,
+    topSpeed: 160,
+    seats: 5,
+
+    modelYear: 2024,
+    bodyType: 'Compact electric hatchback (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 105,
+    rangeStandard: 'CLTC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 8,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium iron phosphate (LFP)',
+    lengthMm: 4235,
+    widthMm: 1825,
+    heightMm: 1603,
+    wheelbaseMm: 2650,
+    groundClearanceMm: 145,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 228,
+    kerbWeightKg: 1540,
+    availability: 'Launched by Sazgar/GWM Pakistan in Feb 2024 as imported CBU units; reported discontinued (removed from the GWM Pakistan line-up) in Aug 2026.',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: 'Vehicle: 5 years / 150,000 km. Battery: 8 years / 150,000 km (per PakNEV listing).',
+
+    image: '/images/cars/gwm-ora-03.jpg',
+    notes:
+      'ORA 03 = the ORA Good Cat (formerly Funky Cat in Europe). Pakistan received the ' +
+      'China-spec 400 Pro: 47.78 kWh LFP pack, 105 kW (141 hp) / 219 Nm front motor, 160 ' +
+      'km/h, FWD (PakWheels launch article and PakWheels spec page). Range: ' +
+      'Sazgar/PakWheels quote "310-400 km"; the 400 km is the CLTC figure implied by the ' +
+      '400 Pro trim name, 310 km is the WLTP figure ev-database gives for the European 48 ' +
+      'kWh car. Recorded 400 km CLTC. The European 48 kWh car (ev-database) is a different ' +
+      'trim: 126 kW / 250 Nm, 8.3 s, 45.4 kWh usable, 11 kW AC, 64 kW DC (10-80% in 45 ' +
+      'min), 310 km WLTP, real-world 220-295 km. Those figures are not used for the ' +
+      'headline (PakNEV wrongly shows 171 hp / 250 Nm / 8.3 s and a 1,540 L boot for the ' +
+      'Pakistani car). The DC peak of 64 kW is from PakNEV and ev-database; 6.6 kW AC is ' +
+      'from PakNEV and the 8 h full charge is from PakWheels. No 0-100 time published for ' +
+      'the 105 kW version. Dimensions, 145 mm ground clearance, 1,540 kg kerb weight and ' +
+      '228 L boot from PakWheels. Price basis: launch ex-factory Rs 8,999,000. Price ' +
+      'source: https://www.pakwheels.com/new-cars/ora/03/ (2024-02).',
+  },
+  {
+    id: 'gwm-ora-05',
+    slug: 'gwm-ora-05',
+    brand: 'GWM',
+    model: 'ORA 5',
+    variant: null,
+    fullName: 'GWM ORA 5',
+    category: 'EV',
+    price: { min: lakh(85.99), max: lakh(85.99), display: 'PKR 85.99 Lakh (launch price)' },
+    // ORA 5 (58.33 kWh, single variant), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 58.33,
+    batteryUnit: 'kWh',
+    range: 435,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 201,
+    powerUnit: 'hp',
+    acceleration: 8,
+    accelerationUnit: 'sec',
+    dcCharging: 120,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 260,
+    topSpeed: 170,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact electric crossover SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 150,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium iron phosphate (LFP, SVOLT)',
+    lengthMm: 4471,
+    widthMm: 1833,
+    heightMm: 1641,
+    wheelbaseMm: 2720,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 362,
+    kerbWeightKg: 1685,
+    availability: 'Launched in Pakistan on 6 Aug 2026 by GWM Pakistan (Sazgar Group) as a single variant; bookings open.',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: 'Battery: 8 years / 150,000 km. Vehicle: 6 years / 150,000 km (per PakNEV listing; launch reports cite 8 years / 150,000 km).',
+
+    image: '/images/cars/gwm-ora-05.jpg',
+    notes:
+      'All-new ORA 5 (China launch Dec 2025), sold in Pakistan as one variant: 58.33 kWh ' +
+      'LFP, 435 km WLTP, 150 kW (201 hp) / 260 Nm front motor, 6.6 kW AC and 120 kW DC ' +
+      '(PakWheels launch article). 0-100 km/h: the Pakistan launch report gives 8 s (used); ' +
+      'PakNEV lists 7.5 s and Australian data (zecar) 9 s. Top speed 170 km/h from ' +
+      'Wikipedia (not in Pakistani sources). Kerb weight 1,685 kg and boot 362 L (1,000 L ' +
+      'max) are Australian-market figures from zecar for the same 58.3 kWh car; PakNEV ' +
+      'instead lists 440 L and 1,680 kg. Australian WLTP is 430 km vs the Pakistani 435 km ' +
+      'claim. China also sells a 45.3 kWh version (480 km CLTC; 58.3 kWh is 580 km CLTC), ' +
+      'not offered in Pakistan. Whether 58.33 kWh is gross or usable is not stated. No ' +
+      'published 10-80% DC time from a primary source (PakNEV says 30 min). Price source: ' +
+      'https://www.pakwheels.com/blog/gwm-launches-ora-5-in-pakistan-price-booking-and-specs-details/ ' +
+      '(2026-08).',
+  },
+  {
+    id: 'gwm-ora-07',
+    slug: 'gwm-ora-07',
+    brand: 'GWM',
+    model: 'ORA 07',
+    variant: null,
+    fullName: 'GWM ORA 07',
+    category: 'EV',
+    price: { min: crore(1.53), max: crore(1.75), display: 'PKR 1.53–1.75 Cr' },
+    // AWD Performance (83.5 kWh, dual motor), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 83.5,
+    batteryUnit: 'kWh',
+    range: 520,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 402,
+    powerUnit: 'hp',
+    acceleration: 4.3,
+    accelerationUnit: 'sec',
+    dcCharging: 88,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 680,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size electric fastback saloon (4-door)',
+    driveType: 'AWD',
+    motorPowerKw: 300,
+    rangeStandard: 'WLTP',
+    realWorldRange: 365,
+    realWorldRangeMax: 490,
+    consumption: 17.5,
+    consumptionMax: 19.4,
+    acChargingHours: 9,
+    dcChargingMinutes: 46,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 4871,
+    widthMm: 1862,
+    heightMm: 1500,
+    wheelbaseMm: 2870,
+    groundClearanceMm: 125,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 333,
+    kerbWeightKg: 2210,
+    availability: 'On sale in Pakistan through GWM Pakistan (Sazgar) since 2024, imported; FWD and AWD variants listed in 2026.',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: 'Battery: 8 years / 180,000 km. Vehicle: 6 years / 150,000 km (per PakNEV listing).',
+
+    image: '/images/cars/gwm-ora-07.jpg',
+    notes:
+      'ORA 07 = ORA Lightning Cat. Pakistan launched the dual-motor AWD first (PakWheels, ' +
+      'Aug 2024: ~400 hp, 0-100 in 4.3 s). Headline AWD figures: 83.5 kWh usable / 86.0 kWh ' +
+      'gross NMC, 300 kW (402 hp) / 680 Nm, 180 km/h, 520 km WLTP, 88 kW DC (10-80% in 46 ' +
+      'min), 11 kW AC (~9 h 0-100%), 2,210 kg, 333 L boot (1,045 L max), from ev-database ' +
+      '(ORA 07 GT). 0-100 km/h 4.3 s is the Pakistani figure (PakWheels); ev-database gives ' +
+      '4.5 s for the European GT. Real-world range 365-490 km and 19.4 kWh/100 km are ' +
+      'ev-database estimates (cold combined to mild combined); 17.5 kWh/100 km is the WLTP ' +
+      'rated figure. PakNEV and PakWheels quote 550 km (NEDC) for the AWD. Ground clearance ' +
+      '125 mm from PakWheels. FWD variant (Rs 15.3M): PakNEV lists 83.5 kWh, 204 hp / 340 ' +
+      'Nm, 7.9 s, 170 km/h, 640 km NEDC, 1,990 kg; not confirmed elsewhere (the European ' +
+      'FWD Pro/Pure is 64.3 kWh usable, 150 kW, 440 km WLTP). Price source: ' +
+      'https://paknev.com/cars/gwm-ora-07 (2026-09).',
+  },
+  {
+    id: 'haval-h6-gt-phev',
+    slug: 'haval-h6-gt-phev',
+    brand: 'Haval',
+    model: 'H6 GT PHEV',
+    variant: null,
+    fullName: 'Haval H6 GT PHEV',
+    category: 'PHEV',
+    price: { min: crore(1.2949), max: crore(1.2949), display: 'PKR 1.29 Cr (launch price)' },
+    // H6 GT PHEV Hi4 AWD (single variant), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 35.43,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 183,
+    electricRangeMax: null,
+    power: 430,
+    powerUnit: 'hp',
+    acceleration: 4.58,
+    accelerationUnit: 'sec',
+    dcCharging: 48,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: 1499,
+    torque: 642,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size coupe SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 321,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Ternary lithium (NMC), 310.8 V',
+    lengthMm: 4727,
+    widthMm: 1940,
+    heightMm: 1729,
+    wheelbaseMm: 2738,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 392,
+    kerbWeightKg: 2045,
+    availability: 'Price announced in Pakistan at PAPS in Sept 2026 by Sazgar (GWM Pakistan); booking and delivery details pending.',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: 'Battery: 8 years / 150,000 km. Vehicle: 5 years / 150,000 km (per PakNEV listing).',
+
+    image: '/images/cars/haval-h6-gt-phev.jpg',
+    notes:
+      'Coupe-styled H6 GT with the Hi4 plug-in hybrid system (1.5 T 110 kW / 240 Nm engine ' +
+      'plus front and rear motors, 4-speed DHT, AWD). Headline figures from the GWM NZ ' +
+      'brochure: combined 321 kW (430 hp) / 642 Nm, 0-100 in 4.58 s, 35.43 kWh ternary ' +
+      'battery, 6.6 kW AC, 48 kW DC, 3.3 kW V2L, 183 km EV range, 4727 x 1940 x 1729 mm, ' +
+      'wheelbase 2738 mm, kerb 2,045 kg, boot 392-1,390 L, 55 L tank; ProPakistani quotes ' +
+      'the same 430 hp / 642 Nm / 4.58 s / 35.43 kWh / 183 km for the Pakistani car. The ' +
+      'brochure does not name the cycle for 183 km; PakNEV and CarExpert call it NEDC. ' +
+      'CarExpert (Australia) quotes 762 Nm and 4.9 s instead; the brochure figures are ' +
+      'used. Total range "over 1,000 km" (brochure). Not published: top speed (PakNEV lists ' +
+      '200 km/h), DC charge time, ground clearance. Different model from the standard H6 ' +
+      'PHEV (19.09 kWh). Price source: ' +
+      'https://propakistani.pk/2026/09/18/haval-h6-gt-price-in-pakistan-announced/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'haval-jolion-max-ev',
+    slug: 'haval-jolion-max-ev',
+    brand: 'Haval',
+    model: 'Jolion Max EV',
+    variant: null,
+    fullName: 'Haval Jolion Max EV',
+    category: 'EV',
+    price: { min: crore(1.1999), max: crore(1.1999), display: 'PKR 1.2 Cr (indicative)' },
+    // Jolion Max EV (58.3 kWh, single variant), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 58.3,
+    batteryUnit: 'kWh',
+    range: 420,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 201,
+    powerUnit: 'hp',
+    acceleration: 8.4,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 260,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact electric SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 150,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium iron phosphate (LFP)',
+    lengthMm: 4590,
+    widthMm: 1877,
+    heightMm: 1675,
+    wheelbaseMm: 2710,
+    groundClearanceMm: 190,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Not yet on sale: Sazgar showed the Jolion Max (EV and PHEV) at PAPS in Sept 2026 and is testing it for local CKD assembly.',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: null,
+
+    image: '/images/cars/haval-jolion-max-ev.jpg',
+    notes:
+      'Export name of the Haval Xiaolong body; the EV shares its drivetrain with the ORA 5. ' +
+      'Headline figures: 58.3 kWh battery, "more than 420 km" WLTP and 6.6 kW AC, from GWM ' +
+      'Nepal launch coverage (Aug 2026); 150 kW / 260 Nm and LFP chemistry from CarExpert; ' +
+      '201 hp and ~8.4 s 0-100 from PakWheels; 4590 x 1877 x 1675 mm, wheelbase 2710 mm ' +
+      '(CarExpert/PakWheels; PakWheels gives width as 1,871 mm); 190 mm ground clearance ' +
+      'from the Nepal launch. Conflicts: PakWheels (4 Sept 2026) says "approx. 61 kWh ' +
+      'ternary lithium, approx. 400 km WLTP"; PakNEV says 400 km WLTP, 7 kW AC and 80 kW ' +
+      'DC; CarExpert expects about 120 kW DC like the ORA 5. DC peak and time, top speed, ' +
+      'kerb weight and boot are not confirmed (PakNEV lists 160 km/h, 1,800 kg, 412 L). The ' +
+      'Nepal launch price was NPR 5,999,999. PHEV sibling: 1.5 T, ~319 hp, ~19 kWh, ~95 km ' +
+      'EV range (PakWheels). Price source: https://paknev.com/cars/gwm-haval-jolion-max-ev ' +
+      '(2026-09).',
+  },
+  {
+    id: 'gwm-tank-500-hev',
+    slug: 'gwm-tank-500-hev',
+    brand: 'GWM',
+    model: 'Tank 500 HEV',
+    variant: null,
+    fullName: 'GWM Tank 500 HEV',
+    category: 'Hybrid',
+    price: { min: crore(2.05), max: crore(2.05), display: 'PKR 2.05 Cr' },
+    // Tank 500 HEV 2.0T 4x4 (locally assembled), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.76,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 342,
+    powerUnit: 'hp',
+    acceleration: 7.3,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1998,
+    torque: 648,
+    topSpeed: 200,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Full-size body-on-frame SUV (5-door, 7-seat)',
+    driveType: '4WD',
+    motorPowerKw: null,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: null,
+    lengthMm: 5078,
+    widthMm: 1934,
+    heightMm: 1905,
+    wheelbaseMm: 2850,
+    groundClearanceMm: 224,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 795,
+    kerbWeightKg: 2810,
+    availability: 'Locally assembled (CKD) by Sazgar and on sale in Pakistan since early 2026 (bookings from 26 Jan 2026).',
+    distributor: 'Sazgar Engineering Works (GWM Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km (GWM UAE and PakNEV; PakWheels says 8 years / 150,000 km). Vehicle: 6 years / 150,000 km (per PakNEV).',
+
+    image: '/images/cars/gwm-tank-500-hev.jpg',
+    notes:
+      'Facelifted Tank 500 with the 2.0-litre turbo full hybrid (no plug-in), 9-speed ' +
+      'automatic, full-time 4WD. Headline figures: 342 hp / 648 Nm combined (GWM UAE and ' +
+      'PakWheels; Outback Travel Australia gives 255 kW / 648 Nm for the Australian car), ' +
+      '0-100 km/h 7.3 s (GWM UAE; PakNEV lists 7.9 s), top speed 200 km/h, 5078 x 1934 x ' +
+      '1905 mm, wheelbase 2850 mm, ground clearance 224 mm, 795 L boot, 80 L tank, 12 km/L ' +
+      'city / 14 km/L highway, kerb weight 2,810 kg (PakWheels; PakNEV gives the same, but ' +
+      'it looks high for this SUV and should be checked). Battery 1.76 kWh is from PakNEV ' +
+      'only. Australian claimed consumption is 8.5 L/100 km. Price basis: official CKD list ' +
+      'price. Price source: ' +
+      'https://propakistani.pk/2026/01/20/tank-500-hev-and-phev-prices-officially-announced-in-pakistan/ ' +
+      '(2026-01).',
+  },
+  {
+    id: 'changan-nevo-hunter',
+    slug: 'changan-nevo-hunter',
+    brand: 'Changan',
+    model: 'Nevo Hunter REEV',
+    variant: null,
+    fullName: 'Changan Nevo Hunter REEV',
+    category: 'REEV',
+    price: { min: crore(1.099), max: crore(1.099), display: 'PKR 1.1 Cr (launch price)' },
+    // REEV Plus 4x4, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 31.18,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 131,
+    electricRangeMax: null,
+    power: 322,
+    powerUnit: 'hp',
+    acceleration: 7.9,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 529,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Double-cab pickup (4-door, body-on-frame)',
+    driveType: '4WD',
+    motorPowerKw: null,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 5.6,
+    dcChargingMinutes: 30,
+    batteryTech: 'Lithium iron phosphate (LFP)',
+    lengthMm: 5380,
+    widthMm: 1980,
+    heightMm: 1875,
+    wheelbaseMm: 3180,
+    groundClearanceMm: 220,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Launched in Pakistan on 20 Aug 2026 by Changan (Master Changan Motors); deliveries from Oct 2026 for full payment, Feb 2027 for partial payment.',
+    distributor: 'Master Changan Motors',
+    warranty: null,
+
+    image: '/images/cars/changan-nevo-hunter.jpg',
+    notes:
+      'Range-extended electric 4x4 pickup (the Changan Hunter / Nevo Hunter K50, Deepal ' +
+      'Hunter in some markets): a 2.0-litre turbo petrol generator that does not drive the ' +
+      'wheels, front and rear motors. Pakistani figures (ProPakistani, PakWheels): 322 hp / ' +
+      '529 Nm, 0-100 in 7.9 s, 31.18 kWh LFP, 131 km NEDC EV range, combined range 700-900+ ' +
+      'km, 70 L tank, DC 30-80% in 30 min (not 10-80%), AC 0-100% in about 5.6 h, 3.3 kW ' +
+      'V2L, payload 1,010 kg, towing 2,500 kg, bed 1590 x 1580 x 490 mm, 600 mm wading. The ' +
+      'Philippine Hunter K50 REEV is quoted at 268 hp / 470 Nm, so the Pakistani Plus is a ' +
+      'higher-output version. Height: PakWheels and Changan Philippines give 1,875 mm ' +
+      '(used); ProPakistani gives 1,920 mm. 6.6 kW AC and the connectors are from PakNEV. ' +
+      'Not published by a primary source: DC peak kW (PakNEV 41 kW), top speed (PakNEV 180 ' +
+      'km/h), kerb weight (PakNEV 2,710 kg), exact generator displacement. Price source: ' +
+      'https://propakistani.pk/2026/08/20/changan-nevo-hunter-reev-launched-in-pakistan/ ' +
+      '(2026-08).',
+  },
+  {
+    id: 'changan-lumin',
+    slug: 'changan-lumin',
+    brand: 'Changan',
+    model: 'Lumin',
+    variant: null,
+    fullName: 'Changan Lumin',
+    category: 'EV',
+    price: { min: lakh(29.99), max: lakh(32), display: 'PKR 29.99–32 Lakh (indicative)' },
+    // Lumin L (27.98 kWh, AC only), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 27.98,
+    batteryUnit: 'kWh',
+    range: 301,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 47,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 3.3,
+    acChargingUnit: 'kW',
+    connector: ['Type 2'],
+    engineCapacity: null,
+    torque: 83,
+    topSpeed: 101,
+    seats: 4,
+
+    modelYear: 2026,
+    bodyType: 'Electric city microcar (3-door hatchback, 4-seat)',
+    driveType: 'FWD',
+    motorPowerKw: 35,
+    rangeStandard: 'CLTC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 10.5,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium iron phosphate (LFP)',
+    lengthMm: 3270,
+    widthMm: 1700,
+    heightMm: 1545,
+    wheelbaseMm: 1980,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Shown at the Pakistan Auto Show (Oct 2024) and listed as upcoming; launch expected Oct 2026 via Master Changan Motors, not yet on sale (Sept 2026).',
+    distributor: 'Master Changan Motors',
+    warranty: 'Vehicle: 3 years / 100,000 km (per PakNEV pre-launch listing; not confirmed by Changan).',
+
+    image: '/images/cars/changan-lumin.jpg',
+    notes:
+      'Two versions shown for Pakistan: Lumin L (27.98 kWh, AC only, about 10.5 h full ' +
+      'charge) and Lumin L DC (28.08 kWh, adds DC fast charging 30-80% in about 35 min per ' +
+      'Changan Thailand, about 10 h on AC). Both: 35 kW (47 hp) / 83 Nm PMSM front motor, ' +
+      '101 km/h top speed, 301 km CLTC (Aaj News, Changan Thailand, Wikipedia). China also ' +
+      'sells 12.9 kWh (155 km) and 17.7 kWh (210 km) packs. 3.3 kW AC and the connectors ' +
+      'are from PakNEV (Type 2 AC; PakNEV lists GB/T for the L DC fast-charge port). ' +
+      'Dimensions from Wikipedia (height 1,545 mm; PakNEV says 1,590 mm). Kerb weight ' +
+      '840-945 kg across versions (Wikipedia); PakNEV gives 925 kg (L) and 945 kg (L DC). ' +
+      'Boot (PakNEV 104 L) and 0-100 (PakNEV 12 s) are not confirmed by a primary source. ' +
+      'Price source: https://paknev.com/cars/changan-lumin (2026-09).',
+  },
+  {
+    id: 'hyundai-tucson-hybrid',
+    slug: 'hyundai-tucson-hybrid',
+    brand: 'Hyundai',
+    model: 'Tucson Hybrid',
+    variant: null,
+    fullName: 'Hyundai Tucson Hybrid',
+    category: 'Hybrid',
+    price: { min: crore(1.2202), max: crore(1.33), display: 'PKR 1.22–1.33 Cr' },
+    // Tucson Hybrid Smart (FWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.49,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 232,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1598,
+    torque: 367,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 47.7,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion, 270 V',
+    lengthMm: 4640,
+    widthMm: 1865,
+    heightMm: 1665,
+    wheelbaseMm: 2755,
+    groundClearanceMm: 181,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 582,
+    kerbWeightKg: 1683,
+    availability: 'Sold new in Pakistan by Hyundai Nishat Motor (ex-factory Faisalabad) in Smart FWD and Signature AWD trims, listed on the distributor site in September 2026.',
+    distributor: 'Hyundai Nishat Motor (Private) Limited',
+    warranty: 'Vehicle: 4 years / 100,000 km. Hybrid battery: 8 years / 160,000 km (per PakNEV).',
+
+    image: '/images/cars/hyundai-tucson-hybrid.jpg',
+    notes:
+      'Fourth-generation Tucson (NX4) facelift, long-wheelbase body (4,640 mm) as sold in ' +
+      'Pakistan. Headline Smart FWD figures from Hyundai Nishat\'s spec page: Smartstream ' +
+      'G1.6 T-GDi HEV, engine 178 hp / 265 Nm, PMSM motor 47.7 kW / 264 Nm, system 173 kW ' +
+      '(232 hp) / 367 Nm, 6-speed automatic, 1.49 kWh lithium-ion battery (270 V, 64 kW ' +
+      'output), 52 L tank, 582-1,903 L boot, kerb weight 1,683-1,801 kg (range published ' +
+      'for both trims; lower figure used). Signature AWD (HTRAC, 19-inch wheels, terrain ' +
+      'modes) has the same powertrain figures; PKR 13,300,000. Hyundai Nishat does not ' +
+      'publish 0-100 km/h or top speed; PakNEV\'s 8.19 s / 220 km/h figures are not ' +
+      'confirmed by the manufacturer, so not listed. Price basis: current ex-factory list ' +
+      'price after the September 2026 sales-tax cut. Price source: ' +
+      'https://hyundai-nishat.com/tucson-hybrid/ (2026-09).',
+  },
+  {
+    id: 'hyundai-santa-fe-hybrid',
+    slug: 'hyundai-santa-fe-hybrid',
+    brand: 'Hyundai',
+    model: 'Santa Fe Hybrid',
+    variant: null,
+    fullName: 'Hyundai Santa Fe Hybrid',
+    category: 'Hybrid',
+    price: { min: crore(1.3258), max: crore(1.472), display: 'PKR 1.33–1.47 Cr (promo)' },
+    // Santa Fe Hybrid Smart (FWD, 7-seater), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.49,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 227,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1598,
+    torque: 350,
+    topSpeed: null,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size three-row SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: null,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion',
+    lengthMm: 4785,
+    widthMm: 1900,
+    heightMm: 1710,
+    wheelbaseMm: 2765,
+    groundClearanceMm: 176,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 782,
+    kerbWeightKg: 1780,
+    availability: 'Locally assembled and sold new by Hyundai Nishat Motor (ex-factory Faisalabad) as the Santa Fe Hybrid in Smart FWD and Signature AWD trims; price list dated August 2026.',
+    distributor: 'Hyundai Nishat Motor (Private) Limited',
+    warranty: 'Vehicle: 4 years / 100,000 km (Hyundai Nishat price list). Hybrid battery: 8 years / 160,000 km (per PakNEV).',
+
+    image: '/images/cars/hyundai-santa-fe-hybrid.jpg',
+    notes:
+      'The Pakistani listing\'s \'Santa Fe\' is the Santa Fe Hybrid, the only Santa Fe Hyundai ' +
+      'Nishat sells. It is the fourth-generation (TM) facelift, not the boxy ' +
+      'fifth-generation MX5 sold in Korea, Europe and the US since 2023; Pakistan-sold ' +
+      'figures are used. Headline Smart FWD per Hyundai Nishat spec page: Smartstream 1.6 ' +
+      'T-GDi HEV, 169 kW (227 hp) / 350 Nm combined, 6-speed automatic, 67 L tank, 4,785 x ' +
+      '1,900 x 1,710 mm, wheelbase 2,765 mm, ground clearance 176 mm, kerb 1,780-1,918 kg, ' +
+      'luggage 782 L (listed as max), 7 seats. Signature AWD (HTRAC, terrain modes, HUD, ' +
+      'surround camera, Harman Kardon): same powertrain, kerb 1,845-1,983 kg. Battery ' +
+      'capacity 1.49 kWh is from PakNEV (Hyundai Nishat\'s page does not state it). No ' +
+      'manufacturer 0-100 or top-speed figures (PakNEV\'s 8.9 s / 190 km/h unverified, not ' +
+      'listed). Price basis: distributor\'s discounted ex-factory price. Price source: ' +
+      'https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-SANTA-FE-Hybrid-HNMPL.pdf ' +
+      '(2026-09).',
+  },
+  {
+    id: 'hyundai-elantra-hybrid',
+    slug: 'hyundai-elantra-hybrid',
+    brand: 'Hyundai',
+    model: 'Elantra Hybrid',
+    variant: null,
+    fullName: 'Hyundai Elantra Hybrid',
+    category: 'Hybrid',
+    price: { min: crore(1.0761), max: crore(1.0761), display: 'PKR 1.08 Cr' },
+    // Elantra Hybrid Blue, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.32,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 139,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1580,
+    torque: 264,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact sedan (4-door)',
+    driveType: 'FWD',
+    motorPowerKw: 32,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion polymer, 240 V',
+    lengthMm: 4710,
+    widthMm: 1825,
+    heightMm: 1430,
+    wheelbaseMm: 2720,
+    groundClearanceMm: 150,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 402,
+    kerbWeightKg: 1385,
+    availability: 'Sold new in Pakistan by Hyundai Nishat Motor in one trim (Elantra Hybrid Blue), listed on the distributor site in September 2026.',
+    distributor: 'Hyundai Nishat Motor (Private) Limited',
+    warranty: null,
+
+    image: '/images/cars/hyundai-elantra-hybrid.jpg',
+    notes:
+      'Seventh-generation Elantra (CN7) facelift. Hyundai Nishat spec (Elantra Hybrid ' +
+      'Blue): Smartstream 1.6 GDi Atkinson engine 77.2 kW (104 hp) / 147 Nm, PMSM motor 32 ' +
+      'kW (43 hp) / 170 Nm, system 102 kW (139 hp) / 264 Nm, 6-speed dual-clutch, 1.32 kWh ' +
+      'lithium-ion polymer battery (240 V, 42 kW), 42 L tank, 402 L boot, kerb 1,385 kg, ' +
+      'ground clearance 150 mm. Hyundai Nishat\'s page lists seating as \'4 persons\', which ' +
+      'looks like an error; PakNEV and Hyundai\'s global spec give 5, used here. PakNEV ' +
+      'lists torque as 265 Nm; the manufacturer\'s 264 Nm is used. No 0-100/top-speed ' +
+      'figures from the manufacturer (PakNEV 10 s / 177 km/h unverified). Warranty not ' +
+      'stated on the Elantra pages read. Price source: ' +
+      'https://hyundai-nishat.com/elantra-hybrid/ (2026-09).',
+  },
+  {
+    id: 'hyundai-palisade-hybrid',
+    slug: 'hyundai-palisade-hybrid',
+    brand: 'Hyundai',
+    model: 'Palisade Hybrid',
+    variant: null,
+    fullName: 'Hyundai Palisade Hybrid',
+    category: 'Hybrid',
+    price: { min: crore(2.2625), max: crore(2.4075), display: 'PKR 2.26–2.41 Cr (launch price)' },
+    // Palisade Hybrid Smart (8-seater, AWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.65,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 329,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 2497,
+    torque: 460,
+    topSpeed: null,
+    seats: 8,
+
+    modelYear: 2026,
+    bodyType: 'Full-size three-row SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 54,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion polymer, 290 V',
+    lengthMm: 5060,
+    widthMm: 1980,
+    heightMm: 1805,
+    wheelbaseMm: 2970,
+    groundClearanceMm: 187,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 540,
+    kerbWeightKg: 2145,
+    availability: 'Launched in Pakistan by Hyundai Nishat Motor in September 2026 (launch price list 16 Sept 2026), in Smart and Calligraphy trims, both AWD.',
+    distributor: 'Hyundai Nishat Motor (Private) Limited',
+    warranty: 'Vehicle: 4 years / 100,000 km. Hybrid battery: 8 years / 160,000 km (per PakNEV).',
+
+    image: '/images/cars/hyundai-palisade-hybrid.jpg',
+    notes:
+      'Second-generation Palisade (LX3, 2026). Figures from Hyundai Nishat\'s Palisade ' +
+      'Hybrid brochure (V6): Smartstream 2.5 Turbo Hybrid, engine 258 hp / 353 Nm, PMSM ' +
+      'motor 54 kW / 264 Nm, system 329 hp / 460 Nm, 6-speed automatic, AWD, 1.65 kWh ' +
+      'lithium-ion polymer battery (290 V, 64 kW), 72 L tank, width 1,980 mm, wheelbase ' +
+      '2,970 mm, height 1,805 mm with roof rack (1,765 mm without), ground clearance 187 ' +
+      'mm, kerb 2,145-2,282 kg, trunk (SAE) 540 L behind 3rd row / 1,310 L behind 2nd / ' +
+      '2,455 L behind 1st. Smart: 5,060 mm long, 8 seats, 20-inch wheels. Calligraphy: ' +
+      '5,065 mm, 7 seats (2nd-row captain chairs), 21-inch wheels, Nappa leather; PKR ' +
+      '24,075,000. Brochure notes values are internal-test results subject to change. No ' +
+      'manufacturer 0-100 or top-speed figures (PakNEV\'s 8.1 s / 190 km/h unverified, not ' +
+      'listed). Price basis: launch list price. Price source: ' +
+      'https://hyundai-nishat.com/wp-content/uploads/2026/09/Price-List-PALISADE-Hybrid-Launch.pdf ' +
+      '(2026-09).',
+  },
+  {
+    id: 'kia-sorento-phev',
+    slug: 'kia-sorento-phev',
+    brand: 'Kia',
+    model: 'Sorento PHEV',
+    variant: null,
+    fullName: 'Kia Sorento PHEV',
+    category: 'PHEV',
+    price: { min: crore(1.8999), max: crore(1.8999), display: 'PKR 1.9 Cr' },
+    // Sorento 1.6T AWD PHEV, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 13.8,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 66,
+    electricRangeMax: null,
+    power: 249,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 3.3,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1598,
+    torque: 367,
+    topSpeed: null,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size three-row SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: null,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 3.42,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion',
+    lengthMm: 4815,
+    widthMm: 1900,
+    heightMm: 1695,
+    wheelbaseMm: 2815,
+    groundClearanceMm: 176,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 179,
+    kerbWeightKg: 2210,
+    availability: 'Sold new in Pakistan by Lucky Motor Corporation (Kia) since bookings opened on 31 July 2026; the first Korean PHEV on the local market.',
+    distributor: 'Lucky Motor Corporation Limited',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels). Vehicle: 4 years / 100,000 km (per PakNEV).',
+
+    image: '/images/cars/kia-sorento-phev.jpg',
+    notes:
+      'Fourth-generation Sorento (MQ4) facelift (star-map DRLs, 4,815 mm length). Kia ' +
+      'Pakistan (Lucky Motor) figures: 1.6L turbo PHEV, 249 hp / 367 Nm combined, 13.8 kWh ' +
+      'lithium-ion battery, 3.3 kW on-board charger, 15-95% charge in 3 h 25 min (3.42 h), ' +
+      'all-electric range 66 km, 7 seats, 176 mm ground clearance, up to 1,996 L cargo. Kia ' +
+      'Pakistan does not name the test standard for the 66 km, so the test standard is not ' +
+      'listed (PakNEV calls it WLTP; unconfirmed). PakWheels: engine 177 hp / 261 Nm, 47 L ' +
+      'tank, 1,695 mm height, kerb 2,210 kg (PakNEV says 2,105 kg; PakWheels used), 179 L ' +
+      'boot with third row up, top speed 180 km/h (not used, not from the manufacturer). ' +
+      'PakWheels also lists \'CCS2\' and a 28-minute DC charge, which is a template error: ' +
+      'the Sorento PHEV has no DC fast charging, so DC fields are not listed. The AC inlet ' +
+      'type for the Pakistan car is not stated by the distributor (Korean-sourced cars ' +
+      'normally use Type 1), so connector is not listed. No motor kW figure published ' +
+      'locally. Price basis: current ex-factory list price. Price source: ' +
+      'https://kia-luckymotorcorp.com/shopping-tools/price-list/ (2026-09).',
+  },
+  {
+    id: 'kia-sorento-hev',
+    slug: 'kia-sorento-hev',
+    brand: 'Kia',
+    model: 'Sorento HEV',
+    variant: null,
+    fullName: 'Kia Sorento Hybrid (HEV)',
+    category: 'Hybrid',
+    price: { min: crore(1.6299), max: crore(1.7899), display: 'PKR 1.63–1.79 Cr' },
+    // Sorento 1.6T HEV FWD, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.49,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 238,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1598,
+    torque: 367,
+    topSpeed: null,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size three-row SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: null,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion',
+    lengthMm: 4815,
+    widthMm: 1900,
+    heightMm: 1700,
+    wheelbaseMm: 2815,
+    groundClearanceMm: 174,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 179,
+    kerbWeightKg: 1909,
+    availability: 'Sold new in Pakistan by Lucky Motor Corporation (Kia) in FWD and AWD HEV trims, alongside a 3.5 V6 petrol and the PHEV; prices current September 2026.',
+    distributor: 'Lucky Motor Corporation Limited',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels). Vehicle: 4 years / 100,000 km (per PakNEV).',
+
+    image: '/images/cars/kia-sorento-hev.jpg',
+    notes:
+      'Fourth-generation Sorento (MQ4), 4,815 mm body. Kia Pakistan: SmartStream 1.6L Turbo ' +
+      'Hybrid, 238 hp / 367 Nm, 6-speed automatic, 7 seats, 174 mm ground clearance, up to ' +
+      '1,996 L cargo. PakWheels (FWD): 4,815 x 1,900 x 1,700 mm, wheelbase 2,815 mm, kerb ' +
+      '1,909 kg, 67 L tank, 179 L boot with third row up. Battery 1.49 kWh from PakNEV (Kia ' +
+      'Pakistan does not state it). AWD HEV: same power figures, PKR 17,899,000. No ' +
+      'manufacturer 0-100 figure; PakWheels/PakNEV quote 180 km/h top speed and 8.7 s, not ' +
+      'manufacturer-confirmed, not listed. Price basis: current ex-factory list price. ' +
+      'Price source: https://kia-luckymotorcorp.com/shopping-tools/price-list/ (2026-09).',
+  },
+  {
+    id: 'kia-sportage-l-hybrid',
+    slug: 'kia-sportage-l-hybrid',
+    brand: 'Kia',
+    model: 'Sportage L Hybrid',
+    variant: null,
+    fullName: 'Kia Sportage L Hybrid (HEV)',
+    category: 'Hybrid',
+    price: { min: crore(1.2199), max: crore(1.3299), display: 'PKR 1.22–1.33 Cr' },
+    // Sportage L 1.6T FWD HEV (facelift), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.49,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 235,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1598,
+    torque: 368,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: null,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion, 270 V',
+    lengthMm: 4685,
+    widthMm: 1865,
+    heightMm: 1660,
+    wheelbaseMm: 2755,
+    groundClearanceMm: 181,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 586,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Lucky Motor Corporation (Kia) as the facelifted Sportage L in FWD and AWD HEV trims; bookings opened 31 July 2026, prices announced 18 Aug 2026. The older 1.6T FWD HEV and Alpha were discontinued.',
+    distributor: 'Lucky Motor Corporation Limited',
+    warranty: 'Vehicle: 4 years / 100,000 km; battery 8 years / 160,000 km (per PakNEV).',
+
+    image: '/images/cars/kia-sportage-l-hybrid.jpg',
+    notes:
+      'The listing\'s \'Kia Sportage\' is the Sportage L Hybrid, the long-wheelbase ' +
+      'fifth-generation Sportage (NQ5) facelift (\'The New Sportage PE\') that Kia Pakistan ' +
+      'sells. Figures from Lucky Motor\'s Sportage L brochure (July 2026): SmartStream Gamma ' +
+      '1.6T GDI engine 178 hp / 265 Nm, motor 64 hp / 264 Nm, combined 235 hp / 368 Nm, ' +
+      '6-speed automatic, 1.49 kWh lithium-ion battery (270 V, 5.5 Ah), 52 L tank, 4,685 x ' +
+      '1,865 x 1,660 mm, wheelbase 2,755 mm, ground clearance 181 mm, luggage 586 L / 1,872 ' +
+      'L, 18-inch wheels. AWD HEV adds terrain modes, ventilated seats, memory seat, Harman ' +
+      'Kardon audio and a power tailgate; PKR 13,299,000. Kerb weight is not published for ' +
+      'the facelift (the 1,643 kg on PakNEV/PakWheels belongs to the pre-facelift car), so ' +
+      'not listed. PakNEV lists torque as 265 Nm (that is the engine alone); the brochure\'s ' +
+      '368 Nm combined is used. No manufacturer 0-100/top speed. Price basis: announced ' +
+      'ex-factory prices. Price source: ' +
+      'https://propakistani.pk/2026/08/18/kia-revises-prices-of-sportage-l-sorento-hybrid-models/ ' +
+      '(2026-08).',
+  },
+  {
+    id: 'honda-hr-v-ehev',
+    slug: 'honda-hr-v-ehev',
+    brand: 'Honda',
+    model: 'HR-V e:HEV',
+    variant: null,
+    fullName: 'Honda HR-V e:HEV',
+    category: 'Hybrid',
+    price: { min: lakh(92.99), max: lakh(92.99), display: 'PKR 92.99 Lakh (promo)' },
+    // HR-V e:HEV (HEV-EL), the headline trim. Other trims are in `notes`.
+    batteryCapacity: null,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 129,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1498,
+    torque: 253,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Subcompact crossover SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 96,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion',
+    lengthMm: 4361,
+    widthMm: 1790,
+    heightMm: 1591,
+    wheelbaseMm: 2610,
+    groundClearanceMm: 196,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Locally assembled and sold new by Honda Atlas Cars (Pakistan) since 2025 as the top HR-V trim; on sale at a limited-period price from 25 Sept 2026.',
+    distributor: 'Honda Atlas Cars (Pakistan) Limited',
+    warranty: 'Vehicle: 3 years / 70,000 km (per PakNEV); Honda Atlas sells extended battery-pack warranty to the 7th and 8th year.',
+
+    image: '/images/cars/honda-hr-v-ehev.jpg',
+    notes:
+      'Third-generation HR-V (RV) with Honda\'s two-motor e:HEV system (i-MMD). Figures from ' +
+      'Honda Atlas\'s HR-V e:HEV 2025 brochure (HEV-EL column): 1,498 cc DOHC i-VTEC engine ' +
+      '78 kW (105 hp) / 127 Nm, drive motor 96 kW (131 PS) / 253 Nm, e-CVT, lithium-ion ' +
+      'battery, 4,361 x 1,790 x 1,591 mm, wheelbase 2,610 mm, ground clearance 196 mm, 5 ' +
+      'seats, 40 L tank, 18-inch wheels. power 129 is the 96 kW motor output (Honda quotes ' +
+      '131 PS). Honda Atlas does not publish battery capacity, boot volume, kerb weight, ' +
+      '0-100 or top speed; PakNEV\'s 319 L, 1,380 kg, 10.7 s and 170 km/h are not ' +
+      'manufacturer-confirmed, so not listed. Price basis: current limited-period ' +
+      'ex-factory price. Price source: ' +
+      'https://www.techjuice.pk/honda-cuts-prices-of-two-hr-v-variants/ (2026-09).',
+  },
+  {
+    id: 'nissan-sakura',
+    slug: 'nissan-sakura',
+    brand: 'Nissan',
+    model: 'Sakura',
+    variant: null,
+    fullName: 'Nissan Sakura',
+    category: 'EV',
+    price: { min: lakh(48), max: lakh(48), display: 'PKR 48 Lakh (indicative)' },
+    // Sakura X, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 20,
+    batteryUnit: 'kWh',
+    range: 180,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 63,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: 30,
+    dcChargingUnit: 'kW',
+    acCharging: 2.9,
+    acChargingUnit: 'kW',
+    connector: ['CHAdeMO'],
+    engineCapacity: null,
+    torque: 195,
+    topSpeed: null,
+    seats: 4,
+
+    modelYear: 2026,
+    bodyType: 'Kei electric microcar (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 47,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: 12.4,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 40,
+    batteryTech: 'Lithium-ion',
+    lengthMm: 3395,
+    widthMm: 1475,
+    heightMm: 1655,
+    wheelbaseMm: 2495,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: 1070,
+    availability: 'Not sold new in Pakistan; available only as a used grey import from Japan (PakNEV, Sept 2026).',
+    distributor: null,
+    warranty: null,
+
+    image: '/images/cars/nissan-sakura.jpg',
+    notes:
+      'Nissan Sakura kei EV (B6AW), current model after the April 2026 minor change (grades ' +
+      'S, X, G; S is new). Nissan Japan figures: MM48 motor 47 kW / 195 Nm, WLTC range 180 ' +
+      'km (Japanese MLIT figure, recorded as WLTP since WLTC is the WLTP class-3 cycle; ' +
+      'strictly WLTC), AC consumption 124 Wh/km, on-board AC charger 2.9 kW, DC quick ' +
+      'charge to 80% in about 40 minutes on a charger of 30 kW or more (Japanese AC inlet ' +
+      'is Type 1, not an allowed connector value, so only CHAdeMO is listed). EVsmart: 20 ' +
+      'kWh battery, 3,395 x 1,475 x 1,655 mm, 4 seats, X 1,070 kg, G 1,080 kg, 30 kW max ' +
+      'DC. Wheelbase 2,495 mm from PakNEV. power 63 is 47 kW converted (Nissan quotes 64 ' +
+      'PS). X is used as the headline because grey imports are mostly 2022-25 X/G cars. ' +
+      'Nissan does not publish 0-100 or top speed; PakNEV\'s 9 s and 130 km/h not used. AC ' +
+      'charge time not read from Nissan (shown only as an image), so not listed. Price ' +
+      'source: https://paknev.com/cars/nissan-sakura (2026-09).',
+  },
+  {
+    id: 'mini-countryman-electric',
+    slug: 'mini-countryman-electric',
+    brand: 'MINI',
+    model: 'Countryman Electric',
+    variant: null,
+    fullName: 'MINI Countryman E',
+    category: 'EV',
+    price: { min: crore(2.48), max: crore(2.69), display: 'PKR 2.48–2.69 Cr (launch price)' },
+    // Countryman E (FWD, MY2026), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 65.2,
+    batteryUnit: 'kWh',
+    range: 501,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 201,
+    powerUnit: 'hp',
+    acceleration: 8.6,
+    accelerationUnit: 'sec',
+    dcCharging: 130,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 250,
+    topSpeed: 170,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact electric SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 150,
+    rangeStandard: 'WLTP',
+    realWorldRange: 400,
+    realWorldRangeMax: null,
+    consumption: 16.3,
+    consumptionMax: null,
+    acChargingHours: 7,
+    dcChargingMinutes: 29,
+    batteryTech: 'Lithium-ion NMC811 (400V)',
+    lengthMm: 4433,
+    widthMm: 1843,
+    heightMm: 1656,
+    wheelbaseMm: 2692,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 460,
+    kerbWeightKg: 1940,
+    availability: 'Sold new in Pakistan by Dewan Motors (official MINI importer) since the February 2026 launch; bookings with delivery about six months from booking (PakWheels, May 2026).',
+    distributor: 'Dewan Motors',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle: 24 months (Dewan Motors, per PakWheels).',
+
+    image: '/images/cars/mini-countryman-electric.jpg',
+    notes:
+      'Third-generation (U25) Countryman, MY2026 technology update from March 2026 ' +
+      'production: new SiC inverter and usable capacity raised to 65.2 kWh (66.5 kWh ' +
+      'gross). Headline is the Countryman E: 150 kW (204 PS, 201 hp), 250 Nm, 0-100 km/h ' +
+      '8.6 s, 170 km/h, 501 km WLTP (TEL; 454 km TEH), FWD. The SE ALL4 (PKR 26.9M) is ' +
+      'dual-motor AWD with 313 PS and 494 Nm, 0-100 km/h 5.6 s, 180 km/h and 467 km WLTP ' +
+      'for MY2026, lower than the E, so upper range figure is not listed. Pre-update ' +
+      '(MY24-25) cars were 64.7 kWh usable and 462 km WLTP for the E, which is what PakNEV ' +
+      'still quotes; which model year Dewan delivers is not stated. DC: MINI quotes 130 kW ' +
+      'and 10-80% in 29 min (PakWheels/PakNEV); EV Database lists 128 kW and 34 min. AC is ' +
+      '11 kW (22 kW optional), about 7 h to full. Real-world range and consumption are EV ' +
+      'Database estimates (combined 400 km, 16.3 kWh/100 km; 335 km cold to 465 km mild). ' +
+      'Kerb weight is EU unladen (with driver). Price basis: Dewan Motors euro-linked ' +
+      'launch list price. Price source: ' +
+      'https://propakistani.pk/2026/02/13/dewan-motors-launches-mini-lineup-in-pakistan/ ' +
+      '(2026-02).',
+  },
+  {
+    id: 'mini-aceman',
+    slug: 'mini-aceman',
+    brand: 'MINI',
+    model: 'Aceman',
+    variant: null,
+    fullName: 'MINI Aceman E',
+    category: 'EV',
+    price: { min: crore(1.85), max: crore(2.05), display: 'PKR 1.85–2.05 Cr (launch price)' },
+    // Aceman E, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 38.5,
+    batteryUnit: 'kWh',
+    range: 310,
+    rangeMax: 406,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 181,
+    powerUnit: 'hp',
+    acceleration: 7.9,
+    accelerationUnit: 'sec',
+    dcCharging: 75,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 290,
+    topSpeed: 160,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Subcompact electric crossover (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 135,
+    rangeStandard: 'WLTP',
+    realWorldRange: 230,
+    realWorldRangeMax: null,
+    consumption: 16.7,
+    consumptionMax: null,
+    acChargingHours: 4.25,
+    dcChargingMinutes: 30,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 4079,
+    widthMm: 1754,
+    heightMm: 1514,
+    wheelbaseMm: 2606,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 300,
+    kerbWeightKg: 1720,
+    availability: 'Sold new in Pakistan by Dewan Motors (official MINI importer) since the February 2026 launch; bookings with delivery about six months from booking (PakWheels, May 2026).',
+    distributor: 'Dewan Motors',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle: 24 months (Dewan Motors, per PakWheels for the MINI range).',
+
+    image: '/images/cars/mini-aceman.jpg',
+    notes:
+      'First-generation Aceman (J05), on sale since mid-2024, no facelift yet. Headline is ' +
+      'the Aceman E: 135 kW (184 PS, 181 hp), 290 Nm, 0-100 km/h 7.9 s, 160 km/h, 38.5 kWh ' +
+      'usable (42.5 kWh gross), 310 km WLTP (TEL; 298 km TEH), DC 75 kW with 10-80% in 30 ' +
+      'min per MINI (EV Database lists 70 kW / 28 min). The Aceman SE (PKR 20.5M) has 49.2 ' +
+      'kWh usable (54.2 kWh gross), 160 kW (218 PS), 330 Nm, 0-100 km/h 7.1 s, 170 km/h, ' +
+      '406 km WLTP and 95 kW DC; its range is upper range figure. AC 11 kW, about 4 h 15 ' +
+      'min to full. Real-world range and consumption are EV Database estimates (combined ' +
+      '230 km, 16.7 kWh/100 km; 195 km cold to 265 km mild). PakNEV quotes 265 km ' +
+      'real-world, which is EV Database mild-weather combined. Kerb weight is EU unladen. ' +
+      'Price basis: Dewan Motors euro-linked launch list price. Price source: ' +
+      'https://propakistani.pk/2026/02/13/dewan-motors-launches-mini-lineup-in-pakistan/ ' +
+      '(2026-02).',
+  },
+  {
+    id: 'mini-cooper-electric',
+    slug: 'mini-cooper-electric',
+    brand: 'MINI',
+    model: 'Cooper Electric',
+    variant: null,
+    fullName: 'MINI Cooper E',
+    category: 'EV',
+    price: { min: crore(1.75), max: crore(1.92), display: 'PKR 1.75–1.92 Cr (launch price)' },
+    // Cooper E (3-door), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 36.6,
+    batteryUnit: 'kWh',
+    range: 305,
+    rangeMax: 402,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 181,
+    powerUnit: 'hp',
+    acceleration: 7.3,
+    accelerationUnit: 'sec',
+    dcCharging: 75,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 290,
+    topSpeed: 160,
+    seats: 4,
+
+    modelYear: 2026,
+    bodyType: 'Electric city hatchback (3-door)',
+    driveType: 'FWD',
+    motorPowerKw: 135,
+    rangeStandard: 'WLTP',
+    realWorldRange: 250,
+    realWorldRangeMax: null,
+    consumption: 14.6,
+    consumptionMax: null,
+    acChargingHours: 4,
+    dcChargingMinutes: 27,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 3858,
+    widthMm: 1756,
+    heightMm: 1460,
+    wheelbaseMm: 2526,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 200,
+    kerbWeightKg: 1615,
+    availability: 'Sold new in Pakistan by Dewan Motors (official MINI importer) since the February 2026 launch; bookings with delivery about six months from booking (PakWheels, May 2026).',
+    distributor: 'Dewan Motors',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle: 24 months (Dewan Motors, per PakWheels for the MINI range).',
+
+    image: '/images/cars/mini-cooper-electric.jpg',
+    notes:
+      'Fifth-generation electric MINI Cooper (J01, 3-door only), on sale since early 2024. ' +
+      'Headline is the Cooper E: 135 kW (184 PS, 181 hp), 290 Nm, 0-100 km/h 7.3 s, 160 ' +
+      'km/h, 36.6 kWh usable (40.7 kWh gross), 305 km WLTP (TEL; 290 km TEH). The Cooper SE ' +
+      '(PKR 19.2M) has 49.2 kWh usable (54.2 kWh gross), 160 kW (218 PS), 330 Nm, 0-100 ' +
+      'km/h 6.7 s, 170 km/h, 402 km WLTP and 95 kW DC; its range is upper range figure. DC: ' +
+      'MINI quotes up to 75 kW and 10-80% in just under 30 min; the 27 min figure is EV ' +
+      'Database (which lists 70 kW). AC 11 kW, about 4 h to full. Real-world range and ' +
+      'consumption are EV Database estimates (combined 250 km, 14.6 kWh/100 km; 210 km cold ' +
+      'to 290 km mild). Boot 200 L (EV Database; PakNEV says 210 L). Kerb weight EU ' +
+      'unladen. Price basis: Dewan Motors euro-linked launch list price. Price source: ' +
+      'https://propakistani.pk/2026/02/13/dewan-motors-launches-mini-lineup-in-pakistan/ ' +
+      '(2026-02).',
+  },
+  {
+    id: 'mg-cyberster',
+    slug: 'mg-cyberster',
+    brand: 'MG',
+    model: 'Cyberster',
+    variant: null,
+    fullName: 'MG Cyberster',
+    category: 'EV',
+    price: { min: crore(2.7), max: crore(2.99), display: 'PKR 2.7–2.99 Cr' },
+    // Cyberster GT (Single motor, RWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 74.4,
+    batteryUnit: 'kWh',
+    range: 507,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 335,
+    powerUnit: 'hp',
+    acceleration: 5,
+    accelerationUnit: 'sec',
+    dcCharging: 144,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 475,
+    topSpeed: 195,
+    seats: 2,
+
+    modelYear: 2026,
+    bodyType: 'Electric two-seat roadster (scissor doors)',
+    driveType: 'RWD',
+    motorPowerKw: 250,
+    rangeStandard: 'WLTP',
+    realWorldRange: 425,
+    realWorldRangeMax: null,
+    consumption: 17.5,
+    consumptionMax: null,
+    acChargingHours: 8,
+    dcChargingMinutes: 38,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 4535,
+    widthMm: 1913,
+    heightMm: 1329,
+    wheelbaseMm: 2690,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 249,
+    kerbWeightKg: 1960,
+    availability: 'Sold new in Pakistan by MG Motors Pakistan through its dealer network, bookable on MG Pakistan\'s site (September 2026).',
+    distributor: 'MG Motors Pakistan (JW-SEZ)',
+    warranty: 'Battery: 8 years / 150,000 km. Vehicle: 5 years / 150,000 km (per PakNEV).',
+
+    image: '/images/cars/mg-cyberster.jpg',
+    notes:
+      'First-generation Cyberster (launched 2024, unchanged). MG Pakistan calls the ' +
+      'rear-drive car "GT (Single)"; it is the car MG UK sells as the Trophy: 77 kWh gross ' +
+      '(74.4 kWh usable), 250 kW (340 PS, 335 hp), 475 Nm, 0-100 km/h 5.0 s, 195 km/h, 507 ' +
+      'km WLTP (MG Pakistan; EV Database lists 509 km). DC 144 kW peak with 10-80% in 38 ' +
+      'min (MG Pakistan). The GT (Dual, AWD, PKR 29.9M) has 375 kW (510 PS, 496 hp), 725 ' +
+      'Nm, 0-100 3.2 s, 200 km/h and 443-444 km WLTP, lower than the RWD, so upper range ' +
+      'figure is not listed. MG Pakistan\'s page mixes the two, quoting 375 kW and 3.2 s ' +
+      'next to 507 km and rear-wheel drive. AC 11 kW per EV Database (PakNEV says 7.4 kW), ' +
+      'about 8 h. Real-world range and consumption are EV Database estimates (425 km, 17.5 ' +
+      'kWh/100 km). Battery chemistry is not published; NMC is not confirmed. Kerb weight ' +
+      '1,960 kg is EU unladen (PakNEV says 2,110 kg). Price basis: PakWheels ex-factory ' +
+      'list. Price source: https://www.pakwheels.com/new-cars/mg/cyberster/ (2026-09).',
+  },
+  {
+    id: 'mg-5-ev',
+    slug: 'mg-5-ev',
+    brand: 'MG',
+    model: 'MG5 EV',
+    variant: null,
+    fullName: 'MG5 EV Long Range',
+    category: 'EV',
+    price: { min: crore(1.149), max: crore(1.149), display: 'PKR 1.15 Cr' },
+    // MG5 EV SE Long Range (61.1 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 57.4,
+    batteryUnit: 'kWh',
+    range: 400,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 154,
+    powerUnit: 'hp',
+    acceleration: 7.7,
+    accelerationUnit: 'sec',
+    dcCharging: 87,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 280,
+    topSpeed: 185,
+    seats: 5,
+
+    modelYear: 2025,
+    bodyType: 'Compact electric estate (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 115,
+    rangeStandard: 'WLTP',
+    realWorldRange: 335,
+    realWorldRangeMax: null,
+    consumption: 17.1,
+    consumptionMax: null,
+    acChargingHours: 6.25,
+    dcChargingMinutes: 42,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 4600,
+    widthMm: 1818,
+    heightMm: 1543,
+    wheelbaseMm: 2659,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 479,
+    kerbWeightKg: 1637,
+    availability: 'Introduced in Pakistan by MG Motors Pakistan in Dec 2023/Jan 2024 as a limited CBU import for fleet "market research". It is still priced on PakWheels/PakNEV but no longer listed on MG Pakistan\'s site (September 2026).',
+    distributor: 'MG Motors Pakistan (JW-SEZ)',
+    warranty: 'Battery: 8 years / 150,000 km. Vehicle: 5 years / 150,000 km (per PakNEV).',
+
+    image: '/images/cars/mg-5-ev.jpg',
+    notes:
+      'Pakistan\'s MG5 EV is the European MG5 Electric estate (station wagon), 2022 ' +
+      'facelift, the latest and final version; European sales ended July 2025 with no ' +
+      'successor. SE Long Range: 61.1 kWh gross (57.4 kWh usable), 115 kW (156 PS, 154 hp), ' +
+      '280 Nm, 0-100 km/h 7.7 s, 185 km/h, 400 km WLTP (TEL; 380 km TEH), 87 kW DC with ' +
+      '10-80% in 42 min (EV Database; PakWheels says 35 min, PakNEV 40 min), 11 kW AC ' +
+      '(about 6 h 15 min). Only one trim is sold in Pakistan. Real-world range and ' +
+      'consumption are EV Database estimates (335 km, 17.1 kWh/100 km; 280 km cold to 385 ' +
+      'km mild). Wheelbase 2,659 mm (EV Database; PakNEV 2,665 mm). Kerb weight EU unladen ' +
+      '(PakWheels 1,552 kg). model year 2025 is the last European production year; ' +
+      'PakWheels labels its listing 2026. Price basis: PakWheels ex-factory list. Price ' +
+      'source: https://www.pakwheels.com/new-cars/mg/5-ev/se-long-range--2/ (2026-09).',
+  },
+  {
+    id: 'mg-zs-hybrid-plus',
+    slug: 'mg-zs-hybrid-plus',
+    brand: 'MG',
+    model: 'ZS Hybrid+',
+    variant: null,
+    fullName: 'MG ZS Hybrid+',
+    category: 'Hybrid',
+    price: { min: lakh(74.99), max: lakh(78.99), display: 'PKR 74.99–78.99 Lakh' },
+    // ZS Hybrid+ Excite, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.83,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 212,
+    powerUnit: 'hp',
+    acceleration: 8.7,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1498,
+    torque: 465,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact hybrid SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 158,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion NMC, 1.83 kWh (self-charging hybrid)',
+    lengthMm: 4430,
+    widthMm: 1818,
+    heightMm: 1635,
+    wheelbaseMm: 2610,
+    groundClearanceMm: 161,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 443,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by MG Motors Pakistan since the second-generation ZS launched on 29 July 2026, in Hybrid+ Excite and Hybrid+ Essence trims (booking PKR 1.2M).',
+    distributor: 'MG Motors Pakistan (JW-SEZ)',
+    warranty: 'Battery: 8 years / 150,000 km. Vehicle: 5 years / 150,000 km (per PakNEV).',
+
+    image: '/images/cars/mg-zs-hybrid-plus.jpg',
+    notes:
+      'Second-generation MG ZS (2025 on), self-charging Hybrid+ with no plug. 1.5-litre ' +
+      '(1,498 cc) naturally aspirated petrol engine (75 kW / 128 Nm) plus a 100 kW / 250 Nm ' +
+      'motor, 3-speed hybrid transmission (DHT), 1.83 kWh NMC battery. Combined 158 kW (212 ' +
+      'hp) and 465 Nm, as MG Pakistan quotes and as MG Australia quotes for the same ' +
+      'Excite/Essence trims; the UK version is rated 196 PS. 0-100 km/h 8.7 s (MG claim). ' +
+      'MG Pakistan claims up to 940 km total range on a tank (41 L); Australian claimed ' +
+      'fuel use is 4.7 L/100 km, and PakWheels quotes 17-23 km/L. Headline is the Excite ' +
+      '(PKR 7.499M from 1 Oct 2026); Essence (PKR 7.899M) adds equipment with the same ' +
+      'powertrain. Top speed is not listed because sources conflict (PakWheels 190 km/h, ' +
+      'PakNEV 168 km/h). Kerb weight is not listed for the same reason (PakWheels 1,270 kg, ' +
+      'PakNEV 1,410 kg; CarExpert gives about 1,420 kg for the Australian Essence). Ground ' +
+      'clearance 161 mm and boot 443 L (1,457 L seats folded) are from CarExpert. Price ' +
+      'basis: MG Pakistan revised ex-factory list, reported by ProPakistani. Price source: ' +
+      'https://propakistani.pk/2026/09/16/mg-increases-zs-prices-after-new-gst-on-hybrid-vehicles/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'jetour-t1-i-dm',
+    slug: 'jetour-t1-i-dm',
+    brand: 'Jetour',
+    model: 'T1 i-DM',
+    variant: null,
+    fullName: 'Jetour T1 i-DM',
+    category: 'PHEV',
+    price: { min: crore(1.0799), max: crore(1.0799), display: 'PKR 1.08 Cr (launch price)' },
+    // T1 1.5T i-DM PHEV (18.4 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 18.4,
+    batteryUnit: 'kWh',
+    range: 1200,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 100,
+    electricRangeMax: null,
+    power: 340,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1499,
+    torque: 530,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact boxy off-road-styled SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: null,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 30,
+    batteryTech: 'LFP (CATL, per PakWheels)',
+    lengthMm: 4705,
+    widthMm: 1967,
+    heightMm: 1843,
+    wheelbaseMm: 2800,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Jetour Pakistan (bookings payable to United Motors (Pvt) Ltd), launched in Lahore in late August/September 2026 as a 1.5T PHEV only.',
+    distributor: 'Jetour Pakistan / United Motors (Pvt) Ltd',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle: 5 years / 150,000 km (PakWheels Pakistan listing).',
+
+    image: '/images/cars/jetour-t1-i-dm.jpg',
+    notes:
+      'Current Jetour T1 (Shanhai T1 in China) i-DM plug-in hybrid, Pakistan spec with the ' +
+      '18.4 kWh LFP pack: 1.5-litre turbo petrol plus a single motor driving the front ' +
+      'wheels, 340 hp (Pakistan figure; cars.co.za quotes 250 kW system output) and 530 Nm ' +
+      'combined, 100 km NEDC electric range, about 1,200 km combined range, DC 30-80% in ' +
+      'about 30 minutes, 70 L tank, 19-inch wheels, 180 km/h (PakWheels). Other markets get ' +
+      'a 26.7 kWh pack (UAE: 117 km WLTC EV range, 335 hp, 160 mm ground clearance), not ' +
+      'used here. PakWheels lists 200 mm ground clearance, ~1,775 kg kerb weight and a 448 ' +
+      'L boot, but gives identical weight and boot for the larger T2, so those were not ' +
+      'listed as unreliable. PakNEV\'s 0-100 7.5 s, 6.6 kW AC and 30 kW DC figures have no ' +
+      'primary source and were not used; AC/DC peak kW therefore not listed. Height is ' +
+      '1,843 mm per Jetour\'s launch figures (PakNEV\'s 1,743 mm looks like a typo). Price ' +
+      'basis: introductory ex-factory list price. Price source: ' +
+      'https://www.pakwheels.com/blog/jetour-t1-i-dm-price-revealed-exclusively-on-pakwheels/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'jetour-t2-i-dm',
+    slug: 'jetour-t2-i-dm',
+    brand: 'Jetour',
+    model: 'T2 i-DM',
+    variant: null,
+    fullName: 'Jetour T2 i-DM',
+    category: 'PHEV',
+    price: { min: crore(1.2795), max: crore(1.2795), display: 'PKR 1.28 Cr' },
+    // T2 1.5T i-DM PHEV (18.4 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 18.4,
+    batteryUnit: 'kWh',
+    range: 1100,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 90,
+    electricRangeMax: null,
+    power: 360,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1499,
+    torque: 610,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size boxy off-road-styled SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: null,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 30,
+    batteryTech: 'LFP',
+    lengthMm: 4785,
+    widthMm: 2006,
+    heightMm: 1880,
+    wheelbaseMm: 2800,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Jetour Pakistan (payments to United Motors (Pvt) Ltd), first imported and locally assembled (CKD) since September 2026.',
+    distributor: 'Jetour Pakistan / United Motors (Pvt) Ltd',
+    warranty: null,
+
+    image: '/images/cars/jetour-t2-i-dm.jpg',
+    notes:
+      'Current Jetour T2 (Traveller / Shanhai T2) i-DM plug-in hybrid: 1.5T petrol plus ' +
+      'dual motors through a 3-speed DHT, front-wheel drive, 360 hp (cars.co.za: 265 kW ' +
+      'system) and 610 Nm, 18.4 kWh LFP, about 90 km NEDC EV range, about 1,100 km combined ' +
+      '(cars.co.za says 1,200 km), DC charge to 80% in about 30 minutes, 70 L tank, 20-inch ' +
+      'wheels. PakWheels quotes 180 km/h, 220 mm ground clearance, a 448 L boot and ~1,775 ' +
+      'kg kerb weight, but these repeat its T1 figures, so they were not listed. PakNEV\'s ' +
+      '198 km/h, 8.9 s and 7 kW AC have no primary source and were not used. Warranty not ' +
+      'found for Pakistan. Price basis: ex-factory list price. Price source: ' +
+      'https://www.pakwheels.com/new-cars/jetour/t2/ (2026-09).',
+  },
+  {
+    id: 'hyptec-ht',
+    slug: 'hyptec-ht',
+    brand: 'Hyptec (GAC)',
+    model: 'HT',
+    variant: null,
+    fullName: 'GAC Hyptec HT',
+    category: 'EV',
+    price: { min: crore(1.1999), max: crore(1.3999), display: 'PKR 1.2–1.4 Cr' },
+    // HT Elite Plus (83 kWh RWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 83,
+    batteryUnit: 'kWh',
+    range: 520,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 335,
+    powerUnit: 'hp',
+    acceleration: 5.8,
+    accelerationUnit: 'sec',
+    dcCharging: 280,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 430,
+    topSpeed: 183,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Large electric coupe-SUV (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 250,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 15,
+    batteryTech: 'LFP (800V-capable fast charging)',
+    lengthMm: 4935,
+    widthMm: 1920,
+    heightMm: 1700,
+    wheelbaseMm: 2935,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 670,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Lucky Motor Corporation under GAC Pakistan since the 20 May 2026 launch, with dealerships in Karachi, Lahore and Islamabad (Sep 2026).',
+    distributor: 'Lucky Motor Corporation (GAC Pakistan)',
+    warranty: 'Battery: 8 years / 200,000 km. Vehicle: 8 years / 160,000 km (PakWheels, Pakistan).',
+
+    image: '/images/cars/hyptec-ht.jpg',
+    notes:
+      'Pre-S600 Hyptec HT (China 2023-), 83 kWh LFP export spec as sold in Pakistan, ' +
+      'Singapore and Thailand. Elite Plus: single rear motor 250 kW (335 hp), 430 Nm ' +
+      '(Singapore/Thai press; PakWheels quotes 380 Nm, not used), 0-100 5.8 s, 183 km/h, ' +
+      '520 km claimed (WLTP per PakWheels; 620 km NEDC in Thailand), DC up to 280 kW, ' +
+      '10-70% in 15 min per Singapore/Thai press (PakWheels says 10-80% in 15 min), AC 6.6 ' +
+      'kW per PakWheels/PakNEV (the Thai spec lists 11 kW). Boot 670 L, 1,802 L folded (GAC ' +
+      'Pakistan). The Ultra Gullwing Door Plus has the same powertrain; PakWheels lists 220 ' +
+      'km/h for it, which looks doubtful. Kerb weight not listed (sources range 2,120-2,350 ' +
+      'kg). The 2026 S600 refresh is not what Pakistan sells. Price basis: official ' +
+      'ex-factory list prices. Price source: ' +
+      'https://www.pakwheels.com/blog/gac-aion-hyptec-ev-official-prices-booking-pakistan/ ' +
+      '(2026-05).',
+  },
+  {
+    id: 'icaur-v23',
+    slug: 'icaur-v23',
+    brand: 'iCAUR (Chery)',
+    model: 'V23',
+    variant: null,
+    fullName: 'iCAUR V23',
+    category: 'EV',
+    price: { min: lakh(94.99), max: crore(1.1499), display: 'PKR 94.99 Lakh – 1.15 Cr' },
+    // V23 RWD (59.93 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 59.93,
+    batteryUnit: 'kWh',
+    range: 360,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 134,
+    powerUnit: 'hp',
+    acceleration: 11,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 7,
+    acChargingUnit: 'kW',
+    connector: ['CCS2'],
+    engineCapacity: null,
+    torque: 180,
+    topSpeed: 140,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact boxy electric SUV (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 100,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 8,
+    dcChargingMinutes: 36,
+    batteryTech: 'CATL lithium-ion (chemistry not stated for RWD)',
+    lengthMm: 4220,
+    widthMm: 1915,
+    heightMm: 1845,
+    wheelbaseMm: 2735,
+    groundClearanceMm: 205,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 440,
+    kerbWeightKg: 1710,
+    availability: 'Sold new in Pakistan by NexGen Auto (Nishat Group), with prices announced 17 Sep 2026 and deliveries from end of October 2026.',
+    distributor: 'NexGen Auto (Pvt) Ltd (Nishat Group)',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels, Pakistan). Vehicle: not stated for Pakistan.',
+
+    image: '/images/cars/icaur-v23.jpg',
+    notes:
+      'Current iCAUR V23 (iCar V23). V23 RWD: single rear motor 100 kW (134 hp) / 180 Nm, ' +
+      '59.93 kWh, 360 km NEDC, 0-100 11.0 s, 140 km/h (cars.co.za; PakWheels lists 160 ' +
+      'km/h), DC 10-80% 36 min, 7 kW AC (PakWheels; PakNEV says 6.6 kW), 205 mm clearance, ' +
+      '1,710 kg, 440 L boot (PakNEV says 372 L). V23 AWD: dual motors 155 kW (208 hp) / 292 ' +
+      'Nm, 81.76 kWh NMC, 430 km NEDC, 0-100 7.5 s, 210 mm clearance, 21-inch wheels. No ' +
+      'primary source confirms DC peak kW (PakNEV: 85 kW RWD / 104 kW AWD). Price basis: ' +
+      'ex-factory list prices. Price source: ' +
+      'https://www.pakwheels.com/blog/nexgen-launches-icaur-v23-v27-suvs-pakistan-prices-specs/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'icaur-v27',
+    slug: 'icaur-v27',
+    brand: 'iCAUR (Chery)',
+    model: 'V27',
+    variant: null,
+    fullName: 'iCAUR V27',
+    category: 'REEV',
+    price: { min: crore(1.2499), max: crore(1.2499), display: 'PKR 1.25 Cr' },
+    // V27 1.5T REEV Dual Motor AWD (34.31 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 34.31,
+    batteryUnit: 'kWh',
+    range: 995,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 150,
+    electricRangeMax: null,
+    power: 449,
+    powerUnit: 'hp',
+    acceleration: 5.9,
+    accelerationUnit: 'sec',
+    dcCharging: 100,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: ['CCS2'],
+    engineCapacity: 1493,
+    torque: 505,
+    topSpeed: null,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size boxy range-extender SUV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 335,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 30,
+    batteryTech: 'LFP (CATL)',
+    lengthMm: 5045,
+    widthMm: 1976,
+    heightMm: 1894,
+    wheelbaseMm: 2900,
+    groundClearanceMm: 220,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 715,
+    kerbWeightKg: 2284,
+    availability: 'Sold new in Pakistan by NexGen Auto (Nishat Group), launched 17 Sep 2026 as the dual-motor AWD REEV, with deliveries from end of October 2026.',
+    distributor: 'NexGen Auto (Pvt) Ltd (Nishat Group)',
+    warranty: null,
+
+    image: '/images/cars/icaur-v27.jpg',
+    notes:
+      'Current iCAUR V27 (iCar V27, on sale in China from March 2026). Pakistan spec: 1.5T ' +
+      'petrol range extender (generator only, 115 kW per paultan), front 150 kW + rear 185 ' +
+      'kW motors = 335 kW (449 hp), 505 Nm, 0-100 5.9 s, 34.31 kWh CATL LFP, 150 km NEDC EV ' +
+      'range and 995 km combined (PakWheels), 60 L tank, 220 mm clearance, 715 L boot ' +
+      '(1,818 L max). DC: 20-80% in 30 min (PakWheels, used); 100 kW peak and 10-80% in 17 ' +
+      'min per paultan (Malaysia/China spec). CLTC EV range is 200 km AWD (210 km RWD); ' +
+      'WLTP ~160 km AWD. Length 5,045 mm (PakWheels, likely with spare wheel; Wikipedia ' +
+      'gives 4,909 mm); wheelbase 2,900 mm per PakWheels vs 2,910 mm on Wikipedia. Kerb ' +
+      'weight 2,284 kg from PakWheels (PakNEV 2,335). Top speed conflicts (PakWheels 170, ' +
+      'PakNEV 180 km/h), not listed. A 51.2 kWh Long Range edition launched in China on 30 ' +
+      'Sep 2026 is not sold in Pakistan. Price basis: ex-factory list price. Price source: ' +
+      'https://propakistani.pk/2026/09/18/nishat-groups-nexgen-auto-launches-icaur-in-pakistan-with-the-v27-reev-priced-at-pkr-12499000/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'jaecoo-j5-shs',
+    slug: 'jaecoo-j5-shs',
+    brand: 'Jaecoo',
+    model: 'J5 SHS',
+    variant: null,
+    fullName: 'Jaecoo J5 SHS HEV',
+    category: 'Hybrid',
+    price: { min: lakh(66.99), max: lakh(76.99), display: 'PKR 66.99–76.99 Lakh (launch price)' },
+    // J5 SHS HEV Comfort, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 1.83,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 221,
+    powerUnit: 'hp',
+    acceleration: 7.9,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1499,
+    torque: 295,
+    topSpeed: 175,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 165,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium-ion (NCM per Jaecoo SA; cars.co.za says LFP)',
+    lengthMm: 4380,
+    widthMm: 1860,
+    heightMm: 1650,
+    wheelbaseMm: 2620,
+    groundClearanceMm: 176,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 480,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Omoda & Jaecoo Pakistan (Nishat Group) since 11 Jan 2026; Pakistan was the first global market for the J5 HEV.',
+    distributor: 'Omoda & Jaecoo Pakistan (Nishat Group)',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels, Pakistan). Vehicle: 6 years / 150,000 km (PakNEV).',
+
+    image: '/images/cars/jaecoo-j5-shs.jpg',
+    notes:
+      'Jaecoo J5 with Chery\'s 1.5 TGDI Super Hybrid System (SHS-H) and a dedicated hybrid ' +
+      'transmission; self-charging, no plug. System output 165 kW (221 hp) and 295 Nm, 1.83 ' +
+      'kWh battery, 0-100 7.9 s and 175 km/h (South African press/Jaecoo SA; PakWheels ' +
+      'lists 180 km/h), 51 L tank, 5.3 L/100 km WLTP (SA), 16-20 km/l (PakWheels). ' +
+      'Dimensions and 176 mm ground clearance from Jaecoo SA and PakWheels. The 480 L boot ' +
+      'is the Pakistani figure (Jaecoo SA says 410 L / 1,214 L). Kerb weight 1,536 kg is ' +
+      'the South African spec and is not confirmed for Pakistan, so it was not listed. ' +
+      'PakWheels\' Comfort page also shows 141 hp / 215 Nm, apparently the engine alone. ' +
+      'Premium adds 18-inch wheels, panoramic roof and dual-zone climate. A 5.1 kWh J5 ' +
+      'hybrid update was announced in China (Jul 2026) and is not the Pakistani car. motor ' +
+      'output holds the 165 kW system output. Price basis: launch ex-factory price, still ' +
+      'listed. Price source: ' +
+      'https://propakistani.pk/2026/01/11/jaecoo-j5-official-price-in-pakistan-revealed/ ' +
+      '(2026-01).',
+  },
+  {
+    id: 'chery-q',
+    slug: 'chery-q',
+    brand: 'Chery',
+    model: 'Q',
+    variant: null,
+    fullName: 'Chery Q',
+    category: 'EV',
+    price: { min: lakh(55.54), max: lakh(55.54), display: 'PKR 55.54 Lakh (launch price)' },
+    // Q Premium (EV 400, 42.7 kWh), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 42.7,
+    batteryUnit: 'kWh',
+    range: 400,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 121,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 6.6,
+    acChargingUnit: 'kW',
+    connector: ['CCS2'],
+    engineCapacity: null,
+    torque: 115,
+    topSpeed: 135,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact electric hatchback / crossover (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 90,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 8,
+    dcChargingMinutes: 40,
+    batteryTech: 'LFP',
+    lengthMm: 4195,
+    widthMm: 1811,
+    heightMm: 1568,
+    wheelbaseMm: 2700,
+    groundClearanceMm: 166,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 375,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by Chery Master Pakistan, launched 18 Sep 2026 at PAPS in the Premium trim through 14 dealerships.',
+    distributor: 'Chery Master Pakistan',
+    warranty: 'Battery: 8 years / 160,000 km. Vehicle: 6 years / 150,000 km (PakNEV/PakWheels, Pakistan).',
+
+    image: '/images/cars/chery-q.jpg',
+    notes:
+      'The Chery Q is the third-generation Chery QQ3 EV (2026), sold as \'Chery Q\' in export ' +
+      'markets; earlier Pakistani reports called it the \'QQ3\'. Pakistan Premium: rear motor ' +
+      '90 kW (121 hp per Wikipedia; PakWheels says 126 hp) and 115 Nm (South African press, ' +
+      'Wikipedia; PakNEV says 111 Nm), 42.7 kWh LFP, 400 km NEDC, 135 km/h, DC 10-80% 40 ' +
+      'min, AC 6.6 kW (8 h), 375 L boot plus 70 L frunk (SA press; PakWheels says 440 L), ' +
+      '166 mm clearance (PakWheels). The Philippine spec gives 420 km CLTC / 405 km NEDC ' +
+      'and 90 kW DC through GB/T; Pakistan uses CCS2 per PakWheels (PakNEV says GB/T for ' +
+      'AC), so the connector needs a check. Kerb weight conflicts (Wikipedia 1,275 kg for ' +
+      'the base car, PakWheels 1,680 kg, PakNEV 1,450 kg) and was not listed. The ' +
+      'China-only base has 29.5 kWh and 58 kW. Price basis: limited-time introductory ' +
+      'ex-factory price. Price source: ' +
+      'https://profit.pakistantoday.com.pk/2026/09/19/chery-master-pakistan-launches-chery-q-setting-a-new-standard-in-everyday-mobility-at-rs-5554000-for-a-limited-time ' +
+      '(2026-09).',
+  },
+  {
+    id: 'byd-shark-6',
+    slug: 'byd-shark-6',
+    brand: 'BYD',
+    model: 'Shark 6',
+    variant: null,
+    fullName: 'BYD Shark 6',
+    category: 'PHEV',
+    price: { min: crore(1.995), max: crore(1.995), display: 'PKR 2 Cr' },
+    // Shark 6 Premium (1.5T DMO AWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 29.58,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 100,
+    electricRangeMax: null,
+    power: 430,
+    powerUnit: 'hp',
+    acceleration: 5.7,
+    accelerationUnit: 'sec',
+    dcCharging: 55,
+    dcChargingUnit: 'kW',
+    acCharging: 7,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: 1497,
+    torque: 650,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Double-cab plug-in hybrid pickup (4-door)',
+    driveType: 'AWD',
+    motorPowerKw: 321,
+    rangeStandard: 'NEDC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 5,
+    dcChargingMinutes: 30,
+    batteryTech: 'BYD Blade LFP',
+    lengthMm: 5457,
+    widthMm: 1971,
+    heightMm: 1925,
+    wheelbaseMm: 3260,
+    groundClearanceMm: 230,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: 2710,
+    availability: 'Sold new in Pakistan since its launch in Karachi on 25 July 2025 by BYD Pakistan with Mega Motor Company (HUBCO), in a single Premium trim.',
+    distributor: 'BYD Pakistan / Mega Motor Company (Pvt) Ltd',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels). Vehicle: not published.',
+
+    image: '/images/cars/byd-shark-6.jpg',
+    notes:
+      'Current (first-generation, 2025-on) Shark 6 with the 1.5-litre turbo (1497 cc, 135 ' +
+      'kW per Wikipedia) DMO plug-in hybrid system and two motors (front 170 kW, rear 150 ' +
+      'kW); system output 321 kW (430 hp) and 650 Nm, 0-100 km/h 5.7 s, per the Pakistan ' +
+      'launch coverage. 29.58 kWh Blade LFP battery (nominal figure; usable not published). ' +
+      'Pakistan launch figures: 100 km electric range and 800 km combined range (NEDC, per ' +
+      'BYD Pakistan launch). WLTP figures from Wikipedia: 85 km electric / 670 km combined. ' +
+      'Charging: DC 55 kW (CarExpert/Wikipedia; PakWheels gives 30 min for 10-80%), AC 7 kW ' +
+      '(PakWheels gives 5 h to full). Top speed 180 km/h is from PakWheels only. Kerb ' +
+      'weight 2,710 kg from PakWheels (Wikipedia range 2,600-2,775 kg). Tray volume not ' +
+      'given in a comparable boot figure (Wikipedia: 1,450 L tray; PakWheels lists 1,200 ' +
+      'L), so boot volume not listed. Fuel tank 60 L. A 2.0T \'Performance\' version (350 kW, ' +
+      '700 Nm, 5.5 s) launched in Australia in April 2026 but is not sold in Pakistan. ' +
+      'Price basis: ex-factory list price. Price source: ' +
+      'https://www.pakwheels.com/new-cars/byd/shark/premium--13/ (2025-07).',
+  },
+  {
+    id: 'xpeng-x9',
+    slug: 'xpeng-x9',
+    brand: 'XPeng',
+    model: 'X9',
+    variant: null,
+    fullName: 'XPeng X9',
+    category: 'EV',
+    price: { min: crore(3.15), max: crore(3.15), display: 'PKR 3.15 Cr' },
+    // X9 Long Range 2WD Pro+, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 101.5,
+    batteryUnit: 'kWh',
+    range: 590,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 315,
+    powerUnit: 'hp',
+    acceleration: 7.7,
+    accelerationUnit: 'sec',
+    dcCharging: 317,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 450,
+    topSpeed: 200,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Large luxury electric MPV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 235,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 11,
+    dcChargingMinutes: 20,
+    batteryTech: 'Lithium-ion NMC (800V)',
+    lengthMm: 5293,
+    widthMm: 1988,
+    heightMm: 1785,
+    wheelbaseMm: 3160,
+    groundClearanceMm: 142,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 755,
+    kerbWeightKg: 2590,
+    availability: 'Sold new in Pakistan by Tesla Industries since the 23 January 2026 launch (prices first shown 28 Dec 2025), in the single Long Range 2WD Pro+ trim.',
+    distributor: 'Tesla Industries (XPeng Pakistan)',
+    warranty: 'Battery: 8 years / 160,000 km (PakWheels). Vehicle: not published.',
+
+    image: '/images/cars/xpeng-x9.jpg',
+    notes:
+      'Pakistan sells the pre-facelift (2024-2025 generation) export spec, matching XPeng ' +
+      'Malaysia\'s Long Range 2WD Pro Plus spec sheet: single front motor 235 kW / 315 hp, ' +
+      '450 Nm, 101.5 kWh NMC, 590 km WLTP, 200 km/h, DC 317 kW (10-80% in 20 min), AC 11 kW ' +
+      '(5-100% in 11 h), CCS2 + Type 2, boot 755 L behind row 3 / 2,554 L folded. 0-100 ' +
+      'km/h 7.7 s, ground clearance 142 mm and kerb 2,590 kg are from PakWheels (Wikipedia ' +
+      'gives 2,555-2,750 kg). Dimensions 5,293 x 1,988 x 1,785 mm and 3,160 mm wheelbase ' +
+      'from Wikipedia/PakWheels. The Malaysian Standard Range has an 84.5 kWh LFP pack and ' +
+      '500 km WLTP. The Chinese 2026 facelift (restyled bumpers, EREV added, 94.8 kWh LFP / ' +
+      '110 kWh NMC) is sold in Europe as the MY26 FWD Long Range (106 kWh usable, 615 km ' +
+      'WLTP, 542 kW DC, 5,316 mm long per ev-database) but is not the car sold in Pakistan. ' +
+      'Usable capacity of the 101.5 kWh pack not published. Price basis: current PakWheels ' +
+      'ex-factory listing. Price source: https://www.pakwheels.com/new-cars/xpeng/x9/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'xpeng-l03-reev',
+    slug: 'xpeng-l03-reev',
+    brand: 'XPeng',
+    model: 'L03 REEV',
+    variant: null,
+    fullName: 'XPeng L03 REEV',
+    category: 'REEV',
+    price: { min: crore(1.15), max: crore(1.15), display: 'PKR 1.15 Cr' },
+    // L03 REEV RWD, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 37.25,
+    batteryUnit: 'kWh',
+    range: null,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: 250,
+    electricRangeMax: null,
+    power: 241,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: 123,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: 1497,
+    torque: 280,
+    topSpeed: 180,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Mid-size range-extended coupe-SUV (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 180,
+    rangeStandard: 'CLTC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 20,
+    batteryTech: 'LFP (Eve Energy)',
+    lengthMm: 4650,
+    widthMm: 1920,
+    heightMm: 1600,
+    wheelbaseMm: 2850,
+    groundClearanceMm: 143,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 539,
+    kerbWeightKg: 1935,
+    availability: 'Pre-bookings opened in Pakistan on 6 July 2026 through XPeng\'s experience centres in Islamabad and Lahore; PakWheels lists it as on sale for 2026.',
+    distributor: 'XPeng Pakistan',
+    warranty: 'Battery: 8 years / 240,000 km (PakWheels). Vehicle: not published.',
+
+    image: '/images/cars/xpeng-l03-reev.jpg',
+    notes:
+      'Not a Leapmotor mix-up: the XPeng L03 (sold in China as the Mona L03, debuted June ' +
+      '2026, launched 16 July 2026) is a coupe-SUV with BEV and range-extended versions; ' +
+      'Pakistan gets three BEVs (Standard Rs 9.99m, Long Range Rs 11.7m, LR Ultra Rs 12.7m ' +
+      'at pre-launch) and one REEV. Pakistan REEV figures (XPeng via ProPakistani, 6 July ' +
+      '2026): 1.5-litre range-extender engine that only charges the battery, 37.25 kWh ' +
+      'battery, rear-wheel drive, 250 km CLTC electric range, 1,150 km CLTC combined range, ' +
+      'AC 7 or 11 kW, DC 123 kW (10-80% in about 20 min). Conflicts: one PakWheels article ' +
+      'labels the REEV \'AWD\' and quotes 210 km / 1,330 km, but the XPeng Pakistan price ' +
+      'list names it REEV RWD; Wikipedia gives 315 km CLTC / 249 km WLTP electric and 1,330 ' +
+      'km combined for China. Motor 180 kW / 245 PS (241 hp) and range-extender 63 kW from ' +
+      'paultan (Europe); torque 280 Nm from paultan (Australia; PakWheels lists 320 Nm). ' +
+      'Europe/Australia: 215 km WLTP electric, 1,017 km combined, 42 L tank. Engine ' +
+      'capacity 1497 cc, top speed 180 km/h and ground clearance 143 mm from PakWheels ' +
+      'only. Boot 539 L (+102 L frunk) per paultan Europe; PakWheels lists 367 L. Kerb ' +
+      'weight 1,935 kg (Wikipedia and PakWheels). 0-100 km/h not published for the REEV. ' +
+      'Price basis: current PakWheels ex-factory listing; the pre-order introductory price ' +
+      'was lower. Price source: https://www.pakwheels.com/new-cars/xpeng/l03/reev/ ' +
+      '(2026-09).',
+  },
+  {
+    id: 'zeekr-009',
+    slug: 'zeekr-009',
+    brand: 'Zeekr',
+    model: '009',
+    variant: null,
+    fullName: 'Zeekr 009',
+    category: 'EV',
+    price: { min: crore(4.5999), max: crore(4.8999), display: 'PKR 4.6–4.9 Cr' },
+    // 009 Luxury (AWD, 7-seat), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 116,
+    batteryUnit: 'kWh',
+    range: 582,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 602,
+    powerUnit: 'hp',
+    acceleration: 4.5,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: null,
+    torque: 693,
+    topSpeed: 210,
+    seats: 7,
+
+    modelYear: 2026,
+    bodyType: 'Large luxury electric MPV (5-door)',
+    driveType: 'AWD',
+    motorPowerKw: 450,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 13.5,
+    dcChargingMinutes: 30,
+    batteryTech: 'CATL lithium-ion NMC (400V)',
+    lengthMm: 5209,
+    widthMm: 2024,
+    heightMm: 1812,
+    wheelbaseMm: 3205,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 574,
+    kerbWeightKg: 2870,
+    availability: 'Sold new in Pakistan by Capital Smart Motors since October 2025 (prices announced 11 Oct 2025), in Luxury 7-seat and Ultra-Luxury 6-seat trims.',
+    distributor: 'Capital Smart Motors (Pvt) Ltd',
+    warranty: 'Battery: 8 years / 150,000 km (PakWheels). Vehicle: not published.',
+
+    image: '/images/cars/zeekr-009.jpg',
+    notes:
+      'Current (2024-on facelifted) 009 in export form. Luxury AWD figures: dual motors 450 ' +
+      'kW (602-603 hp), 693 Nm, 0-100 km/h 4.5 s, 116 kWh NMC battery (nominal), 582 km ' +
+      'WLTP (ProPakistani, Zeekr Malaysia, paultan). DC 10-80% in 30 min (Zeekr Malaysia); ' +
+      'a peak DC kW figure was not confirmed from a source I could read, so it is not ' +
+      'listed. AC full charge 13.5 h, top speed 210 km/h, kerb 2,870 kg and boot 574 L from ' +
+      'PakWheels (Wikipedia gives 2,830-2,970 kg). Dimensions and wheelbase from Zeekr ' +
+      'Malaysia. Ultra-Luxury (6-seat) shares the powertrain. Malaysia also sells a ' +
+      'single-motor FWD Executive (335 hp, 373 Nm, 604 km WLTP) not offered in Pakistan. ' +
+      'ProPakistani noted Pakistan-specific details were not confirmed at announcement. ' +
+      'Price basis: official ex-factory list prices. Price source: ' +
+      'https://propakistani.pk/2025/10/11/zeekr-009-official-price-in-pakistan-announced/ ' +
+      '(2025-10).',
+  },
+  {
+    id: 'zeekr-x',
+    slug: 'zeekr-x',
+    brand: 'Zeekr',
+    model: 'X',
+    variant: null,
+    fullName: 'Zeekr X',
+    category: 'EV',
+    price: { min: crore(1.799), max: crore(1.899), display: 'PKR 1.8–1.9 Cr' },
+    // X Premium (RWD), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 65,
+    batteryUnit: 'kWh',
+    range: 440,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 268,
+    powerUnit: 'hp',
+    acceleration: 5.6,
+    accelerationUnit: 'sec',
+    dcCharging: 158,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 343,
+    topSpeed: 190,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact premium electric crossover (5-door)',
+    driveType: 'RWD',
+    motorPowerKw: 200,
+    rangeStandard: 'WLTP',
+    realWorldRange: 360,
+    realWorldRangeMax: null,
+    consumption: 18.1,
+    consumptionMax: null,
+    acChargingHours: 7,
+    dcChargingMinutes: 28,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 4432,
+    widthMm: 1836,
+    heightMm: 1566,
+    wheelbaseMm: 2750,
+    groundClearanceMm: 191,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 362,
+    kerbWeightKg: 1930,
+    availability: 'Sold new in Pakistan by Capital Smart Motors since October 2025 (bookings from 10 Oct 2025), in Premium RWD and Flagship AWD trims.',
+    distributor: 'Capital Smart Motors (Pvt) Ltd',
+    warranty: 'Battery: 8 years / 150,000 km (PakWheels). Vehicle: not published.',
+
+    image: '/images/cars/zeekr-x.jpg',
+    notes:
+      'Pakistan sells the 66 kWh export Zeekr X (matches ev-database\'s MY25 Long Range RWD, ' +
+      'not the MY26 59 kWh version). Premium RWD: 200 kW (272 PS / 268 hp), 343 Nm, 0-100 ' +
+      'km/h 5.6 s, 190 km/h, 65 kWh usable (Zeekr quotes 66 kWh), 440 km WLTP per ' +
+      'ProPakistani/PakWheels (ev-database: 446 km WLTP, 360 km real-world, 18.1 kWh/100 km ' +
+      'real), DC 158 kW (10-80% in 28 min), AC 11 kW (~7 h). PakWheels lists 180 km/h and ' +
+      '1,965 kg; ev-database values (190 km/h, 1,930 kg) used. Ground clearance 191 mm from ' +
+      'PakWheels. Flagship AWD: 420 km WLTP, 0-100 km/h 3.8 s (ProPakistani). Price basis: ' +
+      'official ex-factory list prices. Price source: ' +
+      'https://propakistani.pk/2025/10/11/zeekr-x-official-price-in-pakistan-unveiled/ ' +
+      '(2025-10).',
+  },
+  {
+    id: 'nora-ev',
+    slug: 'nora-ev',
+    brand: 'Nora',
+    model: 'EV',
+    variant: null,
+    fullName: 'Nora EV',
+    category: 'EV',
+    price: { min: lakh(18.89), max: lakh(22.99), display: 'PKR 18.89–22.99 Lakh' },
+    // Nora EV Eco, the headline trim. Other trims are in `notes`.
+    batteryCapacity: 9.36,
+    batteryUnit: 'kWh',
+    range: 120,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 4,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: null,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: null,
+    torque: null,
+    topSpeed: 65,
+    seats: 4,
+
+    modelYear: 2026,
+    bodyType: 'Four-seat micro electric city car (L7e-class quadricycle)',
+    driveType: null,
+    motorPowerKw: 3,
+    rangeStandard: null,
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 7,
+    dcChargingMinutes: null,
+    batteryTech: 'Lithium iron phosphate (LFP), swappable',
+    lengthMm: 2900,
+    widthMm: 1450,
+    heightMm: 1600,
+    wheelbaseMm: 1900,
+    groundClearanceMm: 150,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: 580,
+    availability: 'Debuted in Pakistan in November 2025, priced and opened for booking in March 2026, with first customer deliveries from 15 September 2026 (per Nora via PakWheels, 2 Sept 2026).',
+    distributor: 'Nora (Nora EV Pakistan)',
+    warranty: 'Battery and motor: 5 years (ProPakistani); PakWheels states 5 years / 120,000 km on the battery.',
+
+    image: null,
+    notes:
+      'Nora is a new micro-EV brand in Pakistan selling one small four-seat quadricycle, ' +
+      'the \'Nora EV\', imported from China (maker not named in any source; a CKD plant is ' +
+      'planned but not yet running). Two larger models, Nora NEO and METRO, were due around ' +
+      'late September 2026. Headline Eco: 9.36 kWh LFP battery, about 120 km range (test ' +
+      'standard not stated), 3 kW (about 4 hp) motor, 65 km/h top speed, 6-8 h charging ' +
+      '(midpoint 7 h used), 2,900 x 1,450 x 1,600 mm, 1,900 mm wheelbase, 580 kg, 150 mm ' +
+      'ground clearance (battery and weight from PakWheels catalogue and MarkLines, Nov ' +
+      '2025). Eco+ adds a multimedia system (120 km per ProPakistani, 180 km per PakWheels ' +
+      'blog); EcoX has 160 km range per ProPakistani (PakWheels blog says 300 km and lists ' +
+      'a 23.1 kWh battery). The PakWheels blog also describes a 70cc petrol range extender ' +
+      'with a 3 L tank; ProPakistani and the PakWheels catalogue describe it as ' +
+      'battery-electric only, so it is listed as an EV and the range-extender claim is ' +
+      'unconfirmed. PakWheels\' catalogue lists driver aids (lane keep, blind spot) that ' +
+      'look like template errors. Price basis: announced ex-factory list prices. Price ' +
+      'source: https://propakistani.pk/2026/03/13/nora-ev-prices-announced-in-pakistan/ ' +
+      '(2026-03).',
+  },
+  {
+    id: 'honri-ve-2',
+    slug: 'honri-ve-2',
+    brand: 'Honri',
+    model: 'VE 2.0',
+    variant: null,
+    fullName: 'Honri VE 2.0',
+    category: 'EV',
+    price: { min: lakh(35.99), max: lakh(35.99), display: 'PKR 35.99 Lakh (promo)' },
+    // VE 2.0 (200 km), the headline trim. Other trims are in `notes`.
+    batteryCapacity: 18.5,
+    batteryUnit: 'kWh',
+    range: 200,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 40,
+    powerUnit: 'hp',
+    acceleration: null,
+    accelerationUnit: 'sec',
+    dcCharging: null,
+    dcChargingUnit: 'kW',
+    acCharging: 3.3,
+    acChargingUnit: 'kW',
+    connector: null,
+    engineCapacity: null,
+    torque: 84,
+    topSpeed: 100,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'City electric hatchback (5-door)',
+    driveType: null,
+    motorPowerKw: 30,
+    rangeStandard: 'CLTC',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 7,
+    dcChargingMinutes: null,
+    batteryTech: 'Ternary lithium (NCM)',
+    lengthMm: 3517,
+    widthMm: 1495,
+    heightMm: 1660,
+    wheelbaseMm: 2495,
+    groundClearanceMm: 130,
+    groundClearanceMaxMm: null,
+    bootCapacityL: null,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan since mid-2024; assembled locally by Dewan Farooque Motors under a toll-manufacturing deal for Eco-Green Motors Ltd (Yousuf Dewan Companies), deliveries from late 2024.',
+    distributor: 'Eco-Green Motors Ltd (assembled by Dewan Farooque Motors)',
+    warranty: 'Battery: 8 years / 120,000 km (PakWheels). Vehicle: not published.',
+
+    image: null,
+    notes:
+      'The Honri VE is a small Chinese-designed electric hatchback marketed in Pakistan by ' +
+      'Eco-Green Motors and locally assembled by Dewan Farooque Motors (over 300 units ' +
+      'built in the first ten months). \'VE 2.0\' is the 200 km version; the VE 3.0 has a ' +
+      '29.9 kWh LFP battery, 300 km CLTC, 35 kW and 87 Nm (Rs 4,399,000 after the Dec 2025 ' +
+      'cut). VE 2.0: 18.5 kWh ternary lithium, 200 km CLTC, 30 kW (PakWheels quotes 40 hp), ' +
+      '84 Nm, 100 km/h, 3.3 kW on-board charger, about 7 h to full (ProPakistani July 2024; ' +
+      'PakWheels). Dimensions, wheelbase and ground clearance from PakWheels. Seats: ' +
+      'PakWheels lists 5. DC charging and connector not published. ProPakistani notes real ' +
+      'range will be lower (about 180 km). Price basis: current reduced ex-factory price, ' +
+      'originally a limited-time year-end offer. Price source: ' +
+      'https://www.pakwheels.com/new-cars/honri/ve/2-0--8/ (2025-12).',
   },
 ]
