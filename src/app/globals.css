@@ -58,6 +58,15 @@
     margin: 0;
   }
 
+  /*
+    No rubber-band past the top or bottom: the page behind the dark nav and
+    footer is light, so the bounce showed a white strip at both ends.
+  */
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
