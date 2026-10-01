@@ -17,6 +17,7 @@ import {
 } from '@/lib/cars'
 
 import { BrandRail } from './BrandRail'
+import { CarCollectionHero } from './CarCollectionHero'
 import { CarHero } from './CarHero'
 import { CarsBrowser } from './CarsBrowser'
 
@@ -212,11 +213,9 @@ export function CarsExplorer({
    * powertrains are ticked at once: there is no single heading that honestly
    * describes "PHEVs and hybrids", so it falls back rather than picking one.
    */
-  const activeCategory =
-    filters.categories.length === 1 ? (filters.categories[0] ?? null) : null
+  const activeCategory = filters.categories.length === 1 ? (filters.categories[0] ?? null) : null
 
-  const masthead =
-    activeCategory === null ? ALL_CARS_MASTHEAD : CATEGORY_MASTHEAD[activeCategory]
+  const masthead = activeCategory === null ? ALL_CARS_MASTHEAD : CATEGORY_MASTHEAD[activeCategory]
 
   /*
     Brands within the heading's own subject.
@@ -276,25 +275,81 @@ export function CarsExplorer({
   const scrollToResults = () =>
     resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
+  /**
+   * One powertrain, one brand, or one of each: the page becomes that slice.
+   *
+   * The general hero is a search box for somebody who has not chosen yet. Once
+   * a segment or a brand is picked the choice has been made, so the top of the
+   * page turns into the slice's own landing — see CarCollectionHero. Anything
+   * else (nothing picked, or two brands ticked) keeps the general hero, for the
+   * same reason the masthead falls back: there is no honest single title.
+   */
+  const focused = activeCategory !== null || heroBrand !== null
+  const scopeKey = `${heroBrand ?? ''}|${activeCategory ?? ''}`
+
+  const scopeCars = React.useMemo(
+    () =>
+      cars.filter(
+        (car) =>
+          (heroBrand === null || car.brand === heroBrand) &&
+          (activeCategory === null || car.category === activeCategory),
+      ),
+    [cars, heroBrand, activeCategory],
+  )
+
+  /*
+    A new slice opens at the top, like a page.
+
+    The segments and the brand rail sit well below the hero, so without this a
+    tap would rebuild the landing out of sight and leave the reader looking at a
+    grid that had shifted under them. Skipped on the first render: a shared link
+    should open where the browser puts it, not scroll on arrival.
+  */
+  const previousScope = React.useRef(scopeKey)
+  React.useEffect(() => {
+    if (previousScope.current === scopeKey) return
+    previousScope.current = scopeKey
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' })
+  }, [scopeKey])
+
   return (
     <>
-      <CarHero
-        query={query}
-        onQueryChange={setQuery}
-        brand={heroBrand}
-        onBrandChange={(brand) =>
-          setFilters((current) => ({
-            ...current,
-            brands: brand ? [brand] : [],
-          }))
-        }
-        brands={brands}
-        stats={stats}
-        popularBrands={popularBrands}
-        onSubmit={scrollToResults}
-      />
+      {focused ? (
+        <CarCollectionHero
+          scope={{ category: activeCategory, brand: heroBrand }}
+          cars={scopeCars}
+          onBrowse={scrollToResults}
+          onClear={() =>
+            setFilters((current) => ({
+              ...current,
+              brands: [],
+              categories: [],
+            }))
+          }
+          onClearCategory={() => setFilters((current) => ({ ...current, categories: [] }))}
+        />
+      ) : (
+        <CarHero
+          query={query}
+          onQueryChange={setQuery}
+          brand={heroBrand}
+          onBrandChange={(brand) =>
+            setFilters((current) => ({
+              ...current,
+              brands: brand ? [brand] : [],
+            }))
+          }
+          brands={brands}
+          stats={stats}
+          popularBrands={popularBrands}
+          onSubmit={scrollToResults}
+        />
+      )}
 
-      {beforeResults}
+      {/* The brand strip introduces the whole catalogue; a slice already has
+          its own introduction in the hero, so the strip is left out there. */}
+      {focused ? null : beforeResults}
 
       {/*
         A grey ground under the catalogue, where this used to be white.
@@ -389,8 +444,11 @@ export function CarsExplorer({
             subtitle steps up with it, on its own line, so the pair reads as a
             section opening rather than a label with a caption beside it.
           */}
-          <div className="mt-14 border-t border-slate-300/70 pt-10">
-            {/*
+          {/* In a slice the collection hero has already named the grid, so a
+              second heading here would only repeat it. */}
+          {focused ? null : (
+            <div className="mt-14 border-t border-slate-300/70 pt-10">
+              {/*
               An index line above the heading rather than a count beside it.
 
               The catalogue is a reference document and this is its title page,
@@ -414,28 +472,29 @@ export function CarsExplorer({
               and a reader who tapped a segment would not be certain anything
               had happened.
             */}
-            <div key={masthead.id} className="masthead-enter motion-reduce:animate-none">
-              <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
-                <span>{masthead.eyebrow}</span>
-                <span className="tabular-nums text-slate-400">
-                  {mastheadBrands} {mastheadBrands === 1 ? 'brand' : 'brands'}
-                </span>
-              </p>
-              <h2
-                aria-live="polite"
-                className="mt-5 font-display text-[2.5rem] font-extrabold leading-[1.08] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]"
-              >
-                {masthead.title}
-                <br />
-                <span className="text-plug-navy-700">{masthead.emphasis}</span>
-              </h2>
-              <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
-                {masthead.blurb}
-              </p>
+              <div key={masthead.id} className="masthead-enter motion-reduce:animate-none">
+                <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
+                  <span>{masthead.eyebrow}</span>
+                  <span className="tabular-nums text-slate-400">
+                    {mastheadBrands} {mastheadBrands === 1 ? 'brand' : 'brands'}
+                  </span>
+                </p>
+                <h2
+                  aria-live="polite"
+                  className="mt-5 font-display text-[2.5rem] font-extrabold leading-[1.08] tracking-[-0.02em] text-slate-900 lg:text-[3.25rem]"
+                >
+                  {masthead.title}
+                  <br />
+                  <span className="text-plug-navy-700">{masthead.emphasis}</span>
+                </h2>
+                <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
+                  {masthead.blurb}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="mt-6">
+          <div className={focused ? 'mt-10' : 'mt-6'}>
             <CarsBrowser
               cars={cars}
               categories={categories}
