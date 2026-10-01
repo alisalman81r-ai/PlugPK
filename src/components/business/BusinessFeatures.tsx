@@ -144,7 +144,7 @@ export function BusinessFeatures() {
             Get Listed in 3 Simple Steps
           </h2>
 
-          <div className="grid gap-10 lg:grid-cols-3">
+          <div className="grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-10">
             {STEPS.map((step, index) => {
               const Icon = step.icon
 

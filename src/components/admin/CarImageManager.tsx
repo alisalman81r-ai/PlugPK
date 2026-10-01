@@ -201,7 +201,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
           <dl className="mt-3 flex flex-col gap-2 text-ui-sm">
             <div>
               <dt className="text-slate-500">Current file</dt>
-              <dd className="mt-0.5 break-all font-mono text-ui-xs text-slate-700">{image}</dd>
+              <dd className="mt-0.5 break-all font-mono text-ui-xs text-slate-700">{image.split('?')[0]}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Source</dt>

@@ -46,12 +46,12 @@ export function MorphIcon({
   turn = 90,
   className,
 }: MorphIconProps) {
+  // One tree for both cases, with only the motion zeroed under reduced motion.
+  // useReducedMotion is null on the server and true on the client for those
+  // visitors, so an early return of a bare <svg> here was a hydration error
+  // in the navbar's menu button for every one of them.
   const reduced = useReducedMotion()
   const Icon = active ? On : Off
-
-  if (reduced) {
-    return <Icon size={size} strokeWidth={strokeWidth} className={className} aria-hidden="true" />
-  }
 
   return (
     /*
@@ -71,7 +71,7 @@ export function MorphIcon({
           initial={{ opacity: 0, rotate: -turn, scale: 0.55 }}
           animate={{ opacity: 1, rotate: 0, scale: 1 }}
           exit={{ opacity: 0, rotate: turn, scale: 0.55 }}
-          transition={{ type: 'spring', stiffness: 420, damping: 26 }}
+          transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 26 }}
         >
           <Icon size={size} strokeWidth={strokeWidth} aria-hidden="true" />
         </motion.span>

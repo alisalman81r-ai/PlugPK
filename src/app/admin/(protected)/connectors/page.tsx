@@ -53,7 +53,7 @@ export default async function AdminConnectorsPage() {
           <>
             {/* Desktop: a table, because comparing power and price down a
                 column is the whole job. */}
-            <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white lg:block">
+            <div className="relative hidden overflow-hidden rounded-xl border border-slate-200 bg-white lg:block">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-ui-xs uppercase tracking-wider text-slate-500">

@@ -53,7 +53,7 @@ export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroPr
             how much charge you have, and we size the stops around your car&apos;s real range.
           </p>
 
-          <dl className="mx-auto mt-8 flex max-w-lg flex-wrap items-center justify-center divide-white/10 sm:divide-x">
+          <dl className="mx-auto mt-8 grid max-w-lg grid-cols-3 items-start divide-x divide-white/10 sm:flex sm:items-center sm:justify-center">
             <Stat icon={Car} value={vehicleCount} label="EVs supported" />
             <Stat icon={Zap} value={stationCount} label="stations to route via" tone="cyan" />
             <Stat icon={MapPin} value={cityCount} label={cityCount === 1 ? 'city' : 'cities'} />
@@ -76,7 +76,7 @@ function Stat({
   tone?: 'plain' | 'cyan'
 }) {
   return (
-    <div className="px-5 py-1 text-center">
+    <div className="px-2 py-1 text-center sm:px-5">
       <dt className="sr-only">{label}</dt>
       <dd>
         <span className="flex items-center justify-center gap-1.5">
@@ -89,7 +89,7 @@ function Stat({
           ) : null}
           <span className="font-mono text-lg font-bold text-white">{value}</span>
         </span>
-        <span className="mt-0.5 block text-ui-xs uppercase tracking-[0.12em] text-white/45">
+        <span className="mt-0.5 block text-balance text-ui-xs uppercase leading-snug tracking-[0.12em] text-white/45">
           {label}
         </span>
       </dd>

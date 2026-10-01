@@ -137,7 +137,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           One surface holding the whole hero. Three tones of depth, which is what
           gives the reference its layered feel: the section behind is tinted, this
           panel is white, and the stage the car sits on is tinted again. */}
-      <div className="rounded-[2rem] border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(5,36,30,0.04),0_24px_60px_-32px_rgba(5,36,30,0.28)] sm:p-6">
+      <div className="rounded-[2rem] border border-slate-200/80 bg-white p-2 shadow-[0_1px_2px_rgba(5,36,30,0.04),0_24px_60px_-32px_rgba(5,36,30,0.28)] sm:p-6">
         <div className="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-b from-slate-50 to-slate-100/70">
           {/*
             Two columns: everything textual on the tinted left, the photograph
@@ -158,7 +158,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           */}
           <div className="grid lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:items-stretch">
             {/* Identity — first in the DOM, so it is first on a phone too */}
-            <div className="p-6 pb-0 sm:p-8 sm:pb-0 lg:col-start-1 lg:row-start-1">
+            <div className="p-5 pb-0 sm:p-8 sm:pb-0 lg:col-start-1 lg:row-start-1">
               <div className="flex items-center gap-2.5">
                 <span className="text-ui-xs font-bold uppercase tracking-[0.16em] text-plug-blue-600">
                   {car.brand}
@@ -272,7 +272,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               also what the reference does, for the same reason: the car sits in
               air on a flat surface, whole.
             */}
-            <div className="flex items-center justify-center p-6 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:pl-0">
+            <div className="flex items-center justify-center p-3 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:pl-0">
               <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl">
                 <PhotoFrame
                   src={car.image ?? undefined}
@@ -300,7 +300,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               next, each one a route that exists — no assistant, no booking, no
               payment, because this product has none of them.
             */}
-            <div className="p-6 pt-0 sm:p-8 sm:pt-0 lg:col-start-1 lg:row-start-2">
+            <div className="p-5 pt-0 sm:p-8 sm:pt-0 lg:col-start-1 lg:row-start-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
                 <p className="px-1 pb-2.5 text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-400">
                   Where next

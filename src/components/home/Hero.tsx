@@ -32,7 +32,9 @@ function HeroStat({
   note?: string
 }) {
   return (
-    <div className="flex items-center gap-3.5">
+    // Stacked — glyph over figure — below 640px, so all three sit in one row
+    // at phone width instead of wrapping two-and-one; side by side above it.
+    <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3.5">
       {/*
         The glyph sits on the page, not in a chip.
 
@@ -47,7 +49,7 @@ function HeroStat({
       */}
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-center text-plug-cyan-400"
+        className="flex h-5 sm:h-[clamp(2.5rem,4.2vh,2.75rem)] sm:w-[clamp(2.5rem,4.2vh,2.75rem)] shrink-0 items-center justify-start text-plug-cyan-400 sm:justify-center"
       >
         {icon}
       </span>
@@ -345,7 +347,7 @@ export function Hero({ stats }: HeroProps) {
                 has been reviewed yet: an average of no reviews is not zero, it
                 is nothing, and showing 0.0 would read as "rated badly".
               */}
-              <dl className="hero-rise hero-rise-5 mt-[clamp(1.75rem,3.8vh,2.6rem)] flex w-full flex-wrap items-center gap-x-6 gap-y-5 border-t border-white/10 pt-[clamp(1.25rem,2.8vh,1.75rem)] sm:gap-x-8">
+              <dl className="hero-rise hero-rise-5 mt-[clamp(1.75rem,3.8vh,2.6rem)] grid w-full grid-cols-3 items-start gap-x-4 gap-y-5 border-t border-white/10 pt-[clamp(1.25rem,2.8vh,1.75rem)] sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
                 <HeroStat
                   icon={<Zap size={17} aria-hidden="true" />}
                   value={String(stats.locations)}

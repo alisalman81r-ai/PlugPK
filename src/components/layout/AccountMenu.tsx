@@ -106,7 +106,16 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
         )}
       >
         <Avatar name={user.name} src={user.avatar} size={28} />
-        <span className={cn('max-w-[120px] truncate text-sm font-semibold', onDark ? 'text-white' : 'text-slate-700')}>
+        {/* The name shows from 1280px. Between 1024 and 1280 the bar carries
+            eight links beside this button, and the name pushed the App button
+            ~70px past the edge; the avatar alone still says whose account it
+            is, and the name stays for screen readers. */}
+        <span
+          className={cn(
+            'sr-only text-sm font-semibold xl:not-sr-only xl:max-w-[120px] xl:truncate',
+            onDark ? 'text-white' : 'text-slate-700',
+          )}
+        >
           {user.name}
         </span>
         <TurnIcon active={isOpen} className="text-slate-400">

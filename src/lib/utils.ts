@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════
 
 import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { extendTailwindMerge } from 'tailwind-merge'
 import type {
   ConnectorType,
   StationStatus,
@@ -13,6 +13,35 @@ import type {
 } from './types'
 
 // ─── Class Name Utility ──────────────────────────────
+/**
+ * tailwind-merge, told about this theme's own scales.
+ *
+ * Out of the box it only knows Tailwind's names. `text-ui` is not a font size
+ * it recognises, so it files it as a text colour — and then drops whichever
+ * colour came before it as the "conflict". `cn('text-white', 'text-ui')`
+ * came out as `text-ui` alone: the outline-white button on /for-businesses
+ * rendered forest-on-forest, and so did anything else that set a colour and
+ * one of these sizes in the same cn(). The custom shadows and gradients had
+ * the same problem against shadow and background colours.
+ *
+ * Keep these lists in step with tailwind.config.ts.
+ */
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [
+        { text: ['ui-xs', 'ui-sm', 'ui', 'ui-lg', 'display-2xl', 'display-xl', 'display-lg', 'display-md', 'display-sm'] },
+      ],
+      shadow: [
+        { shadow: ['e1', 'e2', 'e3', 'e4', 'focus', 'blue', 'blue-lg', 'cyan', 'card', 'card-hover', 'nav', 'modal'] },
+      ],
+      'bg-image': [
+        { bg: ['gradient-brand', 'gradient-accent', 'gradient-hero', 'gradient-card', 'gradient-dark'] },
+      ],
+    },
+  },
+})
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }

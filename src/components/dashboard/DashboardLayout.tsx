@@ -94,12 +94,15 @@ export function DashboardLayout({
                 key={tab.href}
                 href={tab.href}
                 aria-current={active ? 'page' : undefined}
-                className="flex items-center justify-center transition-all duration-150"
+                className="flex min-w-0 items-center justify-center px-0.5 transition-all duration-150"
               >
                 <span
                   className={cn(
-                    'flex flex-col items-center justify-center gap-1 rounded-xl transition-all duration-150',
-                    active && 'bg-plug-blue-50 px-4 py-1.5',
+                    // Six tabs share a 360px screen, ~60px each: the active pill
+                    // fills its column rather than padding out past it
+                    // ("Overview" with px-4 was 77px and ran off the edge).
+                    'flex w-full max-w-[4.5rem] flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-all duration-150',
+                    active && 'bg-plug-blue-50',
                   )}
                 >
                   <Icon
@@ -109,7 +112,7 @@ export function DashboardLayout({
                   />
                   <span
                     className={cn(
-                      'text-[10px] font-medium',
+                      'max-w-full truncate text-[10px] font-medium',
                       active ? 'text-plug-blue-600' : 'text-slate-400',
                     )}
                   >

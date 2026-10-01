@@ -128,7 +128,7 @@ export function MapHero({
             Divided rather than boxed: three bordered cards here would read as
             the top row of the filter card that overlaps them.
           */}
-          <dl className="mx-auto mt-8 flex max-w-lg flex-wrap items-center justify-center divide-white/10 sm:divide-x">
+          <dl className="mx-auto mt-8 grid max-w-lg grid-cols-3 items-start divide-x divide-white/10 sm:flex sm:items-center sm:justify-center">
             <Stat icon={MapPin} value={shown} total={shown === total ? undefined : total} label="shown on map" />
             <Stat icon={Zap} value={availableNow} label="free right now" tone="cyan" />
             <Stat value={cities.length} label={cities.length === 1 ? 'city' : 'cities'} />
@@ -153,7 +153,7 @@ function Stat({
   tone?: 'plain' | 'cyan'
 }) {
   return (
-    <div className="px-5 py-1 text-center">
+    <div className="px-2 py-1 text-center sm:px-5">
       <dt className="sr-only">{label}</dt>
       <dd>
         <span className="flex items-center justify-center gap-1.5">
@@ -169,7 +169,7 @@ function Stat({
             <span className="font-mono text-ui-sm text-white/40">/ {total}</span>
           ) : null}
         </span>
-        <span className="mt-0.5 block text-ui-xs uppercase tracking-[0.12em] text-white/45">
+        <span className="mt-0.5 block text-balance text-ui-xs uppercase leading-snug tracking-[0.12em] text-white/45">
           {label}
         </span>
       </dd>
