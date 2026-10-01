@@ -61,8 +61,10 @@ const nextConfig = {
     // results, list rows and preview cards, then the card and gallery widths.
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 
-    // These files are immutable — a change ships under a new name. Caching
-    // an optimized variant for a year avoids re-encoding it.
+    // These files are immutable — a change ships under a new URL (uploads get
+    // a new name; the seeded car photographs bump CAR_PHOTO_EDITION in
+    // src/lib/db/car-queries.ts). Caching an optimized variant for a year
+    // avoids re-encoding it.
     minimumCacheTTL: 60 * 60 * 24 * 365,
   },
 }

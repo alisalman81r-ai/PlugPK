@@ -83,6 +83,22 @@ type CarRow = {
   warranty: string | null
 }
 
+/**
+ * The edition of the repository photographs under /images/cars.
+ *
+ * Those files are replaced in place — the cut-outs of 2026-09-30, the plug.pk
+ * plates of 2026-10-01 — and next.config.mjs caches every optimised variant
+ * for a year, keyed by URL, in the image cache and in each visitor's browser.
+ * An unchanged URL keeps serving the old picture, so a new edition changes the
+ * URL instead. Bump this whenever those files change. Uploads under /uploads
+ * get a new name per file and are left alone.
+ */
+const CAR_PHOTO_EDITION = '2026-10-01'
+
+function carPhotoSrc(path: string | null): string | null {
+  return path?.startsWith('/images/cars/') ? `${path}?v=${CAR_PHOTO_EDITION}` : path
+}
+
 export function rowToCar(row: CarRow): Car {
   const connectors = row.connectors
     .split(',')
@@ -145,7 +161,7 @@ export function rowToCar(row: CarRow): Car {
     availability: row.availability,
     distributor: row.distributor,
     warranty: row.warranty,
-    image: row.image,
+    image: carPhotoSrc(row.image),
     notes: row.notes,
   }
 }
