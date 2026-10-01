@@ -5308,7 +5308,8 @@ export const cars: Car[] = [
 
      Photographs are Wikimedia Commons files cut out onto white to match the
      rest of the catalogue, credited in carImageCredits.ts. Nora and the Honri
-     VE have no licensed photograph anywhere, so those two are null.
+     VE have no Commons photograph; theirs were supplied by the site owner,
+     set on the same frame with the plug.pk plate, and carry no credit line.
   */
   {
     id: 'mercedes-eqa',
@@ -8352,7 +8353,7 @@ export const cars: Car[] = [
     distributor: 'Nora (Nora EV Pakistan)',
     warranty: 'Battery and motor: 5 years (ProPakistani); PakWheels states 5 years / 120,000 km on the battery.',
 
-    image: null,
+    image: '/images/cars/nora-ev.jpg',
     notes:
       'Nora is a new micro-EV brand in Pakistan selling one small four-seat quadricycle, ' +
       'the \'Nora EV\', imported from China (maker not named in any source; a CKD plant is ' +
@@ -8426,7 +8427,7 @@ export const cars: Car[] = [
     distributor: 'Eco-Green Motors Ltd (assembled by Dewan Farooque Motors)',
     warranty: 'Battery: 8 years / 120,000 km (PakWheels). Vehicle: not published.',
 
-    image: null,
+    image: '/images/cars/honri-ve-2.jpg',
     notes:
       'The Honri VE is a small Chinese-designed electric hatchback marketed in Pakistan by ' +
       'Eco-Green Motors and locally assembled by Dewan Farooque Motors (over 300 units ' +

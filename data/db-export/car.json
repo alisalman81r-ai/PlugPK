@@ -3970,7 +3970,7 @@
     "availability": "Sold new in Pakistan since mid-2024; assembled locally by Dewan Farooque Motors under a toll-manufacturing deal for Eco-Green Motors Ltd (Yousuf Dewan Companies), deliveries from late 2024.",
     "distributor": "Eco-Green Motors Ltd (assembled by Dewan Farooque Motors)",
     "warranty": "Battery: 8 years / 120,000 km (PakWheels). Vehicle: not published.",
-    "image": null,
+    "image": "/images/cars/honri-ve-2.jpg",
     "notes": "The Honri VE is a small Chinese-designed electric hatchback marketed in Pakistan by Eco-Green Motors and locally assembled by Dewan Farooque Motors (over 300 units built in the first ten months). 'VE 2.0' is the 200 km version; the VE 3.0 has a 29.9 kWh LFP battery, 300 km CLTC, 35 kW and 87 Nm (Rs 4,399,000 after the Dec 2025 cut). VE 2.0: 18.5 kWh ternary lithium, 200 km CLTC, 30 kW (PakWheels quotes 40 hp), 84 Nm, 100 km/h, 3.3 kW on-board charger, about 7 h to full (ProPakistani July 2024; PakWheels). Dimensions, wheelbase and ground clearance from PakWheels. Seats: PakWheels lists 5. DC charging and connector not published. ProPakistani notes real range will be lower (about 180 km). Price basis: current reduced ex-factory price, originally a limited-time year-end offer. Price source: https://www.pakwheels.com/new-cars/honri/ve/2-0--8/ (2025-12).",
     "createdAt": "2026-09-30T13:37:31.270Z",
     "updatedAt": "2026-09-30T13:56:49.421Z"
@@ -5594,7 +5594,7 @@
     "availability": "Debuted in Pakistan in November 2025, priced and opened for booking in March 2026, with first customer deliveries from 15 September 2026 (per Nora via PakWheels, 2 Sept 2026).",
     "distributor": "Nora (Nora EV Pakistan)",
     "warranty": "Battery and motor: 5 years (ProPakistani); PakWheels states 5 years / 120,000 km on the battery.",
-    "image": null,
+    "image": "/images/cars/nora-ev.jpg",
     "notes": "Nora is a new micro-EV brand in Pakistan selling one small four-seat quadricycle, the 'Nora EV', imported from China (maker not named in any source; a CKD plant is planned but not yet running). Two larger models, Nora NEO and METRO, were due around late September 2026. Headline Eco: 9.36 kWh LFP battery, about 120 km range (test standard not stated), 3 kW (about 4 hp) motor, 65 km/h top speed, 6-8 h charging (midpoint 7 h used), 2,900 x 1,450 x 1,600 mm, 1,900 mm wheelbase, 580 kg, 150 mm ground clearance (battery and weight from PakWheels catalogue and MarkLines, Nov 2025). Eco+ adds a multimedia system (120 km per ProPakistani, 180 km per PakWheels blog); EcoX has 160 km range per ProPakistani (PakWheels blog says 300 km and lists a 23.1 kWh battery). The PakWheels blog also describes a 70cc petrol range extender with a 3 L tank; ProPakistani and the PakWheels catalogue describe it as battery-electric only, so it is listed as an EV and the range-extender claim is unconfirmed. PakWheels' catalogue lists driver aids (lane keep, blind spot) that look like template errors. Price basis: announced ex-factory list prices. Price source: https://propakistani.pk/2026/03/13/nora-ev-prices-announced-in-pakistan/ (2026-03).",
     "createdAt": "2026-09-30T13:37:30.435Z",
     "updatedAt": "2026-09-30T13:56:42.946Z"
