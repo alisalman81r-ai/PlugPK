@@ -181,8 +181,22 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
     return { ok: true, url: blob.url }
   }
 
-  await mkdir(dir, { recursive: true })
-  await writeFile(join(dir, name), bytes)
+  /*
+    No Blob store: write to public/uploads. That only works on a machine with a
+    writable disk. On Vercel the deployment is read-only, so the write threw
+    ENOENT and the whole action crashed — the visitor saw a generic server
+    error, and a business listing was left half-created without its photos.
+    Say what is wrong instead; the fix is connecting a Blob store.
+  */
+  if (process.env.VERCEL) {
+    return { ok: false, message: 'Photo uploads are not available right now. Please try again later.' }
+  }
+  try {
+    await mkdir(dir, { recursive: true })
+    await writeFile(join(dir, name), bytes)
+  } catch {
+    return { ok: false, message: 'Could not save that image. Please try again.' }
+  }
 
   return { ok: true, url: `${prefix}${name}` }
 }

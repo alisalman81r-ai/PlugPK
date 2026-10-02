@@ -186,7 +186,9 @@ export function MemberList({ members }: MemberListProps) {
                           {member.vehicle}
                         </span>
                       ) : null}
-                      <span>Joined {formatRelativeTime(member.joinedAt)}</span>
+                      {/* "12 min ago" on the server can be "13 min ago" by the time the
+                          browser hydrates; a relative time is allowed to differ. */}
+                      <span suppressHydrationWarning>Joined {formatRelativeTime(member.joinedAt)}</span>
                     </div>
                   </div>
                 </div>

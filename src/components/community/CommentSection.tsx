@@ -29,6 +29,9 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
   const [error, setError] = React.useState<string | null>(null)
   const [likedComments, setLikedComments] = React.useState<Set<string>>(new Set())
   const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE)
+  // Comments this visitor posted that the server has confirmed but the page
+  // has not re-rendered with yet. Dropped once the refreshed list has them.
+  const [posted, setPosted] = React.useState<Comment[]>([])
 
   const toggleLike = (commentId: string) => {
     setLikedComments((current) => {
@@ -63,6 +66,20 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
       }
       setNewComment('')
       setIsFocused(false)
+      // Saved — so it is shown now, not after the full page refresh (seconds
+      // on the live site), which made it look as if nothing had posted.
+      setPosted((list) => [
+        ...list,
+        {
+          id: `posted-${Date.now()}`,
+          postId,
+          userId: '',
+          userName: user?.name ?? 'You',
+          content: body,
+          likeCount: 0,
+          createdAt: new Date().toISOString(),
+        },
+      ])
       router.refresh()
     } catch {
       setError('Could not post that. Try again.')
@@ -71,13 +88,14 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
     }
   }
 
-  const visible = comments.slice(0, visibleCount)
+  const pending = posted.filter((mine) => !comments.some((c) => c.content === mine.content && c.userName === mine.userName))
+  const visible = [...comments, ...pending].slice(0, visibleCount + pending.length)
 
   return (
     <section>
       <h2 className="mb-8 flex items-center gap-3 text-xl font-bold text-slate-900">
         <MessageSquare size={20} className="text-plug-blue-600" aria-hidden="true" />
-        {totalComments} Comments
+        {totalComments + pending.length} Comments
       </h2>
 
       <div className="mb-8 flex gap-4">
@@ -125,7 +143,7 @@ export function CommentSection({ comments, postId, totalComments }: CommentSecti
         </div>
       </div>
 
-      {comments.length === 0 ? (
+      {comments.length + pending.length === 0 ? (
         <p className="py-8 text-center text-sm text-slate-400">
           No comments yet. Be the first to reply.
         </p>
