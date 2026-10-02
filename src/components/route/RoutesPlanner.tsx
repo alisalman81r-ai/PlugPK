@@ -11,7 +11,6 @@ import { RouteHero } from '@/components/route/RouteHero'
 import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
 import { RouteInputForm } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
-import { SaveRouteModal } from '@/components/route/SaveRouteModal'
 import { FaqSection } from '@/components/shared/FaqSection'
 import { ROUTES_FAQS } from '@/lib/faqs'
 import { MOCK_STATIONS } from '@/lib/mock-data'
@@ -19,6 +18,7 @@ import type { EVModel } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import type { PopularRoute } from '@/lib/route-distances'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
+import { saveMyRoute } from '@/lib/db/route-actions'
 
 /**
  * The planning page reads: orient, pick a known route, or fill in your own.
@@ -46,8 +46,86 @@ export interface RoutesPlannerProps {
 
 export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
   const planner = useRoutePlanner()
-  const [isSaveModalOpen, setIsSaveModalOpen] = React.useState(false)
+  // Signed in? Asked of /api/me, the same endpoint the header uses. Null
+  // until it answers, so Save is never shown to someone signed out.
+  const [user, setUser] = React.useState<{ name: string } | null>(null)
+  React.useEffect(() => {
+    const abort = new AbortController()
+    fetch('/api/me', { signal: abort.signal, cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : { user: null }))
+      .then((data: { user?: { name: string } | null }) => setUser(data.user ?? null))
+      .catch(() => {})
+    return () => abort.abort()
+  }, [])
+  const [saveError, setSaveError] = React.useState<string | null>(null)
   const [copied, setCopied] = React.useState(false)
+
+  /*
+    A planned route lives in the address bar — ?from=&to=&car=&battery= — so
+    Share copies a link that opens the same plan, and a saved route on the
+    dashboard can link straight back here. Opening such a link fills the form
+    and plans it at once.
+  */
+  const [autoRun, setAutoRun] = React.useState(false)
+  const { setOrigin, setDestination, setSelectedVehicle, setBatteryPercent } = planner
+  React.useEffect(() => {
+    const q = new URLSearchParams(window.location.search)
+    const from = q.get('from')?.trim()
+    const to = q.get('to')?.trim()
+    const car = vehicles.find((v) => v.id === q.get('car'))
+    if (!from || !to || !car) return
+    setOrigin(from)
+    setDestination(to)
+    setSelectedVehicle(car)
+    const battery = Number(q.get('battery'))
+    if (battery >= 5 && battery <= 100) setBatteryPercent(battery)
+    setAutoRun(true)
+  }, [vehicles, setOrigin, setDestination, setSelectedVehicle, setBatteryPercent])
+
+  const { canCalculate, calculateRoute } = planner
+  React.useEffect(() => {
+    if (!autoRun || !canCalculate) return
+    setAutoRun(false)
+    void calculateRoute()
+  }, [autoRun, canCalculate, calculateRoute])
+
+  React.useEffect(() => {
+    const route = planner.plannedRoute
+    const url = new URL(window.location.href)
+    for (const key of ['from', 'to', 'car', 'battery']) url.searchParams.delete(key)
+    if (route) {
+      url.searchParams.set('from', route.origin)
+      url.searchParams.set('to', route.destination)
+      url.searchParams.set('car', route.vehicle.id)
+      url.searchParams.set('battery', String(planner.batteryPercent))
+    }
+    window.history.replaceState(null, '', url)
+    setSaveError(null)
+    // The battery is read when the route changes, not on every slider move.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planner.plannedRoute])
+
+  /** Saved to the account at once; put back if the server refuses. */
+  const handleSave = React.useCallback(async () => {
+    const route = planner.plannedRoute
+    if (!route || planner.isSaved) return
+    planner.saveRoute()
+    setSaveError(null)
+    const result = await saveMyRoute({
+      origin: route.origin,
+      destination: route.destination,
+      carId: route.vehicle.id,
+      carName: `${route.vehicle.make} ${route.vehicle.model}`,
+      batteryPercent: planner.batteryPercent,
+      distanceKm: route.totalDistanceKm,
+      durationMin: route.estimatedDriveTimeMinutes + route.totalChargingTimeMinutes,
+      stops: route.stops.length,
+    }).catch(() => null)
+    if (!result?.ok) {
+      planner.unsaveRoute()
+      setSaveError(result?.message ?? 'Could not save this route. Try again.')
+    }
+  }, [planner])
   const formRef = React.useRef<HTMLDivElement>(null)
 
   const handleShare = React.useCallback(async () => {
@@ -77,7 +155,6 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
    * under the header, so the one thing the tap just filled in is the one thing
    * you cannot see.
    */
-  const { setOrigin, setDestination } = planner
   const applyPopularRoute = React.useCallback(
     (route: PopularRoute) => {
       setOrigin(route.from)
@@ -105,8 +182,10 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
                   </HeaderAction>
 
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* Saving is an account feature: not offered when signed out. */}
+                    {user ? (
                     <HeaderAction
-                      onClick={() => setIsSaveModalOpen(true)}
+                      onClick={() => void handleSave()}
                       active={planner.isSaved}
                     >
                       <MorphIcon
@@ -117,6 +196,7 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
                       />
                       {planner.isSaved ? 'Saved' : 'Save route'}
                     </HeaderAction>
+                    ) : null}
 
                     <HeaderAction onClick={handleShare}>
                       <Share2 size={15} aria-hidden="true" />
@@ -130,6 +210,9 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
                   <span className="text-plug-cyan-400">→</span>{' '}
                   {planner.plannedRoute.destination}
                 </h1>
+                {saveError ? (
+                  <p role="alert" className="mt-3 text-ui-sm font-medium text-rose-300">{saveError}</p>
+                ) : null}
               </div>
             </header>
 
@@ -137,15 +220,6 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
               <RouteResultsView route={planner.plannedRoute} />
             </div>
 
-            <SaveRouteModal
-              isOpen={isSaveModalOpen}
-              onClose={() => setIsSaveModalOpen(false)}
-              route={planner.plannedRoute}
-              onConfirm={() => {
-                planner.saveRoute()
-                setIsSaveModalOpen(false)
-              }}
-            />
           </>
         ) : (
           <>

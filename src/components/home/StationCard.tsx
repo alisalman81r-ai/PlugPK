@@ -1,17 +1,17 @@
 // src/components/home/StationCard.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, MapPin, Navigation2, Star } from '@/components/ui/icons'
+import { MapPin, Navigation2, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import {
   ConnectorBadgeGroup,
-  MorphIcon,
   PhotoFrame,
   PortMeter,
   SpeedBadge,
 } from '@/components/ui'
 import type { Station, StationStatus } from '@/lib/types'
+import { SaveStationButton } from '@/components/station/SaveStationButton'
 import {
   cn,
   formatRating,
@@ -23,8 +23,6 @@ export interface StationCardProps {
   station: Station
   variant?: 'default' | 'compact' | 'horizontal'
   onNavigate?: (station: Station) => void
-  onSave?: (stationId: string) => void
-  isSaved?: boolean
   className?: string
   animationDelay?: number
   showDistance?: boolean
@@ -79,8 +77,6 @@ export function StationCard({
   station,
   variant = 'default',
   onNavigate,
-  onSave,
-  isSaved = false,
   className,
   animationDelay,
   showDistance = false,
@@ -103,13 +99,6 @@ export function StationCard({
     [onNavigate, station],
   )
 
-  const handleSave = React.useCallback(
-    (event: React.MouseEvent) => {
-      event.stopPropagation()
-      onSave?.(station.id)
-    },
-    [onSave, station.id],
-  )
 
   const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
 
@@ -240,21 +229,10 @@ export function StationCard({
           />
         ) : null}
 
-        <button
-          type="button"
-          onClick={handleSave}
-          aria-label={isSaved ? `Remove ${station.name} from saved` : `Save ${station.name}`}
-          aria-pressed={isSaved}
-          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/[0.65] backdrop-blur-md transition-all duration-150 hover:scale-110 hover:bg-black/[0.85] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white motion-reduce:transition-none"
-        >
-          <MorphIcon
-            active={isSaved}
-            on={BookmarkCheck}
-            off={Bookmark}
-            size={18}
-            className={isSaved ? 'text-plug-blue-400' : 'text-white'}
-          />
-        </button>
+        {/* Saved to the account, and only offered when signed in. This was a
+            bookmark that held its state in the card, so a save was forgotten
+            the moment the page changed. */}
+        <SaveStationButton stationId={station.id} stationName={station.name} variant="overlay" className="absolute right-3 top-3 z-10" />
       </div>
 
       <div className="p-5">

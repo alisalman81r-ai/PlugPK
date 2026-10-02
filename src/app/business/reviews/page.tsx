@@ -14,6 +14,10 @@ export default async function BusinessReviewsPage() {
   if (!user) redirect('/login?redirect=/business/reviews')
 
   const businesses = await getBusinessesForUser(user.id)
+
+  // The portal is for partners: an account with no listing is sent to list one.
+
+  if (businesses.length === 0) redirect('/business/signup')
   const primary = businesses[0]
   const reviews = primary ? await getReviewsForBusiness(primary.id) : []
   const isLive = primary?.status === 'approved'

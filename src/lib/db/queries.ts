@@ -19,6 +19,7 @@ import type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/l
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
 import { countActiveMembers, listActiveMembershipIds } from './membership'
+import { MOCK_STATIONS } from '@/lib/mock-data'
 import {
   toConnector,
   toPost,
@@ -828,7 +829,12 @@ export async function getSavedStationsForUser(userId: string): Promise<Station[]
   })
   if (rows.length === 0) return []
 
-  const resolved = await Promise.all(rows.map((row) => getListingById(row.listingId)))
+  // The map draws its stations from MOCK_STATIONS in code (plus approved
+  // businesses from the database), so a station saved from the map may have
+  // no Station row. Look there too, or the bookmark is counted but never shown.
+  const resolved = await Promise.all(
+    rows.map(async (row) => (await getListingById(row.listingId)) ?? MOCK_STATIONS.find((s) => s.id === row.listingId) ?? null),
+  )
   return resolved.filter((station): station is Station => station !== null)
 }
 
@@ -906,9 +912,10 @@ export async function getDashboardShell(profile: {
   avatar?: string | null
   createdAt: string
 }): Promise<DashboardShell> {
-  const [totalSaved, totalReviews] = await Promise.all([
+  const [totalSaved, totalReviews, totalRoutes] = await Promise.all([
     prisma.savedStation.count({ where: { userId: profile.id } }),
     prisma.review.count({ where: { userId: profile.id } }),
+    prisma.savedRoute.count({ where: { userId: profile.id } }),
   ])
 
   const joined = new Date(profile.createdAt)
@@ -925,7 +932,7 @@ export async function getDashboardShell(profile: {
       joinedAt: profile.createdAt,
       avatar: profile.avatar ?? null,
     },
-    stats: { totalSaved, totalReviews, totalRoutes: 0, memberDays },
+    stats: { totalSaved, totalReviews, totalRoutes, memberDays },
   }
 }
 

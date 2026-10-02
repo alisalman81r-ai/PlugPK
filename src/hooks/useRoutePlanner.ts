@@ -47,6 +47,8 @@ export interface UseRoutePlannerReturn {
   calculateRoute: () => Promise<void>
   resetRoute: () => void
   saveRoute: () => void
+  /** Back to unsaved, when the account refused the save. */
+  unsaveRoute: () => void
   isSaved: boolean
 }
 
@@ -230,6 +232,10 @@ export function useRoutePlanner(): UseRoutePlannerReturn {
     setIsSaved(true)
   }, [])
 
+  const unsaveRoute = useCallback(() => {
+    setIsSaved(false)
+  }, [])
+
   return {
     origin,
     destination,
@@ -248,6 +254,7 @@ export function useRoutePlanner(): UseRoutePlannerReturn {
     calculateRoute,
     resetRoute,
     saveRoute,
+    unsaveRoute,
     isSaved,
   }
 }

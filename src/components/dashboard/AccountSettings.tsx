@@ -3,6 +3,7 @@
 
 import { Check, ImagePlus, Loader2, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import * as React from 'react'
 
 import { Avatar, Button } from '@/components/ui'
@@ -77,7 +78,6 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
   const [name, setName] = React.useState(user.name)
   const [city, setCity] = React.useState(user.city ?? '')
-  const [vehicle, setVehicle] = React.useState(user.vehicle ?? '')
   const [savingProfile, setSavingProfile] = React.useState(false)
   const [profileSaved, setProfileSaved] = React.useState(false)
   const [profileError, setProfileError] = React.useState<string | null>(null)
@@ -95,7 +95,6 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     const form = new FormData()
     form.set('name', name)
     form.set('city', city)
-    form.set('vehicle', vehicle)
 
     const result = await updateMyProfile(form)
     setSavingProfile(false)
@@ -136,7 +135,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
           <Avatar name={user.name} src={avatar} size={80} />
 
           <div>
-            <p className="text-sm font-semibold text-slate-900">Profile picture</p>
+            <p id="photo" className="scroll-mt-28 text-sm font-semibold text-slate-900">Profile picture</p>
             <p className="mt-0.5 text-ui-sm text-slate-500">
               JPEG, PNG or WebP, up to 4MB. Shown in the header and on your account.
             </p>
@@ -200,7 +199,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
         <div className="mb-5 grid gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor="acct-city" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label id="city" htmlFor="acct-city" className="mb-2 block scroll-mt-28 text-sm font-semibold text-slate-700">
               City
             </label>
             <select
@@ -218,18 +217,16 @@ export function AccountSettings({ user }: AccountSettingsProps) {
             </select>
           </div>
 
+          {/* Cars are managed on their own page now — several per account,
+              one primary — so this only shows the primary and links there. */}
           <div>
-            <label htmlFor="acct-vehicle" className="mb-2 block text-sm font-semibold text-slate-700">
-              Vehicle
-            </label>
-            <input
-              id="acct-vehicle"
-              type="text"
-              value={vehicle}
-              onChange={(event) => setVehicle(event.target.value)}
-              placeholder="e.g. BYD Atto 3"
-              className={FIELD}
-            />
+            <p className="mb-2 block text-sm font-semibold text-slate-700">Vehicle</p>
+            <div className="flex h-12 items-center justify-between gap-3 rounded-xl bg-slate-50 px-4">
+              <span className="truncate text-ui text-slate-700">{user.vehicle ?? 'None saved'}</span>
+              <Link href="/dashboard/vehicles" className="shrink-0 text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+                {user.vehicle ? 'Change' : 'Add'}
+              </Link>
+            </div>
           </div>
         </div>
 

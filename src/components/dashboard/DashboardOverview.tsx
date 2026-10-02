@@ -8,6 +8,7 @@ import type { CommunityPost, Station } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 
 import type { DashboardStats } from './DashboardSidebar'
+import { ProfileCompletion } from './ProfileCompletion'
 
 /**
  * The signed-in person's own overview.
@@ -60,6 +61,14 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts }
 
   return (
     <div className="flex flex-col gap-6">
+      <ProfileCompletion
+        name={user.name}
+        email={user.email}
+        avatar={user.avatar}
+        city={user.city}
+        vehicle={user.vehicle}
+      />
+
       {/* ── Who you are ──────────────────────────────────────── */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <div className="flex flex-wrap items-center gap-4">
@@ -78,6 +87,12 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts }
               <span className="inline-flex items-center gap-1.5">
                 <Car size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
                 {user.vehicle ? user.vehicle : 'No vehicle saved'}
+                <Link
+                  href="/dashboard/vehicles"
+                  className="font-semibold text-plug-blue-600 hover:underline"
+                >
+                  {user.vehicle ? 'Change' : 'Add'}
+                </Link>
               </span>
             </div>
           </div>

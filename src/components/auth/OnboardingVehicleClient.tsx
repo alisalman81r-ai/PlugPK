@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import type { Car } from '@/data/cars'
 import { VehicleOnboarding } from '@/components/auth/VehicleOnboarding'
-import { saveMyVehicle } from '@/lib/db/session-actions'
+import { setPrimaryCatalogueCar } from '@/lib/db/garage-actions'
 import { Logo } from '@/components/ui/Logo'
 
 interface OnboardingVehicleClientProps {
@@ -16,7 +16,8 @@ export function OnboardingVehicleClient({ cars }: OnboardingVehicleClientProps) 
   const router = useRouter()
 
   const handleComplete = async (car: Car | null) => {
-    if (car) await saveMyVehicle(`${car.brand} ${car.model}`)
+    // Into the garage, as the primary car — not only the account's string.
+    if (car) await setPrimaryCatalogueCar(car.id)
     router.push('/dashboard')
   }
 

@@ -3,34 +3,36 @@
 
 import { Bookmark, Search } from '@/components/ui/icons'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { RatingStars } from '@/components/ui'
 import { toggleSavedStation } from '@/lib/db/session-actions'
 import type { Station } from '@/lib/types'
-import { cn } from '@/lib/utils'
 
 /**
  * The listings this account has bookmarked.
  *
  * The list arrives from the server already resolved, and unsaving writes
- * through rather than filtering a local array — previously the bookmark was
- * React state on both ends, so removing one here and reloading brought it
- * straight back.
+ * through to the account — previously the bookmark was React state on both
+ * ends, so removing one here and reloading brought it straight back.
+ *
+ * Remove takes the row away at once and writes behind it. Waiting for the
+ * write and a page refresh first meant several seconds of "Removing" on a
+ * database a region away; if the write fails, the row comes back.
+ *
+ * Sorted by name. The By name / By rating toggle was dropped: a short personal
+ * list is found by name or by the search box.
  */
 
 export interface SavedStationsProps {
   stations: Station[]
 }
 
-type SortKey = 'name' | 'rating'
-
-export function SavedStations({ stations }: SavedStationsProps) {
-  const router = useRouter()
+export function SavedStations({ stations: saved }: SavedStationsProps) {
+  const [stations, setStations] = React.useState(saved)
+  React.useEffect(() => setStations(saved), [saved])
   const [query, setQuery] = React.useState('')
-  const [sortBy, setSortBy] = React.useState<SortKey>('name')
-  const [removing, setRemoving] = React.useState<string | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
 
   const visible = React.useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -42,18 +44,18 @@ export function SavedStations({ stations }: SavedStationsProps) {
         )
       : stations
 
-    return [...filtered].sort((a, b) =>
-      sortBy === 'rating' ? b.rating - a.rating : a.name.localeCompare(b.name),
-    )
-  }, [stations, query, sortBy])
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+  }, [stations, query])
 
-  const handleUnsave = async (id: string) => {
-    setRemoving(id)
-    await toggleSavedStation(id)
-    // The list is server-rendered, so the page is asked to re-read rather than
-    // the row being hidden locally and the two drifting apart.
-    router.refresh()
-    setRemoving(null)
+  const handleUnsave = async (station: Station) => {
+    setError(null)
+    setStations((list) => list.filter((s) => s.id !== station.id))
+    const result = await toggleSavedStation(station.id).catch(() => null)
+    // toggle: `saved: true` would mean it was re-added, i.e. it was not saved.
+    if (!result?.ok || result.saved) {
+      setStations((list) => (list.some((s) => s.id === station.id) ? list : [...list, station]))
+      setError(`Could not remove ${station.name}. Try again.`)
+    }
   }
 
   if (stations.length === 0) {
@@ -93,23 +95,9 @@ export function SavedStations({ stations }: SavedStationsProps) {
           />
         </div>
 
-        {(['name', 'rating'] as SortKey[]).map((key) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setSortBy(key)}
-            aria-pressed={sortBy === key}
-            className={cn(
-              'h-11 rounded-xl px-4 text-ui-sm font-medium transition-colors',
-              sortBy === key
-                ? 'bg-plug-blue-600 text-white'
-                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
-            )}
-          >
-            {key === 'name' ? 'By name' : 'By rating'}
-          </button>
-        ))}
       </div>
+
+      {error ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p> : null}
 
       {visible.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-ui-sm text-slate-500">
@@ -139,12 +127,11 @@ export function SavedStations({ stations }: SavedStationsProps) {
 
               <button
                 type="button"
-                onClick={() => handleUnsave(station.id)}
-                disabled={removing === station.id}
+                onClick={() => handleUnsave(station)}
                 className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
               >
                 <Bookmark size={14} className="shrink-0 fill-current" aria-hidden="true" />
-                {removing === station.id ? 'Removing' : 'Remove'}
+                Remove
               </button>
             </li>
           ))}

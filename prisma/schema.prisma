@@ -311,6 +311,7 @@ model User {
   businesses Business[]
   saved      SavedStation[]
   vehicles   UserVehicle[]
+  routes     SavedRoute[]
   clubs      ClubMember[]
   memberships Membership[]
 
@@ -576,6 +577,31 @@ model Vehicle {
  * User.vehicle is still there and still free text — it is what signup collects
  * in one box — and this is the structured version, pointing at a catalogue row.
  */
+/// A route the driver planned and kept, listed on the dashboard's Saved Routes.
+///
+/// A snapshot of the plan, not a live link: the car is stored by catalogue id
+/// and by name, and the figures as they were worked out, so a later change to
+/// the catalogue or the charger list does not silently rewrite a saved trip.
+/// Opening it re-plans from origin, destination, car and battery.
+model SavedRoute {
+  id             String   @id
+  userId         String
+  origin         String
+  destination    String
+  /// The catalogue car's id (also its slug), when the car came from it.
+  carId          String?
+  carName        String
+  batteryPercent Int
+  distanceKm     Int
+  durationMin    Int
+  stops          Int
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
 model UserVehicle {
   id           String   @id
   userId       String

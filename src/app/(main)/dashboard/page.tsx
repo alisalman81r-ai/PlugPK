@@ -18,9 +18,8 @@ export default async function Page() {
   const profile = await getCurrentProfile()
   if (!profile) redirect('/login?redirect=/dashboard')
 
-  const shell = await getDashboardShell(profile)
-
-  const [saved, reviews, posts] = await Promise.all([
+  const [shell, saved, reviews, posts] = await Promise.all([
+    getDashboardShell(profile),
     getSavedStationsForUser(profile.id),
     getReviewsByUser(profile.id),
     getPostsByUser(profile.id),

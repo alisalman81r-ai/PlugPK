@@ -28,6 +28,8 @@ export interface StationSidebarProps {
   station: Station
   /** Whether the signed-in visitor already saved this one. */
   initiallySaved?: boolean
+  /** Save is an account feature: without a session the button is not shown. */
+  signedIn?: boolean
 }
 
 function openDirections(station: Station) {
@@ -107,7 +109,7 @@ function formatDay(hours: DayHours): string {
   return hours.isClosed ? 'Closed' : `${hours.open} – ${hours.close}`
 }
 
-export function StationSidebar({ station, initiallySaved = false }: StationSidebarProps) {
+export function StationSidebar({ station, initiallySaved = false, signedIn = false }: StationSidebarProps) {
   // Seeded from the server so the button shows the truth on first paint,
   // rather than always starting unsaved and forgetting on reload.
   const [isSaved, setIsSaved] = React.useState(initiallySaved)
@@ -232,7 +234,8 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
           </AnimatedIcon>
         </HoverButton>
 
-        <div className="mt-3 grid grid-cols-3 gap-3">
+        <div className={cn('mt-3 grid gap-3', signedIn ? 'grid-cols-3' : 'grid-cols-2')}>
+          {signedIn ? (
           <button
             type="button"
             onClick={handleSave}
@@ -262,6 +265,7 @@ export function StationSidebar({ station, initiallySaved = false }: StationSideb
               {isSaved ? 'Saved' : 'Save'}
             </span>
           </button>
+          ) : null}
 
           <button
             type="button"

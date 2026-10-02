@@ -18,7 +18,8 @@ import { cn } from '@/lib/utils'
  */
 
 export interface AccountMenuProps {
-  user: { name: string; email: string; avatar?: string | null; isAdmin?: boolean }
+  /** `hasBusiness`: owns a listing — the only accounts offered the business portal. */
+  user: { name: string; email: string; avatar?: string | null; isAdmin?: boolean; hasBusiness?: boolean }
   /** Sitting on the dark home hero rather than the white bar. */
   onDark?: boolean
 }
@@ -41,18 +42,18 @@ export interface AccountMenuProps {
  * database on its own request, so a tampered value changes a link and gets a
  * redirect at the other end.
  */
-function linksFor(isAdmin: boolean) {
+function linksFor(isAdmin: boolean, hasBusiness: boolean) {
   return [
     isAdmin
       ? { href: '/admin', label: 'Admin dashboard', icon: LayoutDashboard }
       : { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/business/dashboard', label: 'My listings', icon: Building2 },
+    ...(hasBusiness ? [{ href: '/business/dashboard', label: 'Business portal', icon: Building2 }] : []),
     { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   ]
 }
 
 export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
-  const LINKS = linksFor(user.isAdmin === true)
+  const LINKS = linksFor(user.isAdmin === true, user.hasBusiness === true)
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSigningOut, setIsSigningOut] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)

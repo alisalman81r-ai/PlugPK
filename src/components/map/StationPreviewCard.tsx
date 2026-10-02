@@ -12,6 +12,7 @@ import {
   StatusBadge,
 } from '@/components/ui'
 import type { Station } from '@/lib/types'
+import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { cn, formatDistance, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 export interface StationPreviewCardProps {
@@ -137,6 +138,9 @@ export function StationPreviewCard({
         >
           View Details
         </button>
+
+        {/* Signed-in only; renders nothing otherwise. */}
+        <SaveStationButton stationId={station.id} stationName={station.name} className="h-11" />
       </div>
     </div>
   )

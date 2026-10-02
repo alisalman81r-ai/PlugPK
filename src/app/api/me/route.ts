@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server'
 
+import { prisma } from '@/lib/db/client'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
 /**
@@ -32,6 +33,8 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const profile = await getCurrentProfile()
+  // Only partners are offered the business portal in the account menu.
+  const hasBusiness = profile ? (await prisma.business.count({ where: { userId: profile.id } })) > 0 : false
 
   const user = profile
     ? {
@@ -45,6 +48,7 @@ export async function GET() {
           so a forged value here changes a menu label and grants nothing.
         */
         isAdmin: profile.isAdmin,
+        hasBusiness,
       }
     : null
 

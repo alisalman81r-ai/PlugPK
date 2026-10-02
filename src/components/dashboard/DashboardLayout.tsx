@@ -1,7 +1,7 @@
 // src/components/dashboard/DashboardLayout.tsx
 'use client'
 
-import { Bookmark, Building2, Car, LayoutDashboard, Settings, Star, type IconType } from '@/components/ui/icons'
+import { Bookmark, Car, LayoutDashboard, Settings, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -39,8 +39,6 @@ const MOBILE_TABS: MobileTab[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
   { label: 'Vehicles', href: '/dashboard/vehicles', icon: Car },
   { label: 'Saved', href: '/dashboard/saved', icon: Bookmark },
-  { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
-  { label: 'Listings', href: '/business/dashboard', icon: Building2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

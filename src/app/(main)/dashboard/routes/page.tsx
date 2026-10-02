@@ -2,8 +2,8 @@
 import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { Route } from '@/components/ui/icons'
-import Link from 'next/link'
+import { SavedRoutesList } from '@/components/dashboard/SavedRoutesList'
+import { prisma } from '@/lib/db/client'
 
 import { getDashboardShell } from '@/lib/db/queries'
 import { getCurrentProfile } from '@/lib/db/session-actions'
@@ -20,7 +20,11 @@ export default async function Page() {
   const profile = await getCurrentProfile()
   if (!profile) redirect('/login?redirect=/dashboard/routes')
 
-  const shell = await getDashboardShell(profile)
+  const [shell, rows] = await Promise.all([
+    getDashboardShell(profile),
+    prisma.savedRoute.findMany({ where: { userId: profile.id }, orderBy: { createdAt: 'desc' } }),
+  ])
+  const routes = rows.map(({ userId: _owner, createdAt, ...row }) => ({ ...row, createdAt: createdAt.toISOString() }))
 
   return (
     <DashboardLayout
@@ -29,29 +33,7 @@ export default async function Page() {
       user={shell.user}
       stats={shell.stats}
     >
-      {/*
-        Honest empty state rather than a list.
-
-        Nothing stores a planned route: the route planner works out stops in the
-        browser and the "save route" control never wrote anywhere. This page
-        previously filled the gap with a fixture's routes, which is worse than
-        showing none — it implied a feature that does not exist. When routes are
-        stored, this becomes a list.
-      */}
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-        <Route size={26} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-        <p className="text-ui-lg font-semibold text-slate-900">No saved routes</p>
-        <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-          Routes are planned in the browser and are not stored to your account yet, so there is
-          nothing to list here.
-        </p>
-        <Link
-          href="/routes"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-        >
-          Plan a route
-        </Link>
-      </div>
+      <SavedRoutesList routes={routes} />
     </DashboardLayout>
   )
 }

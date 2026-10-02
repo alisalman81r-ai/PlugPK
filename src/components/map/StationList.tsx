@@ -14,6 +14,7 @@ import {
 } from '@/components/ui'
 import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
 import type { Station } from '@/lib/types'
+import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 export interface StationListItemProps {
@@ -141,10 +142,11 @@ export function StationListItem({
           It still fills on hover and keeps its own focus ring, so it never
           stops looking like a control.
         */}
+        <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={handleNavigate}
-          className="group/nav flex h-9 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-slate-300 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-plug-blue-600 hover:bg-plug-blue-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          className="group/nav flex h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border-[1.5px] border-slate-300 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-plug-blue-600 hover:bg-plug-blue-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
         >
           Navigate
           <Navigation2
@@ -153,6 +155,9 @@ export function StationListItem({
             aria-hidden="true"
           />
         </button>
+        {/* Signed-in only; renders nothing otherwise. */}
+        <SaveStationButton stationId={station.id} stationName={station.name} className="h-9" />
+        </div>
       </div>
     </div>
   )

@@ -281,6 +281,8 @@ export async function saveMyVehicle(vehicle: string): Promise<SessionResult> {
   })
 
   revalidatePath('/dashboard')
+  revalidatePath('/dashboard/vehicles')
+  revalidatePath('/dashboard/settings')
   return { ok: true }
 }
 
@@ -297,7 +299,8 @@ export async function updateMyProfile(form: FormData): Promise<SessionResult> {
     data: {
       name,
       city: String(form.get('city') ?? '').trim() || null,
-      vehicle: String(form.get('vehicle') ?? '').trim() || null,
+      // The vehicle is not edited here any more: it follows the primary car
+      // in the garage (garage-actions.ts).
       // The email is deliberately not editable: it is the identifier the
       // account signs in with and the link to any business listing.
     },
@@ -371,6 +374,18 @@ export async function toggleSavedStation(
   })
   revalidatePath('/dashboard/saved')
   return { ok: true, saved: true }
+}
+
+/**
+ * Whether anyone is signed in, and which listings they have saved — in one
+ * call, so every Save button on a page can share it. Signed out costs no
+ * database read at all.
+ */
+export async function getMySavedStationIds(): Promise<{ signedIn: boolean; ids: string[] }> {
+  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  if (!userId) return { signedIn: false, ids: [] }
+  const rows = await prisma.savedStation.findMany({ where: { userId }, select: { listingId: true } })
+  return { signedIn: true, ids: rows.map((row) => row.listingId) }
 }
 
 /** Whether the signed-in visitor has this listing saved. False when signed out. */

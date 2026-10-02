@@ -22,16 +22,6 @@ export interface FeaturedStationsProps {
 }
 
 export function FeaturedStations({ stations }: FeaturedStationsProps) {
-  const [savedIds, setSavedIds] = React.useState<string[]>([])
-
-  const toggleSaved = React.useCallback((stationId: string) => {
-    setSavedIds((current) =>
-      current.includes(stationId)
-        ? current.filter((id) => id !== stationId)
-        : [...current, stationId],
-    )
-  }, [])
-
   // A live figure rather than a claim: how many ports are open right now
   // across the stations actually being shown.
   const free = stations.reduce((sum, s) => sum + getPortAvailability(s).available, 0)
@@ -92,8 +82,6 @@ export function FeaturedStations({ stations }: FeaturedStationsProps) {
               <StationCard
                 station={station}
                 animationDelay={index * STAGGER.TIGHT}
-                isSaved={savedIds.includes(station.id)}
-                onSave={toggleSaved}
                 className="h-full animate-fade-up opacity-0"
               />
             </TiltCard>

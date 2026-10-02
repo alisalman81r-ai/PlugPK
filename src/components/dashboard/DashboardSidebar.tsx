@@ -3,7 +3,6 @@
 
 import {
   Bookmark,
-  Building2,
   Car,
   LayoutDashboard,
   LogOut,
@@ -11,7 +10,6 @@ import {
   Pencil,
   Route,
   Settings,
-  Star,
   type IconType,
 } from '@/components/ui/icons'
 import Link from 'next/link'
@@ -56,8 +54,6 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { label: 'My Vehicles', href: '/dashboard/vehicles', icon: Car },
   { label: 'Saved Stations', href: '/dashboard/saved', icon: Bookmark, badgeKey: 'totalSaved' },
   { label: 'Saved Routes', href: '/dashboard/routes', icon: Route, badgeKey: 'totalRoutes' },
-  { label: 'My Reviews', href: '/dashboard/reviews', icon: Star, badgeKey: 'totalReviews' },
-  { label: 'My Listings', href: '/business/dashboard', icon: Building2 },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

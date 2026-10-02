@@ -19,6 +19,10 @@ export default async function BusinessChargersPage() {
   if (!user) redirect('/login?redirect=/business/chargers')
 
   const businesses = await getBusinessesForUser(user.id)
+
+  // The portal is for partners: an account with no listing is sent to list one.
+
+  if (businesses.length === 0) redirect('/business/signup')
   const primary = businesses[0]
 
   return (
