@@ -11,6 +11,8 @@ import { BatterySlider } from './BatterySlider'
 import { VehicleSelector } from './VehicleSelector'
 
 export interface RouteInputFormProps {
+  /** What the EV picker offers. */
+  vehicles: EVModel[]
   origin: string
   destination: string
   selectedVehicle: EVModel | null
@@ -119,6 +121,7 @@ function CityField({
 }
 
 export function RouteInputForm({
+  vehicles,
   origin,
   destination,
   selectedVehicle,
@@ -222,7 +225,7 @@ export function RouteInputForm({
               Your EV
             </span>
           </span>
-          <VehicleSelector selectedVehicle={selectedVehicle} onSelect={onVehicleSelect} />
+          <VehicleSelector vehicles={vehicles} selectedVehicle={selectedVehicle} onSelect={onVehicleSelect} />
         </div>
 
         <div>

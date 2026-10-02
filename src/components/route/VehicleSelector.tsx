@@ -5,17 +5,17 @@ import { Car, Check, ChevronDown, Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { TurnIcon } from '@/components/ui'
-import { ROUTE_VEHICLES } from '@/hooks/useRoutePlanner'
 import type { EVModel } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 export interface VehicleSelectorProps {
+  vehicles: EVModel[]
   selectedVehicle: EVModel | null
   onSelect: (vehicle: EVModel | null) => void
   className?: string
 }
 
-export function VehicleSelector({ selectedVehicle, onSelect, className }: VehicleSelectorProps) {
+export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className }: VehicleSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -36,7 +36,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
   const grouped = React.useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
 
-    const matches = ROUTE_VEHICLES.filter((vehicle) =>
+    const matches = vehicles.filter((vehicle) =>
       `${vehicle.make} ${vehicle.model}`.toLowerCase().includes(query),
     )
 
@@ -48,7 +48,7 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
     }
 
     return Array.from(byMake.entries())
-  }, [searchQuery])
+  }, [searchQuery, vehicles])
 
   const hasResults = grouped.length > 0
 
@@ -72,7 +72,8 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
           {selectedVehicle ? (
             <>
               <span className="block truncate text-ui font-medium text-slate-900">
-                {selectedVehicle.make} {selectedVehicle.model} ({selectedVehicle.year})
+                {selectedVehicle.make} {selectedVehicle.model}
+                {selectedVehicle.year ? ` (${selectedVehicle.year})` : ''}
               </span>
               <span className="block text-xs text-slate-400">
                 {selectedVehicle.rangeKm}km range
@@ -134,7 +135,8 @@ export function VehicleSelector({ selectedVehicle, onSelect, className }: Vehicl
                             {vehicle.model}
                           </span>
                           <span className="mt-0.5 block text-xs text-slate-400">
-                            {vehicle.year} · {vehicle.rangeKm}km · {vehicle.connectorTypes[0]}
+                            {/* Year and plug are optional in the catalogue; show what is known. */}
+                            {[vehicle.year || null, `${vehicle.rangeKm}km`, vehicle.connectorTypes[0]].filter(Boolean).join(' · ')}
                           </span>
                         </span>
 
