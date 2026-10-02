@@ -178,9 +178,11 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts }
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <div className="mb-5 flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-slate-900">Your reviews</h2>
-          {reviews.length > PREVIEW ? (
+          {/* The only way in to the reviews page since My Reviews left the
+              sidebar, so it shows for any review, not only beyond the preview. */}
+          {reviews.length > 0 ? (
             <Link href="/dashboard/reviews" className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
-              See all {reviews.length}
+              {reviews.length > PREVIEW ? `See all ${reviews.length}` : 'Manage reviews'}
             </Link>
           ) : null}
         </div>

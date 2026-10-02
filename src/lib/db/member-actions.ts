@@ -1,11 +1,14 @@
 // src/lib/db/member-actions.ts
 'use server'
 
+import { randomInt } from 'node:crypto'
+
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
 import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
 
+import { hashPassword } from './auth-actions'
 import { prisma } from './client'
 
 /**
@@ -77,4 +80,35 @@ export async function deleteMember(id: string): Promise<MemberResult> {
         ? `Account deleted. ${user._count.businesses} business listing${user._count.businesses === 1 ? '' : 's'} kept, now without an owner.`
         : undefined,
   }
+}
+
+/**
+ * Gives a member a new, one-time password, shown to the admin once.
+ *
+ * The site has no email service, so "forgot password" cannot send a link. A
+ * member who is locked out writes to support from the address on the account;
+ * an admin sets a temporary password here and passes it on, and the member
+ * changes it under Settings → Password. Only the hash is stored — the plain
+ * password exists in this response and nowhere else.
+ */
+export async function setTemporaryPassword(id: string): Promise<MemberResult & { password?: string }> {
+  await assertAdmin()
+
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true } })
+  if (!user) return { ok: false, message: 'That account no longer exists.' }
+
+  // 12 characters from an alphabet without look-alikes (0/O, 1/l/I), always
+  // with an upper case letter, a lower case letter and a digit.
+  const UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ', LOWER = 'abcdefghijkmnpqrstuvwxyz', DIGIT = '23456789'
+  const ALL = UPPER + LOWER + DIGIT
+  const pick = (set: string) => set[randomInt(set.length)]
+  const chars = [pick(UPPER), pick(LOWER), pick(DIGIT), ...Array.from({ length: 9 }, () => pick(ALL))]
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+  const password = chars.join('')
+
+  await prisma.user.update({ where: { id }, data: { passwordHash: await hashPassword(password) } })
+  return { ok: true, password }
 }

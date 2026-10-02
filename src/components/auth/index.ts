@@ -4,8 +4,6 @@ export { AuthHeader } from './AuthHeader'
 export { AuthDivider } from './AuthDivider'
 export { SignUpForm, PasswordStrength, Checkbox, FieldError } from './SignUpForm'
 export { LoginForm } from './LoginForm'
-export { ForgotPasswordForm } from './ForgotPasswordForm'
-export { ResetPasswordForm } from './ResetPasswordForm'
 export { SocialLoginButtons } from './SocialLoginButtons'
 export { VehicleOnboarding } from './VehicleOnboarding'
 

@@ -78,6 +78,8 @@ const FOOTER_COLUMNS: FooterColumn[] = [
       { label: 'Sign in', href: '/login' },
       { label: 'Create account', href: '/signup' },
       { label: 'Data and image credits', href: '/credits' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
     ],
   },
 ]
@@ -177,7 +179,7 @@ export function Footer() {
             <Link href="/credits" className="hover:underline">
               Credits
             </Link>
-            <Link href="/partners" className="hover:underline">
+            <Link href="/terms#partners" className="hover:underline">
               Terms for partners
             </Link>
           </p>

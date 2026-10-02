@@ -55,7 +55,23 @@ const UPLOAD_ROOT = join(process.cwd(), 'public', 'uploads')
 const MAX_BYTES = 4 * 1024 * 1024
 
 /** Set by Vercel when a Blob store is attached. Absent in local development. */
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN
+/*
+  Two ways a Blob store can be attached, and the SDK understands both:
+
+    BLOB_STORE_ID          stores connected from the dashboard today. The SDK
+                           signs in with the deployment's own OIDC token.
+    BLOB_READ_WRITE_TOKEN  the older per-store secret.
+
+  The token is only passed when it is a real one (vercel_blob_rw_…): an
+  explicit token overrides OIDC, so a stale or placeholder value left in the
+  environment would otherwise shadow a store that is connected correctly —
+  which is exactly what had broken every upload on the live site.
+*/
+const RW_TOKEN = process.env.BLOB_READ_WRITE_TOKEN?.startsWith('vercel_blob_rw_')
+  ? process.env.BLOB_READ_WRITE_TOKEN
+  : undefined
+const BLOB_TOKEN = RW_TOKEN ?? (process.env.BLOB_STORE_ID ? 'oidc' : undefined)
+const blobAuth = () => (RW_TOKEN ? { token: RW_TOKEN } : {})
 
 const MIME: Record<string, string> = {
   jpg: 'image/jpeg',
@@ -174,7 +190,7 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
     // typed array. Buffer.from over the same memory, so nothing is copied.
     const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
       access: 'public',
-      token: BLOB_TOKEN,
+      ...blobAuth(),
       contentType: MIME[kind] ?? 'application/octet-stream',
       addRandomSuffix: false,
     })
@@ -213,7 +229,7 @@ async function discard(bucket: Bucket, url: string): Promise<void> {
     if (!BLOB_TOKEN) return
     try {
       const { del } = await import('@vercel/blob')
-      await del(url, { token: BLOB_TOKEN })
+      await del(url, blobAuth())
     } catch {
       // Already gone is the desired end state, as below.
     }

@@ -713,9 +713,13 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
             <label className="mb-6 flex items-start gap-3">
               <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setError(null) }} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-plug-blue-600" />
               <span className="text-sm text-slate-600">
+                I agree to the{' '}
+                <a href="/terms#partners" target="_blank" rel="noopener" className="font-semibold text-plug-blue-600 hover:underline">
+                  Plug.pk Business Terms
+                </a>
                 {isHome
-                  ? 'I agree to Plug.pk Business Terms, confirm my information is accurate, and understand my home address and phone number will be shown publicly'
-                  : 'I agree to Plug.pk Business Terms and confirm my information is accurate'}
+                  ? ', confirm my information is accurate, and understand my home address and phone number will be shown publicly'
+                  : ' and confirm my information is accurate'}
               </span>
             </label>
 

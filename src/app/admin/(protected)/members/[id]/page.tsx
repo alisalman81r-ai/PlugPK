@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { MemberDeleteCard } from '@/components/admin/MemberDeleteCard'
+import { MemberPasswordCard } from '@/components/admin/MemberPasswordCard'
 import { getMemberById } from '@/lib/db/queries'
 import { formatDate, formatRelativeTime } from '@/lib/utils'
 
@@ -268,6 +269,8 @@ export default async function AdminMemberPage({ params }: PageProps) {
               </ul>
             )}
           </section>
+
+          <MemberPasswordCard id={member.id} name={member.name} email={member.email} />
 
           <MemberDeleteCard
             id={member.id}
