@@ -268,7 +268,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
             type="button"
             onClick={() => setShowPassword((shown) => !shown)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition-colors hover:text-slate-700"
           >
             <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={18} />
           </button>

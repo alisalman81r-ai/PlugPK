@@ -144,7 +144,8 @@ export function PostCard({
         type="button"
         onClick={handleShare}
         aria-label="Copy link to post"
-        className="text-slate-400 transition-colors duration-150 hover:text-plug-blue-600"
+        // -m-2 p-2: a 32px target around a 16px icon, without moving it.
+        className="-m-2 rounded-lg p-2 text-slate-400 transition-colors duration-150 hover:text-plug-blue-600"
       >
         <Share2 size={16} />
       </button>

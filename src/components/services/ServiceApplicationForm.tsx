@@ -82,7 +82,10 @@ export function ServiceApplicationForm() {
         </p>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
-          <Field label="Business name" name="name" required autoFocus errorField={errorField} />
+          {/* Not autofocused: the form sits below the page's hero, and focusing
+              it on load scrolled the hero away and, on a phone, opened the
+              keyboard before anyone had read what the form is for. */}
+          <Field label="Business name" name="name" required errorField={errorField} />
 
           <label className="block">
             <span className="mb-2 block text-ui-sm font-semibold text-slate-900">

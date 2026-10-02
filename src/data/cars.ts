@@ -6681,10 +6681,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sorento-phev',
     slug: 'kia-sorento-phev',
-    brand: 'Kia',
+    brand: 'KIA',
     model: 'Sorento PHEV',
     variant: null,
-    fullName: 'Kia Sorento PHEV',
+    fullName: 'KIA Sorento PHEV',
     category: 'PHEV',
     price: { min: crore(1.8999), max: crore(1.8999), display: 'PKR 1.9 Cr' },
     // Sorento 1.6T AWD PHEV, the headline trim. Other trims are in `notes`.
@@ -6753,10 +6753,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sorento-hev',
     slug: 'kia-sorento-hev',
-    brand: 'Kia',
+    brand: 'KIA',
     model: 'Sorento HEV',
     variant: null,
-    fullName: 'Kia Sorento Hybrid (HEV)',
+    fullName: 'KIA Sorento Hybrid (HEV)',
     category: 'Hybrid',
     price: { min: crore(1.6299), max: crore(1.7899), display: 'PKR 1.63–1.79 Cr' },
     // Sorento 1.6T HEV FWD, the headline trim. Other trims are in `notes`.
@@ -6819,10 +6819,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sportage-l-hybrid',
     slug: 'kia-sportage-l-hybrid',
-    brand: 'Kia',
+    brand: 'KIA',
     model: 'Sportage L Hybrid',
     variant: null,
-    fullName: 'Kia Sportage L Hybrid (HEV)',
+    fullName: 'KIA Sportage L Hybrid (HEV)',
     category: 'Hybrid',
     price: { min: crore(1.2199), max: crore(1.3299), display: 'PKR 1.22–1.33 Cr' },
     // Sportage L 1.6T FWD HEV (facelift), the headline trim. Other trims are in `notes`.
@@ -7801,10 +7801,10 @@ export const cars: Car[] = [
   {
     id: 'jaecoo-j5-shs',
     slug: 'jaecoo-j5-shs',
-    brand: 'Jaecoo',
+    brand: 'JAECOO',
     model: 'J5 SHS',
     variant: null,
-    fullName: 'Jaecoo J5 SHS HEV',
+    fullName: 'JAECOO J5 SHS HEV',
     category: 'Hybrid',
     price: { min: lakh(66.99), max: lakh(76.99), display: 'PKR 66.99–76.99 Lakh (launch price)' },
     // J5 SHS HEV Comfort, the headline trim. Other trims are in `notes`.
@@ -8016,10 +8016,10 @@ export const cars: Car[] = [
   {
     id: 'xpeng-x9',
     slug: 'xpeng-x9',
-    brand: 'XPeng',
+    brand: 'XPENG',
     model: 'X9',
     variant: null,
-    fullName: 'XPeng X9',
+    fullName: 'XPENG X9',
     category: 'EV',
     price: { min: crore(3.15), max: crore(3.15), display: 'PKR 3.15 Cr' },
     // X9 Long Range 2WD Pro+, the headline trim. Other trims are in `notes`.
@@ -8087,10 +8087,10 @@ export const cars: Car[] = [
   {
     id: 'xpeng-l03-reev',
     slug: 'xpeng-l03-reev',
-    brand: 'XPeng',
+    brand: 'XPENG',
     model: 'L03 REEV',
     variant: null,
-    fullName: 'XPeng L03 REEV',
+    fullName: 'XPENG L03 REEV',
     category: 'REEV',
     price: { min: crore(1.15), max: crore(1.15), display: 'PKR 1.15 Cr' },
     // L03 REEV RWD, the headline trim. Other trims are in `notes`.

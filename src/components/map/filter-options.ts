@@ -33,8 +33,10 @@ export interface SpeedOption {
 export const SPEED_OPTIONS: SpeedOption[] = [
   { value: null, label: 'Any', range: 'All speeds' },
   { value: 'slow', label: 'Slow', range: 'Up to 7 kW' },
-  { value: 'fast', label: 'Fast', range: '7 – 50 kW' },
-  { value: 'rapid', label: 'Rapid', range: '50 – 150 kW' },
+  // No spaces around the dash: under each label of the rail's segmented
+  // control these get ~60px, and '50 – 150 kW' with spaces needs 66.
+  { value: 'fast', label: 'Fast', range: '7–50 kW' },
+  { value: 'rapid', label: 'Rapid', range: '50–150 kW' },
   { value: 'ultra', label: 'Ultra', range: '150 kW+' },
 ]
 

@@ -185,7 +185,13 @@ export function FilterRail({
         read across, and three bordered boxes in a row would compete with the
         map card directly below.
       */}
-      <div className="hidden divide-y divide-slate-100 lg:grid lg:grid-cols-[1.3fr_1.4fr_1fr] lg:divide-x lg:divide-y-0">
+      {/*
+        Three columns only from xl. At 1024–1279 the speed control's third of
+        the rail was ~300px — five buttons of 55px under kW ranges up to 60px
+        wide, so the ranges ran into one another. There, connector and "show
+        only" share the first row and the speed control takes the full second.
+      */}
+      <div className="hidden divide-y divide-slate-100 lg:grid lg:grid-cols-2 lg:divide-x lg:divide-y-0 xl:grid-cols-[1.3fr_1.4fr_1fr]">
         <Group label="Connector">
           <div className="flex flex-wrap gap-2">
             {CONNECTOR_TYPES.map((type) => (
@@ -200,7 +206,10 @@ export function FilterRail({
           </div>
         </Group>
 
-        <Group label="Charging speed">
+        <Group
+          label="Charging speed"
+          className="lg:order-last lg:col-span-2 lg:!border-l-0 lg:border-t lg:border-slate-100 xl:order-none xl:col-span-1 xl:!border-l xl:border-t-0"
+        >
           {/* A segmented control, because the speeds are one ordered choice
               rather than five independent toggles — and the kW range sits under
               each label so nobody has to guess what "Rapid" means. */}
@@ -220,7 +229,7 @@ export function FilterRail({
                   aria-checked={selected}
                   onClick={() => onUpdateFilter('chargingSpeed', option.value)}
                   className={cn(
-                    'min-w-0 flex-1 rounded-xl px-3 py-2 text-center transition-all duration-200',
+                    'min-w-0 flex-1 rounded-xl px-1.5 py-2 text-center transition-all duration-200',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                     selected ? 'bg-white shadow-e1' : 'hover:bg-white/60',
                   )}
@@ -331,9 +340,9 @@ export function FilterRail({
 }
 
 /** One labelled cell of the rail. */
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
+function Group({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
-    <div role="group" aria-label={label} className="min-w-0 px-5 py-4 sm:px-6">
+    <div role="group" aria-label={label} className={cn('min-w-0 px-5 py-4 sm:px-6', className)}>
       <p className="mb-3 text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-400">
         {label}
       </p>
