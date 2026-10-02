@@ -188,13 +188,20 @@ async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
     const { put } = await import('@vercel/blob')
     // Buffer, not the Uint8Array: the SDK's body type does not accept a bare
     // typed array. Buffer.from over the same memory, so nothing is copied.
-    const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
-      access: 'public',
-      ...blobAuth(),
-      contentType: MIME[kind] ?? 'application/octet-stream',
-      addRandomSuffix: false,
-    })
-    return { ok: true, url: blob.url }
+    // A store problem (wrong access type, revoked credentials, outage) is a
+    // message to the visitor, not a crashed page; the cause goes to the logs.
+    try {
+      const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
+        access: 'public',
+        ...blobAuth(),
+        contentType: MIME[kind] ?? 'application/octet-stream',
+        addRandomSuffix: false,
+      })
+      return { ok: true, url: blob.url }
+    } catch (error) {
+      console.error('[upload] Blob put failed:', error)
+      return { ok: false, message: 'Photo uploads are not available right now. Please try again later.' }
+    }
   }
 
   /*
