@@ -8,6 +8,7 @@ import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { MarkCommunityPostReviewed } from '@/components/admin/MarkCommunityPostReviewed'
+import { NotReviewedBadge, ReviewQueueItem } from '@/components/admin/ReviewQueue'
 import { flattenParams, pick } from '@/components/admin/list-params'
 import { deleteComment, deletePost } from '@/lib/db/actions'
 import { listCommunityPage, toPage, toQuery } from '@/lib/db/admin-queries'
@@ -89,16 +90,12 @@ export default async function AdminCommunityPage({
         ) : (
           <div className="flex flex-col gap-3">
             {rows.map((post) => (
-              <article key={post.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+              <ReviewQueueItem key={post.id} initiallyReviewed={!post.isNew} className="rounded-2xl border border-slate-200 bg-white p-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <h2 className="flex flex-wrap items-center gap-2 font-semibold text-slate-900">
                       {post.title}
-                      {post.isNew ? (
-                        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                          Not reviewed
-                        </span>
-                      ) : null}
+                      {post.isNew ? <NotReviewedBadge /> : null}
                     </h2>
                     <p className="mt-1 line-clamp-2 text-ui-sm leading-relaxed text-slate-500">{post.content}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-ui-xs text-slate-400">
@@ -181,7 +178,7 @@ export default async function AdminCommunityPage({
                     </ul>
                   </details>
                 ) : null}
-              </article>
+              </ReviewQueueItem>
             ))}
           </div>
         )}

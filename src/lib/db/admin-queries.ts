@@ -504,9 +504,18 @@ export async function listCommunityPage(options: {
   const [rows, total, all, unreviewed, postedToday] = await Promise.all([
     prisma.communityPost.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      /*
+        A review queue: everything not yet reviewed comes first, newest first,
+        and a post drops to the bottom the moment it is marked reviewed —
+        reviewed posts are ordered by when they were reviewed, so the one just
+        handled is the last in the list, not stuck where it was.
+      */
+      orderBy: [{ adminViewedAt: { sort: 'asc', nulls: 'first' } }, { createdAt: 'desc' }],
       ...pageWindow(options.page),
       include: {
+        // Counted from real rows: the stored likeCount/commentCount columns
+        // carry seeded figures with nothing behind them.
+        _count: { select: { likes: true, comments: true } },
         comments: {
           orderBy: { createdAt: 'asc' },
           take: COMMENTS_PER_POST,
@@ -533,8 +542,8 @@ export async function listCommunityPage(options: {
       category: row.category,
       userId: row.userId,
       userName: row.userName,
-      likeCount: row.likeCount,
-      commentCount: row.commentCount,
+      likeCount: row._count.likes,
+      commentCount: row._count.comments,
       createdAt: row.createdAt.toISOString(),
       isNew: row.adminViewedAt === null,
       comments: row.comments.map((comment) => ({ ...comment, createdAt: comment.createdAt.toISOString() })),

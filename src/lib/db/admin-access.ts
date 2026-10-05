@@ -1,6 +1,10 @@
 // src/lib/db/admin-access.ts
 import 'server-only'
 
+import { cookies } from 'next/headers'
+
+import { USER_COOKIE_NAME, readUserSession } from '@/lib/user-auth'
+
 import { prisma } from './client'
 import { getSessionUserId } from './session'
 
@@ -24,14 +28,17 @@ export interface AdminActor {
 
 /** The signed-in operator, or null when the caller is not one. */
 export async function getAdminActor(): Promise<AdminActor | null> {
-  const userId = await getSessionUserId()
-  if (!userId) return null
+  // One query, not two: the signature is checked locally, then the version
+  // check and the isAdmin check read the same row. Every admin action starts
+  // here, and the database is a round trip away in another region.
+  const claims = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  if (!claims) return null
 
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, email: true, name: true, isAdmin: true },
+    where: { id: claims.userId },
+    select: { id: true, email: true, name: true, isAdmin: true, sessionVersion: true },
   })
-  if (!user?.isAdmin) return null
+  if (!user?.isAdmin || user.sessionVersion !== claims.version) return null
   return { id: user.id, email: user.email, name: user.name }
 }
 
