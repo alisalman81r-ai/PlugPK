@@ -52,6 +52,24 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
   // Which row's photo is in flight. Held by index so two uploads cannot both
   // claim the spinner.
   const [uploading, setUploading] = React.useState<number | null>(null)
+  const [notice, setNotice] = React.useState<string | null>(null)
+
+  /*
+    Uploads made on this screen that no saved listing points at yet.
+
+    Only these may be deleted from here. This screen used to delete the old
+    file the moment a photo was replaced or removed — before Save — so leaving
+    without saving left the live listing pointing at a deleted image. Removing
+    a saved photo now happens on the server when the new list is saved; a
+    fresh upload that is replaced again before Save is the one thing cleaned
+    up here, since nothing else would ever reference it.
+  */
+  const fresh = React.useRef(new Set<string>())
+  const discardFresh = (url: string | undefined) => {
+    if (!url || !fresh.current.has(url)) return
+    fresh.current.delete(url)
+    void deleteChargerPhoto(businessId, url).catch(() => {})
+  }
 
   /**
    * Uploads a photo and attaches it to one charger.
@@ -76,9 +94,8 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
       return
     }
 
-    // Replacing an existing photo leaves the old file behind otherwise.
-    const previous = rows[index]?.[target]
-    if (previous) void deleteChargerPhoto(businessId, previous).catch(() => {})
+    fresh.current.add(result.url)
+    discardFresh(rows[index]?.[target])
 
     patch(index, {
       [target]: result.url,
@@ -86,10 +103,14 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
     })
   }
 
-  const removePhoto = async (index: number) => {
-    const url = rows[index]?.photo
-    patch(index, { photo: undefined })
-    if (url) void deleteChargerPhoto(businessId, url).catch(() => {})
+  const removePhoto = (index: number, target: 'photo' | 'portPhoto') => {
+    discardFresh(rows[index]?.[target])
+    patch(
+      index,
+      target === 'photo'
+        ? { photo: undefined, photoStatus: undefined, photoLabel: undefined }
+        : { portPhoto: undefined, portPhotoStatus: undefined },
+    )
   }
 
   const patch = (index: number, next: Partial<DraftCharger>) => {
@@ -102,6 +123,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
   const handleSave = async () => {
     setIsSaving(true)
     setError(null)
+    setNotice(null)
 
     const result = await saveMyChargers(businessId, rows)
     setIsSaving(false)
@@ -111,6 +133,11 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
       return
     }
 
+    // Saved uploads are the listing's now; the server owns their cleanup.
+    fresh.current.clear()
+    if (result.backToReview) {
+      setNotice('Saved. Your listing has gone back to the review queue for another look.')
+    }
     setSaved(JSON.stringify(rows))
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 3000)
@@ -241,7 +268,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                       />
                       <button
                         type="button"
-                        onClick={() => void removePhoto(index)}
+                        onClick={() => removePhoto(index, 'photo')}
                         aria-label={`Remove the photo of charger ${index + 1}`}
                         className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                       >
@@ -282,6 +309,8 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                       Primary charger photo required. JPEG, PNG or WebP, up to 4MB.
                     </span>
                   ) : null}
+
+                  {row.photo ? <PhotoStatusBadge status={row.photoStatus} /> : null}
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3">
@@ -295,10 +324,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                       />
                       <button
                         type="button"
-                        onClick={() => {
-                          patch(index, { portPhoto: undefined, portPhotoStatus: undefined })
-                          void deleteChargerPhoto(businessId, row.portPhoto!).catch(() => {})
-                        }}
+                        onClick={() => removePhoto(index, 'portPhoto')}
                         aria-label={`Remove the port photo of charger ${index + 1}`}
                         className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                       >
@@ -321,7 +347,11 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                       }}
                     />
                   </label>
-                  <span className="text-ui-sm text-slate-500">Recommended: close-up of the connector.</span>
+                  {row.portPhoto ? (
+                    <PhotoStatusBadge status={row.portPhotoStatus} />
+                  ) : (
+                    <span className="text-ui-sm text-slate-500">Recommended: close-up of the connector.</span>
+                  )}
                 </div>
               </li>
             ))}
@@ -337,6 +367,10 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
 
       {error ? (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p>
+      ) : null}
+
+      {notice ? (
+        <p className="rounded-xl bg-amber-50 px-4 py-3 text-ui-sm text-amber-800">{notice}</p>
       ) : null}
 
       <div className="flex items-center gap-3">
@@ -362,8 +396,29 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
           <span className="text-ui-sm text-slate-500">
             Visible to drivers once the listing is approved.
           </span>
-        ) : null}
+        ) : (
+          <span className="text-ui-sm text-slate-500">
+            New photos are checked by a person before drivers see them.
+          </span>
+        )}
       </div>
     </div>
+  )
+}
+
+/**
+ * Where one photo stands in review. "Approved" for a photo with no status is
+ * a row saved before photo review existed, when approving the listing was the
+ * review.
+ */
+function PhotoStatusBadge({ status }: { status: DraftCharger['photoStatus'] }) {
+  const state =
+    status === 'needs-better-photo'
+      ? { label: 'Needs a better photo', tone: 'border-red-200 bg-red-50 text-red-700' }
+      : status === 'pending'
+        ? { label: 'Awaiting review', tone: 'border-amber-200 bg-amber-50 text-amber-800' }
+        : { label: 'Approved', tone: 'border-green-200 bg-green-50 text-green-700' }
+  return (
+    <span className={`rounded-full border px-2.5 py-0.5 text-ui-xs font-semibold ${state.tone}`}>{state.label}</span>
   )
 }

@@ -1,25 +1,25 @@
 // src/components/auth/VehicleOnboarding.tsx
 'use client'
 
-import { ArrowRight, Car as CarIcon, Check, ChevronLeft } from '@/components/ui/icons'
+import { AlertCircle, ArrowRight, Car as CarIcon, Check, ChevronLeft } from '@/components/ui/icons'
 import * as React from 'react'
 
-import type { Car } from '@/data/cars'
+import { Button } from '@/components/ui'
+import type { GarageCatalogueCar } from '@/lib/db/garage'
 import { cn } from '@/lib/utils'
 
+type OnboardingCar = GarageCatalogueCar
+
 export interface VehicleOnboardingProps {
-  cars: Car[]
-  onComplete: (vehicle: Car | null) => void | Promise<void>
+  cars: OnboardingCar[]
+  /** Resolves to an error message to show, or null once it has moved on. */
+  onComplete: (vehicle: OnboardingCar | null) => Promise<string | null>
   onSkip: () => void
 }
 
-/**
- * Makes are derived from MOCK_EV_MODELS rather than EV_MAKES so the model list
- * in step 2 is a fully typed EVModel — EV_MAKES stores `connector` as a plain
- * string and carries no battery or charging-speed data.
- */
-function groupByMake(cars: Car[]): { make: string; cars: Car[] }[] {
-  const byMake = new Map<string, Car[]>()
+/** The catalogue grouped by brand, in the order the cars arrive. */
+function groupByMake(cars: OnboardingCar[]): { make: string; cars: OnboardingCar[] }[] {
+  const byMake = new Map<string, OnboardingCar[]>()
   for (const car of cars) {
     const existing = byMake.get(car.brand)
     if (existing) existing.push(car)
@@ -31,15 +31,21 @@ function groupByMake(cars: Car[]): { make: string; cars: Car[] }[] {
 export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardingProps) {
   const makes = groupByMake(cars)
   const [selectedMake, setSelectedMake] = React.useState<string | null>(null)
-  const [selectedCar, setSelectedCar] = React.useState<Car | null>(null)
+  const [selectedCar, setSelectedCar] = React.useState<OnboardingCar | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
   const handleConfirm = async () => {
     setIsLoading(true)
-    // The timer that used to sit here stood in for a save that never happened.
-    // onComplete now writes the vehicle to the account before navigating.
-    await onComplete(selectedCar)
-    setIsLoading(false)
+    setError(null)
+    // onComplete writes the car to the account before navigating, and hands
+    // back a message when it could not — which stops the spinner here and is
+    // shown under the button rather than lost.
+    const message = await onComplete(selectedCar)
+    if (message) {
+      setError(message)
+      setIsLoading(false)
+    }
   }
 
   /* ── Step 2 — model ──────────────────────────────────────── */
@@ -53,8 +59,9 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
           onClick={() => {
             setSelectedMake(null)
             setSelectedCar(null)
+            setError(null)
           }}
-          className="group/back mb-6 flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900"
+          className="group/back mb-6 flex min-h-11 items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-slate-900"
         >
           <ChevronLeft
             size={16}
@@ -85,14 +92,17 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
               >
                 <span className="min-w-0">
                   <span className="block font-bold text-slate-900">{model.model}</span>
-                  <span className="mt-0.5 block text-sm text-slate-400">
-                    {model.category} · {model.range ? `${model.range} km range` : 'Range not listed'}
+                  {/* The range column is the full-charge EV range; for a hybrid it
+                      would be a combined figure, so it is only quoted for an EV. */}
+                  <span className="mt-0.5 block text-sm text-slate-500">
+                    {model.category}
+                    {model.category === 'EV' && model.range ? ` · ${model.range} km range` : ''}
                   </span>
                 </span>
 
                 <span className="flex shrink-0 items-center gap-3">
                   {model.connector?.[0] ? (
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-ui-xs font-semibold text-slate-600">
                       {model.connector[0]}
                     </span>
                   ) : null}
@@ -106,24 +116,22 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
         </div>
 
         {selectedCar ? (
-          <button
-            type="button"
+          <Button
+            size="lg"
+            fullWidth
             onClick={handleConfirm}
-            disabled={isLoading}
-            className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-brand font-semibold text-white transition-all duration-200 hover:brightness-110 disabled:opacity-70"
+            isLoading={isLoading}
+            rightIcon={<ArrowRight size={18} aria-hidden="true" />}
+            className="mt-6"
           >
-            {isLoading ? (
-              <span
-                aria-hidden="true"
-                className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent"
-              />
-            ) : (
-              <>
-                This is my EV
-                <ArrowRight size={18} aria-hidden="true" />
-              </>
-            )}
-          </button>
+            This is my EV
+          </Button>
+        ) : null}
+        {error ? (
+          <p role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+            {error}
+          </p>
         ) : null}
       </div>
     )
@@ -149,7 +157,7 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
               <CarIcon size={24} className="text-slate-400" aria-hidden="true" />
             </span>
             <span className="block text-sm font-bold text-slate-900">{group.make}</span>
-            <span className="block text-xs text-slate-400">
+            <span className="block text-ui-xs text-slate-500">
               {group.cars.length} model{group.cars.length === 1 ? '' : 's'}
             </span>
           </button>
@@ -159,7 +167,7 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
       <button
         type="button"
         onClick={onSkip}
-        className="mt-8 w-full text-center text-sm text-slate-400 transition-colors hover:text-slate-600"
+        className="mt-8 min-h-11 w-full text-center text-sm text-slate-500 transition-colors hover:text-slate-800"
       >
         I&apos;ll add my vehicle later &rarr;
       </button>

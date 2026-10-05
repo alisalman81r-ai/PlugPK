@@ -144,7 +144,7 @@ function Section({
           <span className="text-ui-sm font-bold text-slate-900">{label}</span>
 
           {count > 0 ? (
-            <span className="rounded-full bg-plug-blue-600 px-1.5 py-0.5 font-mono text-[10px] font-bold leading-none text-white">
+            <span className="rounded-full bg-plug-blue-600 px-1.5 py-0.5 font-mono text-ui-xs font-bold leading-none text-white">
               {count}
             </span>
           ) : null}

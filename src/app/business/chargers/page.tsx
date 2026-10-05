@@ -1,11 +1,9 @@
 // src/app/business/chargers/page.tsx
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 
 import { BusinessDashboardLayout } from '@/components/business/BusinessDashboardLayout'
 import { ChargerManager } from '@/components/business/ChargerManager'
-import { getBusinessesForUser } from '@/lib/db/queries'
-import { getCurrentUser } from '@/lib/db/session-actions'
+import { portalListings, requireOwnerPortal } from '@/lib/db/business-queries'
 
 /**
  * The chargers on the owner's listing — the real ones, read from the row that
@@ -14,53 +12,30 @@ import { getCurrentUser } from '@/lib/db/session-actions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function BusinessChargersPage() {
-  const user = await getCurrentUser()
-  if (!user) redirect('/login?redirect=/business/chargers')
+export const metadata: Metadata = { title: 'Chargers' }
 
-  const businesses = await getBusinessesForUser(user.id)
-
-  // The portal is for partners: an account with no listing is sent to list one.
-
-  if (businesses.length === 0) redirect('/business/signup')
-  const primary = businesses[0]
+export default async function BusinessChargersPage({
+  searchParams,
+}: {
+  searchParams: { listing?: string | string[] }
+}) {
+  const portal = await requireOwnerPortal('/business/chargers', searchParams.listing)
+  const { listing } = portal
 
   return (
     <BusinessDashboardLayout
       title="Chargers"
       subtitle="What is installed at your location"
-      listing={
-        primary
-          ? {
-              id: primary.id,
-              name: primary.businessName,
-              type: primary.businessType,
-              city: primary.city,
-              status: primary.status,
-            }
-          : undefined
-      }
+      {...portalListings(portal)}
     >
-      {primary ? (
-        <ChargerManager
-          businessId={primary.id}
-          chargers={primary.chargers}
-          isLive={primary.status === 'approved'}
-        />
-      ) : (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-          <p className="text-ui-lg font-semibold text-slate-900">No listing yet</p>
-          <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-            Chargers belong to a listing. Submit one first.
-          </p>
-          <Link
-            href="/business/signup"
-            className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-          >
-            List your business
-          </Link>
-        </div>
-      )}
+      {/* Keyed by listing so switching listings starts from that listing's
+          rows rather than carrying the previous one's unsaved edits across. */}
+      <ChargerManager
+        key={listing.id}
+        businessId={listing.id}
+        chargers={listing.chargers}
+        isLive={listing.status === 'approved'}
+      />
     </BusinessDashboardLayout>
   )
 }

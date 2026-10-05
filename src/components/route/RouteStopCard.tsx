@@ -7,7 +7,6 @@ import {
   Coffee,
   MapPin,
   ParkingSquare,
-  ShieldCheck,
   Utensils,
   Wifi,
   Zap,
@@ -16,13 +15,14 @@ import {
 import Link from 'next/link'
 
 import { ConnectorBadgeGroup, RatingStars, SpeedBadge } from '@/components/ui'
-import type { AmenityType, RouteStop } from '@/lib/types'
+import { formatDuration as formatChargeDuration } from '@/lib/charging-time'
+import type { PlanStop } from '@/lib/route-plan'
+import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
+import type { AmenityType, Station } from '@/lib/types'
 import { cn, getMaxPower } from '@/lib/utils'
 
 export interface RouteStopCardProps {
-  stop: RouteStop
-  isFirst?: boolean
-  isLast?: boolean
+  stop: PlanStop<Station>
   totalStops: number
 }
 
@@ -78,12 +78,11 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
       <div className="mb-5 pr-12">
         <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
           {station.name}
-          {station.isVerified ? (
-            <ShieldCheck
-              size={16}
-              className="shrink-0 text-plug-blue-600"
-              aria-label="Verified station"
-            />
+          {/* No "verified" shield: nothing verifies a station. */}
+          {isSampleListing(station.id) ? (
+            <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+              {SAMPLE_LISTING_LABEL}
+            </span>
           ) : null}
         </h3>
 
@@ -121,7 +120,11 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
           <span className="mt-1 flex items-center gap-1.5 rounded-full border border-plug-blue-200 bg-plug-blue-50 px-2.5 py-1">
             <Zap size={14} className="text-plug-blue-600" aria-hidden="true" />
             <span className="font-mono text-xs font-medium text-plug-blue-600">
-              {stop.chargingTimeMinutes} min
+              {stop.chargingTimeMinutes !== null
+                ? formatChargeDuration(stop.chargingTimeMinutes)
+                : 'Time unknown'}
+              {' · '}
+              {stop.mode.toUpperCase()} {stop.chargeKw} kW
             </span>
           </span>
         </div>
@@ -136,6 +139,14 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
           </span>
         </div>
       </div>
+
+      {/* Why this stop charges the way it does — AC on a car that cannot DC
+          charge, or a socket we could not confirm fits. */}
+      {stop.note ? (
+        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          {stop.note}
+        </p>
+      ) : null}
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
@@ -159,7 +170,11 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
       ) : null}
 
       <div className="flex items-center justify-between gap-4">
-        <RatingStars rating={station.rating} size="sm" showNumber />
+        {station.reviewCount > 0 ? (
+          <RatingStars rating={station.rating} size="sm" showNumber />
+        ) : (
+          <span className="text-xs text-slate-500">No reviews yet</span>
+        )}
 
         <Link
           href={`/station/${station.slug}`}

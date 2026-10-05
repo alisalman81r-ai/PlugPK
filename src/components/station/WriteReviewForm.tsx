@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils'
 export interface WriteReviewFormProps {
   stationId: string
   stationName: string
+  /** The listing's URL segment, for the sign-in link's way back. Not the id. */
+  stationSlug: string
   /**
    * Which table the listing lives in. Business listings appear on the map
    * alongside stations, and a review of one has to be filed against the right
@@ -21,7 +23,9 @@ export interface WriteReviewFormProps {
   onSuccess?: () => void
 }
 
-const MAX_COMMENT = 500
+// Matches the server action's limit, so a review that fits here is never refused there.
+const MAX_COMMENT = 1000
+const MAX_VEHICLE = 120
 
 const RATING_LABEL: Record<number, { text: string; className: string }> = {
   0: { text: 'Select a rating', className: 'text-slate-400' },
@@ -35,6 +39,7 @@ const RATING_LABEL: Record<number, { text: string; className: string }> = {
 export function WriteReviewForm({
   stationId,
   stationName,
+  stationSlug,
   target = 'station',
   onSuccess,
 }: WriteReviewFormProps) {
@@ -46,6 +51,7 @@ export function WriteReviewForm({
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [needsSignIn, setNeedsSignIn] = React.useState(false)
+  const [alreadyReviewed, setAlreadyReviewed] = React.useState(false)
   const [isExpanded, setIsExpanded] = React.useState(false)
 
   const reset = () => {
@@ -70,6 +76,7 @@ export function WriteReviewForm({
 
     setError(null)
     setNeedsSignIn(false)
+    setAlreadyReviewed(false)
     setIsSubmitting(true)
 
     // This was `await new Promise(r => setTimeout(r, 1500))` followed by the
@@ -80,6 +87,7 @@ export function WriteReviewForm({
 
     if (!result.ok) {
       setNeedsSignIn(result.needsSignIn ?? false)
+      setAlreadyReviewed(result.alreadyReviewed ?? false)
       setError(result.message ?? 'Could not post your review.')
       return
     }
@@ -163,6 +171,7 @@ export function WriteReviewForm({
           label="Your EV (optional)"
           value={vehicle}
           onChange={(event) => setVehicle(event.target.value)}
+          maxLength={MAX_VEHICLE}
           placeholder="e.g. BYD Atto 3, MG ZS EV"
           className="h-11 rounded-xl"
         />
@@ -196,10 +205,18 @@ export function WriteReviewForm({
             <>
               {' '}
               <Link
-                href={`/login?redirect=/station/${stationId}`}
+                href={`/login?redirect=${encodeURIComponent(`/station/${stationSlug}`)}`}
                 className="font-semibold underline"
               >
                 Sign in
+              </Link>
+            </>
+          ) : null}
+          {alreadyReviewed ? (
+            <>
+              {' '}
+              <Link href="/dashboard/reviews" className="font-semibold underline">
+                Your reviews
               </Link>
             </>
           ) : null}

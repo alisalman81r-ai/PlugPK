@@ -36,13 +36,23 @@
 /** Mirrors STAGE in page.tsx — one measure down the whole page. */
 const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 
-/** Mirrors MAP_HEIGHT in page.tsx, so the frame does not resize on arrival. */
-const MAP_HEIGHT = 'h-[27rem] sm:h-[clamp(28rem,68vh,46rem)]'
+/** Mirrors MAP_HEIGHT in MapExplorer, so the frame does not resize on arrival. */
+const MAP_HEIGHT = 'h-[62svh] min-h-[22rem] md:h-[clamp(28rem,68vh,46rem)] md:min-h-0'
+
+/** The faint grid the real map's own loader uses. */
+const GRID =
+  'pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]'
 
 export default function MapLoading() {
   return (
     <div aria-busy="true" aria-live="polite">
       <span className="sr-only">Loading the charging map…</span>
+
+      {/* Phone: the map comes first, edge to edge, as on the real page. */}
+      <div className={`relative ${MAP_HEIGHT} w-full overflow-hidden bg-slate-100 md:hidden`}>
+        <div aria-hidden="true" className={GRID} />
+        <div className="absolute inset-x-3 top-3 h-14 animate-pulse rounded-2xl bg-white/80" />
+      </div>
 
       {/* The hero band in silhouette: same ground and same glow as the real
           one, so what changes on arrival is the words, not the background. */}
@@ -72,7 +82,7 @@ export default function MapLoading() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)]">
+        <div className="mt-4 hidden rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)] md:block">
           {/* The faint grid the real map's own loader uses, so the two agree
               rather than handing off between different greys. */}
           <div className={`relative ${MAP_HEIGHT} w-full overflow-hidden rounded-2xl bg-slate-100`}>

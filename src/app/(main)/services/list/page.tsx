@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: 'List your EV service',
   description:
     'Workshops, installers, dealers and insurers — apply to be listed in the Plug.pk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
+  alternates: { canonical: '/services/list' },
 }
 
 /** One measure, matching /map, /routes, /community and Partner Up. */
@@ -33,7 +34,7 @@ const STEPS = [
   {
     icon: Wrench,
     title: 'Tell us what you do',
-    body: 'Your name, the kind of service you offer, the city you work in and a way to reach you. Five fields.',
+    body: 'Your name, the kind of service you offer, where you are on the map and a way to reach you.',
   },
   {
     icon: BadgeCheck,

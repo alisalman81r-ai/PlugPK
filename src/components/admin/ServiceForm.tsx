@@ -10,16 +10,25 @@ import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+import { useUnsavedChanges } from './useUnsavedChanges'
+
 export interface ServiceFormProps {
   /** Undefined means create. */
   service?: EVService
+  /** The listing's review status; absent on create, which defaults to approved. */
+  status?: string
   action: (form: FormData) => Promise<{ ok: boolean; message?: string }>
 }
 
-export function ServiceForm({ service, action }: ServiceFormProps) {
+export function ServiceForm({ service, status, action }: ServiceFormProps) {
   const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { markClean, confirmLeave } = useUnsavedChanges(formRef)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -27,8 +36,10 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
     setError(null)
 
     startTransition(async () => {
-      const result = await action(form)
+      const result = await runAction(() => action(form))
       if (result.ok) {
+        markClean()
+        toast.success(result.message ?? 'Saved.')
         router.push('/admin/services')
         // Without this the list renders the router's cached copy, so a save
         // looks like it did nothing.
@@ -40,7 +51,7 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 lg:px-8 lg:py-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
         <h2 className="mb-1 font-semibold text-slate-900">Business</h2>
         <p className="mb-5 text-ui-sm text-slate-500">
@@ -79,6 +90,31 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
               defaultValue={service?.slug}
               className={cn(FIELD_CLASS, 'font-mono')}
             />
+          </AdminField>
+
+          {/*
+            Status is chosen here rather than left to the schema default.
+            The default is 'pending', which is right for the public application
+            form and wrong for an operator: a service added here used to land
+            in the review queue, invisible on the directory, as though a
+            stranger had submitted it.
+          */}
+          <AdminField
+            label="Status"
+            htmlFor="status"
+            required
+            hint="Approved services appear in the public directory."
+          >
+            <select
+              id="status"
+              name="status"
+              defaultValue={status ?? 'approved'}
+              className={cn(FIELD_CLASS, 'cursor-pointer')}
+            >
+              <option value="approved">Approved — listed publicly</option>
+              <option value="pending">Pending — in the review queue</option>
+              <option value="rejected">Rejected — hidden</option>
+            </select>
           </AdminField>
 
           <AdminField label="Description" htmlFor="description" className="sm:col-span-2">
@@ -141,7 +177,7 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
             />
           </AdminField>
 
-          <AdminField label="Latitude" htmlFor="lat" hint="Decimal degrees, e.g. 24.8607">
+          <AdminField label="Latitude" htmlFor="lat" hint="Decimal degrees inside Pakistan, e.g. 24.8607">
             <input
               id="lat"
               name="lat"
@@ -197,20 +233,9 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
             />
           </AdminField>
 
-          <AdminField label="Rating" htmlFor="rating" hint="0 to 5">
-            <input
-              id="rating"
-              name="rating"
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              defaultValue={service?.rating ?? 0}
-              className={cn(FIELD_CLASS, 'font-mono')}
-            />
-          </AdminField>
-
-          <div className="flex items-end">
+          {/* No rating field. Services have no review table, so any figure
+              typed here would be a score no customer gave. */}
+          <div className="flex flex-col justify-end gap-1">
             <label className="flex cursor-pointer items-center gap-3 text-ui text-slate-700">
               <input
                 type="checkbox"
@@ -220,6 +245,9 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
               />
               Verified business
             </label>
+            <p className="text-ui-xs text-slate-500">
+              Your own assertion that you have checked this business exists — shown publicly as a badge.
+            </p>
           </div>
         </div>
       </section>
@@ -245,7 +273,9 @@ export function ServiceForm({ service, action }: ServiceFormProps) {
 
         <button
           type="button"
-          onClick={() => router.push('/admin/services')}
+          onClick={() => {
+            if (confirmLeave()) router.push('/admin/services')
+          }}
           className="inline-flex h-11 items-center rounded-lg border border-slate-200 bg-white px-5 text-ui font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
           Cancel

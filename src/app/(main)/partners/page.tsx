@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { PartnerDashboardPreview } from '@/components/partners/PartnerDashboardPreview'
 import { PartnerHero } from '@/components/partners/PartnerHero'
 import { PartnerList } from '@/components/partners/PartnerList'
+import { PartnerMeeting } from '@/components/partners/PartnerMeeting'
 import { PartnerPricing } from '@/components/partners/PartnerPricing'
 import { PartnerSteps } from '@/components/partners/PartnerSteps'
 import { PartnerVenueTypes } from '@/components/partners/PartnerVenueTypes'
@@ -40,6 +41,8 @@ export const metadata: Metadata = {
   title: 'Partner Up',
   description:
     'List your charger on Plug.pk — hotels, restaurants, offices and homes across Pakistan. PKR 4,999 a month to list, and you set your own rates.',
+  // The one business landing page: /for-businesses redirects here.
+  alternates: { canonical: '/partners' },
 }
 
 /** One measure, matching /map, /routes and /community. */
@@ -143,6 +146,8 @@ export default async function PartnersPage() {
         </section>
       </div>
 
+      <PartnerMeeting />
+
       <FaqSection items={PARTNER_FAQS} tone="white" />
 
       {/* ── The ask, again ───────────────────────────────────────────
@@ -173,7 +178,7 @@ export default async function PartnersPage() {
                 eyebrow="Partner Up"
                 icon={<Plug size={13} aria-hidden="true" />}
                 title="Have a charger sitting idle?"
-                lead="It takes a few minutes to list, costs nothing, and you decide what to charge."
+                lead="Applying takes a few minutes and costs nothing. A listing is PKR 4,999 a month, and you decide what to charge."
               />
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -185,7 +190,7 @@ export default async function PartnersPage() {
                   List your charger
                 </Link>
 
-                <PillButton href="/for-businesses#meeting" tone="light">
+                <PillButton href="#meeting" tone="light">
                   Ask a question first
                 </PillButton>
               </div>

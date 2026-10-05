@@ -87,11 +87,23 @@ export const STANDARDS: Record<RangeStandard, StandardInfo> = {
   },
 }
 
+/**
+ * The shortest range the converter will restate.
+ *
+ * Below this the answer is noise: rounding to the nearest 5 km turned an
+ * input of 1 km into "0–0 km" on every other standard, which reads as the
+ * calculator saying the car goes nowhere. No production EV is rated at under
+ * 50 km, and the cycle ratios are fitted against real cars, so the converter
+ * asks for a figure in that territory rather than extrapolating to one.
+ */
+export const MIN_RANGE_KM = 20
+
 /** A figure people can read, rounded to what the method can support. */
 export function roundKm(km: number): number {
   if (!Number.isFinite(km) || km <= 0) return 0
-  const step = km < 200 ? 5 : 10
-  return Math.round(km / step) * step
+  const step = km < 50 ? 1 : km < 200 ? 5 : 10
+  // Never rounds a real distance down to nothing.
+  return Math.max(1, Math.round(km / step) * step)
 }
 
 export interface Band {
@@ -115,7 +127,7 @@ export interface Equivalent extends Band {
  * cycles, not a flaw in the arithmetic.
  */
 export function convertRange(km: number, from: RangeStandard): Equivalent[] | null {
-  if (!Number.isFinite(km) || km <= 0) return null
+  if (!Number.isFinite(km) || km < MIN_RANGE_KM) return null
   const src = STANDARDS[from].vsWltp
 
   return STANDARD_ORDER.map((to) => {
@@ -200,7 +212,7 @@ export interface RoadEstimate extends Band {
 }
 
 export function roadEstimates(km: number, from: RangeStandard): RoadEstimate[] | null {
-  if (!Number.isFinite(km) || km <= 0) return null
+  if (!Number.isFinite(km) || km < MIN_RANGE_KM) return null
   const w = wltpBand(km, from)
   return SCENARIOS.map((scenario) => ({
     scenario,

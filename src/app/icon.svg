@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The LogoMark from src/components/ui/Logo.tsx, mint on a pine tile so it
+       holds up on both light and dark browser tab strips. -->
+  <rect width="64" height="64" rx="14" fill="#05241E"/>
+  <g transform="translate(7 7) scale(0.3125) translate(-4 -6)" fill="#6FE8B6" stroke="#6FE8B6" stroke-linejoin="round">
+    <path stroke-width="11" d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z"/>
+    <path stroke-width="5" d="M143.5 75 L140.5 85.5 L154 85.5 L154 88.5 L138.5 88.5 L135.5 99.5 L122 101.5 Z"/>
+  </g>
+</svg>

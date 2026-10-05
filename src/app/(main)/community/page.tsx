@@ -1,39 +1,83 @@
 // src/app/(main)/community/page.tsx
+import type { Metadata } from 'next'
+
 import { CommunityPageClient } from '@/components/community/CommunityPageClient'
-import { getPosts } from '@/lib/db/queries'
+import { readOrFallback } from '@/lib/db/availability'
+import {
+  getCommunityClubs,
+  getCommunityFigures,
+  getFeedPage,
+  getTopPosts,
+  type CommunityFigures,
+  type FeedPage,
+} from '@/lib/db/community-queries'
+import type { CommunityPost, EVClub } from '@/lib/types'
 
 /**
  * The board reads: orient, choose what to read, read it.
  *
- * It used to sit outside the shape the rest of the site had settled on. The
- * hero was a two-column block on the old navy-to-teal gradient with a floating
- * card duplicating the top post; below it a full-bleed sticky bar of tabs; below
- * that a 1280px column while /map and /routes both work to 1400px. Three
- * different treatments of the same three ideas.
+ * Laid out on the map page's shape — one dark band, one measure down the page,
+ * and the browse card lifted up into the band (see CommunityPageClient).
  *
- * Now it is the map page's shape, for the same reasons: one dark band, one
- * measure down the page, and the card the reader needs first lifted up into the
- * band so it reads as the thing the page is for rather than the next section
- * down. The card here is the browse control — categories, sort, and the count
- * they produce — exactly where the map keeps its filter rail.
- */
-
-/** One measure, matching /map and /routes, so the pages line up edge for edge. */
-const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
-
-/**
- * How far the browse card is pulled up into the dark band above it.
+ * ── What it loads ─────────────────────────────────────────────────────
  *
- * Less than the map's -mt-32: this card is roughly half the height of a map
- * canvas, and a lift that clears its own height floats the whole thing inside
- * the band with nothing anchoring it to the page. The hero's bottom padding is
- * set against this, so 3rem of dark always shows between the figures and the
- * card's top edge — the same gap /map leaves.
+ * One page of post summaries, not the board. This used to be force-dynamic
+ * and fetched every post with its full body on every visit to render six of
+ * them. Now the server sends the first page, the browser asks for more from a
+ * cursor, and filtering and search run in the database (loadPosts).
+ *
+ * ── Why it can be cached ──────────────────────────────────────────────
+ *
+ * Nothing here depends on who is looking: which hearts are filled is asked
+ * after render (getMyLikedPostIds). Posting and commenting revalidate this
+ * path; the interval only catches like counts, which move without one.
  */
-const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
+export const revalidate = 60
 
-export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+  title: 'EV Community',
+  description:
+    'Questions, trip reports and charging notes from EV drivers in Pakistan. Read without an account; sign in to post, comment and like.',
+  alternates: { canonical: '/community' },
+  openGraph: {
+    title: 'Plug.pk EV Community',
+    description: 'Questions, trip reports and charging notes from EV drivers in Pakistan.',
+    url: '/community',
+    type: 'website',
+  },
+}
+
+const EMPTY_FIGURES: CommunityFigures = {
+  discussions: 0,
+  replies: 0,
+  clubs: 0,
+  cities: 0,
+  clubMembers: 0,
+  byCategory: { all: 0 },
+}
 
 export default async function CommunityPage() {
-  return <CommunityPageClient initialPosts={await getPosts()} />
+  const [page, figures, topPosts, clubs] = await Promise.all([
+    readOrFallback<FeedPage>('/community feed', { posts: [], nextCursor: null, total: 0 }, () =>
+      getFeedPage(),
+    ),
+    readOrFallback('/community figures', EMPTY_FIGURES, getCommunityFigures),
+    readOrFallback('/community top posts', [] as CommunityPost[], () => getTopPosts(5)),
+    readOrFallback('/community clubs', [] as EVClub[], () => getCommunityClubs()),
+  ])
+
+  const { byCategory, ...stats } = figures
+
+  return (
+    <CommunityPageClient
+      initial={{
+        posts: page.posts,
+        nextCursor: page.nextCursor,
+        categoryCount: byCategory,
+        stats,
+      }}
+      topPosts={topPosts}
+      clubs={clubs}
+    />
+  )
 }

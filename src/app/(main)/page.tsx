@@ -1,65 +1,95 @@
 // src/app/(main)/page.tsx
+import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
+
 import { AppBanner } from '@/components/home/AppBanner'
-import { PartnerCTA } from '@/components/home/PartnerCTA'
 import { CommunityPreview } from '@/components/home/CommunityPreview'
-import { ValueBanner } from '@/components/home/ValueBanner'
-import { FreedomBand } from '@/components/home/FreedomBand'
 import { Hero } from '@/components/home/Hero'
-import { HowItWorks } from '@/components/home/HowItWorks'
+import { HomeReveal } from '@/components/home/HomeReveal'
+import { PartnerCTA } from '@/components/home/PartnerCTA'
 import { RoutePlannerPromo } from '@/components/home/RoutePlannerPromo'
 import { ServicesPreview } from '@/components/home/ServicesPreview'
-import { Reveal } from '@/components/ui'
 import { readOrFallback } from '@/lib/db/availability'
-import { getClubs, getCommunityCounts, getHeroStats, getHowItWorksData, getShowcaseStation } from '@/lib/db/queries'
-import type { EVClub } from '@/lib/types'
+import {
+  getCommunityClubs,
+  getCommunityFigures,
+  getLatestPosts,
+  type CommunityFigures,
+} from '@/lib/db/community-queries'
+import { getHeroStats, getHowItWorksData, getShowcaseStation } from '@/lib/db/queries'
+import type { CommunityPost, EVClub } from '@/lib/types'
+
+/*
+  The two bands that animate with framer-motion, loaded as their own chunks.
+
+  Both are below the hero, so neither belongs in the first bundle the landing
+  page parses. Still server-rendered (dynamic() keeps SSR on by default): the
+  HTML arrives complete, and only the script that animates it comes later.
+*/
+const FreedomBand = dynamic(() => import('@/components/home/FreedomBand').then((m) => m.FreedomBand))
+const HowItWorks = dynamic(() => import('@/components/home/HowItWorks').then((m) => m.HowItWorks))
+
+export const metadata: Metadata = {
+  // `absolute`: the root template would make this "… | Plug.pk | Plug.pk".
+  title: { absolute: "Plug.pk — EV chargers, route planning and cars in Pakistan" },
+  description:
+    'Find EV charging stations across Pakistan, plan long drives around your car’s real range, compare electric cars and ask other EV drivers.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'Plug.pk — EV chargers, route planning and cars in Pakistan',
+    description:
+      'Find EV charging stations across Pakistan, plan long drives around your car’s real range, and compare electric cars.',
+    url: '/',
+    type: 'website',
+  },
+}
 
 /**
  * Cached, not dynamic.
  *
- * This was force-dynamic so the live figures could move, which meant every
- * visit re-queried the database and re-rendered the whole page — the slowest
- * public route by a wide margin, and the one people land on first.
- *
- * It does not need to be. Every write that changes what this page shows
- * already calls revalidatePath('/'): the admin station, service and connector
- * actions, and registerUser. So the page can be served from cache and
- * regenerated the moment something actually changes, rather than rebuilt on
- * the chance that it might have.
- *
- * The interval below is a backstop, not the mechanism — it only matters if a
- * row is ever changed outside those actions, such as directly in the
- * database.
+ * Every write that changes what this page shows already calls
+ * revalidatePath('/'): the admin station, service and connector actions,
+ * registerUser, and posting to the community. So the page is served from cache
+ * and regenerated when something actually changes. The interval is a
+ * backstop for rows changed outside those actions.
  */
 export const revalidate = 300
 
+const EMPTY_FIGURES: CommunityFigures = {
+  discussions: 0,
+  replies: 0,
+  clubs: 0,
+  cities: 0,
+  clubMembers: 0,
+  byCategory: { all: 0 },
+}
+
 /**
- * The figures and the club rail are supplementary; the page is not.
+ * The figures and rails are supplementary; the page is not.
  *
- * Every one of these reads is a counter or a rail sitting between
- * sections that need no database at all — the hero, how-it-works, the services
- * grid, the banners. Awaiting them bare meant a database that could not answer
- * took the whole landing page down to the error boundary, header and all, which
- * is what a visitor met on the first deploy: a slow wait, then "This page did
- * not load".
+ * Every read is guarded: a database that cannot answer renders the page
+ * without the numbers rather than taking the landing page to the error
+ * boundary. See lib/db/availability.
  *
- * Falling back renders the page without the numbers instead. See
- * lib/db/availability for what is treated as unavailable and what still throws.
+ * ── Eight sections, not ten ───────────────────────────────────────────
+ *
+ * ValueBanner ("Everything you need to go electric": find chargers, plan a
+ * route, join the community) is gone. Each of its three cards repeated a band
+ * already on the page — how it works, the route planner, the community — so it
+ * was the page summarising itself halfway down.
  */
 export default async function HomePage() {
-  const [heroStats, clubs, communityCounts, showcase, howItWorks] = await Promise.all([
-    // Guarded like the rest: with no database the hero renders its layout with
-    // zeroes and no rating rather than taking the page down.
+  const [heroStats, clubs, figures, latestPosts, showcase, howItWorks] = await Promise.all([
     readOrFallback(
       '/ hero stats',
       { locations: 0, connectorTypes: 0, reviews: 0, rating: null, byCity: {}, pins: [] },
       getHeroStats,
     ),
-    readOrFallback('/ clubs', [] as EVClub[], () => getClubs()),
-    readOrFallback(
-      '/ community counts',
-      { discussions: 0, replies: 0, clubs: 0, cities: 0, clubMembers: 0 },
-      getCommunityCounts,
-    ),
+    readOrFallback('/ clubs', [] as EVClub[], () => getCommunityClubs()),
+    readOrFallback('/ community figures', EMPTY_FIGURES, getCommunityFigures),
+    // The two newest real posts, for the community card. It showed two
+    // fixtures from mock-data under "Real questions, real answers".
+    readOrFallback('/ latest posts', [] as CommunityPost[], () => getLatestPosts(5)),
     // The station the how-it-works phones navigate to and review. Null when
     // nothing is reviewed yet, and those two steps show photographs instead.
     readOrFallback('/ showcase station', null, getShowcaseStation),
@@ -68,13 +98,13 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* The hero animates on load; everything past the fold reveals on
-          approach so the page reads as a sequence rather than a dump. */}
+      {/* The hero animates on load. Everything below is visible in the HTML
+          as sent; HomeReveal only nudges a section that hydrates below the
+          fold, and never hides it. */}
       <Hero stats={heroStats} />
-      {/* The breath after the hero: what the product is for, before how it works.
-          Not wrapped in Reveal — it runs its own scroll-linked entrance. */}
+      {/* Not wrapped: it runs its own scroll-linked entrance. */}
       <FreedomBand />
-      <Reveal>
+      <HomeReveal>
         <HowItWorks
           stats={{ locations: heroStats.locations, rating: heroStats.rating, reviews: heroStats.reviews }}
           showcase={showcase}
@@ -82,26 +112,22 @@ export default async function HomePage() {
           connectors={howItWorks.connectors}
           pins={heroStats.pins}
         />
-      </Reveal>
-      <Reveal>
+      </HomeReveal>
+      <HomeReveal>
         <RoutePlannerPromo pins={heroStats.pins} />
-      </Reveal>
-      {/* The services grid sits where the featured-stations rail used to. */}
-      <Reveal>
+      </HomeReveal>
+      <HomeReveal>
         <ServicesPreview />
-      </Reveal>
-      <Reveal>
-        <ValueBanner />
-      </Reveal>
-      <Reveal>
-        <CommunityPreview clubs={clubs.slice(0, 3)} counts={communityCounts} />
-      </Reveal>
-      <Reveal>
+      </HomeReveal>
+      <HomeReveal>
+        <CommunityPreview posts={latestPosts} clubs={clubs.slice(0, 3)} counts={figures} />
+      </HomeReveal>
+      <HomeReveal>
         <PartnerCTA />
-      </Reveal>
-      <Reveal>
+      </HomeReveal>
+      <HomeReveal>
         <AppBanner />
-      </Reveal>
+      </HomeReveal>
     </>
   )
 }

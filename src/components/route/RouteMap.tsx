@@ -4,19 +4,25 @@
 import { ArrowRight, BatteryCharging, Clock, Route, Zap } from '@/components/ui/icons'
 
 import { ConnectorBadgeGroup } from '@/components/ui'
-import type { PlannedRoute } from '@/lib/types'
+import type { PlannedTrip } from '@/hooks/useRoutePlanner'
+import { formatDuration as formatChargeDuration } from '@/lib/charging-time'
 import { cn, formatDuration, getMaxPower } from '@/lib/utils'
 
 export interface RouteMapProps {
-  route: PlannedRoute
+  trip: PlannedTrip
   className?: string
 }
 
-export function RouteMap({ route, className }: RouteMapProps) {
-  const startBattery = route.stops[0]
-    ? route.stops[0].arrivalBatteryPercent + 25
-    : 80
-  const arrivalBattery = route.stops.length > 0 ? 45 : startBattery
+/**
+ * The journey as a line, beside the stop cards.
+ *
+ * The start and arrival figures here used to be invented on the spot — start
+ * as "first arrival + 25", arrival as a flat 45 whenever there was a stop —
+ * and disagreed with the list next to them ("~80%" here, "~45%" there). Both
+ * now come from the same plan as everything else.
+ */
+export function RouteMap({ trip, className }: RouteMapProps) {
+  const { plan } = trip
 
   return (
     <div
@@ -41,12 +47,12 @@ export function RouteMap({ route, className }: RouteMapProps) {
       <div className="relative z-10">
         <div className="mb-8 flex items-center justify-between gap-4">
           <p className="flex items-center gap-2 text-lg font-bold text-white">
-            <span className="truncate">{route.origin}</span>
+            <span className="truncate">{trip.origin}</span>
             <ArrowRight size={16} className="shrink-0 text-white/40" aria-hidden="true" />
-            <span className="truncate">{route.destination}</span>
+            <span className="truncate">{trip.destination}</span>
           </p>
           <p className="shrink-0 font-mono font-bold text-plug-blue-400">
-            {route.totalDistanceKm.toLocaleString('en-PK')} km
+            {trip.totalDistanceKm.toLocaleString('en-PK')} km
           </p>
         </div>
 
@@ -65,19 +71,19 @@ export function RouteMap({ route, className }: RouteMapProps) {
             <div className="flex items-center justify-between gap-4">
               <span>
                 <span className="block text-xs uppercase tracking-wider text-white/40">Start</span>
-                <span className="mt-1 block font-bold text-white">{route.origin}</span>
+                <span className="mt-1 block font-bold text-white">{trip.origin}</span>
               </span>
-              <span className="shrink-0 font-mono font-bold text-green-400">{startBattery}%</span>
+              <span className="shrink-0 font-mono font-bold text-green-400">{trip.startPercent}%</span>
             </div>
           </div>
 
           {/* Stops */}
-          {route.stops.map((stop) => {
+          {plan.stops.map((stop) => {
             const maxPower =
               stop.station.connectors.length > 0 ? getMaxPower(stop.station) : 0
 
             return (
-              <div key={stop.station.id} className="relative mb-8">
+              <div key={`${stop.station.id}-${stop.order}`} className="relative mb-8">
                 <span
                   aria-hidden="true"
                   className="absolute -left-[28px] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white/20 bg-plug-blue-600 shadow-[0_0_12px_rgba(11,51,44,0.55)]"
@@ -91,7 +97,11 @@ export function RouteMap({ route, className }: RouteMapProps) {
                       {String(stop.order).padStart(2, '0')} · {stop.station.name}
                     </span>
                     <span className="mt-0.5 block font-mono text-xs text-plug-blue-400">
-                      {stop.chargingTimeMinutes} min charge
+                      {stop.chargingTimeMinutes !== null
+                        ? `${formatChargeDuration(stop.chargingTimeMinutes)} charge`
+                        : 'Charge time unknown'}
+                      {' · '}
+                      {stop.mode.toUpperCase()} {stop.chargeKw} kW
                     </span>
                   </span>
 
@@ -129,9 +139,16 @@ export function RouteMap({ route, className }: RouteMapProps) {
                 <span className="block text-xs uppercase tracking-wider text-white/40">
                   Destination
                 </span>
-                <span className="mt-1 block font-bold text-white">{route.destination}</span>
+                <span className="mt-1 block font-bold text-white">{trip.destination}</span>
               </span>
-              <span className="shrink-0 font-mono font-bold text-amber-400">~{arrivalBattery}%</span>
+              <span
+                className={cn(
+                  'shrink-0 font-mono font-bold',
+                  plan.arrivalPercent !== null ? 'text-amber-400' : 'text-rose-400',
+                )}
+              >
+                {plan.arrivalPercent !== null ? `~${plan.arrivalPercent}%` : 'Not reached'}
+              </span>
             </div>
           </div>
         </div>
@@ -140,7 +157,7 @@ export function RouteMap({ route, className }: RouteMapProps) {
           <span className="flex flex-col items-center gap-1 text-white/60">
             <Clock size={16} aria-hidden="true" />
             <span className="font-mono text-sm">
-              {formatDuration(route.estimatedDriveTimeMinutes)}
+              {formatDuration(trip.estimatedDriveTimeMinutes)}
             </span>
             <span className="text-[10px] uppercase tracking-wider text-white/40">Drive</span>
           </span>
@@ -148,14 +165,16 @@ export function RouteMap({ route, className }: RouteMapProps) {
           <span className="flex flex-col items-center gap-1 text-white/60">
             <BatteryCharging size={16} aria-hidden="true" />
             <span className="font-mono text-sm">
-              {formatDuration(route.totalChargingTimeMinutes)}
+              {trip.totalChargingTimeMinutes > 0
+                ? formatChargeDuration(trip.totalChargingTimeMinutes)
+                : '—'}
             </span>
             <span className="text-[10px] uppercase tracking-wider text-white/40">Charge</span>
           </span>
 
           <span className="flex flex-col items-center gap-1 text-white/60">
             <Route size={16} aria-hidden="true" />
-            <span className="font-mono text-sm">{route.stops.length}</span>
+            <span className="font-mono text-sm">{plan.stops.length}</span>
             <span className="text-[10px] uppercase tracking-wider text-white/40">Stops</span>
           </span>
         </div>

@@ -65,7 +65,7 @@ export function StandardsTable() {
                   <td className="px-5 py-4 sm:px-6">
                     <span
                       className={cn(
-                        'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wider ring-1 ring-inset',
+                        'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-1 text-ui-xs font-bold uppercase tracking-wider ring-1 ring-inset',
                         r.tone,
                       )}
                     >

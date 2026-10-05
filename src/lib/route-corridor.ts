@@ -64,11 +64,18 @@ const EARTH_RADIUS_KM = 6371
  * both: 68 km for Faisalabad-Murree, 96 km for Lahore-Peshawar, 110 km for
  * Lahore-Karachi.
  *
+ * Lahore → Islamabad was the case that did not fit. The M-2 swings west
+ * through Pindi Bhattian and Bhera, and both sit about 82 km off the straight
+ * line — a quarter of a 270 km journey is 68 km, so every motorway service
+ * area on the busiest EV corridor in the country was thrown away. The floor is
+ * 90 km now: wide enough for the M-2, and still short of the 113 km that keeps
+ * Lahore off a Faisalabad-Murree run.
+ *
  * A first attempt at a flat 40 km was checked and rejected — it threw away
  * Islamabad on the Peshawar run and Multan on the Karachi one, which is the
  * opposite failure to the one being fixed and just as wrong.
  */
-export const MIN_CORRIDOR_KM = 50
+export const MIN_CORRIDOR_KM = 90
 export const MAX_CORRIDOR_KM = 110
 
 export function corridorWidthFor(distanceKm: number): number {

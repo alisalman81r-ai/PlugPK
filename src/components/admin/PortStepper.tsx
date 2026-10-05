@@ -6,6 +6,8 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { runAction } from './run-action'
+
 export interface PortStepperProps {
   available: number
   total: number
@@ -51,7 +53,7 @@ export function PortStepper({ available, total, action, label }: PortStepperProp
     setError(null)
 
     startTransition(async () => {
-      const result = await action(clamped)
+      const result = await runAction(() => action(clamped))
       if (result.ok) {
         setSavedAt(Date.now())
       } else {

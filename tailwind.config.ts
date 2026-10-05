@@ -200,10 +200,16 @@ const config: Config = {
          *   ui-lg   card titles
          * Prefer these over new bracket values.
          *
+         * ui-xs is the floor: 12px. It was 11px, and with about a hundred
+         * text-[10px] and text-[11px] one-offs beside it the smallest type on
+         * the site — badge text, table meta, the legal line — was below what
+         * most phones render legibly. Nothing on the site should be set
+         * smaller than this step.
+         *
          * Leading is a touch calmer than it was under Poppins: Figtree has
          * shorter ascenders, so the same line-height read tighter.
          */
-        'ui-xs': ['0.6875rem', { lineHeight: '1.0625rem' }],
+        'ui-xs': ['0.75rem', { lineHeight: '1.125rem' }],
         'ui-sm': ['0.8125rem', { lineHeight: '1.25rem' }],
         ui: ['0.9375rem', { lineHeight: '1.5rem' }],
         'ui-lg': ['1.0625rem', { lineHeight: '1.625rem' }],
@@ -324,8 +330,22 @@ const config: Config = {
          * continuous scroll visibly stutter at the loop point.
          */
         marquee: 'marquee 45s linear infinite',
+        /** The same loop, vertical: the home community card scrolls its posts on hover. */
+        'feed-scroll': 'feedScroll 9s linear infinite',
+        /** A map pin dropping in and settling, used on the clubs card on hover. */
+        'pin-pop': 'pinPop 800ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
       },
       keyframes: {
+        feedScroll: {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-50%)' },
+        },
+        pinPop: {
+          '0%': { transform: 'translateY(-16px) scale(0.3)', opacity: '0' },
+          '55%': { transform: 'translateY(2px) scale(1.6)', opacity: '1' },
+          '75%': { transform: 'translateY(-3px) scale(0.9)' },
+          '100%': { transform: 'translateY(0) scale(1.15)', opacity: '1' },
+        },
         marquee: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },

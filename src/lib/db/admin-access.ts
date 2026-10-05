@@ -1,72 +1,52 @@
 // src/lib/db/admin-access.ts
 import 'server-only'
 
-import { cookies } from 'next/headers'
-
-import { ADMIN_COOKIE_NAME, verifySessionValue } from '@/lib/admin-auth'
-import { USER_COOKIE_NAME, readUserSession } from '@/lib/user-auth'
-
 import { prisma } from './client'
+import { getSessionUserId } from './session'
 
 /**
  * The one answer to "may this request use the admin portal?".
  *
- * ── Why it is one function and not eight ──────────────────────────────
+ * Every admin server action calls assertAdmin() itself rather than trusting
+ * the layout: a server action is a POST endpoint reachable by anything that
+ * learns its id, and the layout guards rendering, not invocation.
  *
- * Seven action modules each carried their own copy of this check and the admin
- * layout carried an eighth, all of them reading the shared-password cookie
- * directly. That was survivable while there was one way in. It stopped being
- * survivable the moment accounts could be admins too: a copy that is not
- * updated is a copy that authorises the wrong people, and finding all seven is
- * exactly the kind of thing that gets missed.
- *
- * ── The order matters ─────────────────────────────────────────────────
- *
- * An account session is authoritative when present, and isAdmin is re-read from
- * the database on every call — so revoking the column locks an operator out on
- * their next request rather than whenever a cookie happens to expire.
- *
- * The shared-password cookie is the fallback and is only consulted when there
- * is no account session at all, so holding a stale operator cookie can never
- * escalate an account the database says is an ordinary driver.
- *
- * ── Why the fallback still exists after /admin/login was removed ──────
- *
- * Nothing issues that cookie to a stranger any more: the page that traded the
- * shared password for it is gone, and sign-in only mints it for an account
- * whose row already carries isAdmin. What it does is let a session that was
- * already open keep working rather than throwing "Not authorised" mid-edit on
- * deploy. It authorises nobody the account check would have refused.
+ * isAdmin is re-read from the database on every call, and the session itself
+ * is version-checked (session.ts), so revoking the column or resetting the
+ * password locks an operator out on their next request.
  */
+
+export interface AdminActor {
+  id: string
+  email: string
+  name: string
+}
+
+/** The signed-in operator, or null when the caller is not one. */
+export async function getAdminActor(): Promise<AdminActor | null> {
+  const userId = await getSessionUserId()
+  if (!userId) return null
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, email: true, name: true, isAdmin: true },
+  })
+  if (!user?.isAdmin) return null
+  return { id: user.id, email: user.email, name: user.name }
+}
+
 export async function isRequestAdmin(): Promise<boolean> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
-
-  if (userId) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { isAdmin: true },
-    })
-    return user?.isAdmin === true
-  }
-
-  return verifySessionValue(cookies().get(ADMIN_COOKIE_NAME)?.value)
+  return (await getAdminActor()) !== null
 }
 
 /** True when somebody is signed in as an account, admin or not. */
 export async function hasAccountSession(): Promise<boolean> {
-  return readUserSession(cookies().get(USER_COOKIE_NAME)?.value) !== null
+  return (await getSessionUserId()) !== null
 }
 
-/**
- * Throws unless the caller may write.
- *
- * Every server action calls this itself rather than trusting the layout. A
- * server action is a POST endpoint reachable by anything that learns its id —
- * the layout guards *rendering*, not *invocation*, and skipping this would
- * leave the database writable by an unauthenticated request.
- */
-export async function assertAdmin(): Promise<void> {
-  if (!(await isRequestAdmin())) {
-    throw new Error('Not authorised')
-  }
+/** Throws unless the caller is an operator; returns who they are. */
+export async function assertAdmin(): Promise<AdminActor> {
+  const actor = await getAdminActor()
+  if (!actor) throw new Error('Not authorised')
+  return actor
 }

@@ -82,7 +82,7 @@ export function DashboardLayout({
         aria-label="Dashboard"
         className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-[20px] lg:hidden"
       >
-        <div className="grid h-16 grid-cols-6">
+        <div className="grid h-16 grid-cols-4">
           {MOBILE_TABS.map((tab) => {
             const active = isDashboardItemActive(pathname, tab)
             const Icon = tab.icon
@@ -96,10 +96,11 @@ export function DashboardLayout({
               >
                 <span
                   className={cn(
-                    // Six tabs share a 360px screen, ~60px each: the active pill
-                    // fills its column rather than padding out past it
-                    // ("Overview" with px-4 was 77px and ran off the edge).
-                    'flex w-full max-w-[4.5rem] flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-all duration-150',
+                    // Four tabs share a 360px screen, ~90px each: the active pill
+                    // fills its column rather than padding out past it. The grid
+                    // was six columns for four tabs, which left a blank third of
+                    // the bar on the right.
+                    'flex w-full max-w-[5.5rem] flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-all duration-150',
                     active && 'bg-plug-blue-50',
                   )}
                 >
@@ -110,8 +111,8 @@ export function DashboardLayout({
                   />
                   <span
                     className={cn(
-                      'max-w-full truncate text-[10px] font-medium',
-                      active ? 'text-plug-blue-600' : 'text-slate-400',
+                      'max-w-full truncate text-ui-xs font-medium',
+                      active ? 'text-plug-blue-600' : 'text-slate-500',
                     )}
                   >
                     {tab.label}

@@ -1,16 +1,16 @@
 // src/app/(main)/community/post/[slug]/page.tsx
-import { Bookmark, ChevronLeft, Heart, Link as LinkIcon, Share2, Twitter } from '@/components/ui/icons'
+import { ChevronLeft } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { CommentSection } from '@/components/community/CommentSection'
+import { PostActions } from '@/components/community/PostActions'
 import { Avatar, PostCard } from '@/components/community/PostCard'
-import { Button } from '@/components/ui'
-import { POST_CATEGORY_META } from '@/lib/constants'
+import { POST_CATEGORY_META, SITE_CONFIG } from '@/lib/constants'
 import { prebuiltParams } from '@/lib/db/build-params'
-import { getPostBySlug, getPostSlugs, getPosts } from '@/lib/db/queries'
+import { getPostPage, getPostSlugList, getRelatedPosts } from '@/lib/db/community-queries'
 import { cn, formatDate } from '@/lib/utils'
 
 interface PageProps {
@@ -19,38 +19,58 @@ interface PageProps {
 
 export async function generateStaticParams() {
   return prebuiltParams('/community/post/[slug]', async () => {
-    const slugs = await getPostSlugs()
+    const slugs = await getPostSlugList()
     return slugs.map((slug) => ({ slug }))
   })
 }
 
+/** One line of the post, for search results and link previews. */
+function describe(content: string): string {
+  const flat = content.replace(/\s+/g, ' ').trim()
+  return flat.length > 160 ? `${flat.slice(0, 157).trimEnd()}…` : flat
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug)
+  const post = await getPostPage(params.slug)
   if (!post) return { title: 'Post Not Found' }
+
+  const path = `/community/post/${post.slug}`
+  const description = describe(post.content)
 
   return {
     // `absolute` bypasses the root layout's '%s | Plug.pk' template, which
     // would otherwise render "... | Plug.pk Community | Plug.pk".
     title: { absolute: `${post.title} | Plug.pk Community` },
-    description: post.content.slice(0, 160),
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: 'article',
+      url: path,
+      title: post.title,
+      description,
+      siteName: SITE_CONFIG.name,
+      publishedTime: post.createdAt,
+      authors: [post.userName],
+      ...(post.photos?.[0] ? { images: [{ url: post.photos[0] }] } : {}),
+    },
   }
 }
 
 export default async function CommunityPostPage({ params }: PageProps) {
-  const post = await getPostBySlug(params.slug)
+  const post = await getPostPage(params.slug)
   if (!post) notFound()
 
   const meta = POST_CATEGORY_META[post.category]
-  const related = (await getPosts())
-    .filter((item) => item.category === post.category && item.id !== post.id)
-    .slice(0, 3)
+  // Three by category from the database, rather than loading the whole board
+  // to pick three out of it.
+  const related = await getRelatedPosts(post.id, post.category, 3)
 
   return (
     <div className="container-plug py-10">
       <nav aria-label="Breadcrumb" className="mb-8 flex flex-wrap items-center gap-3">
         <Link
           href="/community"
-          className="group/back flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+          className="group/back flex min-h-11 items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
         >
           <ChevronLeft
             size={16}
@@ -69,7 +89,7 @@ export default async function CommunityPostPage({ params }: PageProps) {
 
       <div className="grid items-start gap-10 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0">
-          <article className="mb-6 rounded-3xl border border-slate-200 bg-white p-8">
+          <article className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8">
             <span
               className={cn(
                 'mb-4 inline-flex rounded-full border px-3 py-1.5 text-sm font-semibold',
@@ -126,44 +146,25 @@ export default async function CommunityPostPage({ params }: PageProps) {
             ) : null}
           </article>
 
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-4">
-            <span className="flex items-center gap-2">
-              <Heart size={28} className="text-slate-400" aria-hidden="true" />
-              <span className="font-semibold text-slate-700">{post.likeCount} Likes</span>
-            </span>
-
-            <span className="flex gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500">
-                <Share2 size={16} aria-hidden="true" />
-              </span>
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500">
-                <LinkIcon size={16} aria-hidden="true" />
-              </span>
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500">
-                <Twitter size={16} aria-hidden="true" />
-              </span>
-            </span>
-
-            <span className="flex items-center gap-2 text-slate-500">
-              <Bookmark size={18} aria-hidden="true" />
-              <span className="text-sm font-medium">Save</span>
-            </span>
-          </div>
+          <PostActions postId={post.id} title={post.title} likeCount={post.likeCount} />
 
           <CommentSection
             comments={post.comments ?? []}
             postId={post.id}
+            postTitle={post.title}
             totalComments={post.commentCount}
           />
         </div>
 
         <aside className="flex flex-col gap-5 lg:sticky lg:top-24">
+          {/* No Follow button: there are no follows in the schema, and it was a
+              button that did nothing. */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-500">
               About the Author
             </h2>
 
-            <div className="mb-4 flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <Avatar name={post.userName} size={52} />
               <span className="min-w-0">
                 <span className="block truncate font-bold text-slate-900">{post.userName}</span>
@@ -172,10 +173,6 @@ export default async function CommunityPostPage({ params }: PageProps) {
                 ) : null}
               </span>
             </div>
-
-            <Button variant="secondary" fullWidth className="h-10">
-              Follow
-            </Button>
           </div>
 
           {related.length > 0 ? (

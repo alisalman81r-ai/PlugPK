@@ -11,6 +11,8 @@ import { setCarImage } from '@/lib/db/car-actions'
 import { uploadCarPhoto } from '@/lib/db/upload-actions'
 import { cn } from '@/lib/utils'
 
+import { runAction } from './run-action'
+
 /**
  * The photograph on one car: replace it, or take it away.
  *
@@ -92,7 +94,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
     const form = new FormData()
     form.set('file', file)
 
-    const uploaded = await uploadCarPhoto(form)
+    const uploaded: { ok: boolean; message?: string; url?: string } = await runAction(() => uploadCarPhoto(form))
     if (!uploaded.ok || !uploaded.url) {
       setStatus({ kind: 'error', message: uploaded.message ?? 'The upload failed.' })
       event.target.value = ''
@@ -100,7 +102,8 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
     }
 
     setStatus({ kind: 'busy', label: 'Saving…' })
-    const assigned = await setCarImage(carId, uploaded.url)
+    const url = uploaded.url
+    const assigned = await runAction(() => setCarImage(carId, url))
 
     if (!assigned.ok) {
       setStatus({ kind: 'error', message: assigned.message ?? 'The file uploaded but could not be attached.' })
@@ -115,7 +118,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
 
   async function onRemove() {
     setStatus({ kind: 'busy', label: 'Removing…' })
-    const outcome = await setCarImage(carId, null)
+    const outcome = await runAction(() => setCarImage(carId, null))
 
     if (!outcome.ok) {
       setStatus({ kind: 'error', message: outcome.message ?? 'Could not remove it.' })

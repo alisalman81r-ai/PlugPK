@@ -4,14 +4,15 @@
 import { CheckCircle2, Lock, MessageCircle, X, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { createPost } from '@/lib/db/community-actions'
-import { POST_CATEGORIES } from '@/lib/constants'
+import { COMMUNITY_LIMITS, POST_CATEGORIES } from '@/lib/constants'
 import type { CommunityPost, PostCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { signInHref, signUpHref } from './auth-links'
 import { POST_ICON } from './CategoryTabs'
 
 export interface CreatePostFormProps {
@@ -20,8 +21,53 @@ export interface CreatePostFormProps {
   onSubmit?: (post: Partial<CommunityPost>) => void
 }
 
-const MAX_TITLE = 120
-const MAX_CONTENT = 2000
+/** The same limits the server applies — see COMMUNITY_LIMITS. */
+const MAX_TITLE = COMMUNITY_LIMITS.title
+const MAX_CONTENT = COMMUNITY_LIMITS.content
+
+/**
+ * Where an unfinished post waits while its author signs in.
+ *
+ * sessionStorage rather than localStorage: it is a draft for this tab's trip
+ * to the login page and back, not something to resurface on another device or
+ * a week later. Cleared once the post is published.
+ */
+const DRAFT_KEY = 'plug:community-draft'
+
+interface Draft {
+  title: string
+  content: string
+  category: PostCategory | ''
+}
+
+function readDraft(): Draft | null {
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<Draft>
+    return {
+      title: typeof parsed.title === 'string' ? parsed.title.slice(0, MAX_TITLE) : '',
+      content: typeof parsed.content === 'string' ? parsed.content.slice(0, MAX_CONTENT) : '',
+      category: POST_CATEGORIES.some((option) => option.id === parsed.category)
+        ? (parsed.category as PostCategory)
+        : '',
+    }
+  } catch {
+    return null
+  }
+}
+
+function writeDraft(draft: Draft | null) {
+  try {
+    if (!draft || (!draft.title && !draft.content && !draft.category)) {
+      window.sessionStorage.removeItem(DRAFT_KEY)
+    } else {
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+    }
+  } catch {
+    // Private mode or blocked storage: the draft simply does not survive.
+  }
+}
 
 export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProps) {
   const [title, setTitle] = React.useState('')
@@ -32,22 +78,35 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
   const [postSlug, setPostSlug] = React.useState<string | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
   /*
     ── Who is asking ─────────────────────────────────────────────────
 
-    This was `useState(true)`: the prompt was not a response to being signed
-    out, it was the starting state, and nothing ever checked. A member who had
-    signed in was still told to create an account every time they opened this,
-    and the only way past it was the "maybe later" button underneath.
-
-    `dismissed` keeps that escape for somebody who really is signed out and
-    wants to read the form first. It is no longer what decides whether the
-    prompt appears.
+    A signed-out visitor sees the sign-in prompt, and nothing else. There used
+    to be a "Continue as Guest" button under it that opened the form anyway —
+    but the server refuses a post with no account behind it, so a guest could
+    write a whole trip report and lose it on submit. The prompt's links now
+    carry ?redirect= back here, and whatever was typed is kept as a draft.
   */
   const { user, loading: sessionLoading } = useCurrentUser()
-  const [dismissed, setDismissed] = React.useState(false)
-  const showLoginPrompt = !sessionLoading && !user && !dismissed
+  const showLoginPrompt = !sessionLoading && !user
+
+  // Bring back a draft left before a sign-in round-trip.
+  React.useEffect(() => {
+    if (!isOpen) return
+    const draft = readDraft()
+    if (!draft) return
+    setTitle((current) => current || draft.title)
+    setContent((current) => current || draft.content)
+    setCategory((current) => current || draft.category)
+  }, [isOpen])
+
+  // Keep the draft as it is typed, so nothing is lost if the tab navigates.
+  React.useEffect(() => {
+    if (!isOpen || isSuccess) return
+    writeDraft({ title, content, category })
+  }, [isOpen, isSuccess, title, content, category])
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -65,12 +124,10 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     }
   }, [isOpen, onClose])
 
-  // Clear the form each time the modal closes. The prompt is not reset here
-  // any more — it is derived from the session, so there is no state to put
-  // back, and a signed-in member never sees it to begin with.
+  // Clear the form each time the modal closes. The draft in sessionStorage is
+  // what survives a close, not the component's state.
   React.useEffect(() => {
     if (isOpen) return
-    setDismissed(false)
     setIsSuccess(false)
     setPostSlug(null)
     setError(null)
@@ -112,11 +169,13 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
         setError(result.message ?? 'Could not publish that.')
         return
       }
+      writeDraft(null)
       setPostSlug(result.slug ?? null)
       setIsSuccess(true)
       onSubmit?.({ title, content, category: category as PostCategory })
       router.refresh()
-      setTimeout(onClose, 2000)
+      // No auto-close. It used to dismiss itself after two seconds, taking
+      // the "View Post" button with it before most people had read the tick.
     } catch {
       setError('Could not publish that. Try again.')
     } finally {
@@ -145,9 +204,12 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
               Discussion posted!
             </p>
             <p className="mt-2 text-slate-500">Your post is now live.</p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Button href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
                 View Post
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Close
               </Button>
             </div>
           </div>
@@ -166,14 +228,14 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             </p>
 
             <div className="flex flex-col gap-3">
-              <Button href="/signup" fullWidth>
+              <Button href={signUpHref(`${pathname}?compose=1`)} fullWidth>
                 Create Account
               </Button>
-              <Button href="/login" variant="secondary" fullWidth>
+              <Button href={signInHref(`${pathname}?compose=1`)} variant="secondary" fullWidth>
                 Sign In
               </Button>
-              <Button variant="ghost" fullWidth onClick={() => setDismissed(true)}>
-                Continue as Guest
+              <Button variant="ghost" fullWidth onClick={onClose}>
+                Not now
               </Button>
             </div>
           </div>
@@ -262,13 +324,25 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700"
               >
                 {error}
+                {/* A session that ended mid-draft: the draft is already in
+                    sessionStorage, so signing in loses nothing. */}
+                {error.startsWith('Sign in') ? (
+                  <>
+                    {' '}
+                    <a
+                      href={signInHref(`${pathname}?compose=1`)}
+                      className="font-semibold underline underline-offset-2"
+                    >
+                      Sign in — your draft is kept
+                    </a>
+                  </>
+                ) : null}
               </p>
             ) : null}
 
             <div className="mt-6 flex items-center justify-between gap-4">
-              <p className="text-xs text-rose-600" role={error ? 'alert' : undefined}>
-                {error ?? 'Fields marked * are required'}
-              </p>
+              {/* Only the hint here; the error is shown once, above. */}
+              <p className="text-xs text-slate-500">Fields marked * are required</p>
               <div className="flex gap-3">
                 <Button type="button" variant="ghost" onClick={onClose}>
                   Cancel

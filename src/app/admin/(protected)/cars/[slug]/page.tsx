@@ -72,7 +72,7 @@ export default async function AdminCarDetailPage({ params }: PageProps) {
         }
       />
 
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="order-2 flex min-w-0 flex-col gap-5 xl:order-1">
             <CarForm car={car} brands={getBrands(all)} />

@@ -85,7 +85,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
           {user.city ? (
             <span className="mt-1 flex items-center gap-1">
               <MapPin size={10} className="shrink-0 text-slate-400" aria-hidden="true" />
-              <span className="text-[10px] text-slate-400">{user.city}</span>
+              <span className="text-ui-xs text-slate-400">{user.city}</span>
             </span>
           ) : null}
         </span>
@@ -102,16 +102,16 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
       <div className="mb-6 grid grid-cols-2 gap-2">
         <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center">
           <p className="text-xl font-black text-slate-900">{stats.totalSaved}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-400">Saved</p>
+          <p className="mt-0.5 text-ui-xs uppercase tracking-wider text-slate-400">Saved</p>
         </div>
         <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center">
           <p className="text-xl font-black text-slate-900">{stats.totalReviews}</p>
-          <p className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-400">Reviews</p>
+          <p className="mt-0.5 text-ui-xs uppercase tracking-wider text-slate-400">Reviews</p>
         </div>
       </div>
 
       <nav className="flex flex-1 flex-col gap-1">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+        <p className="mb-2 px-3 text-ui-xs font-semibold uppercase tracking-widest text-slate-400">
           Dashboard
         </p>
 
@@ -177,7 +177,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
           Sign Out
         </button>
 
-        <p className="mt-4 text-center text-[10px] text-slate-300">Plug.pk v1.0.0 · Beta</p>
+        <p className="mt-4 text-center text-ui-xs text-slate-300">Plug.pk v1.0.0 · Beta</p>
       </div>
     </div>
   )

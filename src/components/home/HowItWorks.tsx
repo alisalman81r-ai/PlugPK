@@ -3,7 +3,6 @@
 
 import { AnimatePresence, motion, useInView, useReducedMotion, type PanInfo } from 'framer-motion'
 import {
-  BadgeCheck,
   Car,
   Check,
   ChevronLeft,
@@ -47,8 +46,8 @@ import type { HeroMapPin, ShowcaseConnectors, ShowcaseSearch, ShowcaseStation } 
  * stations of the city with the most ports as the search results, and the
  * real station count per connector type. Steps 3 and 4 follow one real station: the one drivers have
  * reviewed most (getShowcaseStation). Step 3 drives to it, with its real
- * power and free ports; step 4 shows its real average, its real star
- * breakdown and two of its verified reviews, word for word. The distance and
+ * power and installed ports (never free ones — there is no hardware feed); step 4 shows its real average, its real star
+ * breakdown and two of its reviews, word for word. The distance and
  * the turn are the illustration's — there is no trip in progress. If nothing
  * has been reviewed yet, both steps fall back to photographs.
  *
@@ -112,7 +111,7 @@ function buildSlides({ stats, showcase, search, connectors, pins }: HowItWorksPr
     ? {
         label: 'Navigate',
         title: 'Drive there and plug in.',
-        body: 'One tap starts turn-by-turn directions, and you can see how many ports are free before you set off.',
+        body: 'One tap starts turn-by-turn directions, and the listing shows its connectors and how many ports are installed.',
         visual: { kind: 'directions', station: showcase, pin },
         chip: { icon: Navigation2, text: 'Turn-by-turn directions' },
         chipY: 46,
@@ -120,7 +119,7 @@ function buildSlides({ stats, showcase, search, connectors, pins }: HowItWorksPr
     : {
         label: 'Navigate',
         title: 'Drive there and plug in.',
-        body: 'One tap opens directions, and you can check how many ports are free before you set off.',
+        body: 'One tap opens directions, and the listing shows its connectors and how many ports are installed.',
         visual: { kind: 'photo', image: '/images/stations/mall-road-ev-hub-3.jpg', focusX: '62%' },
         chip: { icon: Navigation2, text: 'Directions in one tap' },
         target: { x: 58, y: 55 },
@@ -134,7 +133,7 @@ function buildSlides({ stats, showcase, search, connectors, pins }: HowItWorksPr
         visual: { kind: 'reviews', station: showcase },
         // The rating is already the biggest thing on the screen; the chip names
         // what makes it worth trusting instead of repeating it.
-        chip: { icon: BadgeCheck, text: 'Verified reviews' },
+        chip: { icon: Star, text: 'Reviews from drivers' },
         chipY: 86,
       }
     : {
@@ -280,7 +279,7 @@ function PhoneStage({ children, tone }: { children: React.ReactNode; tone: 'dark
 
 function DirectionsScreen({ station, pin }: { station: ShowcaseStation; pin?: HeroMapPin }) {
   const detail = pin
-    ? `${Math.round(pin.maxPowerKw)} kW · ${pin.availablePorts} of ${pin.ports} ports free`
+    ? `${Math.round(pin.maxPowerKw)} kW · ${plural(pin.ports, 'port', 'ports')} installed`
     : station.city
   return (
     <div className="absolute inset-0 pt-[4.4em]">
@@ -398,7 +397,8 @@ function ReviewsScreen({ station }: { station: ShowcaseStation }) {
         </span>
       </div>
 
-      {/* Two verified reviews, word for word. */}
+      {/* Two reviews, word for word. No verified tick: the flag behind it is
+          sample data, and nothing on the site verifies a reviewer. */}
       <div className="mt-[1.4em] flex flex-col gap-[1.1em]">
         {station.reviews.map((r) => (
           <div
@@ -416,7 +416,6 @@ function ReviewsScreen({ station }: { station: ShowcaseStation }) {
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-[0.4em] text-[1.3em] font-bold">
                   <span className="truncate">{r.userName}</span>
-                  {r.verified ? <BadgeCheck className="h-[1em] w-[1em] shrink-0 text-[#159E89]" strokeWidth={2} /> : null}
                 </span>
                 <span className="block truncate text-[1.1em] text-slate-400">
                   {r.userVehicle} · {shortDate(r.date)}
@@ -502,7 +501,7 @@ function SearchScreen({ search }: { search: ShowcaseSearch }) {
           <LocateFixed className="h-[1.05em] w-[1.05em] text-[#46E3B5]" strokeWidth={2} /> Near me
         </span>
         <span className="rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">Fast 50 kW+</span>
-        <span className="rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">Available</span>
+        <span className="rounded-full bg-white/[0.07] px-[0.9em] py-[0.45em]">CCS2</span>
       </div>
 
       {/* The map: the results appear on it as the search lands. */}
@@ -562,8 +561,8 @@ function SearchScreen({ search }: { search: ShowcaseSearch }) {
                   {r.area} · {Math.round(r.maxPowerKw)} kW
                 </span>
               </span>
-              <span className={'shrink-0 text-[1.15em] font-semibold ' + (r.availablePorts > 0 ? 'text-[#5CF0C3]' : 'text-white/50')}>
-                {r.availablePorts}/{r.ports} free
+              <span className="shrink-0 text-[1.15em] font-semibold text-white/75">
+                {plural(r.ports, 'port', 'ports')}
               </span>
             </div>
             <div className="mt-[0.8em] flex gap-[0.45em]">
@@ -729,7 +728,9 @@ function ConnectorsScreen({ connectors }: { connectors: ShowcaseConnectors }) {
       </div>
 
       <div className="mt-[1.4em] flex h-[4.4em] items-center justify-center rounded-[1.3em] bg-[#0B332C] text-[1.3em] font-semibold text-white">
-        Show {plural(connectors.matches, 'charger', 'chargers')}
+        {/* No count: the figure behind it counted stations with a port
+            "free", which nothing can know. */}
+        Show matching chargers
       </div>
     </div>
   )

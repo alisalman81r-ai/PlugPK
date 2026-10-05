@@ -5,7 +5,7 @@ import { Building2, ChevronDown, LayoutDashboard, LogOut, Settings } from '@/com
 import Link from 'next/link'
 import * as React from 'react'
 
-import { Avatar, TurnIcon } from '@/components/ui'
+import { Avatar } from '@/components/ui/Avatar'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -100,7 +100,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
-          'flex h-10 items-center gap-2 rounded-xl border pl-1.5 pr-2.5 transition-colors duration-150',
+          'flex h-11 items-center gap-2 rounded-xl border pl-1.5 pr-2.5 transition-colors duration-150',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
           onDark ? 'border-white/15 hover:bg-white/10' : 'border-slate-200 hover:bg-slate-50',
           isOpen && (onDark ? 'bg-white/10' : 'bg-slate-50'),
@@ -108,8 +108,8 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
       >
         <Avatar name={user.name} src={user.avatar} size={28} />
         {/* The name shows from 1280px. Between 1024 and 1280 the bar carries
-            eight links beside this button, and the name pushed the App button
-            ~70px past the edge; the avatar alone still says whose account it
+            seven items beside this button, and the name pushed the bar
+            past the edge; the avatar alone still says whose account it
             is, and the name stays for screen readers. */}
         <span
           className={cn(
@@ -119,9 +119,17 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
         >
           {user.name}
         </span>
-        <TurnIcon active={isOpen} className="text-slate-400">
-          <ChevronDown size={14} aria-hidden="true" />
-        </TurnIcon>
+        {/* A CSS turn rather than framer-motion's TurnIcon: this menu is in
+            the header of every page, and the spring was the only reason the
+            site-wide chunk carried the animation library. */}
+        <ChevronDown
+          size={14}
+          aria-hidden="true"
+          className={cn(
+            'text-slate-400 transition-transform duration-200 motion-reduce:transition-none',
+            isOpen && 'rotate-180',
+          )}
+        />
       </button>
 
       {isOpen ? (
@@ -144,7 +152,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
                 href={link.href}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex h-10 items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                className="flex h-11 items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
               >
                 <link.icon size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
                 {link.label}
@@ -158,7 +166,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
               role="menuitem"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="flex h-10 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+              className="flex h-11 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
             >
               <LogOut size={16} className="shrink-0 text-red-400" aria-hidden="true" />
               {isSigningOut ? 'Signing out…' : 'Sign out'}

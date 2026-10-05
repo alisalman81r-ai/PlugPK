@@ -8,7 +8,14 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 import { BackButton } from '@/components/ui'
-import { BUSINESS_NAV, BusinessDashboardSidebar, isBusinessItemActive } from './BusinessDashboardSidebar'
+import {
+  BUSINESS_NAV,
+  BusinessDashboardSidebar,
+  isBusinessItemActive,
+  ListingSwitcher,
+  type PortalListingSummary,
+} from './BusinessDashboardSidebar'
+import { listingHref } from './listing-state'
 import { Logo } from '@/components/ui/Logo'
 
 export interface BusinessDashboardLayoutProps {
@@ -21,6 +28,8 @@ export interface BusinessDashboardLayoutProps {
    * why every field is read through it rather than from a fixture.
    */
   listing?: { id: string; name: string; type: string; city: string; status: string }
+  /** Every listing on the account, for the switcher. */
+  listings?: PortalListingSummary[]
 }
 
 /**
@@ -33,6 +42,7 @@ export function BusinessDashboardLayout({
   subtitle,
   action,
   listing,
+  listings = [],
 }: BusinessDashboardLayoutProps) {
   const pathname = usePathname()
   // Only an approved listing has a public page to open. This link used to
@@ -63,7 +73,7 @@ export function BusinessDashboardLayout({
 
       <div className="flex">
         <div className="hidden lg:flex">
-          <BusinessDashboardSidebar listing={listing} />
+          <BusinessDashboardSidebar listing={listing} listings={listings} />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -83,6 +93,14 @@ export function BusinessDashboardLayout({
             {action ? <div className="shrink-0">{action}</div> : null}
           </div>
 
+          {/* The sidebar holds the switcher on wide screens; below lg it is
+              hidden, so the same control sits at the top of the content. */}
+          {listings.length > 1 ? (
+            <div className="border-b border-slate-100 bg-white px-6 py-3 lg:hidden">
+              <ListingSwitcher listings={listings} currentId={listing?.id} />
+            </div>
+          ) : null}
+
           <div className="p-6 pb-24 lg:p-8 lg:pb-8">{children}</div>
         </div>
       </div>
@@ -99,7 +117,7 @@ export function BusinessDashboardLayout({
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={listingHref(item.href, listing?.id, listings.length)}
                 aria-current={active ? 'page' : undefined}
                 className="flex min-w-[72px] flex-1 items-center justify-center"
               >

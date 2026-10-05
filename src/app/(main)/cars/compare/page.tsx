@@ -5,6 +5,9 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarComparison } from '@/components/cars/CarComparison'
+import { CompareSelectionSync } from '@/components/cars/CompareSelectionSync'
+import { MAX_COMPARE } from '@/components/cars/compare-selection'
+import { Button } from '@/components/ui'
 import { getCarsByIdsFromDb, listCars } from '@/lib/db/car-queries'
 
 /**
@@ -29,8 +32,8 @@ interface ComparePageProps {
   searchParams: { ids?: string }
 }
 
-/** Four columns already scroll on a phone; more stops being comparable. */
-const MAX = 4
+/** Shared with the catalogue's tray, so the two cannot disagree about the cap. */
+const MAX = MAX_COMPARE
 
 export default async function ComparePage({ searchParams }: ComparePageProps) {
   const ids = (searchParams.ids ?? '')
@@ -79,6 +82,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(152,159,161,0.6)_20%,rgba(152,159,161,0.6)_80%,transparent_100%)]"
       />
+      <CompareSelectionSync ids={cars.map((car) => car.id)} requested={ids.length > 0} />
       <div className="container-plug relative z-10">
         {/*
           The way back to the catalogue.
@@ -107,20 +111,22 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
           All cars
         </Link>
 
-        <div className="mx-auto mt-8 max-w-3xl text-center">
-          <h1 className="text-balance text-[clamp(2.75rem,6.4vw,4.5rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
+        {/* A smaller masthead than the catalogue's: the table is what this page
+            is for, and a 72px title pushed it a full screen down on a phone. */}
+        <div className="mx-auto mt-6 max-w-3xl text-center">
+          <h1 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
             Compare{' '}
             <span className="text-plug-blue-600">
               cars
             </span>
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-slate-600">
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-ui leading-relaxed text-slate-600 sm:text-lg">
             Every published figure, lined up. Rows no car has a figure for are left out
             rather than filled with dashes.
           </p>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-8">
           {cars.length >= 2 ? (
             <CarComparison cars={cars} available={available} max={MAX} />
           ) : (
@@ -131,20 +137,17 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
                 {cars.length === 1 ? 'Pick one more car' : 'Nothing selected yet'}
               </p>
               <p className="mx-auto mt-2 max-w-sm text-ui-sm leading-relaxed text-slate-600">
-                Choose two to {MAX} cars from the database using the Compare button on each
-                card, then open this page.
+                {cars.length === 1
+                  ? `Add another car from the catalogue to see them side by side. You can compare up to ${MAX}.`
+                  : `Tap the compare button on any car in the catalogue — pick two to ${MAX} — and they will line up here.`}
               </p>
-              <Link
+              <Button
                 href="/cars"
-                className="group/cta mt-6 inline-flex h-11 items-center gap-2 rounded-xl bg-plug-navy-900 px-5 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                className="mt-6"
+                leftIcon={<ArrowLeft size={15} aria-hidden="true" />}
               >
-                <ArrowLeft
-                  size={15}
-                  aria-hidden="true"
-                  className="transition-transform duration-200 group-hover/cta:-translate-x-0.5"
-                />
                 Browse cars
-              </Link>
+              </Button>
             </div>
           )}
         </div>

@@ -3,22 +3,33 @@
 
 import { Zap } from '@/components/ui/icons'
 
-import type { Station, StationStatus } from '@/lib/types'
+import { FAST_CHARGER_KW } from '@/lib/charging'
+import type { Station } from '@/lib/types'
 import { cn, getMaxPower } from '@/lib/utils'
 
-/** Reaches assistive tech and native tooltips via each marker's title. */
-export const STATUS_LABEL: Record<StationStatus, string> = {
-  available: 'Available',
-  limited: 'Limited availability',
-  offline: 'Offline',
-  unknown: 'Status unknown',
+/*
+  ── Coloured by speed, not by "status" ─────────────────────────────────
+
+  Pins used to be blue, amber or grey for available / limited / offline, with
+  a pulse ring on the "available" ones and a legend promising what each colour
+  meant. Plug.pk has no live connection to any charger — the FAQ says so — and
+  the status column only changes when somebody edits it, so the colours were a
+  live-availability claim nothing stood behind.
+
+  Speed is a fact about the hardware. Pins are now split at FAST_CHARGER_KW,
+  the same threshold the home page's map uses, so the two maps read alike.
+*/
+
+type PinKind = 'fast' | 'standard'
+
+function pinKind(station: Station): PinKind {
+  const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
+  return maxPower >= FAST_CHARGER_KW ? 'fast' : 'standard'
 }
 
-const PIN_COLOR: Record<StationStatus, string> = {
-  available: 'bg-plug-blue-600',
-  limited: 'bg-amber-500',
-  offline: 'bg-slate-400',
-  unknown: 'bg-slate-300',
+const PIN_COLOR: Record<PinKind, string> = {
+  fast: 'bg-plug-blue-600',
+  standard: 'bg-slate-500',
 }
 
 /**
@@ -26,16 +37,18 @@ const PIN_COLOR: Record<StationStatus, string> = {
  *
  * A legend that lists its own colours is a legend that goes stale the first
  * time a pin changes — and a wrong legend is worse than none, because the
- * reader trusts it. This reads the pin colours themselves; the labels are the
- * short forms, since the legend has the swatch beside it to do the explaining.
+ * reader trusts it. This reads the pin colours themselves.
  */
-export const PIN_LEGEND: { status: StationStatus; label: string; colorClass: string }[] = (
-  ['available', 'limited', 'offline'] as const
-).map((status) => ({
-  status,
-  label: status === 'available' ? 'Available' : status === 'limited' ? 'Limited' : 'Offline',
-  colorClass: PIN_COLOR[status],
-}))
+export const PIN_LEGEND: { key: PinKind; label: string; colorClass: string }[] = [
+  { key: 'fast', label: `${FAST_CHARGER_KW} kW+`, colorClass: PIN_COLOR.fast },
+  { key: 'standard', label: `Under ${FAST_CHARGER_KW} kW`, colorClass: PIN_COLOR.standard },
+]
+
+/** The marker's native tooltip and accessible name: what it is and how fast. */
+export function pinTitle(station: Station): string {
+  const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
+  return maxPower > 0 ? `${station.name} — up to ${maxPower} kW` : station.name
+}
 
 export interface StationPinProps {
   station: Station
@@ -52,21 +65,15 @@ export interface StationPinProps {
  */
 export function StationPin({ station, isSelected }: StationPinProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
+  const color = PIN_COLOR[pinKind(station)]
 
   return (
     <span className="relative flex cursor-pointer flex-col items-center">
-      {station.status === 'available' ? (
-        <span
-          aria-hidden="true"
-          className="absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 animate-pulse-ring rounded-full bg-plug-blue-600/25 motion-reduce:animate-none"
-        />
-      ) : null}
-
       <span
         className={cn(
           'relative flex items-center gap-1 rounded-full border-2 py-1 pl-1.5 pr-2.5 shadow-e2',
           'transition-transform duration-200 ease-spring motion-reduce:transition-none',
-          PIN_COLOR[station.status],
+          color,
           isSelected ? 'scale-110 border-white ring-2 ring-plug-blue-500/60' : 'border-white',
         )}
       >
@@ -80,10 +87,7 @@ export function StationPin({ station, isSelected }: StationPinProps) {
       </span>
 
       {/* Stem, so the pill points at its coordinate. */}
-      <span
-        aria-hidden="true"
-        className={cn('h-1.5 w-0.5 -translate-y-px rounded-b', PIN_COLOR[station.status])}
-      />
+      <span aria-hidden="true" className={cn('h-1.5 w-0.5 -translate-y-px rounded-b', color)} />
     </span>
   )
 }

@@ -4,6 +4,7 @@
 import { BatteryCharging } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { RANGE_DERATE } from '@/lib/route-plan'
 import type { EVModel } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -25,7 +26,10 @@ function levelClasses(value: number) {
 
 export function BatterySlider({ value, onChange, className, vehicle }: BatterySliderProps) {
   const level = levelClasses(value)
-  const estimatedRange = vehicle ? Math.round((vehicle.rangeKm * value) / 100) : null
+  // The same derate the planner uses (RANGE_DERATE in lib/route-plan), so the
+  // figure here and the plan that follows agree. It used to quote the rated
+  // range, which the plan then quietly did not deliver.
+  const estimatedRange = vehicle ? Math.round((vehicle.rangeKm * RANGE_DERATE * value) / 100) : null
 
   return (
     <div className={cn('w-full', className)}>
@@ -78,7 +82,7 @@ export function BatterySlider({ value, onChange, className, vehicle }: BatterySl
       {estimatedRange !== null ? (
         <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-500">
           <BatteryCharging size={14} className="shrink-0" aria-hidden="true" />
-          Estimated range: {estimatedRange}km remaining
+          About {estimatedRange} km at motorway speeds (rated {Math.round((vehicle?.rangeKm ?? 0) * value / 100)} km)
         </p>
       ) : null}
     </div>

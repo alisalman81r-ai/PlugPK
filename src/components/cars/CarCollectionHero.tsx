@@ -7,7 +7,7 @@ import * as React from 'react'
 
 import { ArrowDown, ArrowRight, ChevronRight } from '@/components/ui/icons'
 import type { Car, CarCategory } from '@/data/cars'
-import { carModelName, electricDistance, formatCarPrice } from '@/lib/cars'
+import { carModelName, electricDistanceMax, formatCarPrice } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
 /**
@@ -162,7 +162,9 @@ function figuresFor(cars: Car[], scope: CollectionScope): Figure[] {
     the next thing a buyer compares and every row has it.
   */
   const range = maxOf(
-    cars.map((car) => car.rangeMax ?? car.electricRangeMax ?? electricDistance(car)),
+    // Electric-only: a plug-in's rangeMax is its combined petrol-and-battery
+    // figure, which would otherwise win "Longest range" over every EV.
+    cars.map((car) => electricDistanceMax(car)),
   )
   if (range !== null) {
     out.push({
@@ -348,7 +350,7 @@ function Stage({ cars }: { cars: Car[] }) {
   const active = cars[index] ?? cars[0]
   if (!active) return null
 
-  const distance = active.rangeMax ?? electricDistance(active)
+  const distance = electricDistanceMax(active)
 
   return (
     <div
@@ -397,7 +399,7 @@ function Stage({ cars }: { cars: Car[] }) {
               on a showroom stand. */}
           <span className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-3 rounded-2xl bg-white/80 px-4 py-3 shadow-[0_8px_24px_-12px_rgba(5,36,30,0.35)] backdrop-blur-md">
             <span className="min-w-0">
-              <span className="block font-mono text-[0.5625rem] uppercase tracking-[0.16em] text-slate-500">
+              <span className="block font-mono text-ui-xs uppercase tracking-[0.16em] text-slate-500">
                 {active.brand}
               </span>
               <span className="block truncate font-display text-lg font-bold leading-tight text-slate-900">
@@ -542,7 +544,7 @@ export function CarCollectionHero({
             </nav>
 
             <p
-              className="collection-rise mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-[#6FE8B6]"
+              className="collection-rise mt-7 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-ui-xs font-semibold uppercase tracking-[0.18em] text-[#6FE8B6]"
               style={{ '--rise-delay': '40ms' } as React.CSSProperties}
             >
               <span>{eyebrow}</span>
@@ -618,7 +620,7 @@ export function CarCollectionHero({
                 i === 2 && 'lg:border-l',
               )}
             >
-              <dt className="mt-2 font-mono text-[0.625rem] uppercase leading-none tracking-[0.16em] text-white/50">
+              <dt className="mt-2 font-mono text-ui-xs uppercase leading-none tracking-[0.16em] text-white/50">
                 {figure.label}
               </dt>
               <dd className="flex items-baseline gap-1.5 font-display text-[clamp(1.75rem,3.2vw,2.5rem)] font-extrabold leading-none tabular-nums tracking-[-0.02em] text-white">

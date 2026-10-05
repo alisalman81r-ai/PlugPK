@@ -3,10 +3,10 @@
 
 import { useMemo, useState } from 'react'
 
-import { MOCK_SERVICES } from '@/lib/mock-data'
 import type { EVService, ServiceCategory } from '@/lib/types'
 
-export type ServiceSort = 'rating' | 'name' | 'reviews'
+/** Ratings are not offered: services have no reviews behind them. */
+export type ServiceSort = 'name' | 'city'
 
 export interface UseServicesReturn {
   services: EVService[]
@@ -37,17 +37,18 @@ export interface UseServicesOptions {
    * it appear on its category page and never on the main directory. Passing the
    * data in is what connects this page to the database at all.
    *
-   * Optional so an existing caller keeps working, and it falls back to the
-   * mock set rather than to an empty page.
+   * Required now. It fell back to MOCK_SERVICES when omitted, which is how a
+   * caller that forgot to pass the data would quietly show twelve invented
+   * listings instead of an obviously empty page.
    */
-  services?: EVService[]
+  services: EVService[]
 }
 
-export function useServices(options: UseServicesOptions = {}): UseServicesReturn {
+export function useServices(options: UseServicesOptions): UseServicesReturn {
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState(options.initialQuery ?? '')
   const [selectedCity, setSelectedCity] = useState(options.initialCity ?? 'all')
-  const [sortBy, setSortBy] = useState<ServiceSort>('rating')
+  const [sortBy, setSortBy] = useState<ServiceSort>('name')
   /**
    * Filtering happens locally and synchronously, so there is nothing to wait
    * for. This previously flashed a 300ms skeleton on every keystroke and
@@ -58,7 +59,7 @@ export function useServices(options: UseServicesOptions = {}): UseServicesReturn
    */
   const isLoading = false
 
-  const services = options.services ?? MOCK_SERVICES
+  const services = options.services
 
   /** Counts come from the unfiltered list so tab badges never change. */
   const categoryCount = useMemo(() => {
@@ -93,13 +94,13 @@ export function useServices(options: UseServicesOptions = {}): UseServicesReturn
 
     const sorted = [...matched]
     switch (sortBy) {
+      case 'city':
+        return sorted.sort(
+          (a, b) => a.address.city.localeCompare(b.address.city) || a.name.localeCompare(b.name),
+        )
       case 'name':
-        return sorted.sort((a, b) => a.name.localeCompare(b.name))
-      case 'reviews':
-        return sorted.sort((a, b) => b.reviewCount - a.reviewCount)
-      case 'rating':
       default:
-        return sorted.sort((a, b) => b.rating - a.rating)
+        return sorted.sort((a, b) => a.name.localeCompare(b.name))
     }
   }, [services, selectedCategory, selectedCity, searchQuery, sortBy])
 

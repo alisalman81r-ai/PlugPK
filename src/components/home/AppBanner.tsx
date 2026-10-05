@@ -14,26 +14,14 @@ import { LogoMark } from '@/components/ui/Logo'
  * the app card beside them.
  *
  * The app does not exist yet, so nothing here pretends it does. The status
- * line says "Coming soon" where a store rating would sit, and the store
- * badges carry `aria-disabled` and a visible "Coming soon" rather than looking
- * like live download links. There is no QR code, because there is nothing for
- * it to point at. When the app ships, those three places are what change.
+ * line and the app card both say "coming soon", there are no store badges
+ * (the stores' artwork reads as a download link however it is captioned),
+ * and there is no QR code, because there is nothing for it to point at.
  *
  * The handset screen is an illustration of the app, not a screenshot of data:
  * the map is streets without names and the pins mark no real station, so it
  * never reads as a claim that a charger exists somewhere it does not.
  */
-
-interface StoreBadge {
-  eyebrow: string
-  name: string
-  icon: (props: { className?: string }) => React.JSX.Element
-}
-
-const STORES: StoreBadge[] = [
-  { eyebrow: 'Download on the', name: 'App Store', icon: AppleLogo },
-  { eyebrow: 'Get it on', name: 'Google Play', icon: GooglePlayLogo },
-]
 
 interface Feature {
   title: string
@@ -43,12 +31,12 @@ interface Feature {
 const FEATURES: Feature[] = [
   { title: 'Find a charger near you', art: ChargerArt },
   { title: 'Plan trips around your range', art: RouteArt },
-  { title: 'See which ports are free', art: AvailabilityArt },
+  { title: 'Check the connectors before you go', art: AvailabilityArt },
 ]
 
 export function AppBanner() {
   return (
-    <section id="app" className="scroll-mt-24 overflow-x-clip bg-white py-16 lg:py-24">
+    <section id="app" className="scroll-mt-24 overflow-x-clip bg-white pb-16 pt-10 lg:pb-24 lg:pt-12">
       <div className="container-plug">
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,4.3fr)_minmax(0,7.7fr)] lg:gap-12 xl:gap-16">
           {/* ── The handset on its panel ─────────────────────────── */}
@@ -83,8 +71,8 @@ export function AppBanner() {
             </h2>
 
             <p className="mt-5 max-w-lg text-pretty text-ui-lg leading-relaxed text-slate-500">
-              The one charging app an EV driver in Pakistan needs.
-              <br className="hidden sm:block" /> Every charger, every route and every port, in your pocket.
+              Plug.pk is building apps for iOS and Android.
+              <br className="hidden sm:block" /> The map, the route planner and the connectors, in your pocket.
             </p>
 
             <ul className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-3 xl:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1.15fr)] xl:items-end">
@@ -118,34 +106,21 @@ export function AppBanner() {
                 <div className="mt-4 sm:ml-5 sm:mt-0 xl:ml-0 xl:mt-4">
                   <p className="text-ui font-bold text-slate-900">Launching soon</p>
                   <p className="mt-1 text-ui-sm text-slate-500">
-                    Free on iOS and Android.
+                    Planned for iOS and Android.
                   </p>
                 </div>
 
-                <div className="mt-5 flex w-full max-w-[15rem] flex-col gap-2 sm:ml-auto sm:mt-0 sm:w-auto xl:ml-0 xl:mt-5 xl:w-full">
-                  {STORES.map((store) => {
-                    const Icon = store.icon
-                    return (
-                      <span
-                        key={store.name}
-                        role="button"
-                        aria-disabled="true"
-                        aria-label={`${store.name} — coming soon`}
-                        className="flex cursor-not-allowed items-center gap-2.5 rounded-xl bg-black px-3.5 py-2.5 text-left ring-1 ring-white/10"
-                      >
-                        <Icon className="h-[22px] w-[22px] shrink-0" />
-                        <span className="min-w-0">
-                          <span className="block whitespace-nowrap text-[8.5px] uppercase leading-tight tracking-wide text-white/55">
-                            {store.eyebrow}
-                          </span>
-                          <span className="block whitespace-nowrap text-ui-sm font-semibold leading-tight text-white">
-                            {store.name}
-                          </span>
-                        </span>
-                      </span>
-                    )
-                  })}
-                </div>
+                {/*
+                  No store badges. These were black "Download on the App Store"
+                  and "Get it on Google Play" pills — the stores' own artwork,
+                  which reads as a live download link however it is captioned,
+                  for apps that are not in either store. A plain status says
+                  the same thing without borrowing anybody's badge.
+                */}
+                <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-ui-sm font-semibold text-slate-600 sm:ml-auto sm:mt-0 xl:ml-0 xl:mt-5">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-amber-400" />
+                  Apps coming soon
+                </p>
               </li>
             </ul>
           </div>
@@ -230,7 +205,7 @@ function Handset() {
                   <p className="text-[10px] leading-tight text-slate-500">DC · 60 kW · 2.4 km away</p>
                 </div>
                 <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold text-emerald-600">
-                  2 free
+                  CCS2
                 </span>
               </div>
               <span className="mt-3 flex items-center justify-center gap-1.5 rounded-full bg-plug-navy-950 py-2.5 text-[11px] font-bold text-white">
@@ -383,32 +358,6 @@ function AvailabilityArt() {
         <rect x="109" y="45" width="22" height="4" rx="2" fill="#8EEEDA" />
       </g>
       <path d="M 120 70 L 130 76 M 128 64 L 140 64" stroke="#26CDB2" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-/* ── Store marks ──────────────────────────────────────────────────── */
-
-/** The Apple mark, in white for the dark badge. */
-function AppleLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" focusable="false">
-      <path
-        fill="#FFFFFF"
-        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
-      />
-    </svg>
-  )
-}
-
-/** The Google Play mark, in its four colours. */
-function GooglePlayLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 26" className={className} aria-hidden="true" focusable="false">
-      <path fill="#4285F4" d="M1.6 1.2 C1.2 1.5 1 2 1 2.6 V23.4 C1 24 1.2 24.5 1.6 24.8 L13.3 13 Z" />
-      <path fill="#34A853" d="M1.6 1.2 C2.1 0.8 2.9 0.8 3.6 1.2 L17.4 9 L13.3 13 Z" />
-      <path fill="#FBBC04" d="M17.4 9 L21.6 11.4 C22.9 12.1 22.9 13.9 21.6 14.6 L17.4 17 L13.3 13 Z" />
-      <path fill="#EA4335" d="M1.6 24.8 C2.1 25.2 2.9 25.2 3.6 24.8 L17.4 17 L13.3 13 Z" />
     </svg>
   )
 }

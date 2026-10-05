@@ -2,17 +2,12 @@
 'use client'
 
 import { MapPin, Navigation2, SearchX, Star } from '@/components/ui/icons'
+import Link from 'next/link'
 import * as React from 'react'
 
-import {
-  ConnectorBadgeGroup,
-  PhotoFrame,
-  PortMeter,
-  Skeleton,
-  SpeedBadge,
-  StatusDot,
-} from '@/components/ui'
+import { ConnectorBadgeGroup, PhotoFrame, Skeleton, SpeedBadge } from '@/components/ui'
 import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
+import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
@@ -31,7 +26,8 @@ export function StationListItem({
   distanceKm,
 }: StationListItemProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
-  const ports = getPortAvailability(station)
+  const { total: ports } = getPortAvailability(station)
+  const example = isSampleListing(station.id)
 
   const handleNavigate = (event: React.MouseEvent) => {
     event.stopPropagation()
@@ -63,6 +59,9 @@ export function StationListItem({
       aria-pressed={isSelected}
       onClick={() => onClick(station)}
       onKeyDown={(event) => {
+        // Only the card itself: Enter on the name link or a button inside
+        // must do what that control does, not be swallowed here.
+        if (event.target !== event.currentTarget) return
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault()
           onClick(station)
@@ -88,15 +87,26 @@ export function StationListItem({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
+              {/* A real link to the station page, so the list is crawlable and a
+                  card can be opened in a new tab. Clicking it does not also
+                  select the card — it is leaving the map. */}
               <h3 className="line-clamp-1 flex-1 text-ui font-bold text-slate-900">
-                {station.name}
+                <Link
+                  href={`/station/${station.slug}`}
+                  onClick={(event) => event.stopPropagation()}
+                  className="hover:text-plug-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+                >
+                  {station.name}
+                </Link>
               </h3>
-              <span className="flex shrink-0 items-center gap-1">
-                <Star size={13} className="fill-amber-400 text-amber-400" aria-hidden="true" />
-                <span className="text-sm font-semibold text-slate-900">
-                  {formatRating(station.rating)}
+              {station.reviewCount > 0 ? (
+                <span className="flex shrink-0 items-center gap-1">
+                  <Star size={13} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+                  <span className="text-sm font-semibold text-slate-900">
+                    {formatRating(station.rating)}
+                  </span>
                 </span>
-              </span>
+              ) : null}
             </div>
 
             <div className="mt-1 flex items-center justify-between gap-2">
@@ -113,15 +123,22 @@ export function StationListItem({
               ) : null}
             </div>
 
+            {/* No status dot: nothing reports live availability. What is
+                known is what is installed, and whether this is a sample. */}
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <StatusDot status={station.status} size="sm" showLabel />
+              {example ? (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                  {SAMPLE_LISTING_LABEL}
+                </span>
+              ) : null}
+              {ports > 0 ? (
+                <span className="font-mono text-xs text-slate-500">
+                  {ports} {ports === 1 ? 'port' : 'ports'} installed
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
-
-        {ports.total > 0 ? (
-          <PortMeter available={ports.available} total={ports.total} size="sm" className="mb-3" />
-        ) : null}
 
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />

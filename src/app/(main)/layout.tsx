@@ -3,7 +3,7 @@ import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { ScrollProgress } from '@/components/layout/ScrollProgress'
-import { CardSpotlight } from '@/components/ui'
+import { CardSpotlight } from '@/components/ui/CardSpotlight'
 
 /**
  * Site chrome for every public page. The (auth) group and /onboarding sit

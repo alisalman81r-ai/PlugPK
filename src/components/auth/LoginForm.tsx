@@ -9,8 +9,8 @@ import * as React from 'react'
 import { Button, MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
+import { authHref } from './auth-links'
 import {
-  Checkbox,
   EMAIL_PATTERN,
   FIELD_CLASS,
   FIELD_ERROR,
@@ -29,7 +29,6 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [showPassword, setShowPassword] = React.useState(false)
-  const [rememberMe, setRememberMe] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [fieldError, setFieldError] = React.useState<string | null>(null)
@@ -58,7 +57,14 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
     form.set('email', email.trim())
     form.set('password', password)
 
-    const result = await signIn(form)
+    // A thrown action (a dropped connection, a deploy mid-request) must still
+    // stop the spinner and say something, rather than leave the form busy.
+    let result: Awaited<ReturnType<typeof signIn>>
+    try {
+      result = await signIn(form)
+    } catch {
+      result = { ok: false, message: 'We could not reach the server. Check your connection and try again.' }
+    }
     setIsLoading(false)
 
     if (result.ok) {
@@ -143,16 +149,15 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         <FieldError message={fieldError ?? undefined} />
       </div>
 
-      <div className="mb-6 mt-4 flex items-center justify-between gap-4">
-        <span className="flex items-center gap-2.5">
-          <Checkbox id="remember" checked={rememberMe} onChange={setRememberMe} />
-          <label htmlFor="remember" className="text-sm text-slate-600">
-            Remember me
-          </label>
-        </span>
-
+      {/*
+        "Remember me" was removed rather than wired: it was never sent to the
+        server, so ticking it changed nothing. Every session lasts fourteen
+        days on this browser, and the line below says so instead.
+      */}
+      <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="text-ui-xs text-slate-500">You stay signed in on this device for 14 days.</p>
         <Link
-          href="/forgot-password"
+          href={authHref('/forgot-password', redirectTo)}
           className="text-sm font-medium text-plug-blue-600 hover:underline"
         >
           Forgot password?
@@ -169,9 +174,13 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             {error}
             {attempts >= 3 ? (
               <span className="mt-1 block">
-                Having trouble?{' '}
-                <Link href="/forgot-password" className="text-plug-blue-600 hover:underline">
-                  Reset your password
+                {/* Not "Reset your password": there is no self-service reset,
+                    and the page this leads to explains the manual one. */}
+                <Link
+                  href={authHref('/forgot-password', redirectTo)}
+                  className="font-medium text-plug-blue-600 hover:underline"
+                >
+                  Forgotten it? Here&apos;s how to get back in
                 </Link>
               </span>
             ) : null}
@@ -191,7 +200,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
       <p className="mt-6 text-center text-sm text-slate-500">
         Don&apos;t have an account?{' '}
         <Link
-          href={redirectTo === '/dashboard' ? '/signup' : `/signup?redirect=${encodeURIComponent(redirectTo)}`}
+          href={authHref('/signup', redirectTo)}
           className="font-semibold text-plug-blue-600 hover:underline"
         >
           Create one

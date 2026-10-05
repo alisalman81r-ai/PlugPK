@@ -3,7 +3,9 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { CarDetails } from '@/components/cars/CarDetails'
+import type { CarCategory } from '@/data/cars'
 import { carDisplayName, carSeo } from '@/lib/cars'
+import { SITE_CONFIG } from '@/lib/constants'
 import { prebuiltParams } from '@/lib/db/build-params'
 import { getCarBySlugFromDb, getCarSlugs, listCars } from '@/lib/db/car-queries'
 
@@ -16,6 +18,64 @@ import { getCarBySlugFromDb, getCarSlugs, listCars } from '@/lib/db/car-queries'
 
 interface CarPageProps {
   params: { slug: string }
+}
+
+/**
+ * schema.org's fuelType for each powertrain.
+ *
+ * Every non-EV used to be published as "Plug-in Hybrid", so a full hybrid —
+ * which has no plug at all — was described to search engines as one that
+ * charges from the wall. The vocabulary has no single canonical list for this
+ * property, so these are the plain names Google's vehicle guidance uses.
+ */
+const FUEL_TYPE: Record<CarCategory, string> = {
+  EV: 'BatteryElectric',
+  PHEV: 'PlugInHybrid',
+  REEV: 'RangeExtender',
+  Hybrid: 'Hybrid',
+}
+
+/**
+ * Whether the price is one a buyer could be quoted today.
+ *
+ * The README's rule is that a price not from a dealer list says so inside its
+ * own string — "(indicative)", "(estimated)" — and every surface on the site
+ * prints that caveat. A schema.org Offer has nowhere to carry it, so publishing
+ * one would hand a search result a bare number with the caveat stripped off.
+ * Those cars publish no Offer at all.
+ */
+function isFirmPrice(display: string): boolean {
+  return !/\([^)]*\b(?:indicative|estimated)\b[^)]*\)/i.test(display)
+}
+
+/**
+ * The Offer's availability, read from the free-text availability field only
+ * where its wording is unambiguous. It used to be InStock on every car,
+ * including one discontinued in 2023 and several not confirmed for Pakistan.
+ * Anything not clearly one of these is left out rather than guessed.
+ */
+function offerAvailability(text: string | null | undefined): string | null {
+  if (!text) return null
+  if (/discontinued/i.test(text)) return 'https://schema.org/Discontinued'
+  if (/not confirmed|estimated/i.test(text)) return null
+  if (/pre-?orders? open|open for booking/i.test(text)) return 'https://schema.org/PreOrder'
+  if (/^(on sale|sold in pakistan)/i.test(text.trim())) return 'https://schema.org/InStock'
+  return null
+}
+
+/**
+ * JSON for inside a <script> tag.
+ *
+ * JSON.stringify does not escape "<", so a value containing "</script>" —
+ * a car note, a variant typed in the admin editor — would close the tag and
+ * let whatever followed run as HTML. Escaping the three characters that can
+ * break out of a script element keeps it a string.
+ */
+function scriptJson(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
 }
 
 /**
@@ -43,20 +103,37 @@ export async function generateMetadata({ params }: CarPageProps): Promise<Metada
 
   const seo = carSeo(car)
 
+  /*
+    The whole openGraph block, not only the parts that differ.
+
+    Next merges metadata shallowly: a page's `openGraph` replaces the root's
+    object outright. This used to set title, description, url and type, and so
+    every car page went out with no site name, no locale and no image — a car
+    shared to WhatsApp unfurled as a line of text. The car's own photograph is
+    the image where there is one; without one, the generated site card.
+  */
+  const images = car.image
+    ? [{ url: car.image, alt: carDisplayName(car) }]
+    : [{ url: '/opengraph-image', width: 1200, height: 630, alt: SITE_CONFIG.name }]
+
   return {
     title: seo.title,
     description: seo.description,
     alternates: { canonical: seo.canonical },
     openGraph: {
+      type: 'website',
+      locale: 'en_PK',
+      siteName: SITE_CONFIG.name,
       title: seo.ogTitle,
       description: seo.ogDescription,
       url: seo.canonical,
-      type: 'website',
+      images,
     },
     twitter: {
       card: 'summary_large_image',
       title: seo.ogTitle,
       description: seo.ogDescription,
+      images: images.map((image) => image.url),
     },
   }
 }
@@ -97,8 +174,9 @@ export default async function CarPage({ params }: CarPageProps) {
     car.batteryCapacity
       ? { name: 'Battery capacity', value: car.batteryCapacity, unitText: 'kWh' }
       : null,
-    car.range ? { name: 'Driving range', value: car.range, unitText: 'km' } : null,
-    car.electricRange
+    // An EV's range only: a plug-in's `range` is the combined petrol figure.
+    car.category === 'EV' && car.range ? { name: 'Driving range', value: car.range, unitText: 'km' } : null,
+    car.category !== 'EV' && car.electricRange
       ? { name: 'Electric range', value: car.electricRange, unitText: 'km' }
       : null,
     car.power ? { name: 'Power', value: car.power, unitText: 'hp' } : null,
@@ -109,6 +187,26 @@ export default async function CarPage({ params }: CarPageProps) {
   /* The annotation is on the literal above, not on this result: it is what gives
      the predicate's parameter a `SchemaProperty | null` type to narrow from. */
   const properties = candidates.filter((entry): entry is SchemaProperty => entry !== null)
+
+  const availability = offerAvailability(car.availability)
+  const offers = isFirmPrice(car.price.display)
+    ? {
+        '@type': 'Offer',
+        priceCurrency: 'PKR',
+        ...(car.price.min === car.price.max
+          ? { price: car.price.min }
+          : {
+              priceSpecification: {
+                '@type': 'PriceSpecification',
+                minPrice: car.price.min,
+                maxPrice: car.price.max,
+                priceCurrency: 'PKR',
+              },
+            }),
+        ...(availability ? { availability } : {}),
+        areaServed: 'PK',
+      }
+    : null
 
   const schema = {
     '@context': 'https://schema.org',
@@ -126,7 +224,9 @@ export default async function CarPage({ params }: CarPageProps) {
     brand: { '@type': 'Brand', name: car.brand },
     model: car.model,
     vehicleConfiguration: car.category,
-    fuelType: car.category === 'EV' ? 'Electric' : 'Plug-in Hybrid',
+    fuelType: FUEL_TYPE[car.category],
+    url: `${SITE_CONFIG.url}/cars/${car.slug}`,
+    ...(car.image ? { image: new URL(car.image, SITE_CONFIG.url).toString() } : {}),
     ...(car.engineCapacity
       ? {
           vehicleEngine: {
@@ -139,22 +239,7 @@ export default async function CarPage({ params }: CarPageProps) {
           },
         }
       : {}),
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'PKR',
-      ...(car.price.min === car.price.max
-        ? { price: car.price.min }
-        : {
-            priceSpecification: {
-              '@type': 'PriceSpecification',
-              minPrice: car.price.min,
-              maxPrice: car.price.max,
-              priceCurrency: 'PKR',
-            },
-          }),
-      availability: 'https://schema.org/InStock',
-      areaServed: 'PK',
-    },
+    ...(offers ? { offers } : {}),
     ...(properties.length > 0
       ? {
           additionalProperty: properties.map((property) => ({
@@ -185,9 +270,8 @@ export default async function CarPage({ params }: CarPageProps) {
 
       <script
         type="application/ld+json"
-        // Serialised rather than templated so a model name containing a quote
-        // cannot break out of the tag.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        // Serialised and escaped (see scriptJson) so no value can close the tag.
+        dangerouslySetInnerHTML={{ __html: scriptJson(schema) }}
       />
     </section>
   )

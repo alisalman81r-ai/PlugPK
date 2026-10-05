@@ -1,4 +1,5 @@
 // src/app/(main)/dashboard/settings/page.tsx
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
@@ -14,7 +15,9 @@ import { getCurrentProfile } from '@/lib/db/session-actions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page() {
+export const metadata: Metadata = { title: 'Account Settings' }
+
+export default async function Page({ searchParams }: { searchParams: { changePassword?: string } }) {
   const profile = await getCurrentProfile()
   if (!profile) redirect('/login?redirect=/dashboard/settings')
 
@@ -35,6 +38,9 @@ export default async function Page() {
           vehicle: profile.vehicle,
           avatar: profile.avatar,
         }}
+        // The row is the authority; the query flag only covers the moment
+        // between sign-in and this read.
+        mustChangePassword={profile.mustChangePassword || searchParams.changePassword === '1'}
       />
     </DashboardLayout>
   )

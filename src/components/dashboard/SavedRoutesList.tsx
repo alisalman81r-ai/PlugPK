@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import * as React from 'react'
 
+import { Button } from '@/components/ui'
 import { ArrowRight, Battery, Car, Clock, Route, Trash2, Zap } from '@/components/ui/icons'
 import { removeMyRoute } from '@/lib/db/route-actions'
 
@@ -121,15 +122,15 @@ export function SavedRoutesList({ routes: saved }: { routes: SavedRouteRow[] }) 
                 Open
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => void remove(route)}
                 aria-label={`Remove ${route.origin} to ${route.destination}`}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-3 text-ui-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                leftIcon={<Trash2 size={15} aria-hidden="true" />}
+                className="border-slate-200 px-3 text-ui-sm text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
               >
-                <Trash2 size={15} aria-hidden="true" />
                 Remove
-              </button>
+              </Button>
             </div>
           </li>
         ))}

@@ -3,10 +3,10 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { cookies } from 'next/headers'
+
 import { revalidatePath } from 'next/cache'
 
-import { USER_COOKIE_NAME, readUserSession } from '@/lib/user-auth'
+import { getSessionUserId } from './session'
 
 import { prisma } from './client'
 
@@ -37,16 +37,24 @@ export interface RouteResult {
 
 const MAX_ROUTES = 50
 
-function currentUserId(): string | null {
-  return readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+function currentUserId(): Promise<string | null> {
+  return getSessionUserId()
 }
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, Math.round(value)))
+// A non-number (NaN from a hand-built request) clamps to the minimum rather
+// than reaching the insert, where it would throw.
+const clamp = (value: unknown, min: number, max: number) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : min
 
 export async function saveMyRoute(input: SaveRouteInput): Promise<RouteResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to save a route.' }
 
+  if (!input || typeof input.origin !== 'string' || typeof input.destination !== 'string') {
+    return { ok: false, message: 'This route has no start or destination.' }
+  }
+  const carId = typeof input.carId === 'string' && input.carId.length <= 100 ? input.carId : null
+  const carName = typeof input.carName === 'string' ? input.carName.trim().slice(0, 120) : ''
   const origin = input.origin.trim().slice(0, 120)
   const destination = input.destination.trim().slice(0, 120)
   if (!origin || !destination) return { ok: false, message: 'This route has no start or destination.' }
@@ -56,7 +64,7 @@ export async function saveMyRoute(input: SaveRouteInput): Promise<RouteResult> {
   const inserted = await prisma.$executeRaw`
     INSERT INTO "SavedRoute"
       ("id", "userId", "origin", "destination", "carId", "carName", "batteryPercent", "distanceKm", "durationMin", "stops", "createdAt")
-    SELECT ${id}, ${userId}, ${origin}, ${destination}, ${input.carId}, ${input.carName.trim().slice(0, 120)},
+    SELECT ${id}, ${userId}, ${origin}, ${destination}, ${carId}, ${carName},
       ${clamp(input.batteryPercent, 0, 100)}, ${clamp(input.distanceKm, 0, 5000)}, ${clamp(input.durationMin, 0, 10000)},
       ${clamp(input.stops, 0, 50)}, now()
     WHERE (SELECT count(*) FROM "SavedRoute" WHERE "userId" = ${userId}) < ${MAX_ROUTES}`
@@ -67,7 +75,7 @@ export async function saveMyRoute(input: SaveRouteInput): Promise<RouteResult> {
 }
 
 export async function removeMyRoute(id: string): Promise<RouteResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in first.' }
   await prisma.savedRoute.deleteMany({ where: { id, userId } })
   return { ok: true }

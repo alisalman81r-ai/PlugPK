@@ -7,8 +7,7 @@ import * as React from 'react'
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
 import { ArrowUpRight, Check, Link2 } from '@/components/ui/icons'
 import { Input } from '@/components/ui'
-import { estimateCharge, rangeAddedKm, readyAt, type ChargeMode } from '@/lib/charging-time'
-import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
+import { MAX_CHARGER_KW, estimateCharge, rangeAddedKm, readyAt, type ChargeMode } from '@/lib/charging-time'
 import { cn } from '@/lib/utils'
 
 import { ChargeResult } from './ChargeResult'
@@ -111,8 +110,6 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
 
   const chooseCar = (next: string) => {
     setSlug(next)
-    rememberCar(next || null)
-    setFromMemory(false)
     const picked = cars.find((c) => c.slug === next)
     // Fills the pack size from the catalogue, and leaves it editable: a driver
     // with a different trim should not have to un-pick the car to fix it.
@@ -120,20 +117,18 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
   }
 
   /*
-    After mount only: the page is static, so the server never sees the query
-    or the device's memory. A link's settings first, then the remembered car.
+    After mount only: the page is static, so the server never sees the query.
+    A shared link's settings apply; otherwise no car is picked until you pick one.
   */
   const [hydrated, setHydrated] = React.useState(false)
-  const [fromMemory, setFromMemory] = React.useState(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
+    // Only a shared link picks the car. The tool used to reopen on the car
+    // last chosen on this device, which read as the site deciding for you.
     const linked = cars.find((c) => c.slug === q.get('car'))
-    const remembered = linked ? null : cars.find((c) => c.slug === readRememberedCar())
-    const start = linked ?? remembered
-    if (start) {
-      setSlug(start.slug)
-      setBatteryText(String(start.batteryKwh))
-      setFromMemory(!!remembered)
+    if (linked) {
+      setSlug(linked.slug)
+      setBatteryText(String(linked.batteryKwh))
     } else {
       // A car we don't list, shared by its battery size.
       const qBattery = Number(q.get('battery'))
@@ -148,7 +143,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
     const qMode = q.get('mode') === 'dc' ? 'dc' : q.get('mode') === 'ac' ? 'ac' : null
     if (qMode) setMode(qMode)
     const qKw = Number(q.get('kw'))
-    if (q.get('kw') && Number.isFinite(qKw) && qKw > 0 && qKw <= 400) {
+    if (q.get('kw') && Number.isFinite(qKw) && qKw > 0 && qKw <= MAX_CHARGER_KW) {
       const presetsFor = (qMode ?? 'ac') === 'ac' ? AC_PRESETS : DC_PRESETS
       if (presetsFor.some((pr) => pr.kw === qKw)) setPresetKw(qKw)
       else {
@@ -255,22 +250,6 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             {/* The picker shows the car's limits; this line is where to go next. */}
             {car ? (
               <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm text-slate-500">
-                {fromMemory ? (
-                  <span>
-                    Remembered from last time.{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        chooseCar('')
-                        setBatteryText('')
-                        setFromMemory(false)
-                      }}
-                      className="font-medium text-slate-700 underline decoration-slate-300 underline-offset-2 hover:text-slate-900"
-                    >
-                      Clear
-                    </button>
-                  </span>
-                ) : null}
                 <Link
                   href={`/cars/${car.slug}`}
                   className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
@@ -363,7 +342,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
                 inputMode="decimal"
                 type="number"
                 min={0.1}
-                max={400}
+                max={MAX_CHARGER_KW}
                 step={0.1}
                 placeholder={mode === 'ac' ? 'e.g. 6.6' : 'e.g. 150'}
                 value={customText}
@@ -375,7 +354,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
               />
             </div>
 
-            <p className="mt-2 text-ui-xs leading-relaxed text-slate-400">
+            <p className="mt-2 text-ui-xs leading-relaxed text-slate-500">
               Not sure? The power is usually printed on the charger or on its cable&rsquo;s control box.
             </p>
           </div>
@@ -395,6 +374,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             rangeCycle={car?.rangeCycle ?? null}
             readyText={result.ok && now ? readyAt(now, result.minutes) : null}
             waiting={batteryText.trim() === ''}
+            dcUnknown={mode === 'dc' && car != null && car.dcKw == null}
           />
           {result.ok ? (
             <button

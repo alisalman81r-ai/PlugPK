@@ -1,11 +1,9 @@
 // src/app/admin/(protected)/layout.tsx
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { AdminShell } from '@/components/admin/AdminShell'
-import { isRequestAdmin } from '@/lib/db/admin-access'
-import { getAdminBadgeCounts } from '@/lib/db/admin-badges'
-import { hasAccountSession } from '@/lib/db/admin-access'
+import { hasAccountSession, isRequestAdmin } from '@/lib/db/admin-access'
+import { getAdminQueueState } from '@/lib/db/admin-badges'
 
 export const metadata = { title: { absolute: 'Plug.pk admin' } }
 
@@ -56,9 +54,10 @@ export default async function ProtectedAdminLayout({
    *
    * This layout is already force-dynamic, so the counts are read per request
    * and go stale only for as long as a page is open — acting on an item and
-   * landing back on a server-rendered page recounts them.
+   * landing back on a server-rendered page recounts them. The read is cached
+   * per request, so the dashboard asking again costs nothing.
    */
-  const badges = await getAdminBadgeCounts()
+  const { counts, failed } = await getAdminQueueState()
 
   return (
     /*
@@ -82,6 +81,8 @@ export default async function ProtectedAdminLayout({
       thing only it can: reading cookies to authorise the request before any
       admin markup is produced.
     */
-    <AdminShell badges={badges}>{children}</AdminShell>
+    <AdminShell badges={counts} failedBadges={failed}>
+      {children}
+    </AdminShell>
   )
 }

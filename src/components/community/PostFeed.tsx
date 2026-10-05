@@ -13,11 +13,12 @@ import {
   Zap,
   type IconType,
 } from '@/components/ui/icons'
-import * as React from 'react'
+
 
 import { Button, Skeleton } from '@/components/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
 import { STAGGER } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 import type { CommunityPost, PostCategory } from '@/lib/types'
 import { PostCard } from './PostCard'
 
@@ -42,6 +43,17 @@ export interface PostFeedProps {
   /** What was typed, so an empty result can say why it is empty. */
   searchQuery?: string
   onClearSearch?: () => void
+  /**
+   * Server pagination. The feed used to receive every post and slice six at a
+   * time in the browser; now it holds what has been fetched, and "Load more"
+   * asks the server for the next page from a cursor.
+   */
+  hasMore?: boolean
+  isLoadingMore?: boolean
+  onLoadMore?: () => void
+  /** Matching posts not loaded yet, for the button's label. */
+  remaining?: number
+  error?: string | null
 }
 
 const EMPTY_ICON: Record<string, IconType> = {
@@ -90,15 +102,13 @@ export function PostFeed({
   featuredPostId,
   searchQuery,
   onClearSearch,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  remaining = 0,
+  error,
 }: PostFeedProps) {
-  const [visibleCount, setVisibleCount] = React.useState(PAGE_SIZE)
-
-  // A new filter should always start from the top of the list.
-  React.useEffect(() => {
-    setVisibleCount(PAGE_SIZE)
-  }, [selectedCategory, searchQuery, posts.length])
-
-  if (isLoading) {
+  if (isLoading && posts.length === 0) {
     return (
       <div className="flex flex-col gap-5">
         {Array.from({ length: 4 }, (_, index) => index).map((index) => (
@@ -160,12 +170,12 @@ export function PostFeed({
     )
   }
 
-  const visible = posts.slice(0, visibleCount)
-  const hasMore = posts.length > visibleCount
-
   return (
-    <div className="flex flex-col gap-5">
-      {visible.map((post, index) => (
+    <div
+      className={cn('flex flex-col gap-5 transition-opacity duration-150', isLoading && 'opacity-60')}
+      aria-busy={isLoading || isLoadingMore}
+    >
+      {posts.map((post, index) => (
         <div key={post.id}>
           {post.id === featuredPostId ? (
             <span className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-ui-xs font-bold uppercase tracking-[0.1em] text-amber-700">
@@ -180,20 +190,30 @@ export function PostFeed({
             isLiked={likedPosts.has(post.id)}
             likeCount={likeCountFor ? likeCountFor(post) : post.likeCount}
             onLike={onLike}
-            animationDelay={index * STAGGER.TIGHT}
-            className="animate-fade-up opacity-0"
+            // Only the first screenful staggers in. Cards appended by "Load
+            // more" appear at once, rather than fading in from nothing below
+            // the button the reader just pressed.
+            animationDelay={index < PAGE_SIZE ? index * STAGGER.TIGHT : undefined}
+            className={index < PAGE_SIZE ? 'animate-fade-up [animation-fill-mode:both] motion-reduce:animate-none' : undefined}
           />
         </div>
       ))}
 
-      {hasMore ? (
+      {error ? (
+        <p role="alert" className="text-center text-ui-sm text-red-600">
+          {error}
+        </p>
+      ) : null}
+
+      {hasMore && onLoadMore ? (
         <Button
           variant="secondary"
           fullWidth
           className="mt-3"
-          onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+          isLoading={isLoadingMore}
+          onClick={onLoadMore}
         >
-          Load {Math.min(PAGE_SIZE, posts.length - visibleCount)} more
+          {remaining > 0 ? `Load more (${remaining} left)` : 'Load more'}
         </Button>
       ) : null}
     </div>

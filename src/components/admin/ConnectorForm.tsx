@@ -10,6 +10,10 @@ import { CONNECTOR_TYPES } from '@/lib/constants'
 import type { Connector } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+import { useUnsavedChanges } from './useUnsavedChanges'
+
 export interface StationOption {
   id: string
   name: string
@@ -25,12 +29,20 @@ export interface ConnectorFormProps {
   action: (stationId: string, form: FormData) => Promise<{ ok: boolean; message?: string }>
 }
 
-const STATUSES = ['available', 'limited', 'offline', 'unknown'] as const
+/**
+ * The states a connector can be in. This listed the station statuses
+ * (limited, unknown) by mistake; a connector saved as "limited" matched no
+ * filter and no alert, so it sat in the table looking healthy.
+ */
+const STATUSES = ['available', 'in-use', 'offline'] as const
 
 export function ConnectorForm({ connector, stationId, stations, action }: ConnectorFormProps) {
   const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { markClean, confirmLeave } = useUnsavedChanges(formRef)
 
   const [selectedStation, setSelectedStation] = React.useState(
     stationId ?? stations[0]?.id ?? '',
@@ -54,8 +66,10 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
     setError(null)
 
     startTransition(async () => {
-      const result = await action(selectedStation, form)
+      const result = await runAction(() => action(selectedStation, form))
       if (result.ok) {
+        markClean()
+        toast.success(result.message ?? 'Saved.')
         router.push('/admin/connectors')
         router.refresh()
       } else {
@@ -65,7 +79,7 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl px-4 py-6 lg:px-8 lg:py-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="max-w-2xl px-4 py-6 sm:px-8 sm:py-8">
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
         <h2 className="mb-1 font-semibold text-slate-900">Placement</h2>
         <p className="mb-5 text-ui-sm text-slate-500">
@@ -191,7 +205,7 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
             >
               {STATUSES.map((status) => (
                 <option key={status} value={status} className="capitalize">
-                  {status}
+                  {status.replace('-', ' ')}
                 </option>
               ))}
             </select>
@@ -220,7 +234,9 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
 
         <button
           type="button"
-          onClick={() => router.push('/admin/connectors')}
+          onClick={() => {
+            if (confirmLeave()) router.push('/admin/connectors')
+          }}
           className="inline-flex h-11 items-center rounded-lg border border-slate-200 bg-white px-5 text-ui font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
           Cancel

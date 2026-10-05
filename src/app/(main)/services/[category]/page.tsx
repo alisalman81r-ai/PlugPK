@@ -1,4 +1,4 @@
-// src/app/services/[category]/page.tsx
+// src/app/(main)/services/[category]/page.tsx
 import { Car, ChevronLeft, Home, LifeBuoy, Package, Shield, Wrench, type IconType } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation'
 
 import { ServiceCard } from '@/components/services/ServiceCard'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
-import { getServices } from '@/lib/db/queries'
+import { getServicesByCategory } from '@/lib/db/service-queries'
 import type { ServiceCategory } from '@/lib/types'
 
 interface PageProps {
@@ -28,9 +28,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!category) return { title: 'Category Not Found' }
 
   const meta = SERVICE_CATEGORY_META[category]
+  // "Browse verified …" overstated it: listings are reviewed before they go
+  // live, but nothing in the application verifies a business beyond that.
   return {
     title: `${meta.label} — EV Services`,
-    description: `${meta.description}. Browse verified ${meta.label.toLowerCase()} across Pakistan on Plug.pk.`,
+    description: `${meta.description}. Browse ${meta.label.toLowerCase()} across Pakistan, each checked by a person before it is listed on Plug.pk.`,
+    alternates: { canonical: `/services/${category}` },
   }
 }
 
@@ -40,7 +43,7 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
 
   const meta = SERVICE_CATEGORY_META[category]
   const Icon = ICONS[meta.icon] ?? Package
-  const services = (await getServices()).filter((service) => service.category === category)
+  const services = await getServicesByCategory(category)
   const cities = new Set(services.map((service) => service.address.city))
 
   return (

@@ -5,6 +5,7 @@ import * as React from 'react'
 
 import type { AdminBadgeCounts } from '@/lib/db/admin-badges'
 import { AdminNav } from './AdminNav'
+import { AdminToastProvider } from './AdminToast'
 import { AdminTopbar } from './AdminTopbar'
 
 /**
@@ -35,9 +36,12 @@ const STORAGE_KEY = 'plugpk.admin.sidebar.collapsed'
 
 export function AdminShell({
   badges,
+  failedBadges = [],
   children,
 }: {
   badges: AdminBadgeCounts
+  /** Queues whose count could not be read, shown as unavailable not as clear. */
+  failedBadges?: string[]
   children: React.ReactNode
 }) {
   const [collapsed, setCollapsed] = React.useState(false)
@@ -63,15 +67,17 @@ export function AdminShell({
   }, [])
 
   return (
-    <div className="min-h-viewport bg-slate-50 lg:flex">
-      <AdminNav badges={badges} collapsed={collapsed} />
-
-      {/* min-w-0 so a wide table inside a page cannot push this column past the
-          viewport — a flex child's default min-width is its content. */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AdminTopbar collapsed={collapsed} onToggleCollapse={toggle} />
-        <main className="min-w-0 flex-1 pb-16">{children}</main>
+    <AdminToastProvider>
+      <div className="min-h-viewport bg-slate-50 lg:flex">
+        <AdminNav badges={badges} failedBadges={failedBadges} collapsed={collapsed} />
+  
+        {/* min-w-0 so a wide table inside a page cannot push this column past the
+            viewport — a flex child's default min-width is its content. */}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <AdminTopbar collapsed={collapsed} onToggleCollapse={toggle} />
+          <main className="min-w-0 flex-1 pb-16">{children}</main>
+        </div>
       </div>
-    </div>
+    </AdminToastProvider>
   )
 }

@@ -42,7 +42,7 @@ export default async function NewCarPage() {
         }
       />
 
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-plug-blue-200 bg-plug-blue-50/60 p-4 text-ui-sm">
             <Info size={16} className="mt-0.5 shrink-0 text-plug-blue-600" aria-hidden="true" />

@@ -3,7 +3,7 @@
 
 import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, User } from '@/components/ui/icons'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
@@ -13,11 +13,12 @@ import { cn } from '@/lib/utils'
  *
  * ── Three controls, and what each one is actually allowed to do ───────
  *
- * SEARCH has no backend. There is no search index, no API route and no query
- * that spans stations, connectors, members and cars — so this does not pretend
- * to search. It opens a panel that says so and offers the list pages instead,
- * which is the thing a person reaching for search actually wants: a way to get
- * to the records. Typing filters those destinations, not the data.
+ * SEARCH hands the words to a list. Every admin list now searches the
+ * database through its own ?q= parameter, so this asks which list and sends
+ * the query there — Members, Stations, Businesses and the rest each search
+ * the columns that make sense for them. There is still no single index across
+ * every table, and the panel does not pretend there is: it says which section
+ * it will search.
  *
  * NOTIFICATIONS has no backend either, and the temptation here is a red "3".
  * There is no notification table, nothing writes one, and a hardcoded count is
@@ -32,18 +33,26 @@ import { cn } from '@/lib/utils'
  * menu.
  */
 
-/** The account, as /api/me reports it. Null when signed in by shared password. */
+/** The account, as /api/me reports it. */
 type AdminUser = { name: string; email: string; avatar?: string | null }
 
-/** Where search would take you, once there is something to search. */
+/** The lists that accept ?q=, in the order an operator most often wants them. */
 const DESTINATIONS = [
-  { label: 'Stations', href: '/admin/stations' },
-  { label: 'Connectors', href: '/admin/connectors' },
   { label: 'Members', href: '/admin/members' },
+  { label: 'Stations', href: '/admin/stations' },
+  { label: 'Businesses', href: '/admin/businesses' },
+  { label: 'Connectors', href: '/admin/connectors' },
   { label: 'Cars', href: '/admin/cars' },
   { label: 'Services', href: '/admin/services' },
-  { label: 'Businesses', href: '/admin/businesses' },
+  { label: 'Meetings', href: '/admin/meetings' },
+  { label: 'Community', href: '/admin/community' },
+  { label: 'Reviews', href: '/admin/reviews' },
 ]
+
+/** The section you are in is the one you most likely mean to search. */
+function defaultSection(pathname: string): string {
+  return DESTINATIONS.find((item) => pathname.startsWith(item.href))?.href ?? '/admin/members'
+}
 
 /**
  * The page name, from the URL.
@@ -98,12 +107,28 @@ export interface AdminTopbarProps {
 
 export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
   const crumbs = useCrumbs()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const [openPanel, setOpenPanel] = React.useState<'search' | 'bell' | 'profile' | null>(null)
   const close = React.useCallback(() => setOpenPanel(null), [])
   const shell = useDismiss(openPanel !== null, close)
 
   const [query, setQuery] = React.useState('')
+  const [section, setSection] = React.useState('/admin/members')
+
+  // Opening the panel picks the section you are standing in.
+  React.useEffect(() => {
+    if (openPanel === 'search') setSection(defaultSection(pathname))
+  }, [openPanel, pathname])
+
+  const search = (event: React.FormEvent) => {
+    event.preventDefault()
+    const words = query.trim().slice(0, 100)
+    router.push(words ? `${section}?q=${encodeURIComponent(words)}` : section)
+    setQuery('')
+    close()
+  }
   const [user, setUser] = React.useState<AdminUser | null>(null)
 
   React.useEffect(() => {
@@ -114,10 +139,6 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
       .catch(() => {})
     return () => abort.abort()
   }, [])
-
-  const matches = DESTINATIONS.filter((item) =>
-    item.label.toLowerCase().includes(query.trim().toLowerCase()),
-  )
 
   return (
     <div
@@ -177,46 +198,50 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
           className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 sm:w-56 sm:justify-start"
         >
           <Search size={15} aria-hidden="true" />
-          <span className="hidden text-ui-sm sm:inline">Jump to…</span>
+          <span className="hidden text-ui-sm sm:inline">Search…</span>
         </button>
 
         {openPanel === 'search' ? (
-          <div className={cn(POPOVER, 'w-72 p-2')} role="dialog" aria-label="Jump to a section">
-            <input
-              autoFocus
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter sections…"
-              className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 text-ui-sm outline-none focus:border-plug-blue-400"
-            />
-
-            {/*
-              Stated plainly rather than hidden. Somebody typing a station name
-              here needs to know why nothing matched — that search is not built,
-              not that their station is missing.
-            */}
-            <p className="px-1 pb-1 pt-2 text-ui-xs leading-snug text-slate-400">
-              Record search isn&apos;t connected yet — this jumps to sections.
-            </p>
-
-            <ul className="max-h-64 overflow-y-auto">
-              {matches.length > 0 ? (
-                matches.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      onClick={close}
-                      className="block rounded-lg px-2.5 py-1.5 text-ui-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-plug-blue-600"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))
-              ) : (
-                <li className="px-2.5 py-2 text-ui-xs text-slate-400">No section matches that.</li>
-              )}
-            </ul>
-          </div>
+          <form
+            onSubmit={search}
+            role="search"
+            aria-label="Search the portal"
+            className={cn(POPOVER, 'w-[min(20rem,calc(100vw-2rem))] p-3')}
+          >
+            <label htmlFor="admin-search-section" className="mb-1 block text-ui-xs font-semibold text-slate-500">
+              Search in
+            </label>
+            <select
+              id="admin-search-section"
+              value={section}
+              onChange={(event) => setSection(event.target.value)}
+              className="mb-2 h-9 w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-ui-sm text-slate-700 outline-none focus:border-plug-blue-400"
+            >
+              {DESTINATIONS.map((item) => (
+                <option key={item.href} value={item.href}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+            <div className="flex gap-2">
+              <input
+                autoFocus
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Name, email, city…"
+                aria-label="Search for"
+                maxLength={100}
+                className="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 px-2.5 text-ui-sm outline-none focus:border-plug-blue-400"
+              />
+              <button
+                type="submit"
+                className="h-9 shrink-0 rounded-lg bg-plug-blue-600 px-3 text-ui-sm font-semibold text-white hover:bg-plug-blue-700"
+              >
+                Go
+              </button>
+            </div>
+          </form>
         ) : null}
       </div>
 
@@ -284,11 +309,9 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
                 {user?.name ?? 'Admin'}
               </p>
               <p className="truncate text-ui-xs text-slate-500">
-                {/* Says what is true in both cases. Signing in with the shared
-                    password carries no identity at all, and showing a made-up
-                    address would be the one place this portal claimed to know
-                    who was using it. */}
-                {user?.email ?? 'Signed in with the shared password'}
+                {/* Every operator signs in with their own account now; the
+                    address only goes missing while /api/me is loading. */}
+                {user?.email ?? ''}
               </p>
             </div>
 

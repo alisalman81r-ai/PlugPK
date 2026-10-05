@@ -16,7 +16,7 @@ export default function NewServicePage() {
       <AdminHeader
         title="Add service"
         backHref="/admin/services"
-        description="Publishes to the services directory as soon as it is saved."
+        description="Approved services appear in the public directory as soon as they are saved."
       />
       <ServiceForm action={create} />
     </>

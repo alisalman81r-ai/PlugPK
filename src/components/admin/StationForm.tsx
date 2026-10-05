@@ -10,6 +10,10 @@ import type {
   VenueType, Station, StationStatus } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+import { useUnsavedChanges } from './useUnsavedChanges'
+
 export interface StationFormProps {
   /** Undefined means create. */
   station?: Station
@@ -67,8 +71,11 @@ function Field({
 
 export function StationForm({ station, action }: StationFormProps) {
   const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { markClean, confirmLeave } = useUnsavedChanges(formRef)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -76,8 +83,10 @@ export function StationForm({ station, action }: StationFormProps) {
     setError(null)
 
     startTransition(async () => {
-      const result = await action(form)
+      const result = await runAction(() => action(form))
       if (result.ok) {
+        markClean()
+        toast.success(result.message ?? 'Saved.')
         router.push('/admin/stations')
         // Refresh so the list reflects the write immediately rather than
         // showing the router's cached copy of the previous page.
@@ -89,7 +98,7 @@ export function StationForm({ station, action }: StationFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl px-8 py-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
       <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="mb-5 font-bold text-slate-900">Identity</h2>
 
@@ -217,7 +226,7 @@ export function StationForm({ station, action }: StationFormProps) {
             />
           </Field>
 
-          <Field label="Latitude" htmlFor="lat" hint="Decimal degrees, e.g. 31.5497">
+          <Field label="Latitude" htmlFor="lat" hint="Decimal degrees inside Pakistan, e.g. 31.5497">
             <input
               id="lat"
               name="lat"
@@ -269,19 +278,9 @@ export function StationForm({ station, action }: StationFormProps) {
             />
           </Field>
 
-          <Field label="Rating" htmlFor="rating" hint="0 to 5">
-            <input
-              id="rating"
-              name="rating"
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              defaultValue={station?.rating ?? 0}
-              className={cn(FIELD, 'font-mono')}
-            />
-          </Field>
-
+          {/* No rating field. It was typed in by hand, which put a score on
+              the public page that no driver had given; ratings now come from
+              the reviews themselves. */}
           <div className="flex items-end">
             <label className="flex cursor-pointer items-center gap-3 text-ui text-slate-700">
               <input
@@ -319,7 +318,9 @@ export function StationForm({ station, action }: StationFormProps) {
 
         <button
           type="button"
-          onClick={() => router.push('/admin/stations')}
+          onClick={() => {
+            if (confirmLeave()) router.push('/admin/stations')
+          }}
           className="inline-flex h-12 items-center rounded-xl border border-slate-200 bg-white px-6 text-ui font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
         >
           Cancel
@@ -332,7 +333,8 @@ export function StationForm({ station, action }: StationFormProps) {
         <p className="mt-6 text-ui-sm text-slate-500">
           This station has {station.connectors.length} connector
           {station.connectors.length === 1 ? '' : 's'} and {station.reviewCount} review
-          {station.reviewCount === 1 ? '' : 's'}. Deleting the station removes both.
+          {station.reviewCount === 1 ? '' : 's'}. Deleting the station removes both, and any
+          member bookmarks of it.
         </p>
       ) : null}
     </form>

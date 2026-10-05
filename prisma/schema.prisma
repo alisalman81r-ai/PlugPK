@@ -86,12 +86,12 @@ model Station {
   /// data; `other` is the honest state until somebody sets it.
   ///
   /// Values are the VenueType union in src/lib/types.ts.
-  venueType   String  @default("other")
-  isVerified  Boolean @default(false)
-  network     String  @default("")
-  phone       String?
-  website     String?
-  businessId  String?
+  venueType  String  @default("other")
+  isVerified Boolean @default(false)
+  network    String  @default("")
+  phone      String?
+  website    String?
+  businessId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -154,6 +154,11 @@ model Review {
   station  Station?  @relation(fields: [stationId], references: [id], onDelete: Cascade)
   business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
+  /// One review per person per listing, enforced by the database so a double
+  /// submit cannot skew a rating. Postgres treats NULLs as distinct, so a
+  /// business review (stationId null) never collides with a station one.
+  @@unique([userId, stationId])
+  @@unique([userId, businessId])
   @@index([stationId])
   @@index([businessId])
 }
@@ -222,7 +227,7 @@ model EVService {
   /// arrives. The twelve rows that predate this were set to approved in the
   /// migration — they were already on the live site, and a default of pending
   /// would have emptied the Services page.
-  status      String   @default("pending")
+  status      String    @default("pending")
   /// When the applicant submitted it. Null for admin-created rows.
   submittedAt DateTime?
   /// Free-text note from the reviewer, shown to nobody but the admin.
@@ -236,23 +241,24 @@ model EVService {
 }
 
 model CommunityPost {
-  id           String   @id
-  slug         String   @unique
-  userId       String
-  userName     String
-  userAvatar   String?
-  userVehicle  String?
-  title        String
-  content      String
-  category     String
-  photos       String   @default("[]")
-  likeCount    Int      @default(0)
-  commentCount Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String    @id
+  slug          String    @unique
+  userId        String
+  userName      String
+  userAvatar    String?
+  userVehicle   String?
+  title         String
+  content       String
+  category      String
+  photos        String    @default("[]")
+  likeCount     Int       @default(0)
+  commentCount  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   adminViewedAt DateTime?
 
   comments Comment[]
+  likes    PostLike[]
 
   @@index([category])
 }
@@ -281,8 +287,8 @@ model Comment {
  * scrypt hash with a per-user salt and nothing else.
  */
 model User {
-  id           String   @id
-  email        String   @unique
+  id           String  @id
+  email        String  @unique
   name         String
   city         String?
   vehicle      String?
@@ -304,15 +310,23 @@ model User {
   /// row. Granting it is a deliberate act — see scripts/promote-admin.ts —
   /// because a default that let anyone in would be a privilege escalation
   /// shipped as a schema change.
-  isAdmin      Boolean  @default(false)
+  isAdmin Boolean @default(false)
 
-  createdAt    DateTime @default(now())
+  /// Signed into every session cookie. Bumping it ends every session the
+  /// account has open — on password change, admin reset, or "sign out
+  /// everywhere" — which a self-contained signed cookie cannot do on its own.
+  sessionVersion     Int     @default(0)
+  /// Set when an operator issues a temporary password; cleared when the
+  /// account chooses its own.
+  mustChangePassword Boolean @default(false)
 
-  businesses Business[]
-  saved      SavedStation[]
-  vehicles   UserVehicle[]
-  routes     SavedRoute[]
-  clubs      ClubMember[]
+  createdAt DateTime @default(now())
+
+  businesses  Business[]
+  saved       SavedStation[]
+  vehicles    UserVehicle[]
+  routes      SavedRoute[]
+  clubs       ClubMember[]
   memberships Membership[]
 
   @@index([createdAt])
@@ -449,7 +463,7 @@ model MeetingRequest {
  * concerns; the account is created through registerUser.
  */
 model Business {
-  id           String   @id
+  id           String    @id
   /**
    * The account that submitted this listing.
    * Nullable because an operator can enter a business directly in the admin
@@ -458,7 +472,7 @@ model Business {
    * business dashboard show the owner their own listing rather than a mock.
    */
   userId       String?
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   ownerName    String
   email        String
   phone        String?
@@ -486,15 +500,18 @@ model Business {
   /**
    * JSON array of { connectorType, maxPowerKw, ports } from the form.
    */
-  chargers     String   @default("[]")
+  chargers     String    @default("[]")
   /**
    * pending | approved | rejected — a string, not an enum, so SQLite stays simple.
    */
-  status       String   @default("pending")
-  createdAt    DateTime @default(now())
+  status       String    @default("pending")
+  /// Why the listing was rejected, shown to the owner on their dashboard.
+  reviewNote   String?
+  reviewedAt   DateTime?
+  createdAt    DateTime  @default(now())
 
-  reviews    Review[]
-  dailyStats BusinessDailyStat[]
+  reviews      Review[]
+  dailyStats   BusinessDailyStat[]
   photoReports BusinessPhotoReport[]
 
   @@index([status])
@@ -827,25 +844,20 @@ model Car {
 
 /**
  * ─── Crawler staging — RETAINED, NO LONGER WRITTEN ────────────────────
- *
  * The crawler these nine models served has been removed from the project: its
  * code, its API route, its schedulers, its admin screens and its npm scripts
  * are all gone. Nothing in the application reads or writes any of the tables
  * below any more.
- *
  * They are kept deliberately rather than dropped. They still hold the rows the
  * crawl left behind — the sources, the staged records and the run history that
  * some figures in the catalogue came from — and that provenance is the only
  * remaining account of where those numbers originated. Dropping the tables
  * would delete it, and a migration that destroys data is not a cleanup.
- *
  * Nothing depends on them, so they cost a little schema and nothing else. If
  * they are ever to be removed, that is its own forward migration, taken
  * deliberately, with the provenance exported first.
- *
  * The comments below describe how the crawler worked and are left as the
  * record of it. References they make to files under crawler/ no longer resolve.
- *
  * ──────────────────────────────────────────────────────────────────────
  * Two tables that sit beside the catalogue and never inside it.
  * Crawled data does not go into Car. The catalogue's governing rule is that
@@ -1389,4 +1401,45 @@ model CrawlLogEntry {
 
   @@index([runId, createdAt])
   @@index([sourceId, status, createdAt])
+}
+
+/// One like per account per post. CommunityPost.likeCount is kept in step
+/// inside the same transaction, so the feed reads a number without a join.
+model PostLike {
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId])
+}
+
+/// Fixed-window counters for rate limiting (sign-in attempts, public forms,
+/// analytics de-duplication). Keyed by purpose plus a hashed identity; a row
+/// past resetAt is overwritten on its next hit.
+model RateLimit {
+  key     String   @id
+  count   Int      @default(0)
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+/// Who did what in the operator portal. Written by every admin action and
+/// never edited. actorEmail is copied so the trail survives an account's
+/// deletion.
+model AdminAuditLog {
+  id         String   @id
+  actorId    String?
+  actorEmail String?
+  action     String
+  targetType String
+  targetId   String?
+  summary    String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, targetId])
 }

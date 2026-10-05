@@ -9,6 +9,7 @@ import {
   LifeBuoy,
   Mail,
   MapPin,
+  MessageSquare,
   Navigation2,
   Package,
   Phone,
@@ -22,13 +23,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
-import { ReviewsSection } from '@/components/station/ReviewsSection'
-import { RatingStars } from '@/components/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META, SERVICE_OFFERINGS } from '@/lib/constants'
 import { prebuiltParams } from '@/lib/db/build-params'
 import { getServiceBySlug, getServiceParams } from '@/lib/db/queries'
 import type { DayHours, ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { isInPakistan, safeHref } from '@/lib/validate'
 
 interface PageProps {
   params: { category: string; slug: string }
@@ -88,9 +88,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!service) return { title: 'Service Not Found' }
 
   const meta = SERVICE_CATEGORY_META[service.category]
+  // The description used to quote a rating and a review count. Services have
+  // no reviews behind them (see the Reviews section below), so it says what
+  // the listing actually is instead.
   return {
     title: `${service.name} — ${meta.label}`,
-    description: `${service.name} in ${service.address.city}. Rated ${service.rating}/5 by ${service.reviewCount} reviews.`,
+    description: `${service.name}, ${meta.label.toLowerCase()} in ${service.address.city}. Contact details, location and opening hours on Plug.pk.`,
+    alternates: { canonical: `/services/${service.category}/${service.slug}` },
   }
 }
 
@@ -104,8 +108,21 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   const Icon = ICONS[meta.icon] ?? Package
   const offerings = SERVICE_OFFERINGS[service.category]
   const telHref = `tel:${service.phone.replace(/[^\d+]/g, '')}`
-  const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${service.coordinates.lat},${service.coordinates.lng}`
-  const fullAddress = `${service.address.street}, ${service.address.area}, ${service.address.city}`
+  /*
+    No directions without a real pin. Applications used to be stored at 0,0,
+    and a "Get Directions" button built from that sent drivers to the Gulf of
+    Guinea. Anything outside Pakistan is treated as "not set".
+  */
+  const hasPin = isInPakistan(service.coordinates.lat, service.coordinates.lng)
+  const directionsHref = hasPin
+    ? `https://www.google.com/maps/dir/?api=1&destination=${service.coordinates.lat},${service.coordinates.lng}`
+    : null
+  // Rendered through safeHref: a website stored before input was checked
+  // could be a javascript: link.
+  const website = safeHref(service.website)
+  const fullAddress = [service.address.street, service.address.area, service.address.city]
+    .filter((part) => part && part.trim())
+    .join(', ')
 
   return (
     <>
@@ -166,7 +183,11 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
           <h1 className="mb-4 flex flex-wrap items-center gap-3 text-3xl font-black text-white lg:text-4xl">
             {service.name}
-            {service.isVerified ? (
+            {/* Shown only when an operator has ticked isVerified on the row.
+                There is no verification procedure in the code beyond the
+                approval every listing gets, so this is the operator's own
+                assertion, never inferred from anything else. */}
+            {service.isVerified === true ? (
               <ShieldCheck
                 size={24}
                 className="shrink-0 text-plug-cyan-400"
@@ -176,17 +197,14 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           </h1>
 
           <div className="mb-6 flex flex-wrap items-center gap-5">
-            <RatingStars
-              rating={service.rating}
-              reviewCount={service.reviewCount}
-              size="md"
-              showNumber
-              showCount
-              className="[&_span]:text-white/70"
-            />
+            {/* No star rating. The rating and review count on a service row
+                were seeded figures with no reviews behind them — services
+                cannot be reviewed on Plug.pk — so showing them would be
+                presenting an invented score as drivers' opinion. */}
+            <span className="text-sm text-white/60">No reviews yet</span>
             <span className="flex items-center gap-1.5 text-sm text-white/60">
               <MapPin size={15} className="shrink-0" aria-hidden="true" />
-              {service.address.area}, {service.address.city}
+              {[service.address.area, service.address.city].filter((part) => part && part.trim()).join(', ')}
             </span>
             <span className="flex items-center gap-1.5 font-mono text-sm text-white/60">
               <Phone size={15} className="shrink-0" aria-hidden="true" />
@@ -195,15 +213,17 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <a
-              href={directionsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-12 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
-            >
-              <Navigation2 size={18} aria-hidden="true" />
-              Get Directions
-            </a>
+            {directionsHref ? (
+              <a
+                href={directionsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-12 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
+              >
+                <Navigation2 size={18} aria-hidden="true" />
+                Get Directions
+              </a>
+            ) : null}
             <a
               href={telHref}
               className="flex h-12 items-center gap-2 rounded-xl border border-white bg-transparent px-6 font-semibold text-white transition-colors duration-200 hover:bg-white/10"
@@ -243,13 +263,20 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
             <hr className="my-10 border-slate-100" />
 
-            <ReviewsSection
-              reviews={[]}
-              rating={service.rating}
-              reviewCount={service.reviewCount}
-              stationId={service.id}
-              stationName={service.name}
-            />
+            {/* The station reviews widget used to sit here with an empty list
+                and the row's seeded rating, and its form posted a "station"
+                review against a service id. Services have no review table, so
+                the honest state is the empty one. */}
+            <section>
+              <h2 className="mb-4 text-2xl font-bold text-slate-900">Reviews</h2>
+              <div className="flex items-start gap-3 rounded-2xl border border-dashed border-slate-300 bg-white p-6">
+                <MessageSquare size={20} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
+                <p className="text-sm leading-relaxed text-slate-600">
+                  <span className="block font-semibold text-slate-900">No reviews yet</span>
+                  Plug.pk does not collect reviews for services yet, so there is no rating to show.
+                </p>
+              </div>
+            </section>
           </div>
 
           <aside className="flex flex-col gap-5">
@@ -293,7 +320,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 </div>
               ) : null}
 
-              {service.website ? (
+              {website ? (
                 <div className="mb-4 flex items-center gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
                     <Globe size={20} className="text-plug-blue-600" aria-hidden="true" />
@@ -301,12 +328,12 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                   <span className="min-w-0">
                     <span className="block text-xs uppercase text-slate-400">Website</span>
                     <a
-                      href={service.website}
+                      href={website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block truncate font-semibold text-plug-blue-600 hover:underline"
                     >
-                      {service.website.replace(/^https?:\/\//, '')}
+                      {website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                     </a>
                   </span>
                 </div>
@@ -326,15 +353,21 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 </span>
               </div>
 
-              <a
-                href={directionsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-sm font-semibold text-white transition-colors hover:bg-plug-blue-700"
-              >
-                <Navigation2 size={16} aria-hidden="true" />
-                Get Directions
-              </a>
+              {directionsHref ? (
+                <a
+                  href={directionsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-sm font-semibold text-white transition-colors hover:bg-plug-blue-700"
+                >
+                  <Navigation2 size={16} aria-hidden="true" />
+                  Get Directions
+                </a>
+              ) : (
+                <p className="text-sm text-slate-500">
+                  No map pin for this listing yet, so directions are not available.
+                </p>
+              )}
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -361,7 +394,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               )}
             </div>
 
-            {service.isVerified ? (
+            {service.isVerified === true ? (
               <div className={cn('flex items-start gap-3 rounded-2xl border border-plug-blue-200 bg-plug-blue-50 p-5')}>
                 <ShieldCheck
                   size={24}
@@ -371,7 +404,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 <span>
                   <span className="block font-bold text-plug-blue-900">Verified Business</span>
                   <span className="block text-sm text-plug-blue-700">
-                    This business has been verified by the Plug.pk team.
+                    Marked as verified by the Plug.pk team.
                   </span>
                 </span>
               </div>

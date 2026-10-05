@@ -2,9 +2,13 @@
 'use client'
 
 import { Check, Loader2, Undo2 } from '@/components/ui/icons'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
 
 export interface MeetingStatusToggleProps {
   isHandled: boolean
@@ -18,14 +22,21 @@ export interface MeetingStatusToggleProps {
  * mistake an operator should be able to undo in a click, unlike deleting it.
  */
 export function MeetingStatusToggle({ isHandled, action }: MeetingStatusToggleProps) {
+  const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
 
   const toggle = () => {
     setError(null)
     startTransition(async () => {
-      const result = await action(isHandled ? 'new' : 'handled')
-      if (!result.ok) setError(result.message ?? 'Could not update.')
+      const result = await runAction(() => action(isHandled ? 'new' : 'handled'))
+      if (!result.ok) {
+        setError(result.message ?? 'Could not update.')
+        return
+      }
+      toast.success(isHandled ? 'Reopened.' : 'Marked handled.')
+      router.refresh()
     })
   }
 

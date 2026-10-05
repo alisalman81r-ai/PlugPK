@@ -1,215 +1,94 @@
 // src/components/admin/StationTable.tsx
 'use client'
 
-import { AlertTriangle, ExternalLink, Pencil, Search, SearchX, X } from '@/components/ui/icons'
+import { AlertTriangle, ExternalLink, Pencil, SearchX, X } from '@/components/ui/icons'
 import Link from 'next/link'
-import * as React from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge'
 import { DeleteButton } from '@/components/admin/DeleteButton'
-import type {
-  VenueType, Station } from '@/lib/types'
+import type { Station } from '@/lib/types'
 import { cn, getMaxPower, getPortAvailability } from '@/lib/utils'
 
+import { AdminSearch } from './AdminSearch'
+import { buildHref, flattenParams } from './list-params'
+import { STATUS_FILTERS, VENUE_FILTERS, type StatusFilter, type VenueFilter } from './station-filters'
+
 export interface StationTableProps {
+  /** One page of stations, already filtered by the server. */
   stations: Station[]
+  /** Rows matching the filter across every page. */
+  total: number
+  /** Tallies across the whole network, for the chips. */
+  counts: { all: number; status: Record<string, number>; venue: Record<string, number> }
+  status: StatusFilter
+  venue: VenueFilter
   /** Bound per-row by the server component that renders this. */
   onDelete: (id: string) => Promise<{ ok: boolean; message?: string }>
 }
 
-type StatusFilter = 'all' | 'available' | 'limited' | 'offline' | 'unknown'
-
-/**
- * Where a charger sits, as a filter.
- *
- * Reads Station.venueType, a stored column — not guessed from amenities.
- * Amenities record what is NEAR a charger; a station listing a restaurant may
- * stand in a mall car park, and filing it under Restaurants on that basis
- * would put stations under headings nobody chose for them.
- *
- * Every station that predates the column reads `other`, which is why the Venue
- * not set control below is here rather than hidden: that is where the unfiled
- * stations sit, and an operator needs to find them to set a venue.
- *
- * `standalone` covers a site that is not inside anybody else's venue. Most of
- * the published network is exactly that — a forecourt on Jinnah Avenue or in
- * F-10 Markaz belongs to no hotel or mall — and without the option those rows
- * could only be filed as `other`, which says "nobody has looked at this yet"
- * rather than "this is what it is".
- */
-type VenueFilter = 'all' | VenueType
-
-const VENUE_FILTERS: { value: VenueFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'standalone', label: 'Standalone' },
-  { value: 'hotel', label: 'Hotels' },
-  { value: 'restaurant', label: 'Restaurants' },
-  { value: 'mall', label: 'Malls' },
-  { value: 'office', label: 'Offices' },
-  { value: 'dealership', label: 'Dealerships' },
-  { value: 'service-center', label: 'Service centres' },
-  { value: 'home', label: 'Homes' },
-]
-
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'available', label: 'Available' },
-  { value: 'limited', label: 'Limited' },
-  { value: 'offline', label: 'Offline' },
-]
-
-/**
- * Filtering runs on the client over an already-loaded list.
- *
- * At this scale that is the right call: the whole estate is a few dozen rows,
- * so a round trip per keystroke would add latency to answer a question the
- * browser can answer instantly. If the network grows past a few hundred
- * stations this moves to a server query with the same props.
- */
 /**
  * The connector types a station offers, each named once.
  *
- * Deduped because a station commonly carries several connectors of one type —
- * Mall Road EV Hub has two CCS2 units and a third listed separately — and
- * repeating the word tells a reader nothing the count beside it does not.
- * First-seen order is kept rather than sorted alphabetically, so the list
- * reads the way the station was entered.
+ * Deduped because a station commonly carries several connectors of one type,
+ * and repeating the word tells a reader nothing the count beside it does not.
  */
 function connectorTypes(station: Station): string[] {
   return [...new Set(station.connectors.map((connector) => connector.type))]
 }
 
-export function StationTable({ stations, onDelete }: StationTableProps) {
-  const [query, setQuery] = React.useState('')
-  const [status, setStatus] = React.useState<StatusFilter>('all')
-  const [venue, setVenue] = React.useState<VenueFilter>('all')
+const CHIP =
+  'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500'
 
-  /*
-    How many rows sit behind each chip.
+/**
+ * Filtering now happens in the database: search, status and venue are URL
+ * parameters the stations page reads, and this table renders the page it was
+ * given. The chips are links, and each carries its count across the whole
+ * network so a tally never moves when an unrelated chip is pressed.
+ */
+export function StationTable({ stations, total, counts, status, venue, onDelete }: StationTableProps) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const params = flattenParams(Object.fromEntries(searchParams.entries()))
+  const q = params.q ?? ''
 
-    Counted from the loaded list rather than written down, so a chip can never
-    promise rows it does not have. This is what makes the row worth reading
-    before it is clicked: Offices reading 0 saves the click, and Unset reading
-    6 is the state of the whole estate at a glance.
+  const filtered = stations
+  const isFiltered = q.trim().length > 0 || status !== 'all' || venue !== 'all'
 
-    Each group counts the full list, so a tally never moves when an unrelated
-    chip is pressed — a number that shifted under you would be unreadable.
-  */
-  const counts = React.useMemo(() => {
-    const status: Record<string, number> = {}
-    const venue: Record<string, number> = {}
-    for (const station of stations) {
-      status[station.status] = (status[station.status] ?? 0) + 1
-      const key = station.venueType ?? 'other'
-      venue[key] = (venue[key] ?? 0) + 1
-    }
-    return { status, venue }
-  }, [stations])
-
-  const filtered = React.useMemo(() => {
-    const needle = query.trim().toLowerCase()
-
-    return stations.filter((station) => {
-      if (status !== 'all' && station.status !== status) return false
-      // Undefined means the row did not come from the database (a legacy
-      // fixture, or a Business shaped into a Station), so it reads as `other`.
-      if (venue !== 'all' && (station.venueType ?? 'other') !== venue) return false
-      if (!needle) return true
-      // Connector types are searchable because they are now on the face of the
-      // row: once a reader can see CCS2, typing it is the next thing they try,
-      // and a search that ignored a visible column would read as broken.
-      return [
-        station.name,
-        station.address.city,
-        station.address.area,
-        station.network,
-        station.slug,
-        ...connectorTypes(station),
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(needle)
-    })
-  }, [stations, query, status, venue])
-
-  const isFiltered = query.trim().length > 0 || status !== 'all' || venue !== 'all'
-
-  const clear = () => {
-    setQuery('')
-    setStatus('all')
-  }
+  const chip = (on: boolean) => cn(CHIP, on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100')
+  const tally = (on: boolean, n: number) =>
+    cn(
+      'rounded px-1 text-[11px] tabular-nums',
+      on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
+      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
+    )
 
   return (
     <div>
-      {/*
-        ── One card, not three loose bars ───────────────────────────────
-
-        Search, status and venue were three separate bordered strips stacked
-        down the page, which read as three unrelated controls that happened
-        to sit together. They are one question — which stations am I looking
-        at — so they share one surface, with the groups named.
-
-        Every chip carries its own count, read from the rows actually loaded.
-        A filter row that shows what it will find before you press it is the
-        difference between a control panel and a set of buttons.
-      */}
       <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name, city, area, network or connector"
-              aria-label="Search stations"
-              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50/60 pl-9 pr-3 text-ui text-slate-900 outline-none transition-[border-color,background-color] placeholder:text-slate-400 focus-visible:border-plug-blue-400 focus-visible:bg-white"
-            />
-          </div>
+          <AdminSearch placeholder="Search name, city, area, network or connector" label="Search stations" />
 
-          {/* Wraps rather than scrolls. A chip row that scrolls sideways hides
-              options behind an edge with no affordance — at 1024 that put half
-              the venues out of reach. Wrapping costs a line and hides nothing. */}
           <div role="group" aria-label="Filter by status" className="flex min-w-0 flex-wrap items-center gap-1">
             {STATUS_FILTERS.map((option) => {
-              const n = option.value === 'all' ? stations.length : (counts.status[option.value] ?? 0)
+              const n = option.value === 'all' ? counts.all : (counts.status[option.value] ?? 0)
               const on = status === option.value
               return (
-                <button
+                <Link
                   key={option.value}
-                  type="button"
-                  onClick={() => setStatus(option.value)}
-                  aria-pressed={on}
-                  className={cn(
-                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100',
-                  )}
+                  href={buildHref(pathname, params, { status: option.value })}
+                  scroll={false}
+                  aria-current={on ? 'true' : undefined}
+                  className={chip(on)}
                 >
                   {option.label}
-                  <span
-                    className={cn(
-                      'rounded px-1 text-[11px] tabular-nums',
-                      on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
-                      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
-                    )}
-                  >
-                    {n}
-                  </span>
-                </button>
+                  <span className={tally(on, n)}>{n}</span>
+                </Link>
               )
             })}
           </div>
         </div>
 
-        {/* items-start, not items-center: once the chips wrap to a second line
-            a centred label floats between the two rows, pointing at neither.
-            The label carries the chips' own h-8 so it lines up with the first
-            row rather than its top edge. */}
         <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 lg:flex-row lg:items-start">
           <span className="inline-flex h-8 shrink-0 items-center text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-900">
             Venue
@@ -217,51 +96,33 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
 
           <div role="group" aria-label="Filter by venue" className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
             {VENUE_FILTERS.map((option) => {
-              const n = option.value === 'all' ? stations.length : (counts.venue[option.value] ?? 0)
+              const n = option.value === 'all' ? counts.all : (counts.venue[option.value] ?? 0)
               const on = venue === option.value
               return (
-                <button
+                <Link
                   key={option.value}
-                  type="button"
-                  onClick={() => setVenue(option.value)}
-                  aria-pressed={on}
-                  className={cn(
-                    'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100',
-                  )}
+                  href={buildHref(pathname, params, { venue: option.value })}
+                  scroll={false}
+                  aria-current={on ? 'true' : undefined}
+                  className={chip(on)}
                 >
                   {option.label}
-                  <span
-                    className={cn(
-                      'rounded px-1 text-[11px] tabular-nums',
-                      on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
-                      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
-                    )}
-                  >
-                    {n}
-                  </span>
-                </button>
+                  <span className={tally(on, n)}>{n}</span>
+                </Link>
               )
             })}
           </div>
 
           {/*
-            Unset, pulled out and given weight.
-
-            It is not a venue, so it does not belong among them — it is the
-            work outstanding, and right now it is where every station sits.
-            Amber because that is what the rest of this portal paints amber:
-            not broken, waiting on somebody.
-
-            It disappears at zero. A prominent control that always reads 0 is
-            noise, and its absence is the signal that the job is done.
+            Unset, pulled out and given weight: it is the work outstanding, not
+            a venue. Amber because that is what the rest of this portal paints
+            amber — not broken, waiting on somebody. It disappears at zero.
           */}
           {(counts.venue.other ?? 0) > 0 ? (
-            <button
-              type="button"
-              onClick={() => setVenue(venue === 'other' ? 'all' : 'other')}
-              aria-pressed={venue === 'other'}
+            <Link
+              href={buildHref(pathname, params, { venue: venue === 'other' ? 'all' : 'other' })}
+              scroll={false}
+              aria-current={venue === 'other' ? 'true' : undefined}
               className={cn(
                 'inline-flex h-8 shrink-0 items-center gap-2 self-start whitespace-nowrap rounded-lg border px-2.5 text-ui-sm font-semibold transition-colors lg:self-auto',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
@@ -280,24 +141,25 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
               >
                 {counts.venue.other}
               </span>
-            </button>
+            </Link>
           ) : null}
         </div>
       </div>
+
       {/* Result count and reset, announced so the change is not silent. */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <p aria-live="polite" className="text-ui-sm text-slate-600">
-          {filtered.length} of {stations.length} station{stations.length === 1 ? '' : 's'}
+          {total} of {counts.all} station{counts.all === 1 ? '' : 's'}
         </p>
         {isFiltered ? (
-          <button
-            type="button"
-            onClick={clear}
+          <Link
+            href={pathname}
+            scroll={false}
             className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-ui-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
           >
             <X size={12} aria-hidden="true" />
             Clear filters
-          </button>
+          </Link>
         ) : null}
       </div>
 
@@ -415,6 +277,7 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                           </Link>
                           <DeleteButton
                             label={station.name}
+                            consequence={`its ${station.connectors.length} connector${station.connectors.length === 1 ? '' : 's'}, its reviews and any member bookmarks`}
                             action={async () => onDelete(station.id)}
                           />
                         </div>
@@ -492,7 +355,11 @@ export function StationTable({ stations, onDelete }: StationTableProps) {
                     >
                       <ExternalLink size={15} />
                     </Link>
-                    <DeleteButton label={station.name} action={async () => onDelete(station.id)} />
+                    <DeleteButton
+                      label={station.name}
+                      consequence={`its ${station.connectors.length} connector${station.connectors.length === 1 ? '' : 's'}, its reviews and any member bookmarks`}
+                      action={async () => onDelete(station.id)}
+                    />
                   </div>
                 </li>
               )

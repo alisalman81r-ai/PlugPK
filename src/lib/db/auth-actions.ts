@@ -1,65 +1,31 @@
 // src/lib/db/auth-actions.ts
 'use server'
 
-import { randomBytes, randomUUID, scrypt, timingSafeEqual } from 'node:crypto'
-import { promisify } from 'node:util'
+import { randomUUID } from 'node:crypto'
 
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
-import { prisma } from './client'
-import { startSession } from './session-actions'
+import { hashPassword } from '@/lib/passwords'
+import { checkEmail, checkText } from '@/lib/validate'
 
-const scryptAsync = promisify(scrypt) as (
-  password: string,
-  salt: string,
-  keylen: number,
-) => Promise<Buffer>
+import { prisma } from './client'
+import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
+import { startSession } from './session'
 
 /**
  * Registration for EV owners.
  *
- * This is what makes the "EV owners" figure on the homepage count something
- * real — before this, sign-up was a two second timer that created nothing, so
- * the number could only ever be a constant somebody typed.
+ * The password is hashed with scrypt against a per-user random salt
+ * (src/lib/passwords.ts) and the plaintext is never written anywhere.
  *
- * It is registration, not a full auth system: no sessions, no roles, no
- * password reset. What it does get right is storage. The password is hashed
- * with scrypt against a per-user random salt and the plaintext is never
- * written anywhere, so a copy of this database does not hand over anyone's
- * credentials.
+ * hashPassword and verifyPassword used to be exported from here, which made
+ * them public endpoints; they now live in a server-only module.
+ *
+ * Not yet done: verifying that the address belongs to the person signing up.
+ * That needs an email provider. Until one is connected, a listing submitted
+ * under an account is checked by an operator before it goes live.
  */
-
-const KEY_LENGTH = 64
-
-export async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString('hex')
-  const derived = await scryptAsync(password, salt, KEY_LENGTH)
-  return `${salt}:${derived.toString('hex')}`
-}
-
-/**
- * registerOwnerAccount was removed.
- *
- * It took a name, email and password and returned a user id — but when the
- * email already had an account it returned that account's id straight away,
- * without checking the password. The business sign-up form then started a
- * session with the id it got back, so submitting that form with somebody
- * else's registered address signed the submitter in as them.
- *
- * Nothing replaces it. Listing a business now requires being signed in
- * already, so there is no path that needs to turn an email and password into
- * an account as a side effect of doing something else.
- */
-
-export async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  const [salt, key] = stored.split(':')
-  if (!salt || !key) return false
-
-  const derived = await scryptAsync(password, salt, KEY_LENGTH)
-  const expected = Buffer.from(key, 'hex')
-  if (expected.length !== derived.length) return false
-  return timingSafeEqual(derived, expected)
-}
 
 export interface SignUpResult {
   ok: boolean
@@ -67,42 +33,60 @@ export interface SignUpResult {
 }
 
 export async function registerUser(form: FormData): Promise<SignUpResult> {
-  const name = String(form.get('name') ?? '').trim()
-  const email = String(form.get('email') ?? '')
-    .trim()
-    .toLowerCase()
-  const password = String(form.get('password') ?? '')
+  const name = checkText(form.get('name'), 'your name', { max: 80, required: true })
+  if (!name.ok) return name
+  const email = checkEmail(form.get('email'))
+  if (!email.ok) return email
+  const city = checkText(form.get('city'), 'city', { max: 80 })
+  if (!city.ok) return city
+  const vehicle = checkText(form.get('vehicle'), 'vehicle', { max: 120 })
+  if (!vehicle.ok) return vehicle
 
-  if (!name) return { ok: false, message: 'Enter your name.' }
-  if (!email.includes('@')) return { ok: false, message: 'Enter a valid email address.' }
+  const password = String(form.get('password') ?? '')
   if (password.length < 8) {
     return { ok: false, message: 'Password must be at least 8 characters.' }
   }
-
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    return { ok: false, message: 'An account already exists for that email.' }
+  if (password.length > 200) {
+    return { ok: false, message: 'Password must be 200 characters or fewer.' }
   }
 
-  const user = await prisma.user.create({
-    data: {
-      id: randomUUID(),
-      email,
-      name,
-      city: String(form.get('city') ?? '').trim() || null,
-      vehicle: String(form.get('vehicle') ?? '').trim() || null,
-      passwordHash: await hashPassword(password),
-    },
-  })
+  const limit = await checkLimits([
+    { key: `signup:ip:${clientFingerprint()}`, limit: 5, windowSeconds: 60 * 60 },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many accounts created') }
+  }
 
-  // Signed in immediately, the same as the business form already did.
-  // Without this the account was created correctly and then left signed out:
-  // you would finish signing up, land on vehicle onboarding as an anonymous
-  // visitor, and see a stranger's dashboard — which reads exactly like the
-  // sign-up not having saved anything.
-  await startSession(user.id)
+  let userId: string
+  try {
+    const user = await prisma.user.create({
+      data: {
+        id: randomUUID(),
+        email: email.value,
+        name: name.value,
+        city: city.value || null,
+        vehicle: vehicle.value || null,
+        passwordHash: await hashPassword(password),
+      },
+    })
+    userId = user.id
+  } catch (error) {
+    // The unique index on email is the real check, so two simultaneous sign-ups
+    // with one address get this message rather than a crashed page.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return { ok: false, message: 'An account already exists for that email. Try signing in.' }
+    }
+    throw error
+  }
 
-  // The homepage counter reads this table, so it has to be told to re-render.
+  // Signed in immediately, so the vehicle onboarding that follows saves to it.
+  if (!(await startSession(userId))) {
+    return {
+      ok: false,
+      message: 'Your account was created, but signing you in failed. Please sign in.',
+    }
+  }
+
   revalidatePath('/')
   revalidatePath('/dashboard')
 

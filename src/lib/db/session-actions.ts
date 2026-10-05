@@ -3,36 +3,27 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
-import {
-  ADMIN_COOKIE_NAME,
-  ADMIN_SESSION_MAX_AGE,
-  createSessionValue,
-} from '@/lib/admin-auth'
-import {
-  USER_COOKIE_NAME,
-  USER_SESSION_MAX_AGE,
-  createUserSessionValue,
-  readUserSession,
-} from '@/lib/user-auth'
+import { hashPassword, verifyPassword } from '@/lib/passwords'
+import { getUserAuthConfigError } from '@/lib/user-auth'
 
-import { hashPassword, verifyPassword } from './auth-actions'
 import { prisma } from './client'
+import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
+import { clearSession, getSessionUserId, revokeSessions, startSession } from './session'
+
+/*
+  Every export below is a public POST endpoint — that is what 'use server'
+  means. Nothing here takes a user id from the caller: identity always comes
+  from the verified session cookie (session.ts).
+*/
 
 export interface SessionResult {
   ok: boolean
   message?: string
   /**
-   * Where the caller should send them next.
-   *
-   * The form used to decide this on its own and always chose /dashboard. It
-   * cannot decide it any more: whether an account may use the operator portal
-   * is a fact about the row in the database, and the browser is the last place
-   * that should be trusted to know it. The server answers, the form obeys.
-   *
-   * Absent for a normal sign-in, so the existing default stands untouched.
+   * Where the caller should send them next. The server decides, because
+   * whether an account may use the operator portal is a fact about its row.
    */
   redirectTo?: string
 }
@@ -43,12 +34,21 @@ export interface CurrentUser {
   email: string
 }
 
+/** Sign-in attempts allowed per window, per email and per IP. */
+function signInLimits(email: string) {
+  return [
+    { key: `signin:email:${keyPart(email)}`, limit: 8, windowSeconds: 15 * 60 },
+    { key: `signin:ip:${clientFingerprint()}`, limit: 30, windowSeconds: 15 * 60 },
+  ]
+}
+
 /**
  * Signs someone in and issues the session cookie.
  *
  * The failure message is identical whether the email is unknown or the
- * password is wrong. Distinguishing them would turn this into a way to test
- * which addresses hold accounts.
+ * password is wrong, so this cannot be used to test which addresses hold
+ * accounts. Attempts are rate limited per email and per IP before any
+ * password is hashed, which also stops the endpoint being used to burn CPU.
  */
 export async function signIn(form: FormData): Promise<SessionResult> {
   const email = String(form.get('email') ?? '').trim().toLowerCase()
@@ -57,6 +57,14 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   if (!email || !password) {
     return { ok: false, message: 'Enter your email and password.' }
   }
+  if (email.length > 254 || password.length > 200) {
+    return { ok: false, message: 'Email or password is incorrect.' }
+  }
+
+  const limit = await checkLimits(signInLimits(email))
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many sign-in attempts') }
+  }
 
   const user = await prisma.user.findUnique({ where: { email } })
   const WRONG = { ok: false as const, message: 'Email or password is incorrect.' }
@@ -64,123 +72,42 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   if (!user) return WRONG
   if (!(await verifyPassword(password, user.passwordHash))) return WRONG
 
-  const value = createUserSessionValue(user.id)
-  if (!value) {
-    return { ok: false, message: 'Sessions are not configured on this server.' }
+  if (!(await startSession(user.id))) {
+    console.error('[auth] could not start a session:', getUserAuthConfigError())
+    return { ok: false, message: 'Signing in is unavailable right now. Please try again later.' }
   }
-
-  cookies().set(USER_COOKIE_NAME, value, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: USER_SESSION_MAX_AGE,
-  })
 
   revalidatePath('/business/dashboard')
 
-  /*
-    ── An operator is sent to the portal, and given the key to it ──────
-
-    isAdmin is read from the row that was just authenticated, not from
-    anything the browser sent. A driver and an operator submit the same form
-    to the same action; the difference is a column, checked server-side.
-
-    The second cookie is what makes the existing portal accept them. /admin
-    has always gated on ADMIN_COOKIE_NAME. The page that traded a shared
-    password for that cookie is gone, so this is now the only thing that mints
-    one, and it mints it only for an account the database says is an operator.
-
-    Authorisation does not depend on it — admin-access.ts reads isAdmin from
-    the database on every request. What it does is keep a session that was
-    already open from breaking mid-edit.
-
-    It is not the authorisation. The admin layout re-reads isAdmin from the
-    database on every request, so revoking the column locks someone out on
-    their next page load rather than in eight hours when this expires. This
-    cookie only carries them through the door the portal already had.
-  */
-  if (user.isAdmin) {
-    const adminValue = createSessionValue()
-    if (adminValue) {
-      cookies().set(ADMIN_COOKIE_NAME, adminValue, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: ADMIN_SESSION_MAX_AGE,
-      })
-    }
-
-    /*
-      Sent to the portal even if the cookie could not be minted. ADMIN_PASSWORD
-      is what signs it, and where that is unset the layout falls through to its
-      own check of isAdmin and lets them in anyway. Sending them to /dashboard
-      instead would hide a misconfiguration behind a wrong destination.
-    */
-    return { ok: true, redirectTo: '/admin' }
+  // A temporary password from an operator has to be replaced before anything else.
+  if (user.mustChangePassword) {
+    return { ok: true, redirectTo: '/dashboard/settings?changePassword=1' }
   }
-
+  if (user.isAdmin) return { ok: true, redirectTo: '/admin' }
   return { ok: true }
 }
 
-/**
- * Ends the session — both halves of it.
- *
- * ── Why the admin cookie is deleted here ──────────────────────────────
- *
- * It was not, and that was a hole rather than an oversight to shrug at.
- * admin-access.ts falls back to the shared-password cookie when there is no
- * account session, so deleting only the account session left `plugpk_admin`
- * standing and /admin open for the eight hours until it expired. Somebody who
- * pressed Sign out on a shared machine was still signed in to the portal.
- *
- * /api/admin/signout already cleared both; this is the same rule for the
- * header's route through.
- *
- * ── Why revalidatePath('/') is gone ───────────────────────────────────
- *
- * It threw away the homepage's cached render on every sign-out, and the very
- * next thing the caller does is navigate to the homepage — so the person
- * signing out paid for a cold rebuild of the most expensive public page, four
- * database round trips to another region, caused by their own click.
- *
- * It bought nothing. The layout above the homepage does not read the session
- * at all — the header asks /api/me from the browser — so there is nothing on
- * that page whose content depends on who is signed in.
- */
+/** Ends this browser's session. */
 export async function signOut(): Promise<SessionResult> {
-  cookies().delete(USER_COOKIE_NAME)
-  cookies().delete(ADMIN_COOKIE_NAME)
+  clearSession()
+  return { ok: true }
+}
+
+/** Ends every session the account has open, on every device. */
+export async function signOutEverywhere(): Promise<SessionResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, message: 'You are already signed out.' }
+  await revokeSessions(userId)
+  clearSession()
   return { ok: true }
 }
 
 /**
- * Establishes the session directly, used right after registration so someone
- * is not asked to type the password they just chose.
- */
-export async function startSession(userId: string): Promise<void> {
-  const value = createUserSessionValue(userId)
-  if (!value) return
-
-  cookies().set(USER_COOKIE_NAME, value, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: USER_SESSION_MAX_AGE,
-  })
-}
-
-/**
- * The signed-in user, or null.
- *
- * The row is re-read every time rather than trusted from the cookie, so a
- * deleted account stops working immediately instead of holding a valid
- * signature until it expires.
+ * The signed-in user, or null. The row is re-read every time, so a deleted
+ * account stops working immediately.
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return null
 
   const user = await prisma.user.findUnique({
@@ -191,12 +118,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return user ?? null
 }
 
-/**
- * The signed-in user's own details, for their dashboard.
- *
- * Wider than getCurrentUser, which returns only what a header needs. Kept
- * separate so a page that just wants a name does not pull the whole row.
- */
+/** The signed-in user's own details, for their dashboard. */
 export interface CurrentProfile {
   id: string
   name: string
@@ -205,28 +127,18 @@ export interface CurrentProfile {
   vehicle: string | null
   avatar: string | null
   /**
-   * Carried so the header can point an operator at the portal rather than at
-   * the driver dashboard. It is a display hint: isCurrentUserAdmin() below and
-   * admin-access.ts are what authorise anything, and both re-read the column
-   * on every request.
+   * A display hint so the header can point an operator at the portal.
+   * admin-access.ts is what authorises anything.
    */
   isAdmin: boolean
+  /** True after an operator issued a temporary password. */
+  mustChangePassword: boolean
   createdAt: string
 }
 
-/**
- * Whether the signed-in account may use the operator portal.
- *
- * Read from the database on every call, never from a cookie. The session
- * cookie proves *who* is asking; it deliberately says nothing about what they
- * are allowed to do, so that clearing isAdmin locks an operator out on their
- * next request rather than whenever their cookie happens to expire.
- *
- * Selects the one column. An admin layout that pulled the whole row would be
- * reading a profile to answer a yes/no question on every admin page load.
- */
+/** Whether the signed-in account may use the operator portal. */
 export async function isCurrentUserAdmin(): Promise<boolean> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return false
 
   const user = await prisma.user.findUnique({
@@ -237,12 +149,13 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
   return user?.isAdmin === true
 }
 
-/** Whether a user session exists at all, regardless of what it may do. */
+/** Whether a current user session exists at all. */
 export async function hasUserSession(): Promise<boolean> {
-  return readUserSession(cookies().get(USER_COOKIE_NAME)?.value) !== null
+  return (await getSessionUserId()) !== null
 }
+
 export async function getCurrentProfile(): Promise<CurrentProfile | null> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return null
 
   const user = await prisma.user.findUnique({
@@ -252,6 +165,7 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
       name: true,
       email: true,
       isAdmin: true,
+      mustChangePassword: true,
       city: true,
       vehicle: true,
       avatar: true,
@@ -263,21 +177,17 @@ export async function getCurrentProfile(): Promise<CurrentProfile | null> {
   return { ...user, createdAt: user.createdAt.toISOString() }
 }
 
-/**
- * Saves the vehicle chosen during onboarding.
- *
- * That step used to await a one second timer and move on, so the car somebody
- * picked immediately after signing up was discarded — and their dashboard then
- * showed a fixture's vehicle instead, which reads as the sign-up not having
- * saved anything.
- */
+/** Saves the vehicle chosen during onboarding. */
 export async function saveMyVehicle(vehicle: string): Promise<SessionResult> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return { ok: false, message: 'Sign in to save your vehicle.' }
+
+  const value = String(vehicle ?? '').trim()
+  if (value.length > 120) return { ok: false, message: 'That vehicle name is too long.' }
 
   await prisma.user.update({
     where: { id: userId },
-    data: { vehicle: vehicle.trim() || null },
+    data: { vehicle: value || null },
   })
 
   revalidatePath('/dashboard')
@@ -286,23 +196,24 @@ export async function saveMyVehicle(vehicle: string): Promise<SessionResult> {
   return { ok: true }
 }
 
-/** Updates the name, city and vehicle on the signed-in account. */
+/** Updates the name and city on the signed-in account. */
 export async function updateMyProfile(form: FormData): Promise<SessionResult> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return { ok: false, message: 'Sign in to edit your profile.' }
 
   const name = String(form.get('name') ?? '').trim()
+  const city = String(form.get('city') ?? '').trim()
   if (!name) return { ok: false, message: 'Enter your name.' }
+  if (name.length > 80) return { ok: false, message: 'Name must be 80 characters or fewer.' }
+  if (city.length > 80) return { ok: false, message: 'City must be 80 characters or fewer.' }
 
   await prisma.user.update({
     where: { id: userId },
     data: {
       name,
-      city: String(form.get('city') ?? '').trim() || null,
-      // The vehicle is not edited here any more: it follows the primary car
-      // in the garage (garage-actions.ts).
-      // The email is deliberately not editable: it is the identifier the
-      // account signs in with and the link to any business listing.
+      city: city || null,
+      // The vehicle follows the primary car in the garage (garage-actions.ts).
+      // The email is deliberately not editable: it is the sign-in identifier.
     },
   })
 
@@ -313,33 +224,50 @@ export async function updateMyProfile(form: FormData): Promise<SessionResult> {
 /**
  * Changes the password.
  *
- * The current one is required even though the session already proves who this
- * is — it means a borrowed, unlocked browser cannot be used to lock the real
- * owner out of their own account.
+ * The current one is required even though the session proves who this is, so
+ * a borrowed, unlocked browser cannot lock the real owner out. Every other
+ * session the account has open is ended; this browser gets a fresh cookie.
  */
 export async function changeMyPassword(
   currentPassword: string,
   newPassword: string,
 ): Promise<SessionResult> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return { ok: false, message: 'Sign in to change your password.' }
 
-  if (newPassword.length < 8) {
+  if (typeof newPassword !== 'string' || newPassword.length < 8) {
     return { ok: false, message: 'New password must be at least 8 characters.' }
   }
+  if (newPassword.length > 200) {
+    return { ok: false, message: 'New password must be 200 characters or fewer.' }
+  }
+
+  const limit = await checkLimits([
+    { key: `pwchange:user:${userId}`, limit: 10, windowSeconds: 60 * 60 },
+  ])
+  if (!limit.allowed) return { ok: false, message: retryMessage(limit.retryAfterSeconds) }
 
   const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user) return { ok: false, message: 'That account no longer exists.' }
 
-  if (!(await verifyPassword(currentPassword, user.passwordHash))) {
+  if (!(await verifyPassword(String(currentPassword ?? ''), user.passwordHash))) {
     return { ok: false, message: 'Your current password is not correct.' }
+  }
+  if (await verifyPassword(newPassword, user.passwordHash)) {
+    return { ok: false, message: 'Choose a password different from your current one.' }
   }
 
   await prisma.user.update({
     where: { id: userId },
-    data: { passwordHash: await hashPassword(newPassword) },
+    data: {
+      passwordHash: await hashPassword(newPassword),
+      mustChangePassword: false,
+      sessionVersion: { increment: 1 },
+    },
   })
+  await startSession(userId)
 
+  revalidatePath('/dashboard/settings')
   return { ok: true }
 }
 
@@ -348,29 +276,33 @@ export async function changeMyPassword(
 /**
  * Adds or removes a bookmark, returning whether it is now saved.
  *
- * A toggle rather than separate save/unsave calls because the button is a
- * toggle: sending "save" twice from a double click should leave one row, and
- * the unique constraint on (userId, listingId) makes that true at the database
- * level too.
+ * deleteMany, then createMany with skipDuplicates, rather than read-then-write,
+ * so a double click can neither crash on the unique constraint nor leave two
+ * rows.
  */
 export async function toggleSavedStation(
   listingId: string,
 ): Promise<{ ok: boolean; saved: boolean; message?: string }> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return { ok: false, saved: false, message: 'Sign in to save a listing.' }
+  if (typeof listingId !== 'string' || !listingId || listingId.length > 100) {
+    return { ok: false, saved: false, message: 'That listing could not be found.' }
+  }
 
-  const existing = await prisma.savedStation.findUnique({
-    where: { userId_listingId: { userId, listingId } },
-  })
-
-  if (existing) {
-    await prisma.savedStation.delete({ where: { id: existing.id } })
+  const removed = await prisma.savedStation.deleteMany({ where: { userId, listingId } })
+  if (removed.count > 0) {
     revalidatePath('/dashboard/saved')
     return { ok: true, saved: false }
   }
 
-  await prisma.savedStation.create({
-    data: { id: randomUUID(), userId, listingId },
+  const count = await prisma.savedStation.count({ where: { userId } })
+  if (count >= 200) {
+    return { ok: false, saved: false, message: 'You can save up to 200 listings.' }
+  }
+
+  await prisma.savedStation.createMany({
+    data: [{ id: randomUUID(), userId, listingId }],
+    skipDuplicates: true,
   })
   revalidatePath('/dashboard/saved')
   return { ok: true, saved: true }
@@ -378,11 +310,10 @@ export async function toggleSavedStation(
 
 /**
  * Whether anyone is signed in, and which listings they have saved — in one
- * call, so every Save button on a page can share it. Signed out costs no
- * database read at all.
+ * call, so every Save button on a page can share it.
  */
 export async function getMySavedStationIds(): Promise<{ signedIn: boolean; ids: string[] }> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return { signedIn: false, ids: [] }
   const rows = await prisma.savedStation.findMany({ where: { userId }, select: { listingId: true } })
   return { signedIn: true, ids: rows.map((row) => row.listingId) }
@@ -390,7 +321,7 @@ export async function getMySavedStationIds(): Promise<{ signedIn: boolean; ids: 
 
 /** Whether the signed-in visitor has this listing saved. False when signed out. */
 export async function isStationSaved(listingId: string): Promise<boolean> {
-  const userId = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+  const userId = await getSessionUserId()
   if (!userId) return false
 
   const row = await prisma.savedStation.findUnique({

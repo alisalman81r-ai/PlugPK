@@ -1,279 +1,90 @@
 // src/lib/db/upload-actions.ts
 'use server'
 
-import { randomUUID } from 'node:crypto'
-import { mkdir, unlink, writeFile } from 'node:fs/promises'
-import { join, resolve, sep } from 'node:path'
-
 import { revalidatePath } from 'next/cache'
 
+import { isUploadUrl } from '@/lib/upload-urls'
+
+import { isRequestAdmin } from './admin-access'
 import { prisma } from './client'
-import { getCurrentUser } from './session-actions'
+import { checkLimits, retryMessage } from './rate-limit'
+import { getSessionUserId } from './session'
+import { discard, store, type UploadResult } from './upload-store'
 
 /**
- * Photos of the chargers on a listing.
+ * The upload endpoints a browser may call.
  *
- * Images stay out of the database — a few megabytes of base64 per charger would
- * bloat every query that touches the row — so the bytes go to storage and the
- * row keeps a URL.
- *
- * ── Two backends, chosen by whether a token exists ────────────────────
- *
- * The note that used to be here said writing under public/uploads "does mean
- * the directory has to survive a deploy; on a host with an ephemeral filesystem
- * this needs to become object storage, and only this file changes." That came
- * due, and it was right that only this file changes.
- *
- * With BLOB_READ_WRITE_TOKEN set, uploads go to Vercel Blob and the row stores
- * an absolute URL. Without it, they go to public/uploads exactly as before and
- * the row stores a site-relative path. Vercel sets that variable automatically
- * once a Blob store is attached to the project, so production gets object
- * storage and a developer with no token keeps a working upload against their
- * own filesystem — which matters, because the alternative is a local admin
- * portal that throws on every image.
- *
- * The two are told apart at delete time by the URL itself rather than by
- * re-reading the environment: a path that starts with a scheme is in the blob
- * store, anything else is on disk. A file uploaded before the token existed is
- * therefore still deletable after it is added.
+ * Storage itself — validation, naming, Blob vs disk, deletion — is in
+ * upload-store.ts, which is server-only. Every export here is a public POST
+ * endpoint, so each one checks who is calling before it touches storage, and
+ * no export deletes a file it has not first proven the caller controls.
  */
 
-const UPLOAD_ROOT = join(process.cwd(), 'public', 'uploads')
+export type { UploadResult }
 
-/**
- * 4 MB, not the 5 MB this used to allow.
- *
- * A hosted serverless function refuses a request body over 4.5 MB before any
- * of this code runs, so a 5 MB cap was only ever reachable on a developer's
- * machine: on Vercel the same file fails as a generic request error with no
- * sentence from the action to explain it. Capping below the platform's limit
- * keeps the friendly message — "Images must be 4MB or smaller." — on the path
- * a real upload takes.
- *
- * The remaining 0.5 MB is multipart framing, not the image.
- */
-const MAX_BYTES = 4 * 1024 * 1024
+/** Uploads per account per hour — generous for a real listing, a wall for a script. */
+const UPLOADS_PER_HOUR = 60
 
-/** Set by Vercel when a Blob store is attached. Absent in local development. */
-/*
-  Two ways a Blob store can be attached, and the SDK understands both:
-
-    BLOB_STORE_ID          stores connected from the dashboard today. The SDK
-                           signs in with the deployment's own OIDC token.
-    BLOB_READ_WRITE_TOKEN  the older per-store secret.
-
-  The token is only passed when it is a real one (vercel_blob_rw_…): an
-  explicit token overrides OIDC, so a stale or placeholder value left in the
-  environment would otherwise shadow a store that is connected correctly —
-  which is exactly what had broken every upload on the live site.
-*/
-const RW_TOKEN = process.env.BLOB_READ_WRITE_TOKEN?.startsWith('vercel_blob_rw_')
-  ? process.env.BLOB_READ_WRITE_TOKEN
-  : undefined
-const BLOB_TOKEN = RW_TOKEN ?? (process.env.BLOB_STORE_ID ? 'oidc' : undefined)
-const blobAuth = () => (RW_TOKEN ? { token: RW_TOKEN } : {})
-
-const MIME: Record<string, string> = {
-  jpg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
+async function uploadAllowed(userId: string): Promise<UploadResult | null> {
+  const limit = await checkLimits([
+    { key: `upload:user:${userId}`, limit: UPLOADS_PER_HOUR, windowSeconds: 60 * 60 },
+  ])
+  return limit.allowed ? null : { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many uploads') }
 }
 
-/**
- * The kinds of image this application accepts, and where each lands.
- *
- * Keeping them in one table means a new kind cannot quietly skip the checks
- * below — validation, naming and deletion all read from here.
- */
-const BUCKETS = {
-  chargers: { dir: join(UPLOAD_ROOT, 'chargers'), prefix: '/uploads/chargers/' },
-  avatars: { dir: join(UPLOAD_ROOT, 'avatars'), prefix: '/uploads/avatars/' },
-  /**
-   * Car photographs uploaded through the admin portal.
-   *
-   * Under /uploads rather than /images/cars, deliberately. That directory is a
-   * repository asset: 32 files fetched from Wikimedia Commons with their
-   * licences recorded in src/data/carImageCredits.ts and regenerated by
-   * scripts/fetch-car-images.mjs. Letting the portal write into it would mean an
-   * upload could overwrite a credited file, leaving the credits module naming a
-   * photographer who did not take the picture on screen — and the next run of
-   * the fetch script would silently overwrite the upload back. Two writers, one
-   * directory, no way to tell whose file is whose.
-   *
-   * Keeping uploads separate also makes the distinction visible in the admin: a
-   * path under /images/cars came from the seed, one under /uploads/cars was put
-   * there by a person.
-   */
-  cars: { dir: join(UPLOAD_ROOT, 'cars'), prefix: '/uploads/cars/' },
-} as const
-
-type Bucket = keyof typeof BUCKETS
-
-export interface UploadResult {
-  ok: boolean
-  url?: string
-  message?: string
-}
-
-/**
- * The declared MIME type is chosen by whoever is posting, so the file's own
- * first bytes are checked instead. This is what stops a script being uploaded
- * with `image/png` written on the envelope.
- */
-function sniff(bytes: Uint8Array): 'jpg' | 'png' | 'webp' | null {
-  if (bytes.length < 12) return null
-
-
-  // Read through a helper so the length check above satisfies the compiler as
-  // well as the reader — indexing a Uint8Array is typed as possibly undefined.
-  const at = (index: number): number => bytes[index] ?? 0
-
-  if (at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff) return 'jpg'
-
-  if (
-    at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47 &&
-    at(4) === 0x0d && at(5) === 0x0a && at(6) === 0x1a && at(7) === 0x0a
-  ) {
-    return 'png'
-  }
-
-  const text = (from: number): string =>
-    String.fromCharCode(at(from), at(from + 1), at(from + 2), at(from + 3))
-
-  if (text(0) === 'RIFF' && text(8) === 'WEBP') return 'webp'
-
-  return null
-}
-
-/** Confirms the listing belongs to the signed-in account. */
-async function ownsListing(businessId: string): Promise<boolean> {
-  const user = await getCurrentUser()
-  if (!user) return false
+/** The signed-in account's id when it owns this listing, else null. */
+async function listingOwner(businessId: string): Promise<string | null> {
+  const userId = await getSessionUserId()
+  if (!userId || typeof businessId !== 'string') return null
 
   const business = await prisma.business.findUnique({
     where: { id: businessId },
     select: { userId: true },
   })
-  return business?.userId === user.id
+  return business?.userId === userId ? userId : null
 }
 
-async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
-  const file = form.get('file')
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, message: 'Choose an image to upload.' }
-  }
-  if (file.size > MAX_BYTES) {
-    return { ok: false, message: 'Images must be 4MB or smaller.' }
-  }
-
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  const kind = sniff(bytes)
-  if (!kind) {
-    return { ok: false, message: 'That file is not a JPEG, PNG or WebP image.' }
-  }
-
-  // The name is generated here and the client's is discarded entirely: a
-  // filename from a form is attacker-chosen text, and one containing ../ is
-  // the classic way an upload lands somewhere it should not.
-  const name = `${randomUUID()}.${kind}`
-  const { dir, prefix } = BUCKETS[bucket]
-
-  if (BLOB_TOKEN) {
-    /*
-      Imported here rather than at the top of the file so a deployment without
-      a Blob store never loads the SDK, and `addRandomSuffix: false` because the
-      name is already a UUID — letting the store add another produces a key that
-      does not match what is written to the row.
-    */
-    const { put } = await import('@vercel/blob')
-    // Buffer, not the Uint8Array: the SDK's body type does not accept a bare
-    // typed array. Buffer.from over the same memory, so nothing is copied.
-    // A store problem (wrong access type, revoked credentials, outage) is a
-    // message to the visitor, not a crashed page; the cause goes to the logs.
-    try {
-      const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
-        access: 'public',
-        ...blobAuth(),
-        contentType: MIME[kind] ?? 'application/octet-stream',
-        addRandomSuffix: false,
-      })
-      return { ok: true, url: blob.url }
-    } catch (error) {
-      console.error('[upload] Blob put failed:', error)
-      return { ok: false, message: 'Photo uploads are not available right now. Please try again later.' }
-    }
-  }
-
-  /*
-    No Blob store: write to public/uploads. That only works on a machine with a
-    writable disk. On Vercel the deployment is read-only, so the write threw
-    ENOENT and the whole action crashed — the visitor saw a generic server
-    error, and a business listing was left half-created without its photos.
-    Say what is wrong instead; the fix is connecting a Blob store.
-  */
-  if (process.env.VERCEL) {
-    return { ok: false, message: 'Photo uploads are not available right now. Please try again later.' }
-  }
-  try {
-    await mkdir(dir, { recursive: true })
-    await writeFile(join(dir, name), bytes)
-  } catch {
-    return { ok: false, message: 'Could not save that image. Please try again.' }
-  }
-
-  return { ok: true, url: `${prefix}${name}` }
-}
-
-async function discard(bucket: Bucket, url: string): Promise<void> {
-  const { dir, prefix } = BUCKETS[bucket]
-
-  /*
-    An absolute URL is in the blob store, wherever it was written from. Checked
-    on the value rather than on BLOB_TOKEN so files uploaded before a store was
-    attached stay deletable afterwards, and vice versa.
-  */
-  if (url.startsWith('https://') || url.startsWith('http://')) {
-    if (!BLOB_TOKEN) return
-    try {
-      const { del } = await import('@vercel/blob')
-      await del(url, blobAuth())
-    } catch {
-      // Already gone is the desired end state, as below.
-    }
-    return
-  }
-
-  if (!url.startsWith(prefix)) return
-
-  const target = resolve(dir, url.slice(prefix.length))
-  // Confirms the path stayed inside its own directory before anything is
-  // unlinked, so a crafted value cannot reach a file elsewhere on the machine.
-  if (!target.startsWith(resolve(dir) + sep)) return
-
-  try {
-    await unlink(target)
-  } catch {
-    // Already gone is the desired end state, so it is not reported as failure.
-  }
+/**
+ * Every charger photo URL any listing currently points at. A photo that is
+ * referenced must never be deleted from here — removing one from a listing is
+ * done by saving the listing, and saveMyChargers cleans up what it replaced.
+ */
+async function isReferencedByAnyListing(url: string): Promise<boolean> {
+  const hit = await prisma.business.findFirst({
+    where: { chargers: { contains: url } },
+    select: { id: true },
+  })
+  return hit !== null
 }
 
 export async function uploadChargerPhoto(
   businessId: string,
   form: FormData,
 ): Promise<UploadResult> {
-  if (!(await ownsListing(businessId))) {
-    return { ok: false, message: 'That listing is not yours to edit.' }
-  }
+  const userId = await listingOwner(businessId)
+  if (!userId) return { ok: false, message: 'That listing is not yours to edit.' }
+  const limited = await uploadAllowed(userId)
+  if (limited) return limited
   return store('chargers', form)
 }
 
+/**
+ * Throws away a charger photo that was uploaded but never saved onto a listing,
+ * e.g. when the owner picks a different file before pressing Save.
+ *
+ * Only unreferenced files in the chargers bucket qualify. Anything a listing
+ * points at — this owner's or anyone else's — is refused, which is what stops
+ * this endpoint deleting another listing's photos.
+ */
 export async function deleteChargerPhoto(
   businessId: string,
   url: string,
 ): Promise<UploadResult> {
-  if (!(await ownsListing(businessId))) {
+  if (!(await listingOwner(businessId))) {
     return { ok: false, message: 'That listing is not yours to edit.' }
   }
+  if (!isUploadUrl('chargers', url)) return { ok: true }
+  if (await isReferencedByAnyListing(url)) return { ok: true }
   await discard('chargers', url)
   return { ok: true }
 }
@@ -281,82 +92,64 @@ export async function deleteChargerPhoto(
 // ─── Profile pictures ───────────────────────────────────
 
 /**
- * Sets the signed-in account's profile picture.
- *
- * Scoped to the session rather than taking a user id: an action that accepted
- * one would be a way to change somebody else's picture.
+ * Sets the signed-in account's profile picture. Scoped to the session rather
+ * than taking a user id, so it cannot change somebody else's picture.
  */
 export async function uploadMyAvatar(form: FormData): Promise<UploadResult> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, message: 'Sign in to set a profile picture.' }
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, message: 'Sign in to set a profile picture.' }
+  const limited = await uploadAllowed(userId)
+  if (limited) return limited
 
   const result = await store('avatars', form)
   if (!result.ok || !result.url) return result
 
   const existing = await prisma.user.findUnique({
-    where: { id: user.id },
+    where: { id: userId },
     select: { avatar: true },
   })
 
-  await prisma.user.update({ where: { id: user.id }, data: { avatar: result.url } })
+  await prisma.user.update({ where: { id: userId }, data: { avatar: result.url } })
 
-  // The one it replaced would otherwise sit on disk forever.
+  // The one it replaced would otherwise sit in storage forever.
   if (existing?.avatar) await discard('avatars', existing.avatar)
 
-  revalidatePath('/', 'layout')
+  // Only the dashboard renders the avatar server-side; the header reads /api/me.
+  revalidatePath('/dashboard', 'layout')
   return result
 }
 
 export async function removeMyAvatar(): Promise<UploadResult> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, message: 'Sign in to change your profile picture.' }
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, message: 'Sign in to change your profile picture.' }
 
   const existing = await prisma.user.findUnique({
-    where: { id: user.id },
+    where: { id: userId },
     select: { avatar: true },
   })
 
-  await prisma.user.update({ where: { id: user.id }, data: { avatar: null } })
+  await prisma.user.update({ where: { id: userId }, data: { avatar: null } })
   if (existing?.avatar) await discard('avatars', existing.avatar)
 
-  revalidatePath('/', 'layout')
+  revalidatePath('/dashboard', 'layout')
   return { ok: true }
 }
 
 // ─── Car photographs (admin) ────────────────────────────
 
 /**
- * Stores a car photograph uploaded from the admin portal.
+ * Stores a car photograph uploaded from the admin portal. Writing the URL onto
+ * the car is setCarImage's job in car-actions.ts; the old file is deleted
+ * there, server-side, once the row no longer points at it.
  *
- * Guarded by the admin session rather than listing ownership: cars have no
- * owner, and the portal is the only place they are edited. The check is here as
- * well as in the layout because a server action is a POST endpoint anyone can
- * call once they know it exists — a layout guard protects pages, not actions.
- *
- * It only stores the file and returns the path; writing that path onto the car
- * is setCarImage's job in car-actions.ts. Splitting the two means a rejected
- * file never touches the row, and the same upload can be pointed at a different
- * car without re-uploading.
+ * discardCarPhoto used to be exported from here with no check at all, which
+ * let anyone delete any file in the Blob store. Deletion of car photos now
+ * happens only inside car-actions.ts, behind assertAdmin.
  */
 export async function uploadCarPhoto(form: FormData): Promise<UploadResult> {
-  const { cookies } = await import('next/headers')
-  // Single check, shared with every other action and the admin layout.
-  const { isRequestAdmin } = await import('./admin-access')
-
   if (!(await isRequestAdmin())) {
     return { ok: false, message: 'Your admin session has expired. Sign in again and retry.' }
   }
 
   return store('cars', form)
-}
-
-/**
- * Deletes an uploaded car photograph.
- *
- * Silently ignores anything outside /uploads/cars/, which is what protects the
- * seeded, credited files under /images/cars from being removed when a row that
- * points at one is edited or deleted.
- */
-export async function discardCarPhoto(url: string): Promise<void> {
-  await discard('cars', url)
 }

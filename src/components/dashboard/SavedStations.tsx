@@ -5,7 +5,7 @@ import { Bookmark, Search } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { RatingStars } from '@/components/ui'
+import { Button, RatingStars } from '@/components/ui'
 import { toggleSavedStation } from '@/lib/db/session-actions'
 import type { Station } from '@/lib/types'
 
@@ -125,14 +125,15 @@ export function SavedStations({ stations: saved }: SavedStationsProps) {
                 </span>
               </Link>
 
-              <button
-                type="button"
+              <Button
+                variant="secondary"
                 onClick={() => handleUnsave(station)}
-                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-semibold text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                aria-label={`Remove ${station.name} from saved stations`}
+                leftIcon={<Bookmark size={14} className="shrink-0 fill-current" aria-hidden="true" />}
+                className="shrink-0 border-slate-200 text-ui-sm text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
               >
-                <Bookmark size={14} className="shrink-0 fill-current" aria-hidden="true" />
                 Remove
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

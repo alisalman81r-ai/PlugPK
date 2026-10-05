@@ -4,8 +4,7 @@
 import { Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
-import { PhotoFrame, StatusDot } from '@/components/ui'
-import { MOCK_STATIONS } from '@/lib/mock-data'
+import { PhotoFrame } from '@/components/ui'
 import type { Station } from '@/lib/types'
 import { cn, getMaxPower } from '@/lib/utils'
 
@@ -16,11 +15,22 @@ export interface MapSearchBarProps {
   resultCount: number
   className?: string
   onSelectStation?: (station: Station) => void
+  /**
+   * The list the suggestions are drawn from — the same one the map shows.
+   *
+   * This searched MOCK_STATIONS, a fixture compiled into the bundle, so the
+   * dropdown offered six sample stations whatever the map held, and never a
+   * business listing.
+   */
+  stations: readonly Station[]
+  /**
+   * Distinguishes two instances on one page (the phone's overlay and the
+   * desktop band), whose listbox ids would otherwise collide.
+   */
+  idPrefix?: string
 }
 
 const MAX_SUGGESTIONS = 6
-const LISTBOX_ID = 'map-search-suggestions'
-const optionId = (index: number) => `${LISTBOX_ID}-option-${index}`
 
 /**
  * Splits a label around the matched query so the matching run can be marked.
@@ -39,7 +49,11 @@ export function MapSearchBar({
   resultCount,
   className,
   onSelectStation,
+  stations,
+  idPrefix = 'map-search',
 }: MapSearchBarProps) {
+  const LISTBOX_ID = `${idPrefix}-suggestions`
+  const optionId = (index: number) => `${LISTBOX_ID}-option-${index}`
   const [isFocused, setIsFocused] = React.useState(false)
   const [activeIndex, setActiveIndex] = React.useState(-1)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -51,13 +65,13 @@ export function MapSearchBar({
     const needle = query.toLowerCase()
     if (needle.length < 2) return []
 
-    return MOCK_STATIONS.filter((station) =>
+    return stations.filter((station) =>
       [station.name, station.address.city, station.address.area]
         .join(' ')
         .toLowerCase()
         .includes(needle),
     ).slice(0, MAX_SUGGESTIONS)
-  }, [query])
+  }, [query, stations])
 
   const showDropdown = isFocused && query.length >= 2
 
@@ -83,9 +97,9 @@ export function MapSearchBar({
   // Keep the keyboard-highlighted row inside the scroll area.
   React.useEffect(() => {
     if (activeIndex < 0 || !listRef.current) return
-    const node = listRef.current.querySelector<HTMLElement>(`#${CSS.escape(optionId(activeIndex))}`)
+    const node = listRef.current.querySelector<HTMLElement>(`#${CSS.escape(`${LISTBOX_ID}-option-${activeIndex}`)}`)
     node?.scrollIntoView({ block: 'nearest' })
-  }, [activeIndex])
+  }, [activeIndex, LISTBOX_ID])
 
   const select = (station: Station) => {
     onSelectStation?.(station)
@@ -232,8 +246,6 @@ export function MapSearchBar({
                       ) : null}
                     </span>
                   </span>
-
-                  <StatusDot status={station.status} size="sm" />
                 </button>
               )
             })

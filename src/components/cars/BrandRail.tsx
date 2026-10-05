@@ -260,7 +260,7 @@ export function BrandRail({ brands, counts, selected, onToggle, onClear }: Brand
                 </span>
                 <span
                   className={cn(
-                    'font-mono text-[10px] tabular-nums',
+                    'font-mono text-ui-xs tabular-nums',
                     active ? 'text-white/60' : 'text-slate-400',
                   )}
                 >

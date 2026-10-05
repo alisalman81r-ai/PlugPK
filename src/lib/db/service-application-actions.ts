@@ -6,7 +6,12 @@ import { randomUUID } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 
 import { SERVICE_CATEGORY_KEYS } from '@/lib/constants'
+import { checkEmail, checkPhone, checkText, checkWebsite, isInPakistan } from '@/lib/validate'
+
+import { getAdminActor } from './admin-access'
+import { logAdminAction } from './audit'
 import { prisma } from './client'
+import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
 
 /**
  * Applications to be listed in the EV services directory.
@@ -32,14 +37,12 @@ export interface ApplyResult {
   field?: string
 }
 
+/** Applications per address per hour. A real applicant sends one. */
+const APPLICATIONS_PER_HOUR = 5
+
 /** Trimmed, and empty-to-null so a blank optional field is not stored as "". */
 function text(form: FormData, key: string): string {
   return String(form.get(key) ?? '').trim()
-}
-
-function optional(form: FormData, key: string): string | null {
-  const value = text(form, key)
-  return value.length > 0 ? value : null
 }
 
 /**
@@ -67,66 +70,104 @@ async function uniqueSlug(name: string): Promise<string> {
 /**
  * Records an application. Public — no session required, by design.
  *
- * Validation is deliberately shallow: name, category, city and one way to make
- * contact. Asking an applicant for coordinates or opening hours before anybody
- * has agreed to list them is how a form gets abandoned, and the admin can fill
- * the rest in while reviewing. The category is checked against the real list
- * because it decides which page the listing appears on.
+ * Name, category, city, a description, one way to make contact, and a map pin.
+ * The pin was left to the reviewer at first, so every application was stored
+ * at 0,0 — a point in the Gulf of Guinea — and an approved listing's
+ * "Get Directions" sent drivers there. The applicant is the one person who
+ * knows where the workshop is, so they place it, and it has to be inside
+ * Pakistan. Opening hours and photos are still the reviewer's to fill in.
+ *
+ * Every field is length-capped and re-validated here; the form's own checks
+ * are a convenience for the person typing.
  */
 export async function applyToListService(form: FormData): Promise<ApplyResult> {
-  const name = text(form, 'name')
-  const category = text(form, 'category')
-  const city = text(form, 'city')
-  const description = text(form, 'description')
-  const phone = text(form, 'phone')
-  const email = optional(form, 'email')
+  const name = checkText(form.get('name'), 'the business name', { max: 120, min: 2, required: true })
+  if (!name.ok) return { ok: false, field: 'name', message: name.message }
 
-  if (name.length < 2) return { ok: false, field: 'name', message: 'Tell us the business name.' }
+  const category = text(form, 'category')
   if (!SERVICE_CATEGORY_KEYS.includes(category as (typeof SERVICE_CATEGORY_KEYS)[number])) {
     return { ok: false, field: 'category', message: 'Choose the kind of service you offer.' }
   }
-  if (city.length < 2) return { ok: false, field: 'city', message: 'Which city are you in?' }
-  if (description.length < 20) {
+
+  const city = checkText(form.get('city'), 'your city', { max: 80, min: 2, required: true })
+  if (!city.ok) return { ok: false, field: 'city', message: city.message }
+  const area = checkText(form.get('area'), 'the area', { max: 120 })
+  if (!area.ok) return { ok: false, field: 'area', message: area.message }
+  const street = checkText(form.get('street'), 'the street address', { max: 200 })
+  if (!street.ok) return { ok: false, field: 'street', message: street.message }
+
+  const description = checkText(form.get('description'), 'a description', { max: 1000, required: true })
+  if (!description.ok) return { ok: false, field: 'description', message: description.message }
+  if (description.value.length < 20) {
     return {
       ok: false,
       field: 'description',
       message: 'A sentence or two about what you do — at least 20 characters.',
     }
   }
-  if (phone.length < 7 && !email) {
+
+  const phone = checkPhone(form.get('phone'))
+  if (!phone.ok) return { ok: false, field: 'phone', message: phone.message }
+  const rawEmail = text(form, 'email')
+  const email = rawEmail ? checkEmail(rawEmail) : null
+  if (email && !email.ok) return { ok: false, field: 'email', message: email.message }
+  if (!phone.value && !email) {
     return { ok: false, field: 'phone', message: 'Leave a phone number or an email so we can reach you.' }
+  }
+
+  const website = checkWebsite(form.get('website'))
+  if (!website.ok) return { ok: false, field: 'website', message: website.message }
+
+  const lat = Number(text(form, 'lat'))
+  const lng = Number(text(form, 'lng'))
+  if (!text(form, 'lat') || !text(form, 'lng') || !isInPakistan(lat, lng)) {
+    return {
+      ok: false,
+      field: 'location',
+      message: 'Set your location on the map — it has to be inside Pakistan.',
+    }
+  }
+
+  const limit = await checkLimits([
+    { key: `service-apply:ip:${clientFingerprint()}`, limit: APPLICATIONS_PER_HOUR, windowSeconds: 60 * 60 },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many applications') }
   }
 
   // One pending application per name and city. Submitting twice is far more
   // often an impatient second click than a second branch, and a duplicate in
   // the queue costs the reviewer time rather than the applicant anything.
   const existing = await prisma.eVService.findFirst({
-    where: { name, city, status: 'pending' },
+    where: {
+      name: { equals: name.value, mode: 'insensitive' },
+      city: { equals: city.value, mode: 'insensitive' },
+      status: 'pending',
+    },
     select: { id: true },
   })
   if (existing) {
-    return { ok: true, message: 'We already have your application — we will be in touch.' }
+    return { ok: true, message: 'We already have your application, and it is waiting to be reviewed.' }
   }
 
   await prisma.eVService.create({
     data: {
       id: randomUUID(),
-      slug: await uniqueSlug(name),
-      name,
+      slug: await uniqueSlug(name.value),
+      name: name.value,
       category,
-      description,
-      // The applicant gives a city; the rest of the address and the map pin are
-      // filled in by the reviewer, who can check them.
-      street: text(form, 'street') || '',
-      area: text(form, 'area') || '',
-      city,
+      description: description.value,
+      street: street.value,
+      area: area.value,
+      city: city.value,
       province: '',
       country: 'Pakistan',
-      lat: 0,
-      lng: 0,
-      phone,
-      email,
-      website: optional(form, 'website'),
+      lat,
+      lng,
+      // The column is required; an email-only applicant has no phone to store.
+      phone: phone.value ?? '',
+      email: email && email.ok ? email.value : null,
+      website: website.value,
       status: 'pending',
       submittedAt: new Date(),
     },
@@ -139,13 +180,6 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
   return { ok: true }
 }
 
-/** Guards the review actions. Same check the upload actions use. */
-async function isAdmin(): Promise<boolean> {
-  // Single check, shared with every other action and the admin layout.
-  const { isRequestAdmin } = await import('./admin-access')
-  return isRequestAdmin()
-}
-
 /**
  * Approves or rejects an application.
  *
@@ -153,26 +187,52 @@ async function isAdmin(): Promise<boolean> {
  * well as the admin screens — otherwise the reviewer approves a listing and it
  * does not appear until the cache expires, which reads as the button not
  * working.
+ *
+ * Approval is refused while the listing has no real pin (0,0, or anywhere
+ * outside Pakistan): published, it would give drivers directions to nowhere.
+ * Like the business actions, an expired session or a vanished row is a
+ * message, not a thrown error, and every decision is written to the audit log.
  */
 export async function reviewServiceApplication(
   id: string,
   status: 'approved' | 'rejected',
   note?: string | null,
 ): Promise<ApplyResult> {
-  if (!(await isAdmin())) {
+  const actor = await getAdminActor()
+  if (!actor) {
     return { ok: false, message: 'Your admin session has expired. Sign in again and retry.' }
   }
   if (status !== 'approved' && status !== 'rejected') {
     return { ok: false, message: 'Unknown review outcome.' }
   }
 
-  const row = await prisma.eVService.findUnique({ where: { id }, select: { id: true } })
+  const row = await prisma.eVService.findUnique({
+    where: { id },
+    select: { id: true, name: true, lat: true, lng: true },
+  })
   if (!row) return { ok: false, message: 'That application no longer exists.' }
+
+  if (status === 'approved' && !isInPakistan(row.lat, row.lng)) {
+    return {
+      ok: false,
+      message: 'This listing has no map pin inside Pakistan. Set its coordinates before approving it.',
+    }
+  }
+
+  const reviewNote = (typeof note === 'string' ? note.trim().slice(0, 500) : '') || null
 
   await prisma.eVService.update({
     where: { id },
-    data: { status, reviewNote: note?.trim() || null },
+    data: { status, reviewNote },
   })
+
+  await logAdminAction(
+    actor,
+    status === 'approved' ? 'service.approve' : 'service.reject',
+    'service',
+    id,
+    `${row.name}${reviewNote ? ` — ${reviewNote}` : ''}`,
+  )
 
   revalidatePath('/admin/services')
   revalidatePath('/admin')

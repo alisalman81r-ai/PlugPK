@@ -2,20 +2,34 @@
 import { Pencil, Plus } from '@/components/ui/icons'
 import Link from 'next/link'
 
+import { AdminFilterChips } from '@/components/admin/AdminFilterChips'
 import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminPagination } from '@/components/admin/AdminPagination'
+import { AdminSearch } from '@/components/admin/AdminSearch'
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { PortStepper } from '@/components/admin/PortStepper'
+import { flattenParams, pick } from '@/components/admin/list-params'
 import { deleteConnector, setConnectorAvailability } from '@/lib/db/actions'
-import { getConnectors } from '@/lib/db/queries'
+import { listConnectorsPage, toPage, toQuery } from '@/lib/db/admin-queries'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminConnectorsPage() {
-  const rows = await getConnectors()
+const PATH = '/admin/connectors'
 
-  const totalPorts = rows.reduce((sum, row) => sum + row.connector.ports, 0)
-  const freePorts = rows.reduce((sum, row) => sum + row.connector.availablePorts, 0)
+export default async function AdminConnectorsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>
+}) {
+  const params = flattenParams(searchParams)
+  const q = toQuery(params.q)
+  const status = pick(params.status, ['all', 'available', 'in-use', 'offline'] as const, 'all')
+  const page = toPage(params.page)
+
+  const listing = await listConnectorsPage({ q, status, page })
+  const rows = listing.rows
+  const { ports: totalPorts, free: freePorts, connectors: connectorCount } = listing.totals
 
   return (
     <>
@@ -29,7 +43,7 @@ export default async function AdminConnectorsPage() {
               up from these rows.
             </>
           }
-        description={`${freePorts} of ${totalPorts} ports free across ${rows.length} connectors.`}
+        description={`${freePorts} of ${totalPorts} ports free across ${connectorCount} connectors.`}
         action={
           <Link
             href="/admin/connectors/new"
@@ -41,19 +55,38 @@ export default async function AdminConnectorsPage() {
         }
       />
 
-      <div className="px-4 py-6 lg:px-8 lg:py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
+        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 lg:flex-row lg:items-center">
+          <AdminSearch placeholder="Search station, city or connector type" label="Search connectors" />
+          <AdminFilterChips
+            label="Filter by status"
+            param="status"
+            current={status}
+            path={PATH}
+            params={params}
+            options={[
+              { value: 'all', label: 'All' },
+              { value: 'available', label: 'Available' },
+              { value: 'in-use', label: 'In use' },
+              { value: 'offline', label: 'Offline' },
+            ]}
+          />
+        </div>
+
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-            <p className="text-ui font-semibold text-slate-900">No connectors yet</p>
+            <p className="text-ui font-semibold text-slate-900">
+              {connectorCount === 0 ? 'No connectors yet' : 'No connector matches that'}
+            </p>
             <p className="mt-1 text-ui-sm text-slate-500">
-              Add one to publish it to a station.
+              {connectorCount === 0 ? 'Add one to publish it to a station.' : 'Try another search or status.'}
             </p>
           </div>
         ) : (
           <>
             {/* Desktop: a table, because comparing power and price down a
                 column is the whole job. */}
-            <div className="relative hidden overflow-hidden rounded-xl border border-slate-200 bg-white lg:block">
+            <div className="relative hidden overflow-x-auto rounded-xl border border-slate-200 bg-white lg:block">
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-ui-xs uppercase tracking-wider text-slate-500">
@@ -193,6 +226,15 @@ export default async function AdminConnectorsPage() {
             </ul>
           </>
         )}
+
+        <AdminPagination
+          path={PATH}
+          params={params}
+          page={page}
+          pageSize={listing.pageSize}
+          total={listing.total}
+          noun={['connector', 'connectors']}
+        />
       </div>
     </>
   )

@@ -5,9 +5,9 @@ import { APIProvider, AdvancedMarker, Map, useMap } from '@vis.gl/react-google-m
 import * as React from 'react'
 
 import type { Coordinates, Station } from '@/lib/types'
-import { getStationBounds } from '@/lib/utils'
 
-import { STATUS_LABEL, StationPin, UserLocationPin } from './StationPin'
+import { PAKISTAN_BOUNDS } from './pakistan-bounds'
+import { StationPin, UserLocationPin, pinTitle } from './StationPin'
 
 export interface MapViewGoogleProps {
   stations: Station[]
@@ -36,11 +36,9 @@ const MAP_ID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
 /** Lives inside <Map> so it can reach the map instance via useMap(). */
 function CameraController({
-  stations,
   selectedStation,
   userLocation,
 }: {
-  stations: Station[]
   selectedStation: Station | null
   userLocation: Coordinates | null
 }) {
@@ -48,24 +46,17 @@ function CameraController({
   const hasFramed = React.useRef(false)
 
   /**
-   * Frame the stations once the map exists, so a small catalogue fills the
-   * view instead of sitting as specks inside a country-wide zoom. Guarded by
-   * a ref so it never fights the selection pan below.
+   * Frame Pakistan once the map exists — the same box the MapLibre engine
+   * opens on (see pakistan-bounds.ts), so the two engines agree. A fixed
+   * centre and zoom showed a sliver of the country on a phone; bounds fit any
+   * card. Guarded by a ref so it never fights the selection pan below.
    */
   React.useEffect(() => {
     if (!map || hasFramed.current || selectedStation) return
-    const bounds = getStationBounds(stations)
-    if (!bounds) return
-
     hasFramed.current = true
-    // Mirrors the MapLibre engine's framing: extra room at the bottom for the
-    // attribution, the zoom cluster and the floating preview card, so the same
-    // catalogue is framed the same way whichever engine is running.
-    map.fitBounds(
-      { north: bounds.north, south: bounds.south, east: bounds.east, west: bounds.west },
-      { top: 104, right: 88, bottom: 128, left: 88 },
-    )
-  }, [map, stations, selectedStation])
+    const narrow = map.getDiv().clientWidth < 640
+    map.fitBounds(PAKISTAN_BOUNDS, narrow ? 12 : 40)
+  }, [map, selectedStation])
 
   React.useEffect(() => {
     if (!map || !selectedStation) return
@@ -91,7 +82,9 @@ export function MapViewGoogle({
   apiKey,
 }: MapViewGoogleProps) {
   return (
-    <APIProvider apiKey={apiKey}>
+    // English labels, and borders as Google draws them for Pakistan (`region`
+    // localises disputed boundaries). See the Kashmir note in pakistan-bounds.ts.
+    <APIProvider apiKey={apiKey} language="en" region="PK">
       <Map
         mapId={MAP_ID}
         defaultCenter={PAKISTAN_CENTER}
@@ -106,7 +99,6 @@ export function MapViewGoogle({
         style={{ width: '100%', height: '100%' }}
       >
         <CameraController
-          stations={stations}
           selectedStation={selectedStation}
           userLocation={userLocation}
         />
@@ -115,7 +107,7 @@ export function MapViewGoogle({
           <AdvancedMarker
             key={station.id}
             position={{ lat: station.coordinates.lat, lng: station.coordinates.lng }}
-            title={`${station.name} — ${STATUS_LABEL[station.status]}`}
+            title={pinTitle(station)}
             // Selected pin rides above its neighbours rather than being
             // overlapped by whatever the map happens to draw later.
             zIndex={selectedStation?.id === station.id ? 20 : 1}

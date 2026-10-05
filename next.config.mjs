@@ -21,6 +21,34 @@ const nextConfig = {
    */
   distDir: process.env.NEXT_DIST_DIR || '.next',
 
+  /**
+   * Baseline security headers on every response.
+   *
+   * frame-ancestors / X-Frame-Options stop the site — above all the admin
+   * portal's click-to-confirm deletes — from being loaded inside someone
+   * else's page and clickjacked. A full script CSP is deliberately not set
+   * here: the map SDKs load from several origins and a wrong policy would
+   * break them silently; frame-ancestors is the part that carries the risk.
+   */
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self)' },
+        ],
+      },
+      {
+        source: '/admin/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ]
+  },
+
   images: {
     // WebP only, which is also the Next default. AVIF was measured here at
     // 2.44s to encode a 828px variant from cold against WebP's 0.41s — six

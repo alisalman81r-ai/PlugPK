@@ -244,7 +244,7 @@ export function CarHero({
             // requires; flex-col-reverse puts the number on top where the eye
             // wants it without lying about the structure.
             <div key={stat.label} className="flex flex-1 flex-col-reverse px-5">
-              <dt className="mt-2 font-mono text-[0.625rem] uppercase leading-none tracking-[0.16em] text-white/55">
+              <dt className="mt-2 font-mono text-ui-xs uppercase leading-none tracking-[0.16em] text-white/55">
                 {stat.label}
               </dt>
               <dd className="font-mono text-3xl font-bold leading-none tabular-nums text-white sm:text-[2.5rem]">

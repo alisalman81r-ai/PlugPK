@@ -11,11 +11,12 @@ import {
   NavigationControl,
   type MapRef,
 } from 'react-map-gl/maplibre'
+import type { ExpressionSpecification, Map as MaplibreMap } from 'maplibre-gl'
 
 import type { Coordinates, Station } from '@/lib/types'
-import { getStationBounds } from '@/lib/utils'
 
-import { STATUS_LABEL, StationPin, UserLocationPin } from './StationPin'
+import { PAKISTAN_BOUNDS } from './pakistan-bounds'
+import { StationPin, UserLocationPin, pinTitle } from './StationPin'
 
 export interface MapViewLibreProps {
   stations: Station[]
@@ -26,11 +27,24 @@ export interface MapViewLibreProps {
 }
 
 /**
- * Framing used before the camera is fitted to the stations — and the framing
- * that stands when a filter matches nothing, so an empty result still shows a
- * recognisable Pakistan rather than a blank region.
+ * The opening frame: the whole of Pakistan, fitted to whatever size the card is.
+ *
+ * It used to be a fixed centre and zoom (30.4, 69.3 at z5.2). On a desktop that
+ * was roughly right; on a 390px phone the same zoom showed a strip from
+ * Afghanistan to India with half the country off either edge. Bounds fit the
+ * country into any viewport, which a centre-and-zoom cannot.
+ *
+ * It also no longer frames the stations. With the sample data in three cities
+ * that cropped out Balochistan, Gilgit-Baltistan and most of KP, and a map that
+ * opens on a slice of the country reads as a map of that slice.
  */
-const PAKISTAN_CENTER = { latitude: 30.3753, longitude: 69.3451, zoom: 5.2 }
+const INITIAL_VIEW = {
+  bounds: [
+    [PAKISTAN_BOUNDS.west, PAKISTAN_BOUNDS.south],
+    [PAKISTAN_BOUNDS.east, PAKISTAN_BOUNDS.north],
+  ] as [[number, number], [number, number]],
+  fitBoundsOptions: { padding: 16 },
+}
 
 /**
  * OpenFreeMap serves OpenStreetMap vector tiles with no key and no account.
@@ -45,6 +59,36 @@ const PAKISTAN_CENTER = { latitude: 30.3753, longitude: 69.3451, zoom: 5.2 }
  */
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 
+/**
+ * Labels in English.
+ *
+ * Liberty draws each place as "latin name / local-script name", taking the
+ * second line from `name:nonlatin`. Across the border that is Devanagari, so
+ * the eastern half of the frame was labelled in Hindi on a map for Pakistan,
+ * while Pakistani places got Urdu under English. OpenFreeMap's tiles carry
+ * `name:en` and `name:latin` for this, so every symbol layer whose text comes
+ * from a name is rewritten to use them, falling back to the plain name only
+ * where neither exists. Layers labelled from something else — road shields
+ * use `ref`, buildings a house number — are left alone.
+ */
+const ENGLISH_NAME: ExpressionSpecification = ['coalesce', ['get', 'name:en'], ['get', 'name:latin'], ['get', 'name']]
+
+function applyEnglishLabels(map: MaplibreMap) {
+  const layers = map.getStyle()?.layers ?? []
+  for (const layer of layers) {
+    if (layer.type !== 'symbol') continue
+    const field = map.getLayoutProperty(layer.id, 'text-field') as unknown
+    if (field === undefined || field === null) continue
+    const text = JSON.stringify(field)
+    if (!/"name|\{name/.test(text)) continue
+    try {
+      map.setLayoutProperty(layer.id, 'text-field', ENGLISH_NAME)
+    } catch {
+      // A layer the style does not let us restyle keeps its own labels.
+    }
+  }
+}
+
 export function MapViewLibre({
   stations,
   selectedStation,
@@ -56,50 +100,29 @@ export function MapViewLibre({
   const hasFramed = React.useRef(false)
 
   /**
-   * Frame the stations once, on first load. Runs only once so it never
-   * fights the flyTo below when a pin is selected, and it is skipped
-   * entirely if the user arrived with a station already selected.
+   * Frame Pakistan once, on first load. Runs only once so it never fights the
+   * flyTo below when a pin is selected, and it is skipped entirely if the user
+   * arrived with a station already selected.
    *
-   * The container check matters: `onLoad` fires when the STYLE finishes
-   * loading, which can be before the surrounding flex layout has given this
-   * element a size. Fitting a bounding box against a 0x0 viewport has no
-   * solution, so MapLibre clamps to minimum zoom and you get the whole globe
-   * instead of Pakistan. Bailing out leaves initialViewState in place, which
-   * is already correct.
+   * initialViewState already asks for the same box, but it is solved against
+   * whatever size the container had at construction — and `onLoad` can fire
+   * before the surrounding layout has given this element its real size. A box
+   * fitted against a 0x0 viewport has no solution, so MapLibre clamps to
+   * minimum zoom and shows the globe. Fitting again after the resize below is
+   * what makes a phone open on the country rather than on a strip of it.
    */
-  const frameStations = React.useCallback(() => {
+  const framePakistan = React.useCallback(() => {
     const map = mapRef.current
     if (!map || hasFramed.current || selectedStation) return
 
     const container = map.getContainer()
     if (!container.clientWidth || !container.clientHeight) return
 
-    const bounds = getStationBounds(stations)
-    if (!bounds) return
-
     hasFramed.current = true
-
-    // A single result gives a zero-area box, which fitBounds cannot solve
-    // either. Centre on it at a sensible zoom instead.
-    if (bounds.north === bounds.south && bounds.east === bounds.west) {
-      map.jumpTo({ center: [bounds.west, bounds.south], zoom: 12 })
-      return
-    }
-
-    map.fitBounds(
-      [
-        [bounds.west, bounds.south],
-        [bounds.east, bounds.north],
-      ],
-      // Asymmetric, because the card's edges are not equally busy: the legend
-      // sits over the top, and the attribution, the zoom cluster and the
-      // floating preview card all sit over the bottom. Uniform padding put the
-      // southernmost pin a few pixels off the bottom edge, half under the
-      // attribution bar. maxZoom stops a tight cluster from slamming the
-      // camera to street level.
-      { padding: { top: 104, right: 88, bottom: 128, left: 88 }, maxZoom: 11, duration: 0 },
-    )
-  }, [stations, selectedStation])
+    // Tighter on a phone, where every pixel of padding is a pixel of country.
+    const pad = container.clientWidth < 640 ? 12 : 40
+    map.fitBounds(INITIAL_VIEW.bounds, { padding: pad, duration: 0 })
+  }, [selectedStation])
 
   React.useEffect(() => {
     if (!selectedStation) return
@@ -122,7 +145,7 @@ export function MapViewLibre({
   return (
     <Map
       ref={mapRef}
-      initialViewState={PAKISTAN_CENTER}
+      initialViewState={INITIAL_VIEW}
       mapStyle={MAP_STYLE}
       // No `reuseMaps`: with reactStrictMode the component mounts, unmounts
       // and remounts, and the reused instance keeps a canvas detached from
@@ -138,15 +161,16 @@ export function MapViewLibre({
       maxZoom={18}
       onClick={onMapClick}
       // Two passes on purpose. The first resize handles the common case; the
-      // rAF pass runs after the browser has laid the flex row out, which is
-      // when the container finally reports its true size — and only then is
-      // it safe to fit the camera to the stations.
+      // rAF pass runs after the browser has laid the page out, which is when
+      // the container finally reports its true size — and only then is it
+      // safe to fit the camera to the country.
       onLoad={(event) => {
         const map = event.target
+        applyEnglishLabels(map)
         map.resize()
         requestAnimationFrame(() => {
           map.resize()
-          frameStations()
+          framePakistan()
         })
       }}
       style={{ width: '100%', height: '100%' }}
@@ -172,7 +196,7 @@ export function MapViewLibre({
             onStationSelect(station)
           }}
         >
-          <span title={`${station.name} — ${STATUS_LABEL[station.status]}`}>
+          <span title={pinTitle(station)}>
             <StationPin station={station} isSelected={selectedStation?.id === station.id} />
           </span>
         </Marker>

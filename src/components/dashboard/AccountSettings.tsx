@@ -1,14 +1,14 @@
 // src/components/dashboard/AccountSettings.tsx
 'use client'
 
-import { Check, ImagePlus, Loader2, Trash2 } from '@/components/ui/icons'
+import { AlertTriangle, Check, ImagePlus, Loader2, LogOut, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { Avatar, Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
-import { changeMyPassword, updateMyProfile } from '@/lib/db/session-actions'
+import { changeMyPassword, signOutEverywhere, updateMyProfile } from '@/lib/db/session-actions'
 import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
 
 /**
@@ -31,13 +31,34 @@ export interface AccountSettingsProps {
     vehicle: string | null
     avatar: string | null
   }
+  /**
+   * The account is on a temporary password an operator issued, or sign-in
+   * sent it here with ?changePassword=1. Either way the password form is the
+   * first thing on the page until it is changed.
+   */
+  mustChangePassword?: boolean
 }
 
 const FIELD =
   'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
 
-export function AccountSettings({ user }: AccountSettingsProps) {
+export function AccountSettings({ user, mustChangePassword = false }: AccountSettingsProps) {
   const router = useRouter()
+  const [mustChange, setMustChange] = React.useState(mustChangePassword)
+  const passwordSection = React.useRef<HTMLElement>(null)
+  const currentPasswordField = React.useRef<HTMLInputElement>(null)
+
+  /*
+    Takes the visitor straight to the password form. Somebody signing in with
+    a temporary password used to land on the dashboard with nothing telling
+    them it had to be replaced; now the form is scrolled to and focused, so the
+    first keystroke goes where it needs to.
+  */
+  React.useEffect(() => {
+    if (!mustChangePassword) return
+    passwordSection.current?.scrollIntoView({ block: 'start' })
+    currentPasswordField.current?.focus({ preventScroll: true })
+  }, [mustChangePassword])
   const [avatar, setAvatar] = React.useState(user.avatar)
   const [avatarBusy, setAvatarBusy] = React.useState(false)
   const [avatarError, setAvatarError] = React.useState<string | null>(null)
@@ -111,7 +132,12 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     setSavingPassword(true)
     setPasswordError(null)
 
-    const result = await changeMyPassword(currentPassword, newPassword)
+    let result: Awaited<ReturnType<typeof changeMyPassword>>
+    try {
+      result = await changeMyPassword(currentPassword, newPassword)
+    } catch {
+      result = { ok: false, message: 'We could not reach the server. Check your connection and try again.' }
+    }
     setSavingPassword(false)
 
     if (!result.ok) {
@@ -121,12 +147,59 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
     setCurrentPassword('')
     setNewPassword('')
+    // Stays up rather than fading: it carries the news that other devices
+    // were signed out, which somebody may want to read twice.
     setPasswordSaved(true)
-    setTimeout(() => setPasswordSaved(false), 4000)
+    if (mustChange) {
+      setMustChange(false)
+      // Drops ?changePassword=1 so a reload does not bring the banner back.
+      router.replace('/dashboard/settings')
+      router.refresh()
+    }
+  }
+
+  const [confirmEverywhere, setConfirmEverywhere] = React.useState(false)
+  const [signingOut, setSigningOut] = React.useState(false)
+  const [signOutError, setSignOutError] = React.useState<string | null>(null)
+
+  const handleSignOutEverywhere = async () => {
+    setSigningOut(true)
+    setSignOutError(null)
+    try {
+      const result = await signOutEverywhere()
+      if (!result.ok) {
+        setSignOutError(result.message ?? 'Could not sign out your other devices.')
+        setSigningOut(false)
+        return
+      }
+    } catch {
+      setSignOutError('We could not reach the server. Check your connection and try again.')
+      setSigningOut(false)
+      return
+    }
+    // This browser's session went too, so the account pages are no longer ours.
+    router.push('/login')
+    router.refresh()
   }
 
   return (
     <div className="flex flex-col gap-6">
+      {mustChange ? (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4"
+        >
+          <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-700" aria-hidden="true" />
+          <div>
+            <p className="font-semibold text-amber-900">Choose a new password to finish signing in</p>
+            <p className="mt-1 text-ui-sm text-amber-900/80">
+              You signed in with a temporary password from the Plug.pk team. Enter it as your current
+              password below and pick one of your own.
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-6">
         <h2 className="mb-5 text-lg font-bold text-slate-900">Profile</h2>
 
@@ -164,15 +237,16 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               </label>
 
               {avatar ? (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => void clearAvatar()}
                   disabled={avatarBusy}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+                  leftIcon={<Trash2 size={15} aria-hidden="true" />}
+                  className="h-10 hover:bg-red-50 hover:text-red-600"
                 >
-                  <Trash2 size={15} aria-hidden="true" />
                   Remove
-                </button>
+                </Button>
               ) : null}
             </div>
 
@@ -233,7 +307,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
         {/* Read-only: this is the address the account signs in with, and the
             link to any business listing behind it. */}
         <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <p className="text-ui-xs font-semibold uppercase tracking-wide text-slate-400">Email</p>
+          <p className="text-ui-xs font-semibold uppercase tracking-wide text-slate-500">Email</p>
           <p className="mt-0.5 text-ui-sm text-slate-700">{user.email}</p>
         </div>
 
@@ -242,15 +316,8 @@ export function AccountSettings({ user }: AccountSettingsProps) {
         ) : null}
 
         <div className="mt-6 flex items-center gap-3">
-          <Button onClick={handleProfile} disabled={savingProfile}>
-            {savingProfile ? (
-              <>
-                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                Saving
-              </>
-            ) : (
-              'Save profile'
-            )}
+          <Button onClick={handleProfile} isLoading={savingProfile}>
+            {savingProfile ? 'Saving' : 'Save profile'}
           </Button>
           {profileSaved ? (
             <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
@@ -261,7 +328,11 @@ export function AccountSettings({ user }: AccountSettingsProps) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section
+        ref={passwordSection}
+        id="password"
+        className={`scroll-mt-28 rounded-2xl border bg-white p-6 ${mustChange ? 'border-amber-300 ring-2 ring-amber-200' : 'border-slate-200'}`}
+      >
         <h2 className="mb-1 text-lg font-bold text-slate-900">Password</h2>
         <p className="mb-5 text-ui-sm text-slate-500">
           Your current password is required, so a browser left unlocked cannot be used to lock you
@@ -274,6 +345,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               Current password
             </label>
             <input
+              ref={currentPasswordField}
               id="acct-current"
               type="password"
               autoComplete="current-password"
@@ -306,24 +378,63 @@ export function AccountSettings({ user }: AccountSettingsProps) {
         <div className="mt-6 flex items-center gap-3">
           <Button
             onClick={handlePassword}
-            disabled={savingPassword || !currentPassword || !newPassword}
+            isLoading={savingPassword}
+            disabled={!currentPassword || !newPassword}
           >
-            {savingPassword ? (
-              <>
-                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                Changing
-              </>
-            ) : (
-              'Change password'
-            )}
+            {savingPassword ? 'Changing' : 'Change password'}
           </Button>
-          {passwordSaved ? (
-            <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
-              <Check size={16} aria-hidden="true" />
-              Password changed
-            </span>
-          ) : null}
         </div>
+
+        {passwordSaved ? (
+          <p role="status" className="mt-4 flex items-start gap-2 rounded-xl bg-green-50 px-4 py-3 text-ui-sm text-green-800">
+            <Check size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+            <span>
+              <span className="font-semibold">Password changed.</span> Any other phone or computer that
+              was signed in to this account has been signed out. This one stays signed in.
+            </span>
+          </p>
+        ) : null}
+      </section>
+
+      {/* ── Sessions ─────────────────────────────────────────── */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <h2 className="mb-1 text-lg font-bold text-slate-900">Signed-in devices</h2>
+        <p className="mb-5 text-ui-sm text-slate-500">
+          Lost a phone, or signed in on a shared computer? This ends every session on this account,
+          including this one, and you will need your password to get back in.
+        </p>
+
+        {signOutError ? (
+          <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">
+            {signOutError}
+          </p>
+        ) : null}
+
+        {/* Two steps rather than window.confirm, which some in-app browsers
+            suppress — and then the first click would sign out everywhere. */}
+        {confirmEverywhere ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="destructive"
+              onClick={handleSignOutEverywhere}
+              isLoading={signingOut}
+              leftIcon={<LogOut size={16} aria-hidden="true" />}
+            >
+              Yes, sign out everywhere
+            </Button>
+            <Button variant="ghost" onClick={() => setConfirmEverywhere(false)} disabled={signingOut}>
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="secondary"
+            onClick={() => setConfirmEverywhere(true)}
+            leftIcon={<LogOut size={16} aria-hidden="true" />}
+          >
+            Sign out of all devices
+          </Button>
+        )}
       </section>
     </div>
   )

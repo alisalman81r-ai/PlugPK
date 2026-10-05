@@ -1,12 +1,12 @@
 // src/components/services/ServiceCard.tsx
 'use client'
 
-import { ArrowRight, MapPin, Package, Phone, ShieldCheck, Star } from '@/components/ui/icons'
+import { ArrowRight, MapPin, Package, Phone, ShieldCheck } from '@/components/ui/icons'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 import { FACE, FRAME } from '@/components/shared/frame'
-import { AnimatedIcon, PhotoFrame, RatingStars, hoverTrigger } from '@/components/ui'
+import { AnimatedIcon, PhotoFrame, hoverTrigger } from '@/components/ui'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -27,6 +27,20 @@ export interface ServiceCardProps {
  * elevation and darkening the border says "interactive" without claiming to
  * be the primary action.
  */
+/*
+  No ratings on service cards.
+
+  Each row carries a rating and a review count, but they were seeded figures:
+  Plug.pk has no review table for services and no way for anyone to leave one.
+  A star score with nothing behind it is an invented claim, so the card says
+  "No reviews yet" until reviews exist to count.
+
+  "Verified" is shown only when an operator has ticked isVerified on the row.
+  There is no verification procedure in the code beyond the approval every
+  listing gets, so the badge is that explicit flag and nothing inferred.
+*/
+const NO_REVIEWS = 'No reviews yet'
+
 const HOVER =
   'group transition-all duration-[250ms] ease-spring hover:-translate-y-1 hover:border-slate-300 hover:shadow-e2 motion-reduce:transition-none motion-reduce:hover:translate-y-0'
 
@@ -104,7 +118,7 @@ export function ServiceCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="line-clamp-1 text-ui-lg font-bold text-slate-900">{service.name}</h3>
-            {service.isVerified ? (
+            {service.isVerified === true ? (
               <ShieldCheck
                 size={15}
                 className="shrink-0 text-plug-blue-600"
@@ -120,15 +134,7 @@ export function ServiceCard({
 
           <p className="mt-2 line-clamp-1 text-ui-sm text-slate-500">{service.description}</p>
 
-          <div className="mt-2">
-            <RatingStars
-              rating={service.rating}
-              reviewCount={service.reviewCount}
-              size="sm"
-              showNumber
-              showCount
-            />
-          </div>
+          <p className="mt-2 text-ui-xs text-slate-400">{NO_REVIEWS}</p>
         </div>
 
         <div className="hidden shrink-0 gap-2 sm:flex">
@@ -207,21 +213,7 @@ export function ServiceCard({
             <span className="text-ui-xs font-semibold text-slate-700">{meta.label}</span>
           </span>
 
-          {/* The rating moves onto the photograph as a single glass pill.
-              Below the fold it was a row of five stars that had to be decoded;
-              here it is one number, and it frees the card body for the text
-              that actually differs between listings. */}
-          <span className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 shadow-e1 ring-1 ring-black/5 backdrop-blur-md">
-            <Star size={13} className="shrink-0 fill-amber-400 text-amber-400" aria-hidden="true" />
-            <span className="text-ui-xs font-bold tabular-nums text-slate-900">
-              {service.rating.toFixed(1)}
-            </span>
-            <span className="text-ui-xs tabular-nums text-slate-500">
-              ({service.reviewCount})
-            </span>
-          </span>
-
-          {service.isVerified ? (
+          {service.isVerified === true ? (
             <span className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-plug-blue-600 px-2.5 py-1.5 shadow-e1">
               <ShieldCheck size={12} className="text-white" aria-hidden="true" />
               {/* ui-xs (11px) rather than a 10px one-off — 10px sits below the
@@ -252,6 +244,8 @@ export function ServiceCard({
           <p className="mt-3 line-clamp-2 text-ui-sm leading-relaxed text-slate-500">
             {service.description}
           </p>
+
+          <p className="mt-3 text-ui-xs text-slate-400">{NO_REVIEWS}</p>
         </div>
 
         {/* Pinned to the bottom by the flex-1 body above it, so cards in a row

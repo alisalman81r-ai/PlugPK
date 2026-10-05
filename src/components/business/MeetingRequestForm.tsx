@@ -51,7 +51,7 @@ export function MeetingRequestForm() {
         </span>
         <p className="text-lg font-bold text-slate-900">Meeting request sent</p>
         <p className="mx-auto mt-2 max-w-sm text-pretty text-ui-sm leading-relaxed text-slate-600">
-          Your request has been delivered from your account. We will contact you to confirm a
+          Your request has reached us. We will email you to confirm a
           suitable time. Nothing is booked yet.
         </p>
         <button
@@ -77,7 +77,7 @@ export function MeetingRequestForm() {
         </span>
         <div>
           <h3 className="font-bold text-slate-900">Request a meeting</h3>
-          <p className="text-ui-sm text-slate-500">We usually reply within two working days.</p>
+          <p className="text-ui-sm text-slate-500">We reply by email to arrange a time.</p>
         </div>
       </div>
 
@@ -86,28 +86,28 @@ export function MeetingRequestForm() {
           <label htmlFor="mr-name" className="mb-1.5 block text-ui-sm font-semibold text-slate-700">
             Your name <span className="text-red-500" aria-hidden="true">*</span>
           </label>
-          <input id="mr-name" name="name" required autoComplete="name" className={FIELD} />
+          <input id="mr-name" name="name" required maxLength={120} autoComplete="name" className={FIELD} />
         </div>
 
         <div className="sm:col-span-2">
           <label htmlFor="mr-company" className="mb-1.5 block text-ui-sm font-semibold text-slate-700">
             Business name <span className="text-red-500" aria-hidden="true">*</span>
           </label>
-          <input id="mr-company" name="company" required autoComplete="organization" className={FIELD} />
+          <input id="mr-company" name="company" required maxLength={160} autoComplete="organization" className={FIELD} />
         </div>
 
         <div>
           <label htmlFor="mr-email" className="mb-1.5 block text-ui-sm font-semibold text-slate-700">
             Email <span className="text-red-500" aria-hidden="true">*</span>
           </label>
-          <input id="mr-email" name="email" type="email" required autoComplete="email" className={FIELD} />
+          <input id="mr-email" name="email" type="email" required maxLength={254} autoComplete="email" className={FIELD} />
         </div>
 
         <div>
           <label htmlFor="mr-phone" className="mb-1.5 block text-ui-sm font-semibold text-slate-700">
             Phone <span className="font-normal text-ui-xs text-slate-400">optional</span>
           </label>
-          <input id="mr-phone" name="phone" type="tel" autoComplete="tel" className={FIELD} />
+          <input id="mr-phone" name="phone" type="tel" maxLength={30} autoComplete="tel" className={FIELD} />
         </div>
 
         <div>
@@ -133,6 +133,7 @@ export function MeetingRequestForm() {
             id="mr-note"
             name="note"
             rows={3}
+            maxLength={2000}
             placeholder="How many sites, what you are hoping to get out of it…"
             className="w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-ui text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus-visible:border-plug-blue-500 focus-visible:shadow-focus"
           />
@@ -158,7 +159,7 @@ export function MeetingRequestForm() {
       </button>
 
       <p className="mt-3 text-center text-ui-xs leading-relaxed text-slate-500">
-        Listing your business is PKR 4,999 a month. We will talk through what you need before anything
+        A listing is PKR 4,999 a month. We will talk through what you need before anything
         is agreed.
       </p>
     </form>

@@ -6,12 +6,13 @@ import Link from 'next/link'
 import { ClubsDirectory } from '@/components/community/ClubsDirectory'
 import { PillButton } from '@/components/ui'
 import { getCurrentUser } from '@/lib/db/session-actions'
-import { getClubs } from '@/lib/db/queries'
+import { getCommunityClubs } from '@/lib/db/community-queries'
 
 export const metadata: Metadata = {
   title: 'EV Clubs Pakistan',
   description:
-    'Find and join EV clubs in your city. Connect with electric vehicle owners across Pakistan.',
+    'EV owner clubs by city across Pakistan, for meetups, charging advice and road trips.',
+  alternates: { canonical: '/community/clubs' },
 }
 
 /**
@@ -55,7 +56,9 @@ export default async function CommunityClubsPage() {
     card asking for itself. One read, one place that knows who is looking.
   */
   const user = await getCurrentUser()
-  const clubs = await getClubs(user?.id)
+  // Members counted from active memberships, not the seeded baseline totals
+  // Club.memberCount holds — see getCommunityClubs for why.
+  const clubs = await getCommunityClubs(user?.id)
 
   /**
    * Counted at render time, like every other figure in this band.
@@ -137,8 +140,8 @@ export default async function CommunityClubsPage() {
               different places is how a funnel stops reading as one.
             */}
             <div className="mt-8 flex justify-center">
-              <PillButton href="/signup" tone="light">
-                Sign up to join
+              <PillButton href={user ? '#clubs-directory-heading' : '/signup?redirect=%2Fcommunity%2Fclubs'} tone="light">
+                {user ? 'Choose a club' : 'Sign up to join'}
               </PillButton>
             </div>
 
@@ -155,7 +158,7 @@ export default async function CommunityClubsPage() {
                   value={clubs.length}
                   label={clubs.length === 1 ? 'club' : 'clubs'}
                 />
-                <Stat icon={MapPin} value={members} label="members between them" tone="cyan" />
+                <Stat icon={MapPin} value={members} label={members === 1 ? 'member' : 'members'} tone="cyan" />
               </dl>
             ) : null}
           </div>

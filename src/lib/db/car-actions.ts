@@ -1,13 +1,13 @@
 // src/lib/db/car-actions.ts
 'use server'
 
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
-import { assertAdmin as requireAdminAccess, isRequestAdmin } from './admin-access'
+import { assertAdmin, type AdminActor } from './admin-access'
+import { logAdminAction } from './audit'
 
 import { prisma } from './client'
-import { discardCarPhoto } from './upload-actions'
+import { discard } from './upload-store'
 
 /**
  * Writes to the car catalogue, from the admin portal.
@@ -39,9 +39,20 @@ export interface CarActionResult {
   slug?: string
 }
 
-// Delegates to the single check in admin-access.ts.
-async function requireAdmin(): Promise<boolean> {
-  return isRequestAdmin()
+// Delegates to the single check in admin-access.ts, and hands back who is
+// acting so the change can be written to the audit log. Never throws: a denied
+// call answers DENIED like any other refusal.
+async function requireAdmin(): Promise<AdminActor | null> {
+  try {
+    return await assertAdmin()
+  } catch {
+    return null
+  }
+}
+
+function unexpected(where: string, error: unknown): CarActionResult {
+  console.error(`[admin] ${where} failed`, error)
+  return { ok: false, message: 'Something went wrong saving that. Nothing was changed; try again.' }
 }
 
 const DENIED: CarActionResult = {
@@ -274,36 +285,49 @@ function revalidateCar(slug: string) {
   revalidatePath('/')
 }
 
+/** Prisma error codes worth a sentence of their own. */
+function prismaCode(error: unknown): string | undefined {
+  return typeof error === 'object' && error !== null ? (error as { code?: string }).code : undefined
+}
+
 export async function updateCar(id: string, form: FormData): Promise<CarActionResult> {
-  if (!(await requireAdmin())) return DENIED
+  const admin = await requireAdmin()
+  if (!admin) return DENIED
 
-  const existing = await prisma.car.findUnique({ where: { id } })
-  if (!existing) return { ok: false, message: 'That car no longer exists.' }
+  try {
+    const existing = await prisma.car.findUnique({ where: { id } })
+    if (!existing) return { ok: false, message: 'That car no longer exists.' }
 
-  const { data, errors } = parse(form)
-  if (Object.keys(errors).length > 0) {
-    return { ok: false, message: 'Some fields need attention.', errors }
-  }
-
-  // The slug is editable but must stay unique — it is the public URL.
-  const slug = slugify(text(form, 'slug')) || existing.slug
-  if (slug !== existing.slug) {
-    const clash = await prisma.car.findUnique({ where: { slug } })
-    if (clash) {
-      return { ok: false, message: 'Some fields need attention.', errors: { slug: 'Already taken by another car.' } }
+    const { data, errors } = parse(form)
+    if (Object.keys(errors).length > 0) {
+      return { ok: false, message: 'Some fields need attention.', errors }
     }
+
+    // The slug is editable but must stay unique — it is the public URL.
+    const slug = slugify(text(form, 'slug')) || existing.slug
+    if (slug !== existing.slug) {
+      const clash = await prisma.car.findUnique({ where: { slug } })
+      if (clash) {
+        return { ok: false, message: 'Some fields need attention.', errors: { slug: 'Already taken by another car.' } }
+      }
+    }
+
+    await prisma.car.update({ where: { id }, data: { ...data, slug } })
+
+    revalidateCar(existing.slug)
+    if (slug !== existing.slug) revalidateCar(slug)
+    await logAdminAction(admin, 'car.update', 'car', id, data.fullName)
+
+    return { ok: true, message: 'Saved.', slug }
+  } catch (error) {
+    if (prismaCode(error) === 'P2025') return { ok: false, message: 'That car no longer exists.' }
+    return unexpected('updateCar', error)
   }
-
-  await prisma.car.update({ where: { id }, data: { ...data, slug } })
-
-  revalidateCar(existing.slug)
-  if (slug !== existing.slug) revalidateCar(slug)
-
-  return { ok: true, message: 'Saved.', slug }
 }
 
 export async function createCar(form: FormData): Promise<CarActionResult> {
-  if (!(await requireAdmin())) return DENIED
+  const admin = await requireAdmin()
+  if (!admin) return DENIED
 
   const { data, errors } = parse(form)
 
@@ -317,37 +341,56 @@ export async function createCar(form: FormData): Promise<CarActionResult> {
     return { ok: false, message: 'Some fields need attention.', errors }
   }
 
-  const clash = await prisma.car.findFirst({ where: { OR: [{ id: slug }, { slug }] } })
-  if (clash) {
-    return {
-      ok: false,
-      message: 'Some fields need attention.',
-      errors: { slug: 'A car already uses that slug.' },
+  try {
+    const clash = await prisma.car.findFirst({ where: { OR: [{ id: slug }, { slug }] } })
+    if (clash) {
+      return {
+        ok: false,
+        message: 'Some fields need attention.',
+        errors: { slug: 'A car already uses that slug.' },
+      }
     }
+
+    // id mirrors the slug, as every seeded row does, so the two stay predictable.
+    await prisma.car.create({ data: { ...data, id: slug, slug, image: null } })
+  } catch (error) {
+    if (prismaCode(error) === 'P2002') {
+      return { ok: false, message: 'Some fields need attention.', errors: { slug: 'A car already uses that slug.' } }
+    }
+    return unexpected('createCar', error)
   }
 
-  // id mirrors the slug, as every seeded row does, so the two stay predictable.
-  await prisma.car.create({ data: { ...data, id: slug, slug, image: null } })
-
   revalidateCar(slug)
+  await logAdminAction(admin, 'car.create', 'car', slug, data.fullName)
   return { ok: true, message: 'Car created.', slug }
 }
 
 export async function deleteCar(id: string): Promise<CarActionResult> {
-  if (!(await requireAdmin())) return DENIED
+  const admin = await requireAdmin()
+  if (!admin) return DENIED
 
-  const existing = await prisma.car.findUnique({ where: { id } })
-  if (!existing) return { ok: false, message: 'That car no longer exists.' }
+  try {
+    const existing = await prisma.car.findUnique({ where: { id } })
+    if (!existing) return { ok: false, message: 'That car no longer exists.' }
 
-  await prisma.car.delete({ where: { id } })
+    await prisma.car.delete({ where: { id } })
 
-  // Only an uploaded file is removed. A seeded path under /images/cars is a
-  // repository asset shared with the seed module, and deleting one because a row
-  // was removed would leave the module pointing at a missing file.
-  if (existing.image) await discardCarPhoto(existing.image)
+    // Only an uploaded file is removed. A seeded path under /images/cars is a
+    // repository asset shared with the seed module, and deleting one because a row
+    // was removed would leave the module pointing at a missing file.
+    if (existing.image) await discard('cars', existing.image)
 
-  revalidateCar(existing.slug)
-  return { ok: true, message: `${existing.fullName} deleted.` }
+    revalidateCar(existing.slug)
+    await logAdminAction(admin, 'car.delete', 'car', id, existing.fullName)
+    return { ok: true, message: `${existing.fullName} deleted.` }
+  } catch (error) {
+    if (prismaCode(error) === 'P2025') return { ok: false, message: 'That car no longer exists.' }
+    // A row elsewhere still points at this car and the schema refuses the delete.
+    if (prismaCode(error) === 'P2003') {
+      return { ok: false, message: 'Something else still refers to this car, so it cannot be deleted.' }
+    }
+    return unexpected('deleteCar', error)
+  }
 }
 
 /**
@@ -358,17 +401,24 @@ export async function deleteCar(id: string): Promise<CarActionResult> {
  * upload cannot take a whole edit with it.
  */
 export async function setCarImage(id: string, image: string | null): Promise<CarActionResult> {
-  if (!(await requireAdmin())) return DENIED
+  const admin = await requireAdmin()
+  if (!admin) return DENIED
 
-  const existing = await prisma.car.findUnique({ where: { id } })
-  if (!existing) return { ok: false, message: 'That car no longer exists.' }
+  try {
+    const existing = await prisma.car.findUnique({ where: { id } })
+    if (!existing) return { ok: false, message: 'That car no longer exists.' }
 
-  await prisma.car.update({ where: { id }, data: { image } })
+    await prisma.car.update({ where: { id }, data: { image } })
 
-  if (existing.image && existing.image !== image) {
-    await discardCarPhoto(existing.image)
+    if (existing.image && existing.image !== image) {
+      await discard('cars', existing.image)
+    }
+
+    revalidateCar(existing.slug)
+    await logAdminAction(admin, image ? 'car.photo-set' : 'car.photo-remove', 'car', id, existing.fullName)
+    return { ok: true, message: image ? 'Photograph updated.' : 'Photograph removed.', slug: existing.slug }
+  } catch (error) {
+    if (prismaCode(error) === 'P2025') return { ok: false, message: 'That car no longer exists.' }
+    return unexpected('setCarImage', error)
   }
-
-  revalidateCar(existing.slug)
-  return { ok: true, message: image ? 'Photograph updated.' : 'Photograph removed.', slug: existing.slug }
 }

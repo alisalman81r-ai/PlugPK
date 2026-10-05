@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { FaqSection } from '@/components/shared/FaqSection'
 import { COMMUNITY_FAQS } from '@/lib/faqs'
-import type { CommunityPost } from '@/lib/types'
+import type { CommunityPost, EVClub } from '@/lib/types'
 
 import { CategoryTabs } from '@/components/community/CategoryTabs'
 import { CommunityHero } from '@/components/community/CommunityHero'
@@ -12,17 +12,27 @@ import { CommunitySearchBar } from '@/components/community/CommunitySearchBar'
 import { CommunitySidebar } from '@/components/community/CommunitySidebar'
 import { CreatePostForm } from '@/components/community/CreatePostForm'
 import { PostFeed } from '@/components/community/PostFeed'
-import { useCommunity } from '@/hooks/useCommunity'
+import { useCommunity, type CommunityInitialData } from '@/hooks/useCommunity'
 
 const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
 const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
 
-export function CommunityPageClient({ initialPosts }: { initialPosts: CommunityPost[] }) {
+export interface CommunityPageClientProps {
+  initial: CommunityInitialData
+  /** The most-liked posts on the whole board, for the sidebar and the badge. */
+  topPosts: CommunityPost[]
+  clubs: EVClub[]
+}
+
+export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageClientProps) {
   const {
-    filteredPosts,
     posts,
-    clubs,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    loadError,
+    resultCount,
     selectedCategory,
     setSelectedCategory,
     searchQuery,
@@ -32,16 +42,28 @@ export function CommunityPageClient({ initialPosts }: { initialPosts: CommunityP
     likedPosts,
     toggleLike,
     likeCountFor,
+    likeMessage,
     categoryCount,
-    featuredPost,
+    totalPosts,
     stats,
-  } = useCommunity(initialPosts)
+  } = useCommunity(initial)
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const topPosts = useMemo(
-    () => [...posts].sort((a, b) => b.likeCount - a.likeCount).slice(0, 5),
-    [posts],
-  )
+
+  /*
+    Back from signing in with ?compose=1: reopen the composer, which restores
+    the draft it kept. Read from window rather than useSearchParams so the page
+    can stay statically rendered, then dropped from the address bar so a
+    reload does not reopen it.
+  */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('compose') !== '1') return
+    setIsCreateOpen(true)
+    params.delete('compose')
+    const rest = params.toString()
+    window.history.replaceState(null, '', `${window.location.pathname}${rest ? `?${rest}` : ''}`)
+  }, [])
 
   return (
     <>
@@ -54,7 +76,7 @@ export function CommunityPageClient({ initialPosts }: { initialPosts: CommunityP
               value={searchQuery}
               onChange={setSearchQuery}
               onClear={() => setSearchQuery('')}
-              resultCount={filteredPosts.length}
+              resultCount={resultCount}
             />
           }
         />
@@ -66,25 +88,39 @@ export function CommunityPageClient({ initialPosts }: { initialPosts: CommunityP
             categoryCount={categoryCount}
             sortBy={sortBy}
             onSortChange={setSortBy}
-            resultCount={filteredPosts.length}
-            totalCount={posts.length}
+            resultCount={resultCount}
+            totalCount={totalPosts}
           />
         </div>
 
         <div className={`${STAGE} pb-20 pt-10 lg:pt-12`}>
           <div className="grid items-start gap-10 lg:grid-cols-[1fr_340px]">
             <div className="min-w-0">
+              {likeMessage ? (
+                <p
+                  role="status"
+                  className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-ui-sm text-amber-800"
+                >
+                  {likeMessage}
+                </p>
+              ) : null}
               <PostFeed
-                posts={filteredPosts}
+                posts={posts}
                 isLoading={isLoading}
                 likedPosts={likedPosts}
                 onLike={toggleLike}
                 likeCountFor={likeCountFor}
                 selectedCategory={selectedCategory}
                 onCreatePost={() => setIsCreateOpen(true)}
-                featuredPostId={featuredPost?.id}
+                // Nothing is "most liked" on a board where nothing is liked.
+                featuredPostId={topPosts[0] && topPosts[0].likeCount > 0 ? topPosts[0].id : undefined}
                 searchQuery={searchQuery}
                 onClearSearch={() => setSearchQuery('')}
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                onLoadMore={loadMore}
+                remaining={Math.max(0, resultCount - posts.length)}
+                error={loadError}
               />
             </div>
             <aside className="hidden lg:sticky lg:top-24 lg:block">

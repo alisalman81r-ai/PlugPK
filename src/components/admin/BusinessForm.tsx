@@ -11,6 +11,10 @@ import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
 import type { BusinessRow } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+import { useUnsavedChanges } from './useUnsavedChanges'
+
 export interface BusinessFormProps {
   /** Undefined means create. */
   business?: BusinessRow
@@ -35,12 +39,30 @@ interface DraftCharger {
 
 export function BusinessForm({ business, action }: BusinessFormProps) {
   const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { markClean, markDirty, confirmLeave } = useUnsavedChanges(formRef)
 
-  const [lat, setLat] = React.useState<number | null>(business?.lat ?? null)
-  const [lng, setLng] = React.useState<number | null>(business?.lng ?? null)
-  const [chargers, setChargers] = React.useState<DraftCharger[]>(business?.chargers ?? [])
+  const [lat, setLatState] = React.useState<number | null>(business?.lat ?? null)
+  const [lng, setLngState] = React.useState<number | null>(business?.lng ?? null)
+  const [chargers, setChargersState] = React.useState<DraftCharger[]>(business?.chargers ?? [])
+
+  // The pin and the charger rows live in state, not in inputs, so the form's
+  // own input events cannot see them change. Each setter marks it unsaved.
+  const setLat: typeof setLatState = (value) => {
+    markDirty()
+    setLatState(value)
+  }
+  const setLng: typeof setLngState = (value) => {
+    markDirty()
+    setLngState(value)
+  }
+  const setChargers: typeof setChargersState = (value) => {
+    markDirty()
+    setChargersState(value)
+  }
 
   const addCharger = () =>
     setChargers((current) => [
@@ -67,8 +89,10 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
     setError(null)
 
     startTransition(async () => {
-      const result = await action(form)
+      const result = await runAction(() => action(form))
       if (result.ok) {
+        markClean()
+        toast.success(result.message ?? 'Saved.')
         router.push('/admin/businesses')
         // Without this the list renders the router's cached copy, so a save
         // looks like it did nothing.
@@ -80,7 +104,7 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 lg:px-8 lg:py-8">
+    <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
       {business ? <input type="hidden" name="id" value={business.id} /> : null}
 
       <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
@@ -352,7 +376,9 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
 
         <button
           type="button"
-          onClick={() => router.push('/admin/businesses')}
+          onClick={() => {
+            if (confirmLeave()) router.push('/admin/businesses')
+          }}
           className="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white px-5 text-ui font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
         >
           Cancel

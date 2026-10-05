@@ -18,9 +18,11 @@ import { DashboardPanel, PanelEmpty } from '@/components/admin/DashboardPanel'
 import { LiveNetwork } from '@/components/admin/LiveNetwork'
 import { MetricCard } from '@/components/admin/MetricCard'
 import { QuickActions } from '@/components/admin/QuickActions'
+import { getAdminActor } from '@/lib/db/admin-access'
 import { listAllQueues } from '@/lib/db/admin-badges'
+import { getLatestPosts } from '@/lib/db/admin-queries'
 import { getNetworkHealth, listNetworkAlerts } from '@/lib/db/network-health'
-import { getContentCounts, getMemberCount, getPosts } from '@/lib/db/queries'
+import { getContentCounts, getMemberCount } from '@/lib/db/queries'
 
 /**
  * The network's operations screen.
@@ -52,23 +54,33 @@ import { getContentCounts, getMemberCount, getPosts } from '@/lib/db/queries'
  */
 export const dynamic = 'force-dynamic'
 
-/** Split by the local hour, so the greeting is right for whoever is reading. */
+/**
+ * Split by the hour in Pakistan. This read the server's clock, which on Vercel
+ * is UTC — so an operator in Lahore at 9am was wished good morning at 4am and
+ * "good evening" through most of their afternoon.
+ */
 function greeting(): string {
-  const hour = new Date().getHours()
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Karachi', hour: '2-digit', hour12: false }).format(new Date()),
+  ) % 24
   if (hour < 12) return 'Good morning'
   if (hour < 17) return 'Good afternoon'
   return 'Good evening'
 }
 
 export default async function AdminOverviewPage() {
-  const [counts, posts, memberCount, queues, health, alerts] = await Promise.all([
+  const [counts, posts, memberCount, queues, health, alertState, actor] = await Promise.all([
     getContentCounts(),
-    getPosts(),
+    // Five rows, not every post with its full text.
+    getLatestPosts(5),
     getMemberCount(),
     listAllQueues(),
     getNetworkHealth(),
     listNetworkAlerts(),
+    getAdminActor(),
   ])
+  const { alerts, total: alertTotal } = alertState
+  const failedQueues = queues.filter((queue) => queue.failed)
 
   const { stations, ports } = health
   const waiting = queues.filter((queue) => queue.count > 0)
@@ -86,9 +98,9 @@ export default async function AdminOverviewPage() {
   const summary =
     stations.total === 0
       ? 'No stations published yet.'
-      : alerts.length === 0
+      : alertTotal === 0
         ? 'Your EV network is operating normally.'
-        : `${alerts.length} ${alerts.length === 1 ? 'issue needs' : 'issues need'} attention.`
+        : `${alertTotal} ${alertTotal === 1 ? 'issue needs' : 'issues need'} attention.`
 
   return (
     <>
@@ -97,13 +109,13 @@ export default async function AdminOverviewPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-bold tracking-[-0.01em] text-slate-900">
-              {greeting()}, Admin
+              {greeting()}, {actor?.name.split(' ')[0] || 'Admin'}
             </h1>
             <p className="mt-0.5 flex items-center gap-1.5 text-ui-sm text-slate-500">
               <span
                 aria-hidden="true"
                 className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                  alerts.length === 0 ? 'bg-green-500' : 'bg-amber-500'
+                  alertTotal === 0 ? 'bg-green-500' : 'bg-amber-500'
                 }`}
               />
               {summary}
@@ -172,13 +184,15 @@ export default async function AdminOverviewPage() {
           />
           <MetricCard
             label="Waiting on you"
-            value={String(waitingTotal)}
+            value={failedQueues.length > 0 && waitingTotal === 0 ? '?' : String(waitingTotal)}
             detail={
-              waitingTotal === 0
-                ? 'Every queue is clear'
-                : `In ${waiting.length} ${waiting.length === 1 ? 'queue' : 'queues'}`
+              failedQueues.length > 0
+                ? `${failedQueues.length} ${failedQueues.length === 1 ? 'queue' : 'queues'} could not be counted`
+                : waitingTotal === 0
+                  ? 'Every queue is clear'
+                  : `In ${waiting.length} ${waiting.length === 1 ? 'queue' : 'queues'}`
             }
-            tone={waitingTotal === 0 ? 'good' : 'warn'}
+            tone={failedQueues.length > 0 ? 'critical' : waitingTotal === 0 ? 'good' : 'warn'}
             help={
               <>
                 <b>Work other people are waiting on you for.</b> Business applications,
@@ -206,20 +220,27 @@ export default async function AdminOverviewPage() {
           <MetricCard
             label="Driver reviews"
             value={counts.reviews.toLocaleString('en-PK')}
-            detail="Ratings left on stations"
+            detail="Ratings left on listings"
             tone="neutral"
             help={
               <>
-                <b>Reviews drivers have left on charging stations.</b> Every one is shown
-                on the public station page it belongs to.
+                <b>Reviews drivers have left on stations and businesses.</b> Every one is
+                shown on the public page it belongs to. Click to moderate them.
               </>
             }
             icon={Star}
+            href="/admin/reviews"
           />
           <MetricCard
             label="Active alerts"
-            value={String(alerts.length)}
-            detail={alerts.length === 0 ? 'Nothing needs attention' : 'Requires attention'}
+            value={String(alertTotal)}
+            detail={
+              alertTotal === 0
+                ? 'Nothing needs attention'
+                : alertTotal > alerts.length
+                  ? `Requires attention · ${alerts.length} listed below`
+                  : 'Requires attention'
+            }
             help={
               <>
                 <b>Things wrong with the network right now.</b> An offline station
@@ -228,7 +249,7 @@ export default async function AdminOverviewPage() {
                 the present state read live, not a log of past problems.
               </>
             }
-            tone={alerts.length === 0 ? 'good' : 'critical'}
+            tone={alertTotal === 0 ? 'good' : 'critical'}
             icon={AlertTriangle}
           />
         </div>
@@ -244,7 +265,9 @@ export default async function AdminOverviewPage() {
         <DashboardPanel
           title="Needs your attention"
           description={
-            waitingTotal === 0
+            failedQueues.length > 0
+              ? 'Some queues could not be counted — open them to check by hand.'
+              : waitingTotal === 0
               ? 'All clear — nothing is waiting on you.'
               : `${waitingTotal} ${waitingTotal === 1 ? 'item is' : 'items are'} waiting. Open a row to deal with it.`
           }
@@ -258,7 +281,9 @@ export default async function AdminOverviewPage() {
                     href={queue.href}
                     className="group/queue flex h-full items-start gap-3 px-5 py-4 transition-colors duration-150 hover:bg-slate-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-blue-500"
                   >
-                    {busy ? (
+                    {queue.failed ? (
+                      <AlertTriangle size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-amber-600" />
+                    ) : busy ? (
                       <span className="mt-0.5 text-2xl font-bold leading-none tabular-nums text-amber-600">
                         {queue.count}
                       </span>
@@ -268,7 +293,7 @@ export default async function AdminOverviewPage() {
                     <span className="min-w-0 flex-1">
                       <span className="block text-ui-sm font-semibold text-slate-900">{queue.title}</span>
                       <span className="mt-0.5 block text-ui-xs text-slate-500">
-                        {busy ? queue.label : 'Nothing waiting'}
+                        {queue.failed ? 'Could not be counted' : busy ? queue.label : 'Nothing waiting'}
                       </span>
                     </span>
                     <ArrowRight
@@ -312,7 +337,11 @@ export default async function AdminOverviewPage() {
 
           <DashboardPanel
             title="Active alerts"
-            description="Present conditions, not a log."
+            description={
+              alertTotal > alerts.length
+                ? `Present conditions, not a log. Showing ${alerts.length} of ${alertTotal}.`
+                : 'Present conditions, not a log.'
+            }
             help={
               <>
                 <b>Your to-do list, worst first.</b> Each row is a station or connector
@@ -360,7 +389,7 @@ export default async function AdminOverviewPage() {
           >
             {posts.length > 0 ? (
               <ul className="divide-y divide-slate-100">
-                {posts.slice(0, 5).map((post) => (
+                {posts.map((post) => (
                   <li key={post.id}>
                     <Link
                       href="/admin/community"
@@ -393,7 +422,7 @@ export default async function AdminOverviewPage() {
               {[
                 { label: 'Services', value: counts.services, href: '/admin/services', icon: Wrench },
                 { label: 'Posts', value: counts.posts, href: '/admin/community', icon: MessageSquare },
-                { label: 'Reviews', value: counts.reviews, icon: Star },
+                { label: 'Reviews', value: counts.reviews, href: '/admin/reviews', icon: Star },
                 { label: 'Members', value: memberCount, href: '/admin/members', icon: Users },
               ].map((row) => {
                 const Icon = row.icon

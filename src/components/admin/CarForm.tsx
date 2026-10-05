@@ -10,6 +10,9 @@ import { createCar, updateCar, type CarActionResult } from '@/lib/db/car-actions
 import { cn } from '@/lib/utils'
 
 import { AdminField, FIELD_CLASS, TEXTAREA_CLASS } from './AdminField'
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+import { useUnsavedChanges } from './useUnsavedChanges'
 
 /**
  * Every editable field on a car, in one form.
@@ -81,6 +84,9 @@ export function CarForm({ car, brands }: CarFormProps) {
   const [category, setCategory] = React.useState<CarCategory>(car?.category ?? 'EV')
   const [pending, setPending] = React.useState(false)
   const [result, setResult] = React.useState<CarActionResult | null>(null)
+  const toast = useAdminToast()
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { markClean } = useUnsavedChanges(formRef)
 
   const can = applicability(category)
   const errors = result?.errors ?? {}
@@ -92,10 +98,15 @@ export function CarForm({ car, brands }: CarFormProps) {
     setPending(true)
     setResult(null)
 
-    const outcome = isNew ? await createCar(form) : await updateCar(car.id, form)
+    const outcome: CarActionResult = await runAction(() => (!car ? createCar(form) : updateCar(car.id, form)))
 
     setPending(false)
     setResult(outcome)
+
+    if (outcome.ok) {
+      markClean()
+      toast.success(outcome.message ?? 'Saved.')
+    }
 
     if (outcome.ok && outcome.slug) {
       // A rename changes the URL this page lives at, and a create has no page
@@ -113,7 +124,7 @@ export function CarForm({ car, brands }: CarFormProps) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-5">
       {result?.message ? (
         <div
           role="status"

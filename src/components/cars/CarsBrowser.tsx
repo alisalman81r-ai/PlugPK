@@ -5,7 +5,7 @@ import { Car as CarIcon, GitCompareArrows, SlidersHorizontal, X } from '@/compon
 import Link from 'next/link'
 import * as React from 'react'
 
-import { AnimatedIcon } from '@/components/ui'
+import { AnimatedIcon, Button, buttonClasses } from '@/components/ui'
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import {
   EMPTY_FILTERS,
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
 import { CarFilters } from './CarFilters'
+import { MAX_COMPARE, useComparedCars } from './compare-selection'
 
 /**
  * Filters, sorting and the comparison tray, over one list.
@@ -58,8 +59,16 @@ export interface CarsBrowserProps {
   onSavedOnlyChange: (value: boolean) => void
 }
 
-/** Four columns of specs is already dense on a phone; more would not read. */
-const MAX_COMPARE = 4
+/**
+ * Cards per page of the grid.
+ *
+ * The catalogue passed a hundred cars and rendered every one, so /cars on a
+ * phone measured about 66,000px tall — a single column of cards with the
+ * footer a minute of scrolling away. Twenty-four is eight rows of three on a
+ * desktop and twelve rows of two on a phone. Filters, search and sort still
+ * run over the whole catalogue; only the drawing is paged.
+ */
+const PAGE_SIZE = 24
 
 export function CarsBrowser({
   cars,
@@ -77,7 +86,10 @@ export function CarsBrowser({
   onSavedOnlyChange,
 }: CarsBrowserProps) {
   const [drawerOpen, setDrawerOpen] = React.useState(false)
-  const [compared, setCompared] = React.useState<string[]>([])
+  // Remembered across pages and refreshes — see compare-selection.ts.
+  const comparison = useComparedCars()
+  const compared = comparison.ids
+  const [visible, setVisible] = React.useState(PAGE_SIZE)
 
   const searched = React.useMemo(() => searchCars(cars, query), [cars, query])
   const results = React.useMemo(() => {
@@ -112,15 +124,20 @@ export function CarsBrowser({
 
   const isFiltered = hasActiveFilters(filters) || query.trim().length > 0 || savedOnly
 
-  const toggleCompare = (car: Car) => {
-    setCompared((current) =>
-      current.includes(car.id)
-        ? current.filter((id) => id !== car.id)
-        : current.length >= MAX_COMPARE
-          ? current
-          : [...current, car.id],
-    )
-  }
+  /*
+    Back to the first page whenever the set being drawn changes. A visitor who
+    had shown 72 cars and then picked a brand should see that brand from the
+    top, not a "show more" past the end of a list that is now eight long.
+  */
+  const resultsKey = JSON.stringify([query, filters, sort, savedOnly])
+  React.useEffect(() => {
+    setVisible(PAGE_SIZE)
+  }, [resultsKey])
+
+  const page = results.slice(0, visible)
+  const remaining = results.length - page.length
+
+  const toggleCompare = (car: Car) => comparison.toggle(car.id)
 
   const reset = () => {
     onQueryChange('')
@@ -228,7 +245,7 @@ export function CarsBrowser({
             <span className="font-bold text-slate-900">{results.length}</span>{' '}
             {results.length === 1 ? 'car' : 'cars'}
             {results.length !== cars.length ? (
-              <span className="text-slate-400"> of {cars.length}</span>
+              <span className="text-slate-500"> of {cars.length}</span>
             ) : null}
           </p>
 
@@ -270,7 +287,7 @@ export function CarsBrowser({
             <SlidersHorizontal size={16} aria-hidden="true" />
             Filters
             {hasActiveFilters(filters) ? (
-              <span className="rounded-full bg-plug-navy-900 px-1.5 py-0.5 font-mono text-[10px] text-white">
+              <span className="rounded-full bg-plug-navy-900 px-1.5 py-0.5 font-mono text-ui-xs text-white">
                 on
               </span>
             ) : null}
@@ -314,13 +331,9 @@ export function CarsBrowser({
                 Filters
               </h2>
               {isFiltered ? (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="text-ui-xs font-semibold text-plug-blue-600 transition-colors hover:text-plug-blue-800"
-                >
+                <Button variant="ghost" size="sm" onClick={reset} className="-my-1 -mr-2 text-plug-blue-600">
                   Reset all
-                </button>
+                </Button>
               ) : null}
             </div>
 
@@ -355,9 +368,15 @@ export function CarsBrowser({
             and are clamped there — which is why the actions are pushed down with
             mt-auto rather than sitting under the price.
           */}
+          {/*
+            Two columns from the narrowest phone up. One full-width card per
+            row was most of why the page ran to 66,000px; CarCard tightens its
+            padding and type below sm so two fit at 390px.
+          */}
           {results.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
-              {results.map((car, index) => (
+            <>
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
+              {page.map((car, index) => (
                 <CarCard
                   key={car.id}
                   car={car}
@@ -374,6 +393,22 @@ export function CarsBrowser({
                 />
               ))}
             </div>
+
+            {remaining > 0 ? (
+              <div className="mt-8 flex flex-col items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setVisible((count) => count + PAGE_SIZE)}
+                >
+                  Show {Math.min(remaining, PAGE_SIZE)} more
+                </Button>
+                <p className="text-ui-xs text-slate-500" aria-live="polite">
+                  Showing {page.length} of {results.length}
+                </p>
+              </div>
+            ) : null}
+            </>
           ) : (
             <div className="flex flex-col items-center py-16 text-center">
               <AnimatedIcon motion="pop" standalone>
@@ -384,18 +419,14 @@ export function CarsBrowser({
                   ? 'Nothing saved yet'
                   : 'No cars match that'}
               </p>
-              <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-400">
+              <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
                 {savedOnly && favouriteIds.length === 0
                   ? 'Tap the heart on a car to keep it here while you browse.'
                   : 'Try a different brand, or loosen one of the minimums.'}
               </p>
-              <button
-                type="button"
-                onClick={reset}
-                className="mt-5 rounded-full border-[1.5px] border-slate-300 px-5 py-2 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
-              >
+              <Button variant="secondary" onClick={reset} className="mt-5">
                 Clear everything
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -437,19 +468,15 @@ export function CarsBrowser({
               <h2 className="text-lg font-bold tracking-tight text-slate-900">Filters</h2>
               <div className="flex items-center gap-3">
                 {isFiltered ? (
-                  <button
-                    type="button"
-                    onClick={reset}
-                    className="text-ui-sm font-semibold text-plug-blue-600"
-                  >
+                  <Button variant="ghost" size="sm" onClick={reset} className="text-plug-blue-600">
                     Reset
-                  </button>
+                  </Button>
                 ) : null}
                 <button
                   type="button"
                   onClick={() => setDrawerOpen(false)}
                   aria-label="Close filters"
-                  className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-slate-100"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100"
                 >
                   <X size={18} aria-hidden="true" />
                 </button>
@@ -461,13 +488,9 @@ export function CarsBrowser({
             </div>
 
             <div className="shrink-0 p-6">
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(false)}
-                className="h-12 w-full rounded-xl bg-plug-navy-900 text-ui font-semibold text-white transition-colors hover:bg-plug-navy-800"
-              >
+              <Button size="lg" fullWidth onClick={() => setDrawerOpen(false)}>
                 Show {results.length} {results.length === 1 ? 'car' : 'cars'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -500,13 +523,9 @@ export function CarsBrowser({
             </p>
 
             <div className="flex flex-1 items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setCompared([])}
-                className="text-ui-sm font-semibold text-slate-500 transition-colors hover:text-slate-800"
-              >
+              <Button variant="ghost" size="md" onClick={comparison.clear}>
                 Clear
-              </button>
+              </Button>
 
               {/*
                 The comparison lives at its own URL, carrying the ids in the
@@ -518,11 +537,11 @@ export function CarsBrowser({
               <Link
                 href={`/cars/compare?ids=${compared.join(',')}`}
                 aria-disabled={compared.length < 2}
+                tabIndex={compared.length < 2 ? -1 : undefined}
                 className={cn(
-                  'inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-5 text-ui-sm font-semibold transition-colors',
-                  compared.length < 2
-                    ? 'pointer-events-none bg-slate-200 text-slate-400'
-                    : 'bg-plug-navy-900 text-white hover:bg-plug-navy-800',
+                  buttonClasses({ size: 'md' }),
+                  'shrink-0 text-ui-sm',
+                  compared.length < 2 && 'pointer-events-none bg-slate-200 text-slate-600',
                 )}
               >
                 <GitCompareArrows size={15} aria-hidden="true" />
@@ -606,7 +625,7 @@ function Segment({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
+        'inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
         active
           ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(5,36,30,0.5)]'
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
@@ -616,8 +635,8 @@ function Segment({
       {children}
       <span
         className={cn(
-          'font-mono text-[10px] tabular-nums',
-          active ? 'text-white/60' : 'text-slate-400',
+          'font-mono text-ui-xs tabular-nums',
+          active ? 'text-white/70' : 'text-slate-500',
         )}
       >
         {count}

@@ -1,3 +1,4 @@
+// src/components/admin/MarkCommunityPostReviewed.tsx
 'use client'
 
 import { Check, Loader2 } from '@/components/ui/icons'
@@ -6,6 +7,13 @@ import * as React from 'react'
 
 import { markCommunityPostReviewed } from '@/lib/db/actions'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+
+/**
+ * Clears a post from the "not yet reviewed" queue. A failure is said out loud
+ * rather than leaving the tick looking pressed with nothing behind it.
+ */
 export function MarkCommunityPostReviewed({
   postId,
   reviewed = false,
@@ -14,6 +22,7 @@ export function MarkCommunityPostReviewed({
   reviewed?: boolean
 }) {
   const router = useRouter()
+  const toast = useAdminToast()
   const [isPending, startTransition] = React.useTransition()
 
   return (
@@ -22,8 +31,13 @@ export function MarkCommunityPostReviewed({
       disabled={isPending || reviewed}
       onClick={() => {
         startTransition(async () => {
-          const result = await markCommunityPostReviewed(postId)
-          if (result.ok) router.refresh()
+          const result = await runAction(() => markCommunityPostReviewed(postId))
+          if (!result.ok) {
+            toast.error(result.message ?? 'Could not mark that post as reviewed.')
+            return
+          }
+          toast.success(result.message ?? 'Marked as reviewed.')
+          router.refresh()
         })
       }}
       aria-label={reviewed ? 'Post reviewed' : 'Mark post as reviewed'}

@@ -3,10 +3,10 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { cookies } from 'next/headers'
+
 import { revalidatePath } from 'next/cache'
 
-import { USER_COOKIE_NAME, readUserSession } from '@/lib/user-auth'
+import { getSessionUserId } from './session'
 
 import { prisma } from './client'
 import { LEGACY_ID, mirrorCar } from './garage'
@@ -41,8 +41,8 @@ export interface GarageResult {
 
 const MAX_CARS = 10
 
-function currentUserId(): string | null {
-  return readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
+function currentUserId(): Promise<string | null> {
+  return getSessionUserId()
 }
 
 /**
@@ -72,7 +72,7 @@ async function withMirror<T>(carId: string, statement: () => Promise<T>): Promis
 }
 
 export async function addMyCar(carId: string): Promise<GarageResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to add a car.' }
   const id = randomUUID()
 
@@ -106,7 +106,7 @@ export async function addMyCar(carId: string): Promise<GarageResult> {
 
 /** Swaps one car for another, keeping its place and whether it is primary. */
 export async function replaceMyCar(rowId: string, carId: string): Promise<GarageResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to change your car.' }
 
   // The account's old free-text car (no row yet): this pick becomes its first row.
@@ -140,7 +140,7 @@ export async function replaceMyCar(rowId: string, carId: string): Promise<Garage
 }
 
 export async function removeMyCar(rowId: string): Promise<GarageResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to remove a car.' }
 
   if (rowId === LEGACY_ID) {
@@ -173,7 +173,7 @@ export async function removeMyCar(rowId: string): Promise<GarageResult> {
 }
 
 export async function makePrimaryCar(rowId: string): Promise<GarageResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in first.' }
 
   const rows = await prisma.$queryRaw<{ n: number }[]>`
@@ -198,7 +198,7 @@ export async function makePrimaryCar(rowId: string): Promise<GarageResult> {
  * on the account yet. Not on the hot path, so plain queries are fine here.
  */
 export async function setPrimaryCatalogueCar(carId: string): Promise<GarageResult> {
-  const userId = currentUserId()
+  const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to save your vehicle.' }
   if (!(await mirrorCar(carId))) return { ok: false, message: 'That car is not in the catalogue.' }
 

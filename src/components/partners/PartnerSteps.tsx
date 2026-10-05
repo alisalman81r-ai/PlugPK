@@ -81,7 +81,7 @@ const BENEFITS: Card[] = [
     icon: Users,
     motion: 'pulse',
     title: 'Reach drivers already looking',
-    body: 'People open the map because they need a charge now. That is a narrower and warmer audience than an advert.',
+    body: 'People open the map because they need a charge now, and an approved listing can appear as a charging stop when it is on a planned route.',
   },
 ]
 
@@ -90,11 +90,13 @@ export function PartnerSteps() {
     <>
       <section className="bg-white py-20 lg:py-28">
         <div className={STAGE}>
+          {/* It said "No contract, no listing fee" directly above a PKR 4,999 a
+              month plan. What is true: applying is free and there is no commission. */}
           <SectionIntro
             eyebrow="How it works"
             icon={<Route size={13} aria-hidden="true" />}
             title="Three steps, then you are on the map"
-            lead="No contract, no listing fee, and nothing to install on your side."
+            lead="Applying is free, there is no commission, and there is nothing to install on your side."
             className="mb-16"
           />
 

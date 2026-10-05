@@ -287,9 +287,15 @@ function splitPrice(display: string): { amount: string; qualifier: string | null
  * card.
  */
 function priceSize(amount: string): string {
-  if (amount.length <= 19) return 'text-[1.25rem]'
-  if (amount.length <= 22) return 'text-[1.0625rem]'
-  return 'text-[0.9375rem]'
+  /*
+    The steps apply from sm up. Below sm the grid is two columns and a card is
+    about 170px wide, so no single size holds every price on one line; there
+    the price is set at a steady 15px and allowed to wrap, which at that width
+    is the honest trade — see the wrapper below.
+  */
+  if (amount.length <= 19) return 'sm:text-[1.25rem]'
+  if (amount.length <= 22) return 'sm:text-[1.0625rem]'
+  return 'sm:text-[0.9375rem]'
 }
 
 export function CarCard({
@@ -364,7 +370,7 @@ export function CarCard({
               alt=""
               /* Widest real column is ~440px at 1440 and the panel is capped by
                  the grid, so 480px is the largest candidate worth shipping. */
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 480px"
+              sizes="(max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 480px"
               priority={priority}
               zoomOnHover
             />
@@ -394,7 +400,7 @@ export function CarCard({
               >
                 {car.brand}
               </span>
-              <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-slate-500">
+              <span className="font-mono text-ui-xs uppercase tracking-[0.14em] text-slate-500">
                 No photograph
               </span>
             </span>
@@ -410,12 +416,12 @@ export function CarCard({
           />
 
           {cardChips.length > 0 ? (
-            <div className="pointer-events-none absolute left-3 top-3 z-20 flex max-w-[calc(100%-4.5rem)] flex-wrap gap-1.5">
+            <div className="pointer-events-none absolute left-2 top-2 z-20 flex max-w-[calc(100%-3.5rem)] flex-wrap gap-1 sm:left-3 sm:top-3 sm:max-w-[calc(100%-4.5rem)] sm:gap-1.5">
               {cardChips.map((chip) => (
                 <span
                   key={chip.label}
                   className={cn(
-                    'inline-flex items-center rounded-md border px-2 py-1 font-mono text-[0.5625rem]',
+                    'inline-flex items-center rounded-md border px-1.5 py-1 font-mono text-ui-xs sm:px-2',
                     'font-medium uppercase leading-none tracking-[0.1em] backdrop-blur-sm',
                     chip.className,
                   )}
@@ -433,8 +439,9 @@ export function CarCard({
             since the brand is already the thing they filtered on to get here —
             so it gets the only piece of real typographic weight above the
             price. */}
-        <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
-          <p className="font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.16em] text-slate-400">
+        {/* Tighter below sm, where the grid is two columns of ~170px. */}
+        <div className="flex flex-1 flex-col px-3 pb-3 pt-3 sm:px-5 sm:pb-5 sm:pt-4">
+          <p className="truncate font-mono text-ui-xs font-medium uppercase leading-none tracking-[0.12em] text-slate-500 sm:tracking-[0.16em]">
             {car.brand}
           </p>
 
@@ -444,7 +451,7 @@ export function CarCard({
               on every card for the same destination. The colour still responds
               to hovering the card, because that transition is the cue that the
               heading is what you are about to open. */}
-          <h3 className="mt-2 line-clamp-2 text-ui-lg font-semibold leading-snug tracking-[-0.012em] text-slate-900 transition-colors duration-200 group-hover:text-plug-blue-700">
+          <h3 className="mt-2 line-clamp-2 text-ui font-semibold sm:text-ui-lg leading-snug tracking-[-0.012em] text-slate-900 transition-colors duration-200 group-hover:text-plug-blue-700">
             {car.model}
           </h3>
 
@@ -463,7 +470,7 @@ export function CarCard({
           */}
           {car.variant ? (
             <p
-              className="mt-1 truncate font-mono text-[0.6875rem] leading-normal text-slate-500"
+              className="mt-1 truncate font-mono text-ui-xs leading-normal text-slate-500"
               title={car.variant}
             >
               {car.variant}
@@ -488,7 +495,7 @@ export function CarCard({
               tabular-nums because Poppins' default digits are proportional, and
               a column of prices that do not align on their digits reads as a
               list of strings rather than a set of comparable amounts. */}
-          <div className="mt-4">
+          <div className="mt-3 sm:mt-4">
             {/* A fixed 28px line box with the price sitting on its floor.
 
                 The height has to be reserved rather than left to the type,
@@ -501,10 +508,10 @@ export function CarCard({
 
                 nowrap, and the sizes are chosen to make that safe: measured at
                 1440, 1280, 1024 and 390, no price wraps and none overflows. */}
-            <div className="flex h-7 items-end">
+            <div className="flex min-h-7 items-end sm:h-7">
               <p
                 className={cn(
-                  'whitespace-nowrap font-bold leading-none tracking-[-0.02em] tabular-nums text-slate-900',
+                  'text-[0.9375rem] font-bold leading-tight tracking-[-0.02em] tabular-nums text-slate-900 sm:whitespace-nowrap sm:leading-none',
                   priceSize(amount),
                 )}
               >
@@ -512,7 +519,7 @@ export function CarCard({
               </p>
             </div>
             {qualifier ? (
-              <p className="mt-1.5 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-400">
+              <p className="mt-1.5 font-mono text-ui-xs uppercase leading-none tracking-[0.12em] text-slate-500">
                 {qualifier}
               </p>
             ) : null}
@@ -536,7 +543,7 @@ export function CarCard({
               offsets on all three. The variable slack collects as whitespace
               above the panel instead, where it reads as breathing room rather
               than as a mistake. */}
-          <div className="mt-auto pt-4">
+          <div className="mt-auto pt-3 sm:pt-4">
             {/* ── The figures ───────────────────────────────────────
                 Three rows in a tinted panel: label left, figure right, no rules.
 
@@ -576,12 +583,14 @@ export function CarCard({
                   // "380 hp" is unlikely but "—" and "—" is not), and a padded
                   // row has no label at all.
                   key={spec.label || `empty-${index}`}
-                  className="flex items-baseline justify-between gap-3 py-[0.3125rem]"
+                  // Label above figure below sm: side by side, a 150px row
+                  // truncated every range span to "80–1…".
+                  className="flex flex-col gap-1 py-[0.3125rem] sm:flex-row sm:items-baseline sm:justify-between sm:gap-3"
                 >
-                  <dt className="shrink-0 font-mono text-[0.5625rem] uppercase leading-none tracking-[0.12em] text-slate-500">
+                  <dt className="shrink-0 font-mono text-ui-xs uppercase leading-none tracking-[0.12em] text-slate-500">
                     {spec.short}
                   </dt>
-                  <dd className="min-w-0 truncate font-mono text-ui-sm font-semibold leading-none tabular-nums text-slate-900">
+                  <dd className="min-w-0 truncate font-mono text-ui-xs font-semibold leading-none tabular-nums text-slate-900 sm:text-ui-sm">
                     {spec.figure ? (
                       <>
                         {spec.figure}
@@ -614,10 +623,12 @@ export function CarCard({
 
                 Compare stays a real control, 44px, because it does something the
                 card does not. */}
-            <div className="flex items-center justify-between gap-3 pt-5">
+            <div className="flex items-center justify-between gap-3 pt-3 sm:pt-5">
+              {/* The cue is dropped below sm, where the compare control needs
+                  the room and the whole card is still the link. */}
               <span
                 aria-hidden="true"
-                className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-slate-500 transition-colors duration-200 group-hover:text-plug-blue-700"
+                className="hidden items-center gap-1.5 sm:inline-flex text-ui-sm font-semibold text-slate-500 transition-colors duration-200 group-hover:text-plug-blue-700"
               >
                 View details
                 <ArrowRight
@@ -648,7 +659,7 @@ export function CarCard({
                   // and without this the overlay would swallow every click meant
                   // for this button.
                   className={cn(
-                    'relative z-20 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
+                    'relative z-20 ml-auto inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border',
                     'transition-colors duration-200',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
                     'disabled:cursor-not-allowed disabled:opacity-40',
@@ -711,7 +722,7 @@ export function CarCard({
                 : `Save ${carDisplayName(car)}`
             }
             className={cn(
-              'absolute right-2.5 top-2.5 z-20 flex h-11 w-11 items-center justify-center rounded-full',
+              'absolute right-1.5 top-1.5 z-20 flex h-11 w-11 items-center justify-center rounded-full sm:right-2.5 sm:top-2.5',
               'bg-white/90 shadow-[0_2px_10px_rgba(5,36,30,0.10)] ring-1 ring-slate-900/[0.06] backdrop-blur-md',
               'transition-[background-color,transform] duration-200 hover:bg-white active:scale-95',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',

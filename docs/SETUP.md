@@ -8,7 +8,7 @@ Two things a clone is missing, both on purpose:
 
 | Missing | Why | Fix |
 | --- | --- | --- |
-| `.env` | holds the database URL, the admin password and the session secret | create it, step 2 |
+| `.env` | holds the database URL, the admin switch and the session secret | create it, step 2 |
 | a database | it holds real data, so neither the file nor a dump is committed | rebuild it, step 3 |
 
 Since the move off SQLite the engine is **PostgreSQL**, with no fallback —
@@ -41,13 +41,16 @@ DATABASE_URL="postgresql://plugpk:plugpk@127.0.0.1:55432/plugpk"
 # routes refuse to resolve. This is what keeps it out of a production build.
 ENABLE_ADMIN=true
 
-# The admin portal's shared password. Choose your own; it is not stored
-# anywhere else and there is no reset flow.
-ADMIN_PASSWORD=choose-something-long
-
-# Signs the login cookie for business owners. Generate a fresh one:
+# Signs every sign-in cookie, members and admins alike. Generate a fresh one:
 #   node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+# Required in production: without it nobody can sign in (it fails closed rather
+# than signing cookies with a guessable key).
 SESSION_SECRET=paste-the-generated-value-here
+
+# Optional, local development only. If SESSION_SECRET is unset on your own
+# machine, this is used as the signing key instead. It is NOT a password for
+# anything any more, and it is ignored in production.
+# ADMIN_PASSWORD=
 ```
 
 ## 3. Build the database
@@ -120,9 +123,47 @@ would fail confusingly later: a port already serving, a SQLite URL left in
 `.env`, or a database URL nothing answers on. Each says what is wrong and what
 to run.
 
-Then open **http://localhost:3000/admin/login** and enter the `ADMIN_PASSWORD`
-you chose. The portal covers stations, connectors, services, community,
-businesses, meetings and members.
+### Becoming an admin
+
+There is no admin password and no separate admin login. Admin access is a flag
+on an ordinary account, and it takes two things:
+
+1. `ENABLE_ADMIN=true` in `.env` (above), so the `/admin` routes exist; and
+2. an account with `isAdmin` set. Sign up at **http://localhost:3000/signup**
+   like any member, then promote that account from a terminal:
+
+   ```bash
+   npx tsx scripts/promote-admin.ts you@example.com
+   ```
+
+Sign out and back in at **/login** and you land on **/admin**. The portal covers
+stations, connectors, services, community, reviews, businesses, meetings,
+members and cars.
+
+The script is only needed for the **first** admin (and for recovery if every
+admin is locked out). After that, an admin grants or revokes the role from the
+member's page in the portal — **Members → open someone → Role**. The portal
+refuses to change your own role and refuses to remove the last admin. Revoking
+signs that person out everywhere immediately. `--revoke` on the script does the
+same from the command line.
+
+### What the portal records and limits
+
+- **Activity log, at /admin/activity.** Every change an admin makes — editing a
+  station, approving a business, resetting a password, deleting a review — is
+  written to the `AdminAuditLog` table after it succeeds, with the operator's
+  account and a one-line summary. Member and business pages show their own
+  recent activity. The log is read-only in the portal. Changes made with
+  `scripts/promote-admin.ts` are not logged, because there is no signed-in
+  operator to attribute them to.
+- **Sessions are revocable.** A password reset by an admin, a revoked role or an
+  anonymised account ends every session that account has open, on its next
+  request.
+- **Rate limits.** Sign-in, sign-up, uploads and the public forms (reviews,
+  posts, business and service applications, meeting requests) are throttled per
+  client in the `RateLimit` table, so they work across serverless instances. If
+  the table cannot be reached the request is allowed rather than locking
+  everyone out.
 
 ## If /admin still 404s
 
@@ -153,19 +194,15 @@ npx playwright install chromium
 node scripts/shoot.mjs login          # writes to .screenshots/
 ```
 
-## Known production requirement: who approved a change
+## Who changed what
 
-The admin portal is one shared password, and the session cookie identifies no
-person — so every approval in the review queue is recorded as `admin` in
-`CarChangeHistory.approvedBy`. That is accurate today, and it stops being
-adequate the moment two people have the password.
+Admin access used to be one shared password, and nothing could say which person
+made a change. It is now per-account: every operator signs in as themselves, and
+every admin write is recorded in `/admin/activity` against that account.
 
-Before the portal is used by more than one operator, or before anybody relies on
-that column to say **who** changed a figure, admin access needs real per-user
-accounts (`src/lib/admin-auth.ts` and the `/admin/login` route). No name is
-invented in the meantime, and no environment variable will fix it: configuration
-is not authentication, and an audit trail that can name the wrong person is
-worse than one that says it does not know.
+Rows written before the change — such as `CarChangeHistory.approvedBy = 'admin'`
+from the old crawler review queue — still say `admin`, because that is all that
+was known at the time. No name has been back-filled into them.
 
 ## Three things that do not travel
 

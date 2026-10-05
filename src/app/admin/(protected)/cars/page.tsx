@@ -3,7 +3,18 @@ import { AlertTriangle, Car as CarIcon, ImageOff, Layers, Plus, type IconType } 
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminPagination } from '@/components/admin/AdminPagination'
 import { CarInventory } from '@/components/admin/CarInventory'
+import {
+  LENS_KEYS,
+  SORT_KEYS,
+  countLenses,
+  filterAudits,
+  type Lens,
+  type SortKey,
+} from '@/components/admin/car-inventory-filter'
+import { flattenParams, pick } from '@/components/admin/list-params'
+import { ADMIN_PAGE_SIZE, toPage, toQuery } from '@/lib/db/admin-queries'
 import { auditCatalogue, summarise } from '@/lib/car-admin'
 import { listCars } from '@/lib/db/car-queries'
 import { cn } from '@/lib/utils'
@@ -27,9 +38,23 @@ export const metadata = { title: { absolute: 'Cars · Plug.pk admin' } }
 /** An admin page reading live rows must never be served from a cache. */
 export const dynamic = 'force-dynamic'
 
-export default async function AdminCarsPage() {
+export default async function AdminCarsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>
+}) {
+  const params = flattenParams(searchParams)
+  const query = toQuery(params.q)
+  const lens = pick<Lens>(params.lens, LENS_KEYS, 'all')
+  const sort = pick<SortKey>(params.sort, SORT_KEYS, 'name')
+  const page = toPage(params.page)
+
+  // The audit is computed in TypeScript, so the whole catalogue is read for
+  // the tiles — but only one page of rows is sent to the browser.
   const audits = auditCatalogue(await listCars())
   const summary = summarise(audits)
+  const matching = filterAudits(audits, query, lens, sort)
+  const pageRows = matching.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE)
 
   return (
     <>
@@ -66,7 +91,7 @@ export default async function AdminCarsPage() {
         }
       />
 
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         {/* ── The four figures worth knowing before scrolling ─────── */}
         <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <Tile
@@ -99,7 +124,22 @@ export default async function AdminCarsPage() {
           />
         </div>
 
-        <CarInventory audits={audits} />
+        <CarInventory
+          audits={pageRows}
+          total={matching.length}
+          counts={countLenses(audits)}
+          lens={lens}
+          sort={sort}
+          query={query}
+        />
+        <AdminPagination
+          path="/admin/cars"
+          params={params}
+          page={page}
+          pageSize={ADMIN_PAGE_SIZE}
+          total={matching.length}
+          noun={['car', 'cars']}
+        />
       </div>
     </>
   )

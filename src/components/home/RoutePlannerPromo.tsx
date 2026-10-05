@@ -20,10 +20,15 @@ interface RouteStop {
  * One worked example, kept internally consistent: the two stops below add up
  * to the 45 minutes quoted in the summary, and the battery figures run in
  * sequence. A promo that contradicts itself is worse than no promo.
+ *
+ * It is an illustration, and the card says so in its header ("Example trip").
+ * The stops used to be named — Bhera Service Area, Kharian Charging Point —
+ * with a 4h 20m drive time, which read as a result the planner had produced
+ * for real chargers. It is not one, so the stops are unnamed and labelled.
  */
 const STOPS: RouteStop[] = [
-  { name: 'Bhera Service Area', minutes: 22, from: 34, to: 78 },
-  { name: 'Kharian Charging Point', minutes: 23, from: 41, to: 80 },
+  { name: 'Charging stop 1', minutes: 22, from: 34, to: 78 },
+  { name: 'Charging stop 2', minutes: 23, from: 41, to: 80 },
 ]
 
 const SUMMARY = [
@@ -180,7 +185,12 @@ export function RoutePlannerPromo({ pins = [] }: RoutePlannerPromoProps) {
                 style={{ transform: 'translateZ(40px)' }}
                 className="mb-6 flex items-baseline justify-between gap-4"
               >
-                <p className="text-lg font-bold text-white">Islamabad → Lahore</p>
+                <p className="text-lg font-bold text-white">
+                  <span className="mb-1.5 block w-fit rounded-full border border-white/15 px-2.5 py-0.5 text-ui-xs font-semibold uppercase tracking-[0.12em] text-white/60">
+                    Example trip · illustration
+                  </span>
+                  Islamabad → Lahore
+                </p>
                 <p className="shrink-0 font-mono text-ui-sm font-semibold text-plug-cyan-300">385 km</p>
               </div>
 

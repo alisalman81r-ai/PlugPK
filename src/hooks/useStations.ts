@@ -3,14 +3,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { MOCK_STATIONS } from '@/lib/mock-data'
 import type { Coordinates, Station, StationFilters } from '@/lib/types'
 import { calculateDistance, getMaxPower } from '@/lib/utils'
 
 const defaultFilters: StationFilters = {
   connectorTypes: [],
   chargingSpeed: null,
-  availableOnly: false,
+  // Kept in the shared type but never offered: there is no live feed from the
+  // hardware, so "available now" was a filter on a guess. See FilterRail.
   minRating: 0,
   amenities: [],
   network: null,
@@ -32,6 +32,12 @@ export interface UseStationsReturn {
   searchQuery: string
   setSearchQuery: (query: string) => void
   userLocation: Coordinates | null
+  /**
+   * Asks the browser for a position and, if given, sorts by it. The "find
+   * chargers near me" button used to ask and then throw the answer away.
+   * `onSettled` runs either way, so a spinner can stop.
+   */
+  locate: (onSettled?: () => void) => void
   stationsWithDistance: StationWithDistance[]
 }
 
@@ -50,50 +56,32 @@ function matchesSpeed(maxPowerKw: number, speed: NonNullable<StationFilters['cha
 }
 
 export interface UseStationsOptions {
+  /**
+   * Every listing the map can show — database stations and approved business
+   * listings — loaded by the /map server page and passed down.
+   */
+  stations: Station[]
   /** Seeds the search box from the URL, so a /map?q=... link lands filtered. */
   initialQuery?: string
 }
 
-export function useStations(options: UseStationsOptions = {}): UseStationsReturn {
+export function useStations(options: UseStationsOptions): UseStationsReturn {
   const [filters, setFilters] = useState<StationFilters>(defaultFilters)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
   const [searchQuery, setSearchQuery] = useState(options.initialQuery ?? '')
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  /*
+    The map's listings arrive as a prop from the server page.
 
-  // Businesses that were approved in the admin portal, fetched separately and
-  // shown alongside the seeded stations. They arrive already shaped as
-  // Stations, so every filter, pin and card below treats them identically.
-  const [partnerStations, setPartnerStations] = useState<Station[]>([])
-
-  const stations = useMemo(
-    () => [...MOCK_STATIONS, ...partnerStations],
-    [partnerStations],
-  )
-
-  useEffect(() => {
-    let cancelled = false
-
-    fetch('/api/businesses')
-      .then((response) => (response.ok ? response.json() : { stations: [] }))
-      .then((payload: { stations?: Station[] }) => {
-        if (cancelled) return
-        setPartnerStations(Array.isArray(payload.stations) ? payload.stations : [])
-      })
-      // A failure here must not empty the map — the seeded stations are still
-      // worth showing, so this degrades to "no partner pins" rather than an
-      // error screen.
-      .catch(() => {
-        if (!cancelled) setPartnerStations([])
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
+    They used to be `[...MOCK_STATIONS, ...partnerStations]`: six fixtures
+    compiled into the browser bundle, plus approved businesses fetched from
+    /api/businesses after mount. So the map never showed a station an operator
+    had added or edited, the fixtures shipped to every visitor, and the pins
+    arrived a round trip after the page. Reading the database on the server
+    fixes all three, and there is nothing left to load here.
+  */
+  const stations = options.stations
+  const isLoading = false
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) return
@@ -108,6 +96,21 @@ export function useStations(options: UseStationsOptions = {}): UseStationsReturn
       // Denied or unavailable is a normal outcome, not an error state.
       () => setUserLocation(null),
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 },
+    )
+  }, [])
+
+  const locate = useCallback((onSettled?: () => void) => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      onSettled?.()
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude })
+        onSettled?.()
+      },
+      () => onSettled?.(),
+      { enableHighAccuracy: true, timeout: 8000 },
     )
   }, [])
 
@@ -126,7 +129,6 @@ export function useStations(options: UseStationsOptions = {}): UseStationsReturn
     let count = 0
     if (filters.connectorTypes.length > 0) count += 1
     if (filters.chargingSpeed !== null) count += 1
-    if (filters.availableOnly) count += 1
     if (filters.minRating > 0) count += 1
     if (filters.amenities.length > 0) count += 1
     if (filters.network !== null) count += 1
@@ -149,8 +151,6 @@ export function useStations(options: UseStationsOptions = {}): UseStationsReturn
         const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
         if (!matchesSpeed(maxPower, filters.chargingSpeed)) return false
       }
-
-      if (filters.availableOnly && station.status !== 'available') return false
 
       if (station.rating < filters.minRating) return false
 
@@ -203,6 +203,7 @@ export function useStations(options: UseStationsOptions = {}): UseStationsReturn
     searchQuery,
     setSearchQuery,
     userLocation,
+    locate,
     stationsWithDistance,
   }
 }

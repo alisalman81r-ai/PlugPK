@@ -27,7 +27,7 @@ import { Button } from '@/components/ui'
 import { LocationPicker } from './LocationPicker'
 import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
 import { registerBusiness, saveMyChargers } from '@/lib/db/business-actions'
-import { uploadChargerPhoto } from '@/lib/db/upload-actions'
+import { deleteChargerPhoto, uploadChargerPhoto } from '@/lib/db/upload-actions'
 import type { BusinessType, ConnectorType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -83,6 +83,30 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
   const [isComplete, setIsComplete] = React.useState(false)
   const [agreed, setAgreed] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [progress, setProgress] = React.useState<string | null>(null)
+
+  /*
+    What an earlier press of Submit already achieved.
+
+    Submitting is three steps — create the listing, upload each photo, attach
+    them — and on a phone connection any of the later two can fail. Each retry
+    used to start again from nothing, so a bad signal left a trail of
+    half-made pending listings for the reviewer and a re-upload of every
+    photo. The listing id and the URL of each uploaded file are kept here, so
+    pressing Submit again picks up where the last attempt stopped.
+  */
+  const draftId = React.useRef<string | null>(null)
+  const uploaded = React.useRef(new Map<File, string>())
+
+  /** Throws away an uploaded file the form no longer uses. */
+  const forgetUpload = (file: File | undefined) => {
+    if (!file) return
+    const url = uploaded.current.get(file)
+    if (!url) return
+    uploaded.current.delete(file)
+    // Only ever deletes a file no saved listing points at — see upload-actions.
+    if (draftId.current) void deleteChargerPhoto(draftId.current, url).catch(() => {})
+  }
 
   const [data, setData] = React.useState<FormData>({
     phone: account.phone ?? '',
@@ -161,79 +185,106 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
     setIsLoading(true)
     setError(null)
 
-    // This used to be `await new Promise(r => setTimeout(r, 2500))` followed by
-    // the success screen — a fake delay standing in for a request that was
-    // never made. Every application was discarded on the next page load.
-    //
-    // No identity is sent: the action reads it from the session.
-    const result = await registerBusiness({
-      phone: data.phone,
-      businessName: data.businessName,
-      businessType: data.businessType,
-      city: data.city,
-      address: data.address,
-      website: data.website,
-      lat: data.lat,
-      lng: data.lng,
-      chargers: data.chargers.map((charger) => ({
-        connectorType: charger.connectorType,
-        maxPowerKw: charger.maxPowerKw,
-        ports: charger.ports,
-      })),
-    })
+    // Said on every failure after the first step: the details are already
+    // saved, and the next attempt resumes rather than duplicating them.
+    const retryHint = ' Your details are saved — press Submit again to carry on. Nothing will be listed twice.'
 
-    if (result.ok && result.businessId) {
-      const uploaded = []
-      for (const charger of data.chargers) {
-        const primary = new FormData()
-        primary.set('file', charger.photoFile as File)
-        const primaryResult = await uploadChargerPhoto(result.businessId, primary)
-        if (!primaryResult.ok || !primaryResult.url) {
-          setIsLoading(false)
-          setError(primaryResult.message ?? 'Could not upload a charger photo.')
+    try {
+      // No identity is sent: the action reads it from the session. A retry
+      // passes the draft's id, so the server updates it instead of creating
+      // another.
+      setProgress('Saving your listing…')
+      const result = await registerBusiness({
+        phone: data.phone,
+        businessName: data.businessName,
+        businessType: data.businessType,
+        city: data.city,
+        address: data.address,
+        website: data.website,
+        lat: data.lat,
+        lng: data.lng,
+        chargers: data.chargers.map((charger) => ({
+          connectorType: charger.connectorType,
+          maxPowerKw: charger.maxPowerKw,
+          ports: charger.ports,
+        })),
+        businessId: draftId.current ?? undefined,
+      })
+
+      if (!result.ok || !result.businessId) {
+        setError(result.message ?? 'Could not submit your listing. Please try again.')
+        return
+      }
+      const businessId = result.businessId
+      draftId.current = businessId
+
+      const files = data.chargers.flatMap((charger) =>
+        [charger.photoFile, charger.portPhotoFile].filter((file): file is File => file instanceof File),
+      )
+      let sent = 0
+
+      const urlFor = async (file: File): Promise<{ url?: string; message?: string }> => {
+        sent += 1
+        const cached = uploaded.current.get(file)
+        if (cached) return { url: cached }
+
+        setProgress(`Uploading photo ${sent} of ${files.length}…`)
+        const form = new FormData()
+        form.set('file', file)
+        const upload = await uploadChargerPhoto(businessId, form)
+        if (!upload.ok || !upload.url) return { message: upload.message ?? 'Could not upload a photo.' }
+        uploaded.current.set(file, upload.url)
+        return { url: upload.url }
+      }
+
+      const withPhotos = []
+      for (const [index, charger] of data.chargers.entries()) {
+        const primary = await urlFor(charger.photoFile as File)
+        if (!primary.url) {
+          setError(`Charger ${index + 1}: ${primary.message}${retryHint}`)
           return
         }
 
         let portPhoto: string | undefined
         if (charger.portPhotoFile) {
-          const port = new FormData()
-          port.set('file', charger.portPhotoFile)
-          const portResult = await uploadChargerPhoto(result.businessId, port)
-          if (!portResult.ok || !portResult.url) {
-            setIsLoading(false)
-            setError(portResult.message ?? 'Could not upload the port photo.')
+          const port = await urlFor(charger.portPhotoFile)
+          if (!port.url) {
+            setError(`Charger ${index + 1} port photo: ${port.message}${retryHint}`)
             return
           }
-          portPhoto = portResult.url
+          portPhoto = port.url
         }
 
-        uploaded.push({
+        // No photo status is sent. Every new photo starts as awaiting review,
+        // and that is the server's decision, not the form's.
+        withPhotos.push({
           connectorType: charger.connectorType,
           maxPowerKw: charger.maxPowerKw,
           ports: charger.ports,
-          photo: primaryResult.url,
+          photo: primary.url,
           photoLabel: 'charger' as const,
-          photoStatus: 'pending' as const,
-          ...(portPhoto ? { portPhoto, portPhotoStatus: 'pending' as const } : {}),
+          ...(portPhoto ? { portPhoto } : {}),
         })
       }
 
-      const saved = await saveMyChargers(result.businessId, uploaded)
+      setProgress('Attaching your photos…')
+      const saved = await saveMyChargers(businessId, withPhotos)
       if (!saved.ok) {
-        setIsLoading(false)
-        setError(saved.message ?? 'Could not save the charger evidence.')
+        setError(`${saved.message ?? 'Could not attach the charger photos.'}${retryHint}`)
         return
       }
+
+      setIsComplete(true)
+    } catch {
+      // A dropped connection rejects the action's promise rather than
+      // returning a result. Whatever got as far as the server is kept.
+      setError(
+        `Could not reach Plug.pk. Check your connection and press Submit again.${draftId.current ? ' Nothing will be listed twice.' : ''}`,
+      )
+    } finally {
+      setIsLoading(false)
+      setProgress(null)
     }
-
-    setIsLoading(false)
-
-    if (!result.ok) {
-      setError(result.message ?? 'Could not submit your listing. Please try again.')
-      return
-    }
-
-    setIsComplete(true)
   }
 
   if (isComplete) {
@@ -244,9 +295,15 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
             neither was true. The listing is not published until an admin
             approves it, and no mail is sent by this application at all. */}
         <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">Application received</h2>
+        {/* It used to say "We'll be in touch at {email}". This application
+            sends no email at all, so the outcome is shown where it really
+            appears: on the dashboard, with the reviewer's reason if the
+            listing is not approved. No turnaround is promised because none
+            is measured. */}
         <p className="mb-8 text-slate-500">
-          Your listing has been submitted and is waiting to be reviewed. We&apos;ll be in touch
-          at {account.email} once it has been looked at.
+          Your listing has been submitted. A person checks every listing and its photos before it
+          goes on the map. The outcome appears on your dashboard — check back there to see whether
+          it is live, or what needs changing if it is not.
         </p>
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -257,13 +314,13 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
             <span className="block font-semibold text-slate-900">Access Dashboard</span>
           </Link>
           <Link
-            href="/business/profile"
+            href={draftId.current ? `/business/profile?listing=${draftId.current}` : '/business/profile'}
             className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <span className="block font-semibold text-slate-900">Add More Details</span>
           </Link>
           <Link
-            href="/for-businesses"
+            href="/partners"
             className="rounded-2xl border border-slate-200 bg-white p-5 text-center transition-all hover:border-plug-blue-200 hover:bg-plug-blue-50"
           >
             <span className="block font-semibold text-slate-900">Share Your Listing</span>
@@ -456,7 +513,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
 
             <div className="mb-5">
               <label htmlFor="biz-name-signup" className="mb-2 block text-sm font-semibold text-slate-700">{nameLabel} *</label>
-              <input id="biz-name-signup" type="text" value={data.businessName} onChange={(e) => update('businessName', e.target.value)} placeholder={namePlaceholder} className={FIELD} />
+              <input id="biz-name-signup" type="text" maxLength={120} value={data.businessName} onChange={(e) => update('businessName', e.target.value)} placeholder={namePlaceholder} className={FIELD} />
             </div>
 
             <div className="mb-5">
@@ -471,7 +528,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
 
             <div className="mb-5">
               <label htmlFor="biz-addr-signup" className="mb-2 block text-sm font-semibold text-slate-700">Full Address *</label>
-              <textarea id="biz-addr-signup" value={data.address} onChange={(e) => update('address', e.target.value)} placeholder="24 Mall Road, Gulberg" className="min-h-[80px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-sm text-slate-900 outline-none focus:border-plug-blue-500" />
+              <textarea id="biz-addr-signup" maxLength={300} value={data.address} onChange={(e) => update('address', e.target.value)} placeholder="24 Mall Road, Gulberg" className="min-h-[80px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 bg-white p-4 text-sm text-slate-900 outline-none focus:border-plug-blue-500" />
             </div>
 
             <div className="mb-5">
@@ -506,7 +563,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
 
             <div className="mb-6">
               <label htmlFor="biz-web-signup" className="mb-2 block text-sm font-semibold text-slate-700">Website (optional)</label>
-              <input id="biz-web-signup" type="url" value={data.website} onChange={(e) => update('website', e.target.value)} placeholder="https://yourbusiness.pk" className={FIELD} />
+              <input id="biz-web-signup" type="url" maxLength={300} value={data.website} onChange={(e) => update('website', e.target.value)} placeholder="https://yourbusiness.pk" className={FIELD} />
             </div>
 
             {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
@@ -529,7 +586,11 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                 <div key={index} className="relative rounded-2xl border border-slate-200 bg-white p-5">
                   <button
                     type="button"
-                    onClick={() => update('chargers', data.chargers.filter((_, i) => i !== index))}
+                    onClick={() => {
+                      forgetUpload(charger.photoFile)
+                      forgetUpload(charger.portPhotoFile)
+                      update('chargers', data.chargers.filter((_, i) => i !== index))
+                    }}
                     aria-label={`Remove charger ${index + 1}`}
                     className="absolute right-4 top-4 text-slate-400 hover:text-red-500"
                   >
@@ -596,6 +657,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                           const file = event.target.files?.[0]
                           event.target.value = ''
                           if (!file) return
+                          forgetUpload(charger.photoFile)
                           const next = [...data.chargers]
                           next[index] = { ...charger, photoFile: file }
                           update('chargers', next)
@@ -613,6 +675,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                           const file = event.target.files?.[0]
                           event.target.value = ''
                           if (!file) return
+                          forgetUpload(charger.portPhotoFile)
                           const next = [...data.chargers]
                           next[index] = { ...charger, portPhotoFile: file }
                           update('chargers', next)
@@ -684,8 +747,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                     <div key={index} className="flex justify-between gap-4 py-1">
                       <span className="text-sm text-slate-500">{charger.connectorType}</span>
                       <span className="font-mono text-sm text-slate-900">
-                        {charger.maxPowerKw} kW · {charger.ports} port{charger.ports === 1 ? '' : 's'} ·{' '}
-                        {charger.maxPowerKw} kW
+                        {charger.maxPowerKw} kW · {charger.ports} port{charger.ports === 1 ? '' : 's'}
                       </span>
                     </div>
                   ))
@@ -723,7 +785,16 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
               </span>
             </label>
 
-            {error ? <p className="mb-4 text-sm text-red-600">{error}</p> : null}
+            {error ? (
+              <p role="alert" className="mb-4 text-sm text-red-600">
+                {error}
+              </p>
+            ) : null}
+            {progress ? (
+              <p aria-live="polite" className="mb-4 text-sm text-slate-500">
+                {progress}
+              </p>
+            ) : null}
 
             <div className="flex gap-3">
               <Button variant="secondary" size="lg" className="h-14" onClick={() => setCurrentStep(3)}>Back</Button>

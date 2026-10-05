@@ -2,6 +2,7 @@
 'use client'
 
 import { Bookmark, BookmarkCheck, ChevronLeft, Route as RouteIcon, Share2 } from '@/components/ui/icons'
+import Link from 'next/link'
 import * as React from 'react'
 
 import { MorphIcon } from '@/components/ui'
@@ -12,13 +13,13 @@ import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
 import { RouteInputForm } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
 import { FaqSection } from '@/components/shared/FaqSection'
-import { ROUTES_FAQS } from '@/lib/faqs'
-import { MOCK_STATIONS } from '@/lib/mock-data'
-import type { EVModel } from '@/lib/types'
-import { cn } from '@/lib/utils'
-import type { PopularRoute } from '@/lib/route-distances'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { saveMyRoute } from '@/lib/db/route-actions'
+import { ROUTES_FAQS } from '@/lib/faqs'
+import type { PopularRoute } from '@/lib/route-distances'
+import { vehicleName, withArticle, type RouteVehicle } from '@/lib/route-plan'
+import type { Station } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 /**
  * The planning page reads: orient, pick a known route, or fill in your own.
@@ -41,30 +42,47 @@ const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
 
 export interface RoutesPlannerProps {
   /** The EVs the planner can route, read from the catalogue by the page. */
-  vehicles: EVModel[]
+  vehicles: RouteVehicle[]
+  /** Every listing the map shows — what the plan can stop at. */
+  stations: Station[]
 }
 
-export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
-  const planner = useRoutePlanner()
-  // Signed in? Asked of /api/me, the same endpoint the header uses. Null
-  // until it answers, so Save is never shown to someone signed out.
-  const [user, setUser] = React.useState<{ name: string } | null>(null)
+/** Signed in, signed out, or not known yet — the last is not the same as out. */
+type Viewer = { name: string } | null | undefined
+
+export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
+  const planner = useRoutePlanner(stations)
+
+  /*
+    Signed in? Asked of /api/me, the endpoint the header also asks. Undefined
+    until it answers, so neither "Save" nor "Sign in to save" flashes up wrong.
+
+    The header (Navbar) makes the same request on its own, so /routes asks
+    twice. useCurrentUser would not fix that — it is a server action, a third
+    kind of request, not a shared cache — so it is left as one fetch here until
+    the header and this page can share one source.
+  */
+  const [viewer, setViewer] = React.useState<Viewer>(undefined)
   React.useEffect(() => {
     const abort = new AbortController()
     fetch('/api/me', { signal: abort.signal, cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : { user: null }))
-      .then((data: { user?: { name: string } | null }) => setUser(data.user ?? null))
-      .catch(() => {})
+      .then((data: { user?: { name: string } | null }) => setViewer(data.user ?? null))
+      .catch(() => {
+        if (!abort.signal.aborted) setViewer(null)
+      })
     return () => abort.abort()
   }, [])
   const [saveError, setSaveError] = React.useState<string | null>(null)
   const [copied, setCopied] = React.useState(false)
+  /** This page with the plan in its query, for the sign-in link's way back. */
+  const [returnTo, setReturnTo] = React.useState('/routes')
 
   /*
     A planned route lives in the address bar — ?from=&to=&car=&battery= — so
-    Share copies a link that opens the same plan, and a saved route on the
-    dashboard can link straight back here. Opening such a link fills the form
-    and plans it at once.
+    Share copies a link that opens the same plan, a saved route on the
+    dashboard can link straight back here, and signing in to save it comes
+    back to the same plan. Opening such a link fills the form and plans it.
   */
   const [autoRun, setAutoRun] = React.useState(false)
   const { setOrigin, setDestination, setSelectedVehicle, setBatteryPercent } = planner
@@ -73,12 +91,17 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
     const from = q.get('from')?.trim()
     const to = q.get('to')?.trim()
     const car = vehicles.find((v) => v.id === q.get('car'))
+    // A car page links here with ?car= alone ("Plan a trip in this car"):
+    // preselect it, and plan only when the journey is in the link too.
+    if (car) setSelectedVehicle(car)
     if (!from || !to || !car) return
     setOrigin(from)
     setDestination(to)
     setSelectedVehicle(car)
     const battery = Number(q.get('battery'))
-    if (battery >= 5 && battery <= 100) setBatteryPercent(battery)
+    if (q.has('battery') && Number.isFinite(battery) && battery >= 0 && battery <= 100) {
+      setBatteryPercent(Math.round(battery))
+    }
     setAutoRun(true)
   }, [vehicles, setOrigin, setDestination, setSelectedVehicle, setBatteryPercent])
 
@@ -97,12 +120,12 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
       url.searchParams.set('from', route.origin)
       url.searchParams.set('to', route.destination)
       url.searchParams.set('car', route.vehicle.id)
-      url.searchParams.set('battery', String(planner.batteryPercent))
+      // The charge the plan was made on, not wherever the slider is now.
+      url.searchParams.set('battery', String(route.startPercent))
     }
     window.history.replaceState(null, '', url)
+    setReturnTo(`${url.pathname}${url.search}`)
     setSaveError(null)
-    // The battery is read when the route changes, not on every slider move.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planner.plannedRoute])
 
   /** Saved to the account at once; put back if the server refuses. */
@@ -115,11 +138,11 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
       origin: route.origin,
       destination: route.destination,
       carId: route.vehicle.id,
-      carName: `${route.vehicle.make} ${route.vehicle.model}`,
-      batteryPercent: planner.batteryPercent,
+      carName: vehicleName(route.vehicle),
+      batteryPercent: route.startPercent,
       distanceKm: route.totalDistanceKm,
       durationMin: route.estimatedDriveTimeMinutes + route.totalChargingTimeMinutes,
-      stops: route.stops.length,
+      stops: route.plan.stops.length,
     }).catch(() => null)
     if (!result?.ok) {
       planner.unsaveRoute()
@@ -139,12 +162,12 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
   }, [])
 
   /**
-   * Cities with a station, counted rather than claimed — the same figure the
-   * map's hero shows, and for the same reason.
+   * Cities with a charger, counted from the listings the planner actually
+   * routes through — the same list the map shows.
    */
   const cityCount = React.useMemo(
-    () => new Set(MOCK_STATIONS.map((station) => station.address.city)).size,
-    [],
+    () => new Set(stations.map((station) => station.address.city)).size,
+    [stations],
   )
 
   /**
@@ -182,20 +205,30 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
                   </HeaderAction>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {/* Saving is an account feature: not offered when signed out. */}
-                    {user ? (
-                    <HeaderAction
-                      onClick={() => void handleSave()}
-                      active={planner.isSaved}
-                    >
-                      <MorphIcon
-                        active={planner.isSaved}
-                        on={BookmarkCheck}
-                        off={Bookmark}
-                        size={15}
-                      />
-                      {planner.isSaved ? 'Saved' : 'Save route'}
-                    </HeaderAction>
+                    {/*
+                      Saving is an account feature. Signed out, the button
+                      used to vanish, so nobody knew it existed; now it is a
+                      link to sign in that brings the visitor back to this same
+                      plan (it lives in the query string).
+                    */}
+                    {viewer ? (
+                      <HeaderAction onClick={() => void handleSave()} active={planner.isSaved}>
+                        <MorphIcon
+                          active={planner.isSaved}
+                          on={BookmarkCheck}
+                          off={Bookmark}
+                          size={15}
+                        />
+                        {planner.isSaved ? 'Saved' : 'Save route'}
+                      </HeaderAction>
+                    ) : viewer === null ? (
+                      <Link
+                        href={`/login?redirect=${encodeURIComponent(returnTo)}`}
+                        className={HEADER_ACTION}
+                      >
+                        <Bookmark size={15} aria-hidden="true" />
+                        Sign in to save this route
+                      </Link>
                     ) : null}
 
                     <HeaderAction onClick={handleShare}>
@@ -210,6 +243,10 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
                   <span className="text-plug-cyan-400">→</span>{' '}
                   {planner.plannedRoute.destination}
                 </h1>
+                <p className="mt-2 text-ui text-white/60">
+                  In {withArticle(vehicleName(planner.plannedRoute.vehicle))}, leaving with{' '}
+                  {planner.plannedRoute.startPercent}%
+                </p>
                 {saveError ? (
                   <p role="alert" className="mt-3 text-ui-sm font-medium text-rose-300">{saveError}</p>
                 ) : null}
@@ -217,15 +254,14 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
             </header>
 
             <div className={`${STAGE} py-10 lg:py-12`}>
-              <RouteResultsView route={planner.plannedRoute} />
+              <RouteResultsView trip={planner.plannedRoute} />
             </div>
-
           </>
         ) : (
           <>
             <RouteHero
               vehicleCount={vehicles.length}
-              stationCount={MOCK_STATIONS.length}
+              stationCount={stations.length}
               cityCount={cityCount}
             />
 
@@ -307,8 +343,15 @@ export function RoutesPlanner({ vehicles }: RoutesPlannerProps) {
  *
  * Three buttons that do different things should still look like siblings; the
  * saved state is the only one that reads differently, and it earns that by
- * being a state rather than an action.
+ * being a state rather than an action. Exported as a class string too, so the
+ * sign-in link wears the same shape as the buttons beside it.
  */
+const HEADER_ACTION = cn(
+  'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950',
+  'border-white/15 bg-white/[0.06] text-white/75 hover:border-white/30 hover:text-white',
+)
+
 function HeaderAction({
   onClick,
   active = false,

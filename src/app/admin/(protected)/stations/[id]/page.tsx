@@ -1,6 +1,7 @@
 // src/app/admin/(protected)/stations/[id]/page.tsx
 import { notFound } from 'next/navigation'
 
+import { ActivityPanel } from '@/components/admin/ActivityPanel'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { StationForm } from '@/components/admin/StationForm'
 import { saveStation } from '@/lib/db/actions'
@@ -21,6 +22,9 @@ export default async function EditStationPage({ params }: { params: { id: string
     <>
       <AdminHeader title={station.name} description="Editing a published station." backHref="/admin/stations" />
       <StationForm station={station} action={update} />
+      <div className="max-w-3xl px-4 pb-8 sm:px-8">
+        <ActivityPanel targetType="station" targetId={station.id} />
+      </div>
     </>
   )
 }

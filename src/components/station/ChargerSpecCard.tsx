@@ -1,18 +1,20 @@
 // src/components/station/ChargerSpecCard.tsx
 import { ConnectorBadge } from '@/components/ui'
-import type { Connector, ConnectorStatus } from '@/lib/types'
-import { cn, getConnectorConfig } from '@/lib/utils'
+import type { Connector } from '@/lib/types'
+import { getConnectorConfig } from '@/lib/utils'
 
 export interface ChargerSpecCardProps {
   connector: Connector
   index: number
 }
 
-const STATUS_PILL: Record<ConnectorStatus, { label: string; className: string }> = {
-  available: { label: 'Available', className: 'border-green-200 bg-green-50 text-green-700' },
-  'in-use': { label: 'In Use', className: 'border-amber-200 bg-amber-50 text-amber-700' },
-  offline: { label: 'Offline', className: 'border-red-200 bg-red-50 text-red-700' },
-}
+/*
+  No "Available" / "In use" pill and no "1/2 free". Plug.pk has no live
+  connection to the charging hardware (the FAQ says so), so a port count
+  that changes only when somebody edits it in the admin portal is not
+  availability — it is a guess presented as a reading. What is installed is a
+  fact, and that is what this card states.
+*/
 
 /** Short abbreviation shown in the icon box. */
 const CURRENT_ABBREVIATION: Record<Connector['type'], string> = {
@@ -39,7 +41,6 @@ function Spec({ label, value, unit }: { label: string; value: string; unit?: str
 
 export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
   const config = getConnectorConfig(connector.type)
-  const status = STATUS_PILL[connector.status]
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-6">
@@ -65,22 +66,14 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
           </div>
         </div>
 
-        <span
-          className={cn(
-            'shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold',
-            status.className,
-          )}
-        >
-          {status.label}
-        </span>
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         <Spec label="Max Power" value={String(connector.maxPowerKw)} unit="kW" />
         <Spec
           label="Ports"
-          value={`${connector.availablePorts}/${connector.ports}`}
-          unit="free"
+          value={String(connector.ports)}
+          unit="installed"
         />
       </div>
 
@@ -101,7 +94,9 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-400">Compatible with most EVs</p>
+          // No list was given for this charger. "Most EVs" was a claim; the socket
+          // is what decides it, so that is what is said.
+          <p className="text-sm text-slate-500">Any car with a {connector.type} socket</p>
         )}
       </div>
     </div>

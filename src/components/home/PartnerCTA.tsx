@@ -1,8 +1,9 @@
 // src/components/home/PartnerCTA.tsx
-import { PlugZap } from '@/components/ui/icons'
+import { ArrowRight, PlugZap } from '@/components/ui/icons'
 import Image from 'next/image'
+import Link from 'next/link'
 
-import { DiscButton } from '@/components/ui'
+import { cn } from '@/lib/utils'
 
 /**
  * Partner Up, on the home page.
@@ -17,16 +18,19 @@ import { DiscButton } from '@/components/ui'
  * for `:has(.disc-cta:hover)` on it, so there is no client boundary and no
  * state. Touch screens have no hover, so they simply keep the solid band.
  *
- * The button is the shared DiscButton, whose `disc-cta` class is what the
+ * The button carries the `disc-cta` class, which is what the
  * photo listens for.
  *
- * The copy says "free to list" because that is true — PartnerPricing publishes
- * a free tier. It deliberately does not promise "no cost, no maintenance":
+ * The copy states the one published price — PKR 4,999 a month, the figure on
+ * Partner Up and in its FAQ. It said "free to list" while Partner Up said
+ * 4,999; one of the two had to be wrong. It does not promise "no cost, no maintenance":
  * plug.pk lists chargers, it does not install or service them.
  */
 export function PartnerCTA() {
+  // No top padding: the community band above is white and already ends in
+  // 6–8rem of space, and the two paddings stacked made a ~200px empty gap.
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className="bg-white pb-6 lg:pb-8">
       <div className="container-plug">
         <div className="group/panel relative isolate overflow-hidden rounded-[2rem] bg-plug-navy-950 px-6 py-20 text-center sm:px-10 sm:py-24 lg:rounded-tr-[9rem] lg:py-32">
           {/* ── The ground: solid at rest, the photo on hover ───────── */}
@@ -57,12 +61,35 @@ export function PartnerCTA() {
           </h2>
 
           <p className="mx-auto mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-white/80 sm:text-xl">
-            Host a charger and give EV drivers a reason to stop at yours. Listing on plug.pk is free.
+            Host a charger and give EV drivers a reason to stop at yours. Listing on plug.pk is
+            PKR 4,999 a month, and every listing is checked before it goes live.
           </p>
 
-          <DiscButton href="/partners" icon={<PlugZap size={20} />} className="mx-auto mt-12">
+          {/*
+            The band's one action, so it is filled and large rather than the
+            thin outline it was, which read as secondary on the dark ground.
+            Turquoise with pine type; a soft glow and a nudging arrow on hover.
+            `disc-cta` stays: it is what the photo reveal above listens for.
+          */}
+          <Link
+            href="/partners"
+            className={cn(
+              'disc-cta group/cta mx-auto mt-12 inline-flex h-14 items-center gap-3 rounded-2xl bg-plug-cyan-400 pl-6 pr-3 text-lg font-bold text-plug-navy-950 sm:h-16 sm:pl-8 sm:text-xl',
+              'shadow-[0_12px_40px_-12px_rgba(111,232,182,0.75)] ring-1 ring-white/20',
+              'transition-[transform,box-shadow,background-color] duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_50px_-12px_rgba(111,232,182,0.95)]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950',
+              'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+            )}
+          >
+            <PlugZap size={22} aria-hidden="true" />
             Partner up
-          </DiscButton>
+            <span
+              aria-hidden="true"
+              className="ml-1 flex h-9 w-9 items-center justify-center rounded-xl bg-plug-navy-950 text-plug-cyan-300 transition-transform duration-300 group-hover/cta:translate-x-1 motion-reduce:transition-none sm:h-10 sm:w-10"
+            >
+              <ArrowRight size={18} />
+            </span>
+          </Link>
         </div>
       </div>
     </section>

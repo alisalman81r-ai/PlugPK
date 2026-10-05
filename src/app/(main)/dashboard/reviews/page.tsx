@@ -1,4 +1,5 @@
 // src/app/(main)/dashboard/reviews/page.tsx
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
@@ -13,6 +14,8 @@ import { getCurrentProfile } from '@/lib/db/session-actions'
  */
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = { title: 'My Reviews' }
 
 export default async function Page() {
   const profile = await getCurrentProfile()

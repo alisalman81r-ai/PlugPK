@@ -122,32 +122,8 @@ export function FilterSections({ filters, onUpdateFilter }: FilterSectionsProps)
         </div>
       </div>
 
-      {/* ── Availability ───────────────────────────────────────── */}
-      <div className="border-b border-slate-50 px-5 py-4">
-        <SectionLabel>Availability</SectionLabel>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-700">Available Now Only</span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={filters.availableOnly}
-            aria-label="Available now only"
-            onClick={() => onUpdateFilter('availableOnly', !filters.availableOnly)}
-            className={cn(
-              'relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200',
-              filters.availableOnly ? 'bg-plug-blue-600' : 'bg-slate-200',
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                'absolute top-1/2 block h-[18px] w-[18px] -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform duration-200',
-                filters.availableOnly ? 'translate-x-[23px]' : 'translate-x-[3px]',
-              )}
-            />
-          </button>
-        </div>
-      </div>
+      {/* No availability toggle: it filtered on a status column with no live data
+          behind it (see FilterRail). */}
 
       {/* ── Minimum rating ─────────────────────────────────────── */}
       <div className="border-b border-slate-50 px-5 py-4">

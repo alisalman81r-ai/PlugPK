@@ -99,11 +99,11 @@ export function LiveNetwork({ health }: { health: NetworkHealth }) {
       <p className="mt-4 border-t border-slate-100 pt-4 text-ui-xs text-slate-500">
         {stations.total} {stations.total === 1 ? 'station' : 'stations'} · {connectors.total}{' '}
         {connectors.total === 1 ? 'connector' : 'connectors'}
-        {connectors.degraded > 0 ? (
+        {connectors.offline > 0 ? (
           <>
             {' · '}
             <span className="font-semibold text-amber-700">
-              {connectors.degraded} not available
+              {connectors.offline} offline
             </span>
           </>
         ) : null}

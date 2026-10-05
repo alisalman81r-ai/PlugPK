@@ -8,7 +8,9 @@ import * as React from 'react'
 
 import { Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
-import { carDisplayName, formatPkr } from '@/lib/cars'
+import { carDisplayName, formatPkr, formatSpan } from '@/lib/cars'
+
+import { writeComparedIds } from './compare-selection'
 import { cn } from '@/lib/utils'
 
 /**
@@ -132,12 +134,7 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
       { label: 'Battery technology', value: (car) => car.batteryTech?.trim() || null },
       {
         label: 'Driving range',
-        value: (car) =>
-          car.range === null
-            ? null
-            : car.rangeMax
-              ? `${car.range}–${car.rangeMax} km`
-              : `${car.range} km`,
+        value: (car) => formatSpan(car.range, car.rangeMax, 'km'),
         number: (car) => car.range,
         better: 'higher',
         unit: 'km',
@@ -145,36 +142,21 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
       { label: 'Range standard', value: (car) => car.rangeStandard?.trim() || null },
       {
         label: 'Electric range',
-        value: (car) =>
-          car.electricRange === null
-            ? null
-            : car.electricRangeMax
-              ? `${car.electricRange}–${car.electricRangeMax} km`
-              : `${car.electricRange} km`,
+        value: (car) => formatSpan(car.electricRange, car.electricRangeMax, 'km'),
         number: (car) => car.electricRange,
         better: 'higher',
         unit: 'km',
       },
       {
         label: 'Real-world range',
-        value: (car) =>
-          car.realWorldRange === null || car.realWorldRange === undefined
-            ? null
-            : car.realWorldRangeMax
-              ? `${car.realWorldRange}–${car.realWorldRangeMax} km (est.)`
-              : `${car.realWorldRange} km (est.)`,
+        value: (car) => formatSpan(car.realWorldRange, car.realWorldRangeMax, 'km (est.)'),
         number: (car) => car.realWorldRange ?? null,
         better: 'higher',
         unit: 'km',
       },
       {
         label: 'Energy consumption',
-        value: (car) =>
-          car.consumption === null || car.consumption === undefined
-            ? null
-            : car.consumptionMax
-              ? `${car.consumption}–${car.consumptionMax} kWh/100 km (est.)`
-              : `${car.consumption} kWh/100 km (est.)`,
+        value: (car) => formatSpan(car.consumption, car.consumptionMax, 'kWh/100 km (est.)'),
         number: (car) => car.consumption ?? null,
         better: 'lower',
         unit: 'kWh per 100 km',
@@ -278,12 +260,7 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
       { label: 'Wheelbase', value: (car) => (car.wheelbaseMm ? `${car.wheelbaseMm} mm` : null) },
       {
         label: 'Ground clearance',
-        value: (car) =>
-          car.groundClearanceMm === null || car.groundClearanceMm === undefined
-            ? null
-            : car.groundClearanceMaxMm
-              ? `${car.groundClearanceMm}–${car.groundClearanceMaxMm} mm`
-              : `${car.groundClearanceMm} mm`,
+        value: (car) => formatSpan(car.groundClearanceMm, car.groundClearanceMaxMm, 'mm'),
       },
       {
         label: 'Boot space',
@@ -323,6 +300,9 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
 
   const go = (ids: string[]) => {
     setAdding(false)
+    // Remembered before navigating: emptying the table goes to /cars, which
+    // has no ids for the page's own sync to write.
+    writeComparedIds(ids)
     router.push(ids.length === 0 ? '/cars' : `/cars/compare?ids=${ids.join(',')}`)
   }
 
@@ -406,12 +386,18 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
   return (
     <div>
       {/* ── The answer, before the table ─────────────────────────── */}
+      {/*
+        Compact, two to a row even on a phone. These were full-width cards with
+        a 16:10 photograph each, so a four-car comparison was four screens of
+        pictures before the first row of the table — the part of the page that
+        answers the question. A short photo strip keeps each car recognisable
+        and gets the table on screen far sooner.
+      */}
       <div
         className={cn(
-          'grid gap-4',
-          cars.length === 2 && 'sm:grid-cols-2',
-          cars.length === 3 && 'sm:grid-cols-2 lg:grid-cols-3',
-          cars.length >= 4 && 'sm:grid-cols-2 lg:grid-cols-4',
+          'grid grid-cols-2 gap-3 sm:gap-4',
+          cars.length === 3 && 'lg:grid-cols-3',
+          cars.length >= 4 && 'lg:grid-cols-4',
         )}
       >
         {cars.map((car) => {
@@ -427,29 +413,29 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 type="button"
                 onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
                 aria-label={`Remove ${carDisplayName(car)} from comparison`}
-                className="absolute right-2.5 top-2.5 z-10 rounded-full bg-white/80 p-1.5 text-slate-500 ring-1 ring-slate-900/10 backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+                className="absolute right-1.5 top-1.5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-slate-600 ring-1 ring-slate-900/10 backdrop-blur-sm transition-colors hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
               >
-                <X size={14} aria-hidden="true" />
+                <X size={16} aria-hidden="true" />
               </button>
 
               <Link
                 href={`/cars/${car.slug}`}
                 className="group/car block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-cyan-400"
               >
-                <span className="relative block aspect-[16/10] overflow-hidden bg-white/70">
+                <span className="relative block h-24 overflow-hidden bg-white/70 sm:h-28">
                   <PhotoFrame
                     src={car.image ?? undefined}
                     alt={carDisplayName(car)}
-                    sizes="(max-width: 640px) 100vw, 320px"
+                    sizes="(max-width: 640px) 50vw, 320px"
                     zoomOnHover
                   />
                 </span>
 
-                <span className="block p-4">
+                <span className="block p-3 sm:p-4">
                   {/* Same treatment as the catalogue card, so a car looks like
                       itself in both places. */}
                   <span className="flex items-start justify-between gap-2">
-                    <span className="min-w-0 text-lg leading-snug tracking-tight transition-colors group-hover/car:text-plug-blue-700">
+                    <span className="min-w-0 text-ui leading-snug tracking-tight transition-colors group-hover/car:text-plug-blue-700 sm:text-lg">
                       <span className="font-display font-bold text-slate-900">{car.brand}</span>{' '}
                       <span className="font-sans text-ui font-semibold text-slate-500">
                         {car.model}
@@ -470,7 +456,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                     </Badge>
                   </span>
 
-                  <span className="mt-3 block text-xl font-black tracking-tight text-slate-900">
+                  <span className="mt-2 block text-base font-black tracking-tight text-slate-900 sm:text-xl">
                     {car.price.display}
                   </span>
 
@@ -490,7 +476,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               {/* Wins are stated with their denominator. "4" alone is a boast;
                   "4 of 7 measured" is a fact the reader can check. */}
               {analysis.measured > 0 ? (
-                <p className="mt-auto flex items-center gap-2 border-t border-slate-900/[0.07] bg-white/45 px-4 py-2.5 text-ui-xs">
+                <p className="mt-auto flex items-center gap-2 border-t border-slate-900/[0.07] bg-white/45 px-3 py-2 text-ui-xs sm:px-4 sm:py-2.5">
                   <Trophy
                     size={12}
                     aria-hidden="true"
@@ -508,7 +494,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       </div>
 
       {/* ── Table controls ──────────────────────────────────────── */}
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2.5 text-ui-sm font-semibold text-slate-700">
           <input
             type="checkbox"
@@ -553,9 +539,9 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                 type="button"
                 onClick={() => setAdding(false)}
                 aria-label="Cancel adding a car"
-                className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-900/5 hover:text-slate-900"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-900/5 hover:text-slate-900"
               >
-                <X size={14} aria-hidden="true" />
+                <X size={16} aria-hidden="true" />
               </button>
             </div>
           ) : (
@@ -566,7 +552,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
             >
               <Plus size={14} aria-hidden="true" />
               Add a car
-              <span className="font-mono text-[10px] text-slate-400">
+              <span className="font-mono text-ui-xs text-slate-500">
                 {cars.length}/{max}
               </span>
             </button>
@@ -590,7 +576,17 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
       {/* ── The table ───────────────────────────────────────────── */}
       {/* One pane, one blur. The scroll container carries the glass so the
           table inside it composites once rather than per cell. */}
-      <div className="mt-4 overflow-x-auto rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl">
+      {/*
+        The pane scrolls both ways, so the car names can stick.
+
+        A sticky header cannot stick to the viewport from inside an
+        overflow-x container — that container becomes its scroll parent on both
+        axes. So the pane is given a height of its own (the viewport below the
+        navbar) and scrolls vertically too; inside it the header row sticks at
+        the top and the label column at the left, and a reader thirty rows down
+        still knows which column is which car.
+      */}
+      <div className="mt-4 max-h-[calc(100dvh-var(--nav-h)-2rem)] overflow-auto overscroll-contain rounded-2xl border border-white/80 bg-white/65 shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
             Specification comparison of {cars.map((car) => carDisplayName(car)).join(', ')}
@@ -602,6 +598,33 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               <col key={car.id} />
             ))}
           </colgroup>
+
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                className="sticky left-0 top-0 z-30 border-b border-slate-900/[0.08] bg-white/95 px-4 py-3 text-left text-ui-xs font-semibold uppercase tracking-[0.12em] text-slate-500 backdrop-blur-md"
+              >
+                Car
+              </th>
+              {cars.map((car) => (
+                <th
+                  key={car.id}
+                  scope="col"
+                  className="sticky top-0 z-20 border-b border-l border-slate-900/[0.08] bg-white/95 px-4 py-3 text-left align-bottom backdrop-blur-md"
+                >
+                  <span className="block font-display text-ui-sm font-bold leading-snug text-slate-900">
+                    {car.brand} <span className="font-sans font-semibold text-slate-600">{car.model}</span>
+                  </span>
+                  {car.variant ? (
+                    <span className="mt-0.5 block font-mono text-ui-xs leading-snug text-plug-blue-700/85">
+                      {car.variant}
+                    </span>
+                  ) : null}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
           <tbody>
             {groups.map((group) => (
@@ -672,7 +695,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                                     {value}
                                   </span>
                                   {isBest ? (
-                                    <span className="shrink-0 rounded-full bg-emerald-500/12 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-600/25">
+                                    <span className="shrink-0 rounded-full bg-emerald-500/12 px-1.5 py-0.5 text-ui-xs font-bold uppercase tracking-wide text-emerald-700 ring-1 ring-inset ring-emerald-600/25">
                                       Best
                                     </span>
                                   ) : null}
@@ -694,7 +717,10 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                                 ) : null}
                               </div>
                             ) : (
-                              <span className="text-ui-sm text-slate-300">—</span>
+                              <span className="text-ui-sm text-slate-400">
+                                <span aria-hidden="true">—</span>
+                                <span className="sr-only">Not published</span>
+                              </span>
                             )}
                           </td>
                         )

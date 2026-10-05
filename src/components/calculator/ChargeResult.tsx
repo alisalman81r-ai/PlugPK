@@ -45,6 +45,12 @@ export interface ChargeResultProps {
    * so it is shown as the first instruction, not as an error.
    */
   waiting: boolean
+  /**
+   * DC mode, a car is picked, and the catalogue has no DC figure for it. The
+   * time is still worked out on the charger's power, but it may describe a
+   * charge the car cannot take at all.
+   */
+  dcUnknown?: boolean
 }
 
 export function ChargeResult({
@@ -59,6 +65,7 @@ export function ChargeResult({
   rangeCycle,
   readyText,
   waiting,
+  dcUnknown = false,
 }: ChargeResultProps) {
   const dc = mode === 'dc'
 
@@ -109,6 +116,19 @@ export function ChargeResult({
             <span>
               Plug in now, {dc ? 'done' : 'ready'} around{' '}
               <strong className="font-semibold text-white">{readyText}</strong>
+            </span>
+          </p>
+        ) : null}
+
+        {result.ok && dc && dcUnknown ? (
+          <p
+            role="note"
+            className="mt-4 flex items-start gap-2 rounded-xl border border-amber-300/40 bg-amber-400/10 px-4 py-3 text-ui-sm leading-relaxed text-amber-100"
+          >
+            <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-300" aria-hidden="true" />
+            <span>
+              No DC fast-charging figure is published for {carName ?? 'this car'}, so it may not support
+              DC fast charging at all. This time assumes it does — check before planning around it.
             </span>
           </p>
         ) : null}
@@ -226,6 +246,8 @@ function LimitNote({
     text = carName
       ? `We don't have ${carName}'s ${mode.toUpperCase()} limit, so this assumes the charger's full ${formatKw(powerKw)}. Your car may accept less.`
       : `Assumes your car can take the charger's full ${formatKw(powerKw)}. Pick your car to apply its own limit.`
+  } else if (limitedBy === 'matched') {
+    text = `${carName ?? 'Your car'} and the charger both top out at ${formatKw(powerKw)}, so neither is holding the other back.`
   } else {
     text = `The charger is the limit here — your car can accept more than ${formatKw(powerKw)}.`
   }

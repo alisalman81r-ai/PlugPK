@@ -160,7 +160,7 @@ export function CarsExplorer({
    * moment the URL needs to win is the first render.
    */
   const initial = React.useMemo(
-    () => paramsToFilters(new URLSearchParams(searchParams.toString())),
+    () => paramsToFilters(new URLSearchParams(searchParams.toString()), cars),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
@@ -473,9 +473,9 @@ export function CarsExplorer({
               had happened.
             */}
               <div key={masthead.id} className="masthead-enter motion-reduce:animate-none">
-                <p className="flex items-baseline justify-between gap-4 font-mono text-[0.625rem] font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
+                <p className="flex items-baseline justify-between gap-4 font-mono text-ui-xs font-medium uppercase leading-none tracking-[0.18em] text-slate-500">
                   <span>{masthead.eyebrow}</span>
-                  <span className="tabular-nums text-slate-400">
+                  <span className="tabular-nums text-slate-500">
                     {mastheadBrands} {mastheadBrands === 1 ? 'brand' : 'brands'}
                   </span>
                 </p>

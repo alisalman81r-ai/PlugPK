@@ -60,9 +60,12 @@ export interface NetworkHealth {
      */
     available: number
     inUse: number
+    /**
+     * There was a `degraded` figure here too, computed as the offline count
+     * a second time under another name. Two numbers that can never differ
+     * read as two measurements; it is gone, and the panel says "offline".
+     */
     offline: number
-    /** Offline only. Never in-use. */
-    degraded: number
   }
 }
 
@@ -150,7 +153,6 @@ export async function getNetworkHealth(): Promise<NetworkHealth> {
       available: countConnectors('available'),
       inUse: countConnectors('in-use'),
       offline: countConnectors('offline'),
-      degraded: countConnectors('offline'),
     },
   }
 }
@@ -163,12 +165,14 @@ export async function getNetworkHealth(): Promise<NetworkHealth> {
  * cars. A connector reporting in-use is not here at all — that is a car
  * charging, which is the product working rather than failing.
  *
- * Capped at twelve. The panel is a place to start work, not a log — an
- * operator facing forty alerts needs the stations list with a filter, not a
- * longer card.
+ * The list is capped at twelve. The panel is a place to start work, not a log
+ * — an operator facing forty alerts needs the stations list with a filter,
+ * not a longer card. The total is counted separately and is not capped: the
+ * Active alerts card used to print the length of the capped list, so forty
+ * offline rows read as "12".
  */
-export async function listNetworkAlerts(limit = 12): Promise<NetworkAlert[]> {
-  const [offlineStations, degradedConnectors] = await Promise.all([
+export async function listNetworkAlerts(limit = 12): Promise<{ alerts: NetworkAlert[]; total: number }> {
+  const [offlineStations, degradedConnectors, offlineStationCount, offlineConnectorCount] = await Promise.all([
     prisma.station.findMany({
       where: { status: 'offline' },
       select: { id: true, name: true, city: true, updatedAt: true },
@@ -191,6 +195,8 @@ export async function listNetworkAlerts(limit = 12): Promise<NetworkAlert[]> {
       },
       take: limit,
     }),
+    prisma.station.count({ where: { status: 'offline' } }),
+    prisma.connector.count({ where: { status: 'offline' } }),
   ])
 
   const stationAlerts: NetworkAlert[] = offlineStations.map((station) => ({
@@ -212,5 +218,8 @@ export async function listNetworkAlerts(limit = 12): Promise<NetworkAlert[]> {
     since: null,
   }))
 
-  return [...stationAlerts, ...connectorAlerts].slice(0, limit)
+  return {
+    alerts: [...stationAlerts, ...connectorAlerts].slice(0, limit),
+    total: offlineStationCount + offlineConnectorCount,
+  }
 }

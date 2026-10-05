@@ -7,6 +7,7 @@ import * as React from 'react'
 import { Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { updateMyBusiness } from '@/lib/db/business-actions'
+import { distanceKm, MOVE_REVIEW_KM } from '@/lib/db/business-listing'
 import type { BusinessRow } from '@/lib/db/queries'
 
 import { LocationPicker } from './LocationPicker'
@@ -66,12 +67,34 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
   const [isSaving, setIsSaving] = React.useState(false)
   const [isSaved, setIsSaved] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [notice, setNotice] = React.useState<string | null>(null)
+  // Set when the server says this save would send a live listing back for
+  // review; the owner then confirms or puts the pin back.
+  const [confirming, setConfirming] = React.useState<string | null>(null)
 
   const isHome = type === 'home'
 
-  const handleSave = async () => {
+  /*
+    The approved pin, and how far the edited one is from it. Shown before Save
+    so moving a live listing across town is never a surprise: past a kilometre
+    the listing goes back for review and leaves the map until it is approved.
+  */
+  const original =
+    business.status === 'approved' && business.lat !== null && business.lng !== null
+      ? { lat: business.lat, lng: business.lng }
+      : null
+  const movedKm =
+    original && position.lat !== null && position.lng !== null
+      ? distanceKm(original, { lat: position.lat, lng: position.lng })
+      : original
+        ? Infinity
+        : 0
+  const movesOffMap = original !== null && movedKm > MOVE_REVIEW_KM
+
+  const handleSave = async (confirmMove = false) => {
     setIsSaving(true)
     setError(null)
+    setNotice(null)
 
     const form = new FormData()
     form.set('id', business.id)
@@ -84,15 +107,25 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
     form.set('website', website)
     if (position.lat !== null) form.set('lat', String(position.lat))
     if (position.lng !== null) form.set('lng', String(position.lng))
+    if (confirmMove) form.set('confirmMove', '1')
 
     const result = await updateMyBusiness(form)
     setIsSaving(false)
+
+    if (result.needsConfirmation) {
+      setConfirming(result.message ?? 'This change sends your listing back for review.')
+      return
+    }
+    setConfirming(null)
 
     if (!result.ok) {
       setError(result.message ?? 'Could not save your changes.')
       return
     }
 
+    if (result.backToReview) {
+      setNotice('Saved. Your listing is back in the review queue and will return to the map once it is approved.')
+    }
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 3000)
   }
@@ -111,6 +144,7 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
             id="biz-name"
             type="text"
             value={name}
+            maxLength={120}
             onChange={(event) => setName(event.target.value)}
             className={FIELD}
           />
@@ -188,6 +222,7 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
           <textarea
             id="biz-address"
             value={address}
+            maxLength={300}
             onChange={(event) => setAddress(event.target.value)}
             className={`${AREA} min-h-[80px]`}
           />
@@ -210,6 +245,16 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
         {position.lat === null || position.lng === null ? (
           <p className="mt-3 text-ui-sm text-amber-700">
             Without a pin this listing cannot appear on the map.
+          </p>
+        ) : null}
+
+        {movesOffMap ? (
+          <p role="note" className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-ui-sm text-amber-800">
+            {Number.isFinite(movedKm)
+              ? `This pin is ${movedKm.toFixed(1)} km from the approved one.`
+              : 'The approved pin has been removed.'}{' '}
+            Saving will send your listing back for review, and it will be off the map until it is
+            approved again.
           </p>
         ) : null}
       </section>
@@ -241,6 +286,7 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
               id="biz-website"
               type="url"
               value={website}
+              maxLength={300}
               onChange={(event) => setWebsite(event.target.value)}
               placeholder="https://"
               className={FIELD}
@@ -262,8 +308,33 @@ export function BusinessProfileEditor({ business }: BusinessProfileEditorProps) 
         <p className="rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p>
       ) : null}
 
+      {notice ? (
+        <p className="rounded-xl bg-amber-50 px-4 py-3 text-ui-sm text-amber-800">{notice}</p>
+      ) : null}
+
+      {confirming ? (
+        <div role="alertdialog" aria-label="Confirm moving the pin" className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-ui-sm font-semibold text-amber-900">{confirming}</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Button onClick={() => void handleSave(true)} disabled={isSaving}>
+              Move the pin and resubmit
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (original) setPosition(original)
+                setConfirming(null)
+              }}
+              disabled={isSaving}
+            >
+              Keep the approved pin
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex items-center gap-3">
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button onClick={() => void handleSave(false)} disabled={isSaving}>
           {isSaving ? (
             <>
               <Loader2 size={16} className="animate-spin" aria-hidden="true" />

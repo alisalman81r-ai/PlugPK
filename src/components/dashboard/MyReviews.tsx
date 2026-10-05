@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { RatingStars } from '@/components/ui'
+import { Button, RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
 import { deleteMyReview } from '@/lib/db/review-actions'
 import { formatRelativeTime } from '@/lib/utils'
@@ -89,16 +89,17 @@ export function MyReviews({ reviews }: MyReviewsProps) {
               </div>
 
               <div className="flex shrink-0 items-center gap-3">
-                <span className="text-ui-xs text-slate-400">{formatRelativeTime(review.date)}</span>
-                <button
-                  type="button"
+                <span className="text-ui-xs text-slate-500">{formatRelativeTime(review.date)}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => handleDelete(review.id)}
-                  disabled={deleting === review.id}
+                  isLoading={deleting === review.id}
                   aria-label={`Delete your review of ${review.listingName}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                  className="border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                 >
-                  <Trash2 size={15} aria-hidden="true" />
-                </button>
+                  {deleting === review.id ? null : <Trash2 size={15} aria-hidden="true" />}
+                </Button>
               </div>
             </div>
 

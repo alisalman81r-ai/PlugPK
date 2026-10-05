@@ -6,8 +6,7 @@ import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
 import { AlertCircle, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
-import { convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
-import { readRememberedCar, rememberCar } from '@/lib/remembered-car'
+import { MIN_RANGE_KM, convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
 
 import { ListingCompare } from './ListingCompare'
@@ -50,7 +49,7 @@ function parseStandardParam(value: string | null): RangeStandard | null {
 
 /** The picker row: the quoted figure and the test it came from. */
 function pickerMeta(c: RangeCar): string {
-  const figure = c.rangeMaxKm ? `${c.rangeKm}–${c.rangeMaxKm} km` : `${c.rangeKm} km`
+  const figure = c.rangeMaxKm && c.rangeMaxKm !== c.rangeKm ? `${c.rangeKm}–${c.rangeMaxKm} km` : `${c.rangeKm} km`
   return c.standard ? `${figure} ${c.standard}` : figure
 }
 
@@ -80,15 +79,11 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     step through.
   */
   const [hydrated, setHydrated] = React.useState(false)
-  const [fromMemory, setFromMemory] = React.useState(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    const linkHasState = q.has('car') || q.has('km') || q.has('std')
-    const fromCar =
-      cars.find((c) => c.slug === q.get('car')) ??
-      (linkHasState ? undefined : cars.find((c) => c.slug === readRememberedCar()))
+    // Only a shared link picks the car; nothing is pre-selected otherwise.
+    const fromCar = cars.find((c) => c.slug === q.get('car'))
     if (fromCar) {
-      setFromMemory(!q.has('car'))
       setSlug(fromCar.slug)
       setKmText(String(fromCar.rangeKm))
       setStandard(fromCar.standard)
@@ -135,8 +130,6 @@ export function RangeConverter({ cars }: RangeConverterProps) {
 
   const chooseCar = (next: string) => {
     setSlug(next)
-    setFromMemory(false)
-    rememberCar(next || null)
     const picked = cars.find((c) => c.slug === next)
     if (!picked) return
     setKmText(String(picked.rangeKm))
@@ -149,8 +142,8 @@ export function RangeConverter({ cars }: RangeConverterProps) {
       ? kmText.trim() === ''
         ? 'Enter the range from the brochure or listing.'
         : 'Enter the range as a number of kilometres.'
-      : km <= 0
-        ? 'Enter a range above 0 km.'
+      : km < MIN_RANGE_KM
+        ? `Enter a range of at least ${MIN_RANGE_KM} km — the figure from the brochure or listing.`
         : km > MAX_KM
           ? `No production EV is rated past ${MAX_KM.toLocaleString('en-PK')} km — check the figure.`
           : null
@@ -180,8 +173,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                   car ? (
                     <p className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm leading-relaxed text-slate-500">
                       <span>
-                        {fromMemory ? 'Remembered from last time. ' : ''}
-                        {car.rangeMaxKm
+                        {car.rangeMaxKm && car.rangeMaxKm !== car.rangeKm
                           ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}.`
                           : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}
                       </span>
@@ -319,7 +311,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                               <span className="text-ui font-bold text-slate-900">{row.standard}</span>
                               <span
                                 className={cn(
-                                  'inline-flex items-center rounded-full px-2 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wider ring-1 ring-inset',
+                                  'inline-flex items-center rounded-full px-2 py-0.5 text-ui-xs font-bold uppercase tracking-wider ring-1 ring-inset',
                                   r.tone,
                                 )}
                               >

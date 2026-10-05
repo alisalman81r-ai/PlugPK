@@ -1,31 +1,38 @@
 // src/components/home/CommunityPreview.tsx
-'use client'
+import { Heart, MapPin, MessageSquare, Route, TrendingUp, Users, type IconType } from '@/components/ui/icons'
+import Link from 'next/link'
 
-import { motion, useReducedMotion } from 'framer-motion'
-import { Heart, MapPin, MessageCircle, MessageSquare, Route, TrendingUp, Users, type IconType } from '@/components/ui/icons'
-
-import { Badge, DiscButton, HoverLink, type BadgeVariant } from '@/components/ui'
-import type { CommunityCounts } from '@/lib/db/queries'
-import { MOCK_POSTS } from '@/lib/mock-data'
-import type { PostCategory } from '@/lib/types'
+import { Badge, type BadgeVariant } from '@/components/ui/Badge'
+import { DiscButton } from '@/components/ui/DiscButton'
+import type { CommunityPost, PostCategory } from '@/lib/types'
 import { cn, getPostCategoryConfig } from '@/lib/utils'
 
+import { HoverCountUp } from './HoverCountUp'
+
 /**
- * The community band: four equal cards in a two-by-two grid.
+ * The community band: three equal cards.
  *
- * Each card is a picture of the feature above the words for it. The top is a
- * soft inset panel with a small, slightly turned piece of the product floating
- * in it — the posts, the chat, the clubs, the numbers — fading out at its
- * foot; under it an icon in a tinted circle, a large light title and one
- * sentence. The four read as one set because every card is built the same
- * way, and nothing is filled but the icon circles.
+ * Each card is a picture of the feature above the words for it — a soft inset
+ * panel with a small piece of the product floating in it, fading out at its
+ * foot; under it an icon in a tinted circle, a title and one sentence.
  *
- * The figures are the database's: the clubs and their member counts, and the
- * community counts on the last card. The two posts and the chat are the same
- * sample content the section already showed.
+ * ── Everything in the pictures is real ────────────────────────────────
  *
- * The one action, Join, sits under the grid rather than inside a card, so
- * the four stay equal.
+ * The posts are the two newest on the board, passed in from the server page.
+ * The clubs are the directory's. The figures are counted.
+ *
+ * There used to be a fourth card: a group chat called "EV Drivers Pakistan"
+ * with a green online dot, Ayesha in an MG ZS EV asking Hamza in a BYD Atto 3
+ * where to charge. No such group, chat or people exist — the site has no
+ * messaging at all — and it sat under the heading "Real questions, real
+ * answers" beside two posts that were also fixtures. Both are gone.
+ *
+ * Each picture comes alive on hover, and says something true when it does:
+ * the posts card scrolls through the newest posts, the clubs card drops its
+ * city pins in one by one, and the figures card counts up to its real totals.
+ * The first two are CSS keyframes (tailwind.config.ts: feed-scroll, pin-pop);
+ * the count is a tiny client island. All three stand still for anyone who
+ * prefers reduced motion, and the resting state is the real content.
  */
 
 /** getPostCategoryConfig().color is a plain string; map it to a Badge variant. */
@@ -38,24 +45,20 @@ const CATEGORY_VARIANT: Record<PostCategory, BadgeVariant> = {
   'ev-news': 'red',
 }
 
-const POSTS = MOCK_POSTS.slice(0, 2)
-
-interface ChatLine {
-  name: string
-  car?: string
-  text: string
-  mine?: boolean
+export interface CommunityPreviewCounts {
+  discussions: number
+  replies: number
+  clubs: number
+  cities: number
+  /** Active club members, counted from memberships. */
+  clubMembers: number
 }
 
-const CHAT: ChatLine[] = [
-  { name: 'Ayesha', car: 'MG ZS EV', text: 'Lahore to Islamabad on Friday. Where should I stop to charge?' },
-  { name: 'Hamza', car: 'BYD Atto 3', text: 'Put it in the route planner. It places the stops around your real range.' },
-  { name: 'You', text: 'Exactly what I needed. Joining!', mine: true },
-]
-
 export interface CommunityPreviewProps {
+  /** The newest posts on the board, newest first. */
+  posts: CommunityPost[]
   clubs: Array<{ id: string; name: string; city: string; memberCount: number }>
-  counts: CommunityCounts
+  counts: CommunityPreviewCounts
 }
 
 /* ── The card shell ─────────────────────────────────────────────────── */
@@ -70,12 +73,14 @@ interface FeatureCardProps {
 
 function FeatureCard({ href, icon: Icon, title, body, children }: FeatureCardProps) {
   return (
-    <HoverLink
+    <Link
       href={href}
+      data-hover-card
       className={cn(
         'group flex h-full flex-col rounded-[1.75rem] border border-slate-200/80 bg-white p-4 sm:p-5',
         'shadow-[0_1px_2px_rgba(5,36,30,0.04),0_18px_40px_-28px_rgba(5,36,30,0.25)]',
-        'transition-[box-shadow,border-color] duration-300 hover:border-slate-300/80 hover:shadow-[0_2px_4px_rgba(5,36,30,0.05),0_26px_50px_-28px_rgba(5,36,30,0.35)]',
+        'transition-[box-shadow,border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-slate-300/80 hover:shadow-[0_2px_4px_rgba(5,36,30,0.05),0_26px_50px_-28px_rgba(5,36,30,0.35)]',
+        'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
       )}
     >
@@ -93,33 +98,55 @@ function FeatureCard({ href, icon: Icon, title, body, children }: FeatureCardPro
 
       {/* The words. */}
       <div className="px-2 pb-3 pt-7 sm:px-3">
-        <span
+        {/* The icon on its own: the tinted circle that sat behind it is gone. */}
+        <Icon
           aria-hidden="true"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-[#E9FAF3] text-[#159E89] transition-colors duration-300 group-hover:bg-[#D6F5E8]"
-        >
-          <Icon size={19} strokeWidth={1.9} />
-        </span>
-        <h3 className="mt-5 text-[clamp(1.6rem,2.2vw,2rem)] font-medium leading-[1.12] tracking-[-0.035em] text-slate-900">
+          size={26}
+          strokeWidth={1.9}
+          className="text-[#159E89] transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 motion-reduce:transition-none motion-reduce:group-hover:transform-none"
+        />
+        <h3 className="mt-4 text-[clamp(1.5rem,2vw,1.85rem)] font-medium leading-[1.12] tracking-[-0.035em] text-slate-900">
           {title}
         </h3>
         <p className="mt-3 max-w-[30rem] text-[15px] leading-[1.7] text-slate-500">{body}</p>
       </div>
-    </HoverLink>
+    </Link>
   )
 }
 
 /** A floating piece of UI: white, hairline edge, soft shadow. */
 const PIECE = 'rounded-2xl border border-slate-200/80 bg-white shadow-[0_10px_28px_-16px_rgba(5,36,30,0.3)]'
 
-/* ── The four pictures ──────────────────────────────────────────────── */
+/* ── The pictures ───────────────────────────────────────────────────── */
 
-function PostsPicture() {
+function PostsPicture({ posts }: { posts: CommunityPost[] }) {
+  if (posts.length === 0) {
+    return (
+      <div className={cn(PIECE, 'mx-[9%] mt-6 p-5 text-[13px] text-slate-500')}>
+        Nothing has been posted yet. The first question asked here is the first one on this card.
+      </div>
+    )
+  }
+  /*
+    The track holds the posts twice. At rest the first ones sit in view; on
+    hover it scrolls up through all of them and loops — translating exactly
+    -50% lands the second copy where the first began, so the seam never shows.
+    A single post has nothing to scroll to, so it just sits there.
+  */
+  const loops = posts.length > 1
+  const track = loops ? [...posts, ...posts] : posts
   return (
-    <div className="flex flex-col gap-3 px-[9%] pt-5">
-      {POSTS.map((post, i) => {
+    <div
+      className={cn(
+        'flex flex-col gap-3 px-[9%] pt-5',
+        loops && 'group-hover:animate-feed-scroll motion-reduce:group-hover:animate-none',
+      )}
+      style={loops ? { animationDuration: `${posts.length * 2.6}s` } : undefined}
+    >
+      {track.map((post, i) => {
         const config = getPostCategoryConfig(post.category)
         return (
-          <div key={post.id} className={cn(PIECE, 'p-4', i === 1 && 'ml-[6%]')}>
+          <div key={`${post.id}-${i}`} className={cn(PIECE, 'p-4', i % 2 === 1 && 'ml-[6%]')}>
             <div className="flex items-center justify-between gap-3">
               <span className="flex min-w-0 items-center gap-2.5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-plug-navy-900 text-[12px] font-bold text-white">
@@ -150,117 +177,43 @@ function PostsPicture() {
   )
 }
 
-function ChatPicture() {
-  return (
-    <div className={cn(PIECE, 'absolute left-[9%] right-[7%] top-6 origin-top-left rotate-[-1.6deg] p-5')}>
-      <div className="flex items-center gap-2.5">
-        <span className="flex -space-x-2">
-          {['A', 'H', 'S'].map((initial, i) => (
-            <span
-              key={initial}
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white',
-                ['bg-plug-cyan-400 text-plug-navy-950', 'bg-amber-300 text-plug-navy-950', 'bg-plug-navy-900 text-white'][i],
-              )}
-            >
-              {initial}
-            </span>
-          ))}
-        </span>
-        <span className="min-w-0">
-          <span className="flex items-center gap-1.5 text-[13px] font-bold text-slate-900">
-            EV Drivers Pakistan <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          </span>
-          <span className="block text-[11px] text-slate-400">Drivers helping drivers</span>
-        </span>
-      </div>
-      <ul className="mt-4 flex flex-col gap-2">
-        {CHAT.map((line) => (
-          <li key={line.text} className={cn('flex max-w-[86%]', line.mine && 'self-end')}>
-            <span
-              className={cn(
-                'rounded-2xl px-3 py-2 text-[12px] leading-snug',
-                line.mine ? 'rounded-br-md bg-[#0B332C] text-white' : 'rounded-bl-md bg-slate-100 text-slate-700',
-              )}
-            >
-              {!line.mine && (
-                <span className="mb-0.5 block text-[10.5px] font-semibold text-[#159E89]">
-                  {line.name}
-                  {line.car && <span className="font-normal text-slate-400"> · {line.car}</span>}
-                </span>
-              )}
-              {line.text}
-            </span>
-          </li>
-        ))}
-        <li className="flex w-fit items-center gap-1 rounded-2xl rounded-bl-md bg-slate-100 px-3 py-2.5">
-          {['[animation-delay:0ms]', '[animation-delay:150ms]', '[animation-delay:300ms]'].map((d) => (
-            <span key={d} className={cn('h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 motion-reduce:animate-none', d)} />
-          ))}
-        </li>
-      </ul>
-    </div>
-  )
-}
-
 function ClubsPicture({ clubs }: { clubs: CommunityPreviewProps['clubs'] }) {
-  const reduce = useReducedMotion()
-  const max = Math.max(1, ...clubs.map((c) => c.memberCount))
-  if (clubs.length === 0)
+  if (clubs.length === 0) {
     return (
-      <div className={cn(PIECE, 'mx-[9%] mt-6 p-5 text-[13px] text-slate-500')}>Clubs are forming in your city.</div>
+      <div className={cn(PIECE, 'mx-[9%] mt-6 p-5 text-[13px] text-slate-500')}>No clubs are listed yet.</div>
     )
+  }
   return (
     <div className="flex flex-col gap-3 px-[9%] pt-5">
       {clubs.slice(0, 3).map((club, i) => (
-        <div key={club.id} className={cn(PIECE, 'px-4 py-3.5')}>
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="min-w-0 truncate text-[13.5px] font-bold text-slate-900">{club.name}</span>
-            <span className="shrink-0 text-[11px] tabular-nums text-slate-400">
-              {club.memberCount} {club.memberCount === 1 ? 'member' : 'members'}
-            </span>
-          </div>
-          <div className="mt-2.5 flex items-center gap-2">
-            {/*
-              The bar fills from empty to its share of members when the card
-              comes into view, the three one after another; then a soft light
-              keeps sweeping along it. Under reduced motion it is simply full.
-            */}
-            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
-              <motion.span
-                className="relative block h-full origin-left overflow-hidden rounded-full bg-gradient-to-r from-[#159E89] to-[#46E3B5]"
-                style={{ width: `${Math.max(8, (club.memberCount / max) * 100)}%` }}
-                initial={reduce ? false : { scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true, amount: 0.6 }}
-                transition={{ duration: 1.1, delay: 0.2 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <span
-                  className="club-bar-sheen absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent"
-                  style={{ animationDelay: `${1.3 + i * 0.35}s` }}
-                />
-              </motion.span>
-            </span>
-            <span className="flex shrink-0 items-center gap-1 text-[10.5px] text-slate-400">
-              <MapPin size={10} /> {club.city}
-            </span>
-          </div>
+        <div key={club.id} className={cn(PIECE, 'flex items-center justify-between gap-3 px-4 py-3.5')}>
+          <span className="min-w-0 truncate text-[13.5px] font-bold text-slate-900">{club.name}</span>
+          <span className="flex shrink-0 items-center gap-1 text-[12px] text-slate-400 transition-colors duration-300 group-hover:text-slate-600">
+            {/* Each city pin drops in on hover, one after another down the list. */}
+            <MapPin
+              size={14}
+              className="text-[#159E89] group-hover:animate-pin-pop motion-reduce:group-hover:animate-none"
+              style={{ animationDelay: `${i * 180}ms` }}
+            />{' '}
+            {club.city}
+          </span>
         </div>
       ))}
     </div>
   )
 }
 
-function StatsPicture({ counts }: { counts: CommunityCounts }) {
+function StatsPicture({ counts }: { counts: CommunityPreviewCounts }) {
   const rows: { icon: IconType; label: string; value: number }[] = [
-    { icon: Users, label: counts.clubMembers === 1 ? 'Club member' : 'Club members', value: counts.clubMembers },
     { icon: MessageSquare, label: counts.discussions === 1 ? 'Discussion' : 'Discussions', value: counts.discussions },
     { icon: Route, label: counts.replies === 1 ? 'Reply' : 'Replies', value: counts.replies },
-    { icon: MapPin, label: counts.cities === 1 ? 'City active' : 'Cities active', value: counts.cities },
+    { icon: Users, label: counts.clubs === 1 ? 'Club' : 'Clubs', value: counts.clubs },
+    { icon: MapPin, label: counts.cities === 1 ? 'City with a club' : 'Cities with a club', value: counts.cities },
   ]
   return (
     <div className={cn(PIECE, 'absolute left-[9%] right-[8%] top-5 origin-top-right rotate-[1.4deg] px-5 pb-3 pt-4')}>
-      <p className="text-[13px] font-bold text-slate-900">This month on plug.pk</p>
+      {/* Totals to date. This said "This month on plug.pk" over all-time figures. */}
+      <p className="text-[13px] font-bold text-slate-900">On plug.pk so far</p>
       <ul className="mt-2">
         {rows.map(({ icon: Icon, label, value }) => (
           <li key={label} className="flex items-center justify-between border-t border-slate-100 py-2.5 first:border-t-0">
@@ -268,7 +221,9 @@ function StatsPicture({ counts }: { counts: CommunityCounts }) {
               <Icon size={14} className="text-[#159E89]" strokeWidth={2} />
               {label}
             </span>
-            <span className="text-[15px] font-bold tabular-nums text-slate-900">{value.toLocaleString('en-PK')}</span>
+            <span className="text-[15px] font-bold tabular-nums text-slate-900">
+              <HoverCountUp value={value} />
+            </span>
           </li>
         ))}
       </ul>
@@ -278,7 +233,7 @@ function StatsPicture({ counts }: { counts: CommunityCounts }) {
 
 /* ── The section ────────────────────────────────────────────────────── */
 
-export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
+export function CommunityPreview({ posts, clubs, counts }: CommunityPreviewProps) {
   return (
     <section className="bg-white py-24 lg:py-32">
       <div className="container-plug">
@@ -292,37 +247,30 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
             Pakistan&apos;s EV <span className="text-plug-blue-600">community</span>.
           </h2>
 
+          {/* It said "Connect with thousands of EV owners" over a board of a
+              dozen discussions. It now says what the board is for. */}
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
-            Connect with thousands of EV owners. Share experiences, get advice, and plan trips
-            together.
+            Ask about charging, range and routes, share how a trip went, and read what other EV
+            drivers in Pakistan have found — no account needed to read.
           </p>
         </div>
 
-        {/* ── Four equal cards ─────────────────────────────────── */}
-        <div className="mx-auto mt-16 grid max-w-[76rem] gap-5 md:grid-cols-2 lg:gap-6">
+        {/* ── Three equal cards ────────────────────────────────── */}
+        <div className="mx-auto mt-16 grid max-w-[76rem] gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           <FeatureCard
             href="/community"
             icon={MessageSquare}
-            title="Real questions, real answers"
-            body="Ask about charging, range and routes, and hear from drivers who have already done the trip."
+            title="Questions from drivers"
+            body="The newest posts on the board: charging, range and routes, asked and answered by people who drive one."
           >
-            <PostsPicture />
+            <PostsPicture posts={posts} />
           </FeatureCard>
 
           <FeatureCard
-            href="/community"
-            icon={MessageCircle}
-            title="Drivers helping drivers"
-            body="Plan a trip in the open. Someone has already charged where you are going and will tell you how it went."
-          >
-            <ChatPicture />
-          </FeatureCard>
-
-          <FeatureCard
-            href="/community"
+            href="/community/clubs"
             icon={MapPin}
-            title="EV clubs near you"
-            body="Meet owners in your own city, swap tips on the cars you drive, and join drives and meetups."
+            title="EV clubs by city"
+            body="Owner groups listed by city, for meetups, drives and swapping notes on the cars you drive."
           >
             <ClubsPicture clubs={clubs} />
           </FeatureCard>
@@ -330,8 +278,8 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
           <FeatureCard
             href="/community"
             icon={TrendingUp}
-            title="A community that keeps growing"
-            body="More drivers, more discussions and more cities every month, all of it open to read before you join."
+            title="Open to read"
+            body="Every discussion is public. Read what drivers have found before you decide to join."
           >
             <StatsPicture counts={counts} />
           </FeatureCard>
@@ -339,8 +287,8 @@ export function CommunityPreview({ clubs, counts }: CommunityPreviewProps) {
 
         {/* ── The one action ───────────────────────────────────── */}
         <div className="mt-12 flex justify-center lg:mt-14">
-          <DiscButton href="/signup" tone="light" width="17.5rem" icon={<Users size={20} />}>
-            Join the community
+          <DiscButton href="/community" tone="light" icon={<Users size={20} />}>
+            Visit the community
           </DiscButton>
         </div>
       </div>

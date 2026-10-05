@@ -11,11 +11,14 @@ import type { FaqItem } from '@/components/shared/FaqSection'
  *
  *   - Nothing here claims live availability. The map carries installed port
  *     counts entered by operators; there is no telemetry feed.
- *   - Nothing here claims route planning uses the live station list. It does
- *     not — useRoutePlanner works from fixtures and estimates stops from
- *     distance, so the answer describes it as an estimate.
- *   - Nothing here invites someone to post to the community as though it will
- *     be saved. CreatePostForm does not write yet, and the answer says so.
+ *   - Route answers describe the planner as it plans now: from the listed
+ *     stations and approved partners, against the car's real range, start
+ *     charge and charging speed. Nothing claims live availability.
+ *   - Community answers describe what is saved: posts, comments and likes are
+ *     written to the database for signed-in members, and nothing else is.
+ *   - One price and one turnaround, stated the same way as Partner Up's plans:
+ *     PKR 4,999 a month arranged directly, and "checked before it goes live"
+ *     with no promised number of hours, because nothing measures one.
  *
  * If a feature changes, its answer changes with it.
  */
@@ -52,12 +55,12 @@ export const ROUTES_FAQS: FaqItem[] = [
   {
     question: 'What does the route planner give me?',
     answer:
-      'An estimate. You give it a start, a destination, your vehicle and your current charge, and it works out roughly how many charging stops a trip that long needs and where they would fall. Treat it as a sanity check on whether a journey is realistic, then confirm the stops on the map before you rely on them.',
+      'A plan worked out for your car. You give it a start, a destination, your vehicle and your current charge, and it places charging stops using that car’s real range and charging speed, with an estimate of how long each stop takes. If the trip cannot be done with the chargers listed along the way, it says so rather than inventing a stop.',
   },
   {
-    question: 'Is it using live charger data?',
+    question: 'Which chargers does it plan with?',
     answer:
-      'Not yet. Stop planning currently works from a fixed set of stations rather than the live map, so a suggested stop may not match what is on the map today. Connecting the two is on the list; until it is done, the map is the source of truth for what actually exists.',
+      'The ones on the map: the stations Plug.pk lists and partner businesses that have been checked and approved. It does not know whether a charger is in use or working right now — there is no live connection to the hardware — so call ahead using the number on a listing before you rely on a stop.',
   },
   {
     question: 'Why does it assume I will not charge to full?',
@@ -67,7 +70,7 @@ export const ROUTES_FAQS: FaqItem[] = [
   {
     question: 'Can I save a route?',
     answer:
-      'Saving routes is not stored yet, so a plan lasts as long as the page. Saved listings do persist to your account — bookmark the stops you care about from the map instead.',
+      'Yes, with an account. A saved route keeps the start, destination, car and starting charge, and opening it plans the trip again against the chargers listed at that moment.',
   },
 ]
 
@@ -103,7 +106,7 @@ export const COMMUNITY_FAQS: FaqItem[] = [
   {
     question: 'Can I post or comment?',
     answer:
-      'Not yet. The composer opens and accepts what you write, but posting is not connected to storage, so nothing you submit is kept — we would rather say that than quietly discard it. Reading is fully working, and reviews on a charging listing do save if you want to share an experience today.',
+      'Yes, with an account. Sign in and you can start a discussion, reply to one and like posts; everything you post is saved and shown to everyone. Reading needs no account at all.',
   },
   {
     question: 'Do I need an account to read?',
@@ -121,7 +124,7 @@ export const PARTNER_FAQS: FaqItem[] = [
   {
     question: 'What does it cost to list my charger?',
     answer:
-      'Nothing. A free listing puts you on the map and in the partner directory, with photos, reviews and a dashboard, for as long as you want it and with no card required. The paid plans add placement and promotion on top of that; they do not unlock being listed.',
+      'A listing is PKR 4,999 a month. There is no card payment on the site: applying is free, every listing is checked by a person before it goes live, and the paid terms are agreed with you directly. Chains and multi-site operators can ask about an Enterprise arrangement.',
   },
   {
     question: 'Do you take a cut of what drivers pay me?',

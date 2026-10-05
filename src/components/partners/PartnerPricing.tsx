@@ -43,14 +43,15 @@ const PLANS: Plan[] = [
   /*
     One paid plan, not two at the same price.
 
-    This was Free (PKR 0) and Premium (PKR 4,999). Pricing the free tier at
-    4,999 as instructed left two plans costing the same while one withheld
-    priority placement and homepage features — a tier nobody could rationally
-    buy. Raising Premium instead would have meant inventing a second figure,
-    and a published price is a promise that has to be honoured.
+    This was Free (PKR 0) and Premium (PKR 4,999). Two plans at one price left
+    a tier nobody could rationally buy, and inventing a second figure would
+    have been worse — a published price is a promise that has to be honoured.
 
-    So the two are one: everything both tiers offered, at the one price given.
-    If Premium should sit above this, it needs its own real number.
+    The feature list is what the application actually does for every approved
+    listing. It used to add "Priority placement in search", "Featured on the
+    homepage" and "Highlighted pin on the map"; there are no plan tiers in the
+    schema and nothing ranks, features or highlights a listing, so those were
+    promises with no code behind them, and they are gone.
   */
   {
     name: 'Standard',
@@ -60,12 +61,8 @@ const PLANS: Plan[] = [
     features: [
       { label: 'Listed on the map and in Partner Up', included: true },
       { label: 'Photos of your chargers', included: true },
-      { label: 'Reviews from drivers', included: true },
+      { label: 'Reviews from drivers, with public replies', included: true },
       { label: 'Views and directions dashboard', included: true },
-      { label: 'Priority placement in search', included: true },
-      { label: 'Featured on the homepage', included: true },
-      { label: 'Highlighted pin on the map', included: true },
-      { label: 'Named account contact', included: false },
     ],
     cta: { label: 'List your charger', href: '/business/signup' },
     featured: true,
@@ -76,13 +73,11 @@ const PLANS: Plan[] = [
     tagline: 'Fleets, chains and multi-site operators.',
     features: [
       { label: 'Everything in Standard', included: true },
-      { label: 'Multiple sites under one account', included: true },
-      { label: 'Named account contact', included: true },
-      { label: 'Bulk listing import', included: true },
-      { label: 'Custom terms', included: true },
-      { label: 'API access on request', included: true },
+      { label: 'Several sites under one account', included: true },
+      { label: 'Terms agreed for your sites', included: true },
+      { label: 'A meeting to set it up with us', included: true },
     ],
-    cta: { label: 'Arrange a meeting', href: '/for-businesses#meeting' },
+    cta: { label: 'Arrange a meeting', href: '#meeting' },
   },
 ]
 
@@ -112,7 +107,7 @@ export function PartnerPricing() {
               <div className={cn(FACE, 'p-8')}>
                 {plan.featured ? (
                   <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-brand px-3.5 py-1 text-ui-xs font-bold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(11,51,44,0.35)]">
-                    Most popular
+                    Start here
                   </span>
                 ) : null}
 
@@ -193,7 +188,7 @@ export function PartnerPricing() {
             people rightly get annoyed about. */}
         <p className="mx-auto mt-12 max-w-2xl text-balance text-center text-ui-sm text-slate-500">
           Paid plans are arranged with us directly — there is no card payment on the site yet.
-          Listings go live as soon as we have verified the details.
+          Every listing is checked by a person before it goes live.
         </p>
       </div>
     </section>

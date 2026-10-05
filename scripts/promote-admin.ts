@@ -5,12 +5,18 @@
 //   npx tsx scripts/promote-admin.ts you@example.com
 //   npx tsx scripts/promote-admin.ts you@example.com --revoke
 //
-// ── Why this is a script and not a screen ─────────────────────────────
+// ── Why this script still exists ──────────────────────────────────────
 //
-// The first admin cannot be made in the admin portal, because reaching the
-// portal requires already being one. Something outside the app has to break
-// that circle, and a script run by whoever holds DATABASE_URL is the smallest
-// thing that can: it needs no route, no form and no second gate to protect.
+// Once there is one admin, roles are granted and revoked from the portal, on
+// the member's page (/admin/members/<id>), where the change is audited and the
+// last admin cannot be removed. This script is for the two cases the portal
+// cannot cover: the very first admin — reaching the portal requires already
+// being one — and recovering when every admin is locked out. A script run by
+// whoever holds DATABASE_URL is the smallest thing that can break that circle:
+// it needs no route, no form and no second gate to protect.
+//
+// It writes no row to the audit log, because there is no signed-in operator to
+// attribute it to. Use the portal whenever it is reachable.
 //
 // It is deliberately not reachable over HTTP. An endpoint that can grant admin
 // is worth more to an attacker than every other route on the site put together,
@@ -55,12 +61,17 @@ async function main() {
     return
   }
 
-  await prisma.user.update({ where: { email }, data: { isAdmin: !revoke } })
+  // Revoking also bumps sessionVersion, which ends every session the account
+  // has open — the same thing the portal's revoke does.
+  await prisma.user.update({
+    where: { email },
+    data: revoke ? { isAdmin: false, sessionVersion: { increment: 1 } } : { isAdmin: true },
+  })
 
   console.log(`\n  ${revoke ? 'Revoked' : 'Granted'} admin for ${user.name}.`)
   console.log(
     revoke
-      ? '  They lose the portal on their next request — the layout re-reads this.\n'
+      ? '  They are signed out everywhere and lose the portal on their next request.\n'
       : '  Sign out and back in to be sent straight to /admin.\n',
   )
 }

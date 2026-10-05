@@ -1,6 +1,8 @@
 // src/lib/db/queries.ts
 import 'server-only'
 
+import { cache } from 'react'
+
 import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
 
 /*
@@ -19,7 +21,6 @@ import type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/l
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
 import { countActiveMembers, listActiveMembershipIds } from './membership'
-import { MOCK_STATIONS } from '@/lib/mock-data'
 import {
   toConnector,
   toPost,
@@ -42,12 +43,82 @@ import {
 
 // ─── Stations ───────────────────────────────────────
 
+/**
+ * How many reviews a station page loads.
+ *
+ * The rating itself is grouped in the database (stationRatings below), so this
+ * only bounds the list a visitor scrolls — a popular station should not ship
+ * every review it has ever had in one HTML payload.
+ */
+const STATION_REVIEW_PAGE = 100
+
+export interface ListingRating {
+  rating: number
+  reviewCount: number
+}
+
+/**
+ * A station's rating, worked out from its Review rows — never the stored
+ * Station.rating / reviewCount columns.
+ *
+ * Those columns were typed in with the sample data (4.8 from 142 reviews, 4.9
+ * from 176) and nothing has ever kept them in step with the reviews actually
+ * written: the same stations hold three to five reviews each. A rating is only
+ * honest if it is counted, so it is counted here, for many stations in one
+ * grouped query rather than one per row.
+ */
+async function stationRatings(stationIds: string[]): Promise<Map<string, ListingRating>> {
+  const out = new Map<string, ListingRating>()
+  if (stationIds.length === 0) return out
+
+  const rows = await prisma.review.groupBy({
+    by: ['stationId'],
+    where: { stationId: { in: stationIds } },
+    _avg: { rating: true },
+    _count: { _all: true },
+  })
+  for (const row of rows) {
+    if (!row.stationId) continue
+    out.set(row.stationId, {
+      // One decimal place, the precision the star display actually shows.
+      rating: Math.round((row._avg.rating ?? 0) * 10) / 10,
+      reviewCount: row._count._all,
+    })
+  }
+  return out
+}
+
+/** A station with its counted rating in place of the stored one. Zero when unreviewed. */
+function withRating(station: Station, ratings: Map<string, ListingRating>): Station {
+  const counted = ratings.get(station.id)
+  return { ...station, rating: counted?.rating ?? 0, reviewCount: counted?.reviewCount ?? 0 }
+}
+
 export async function getStations(): Promise<Station[]> {
   const rows = await prisma.station.findMany({
     include: { connectors: true },
     orderBy: { createdAt: 'asc' },
   })
-  return rows.map(toStation)
+  const ratings = await stationRatings(rows.map((row) => row.id))
+  return rows.map((row) => withRating(toStation(row), ratings))
+}
+
+/**
+ * Everything a driver can charge at, shaped as Stations: the Station table plus
+ * approved, placed business listings.
+ *
+ * The map and the route planner both read this on the server and hand it to
+ * the client as a prop. The map used to draw MOCK_STATIONS from the bundle and
+ * fetch the businesses separately, so an admin's edit to a station never
+ * reached the map at all.
+ */
+export async function getMapStations(): Promise<Station[]> {
+  const [stations, businesses] = await Promise.all([getStations(), getMappableBusinesses()])
+  const ratings = await getBusinessRatings(businesses.map((business) => business.id))
+  return [
+    ...stations,
+    ...businesses.map((business) => businessToStation(business, ratings[business.id])),
+  ]
 }
 
 /**
@@ -58,23 +129,67 @@ export async function getStations(): Promise<Station[]> {
  * detail page only ever looked at the Station table — so every one of those
  * pins led to a 404 when a driver tapped it. The map hands out the business id
  * as the slug, so the same URL resolves here.
+ *
+ * Wrapped in React's cache(): generateMetadata and the page both ask for the
+ * same slug in one render, and without it that was two identical round trips
+ * to a database a region away.
  */
-export async function getStationBySlug(slug: string): Promise<Station | null> {
+export const getStationBySlug = cache(async (slug: string): Promise<Station | null> => {
   const row = await prisma.station.findUnique({
     where: { slug },
-    include: { connectors: true, reviews: { orderBy: { date: 'desc' } } },
+    include: {
+      connectors: true,
+      reviews: { orderBy: { date: 'desc' }, take: STATION_REVIEW_PAGE },
+    },
   })
-  if (row) return toStation(row)
+  if (row) return withRating(toStation(row), await stationRatings([row.id]))
 
   return getBusinessAsStation(slug)
-}
+})
 
-export async function getStationById(id: string): Promise<Station | null> {
+export const getStationById = cache(async (id: string): Promise<Station | null> => {
   const row = await prisma.station.findUnique({
     where: { id },
-    include: { connectors: true, reviews: { orderBy: { date: 'desc' } } },
+    include: {
+      connectors: true,
+      reviews: { orderBy: { date: 'desc' }, take: STATION_REVIEW_PAGE },
+    },
   })
-  return row ? toStation(row) : null
+  return row ? withRating(toStation(row), await stationRatings([row.id])) : null
+})
+
+/**
+ * A few other stations to suggest under a station page: same city first, then
+ * anywhere, three at most.
+ *
+ * This used to load every station in the country and filter in memory, on
+ * every station page render. Two bounded queries now, the second only when the
+ * city cannot fill the row by itself.
+ */
+export async function getRelatedStations(
+  currentStationId: string,
+  city: string,
+  take = 3,
+): Promise<Station[]> {
+  const sameCity = await prisma.station.findMany({
+    where: { city, id: { not: currentStationId } },
+    include: { connectors: true },
+    orderBy: { createdAt: 'asc' },
+    take,
+  })
+  const others =
+    sameCity.length >= take
+      ? []
+      : await prisma.station.findMany({
+          where: { city: { not: city }, id: { not: currentStationId } },
+          include: { connectors: true },
+          orderBy: { createdAt: 'asc' },
+          take: take - sameCity.length,
+        })
+
+  const rows = [...sameCity, ...others]
+  const ratings = await stationRatings(rows.map((row) => row.id))
+  return rows.map((row) => withRating(toStation(row), ratings))
 }
 
 /** Slugs only — for generateStaticParams, which needs nothing else. */
@@ -104,10 +219,11 @@ export async function getServices(): Promise<EVService[]> {
   return rows.map(toService)
 }
 
-export async function getServiceBySlug(
+/** cache()d: the detail page's metadata and body ask for the same row in one render. */
+export const getServiceBySlug = cache(async (
   category: string,
   slug: string,
-): Promise<EVService | null> {
+): Promise<EVService | null> => {
   const row = await prisma.eVService.findUnique({ where: { slug } })
   // The URL carries both, so a mismatched pair is a 404 rather than a
   // redirect — otherwise /services/insurance/some-dealer would resolve.
@@ -116,12 +232,12 @@ export async function getServiceBySlug(
   // a slug should not be a way to read an application before it is reviewed.
   if (row.status !== 'approved') return null
   return toService(row)
-}
+})
 
-export async function getServiceById(id: string): Promise<EVService | null> {
+export const getServiceById = cache(async (id: string): Promise<EVService | null> => {
   const row = await prisma.eVService.findUnique({ where: { id } })
   return row ? toService(row) : null
-}
+})
 
 /** Static params for the public detail pages, so only approved ones prerender. */
 export async function getServiceParams(): Promise<{ category: string; slug: string }[]> {
@@ -169,9 +285,58 @@ export async function listServicesForAdmin(): Promise<AdminServiceRow[]> {
 
 // ─── Community ──────────────────────────────────────
 
-export async function getPosts(): Promise<CommunityPost[]> {
-  const rows = await prisma.communityPost.findMany({ orderBy: { createdAt: 'desc' } })
+export interface PostQuery {
+  /** Page size. Defaults to DEFAULT_POST_PAGE. */
+  take?: number
+  /** The id of the last post on the previous page; that post is skipped. */
+  cursor?: string
+  /** One PostCategory, or omitted for every category. */
+  category?: string
+}
+
+/**
+ * The most posts one call returns when the caller does not ask for a page size.
+ *
+ * Calling getPosts() with no argument used to return the whole table, which is
+ * fine at twelve posts and an outage at twelve thousand. The default keeps
+ * every existing caller compiling and behaving the same at today's size, while
+ * putting a ceiling on what one render can pull.
+ */
+export const DEFAULT_POST_PAGE = 100
+const MAX_POST_PAGE = 200
+
+function postWhereAndPage({ take, cursor, category }: PostQuery) {
+  return {
+    where: category ? { category } : undefined,
+    orderBy: [{ createdAt: 'desc' as const }, { id: 'desc' as const }],
+    take: Math.min(Math.max(1, take ?? DEFAULT_POST_PAGE), MAX_POST_PAGE),
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+  }
+}
+
+/** Newest first. Pass `take` and `cursor` to page through; see getPostsPage. */
+export async function getPosts(query: PostQuery = {}): Promise<CommunityPost[]> {
+  const rows = await prisma.communityPost.findMany(postWhereAndPage(query))
   return rows.map(toPost)
+}
+
+/**
+ * One page of posts and the cursor for the next, or null when this is the last.
+ *
+ * One extra row is fetched to know whether another page exists, rather than a
+ * second count query.
+ */
+export async function getPostsPage(
+  query: PostQuery = {},
+): Promise<{ posts: CommunityPost[]; nextCursor: string | null }> {
+  const page = postWhereAndPage(query)
+  const rows = await prisma.communityPost.findMany({ ...page, take: page.take + 1 })
+  const hasMore = rows.length > page.take
+  const shown = hasMore ? rows.slice(0, page.take) : rows
+  return {
+    posts: shown.map(toPost),
+    nextCursor: hasMore ? (shown[shown.length - 1]?.id ?? null) : null,
+  }
 }
 
 export interface AdminCommunityPost {
@@ -200,21 +365,29 @@ export async function getPostsByUser(userId: string): Promise<CommunityPost[]> {
   return rows.map(toPost)
 }
 
-export async function getPostBySlug(slug: string): Promise<CommunityPost | null> {
-  const row = await prisma.communityPost.findUnique({
-    where: { slug },
-    include: { comments: { orderBy: { createdAt: 'asc' } } },
-  })
-  return row ? toPost(row) : null
+/**
+ * How many comments a post page renders: the latest ones, shown oldest first.
+ *
+ * A thread that runs to thousands of replies should not put all of them into
+ * one server render. Taking the newest and flipping them keeps the reading
+ * order the page has always had.
+ */
+export const POST_COMMENT_PAGE = 100
+
+const latestComments = {
+  comments: { orderBy: { createdAt: 'desc' as const }, take: POST_COMMENT_PAGE },
 }
 
-export async function getPostById(id: string): Promise<CommunityPost | null> {
-  const row = await prisma.communityPost.findUnique({
-    where: { id },
-    include: { comments: { orderBy: { createdAt: 'asc' } } },
-  })
-  return row ? toPost(row) : null
-}
+/** cache()d: generateMetadata and the page both read the same post. */
+export const getPostBySlug = cache(async (slug: string): Promise<CommunityPost | null> => {
+  const row = await prisma.communityPost.findUnique({ where: { slug }, include: latestComments })
+  return row ? toPost({ ...row, comments: [...row.comments].reverse() }) : null
+})
+
+export const getPostById = cache(async (id: string): Promise<CommunityPost | null> => {
+  const row = await prisma.communityPost.findUnique({ where: { id }, include: latestComments })
+  return row ? toPost({ ...row, comments: [...row.comments].reverse() }) : null
+})
 
 export async function getPostSlugs(): Promise<string[]> {
   const rows = await prisma.communityPost.findMany({ select: { slug: true } })
@@ -583,10 +756,34 @@ export async function getPendingBusinessCount(): Promise<number> {
  * location was set, which would otherwise be silently missing rather than
  * visibly wrong.
  */
-export async function getMappableBusinesses(): Promise<BusinessRow[]> {
+export async function getMappableBusinesses({ take = MAX_MAP_BUSINESSES }: { take?: number } = {}): Promise<BusinessRow[]> {
+  /*
+    Only what a pin, a card and the partners page render. The owner's name and
+    email are not selected at all: this feed is shaped into Stations and sent to
+    every visitor's browser, and a field that is never read cannot leak. They
+    come back as empty strings so the shared BusinessRow shape still holds —
+    businessToStation never reads them.
+  */
   const rows = await prisma.business.findMany({
     where: { status: 'approved', lat: { not: null }, lng: { not: null } },
     orderBy: { createdAt: 'desc' },
+    take: Math.min(Math.max(1, take), MAX_MAP_BUSINESSES),
+    select: {
+      id: true,
+      userId: true,
+      phone: true,
+      businessName: true,
+      businessType: true,
+      city: true,
+      address: true,
+      website: true,
+      description: true,
+      lat: true,
+      lng: true,
+      chargers: true,
+      status: true,
+      createdAt: true,
+    },
   })
 
   return rows.map((row) => {
@@ -597,9 +794,17 @@ export async function getMappableBusinesses(): Promise<BusinessRow[]> {
     } catch {
       chargers = []
     }
-    return { ...row, chargers, createdAt: row.createdAt.toISOString() }
+    return { ...row, ownerName: '', email: '', chargers, createdAt: row.createdAt.toISOString() }
   })
 }
+
+/**
+ * A ceiling, not a page size. The map has to show every approved listing to be
+ * a map, so this is set far above anything the platform holds; it exists so a
+ * runaway import cannot make one request serialise an unbounded table into
+ * every visitor's HTML.
+ */
+const MAX_MAP_BUSINESSES = 2000
 
 // ─── Business ratings, reviews and analytics ────────────
 
@@ -644,10 +849,19 @@ export interface BusinessReviewRow {
   helpfulCount: number
 }
 
-export async function getReviewsForBusiness(businessId: string): Promise<BusinessReviewRow[]> {
+/**
+ * Newest first, at most `take` (100 by default — the same page a station gets).
+ * The listing's rating comes from getBusinessRatings, grouped in the database,
+ * so bounding this list never changes the score shown beside it.
+ */
+export async function getReviewsForBusiness(
+  businessId: string,
+  { take = 100 }: { take?: number } = {},
+): Promise<BusinessReviewRow[]> {
   const rows = await prisma.review.findMany({
     where: { businessId },
     orderBy: { date: 'desc' },
+    take: Math.min(Math.max(1, take), 500),
   })
 
   return rows.map((row) => ({
@@ -781,7 +995,7 @@ export async function getBusinessAnalytics(businessId: string): Promise<Business
  * the fallback there stays one line, and so the public listing page can ask for
  * a business directly when it already knows that is what it wants.
  */
-export async function getBusinessAsStation(id: string): Promise<Station | null> {
+export const getBusinessAsStation = cache(async (id: string): Promise<Station | null> => {
   const business = await getApprovedBusiness(id)
   if (!business) return null
 
@@ -811,7 +1025,7 @@ export async function getBusinessAsStation(id: string): Promise<Station | null> 
       isVerified: false,
     })),
   }
-}
+})
 
 // ─── A signed-in person's own data ──────────────────────
 
@@ -829,13 +1043,50 @@ export async function getSavedStationsForUser(userId: string): Promise<Station[]
   })
   if (rows.length === 0) return []
 
-  // The map draws its stations from MOCK_STATIONS in code (plus approved
-  // businesses from the database), so a station saved from the map may have
-  // no Station row. Look there too, or the bookmark is counted but never shown.
-  const resolved = await Promise.all(
-    rows.map(async (row) => (await getListingById(row.listingId)) ?? MOCK_STATIONS.find((s) => s.id === row.listingId) ?? null),
-  )
-  return resolved.filter((station): station is Station => station !== null)
+  /*
+    Batched: one query per table and one per kind of rating, however many
+    bookmarks there are. This used to resolve each saved id on its own — up to
+    four round trips per bookmark — and then fall back to MOCK_STATIONS for any
+    id the database did not know. The map reads the database now, so a bookmark
+    can only ever point at a database row, and the fallback could only resurrect
+    a listing that has since been removed.
+  */
+  const ids = rows.map((row) => row.listingId)
+  const [stationRows, businessRows] = await Promise.all([
+    prisma.station.findMany({ where: { id: { in: ids } }, include: { connectors: true } }),
+    prisma.business.findMany({
+      where: { id: { in: ids }, status: 'approved', lat: { not: null }, lng: { not: null } },
+    }),
+  ])
+  const [ratings, businessRatings] = await Promise.all([
+    stationRatings(stationRows.map((row) => row.id)),
+    getBusinessRatings(businessRows.map((row) => row.id)),
+  ])
+
+  const byId = new Map<string, Station>()
+  for (const row of stationRows) byId.set(row.id, withRating(toStation(row), ratings))
+  for (const row of businessRows) {
+    byId.set(
+      row.id,
+      businessToStation(
+        { ...row, chargers: parseChargers(row.chargers), createdAt: row.createdAt.toISOString() },
+        businessRatings[row.id],
+      ),
+    )
+  }
+
+  // In the order they were saved, newest first; anything gone is dropped.
+  return ids.map((id) => byId.get(id)).filter((station): station is Station => station !== undefined)
+}
+
+/** The chargers column, parsed. A malformed one costs the listing its chargers, not the page. */
+function parseChargers(value: string): BusinessCharger[] {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return Array.isArray(parsed) ? (parsed as BusinessCharger[]) : []
+  } catch {
+    return []
+  }
 }
 
 /**
@@ -1244,10 +1495,10 @@ export async function getVehicles(): Promise<DbVehicle[]> {
   return rows.map(toVehicle)
 }
 
-export async function getVehicleById(id: string): Promise<DbVehicle | null> {
+export const getVehicleById = cache(async (id: string): Promise<DbVehicle | null> => {
   const row = await prisma.vehicle.findUnique({ where: { id } })
   return row ? toVehicle(row) : null
-}
+})
 
 export async function getVehiclesByBrand(brand: string): Promise<DbVehicle[]> {
   const rows = await prisma.vehicle.findMany({

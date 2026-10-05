@@ -16,7 +16,7 @@ export default function NewStationPage() {
       <AdminHeader
         title="Add station"
         backHref="/admin/stations"
-        description="Publishes to the live map as soon as it is saved."
+        description="Appears on the map and in the route planner as soon as it is saved."
       />
       <StationForm action={create} />
     </>

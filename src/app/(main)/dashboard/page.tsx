@@ -25,10 +25,20 @@ export default async function Page() {
     getPostsByUser(profile.id),
   ])
 
+  /*
+    "Welcome back" on the first ever visit — straight from sign-up or
+    onboarding — read as if the site had mistaken them for someone else. An
+    account made in the last ten minutes, or one that has not saved, reviewed
+    or posted anything yet and is under a day old, is greeted as new.
+  */
+  const ageMs = Date.now() - new Date(profile.createdAt).getTime()
+  const hasActivity = saved.length > 0 || reviews.length > 0 || posts.length > 0
+  const isNew = ageMs < 10 * 60 * 1000 || (!hasActivity && ageMs < 24 * 60 * 60 * 1000)
+
   return (
     <DashboardLayout
       title="Overview"
-      subtitle={`Welcome back, ${profile.name}`}
+      subtitle={`${isNew ? 'Welcome' : 'Welcome back'}, ${profile.name}`}
       user={shell.user}
       stats={shell.stats}
     >

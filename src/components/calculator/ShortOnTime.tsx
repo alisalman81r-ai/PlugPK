@@ -4,7 +4,15 @@
 import * as React from 'react'
 
 import { Timer } from '@/components/ui/icons'
-import { chargeWithin, formatKw, formatKwh, rangeAddedKm, type ChargeMode } from '@/lib/charging-time'
+import {
+  chargeWithin,
+  formatKw,
+  formatKwh,
+  formatPct,
+  formatPctAdded,
+  rangeAddedKm,
+  type ChargeMode,
+} from '@/lib/charging-time'
 import { cn } from '@/lib/utils'
 
 /**
@@ -32,7 +40,7 @@ export function ShortOnTime({ batteryKwh, fromPct, mode, chargerKw, carLimitKw, 
   const [minutes, setMinutes] = React.useState<number>(30)
   const got = chargeWithin({ batteryKwh, fromPct, mode, chargerKw, carLimitKw, minutes })
   const powerKw = chargerKw && carLimitKw ? Math.min(chargerKw, carLimitKw) : chargerKw
-  const km = got ? rangeAddedKm(rangeKm, fromPct, got.toPct) : null
+  const km = got && got.toPct > fromPct ? rangeAddedKm(rangeKm, fromPct, got.toPct) : null
   const dc = mode === 'dc'
 
   return (
@@ -72,11 +80,11 @@ export function ShortOnTime({ batteryKwh, fromPct, mode, chargerKw, carLimitKw, 
             <>
               <p className="text-2xl font-bold tabular-nums tracking-tight text-slate-900">
                 {fromPct}% → {dc && !got.full ? '~' : ''}
-                {got.toPct}%
+                {formatPct(got.toPct)}
                 {got.full ? <span className="ml-2 text-ui font-semibold text-plug-cyan-700">Full before time is up</span> : null}
               </p>
               <p className="mt-1 text-ui-sm text-slate-600">
-                +{formatKwh(got.energyKwh)}
+                +{formatKwh(got.energyKwh)} ({formatPctAdded(got.toPct - fromPct)})
                 {km != null ? ` · about +${km} km of rated range` : ''} · {dc ? 'DC' : 'AC'} at {formatKw(powerKw)}
                 {dc ? ', slowing as it fills' : ''}
               </p>

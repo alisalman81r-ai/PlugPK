@@ -10,6 +10,8 @@ import { Button, MorphIcon } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { registerUser } from '@/lib/db/auth-actions'
 
+import { authHref } from './auth-links'
+
 export interface SignUpFormProps {
   onSuccess?: () => void
   /**
@@ -118,6 +120,7 @@ interface Errors {
   fullName?: string
   email?: string
   password?: string
+  terms?: string
   general?: string
 }
 
@@ -144,7 +147,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     const name = fullName.trim()
     if (name.length === 0) next.fullName = 'Enter your full name.'
     else if (name.length < 2) next.fullName = 'Name must be at least 2 characters.'
-    else if (name.length > 50) next.fullName = 'Name must be 50 characters or fewer.'
+    else if (name.length > 80) next.fullName = 'Name must be 80 characters or fewer.'
 
     if (email.trim().length === 0) next.email = 'Enter your email address.'
     else if (!EMAIL_PATTERN.test(email.trim())) next.email = 'Enter a valid email address.'
@@ -165,6 +168,13 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     event.preventDefault()
 
     const found = validate()
+    /*
+      Agreement is checked here, on submit, rather than by disabling the
+      button. A disabled button gave no reason — it just sat there grey —
+      and somebody who had filled in every field could not tell what was
+      missing. Now the button always works and says what it needs.
+    */
+    if (!agreed) found.terms = 'Tick the box to agree to the Terms and Privacy Policy.'
     setErrors(found)
     setTouched({ fullName: true, email: true, password: true })
     if (Object.keys(found).length > 0) return
@@ -179,7 +189,12 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     payload.set('email', email)
     payload.set('password', password)
 
-    const result = await registerUser(payload)
+    let result: Awaited<ReturnType<typeof registerUser>>
+    try {
+      result = await registerUser(payload)
+    } catch {
+      result = { ok: false, message: 'We could not reach the server. Check your connection and try again.' }
+    }
     setIsLoading(false)
 
     if (!result.ok) {
@@ -278,7 +293,14 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
       </div>
 
       <div className="mt-5 flex items-start gap-3">
-        <Checkbox id="terms" checked={agreed} onChange={setAgreed} />
+        <Checkbox
+          id="terms"
+          checked={agreed}
+          onChange={(next) => {
+            setAgreed(next)
+            if (next) setErrors((current) => ({ ...current, terms: undefined }))
+          }}
+        />
         <label htmlFor="terms" className="text-sm text-slate-600">
           I agree to the{' '}
           <Link href="/terms" className="text-plug-blue-600 hover:underline">
@@ -291,6 +313,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
         </label>
       </div>
 
+      <FieldError message={errors.terms} />
       {errors.general ? <FieldError message={errors.general} /> : null}
 
       {/* Server-side failures — a duplicate email is the common one, and it
@@ -309,7 +332,6 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
         size="lg"
         fullWidth
         isLoading={isLoading}
-        disabled={!agreed}
         className="mt-6"
       >
         Create Your Account
@@ -317,7 +339,10 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-plug-blue-600 hover:underline">
+        <Link
+          href={authHref('/login', redirectTo)}
+          className="font-semibold text-plug-blue-600 hover:underline"
+        >
           Sign in
         </Link>
       </p>

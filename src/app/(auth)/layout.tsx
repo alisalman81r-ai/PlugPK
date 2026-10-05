@@ -1,5 +1,6 @@
 // src/app/(auth)/layout.tsx
 import { Lock, MapPin, Route, Zap, type IconType } from '@/components/ui/icons'
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -34,6 +35,16 @@ import { Logo } from '@/components/ui/Logo'
  * five-item list on a sign-in screen is read by nobody.
  */
 
+/*
+  Sign-in, sign-up and password help are kept out of search results. They
+  were inheriting the root's `index: true`, so a search for the brand could
+  surface a login form above the pages somebody actually wanted. robots.ts
+  disallows the same paths; this covers a crawler that arrives by a link.
+*/
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
+
 /** Only what a signed-in account genuinely changes about using the site. */
 const VALUE: { icon: IconType; title: string; body: string }[] = [
   {
@@ -49,7 +60,13 @@ const VALUE: { icon: IconType; title: string; body: string }[] = [
   {
     icon: MapPin,
     title: 'Your stations, saved',
-    body: 'Keep the chargers you rely on, and the cars you are comparing, across devices.',
+    /*
+      Said only of what the account actually stores. Saved stations and saved
+      routes are rows on the server and follow the account to any device; the
+      cars being compared live in this browser's storage and do not, so they
+      are no longer part of the promise.
+    */
+    body: 'Keep the chargers you rely on and the routes you plan, on any device you sign in from.',
   },
 ]
 
@@ -123,24 +140,19 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </p>
         </div>
 
-        {/* The legal line was text-slate-400 at 12px, which is the smallest and
-            faintest text on the page and also the part with consequences. */}
-        <p className="px-6 py-6 text-center text-ui-xs leading-relaxed text-slate-500 sm:px-8">
-          By continuing you agree to our{' '}
-          <Link
-            href="/terms"
-            className="font-medium text-slate-700 underline-offset-2 hover:underline"
-          >
+        {/*
+          Links only, not a consent line. "By continuing you agree…" sat under
+          the sign-up form's own terms checkbox, asking for the same agreement
+          twice in two different ways; the checkbox is the one that records
+          it. Signing in to an existing account agrees to nothing new.
+        */}
+        <p className="flex justify-center gap-4 px-6 py-6 text-ui-xs text-slate-500 sm:px-8">
+          <Link href="/terms" className="font-medium text-slate-600 underline-offset-2 hover:underline">
             Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link
-            href="/privacy"
-            className="font-medium text-slate-700 underline-offset-2 hover:underline"
-          >
+          </Link>
+          <Link href="/privacy" className="font-medium text-slate-600 underline-offset-2 hover:underline">
             Privacy Policy
           </Link>
-          .
         </p>
       </div>
 

@@ -8,7 +8,11 @@ import { PAKISTAN_CITIES } from '@/lib/constants'
 import { SearchSelect } from '@/components/ui/SearchSelect'
 import { cn } from '@/lib/utils'
 
-export type ServiceSortOption = 'rating' | 'name' | 'reviews'
+/**
+ * Alphabetical or by city. "Top Rated" and "Most Reviewed" are gone: they
+ * sorted on seeded figures that no review stands behind.
+ */
+export type ServiceSortOption = 'name' | 'city'
 export type ServiceViewMode = 'grid' | 'list'
 
 export interface ServiceFiltersProps {
@@ -93,9 +97,8 @@ export function ServiceFilters({
           aria-label="Sort services"
           className={SELECT_CLASS}
         >
-          <option value="rating">Top Rated</option>
           <option value="name">A to Z</option>
-          <option value="reviews">Most Reviewed</option>
+          <option value="city">By city</option>
         </select>
 
         {/*

@@ -9,10 +9,27 @@ import { setTemporaryPassword } from '@/lib/db/member-actions'
 /**
  * Reset a member's password by hand, for someone who has written in from the
  * address on their account. The new password is shown here once and is not
- * stored anywhere in readable form; send it to the member and ask them to
- * change it under Settings → Password.
+ * stored anywhere in readable form; the member is made to choose a new one on
+ * their next sign-in, and every session they had open ends — a locked-out
+ * account is often one somebody else is using.
+ *
+ * Not offered for admins or for yourself; the server refuses both too. One
+ * operator resetting another's password would be a way to take over their
+ * account.
  */
-export function MemberPasswordCard({ id, name, email }: { id: string; name: string; email: string }) {
+export function MemberPasswordCard({
+  id,
+  name,
+  email,
+  isAdmin = false,
+  isSelf = false,
+}: {
+  id: string
+  name: string
+  email: string
+  isAdmin?: boolean
+  isSelf?: boolean
+}) {
   const [confirming, setConfirming] = React.useState(false)
   const [busy, setBusy] = React.useState(false)
   const [password, setPassword] = React.useState<string | null>(null)
@@ -22,7 +39,11 @@ export function MemberPasswordCard({ id, name, email }: { id: string; name: stri
   const generate = async () => {
     setBusy(true)
     setError(null)
-    const result = await setTemporaryPassword(id).catch(() => null)
+    const result = await setTemporaryPassword(id).catch(() => ({
+      ok: false as const,
+      message: 'That did not reach the server. Reload the page and try again.',
+      password: undefined,
+    }))
     setBusy(false)
     setConfirming(false)
     if (!result?.ok || !result.password) {
@@ -51,10 +72,17 @@ export function MemberPasswordCard({ id, name, email }: { id: string; name: stri
       </h2>
       <p className="mt-1 text-ui-sm text-slate-500">
         For a member who is locked out and has written in from <span className="font-medium text-slate-700">{email}</span>.
-        Their current password stops working.
+        Their current password stops working, every device they are signed in on is signed out, and they
+        must choose a new password the next time they sign in.
       </p>
 
-      {password ? (
+      {isSelf || isAdmin ? (
+        <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-600">
+          {isSelf
+            ? 'This is your account — change your password under Settings → Password.'
+            : `${name} is an admin. Ask them to change it under Settings → Password, or reset it with the server CLI.`}
+        </p>
+      ) : password ? (
         <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-ui-sm font-semibold text-emerald-900">Temporary password for {name}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -71,7 +99,7 @@ export function MemberPasswordCard({ id, name, email }: { id: string; name: stri
             </button>
           </div>
           <p className="mt-3 text-ui-xs text-emerald-800">
-            Shown only now. Send it to {email} and ask them to change it under Settings → Password.
+            Shown only now. Send it to {email}; they will be asked to replace it when they sign in.
           </p>
         </div>
       ) : confirming ? (

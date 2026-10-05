@@ -7,6 +7,9 @@ import * as React from 'react'
 
 import { deleteCar } from '@/lib/db/car-actions'
 
+import { useAdminToast } from './AdminToast'
+import { runAction } from './run-action'
+
 /**
  * Deleting a car.
  *
@@ -29,6 +32,7 @@ export function CarDeleteCard({ carId, carName }: CarDeleteCardProps) {
   const [typed, setTyped] = React.useState('')
   const [pending, setPending] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const toast = useAdminToast()
 
   const armed = typed.trim().toLowerCase() === carName.trim().toLowerCase()
 
@@ -36,7 +40,7 @@ export function CarDeleteCard({ carId, carName }: CarDeleteCardProps) {
     setPending(true)
     setError(null)
 
-    const outcome = await deleteCar(carId)
+    const outcome = await runAction(() => deleteCar(carId))
 
     if (!outcome.ok) {
       setPending(false)
@@ -44,8 +48,10 @@ export function CarDeleteCard({ carId, carName }: CarDeleteCardProps) {
       return
     }
 
+    toast.success(outcome.message ?? 'Car deleted.')
     // Back to the list, which is the only place left to be.
     router.push('/admin/cars')
+    router.refresh()
   }
 
   return (

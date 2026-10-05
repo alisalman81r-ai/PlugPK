@@ -1,7 +1,7 @@
 // src/components/station/ReviewsSection.tsx
 'use client'
 
-import { Car, MessageSquare, ShieldCheck, ThumbsUp } from '@/components/ui/icons'
+import { Car, MessageSquare, ThumbsUp } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { Button, RatingStars } from '@/components/ui'
@@ -18,6 +18,13 @@ export interface ReviewsSectionProps {
   reviewCount: number
   stationId: string
   stationName: string
+  /** The URL segment, so signing in to review comes back to this page. */
+  stationSlug: string
+  /**
+   * True for the sample listings (see lib/sample-listings). Their reviews were
+   * written with the sample data, not by drivers, and the section says so.
+   */
+  isExample?: boolean
   /** Which table this listing lives in; forwarded to the review form. */
   target?: ReviewTarget
 }
@@ -64,10 +71,13 @@ function ReviewCard({ review, isLast }: { review: Review; isLast: boolean }) {
 
           <span>
             <span className="block text-ui font-bold text-slate-900">{review.userName}</span>
-            <span className="mt-0.5 flex items-center gap-1 text-sm text-slate-400">
-              <Car size={12} aria-hidden="true" />
-              {review.userVehicle}
-            </span>
+            {/* Optional on the form, so often empty: no car icon over nothing. */}
+            {review.userVehicle ? (
+              <span className="mt-0.5 flex items-center gap-1 text-sm text-slate-400">
+                <Car size={12} aria-hidden="true" />
+                {review.userVehicle}
+              </span>
+            ) : null}
           </span>
         </div>
 
@@ -97,12 +107,6 @@ function ReviewCard({ review, isLast }: { review: Review; isLast: boolean }) {
           Helpful ({review.helpfulCount + (isHelpful ? 1 : 0)})
         </button>
 
-        {review.isVerified ? (
-          <span className="flex items-center gap-1.5 text-xs font-medium text-plug-blue-600">
-            <ShieldCheck size={14} aria-hidden="true" />
-            Verified Visit
-          </span>
-        ) : null}
       </div>
     </div>
   )
@@ -114,6 +118,8 @@ export function ReviewsSection({
   reviewCount,
   stationId,
   stationName,
+  stationSlug,
+  isExample = false,
   target = 'station',
 }: ReviewsSectionProps) {
   const [visibleCount, setVisibleCount] = React.useState(3)
@@ -154,6 +160,12 @@ export function ReviewsSection({
         </select>
       </div>
 
+      {isExample && reviews.length > 0 ? (
+        <p className="-mt-4 mb-8 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-ui-sm text-amber-800">
+          This is an example listing. Its reviews are sample text, not visits by real drivers.
+        </p>
+      ) : null}
+
       {reviews.length > 0 ? (
         <div className="mb-10 border-b border-slate-100 pb-10">
           <RatingBreakdown rating={rating} reviewCount={reviewCount} reviews={reviews} />
@@ -161,7 +173,12 @@ export function ReviewsSection({
       ) : null}
 
       <div className="mb-10 border-b border-slate-100 pb-10">
-        <WriteReviewForm stationId={stationId} stationName={stationName} target={target} />
+        <WriteReviewForm
+          stationId={stationId}
+          stationName={stationName}
+          stationSlug={stationSlug}
+          target={target}
+        />
       </div>
 
       {reviews.length === 0 ? (

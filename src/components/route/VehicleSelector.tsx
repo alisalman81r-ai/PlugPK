@@ -5,20 +5,54 @@ import { Car, Check, ChevronDown, Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { TurnIcon } from '@/components/ui'
-import type { EVModel } from '@/lib/types'
+import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
 
 export interface VehicleSelectorProps {
-  vehicles: EVModel[]
-  selectedVehicle: EVModel | null
-  onSelect: (vehicle: EVModel | null) => void
+  vehicles: RouteVehicle[]
+  selectedVehicle: RouteVehicle | null
+  onSelect: (vehicle: RouteVehicle | null) => void
   className?: string
 }
+
+/**
+ * Cars a Pakistani driver is most likely to be planning in, offered first.
+ *
+ * The list used to open on an alphabetical wall starting at "Alektra", so the
+ * BYD Atto 3 or an MG ZS EV — the cars most people asking this question
+ * actually drive — sat several screens down. This is an editorial shortlist,
+ * not a sales ranking (there is no published one to cite): mainstream models
+ * the catalogue records as sold new through an official local distributor or
+ * assembled here. Slugs that are not in the catalogue are simply skipped.
+ */
+const POPULAR_SLUGS = [
+  'byd-atto-3-advanced',
+  'mg-zs-ev',
+  'byd-seal',
+  'byd-atto-2',
+  'mg-4-urban',
+  'honri-ve-2',
+  'dfsk-seres-3',
+  'deepal-s07',
+  'deepal-l07',
+  'kia-ev5',
+  'gwm-ora-03',
+  'byd-sealion-7-advanced',
+]
+
+const POPULAR_LABEL = 'Popular picks'
 
 export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className }: VehicleSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const searchRef = React.useRef<HTMLInputElement>(null)
+
+  // Opening puts the cursor in the search box, so typing filters at once
+  // instead of first needing a second click into the field.
+  React.useEffect(() => {
+    if (isOpen) searchRef.current?.focus()
+  }, [isOpen])
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -34,13 +68,25 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
   }, [isOpen])
 
   const grouped = React.useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
+    const terms = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean)
 
-    const matches = vehicles.filter((vehicle) =>
-      `${vehicle.make} ${vehicle.model}`.toLowerCase().includes(query),
-    )
+    // Every word must match, so "byd seal" narrows rather than widening.
+    const matches = vehicles.filter((vehicle) => {
+      const haystack = `${vehicle.make} ${vehicle.model}`.toLowerCase()
+      return terms.every((term) => haystack.includes(term))
+    })
 
-    const byMake = new Map<string, EVModel[]>()
+    const byMake = new Map<string, RouteVehicle[]>()
+
+    // With nothing typed, the shortlist comes first; the full catalogue,
+    // by make, follows it.
+    if (terms.length === 0) {
+      const popular = POPULAR_SLUGS.map((slug) => vehicles.find((vehicle) => vehicle.id === slug)).filter(
+        (vehicle): vehicle is RouteVehicle => vehicle !== undefined,
+      )
+      if (popular.length > 0) byMake.set(POPULAR_LABEL, popular)
+    }
+
     for (const vehicle of matches) {
       const existing = byMake.get(vehicle.make)
       if (existing) existing.push(vehicle)
@@ -57,6 +103,15 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
+        // Typing on the closed picker opens it with that letter already in
+        // the search, the way a native select jumps to a match.
+        onKeyDown={(event) => {
+          if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey && event.key !== ' ') {
+            event.preventDefault()
+            setSearchQuery(event.key)
+            setIsOpen(true)
+          }
+        }}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         className={cn(
@@ -98,8 +153,12 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
               <Search size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
               <input
                 type="text"
+                ref={searchRef}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') setIsOpen(false)
+                }}
                 placeholder="Search your EV..."
                 aria-label="Search vehicles"
                 className="w-full border-none bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"

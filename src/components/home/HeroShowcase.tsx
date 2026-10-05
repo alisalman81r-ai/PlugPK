@@ -36,8 +36,9 @@ import { Logo } from '@/components/ui/Logo'
  * ── What is real and what is the demo ─────────────────────────────────
  *
  * The station on the phone and on the cards is the fastest one in the
- * database, at the power it actually delivers and with the ports actually
- * free. The route reads its distance and time from the same table the route
+ * database, at the power it actually delivers and with the ports its operator
+ * installed — never how many are free, because nothing reads the hardware.
+ * The route reads its distance and time from the same table the route
  * planner uses. The battery level and range are the demo's — this is a picture
  * of the app, and a car has no battery to read until somebody signs in.
  *
@@ -233,9 +234,10 @@ export function HeroShowcase({ pins }: HeroShowcaseProps) {
 
   const kw = station ? Math.round(station.maxPowerKw) : 150
   const isFast = station ? station.maxPowerKw >= FAST_CHARGER_KW : true
-  const stationName = station?.name ?? 'Shell Recharge'
-  const ports = station ? `${station.availablePorts} / ${station.ports}` : '4 / 4'
-  const available = station ? station.availablePorts > 0 : true
+  // A plain fallback, not a real network's brand name.
+  const stationName = station?.name ?? 'Charging station'
+  const installed = station ? station.ports : 4
+  const portsLabel = `${installed} ${installed === 1 ? 'port' : 'ports'} installed`
 
   const routeKm = getRoadDistanceKm('Lahore', 'Islamabad')
   const routeMin = routeKm !== null ? estimateDriveMinutes(routeKm) : null
@@ -403,12 +405,9 @@ export function HeroShowcase({ pins }: HeroShowcaseProps) {
                   </span>
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-[1.15em] font-semibold">{stationName}</span>
-                    <span className="mt-[0.15em] text-[0.9em] text-white/60">{kw} kW  •  2.4 km</span>
+                    <span className="mt-[0.15em] text-[0.9em] text-white/60">{kw} kW</span>
                     <span className="mt-[0.35em] flex items-center justify-between text-[0.95em] font-semibold">
-                      <span className={available ? 'text-[#46E3B5]' : 'text-white/60'}>
-                        {available ? 'Available' : 'All in use'}
-                      </span>
-                      <span className="text-white/75">{ports}</span>
+                      <span className="text-white/75">{portsLabel}</span>
                     </span>
                   </span>
                   <ChevronRight className="-mt-[2.2em] h-[1.4em] w-[1.4em] shrink-0 text-white/60" />
@@ -448,9 +447,7 @@ export function HeroShowcase({ pins }: HeroShowcaseProps) {
         <FloatCard x={332} y={60} w={164} float="a" icon={<Zap className="h-[2.6em] w-[2.6em]" strokeWidth={1.6} />}>
           <span className="text-[1.45em] font-semibold leading-tight">{kw} kW</span>
           <span className="mt-[0.2em] text-[1.2em] text-white/70">{isFast ? 'Fast charger' : 'Standard charger'}</span>
-          <span className={'mt-[0.25em] text-[1.2em] font-semibold ' + (available ? 'text-[#46E3B5]' : 'text-white/60')}>
-            {available ? 'Available' : 'All in use'}
-          </span>
+          <span className="mt-[0.25em] text-[1.2em] font-semibold text-[#46E3B5]">{portsLabel}</span>
         </FloatCard>
 
         <FloatCard x={707} y={72} w={176} float="b" icon={<BatteryCharging className="h-[2.8em] w-[2.8em] -rotate-90" strokeWidth={1.6} />}>

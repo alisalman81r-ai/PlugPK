@@ -44,6 +44,11 @@ export function businessToStation(
   business: BusinessRow,
   rating: BusinessRating = { rating: 0, reviewCount: 0 },
 ): Station {
+  // Only photos an operator has approved are published. `undefined` is a row
+  // saved before photo review existed, when approving the listing was the
+  // review; every photo saved since carries an explicit status, and a new or
+  // replaced one is `pending` (see cleanChargers) — so an owner editing a live
+  // listing cannot put an unreviewed picture in front of drivers.
   const photos = business.chargers
     .flatMap((charger) => [
       charger.photoStatus === 'approved' || charger.photoStatus === undefined ? charger.photo : undefined,

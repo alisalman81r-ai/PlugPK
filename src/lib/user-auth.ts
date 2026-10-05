@@ -4,20 +4,21 @@ import 'server-only'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
 /**
- * Sessions for account holders — EV owners and business owners.
+ * Signed session cookies for every account — drivers, business owners and
+ * operators alike.
  *
- * Separate from admin-auth on purpose. That one is a single shared credential
- * for an operator portal and carries no identity; this one has to say *which*
- * account is signed in, because the business dashboard shows one owner their
- * own listing and must not show them anyone else's.
- *
- * The cookie holds `userId.expiry.signature`. Both the id and the expiry are
+ * The cookie holds `userId.version.expiry.signature`. All three values are
  * inside the signed payload, so a cookie cannot be edited to extend its life
- * or to impersonate another account — changing either invalidates the
- * signature. The browser never holds anything that grants access on its own.
+ * or to impersonate another account.
  *
- * What this is not: password reset, email verification, refresh tokens, or
- * roles. It is enough to keep someone signed in and to know who they are.
+ * `version` is User.sessionVersion at the moment of sign-in. The signature
+ * alone cannot be revoked, so src/lib/db/session.ts compares this number with
+ * the row on every read: bumping the column (password change, operator reset,
+ * "sign out everywhere") ends every session the account has open.
+ *
+ * Cookies minted before the version existed have three parts and read as
+ * version 0, which is every account's starting value — so nobody was signed
+ * out by the change.
  */
 
 const COOKIE_NAME = 'plugpk_session'
@@ -29,28 +30,36 @@ export const USER_SESSION_MAX_AGE = SESSION_MAX_AGE_SECONDS
 /**
  * Signing key.
  *
- * Falls back to ADMIN_PASSWORD only so local development works without extra
- * setup. In any real deployment SESSION_SECRET should be its own long random
- * value — reusing the admin password means one leak compromises both.
+ * Production requires its own SESSION_SECRET and fails closed without one.
+ * The fallback to ADMIN_PASSWORD is for local development only: reusing a
+ * password as a signing key means anyone who learns it can forge a session for
+ * any account.
  */
 function getSecret(): string | null {
-  const secret = process.env.SESSION_SECRET ?? process.env.ADMIN_PASSWORD
-  return secret && secret.length > 0 ? secret : null
+  const own = process.env.SESSION_SECRET
+  if (own && own.length > 0) return own
+  if (process.env.NODE_ENV === 'production') return null
+  const fallback = process.env.ADMIN_PASSWORD
+  return fallback && fallback.length > 0 ? fallback : null
 }
 
 export function getUserAuthConfigError(): string | null {
-  return getSecret() ? null : 'Neither SESSION_SECRET nor ADMIN_PASSWORD is set.'
+  if (getSecret()) return null
+  return process.env.NODE_ENV === 'production'
+    ? 'SESSION_SECRET is not set.'
+    : 'Neither SESSION_SECRET nor ADMIN_PASSWORD is set.'
 }
 
-function sign(userId: string, expiresAt: number, secret: string): string {
-  return createHmac('sha256', secret).update(`${userId}.${expiresAt}`).digest('hex')
+function sign(payload: string, secret: string): string {
+  return createHmac('sha256', secret).update(payload).digest('hex')
 }
 
-export function createUserSessionValue(userId: string): string | null {
+export function createUserSessionValue(userId: string, version: number): string | null {
   const secret = getSecret()
   if (!secret) return null
   const expiresAt = Date.now() + SESSION_MAX_AGE_SECONDS * 1000
-  return `${userId}.${expiresAt}.${sign(userId, expiresAt, secret)}`
+  const payload = `${userId}.${version}.${expiresAt}`
+  return `${payload}.${sign(payload, secret)}`
 }
 
 /** Constant-time compare, so a wrong value cannot be narrowed by timing. */
@@ -61,23 +70,42 @@ function safeEqual(a: string, b: string): boolean {
   return timingSafeEqual(bufferA, bufferB)
 }
 
-/** Returns the signed-in user's id, or null. Never throws on a bad cookie. */
-export function readUserSession(value: string | undefined): string | null {
+export interface SessionClaims {
+  userId: string
+  version: number
+}
+
+/**
+ * The claims in a genuine, unexpired cookie, or null. Never throws.
+ *
+ * This proves the cookie was issued by this server; it does not prove the
+ * session is still current. Use getSessionUserId() in src/lib/db/session.ts,
+ * which also checks the version against the database.
+ */
+export function readUserSession(value: string | undefined): SessionClaims | null {
   const secret = getSecret()
   if (!secret || !value) return null
 
-  // The id is a UUID and contains no dots, so splitting from the right is
-  // unambiguous even if that ever changes.
   const parts = value.split('.')
-  if (parts.length < 3) return null
 
-  const signature = parts[parts.length - 1] as string
-  const expiryPart = parts[parts.length - 2] as string
-  const userId = parts.slice(0, parts.length - 2).join('.')
-  if (!userId || !expiryPart || !signature) return null
+  // Legacy three-part cookie: userId.expiry.signature, signed as `id.expiry`.
+  if (parts.length === 3) {
+    const [userId, expiryPart, signature] = parts as [string, string, string]
+    const expiresAt = Number(expiryPart)
+    if (!userId || !Number.isFinite(expiresAt) || expiresAt < Date.now()) return null
+    return safeEqual(signature, sign(`${userId}.${expiresAt}`, secret))
+      ? { userId, version: 0 }
+      : null
+  }
 
+  if (parts.length !== 4) return null
+  const [userId, versionPart, expiryPart, signature] = parts as [string, string, string, string]
+  const version = Number(versionPart)
   const expiresAt = Number(expiryPart)
-  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return null
+  if (!userId || !Number.isInteger(version) || !Number.isFinite(expiresAt)) return null
+  if (expiresAt < Date.now()) return null
 
-  return safeEqual(signature, sign(userId, expiresAt, secret)) ? userId : null
+  return safeEqual(signature, sign(`${userId}.${version}.${expiresAt}`, secret))
+    ? { userId, version }
+    : null
 }

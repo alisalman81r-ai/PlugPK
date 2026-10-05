@@ -3,32 +3,42 @@
 
 import { randomUUID } from 'node:crypto'
 
+import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
-import type { PostCategory } from '@/lib/types'
+import { COMMUNITY_LIMITS } from '@/lib/constants'
+import type { Comment, PostCategory } from '@/lib/types'
+import { checkText } from '@/lib/validate'
 
 import { prisma } from './client'
+import {
+  getComments,
+  getFeedPage,
+  getLikedPostIds,
+  type FeedPage,
+  type FeedSort,
+} from './community-queries'
+import { checkLimits, retryMessage } from './rate-limit'
+import { getSessionUserId } from './session'
 import { getCurrentProfile } from './session-actions'
 
 /**
- * Writing to the community — the half that was missing.
- *
- * ── What this replaced ────────────────────────────────────────────────
- *
- * Nothing. There was no create-post action and no create-comment action at
- * all. CreatePostForm called an `onSubmit` callback that the community page
- * never passed, and CommentSection's submit handler cleared the textarea and
- * returned. So a signed-in member could fill either form, press the button,
- * watch it succeed, and lose what they wrote — the worst shape a form can
- * have, because it is indistinguishable from working until you reload.
+ * Writing to the community, and the reads the board makes after first paint.
  *
  * ── One account, checked on the server ────────────────────────────────
  *
- * Both actions read the session themselves rather than taking a user id from
- * the caller. A server action is a POST endpoint that anything reaching its
- * id can call, so an author passed in from the browser is an author anybody
- * can claim to be. The name and avatar stored on the row come from the
- * database record of whoever is signed in, never from the form.
+ * Every write reads the session itself rather than taking a user id from the
+ * caller. A server action is a POST endpoint that anything reaching its id can
+ * call, so an author passed in from the browser is an author anybody can claim
+ * to be. The name and avatar stored on the row come from the database record
+ * of whoever is signed in, never from the form.
+ *
+ * ── Limits ────────────────────────────────────────────────────────────
+ *
+ * Lengths come from COMMUNITY_LIMITS, which the composer reads too, and are
+ * checked here with checkText because maxlength in the browser binds nobody
+ * who calls the action directly. Posting, commenting and liking are rate
+ * limited per account: generous for a person, useless for a script.
  *
  * ── Why the author's name is copied onto the row ──────────────────────
  *
@@ -36,8 +46,7 @@ import { getCurrentProfile } from './session-actions'
  * beside userId, which is denormalisation and deliberate — it predates this
  * file. A post keeps the name it was written under, and the feed renders
  * without joining every row back to User. The cost is that renaming an
- * account does not rename its old posts. That is the existing bargain here;
- * changing it is a migration, not a new action.
+ * account does not rename its old posts.
  */
 
 export interface CommunityResult {
@@ -56,9 +65,9 @@ const CATEGORIES: readonly PostCategory[] = [
   'ev-news',
 ]
 
-const TITLE_MAX = 140
-const CONTENT_MAX = 10_000
-const COMMENT_MAX = 2_000
+const SORTS: readonly FeedSort[] = ['latest', 'popular', 'trending']
+
+const HOUR = 60 * 60
 
 /** Matches the slug shape used by cars and services. */
 function slugify(value: string): string {
@@ -76,8 +85,7 @@ function slugify(value: string): string {
  * Two posts titled "Charging on the motorway" are entirely likely, and the
  * column is unique, so the second insert would fail on a constraint the author
  * cannot see or fix. Suffixing is checked against the database rather than
- * assumed, and gives up after a few tries rather than looping — at that point
- * something is wrong that a longer loop will not solve.
+ * assumed, and gives up after a few tries rather than looping.
  */
 async function uniqueSlug(title: string): Promise<string> {
   const base = slugify(title) || 'post'
@@ -109,18 +117,18 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
   const profile = await getCurrentProfile()
   if (!profile) return { ok: false, message: 'Sign in to post.' }
 
-  const title = String(form.get('title') ?? '').trim()
-  const content = String(form.get('content') ?? '').trim()
-  const category = String(form.get('category') ?? '').trim()
+  const title = checkText(form.get('title'), 'a title', {
+    max: COMMUNITY_LIMITS.title,
+    required: true,
+  })
+  if (!title.ok) return title
+  const content = checkText(form.get('content'), 'your post', {
+    max: COMMUNITY_LIMITS.content,
+    required: true,
+  })
+  if (!content.ok) return content
 
-  if (!title) return { ok: false, message: 'Give your post a title.' }
-  if (!content) return { ok: false, message: 'Write something first.' }
-  if (title.length > TITLE_MAX) {
-    return { ok: false, message: `Titles are capped at ${TITLE_MAX} characters.` }
-  }
-  if (content.length > CONTENT_MAX) {
-    return { ok: false, message: 'That post is too long.' }
-  }
+  const category = String(form.get('category') ?? '').trim()
   /*
     Checked against the list rather than cast. `category` is a plain string
     column, so an unrecognised value would be stored happily and then filter
@@ -130,7 +138,18 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
     return { ok: false, message: 'Choose a category.' }
   }
 
-  const slug = await uniqueSlug(title)
+  // After validation, so a too-long title does not spend one of the five.
+  const limit = await checkLimits([
+    { key: `post:user:${profile.id}`, limit: 5, windowSeconds: HOUR },
+  ])
+  if (!limit.allowed) {
+    return {
+      ok: false,
+      message: retryMessage(limit.retryAfterSeconds, 'You have posted several times this hour'),
+    }
+  }
+
+  const slug = await uniqueSlug(title.value)
 
   await prisma.communityPost.create({
     data: {
@@ -140,8 +159,8 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
       userName: profile.name,
       userAvatar: profile.avatar,
       userVehicle: profile.vehicle,
-      title,
-      content,
+      title: title.value,
+      content: content.value,
       category,
     },
   })
@@ -155,43 +174,170 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
  *
  * The insert and the increment run in one transaction. commentCount is a
  * stored column that the feed renders without counting rows, so a comment
- * saved while the increment failed would leave every list quietly one short —
- * and nothing would ever notice, because nothing recounts.
+ * saved while the increment failed would leave every list quietly one short.
  */
-export async function createComment(
-  postId: string,
-  content: string,
-): Promise<CommunityResult> {
+export async function createComment(postId: string, content: string): Promise<CommunityResult> {
   const profile = await getCurrentProfile()
   if (!profile) return { ok: false, message: 'Sign in to comment.' }
 
-  const body = content.trim()
-  if (!body) return { ok: false, message: 'Write something first.' }
-  if (body.length > COMMENT_MAX) return { ok: false, message: 'That comment is too long.' }
+  const body = checkText(content, 'a comment', { max: COMMUNITY_LIMITS.comment, required: true })
+  if (!body.ok) return body
 
   const post = await prisma.communityPost.findUnique({
-    where: { id: postId },
-    select: { slug: true },
+    where: { id: String(postId) },
+    select: { id: true, slug: true },
   })
   if (!post) return { ok: false, message: 'That post no longer exists.' }
+
+  const limit = await checkLimits([
+    { key: `comment:user:${profile.id}`, limit: 30, windowSeconds: HOUR },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many comments') }
+  }
 
   await prisma.$transaction([
     prisma.comment.create({
       data: {
         id: randomUUID(),
-        postId,
+        postId: post.id,
         userId: profile.id,
         userName: profile.name,
         userAvatar: profile.avatar,
-        content: body,
+        content: body.value,
       },
     }),
     prisma.communityPost.update({
-      where: { id: postId },
+      where: { id: post.id },
       data: { commentCount: { increment: 1 } },
     }),
   ])
 
   revalidateCommunity(post.slug)
   return { ok: true, slug: post.slug }
+}
+
+export interface LikeResult {
+  ok: boolean
+  message?: string
+  /** Whether the account likes the post now. */
+  liked?: boolean
+  /** The stored count after the change, for the button to settle on. */
+  likeCount?: number
+}
+
+/**
+ * Likes a post, or takes the like back.
+ *
+ * Likes used to be a Set in React state: the heart filled, the count went up
+ * by one, and a reload put both back. Now a like is a PostLike row keyed on
+ * (post, user), so one account can like a post once, and likeCount moves in
+ * the same transaction as the row so the stored figure the feed sorts on can
+ * never drift from the rows behind it.
+ *
+ * The toggle is decided inside the transaction by trying the delete first:
+ * a row removed means it was liked, nothing removed means it was not. Reading
+ * first and writing second would let two quick taps both see "not liked" and
+ * both try to insert.
+ */
+export async function togglePostLike(postId: string): Promise<LikeResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, message: 'Sign in to like posts.' }
+
+  const id = String(postId)
+  const exists = await prisma.communityPost.findUnique({ where: { id }, select: { slug: true } })
+  if (!exists) return { ok: false, message: 'That post no longer exists.' }
+
+  const limit = await checkLimits([
+    { key: `like:user:${userId}`, limit: 120, windowSeconds: HOUR },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many likes') }
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const removed = await tx.postLike.deleteMany({ where: { postId: id, userId } })
+      const liked = removed.count === 0
+      if (liked) await tx.postLike.create({ data: { postId: id, userId } })
+
+      // The column is kept moving for bookkeeping, but what goes back to the
+      // page is the number of PostLike rows. Seeded posts carry stored counts
+      // with no rows behind them, so the column cannot be what is shown.
+      await tx.communityPost.update({
+        where: { id },
+        data: { likeCount: liked ? { increment: 1 } : { decrement: 1 } },
+        select: { id: true },
+      })
+      const likeCount = await tx.postLike.count({ where: { postId: id } })
+      return { liked, likeCount }
+    })
+
+    // The post page is statically rendered and prints the count; the board
+    // regenerates on its own short interval, so it is left alone here.
+    revalidatePath(`/community/post/${exists.slug}`)
+    return { ok: true, ...result }
+  } catch (error) {
+    // A second tab inserting the same like between our delete and create.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return { ok: false, message: 'That like was already saved. Refresh to see it.' }
+    }
+    throw error
+  }
+}
+
+/**
+ * Which of these posts the signed-in account has liked.
+ *
+ * Asked from the browser after the page renders, so the board and the post
+ * page can stay cached and shared — one cached page cannot know whose heart to
+ * fill. Signed out, the answer is simply none.
+ */
+export async function getMyLikedPostIds(postIds: string[]): Promise<string[]> {
+  const userId = await getSessionUserId()
+  if (!userId || !Array.isArray(postIds)) return []
+  return getLikedPostIds(userId, postIds.map(String))
+}
+
+export interface LoadPostsInput {
+  cursor?: string | null
+  category?: PostCategory | 'all'
+  sort?: FeedSort
+  query?: string
+}
+
+/**
+ * A page of the board, for "Load more" and for changing filters.
+ *
+ * A read, but a server action all the same so the board does not need an API
+ * route of its own. Every argument is re-checked: they arrive from the
+ * network, whatever the type says.
+ */
+export async function loadPosts(input: LoadPostsInput): Promise<FeedPage> {
+  const category =
+    input.category && CATEGORIES.includes(input.category as PostCategory)
+      ? (input.category as PostCategory)
+      : 'all'
+  const sort = input.sort && SORTS.includes(input.sort) ? input.sort : 'latest'
+  const query = typeof input.query === 'string' ? input.query.slice(0, 100) : ''
+  const cursor = typeof input.cursor === 'string' && input.cursor ? input.cursor : null
+
+  try {
+    return await getFeedPage({ cursor, category, sort, query })
+  } catch (error) {
+    // A cursor that points at a post deleted since the page loaded: start the
+    // list again rather than failing the button.
+    if (cursor && error instanceof Prisma.PrismaClientKnownRequestError) {
+      return getFeedPage({ category, sort, query })
+    }
+    throw error
+  }
+}
+
+/** The next page of comments on a post. */
+export async function loadComments(
+  postId: string,
+  cursor: string | null,
+): Promise<{ comments: Comment[]; nextCursor: string | null }> {
+  return getComments(String(postId), typeof cursor === 'string' && cursor ? cursor : null)
 }

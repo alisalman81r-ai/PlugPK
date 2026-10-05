@@ -1,7 +1,7 @@
 // src/components/station/PhotoGallery.tsx
 'use client'
 
-import { Camera, ChevronLeft, ChevronRight, Images, X, Zap } from '@/components/ui/icons'
+import { ChevronLeft, ChevronRight, Images, X, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import * as React from 'react'
 
@@ -12,7 +12,11 @@ export interface PhotoGalleryProps {
   photos: string[]
   stationName: string
   businessId?: string
-  photosVerified?: boolean
+  /**
+   * True for a sample listing. Its photos are stock images that came with the
+   * sample data, not pictures of the site, so every one is labelled as such.
+   */
+  isExample?: boolean
 }
 
 const MAX_THUMBS = 5
@@ -47,7 +51,7 @@ function PhotoSlot({
   )
 }
 
-export function PhotoGallery({ photos, stationName, businessId, photosVerified }: PhotoGalleryProps) {
+export function PhotoGallery({ photos, stationName, businessId, isExample = false }: PhotoGalleryProps) {
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false)
   const [reportMessage, setReportMessage] = React.useState<string | null>(null)
@@ -105,7 +109,11 @@ export function PhotoGallery({ photos, stationName, businessId, photosVerified }
             >
               <PhotoSlot
                 src={currentPhoto}
-                label={`${stationName} photo ${selectedIndex + 1}`}
+                label={
+                  isExample
+                    ? `Example photo for ${stationName}`
+                    : `${stationName} photo ${selectedIndex + 1}`
+                }
                 sizes="(max-width: 1024px) 100vw, 720px"
                 priority
               />
@@ -117,13 +125,9 @@ export function PhotoGallery({ photos, stationName, businessId, photosVerified }
             </div>
           )}
 
-          <button
-            type="button"
-            className="absolute right-3 top-3 flex items-center gap-2 rounded-xl bg-black/60 px-3 py-2 backdrop-blur-md transition-colors hover:bg-black/80"
-          >
-            <Camera size={15} className="text-white" aria-hidden="true" />
-            <span className="text-xs font-medium text-white">Add Photo</span>
-          </button>
+          {/* There was an "Add Photo" button here with no handler behind it. Photos
+              reach a listing through its owner's dashboard; a control that does
+              nothing when pressed is worse than none. */}
 
           {businessId && currentPhoto ? (
             <button
@@ -136,9 +140,11 @@ export function PhotoGallery({ photos, stationName, businessId, photosVerified }
             </button>
           ) : null}
 
-          {photosVerified && photos.length > 0 ? (
-            <span className="absolute left-3 top-3 rounded-lg bg-emerald-600/90 px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
-              Photos verified
+          {/* No "Photos verified": nothing verifies them. A sample listing's
+              stock photo is labelled instead, so it is not taken for the site. */}
+          {isExample && currentPhoto ? (
+            <span className="absolute left-3 top-3 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
+              Example photo
             </span>
           ) : null}
 

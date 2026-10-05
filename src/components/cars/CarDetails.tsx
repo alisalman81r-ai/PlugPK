@@ -2,12 +2,14 @@
 import {
   ArrowLeft,
   ArrowUpRight,
+  Banknote,
   ChevronRight,
   Gauge,
   GitCompare,
   LayoutGrid,
   Maximize2,
   Route,
+  Store,
   Timer,
   Zap,
 } from '@/components/ui/icons'
@@ -15,7 +17,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { FACE, FRAME } from '@/components/shared/frame'
-import { Badge, HoverMotion, PhotoFrame, type BadgeVariant } from '@/components/ui'
+import { Badge, Button, HoverMotion, PhotoFrame, buttonClasses, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { getImageCredit } from '@/data/carImageCredits'
 import { carDisplayName, carModelName, getSimilarCars, specGroups } from '@/lib/cars'
@@ -97,6 +99,23 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
   const compareHref = `/cars/compare?ids=${[car.id, similar[0]?.id].filter(Boolean).join(',')}`
 
   /*
+    The buyer's next steps, each linked only where the destination can use it.
+
+    The calculator lists every plug-in with a published battery and reads
+    ?car=<slug>. The route planner lists battery-electric cars with both a
+    range and a battery — a plug-in can refuel, so a charging-stop plan would
+    be wrong for it — and identifies them by slug too. Offering "Plan a trip"
+    on a car the planner does not hold would open it on a different car.
+  */
+  const canCalculate = car.category !== 'Hybrid' && Boolean(car.batteryCapacity && car.batteryCapacity > 0)
+  const canPlan =
+    car.category === 'EV' &&
+    Boolean(car.range && car.range > 0) &&
+    Boolean(car.batteryCapacity && car.batteryCapacity > 0)
+  const calculatorHref = `/charging-calculator?car=${encodeURIComponent(car.slug)}`
+  const routesHref = canPlan ? `/routes?car=${encodeURIComponent(car.slug)}` : '/routes'
+
+  /*
     The three summary cards are the price plus the first two spec groups that
     actually have rows — not a fixed Battery / Charging / Performance trio.
 
@@ -116,7 +135,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           crawler reads. The back arrow is in the rail as well, for the reader who
           just wants out. */}
       <nav aria-label="Breadcrumb" className="mb-5">
-        <ol className="flex flex-wrap items-center gap-1.5 text-ui-sm text-slate-400">
+        <ol className="flex flex-wrap items-center gap-1.5 text-ui-sm text-slate-500">
           <li>
             <Link href="/cars" className="font-medium transition-colors hover:text-slate-900">
               Cars
@@ -231,28 +250,48 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 </ul>
               ) : null}
 
-              {/* ── The rail ────────────────────────────────────
-                  Three buttons, three real routes. The reference's rail is
-                  decorative in places; every icon here goes somewhere, and each
-                  carries a label for a screen reader because an icon alone
-                  announces nothing. */}
-              <div className="mt-6 flex gap-2 lg:mt-8">
-                <Link href="/cars" aria-label="Back to all cars" className={cn(TILE, 'h-11 w-11')}>
-                  <ArrowLeft size={17} aria-hidden="true" />
+              {/* ── What a buyer does next ─────────────────────
+                  The page used to end its hero on three unlabelled icon
+                  tiles — back, compare, a bolt — and offered nothing a buyer
+                  actually does next: cost a charge, try the car on a real
+                  trip, find somebody selling it. Those are the primary
+                  actions now, in words, at the 44px touch size. */}
+              <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:mt-8">
+                {canCalculate ? (
+                  <Button href={calculatorHref} leftIcon={<Banknote size={17} aria-hidden="true" />}>
+                    Cost to charge
+                  </Button>
+                ) : null}
+                {canPlan ? (
+                  <Button
+                    href={routesHref}
+                    variant={canCalculate ? 'secondary' : 'primary'}
+                    leftIcon={<Route size={17} aria-hidden="true" />}
+                  >
+                    Plan a trip in this car
+                  </Button>
+                ) : null}
+                <Button
+                  href="/services/dealership"
+                  variant={canCalculate || canPlan ? 'secondary' : 'primary'}
+                  leftIcon={<Store size={17} aria-hidden="true" />}
+                >
+                  Find a dealer
+                </Button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href="/cars" className={cn(TILE, 'h-11 gap-2 px-4 text-ui-sm font-semibold')}>
+                  <ArrowLeft size={16} aria-hidden="true" />
+                  All cars
                 </Link>
                 <Link
                   href={compareHref}
-                  aria-label={`Compare ${carModelName(car)}`}
-                  className={cn(TILE, 'h-11 w-11')}
+                  aria-label={`Compare ${carModelName(car)}${similar[0] ? ` with ${carModelName(similar[0])}` : ''}`}
+                  className={cn(TILE, 'h-11 gap-2 px-4 text-ui-sm font-semibold')}
                 >
-                  <GitCompare size={17} aria-hidden="true" />
-                </Link>
-                <Link
-                  href="/map"
-                  aria-label="Find charging nearby"
-                  className={cn(TILE, 'h-11 w-11')}
-                >
-                  <Zap size={17} aria-hidden="true" />
+                  <GitCompare size={16} aria-hidden="true" />
+                  Compare
                 </Link>
               </div>
 
@@ -302,13 +341,18 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             */}
             <div className="p-5 pt-0 sm:p-8 sm:pt-0 lg:col-start-1 lg:row-start-2">
               <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
-                <p className="px-1 pb-2.5 text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                <p className="px-1 pb-2.5 text-ui-xs font-bold uppercase tracking-[0.12em] text-slate-500">
                   Where next
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { href: '/map', icon: Zap, label: 'Charging', detail: 'Nearby ports' },
-                    { href: '/routes', icon: Route, label: 'Routes', detail: 'With stops' },
+                    {
+                      href: routesHref,
+                      icon: Route,
+                      label: 'Routes',
+                      detail: canPlan ? 'In this car' : 'With stops',
+                    },
                     { href: compareHref, icon: GitCompare, label: 'Compare', detail: 'Side by side' },
                     {
                       href: '/cars',
@@ -322,13 +366,13 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                       <Link
                         key={action.label}
                         href={action.href}
-                        className={cn(TILE, 'flex-col items-start gap-1 p-3 text-left')}
+                        className={cn(TILE, 'min-h-11 flex-col items-start gap-1 p-3 text-left')}
                       >
                         <Icon size={15} aria-hidden="true" />
                         <span className="text-ui-sm font-bold leading-tight text-slate-900">
                           {action.label}
                         </span>
-                        <span className="text-ui-xs leading-tight text-slate-400">
+                        <span className="text-ui-xs leading-tight text-slate-500">
                           {action.detail}
                         </span>
                       </Link>
@@ -349,7 +393,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           costs one quiet line here.
         */}
         {credit ? (
-          <p className="px-2 pt-3 text-ui-xs leading-relaxed text-slate-400">
+          <p className="px-2 pt-3 text-ui-xs leading-relaxed text-slate-500">
             Photo: {credit.author} ·{' '}
             {credit.licenceUrl ? (
               <a
@@ -414,9 +458,10 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                   <a
                     href="#specifications"
                     aria-label={`See all ${group.title.toLowerCase()} figures`}
-                    className={cn(TILE, 'h-7 w-7 rounded-lg')}
+                    className={cn(TILE, '-my-2 -mr-2 h-11 gap-1.5 rounded-xl px-3 text-ui-xs font-semibold')}
                   >
-                    <Maximize2 size={12} aria-hidden="true" />
+                    <Maximize2 size={13} aria-hidden="true" />
+                    All
                   </a>
                 ) : null}
               </div>
@@ -455,10 +500,26 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
         reader wondering whether they are looking at the same figure twice.
       */}
 
+      {/*
+        The notes are the research trail — which source said what, where two
+        disagreed, why a figure was left out ("Motor output is reported
+        inconsistently…"). Worth keeping on the page for anyone checking the
+        numbers, and not what a buyer came to read, so they sit behind a
+        disclosure instead of as a block of small grey prose under the price.
+      */}
       {car.notes ? (
-        <p className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-ui-sm leading-relaxed text-slate-600">
-          {car.notes}
-        </p>
+        <details className="group mt-4 rounded-2xl border border-slate-200 bg-white">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-ui-sm font-semibold text-slate-700 [&::-webkit-details-marker]:hidden">
+            Data notes
+            <span className="text-ui-xs font-medium text-slate-500">
+              <span className="group-open:hidden">Where these figures came from</span>
+              <span className="hidden group-open:inline">Hide</span>
+            </span>
+          </summary>
+          <p className="border-t border-slate-100 px-4 py-4 text-ui-sm leading-relaxed text-slate-600">
+            {car.notes}
+          </p>
+        </details>
       ) : null}
 
       {/* ── Full specifications ───────────────────────────────────
@@ -539,10 +600,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           </div>
 
           <div className="mt-6 flex justify-center">
-            <Link
-              href={compareHref}
-              className="inline-flex h-11 items-center gap-2 rounded-full border-[1.5px] border-slate-300 px-5 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900"
-            >
+            <Link href={compareHref} className={buttonClasses({ variant: 'secondary' })}>
               Compare {carModelName(car)} with {similar[0] ? carModelName(similar[0]) : null}
               <ArrowUpRight size={15} aria-hidden="true" />
             </Link>

@@ -2,15 +2,25 @@
 import { Building2, Globe, Mail, MapPin, Pencil, Phone, Plus, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 
+import { AdminFilterChips } from '@/components/admin/AdminFilterChips'
 import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminPagination } from '@/components/admin/AdminPagination'
+import { AdminSearch } from '@/components/admin/AdminSearch'
 import { BusinessStatusControl, type BusinessStatus } from '@/components/admin/BusinessStatusControl'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { BusinessPhotoReview } from '@/components/admin/BusinessPhotoReview'
+import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
+import { flattenParams, pick } from '@/components/admin/list-params'
+import { listBusinessesPage, toPage, toQuery } from '@/lib/db/admin-queries'
 import { deleteBusiness, setBusinessStatus } from '@/lib/db/business-actions'
-import { getBusinesses, getBusinessPhotoReports } from '@/lib/db/queries'
+import { validateForApproval, type ListingCharger } from '@/lib/db/business-listing'
+import { getBusinessPhotoReports } from '@/lib/db/queries'
 import { formatRelativeTime } from '@/lib/utils'
+import { safeHref } from '@/lib/validate'
 
 export const dynamic = 'force-dynamic'
+
+const PATH = '/admin/businesses'
 
 const TYPE_LABEL: Record<string, string> = {
   hotel: 'Hotel',
@@ -22,16 +32,22 @@ const TYPE_LABEL: Record<string, string> = {
   home: 'Home Charger',
 }
 
-const STATUS_CHIP: Record<string, string> = {
-  pending: 'bg-plug-blue-600 text-white',
-  approved: 'bg-emerald-600 text-white',
-  rejected: 'bg-slate-500 text-white',
-}
+export default async function AdminBusinessesPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>
+}) {
+  const params = flattenParams(searchParams)
+  const q = toQuery(params.q)
+  const status = pick(params.status, ['all', 'pending', 'approved', 'rejected'] as const, 'all')
+  const page = toPage(params.page)
 
-export default async function AdminBusinessesPage() {
-  const rows = await getBusinesses()
-  const reports = await getBusinessPhotoReports()
-  const pending = rows.filter((row) => row.status === 'pending').length
+  const [listing, reports] = await Promise.all([
+    listBusinessesPage({ q, status, page }),
+    getBusinessPhotoReports(),
+  ])
+  const rows = listing.rows
+  const { counts } = listing
 
   return (
     <>
@@ -45,9 +61,9 @@ export default async function AdminBusinessesPage() {
           </>
         }
         description={
-          rows.length === 0
+          counts.all === 0
             ? 'Businesses applying to list their chargers will appear here.'
-            : `${pending} pending of ${rows.length} total.`
+            : `${counts.pending} pending of ${counts.all} total.`
         }
         action={
           <Link
@@ -60,14 +76,34 @@ export default async function AdminBusinessesPage() {
         }
       />
 
-      <div className="px-4 py-6 lg:px-8 lg:py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         <BusinessPhotoReview reports={reports} />
+
+        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 lg:flex-row lg:items-center">
+          <AdminSearch placeholder="Search business, owner, email or city" label="Search businesses" />
+          <AdminFilterChips
+            label="Filter by status"
+            param="status"
+            current={status}
+            path={PATH}
+            params={params}
+            options={[
+              { value: 'all', label: 'All', count: counts.all },
+              { value: 'pending', label: 'Pending', count: counts.pending },
+              { value: 'approved', label: 'Approved', count: counts.approved },
+              { value: 'rejected', label: 'Rejected', count: counts.rejected },
+            ]}
+          />
+        </div>
+
         {rows.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
             <Building2 size={24} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-            <p className="text-ui font-semibold text-slate-900">No applications yet</p>
+            <p className="text-ui font-semibold text-slate-900">
+              {counts.all === 0 ? 'No applications yet' : 'No business matches that'}
+            </p>
             <p className="mt-1 text-ui-sm text-slate-500">
-              The form at /business/signup posts straight here.
+              {counts.all === 0 ? 'The form at /business/signup posts straight here.' : 'Try another search or status.'}
             </p>
           </div>
         ) : (
@@ -75,28 +111,37 @@ export default async function AdminBusinessesPage() {
             {rows.map((row) => {
               const isPending = row.status === 'pending'
               const totalPorts = row.chargers.reduce((sum, c) => sum + (c.ports || 0), 0)
+              const website = safeHref(row.website)
+              const approveBlocked = isPending
+                ? validateForApproval({ lat: row.lat, lng: row.lng, chargers: row.chargers as ListingCharger[] })
+                : null
 
               return (
                 <li
                   key={row.id}
                   className={
                     isPending
-                      ? 'rounded-xl border-y border-r border-l-4 border-slate-200 border-l-plug-blue-600 bg-white p-5'
+                      ? 'rounded-xl border-y border-r border-l-4 border-slate-200 border-l-amber-500 bg-white p-5'
                       : 'rounded-xl border border-slate-200 bg-slate-50/60 p-5'
                   }
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="font-semibold text-slate-900">
+                      <p className="flex flex-wrap items-center gap-2.5 font-semibold text-slate-900">
                         {row.businessName}
-                        <span
-                          className={`ml-2.5 rounded-md px-1.5 py-0.5 text-ui-xs font-bold uppercase tracking-wide ${
-                            STATUS_CHIP[row.status] ?? 'bg-slate-500 text-white'
-                          }`}
-                        >
-                          {row.status}
-                        </span>
+                        <ReviewStatusBadge status={row.status} />
                       </p>
+
+                      {/* The reason it was turned down, so the next operator
+                          does not have to guess or ask. */}
+                      {row.status === 'rejected' && row.reviewNote ? (
+                        <p className="mt-2 max-w-2xl rounded-lg border border-red-100 bg-red-50/60 px-3 py-2 text-ui-sm text-red-900">
+                          <span className="font-semibold">
+                            Rejected{row.reviewedAt ? ` ${formatRelativeTime(row.reviewedAt)}` : ''}:
+                          </span>{' '}
+                          {row.reviewNote}
+                        </p>
+                      ) : null}
 
                       <p className="mt-0.5 text-ui-sm text-slate-600">
                         {row.ownerName} · {TYPE_LABEL[row.businessType] ?? row.businessType}
@@ -122,9 +167,9 @@ export default async function AdminBusinessesPage() {
                           </a>
                         ) : null}
 
-                        {row.website ? (
+                        {website ? (
                           <a
-                            href={row.website}
+                            href={website}
                             target="_blank"
                             rel="noreferrer noopener"
                             className="inline-flex items-center gap-1.5 text-ui-sm text-plug-blue-600 hover:underline"
@@ -248,7 +293,7 @@ export default async function AdminBusinessesPage() {
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 flex-wrap items-start gap-2">
                       <Link
                         href={`/admin/businesses/${row.id}`}
                         className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
@@ -258,13 +303,15 @@ export default async function AdminBusinessesPage() {
                       </Link>
                       <BusinessStatusControl
                         status={row.status as BusinessStatus}
-                        action={async (next: BusinessStatus) => {
+                        approveBlockedReason={approveBlocked}
+                        action={async (next: BusinessStatus, note?: string) => {
                           'use server'
-                          return setBusinessStatus(row.id, next)
+                          return setBusinessStatus(row.id, next, note)
                         }}
                       />
                       <DeleteButton
                         label={`the application from ${row.businessName}`}
+                        consequence="its reviews, daily view statistics, photo reports and charger photos"
                         action={async () => {
                           'use server'
                           return deleteBusiness(row.id)
@@ -277,6 +324,15 @@ export default async function AdminBusinessesPage() {
             })}
           </ul>
         )}
+
+        <AdminPagination
+          path={PATH}
+          params={params}
+          page={page}
+          pageSize={listing.pageSize}
+          total={listing.total}
+          noun={['business', 'businesses']}
+        />
       </div>
     </>
   )

@@ -1,7 +1,7 @@
 // src/components/map/FilterRail.tsx
 'use client'
 
-import { ChevronDown, RotateCcw, SlidersHorizontal, Star, Zap } from '@/components/ui/icons'
+import { ChevronDown, RotateCcw, SlidersHorizontal, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'
@@ -258,13 +258,9 @@ export function FilterRail({
 
         <Group label="Show only">
           <div className="flex flex-wrap gap-2">
-            <Chip
-              active={filters.availableOnly}
-              onClick={() => onUpdateFilter('availableOnly', !filters.availableOnly)}
-            >
-              <Zap size={13} aria-hidden="true" />
-              Available now
-            </Chip>
+            {/* No "Available now" chip. It filtered on a status column that only
+                changes when someone edits it — Plug.pk has no live connection to
+                the hardware — so it hid stations on a guess. */}
             {/* A rating floor rather than an opening-hours claim: nothing in
                 the data records 24/7 opening, so a "24/7" chip would be a
                 filter that could never be honest. */}

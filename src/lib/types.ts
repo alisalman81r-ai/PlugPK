@@ -383,7 +383,6 @@ export interface User {
 export interface StationFilters {
   connectorTypes: ConnectorType[]
   chargingSpeed: ChargingSpeed | null
-  availableOnly: boolean
   minRating: number
   amenities: AmenityType[]
   network: string | null

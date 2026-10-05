@@ -4,15 +4,14 @@
 import {
   Building2,
   Car,
-  Database,
-  GitCompare,
   ExternalLink,
   LayoutDashboard,
   LogOut,
   CalendarClock,
+  Activity,
   MessageSquare,
+  Star,
   Plug,
-  RefreshCw,
   Menu,
   Users,
   Wrench,
@@ -52,7 +51,11 @@ interface NavSection {
 const SECTIONS: NavSection[] = [
   {
     heading: 'Overview',
-    items: [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }],
+    items: [
+      { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+      // Who changed what. Every admin write is recorded; this is where it is read.
+      { label: 'Activity', href: '/admin/activity', icon: Activity },
+    ],
   },
   {
     heading: 'Network',
@@ -75,6 +78,7 @@ const SECTIONS: NavSection[] = [
       { label: 'Cars', href: '/admin/cars', icon: Car },
       { label: 'Services', href: '/admin/services', icon: Wrench },
       { label: 'Community', href: '/admin/community', icon: MessageSquare },
+      { label: 'Reviews', href: '/admin/reviews', icon: Star },
     ],
   },
 ]
@@ -117,10 +121,13 @@ const CHILD_ROUTES = new Set<string>([])
 function NavContent({
   onNavigate,
   badges,
+  failedBadges,
   collapsed = false,
 }: {
   onNavigate?: () => void
   badges: AdminBadgeCounts
+  /** Queues whose count could not be read. */
+  failedBadges: string[]
   /**
    * Icon-only mode, desktop sidebar only.
    *
@@ -187,6 +194,7 @@ function NavContent({
                 const active = isActive(pathname, item.href)
                 const Icon = item.icon
                 const count = badges[item.href] ?? 0
+                const unavailable = failedBadges.includes(item.href)
 
                 return (
                   <li key={item.href}>
@@ -230,7 +238,22 @@ function NavContent({
                         page rather than a figure to work from, and a four-digit
                         number would push the label out of the row.
                       */}
-                      {count ? (
+                      {/*
+                        A count that could not be read. It used to fall back to
+                        zero, which is exactly what "nothing waiting" looks like.
+                      */}
+                      {unavailable ? (
+                        <span
+                          title="This count could not be read"
+                          className={cn(
+                            'flex shrink-0 items-center justify-center rounded-full bg-amber-100 font-mono text-[11px] font-bold leading-none text-amber-800',
+                            collapsed ? 'absolute right-1.5 top-1.5 h-2 w-2 bg-amber-500' : 'ml-auto h-5 min-w-[1.25rem] px-1.5',
+                          )}
+                        >
+                          {collapsed ? null : <span aria-hidden="true">?</span>}
+                          <span className="sr-only">count unavailable</span>
+                        </span>
+                      ) : count ? (
                         <span
                           className={cn(
                             'flex shrink-0 items-center justify-center rounded-full',
@@ -310,11 +333,13 @@ export interface AdminNavProps {
    * nothing is waiting; the layout omits zeroes rather than sending them.
    */
   badges?: AdminBadgeCounts
+  /** Hrefs whose count failed, from getAdminQueueState(). */
+  failedBadges?: string[]
   /** Desktop icon-only mode. Owned by AdminShell so main can widen with it. */
   collapsed?: boolean
 }
 
-export function AdminNav({ badges, collapsed = false }: AdminNavProps) {
+export function AdminNav({ badges, failedBadges = [], collapsed = false }: AdminNavProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const totalWaiting = React.useMemo(
     () => Object.values(badges ?? {}).reduce((sum, value) => sum + value, 0),
@@ -358,7 +383,7 @@ export function AdminNav({ badges, collapsed = false }: AdminNavProps) {
           collapsed ? 'w-[64px]' : 'w-[248px]',
         )}
       >
-        <NavContent badges={badges ?? {}} collapsed={collapsed} />
+        <NavContent badges={badges ?? {}} failedBadges={failedBadges} collapsed={collapsed} />
       </nav>
 
       {/* Mobile: a bar with the trigger. The old fixed 248px column consumed
@@ -432,7 +457,7 @@ export function AdminNav({ badges, collapsed = false }: AdminNavProps) {
           <X size={18} />
         </button>
 
-        <NavContent onNavigate={() => setIsOpen(false)} badges={badges ?? {}} />
+        <NavContent onNavigate={() => setIsOpen(false)} badges={badges ?? {}} failedBadges={failedBadges} />
       </nav>
     </>
   )

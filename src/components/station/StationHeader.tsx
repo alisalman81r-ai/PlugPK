@@ -1,8 +1,9 @@
 // src/components/station/StationHeader.tsx
-import { ChevronLeft, MapPin, ShieldCheck } from '@/components/ui/icons'
+import { ChevronLeft, Info, MapPin } from '@/components/ui/icons'
 import Link from 'next/link'
 
-import { ConnectorBadgeGroup, RatingStars, SpeedBadge, StatusBadge } from '@/components/ui'
+import { ConnectorBadgeGroup, RatingStars, SpeedBadge } from '@/components/ui'
+import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { getMaxPower } from '@/lib/utils'
 
@@ -38,22 +39,32 @@ export function StationHeader({ station }: StationHeaderProps) {
           {station.name}
         </h1>
 
-        {station.isVerified ? (
-          <span className="mt-2 flex shrink-0 items-center gap-1.5 self-start rounded-full border border-plug-blue-200 bg-plug-blue-50 px-3 py-1.5 text-xs font-semibold text-plug-blue-600">
-            <ShieldCheck size={14} aria-hidden="true" />
-            Verified
+        {/*
+          No "Verified" badge: Plug.pk has no process that verifies a station, so
+          the badge was a claim nothing stood behind. What IS worth flagging is
+          a sample listing, so a driver does not set off for it.
+        */}
+        {isSampleListing(station.id) ? (
+          <span className="mt-2 flex shrink-0 items-center gap-1.5 self-start rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+            <Info size={14} aria-hidden="true" />
+            {SAMPLE_LISTING_LABEL}
           </span>
         ) : null}
       </div>
 
       <div className="mb-2 flex flex-wrap items-center gap-5">
-        <RatingStars
-          rating={station.rating}
-          reviewCount={station.reviewCount}
-          size="md"
-          showNumber
-          showCount
-        />
+        {/* Counted from the reviews; an unreviewed listing says so rather than showing 0.0. */}
+        {station.reviewCount > 0 ? (
+          <RatingStars
+            rating={station.rating}
+            reviewCount={station.reviewCount}
+            size="md"
+            showNumber
+            showCount
+          />
+        ) : (
+          <span className="text-sm text-slate-500">No reviews yet</span>
+        )}
 
         <span aria-hidden="true" className="text-slate-300">
           ·
@@ -74,7 +85,6 @@ export function StationHeader({ station }: StationHeaderProps) {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <StatusBadge status={station.status} />
         <ConnectorBadgeGroup connectors={station.connectors} max={5} size="md" />
         {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="md" /> : null}
       </div>

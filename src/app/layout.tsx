@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 
+import { SITE_CONFIG } from '@/lib/constants'
+
 /**
  * One face for the whole interface: Figtree, headings included.
  *
@@ -75,9 +77,9 @@ export const metadata: Metadata = {
   },
   description:
     'Find EV charging stations, plan long-distance routes, and connect with EV owners across Pakistan.',
-  // Required for the OG and Twitter image paths below to resolve to plug.pk
-  // rather than localhost:3000.
-  metadataBase: new URL('https://plug.pk'),
+  // Resolves every relative image and canonical path — including the generated
+  // opengraph-image — to plug.pk rather than localhost:3000.
+  metadataBase: new URL(SITE_CONFIG.url),
   keywords: [
     'EV charging Pakistan',
     'electric vehicle charging',
@@ -86,20 +88,28 @@ export const metadata: Metadata = {
     'BYD charging Pakistan',
     'MG ZS EV charging',
   ],
+  /*
+    No `url` and no `images` here, on purpose.
+
+    `url: 'https://plug.pk'` was inherited by every page that did not set its
+    own, so a car page or a station shared to WhatsApp announced itself as the
+    homepage. No og:url is better than a wrong one.
+
+    The image was /og-image.jpg, which never existed. The share card is now
+    src/app/opengraph-image.tsx, which Next attaches to every route below the
+    root automatically — naming an image here would override it.
+  */
   openGraph: {
     type: 'website',
     locale: 'en_PK',
-    url: 'https://plug.pk',
-    siteName: 'Plug.pk',
+    siteName: SITE_CONFIG.name,
     title: "Plug.pk — Pakistan's EV Ecosystem Platform",
     description: 'Find EV charging stations and plan EV routes across Pakistan.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: "Plug.pk — Pakistan's EV Ecosystem Platform",
     description: 'Find EV charging stations and plan EV routes across Pakistan.',
-    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,

@@ -41,7 +41,7 @@ copy-paste blocks in English.
 | Path | |
 | --- | --- |
 | `src/app/(main)/` | the public site — map, routes, cars, community, partners |
-| `src/app/admin/` | operator portal, gated by `ENABLE_ADMIN` + a password |
+| `src/app/admin/` | operator portal, gated by `ENABLE_ADMIN` + an account with the admin role |
 | `src/lib/db/` | every Prisma query and server action |
 | `src/data/cars.ts` | the authored car seed, with provenance in comments |
 | `prisma/` | schema and the Postgres migration |

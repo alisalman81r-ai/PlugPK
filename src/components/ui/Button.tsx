@@ -1,56 +1,20 @@
 // src/components/ui/Button.tsx
 'use client'
 
-import { cva, type VariantProps } from 'class-variance-authority'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const buttonVariants = cva(
-  'group relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        /*
-          Forest at rest, turquoise under the pointer. The type flips to forest
-          with the fill: white on turquoise is 2.0:1, forest on it is 6.9:1.
-        */
-        primary:
-          'bg-plug-blue-600 text-white hover:-translate-y-0.5 hover:bg-plug-cyan-500 hover:text-plug-blue-600 hover:shadow-cyan active:scale-[0.98] focus-visible:ring-plug-blue-500',
-        secondary:
-          'border-[1.5px] border-slate-300 bg-white text-plug-blue-600 hover:border-plug-blue-600 hover:bg-slate-50 focus-visible:ring-plug-blue-500',
-        ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-400',
-        destructive: 'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-500',
-        gradient:
-          'bg-gradient-brand text-white hover:-translate-y-0.5 hover:shadow-blue-lg hover:brightness-110 focus-visible:ring-plug-blue-500',
-        'outline-white':
-          'border border-white bg-transparent text-white hover:bg-white/10 focus-visible:ring-white',
-      },
-      size: {
-        sm: 'h-9 rounded-lg px-3.5 text-sm',
-        md: 'h-11 rounded-[10px] px-5 text-ui',
-        lg: 'h-13 rounded-[10px] px-7 text-base',
-        xl: 'h-[60px] rounded-[10px] px-9 text-ui-lg',
-      },
-      fullWidth: {
-        true: 'w-full',
-        false: '',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-      fullWidth: false,
-    },
-  },
-)
+import { DISABLED, buttonVariants, type ButtonSize, type ButtonVariant } from './button-styles'
 
-export type ButtonVariants = VariantProps<typeof buttonVariants>
+export type { ButtonSize, ButtonVariant, ButtonVariants } from './button-styles'
+
+/* The canonical variants and why there are only four: see button-styles.ts. */
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive' | 'gradient' | 'outline-white'
-  size?: 'sm' | 'md' | 'lg' | 'xl'
+  variant?: ButtonVariant
+  size?: ButtonSize
   isLoading?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
@@ -59,29 +23,33 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   external?: boolean
 }
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  fullWidth = false,
-  href,
-  external = false,
-  className,
-  children,
-  disabled = false,
-  type = 'button',
-  ...rest
-}: ButtonProps) {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = 'primary',
+    size = 'md',
+    isLoading = false,
+    leftIcon,
+    rightIcon,
+    fullWidth = false,
+    href,
+    external = false,
+    className,
+    children,
+    disabled = false,
+    type = 'button',
+    ...rest
+  },
+  ref,
+) {
   const isInert = disabled || isLoading
 
   const classes = cn(
     buttonVariants({ variant, size, fullWidth }),
     // pointer-events-none removes every hover and active effect in one go, so
-    // the inert states need no per-variant overrides.
+    // the inert states need no per-variant hover overrides.
     isInert && 'pointer-events-none cursor-not-allowed',
-    disabled && 'opacity-50',
+    // A loading button keeps its colours — it is working, not unavailable.
+    disabled && !isLoading && DISABLED[variant],
     className,
   )
 
@@ -133,6 +101,7 @@ export function Button({
   return (
     <button
       {...rest}
+      ref={ref}
       type={type}
       disabled={isInert}
       className={classes}
@@ -141,4 +110,4 @@ export function Button({
       {content}
     </button>
   )
-}
+})

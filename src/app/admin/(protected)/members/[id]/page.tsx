@@ -3,9 +3,15 @@ import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, MessageSquare, Star,
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ActivityPanel } from '@/components/admin/ActivityPanel'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { MemberDeleteCard } from '@/components/admin/MemberDeleteCard'
+import { AdminBadge } from '@/components/admin/MemberList'
 import { MemberPasswordCard } from '@/components/admin/MemberPasswordCard'
+import { MemberRoleCard } from '@/components/admin/MemberRoleCard'
+import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
+import { getAdminActor } from '@/lib/db/admin-access'
+import { getMemberAdminFacts } from '@/lib/db/admin-queries'
 import { getMemberById } from '@/lib/db/queries'
 import { formatDate, formatRelativeTime } from '@/lib/utils'
 
@@ -21,12 +27,6 @@ export const dynamic = 'force-dynamic'
 
 interface PageProps {
   params: { id: string }
-}
-
-const STATUS_TONE: Record<string, string> = {
-  approved: 'bg-emerald-100 text-emerald-800',
-  pending: 'bg-amber-100 text-amber-800',
-  rejected: 'bg-slate-200 text-slate-700',
 }
 
 function Field({
@@ -50,14 +50,19 @@ function Field({
 }
 
 export default async function AdminMemberPage({ params }: PageProps) {
-  const member = await getMemberById(params.id)
-  if (!member) notFound()
+  const [member, facts, actor] = await Promise.all([
+    getMemberById(params.id),
+    getMemberAdminFacts(params.id),
+    getAdminActor(),
+  ])
+  if (!member || !facts) notFound()
+  const isSelf = actor?.id === member.id
 
   return (
     <>
       <AdminHeader title={member.name} description={member.email} backHref="/admin/members" />
 
-      <div className="px-4 py-6 lg:px-8 lg:py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         <Link
           href="/admin/members"
           className="mb-6 inline-flex items-center gap-1.5 text-ui-sm text-slate-500 transition-colors hover:text-slate-900"
@@ -69,7 +74,18 @@ export default async function AdminMemberPage({ params }: PageProps) {
         <div className="flex flex-col gap-6">
           {/* ── Who they are ─────────────────────────────────── */}
           <section className="rounded-xl border border-slate-200 bg-white p-6">
-            <h2 className="mb-5 text-ui-lg font-bold text-slate-900">Account</h2>
+            <h2 className="mb-5 flex flex-wrap items-center gap-2 text-ui-lg font-bold text-slate-900">
+              Account
+              {facts.isAdmin ? <AdminBadge /> : null}
+              {isSelf ? (
+                <span className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">You</span>
+              ) : null}
+              {facts.mustChangePassword ? (
+                <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                  Must change password
+                </span>
+              ) : null}
+            </h2>
 
             <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               <Field icon={Mail} label="Email">
@@ -118,13 +134,7 @@ export default async function AdminMemberPage({ params }: PageProps) {
                         {business.city}
                       </span>
                     </Link>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-ui-xs font-semibold ${
-                        STATUS_TONE[business.status] ?? STATUS_TONE.pending
-                      }`}
-                    >
-                      {business.status}
-                    </span>
+                    <ReviewStatusBadge status={business.status} />
                   </li>
                 ))}
               </ul>
@@ -205,7 +215,7 @@ export default async function AdminMemberPage({ params }: PageProps) {
                 {member.posts.map((post) => (
                   <li key={post.id} className="rounded-lg border border-slate-200 p-4">
                     <Link
-                      href={`/community/${post.slug}`}
+                      href={`/community/post/${post.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-medium text-slate-900 hover:text-plug-blue-600"
@@ -270,15 +280,41 @@ export default async function AdminMemberPage({ params }: PageProps) {
             )}
           </section>
 
-          <MemberPasswordCard id={member.id} name={member.name} email={member.email} />
-
-          <MemberDeleteCard
+          <MemberRoleCard
             id={member.id}
             name={member.name}
-            reviewCount={member.reviewCount}
-            savedCount={member.savedCount}
-            businessCount={member.businessCount}
+            isAdmin={facts.isAdmin}
+            isSelf={isSelf}
+            adminCount={facts.adminCount}
+            anonymised={facts.anonymised}
           />
+
+          <MemberPasswordCard
+            id={member.id}
+            name={member.name}
+            email={member.email}
+            isAdmin={facts.isAdmin}
+            isSelf={isSelf}
+          />
+
+          <ActivityPanel targetType="member" targetId={member.id} />
+
+          {/* The anchor the list's Remove link jumps to. */}
+          <div id="remove" className="scroll-mt-24">
+            <MemberDeleteCard
+              id={member.id}
+              name={member.name}
+              reviewCount={member.reviewCount}
+              savedCount={member.savedCount}
+              businessCount={member.businessCount}
+              postCount={member.postCount}
+              commentCount={facts.commentCount}
+              membershipCount={facts.membershipCount}
+              isAdmin={facts.isAdmin}
+              isSelf={isSelf}
+              anonymised={facts.anonymised}
+            />
+          </div>
         </div>
       </div>
     </>

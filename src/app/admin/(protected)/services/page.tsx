@@ -3,10 +3,12 @@ import { Inbox, Pencil, Plus } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
+import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminServicesDirectory } from '@/components/admin/AdminServicesDirectory'
 import { ServiceReviewControl } from '@/components/admin/ServiceReviewControl'
+import { flattenParams } from '@/components/admin/list-params'
 import { deleteService } from '@/lib/db/actions'
-import { listServicesForAdmin } from '@/lib/db/queries'
+import { listPendingServices, listServicesPage, toPage, toQuery } from '@/lib/db/admin-queries'
 
 /**
  * The services directory, and the queue of people asking to join it.
@@ -24,11 +26,23 @@ import { listServicesForAdmin } from '@/lib/db/queries'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminServicesPage() {
-  const all = await listServicesForAdmin()
-  const pending = all.filter((row) => row.status === 'pending')
-  const listed = all.filter((row) => row.status !== 'pending')
-  const approved = all.filter((row) => row.status === 'approved').length
+export default async function AdminServicesPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>
+}) {
+  const params = flattenParams(searchParams)
+  const q = toQuery(params.q)
+  const category = params.category?.slice(0, 60) || 'all'
+  const city = params.city?.slice(0, 80) || 'all'
+  const page = toPage(params.page)
+
+  const [queue, directory] = await Promise.all([
+    listPendingServices(),
+    listServicesPage({ q, category, city, status: 'all', page }),
+  ])
+  const pending = queue.rows
+  const approved = directory.counts.approved
 
   return (
     <>
@@ -43,8 +57,8 @@ export default async function AdminServicesPage() {
             </>
           }
         description={
-          pending.length > 0
-            ? `${pending.length} awaiting review · ${approved} live in the directory.`
+          queue.total > 0
+            ? `${queue.total} awaiting review · ${approved} live in the directory.`
             : `${approved} live in the directory.`
         }
         action={
@@ -58,7 +72,7 @@ export default async function AdminServicesPage() {
         }
       />
 
-      <div className="px-8 py-8">
+      <div className="px-4 py-6 sm:px-8 sm:py-8">
         {/* ── Applications ─────────────────────────────────────────
             Rendered only when there are some. An empty "Applications"
             panel sitting above the directory on every visit teaches an
@@ -69,7 +83,8 @@ export default async function AdminServicesPage() {
               <Inbox size={22} aria-hidden="true" className="shrink-0 text-amber-700" />
               <div>
                 <h2 className="font-bold text-slate-900">
-                  {pending.length} {pending.length === 1 ? 'application' : 'applications'} to review
+                  {queue.total} {queue.total === 1 ? 'application' : 'applications'} to review
+                  {queue.total > pending.length ? ` (oldest ${pending.length} shown)` : ''}
                 </h2>
                 <p className="text-ui-sm text-slate-500">
                   Approving publishes the listing on the public services page immediately.
@@ -89,9 +104,7 @@ export default async function AdminServicesPage() {
                     </p>
                     <p className="mt-1 font-mono text-ui-xs text-slate-400">
                       {row.phone || row.email || 'no contact given'}
-                      {row.submittedAt
-                        ? ` · applied ${row.submittedAt.toISOString().slice(0, 10)}`
-                        : ''}
+                      {row.submittedAt ? ` · applied ${row.submittedAt.slice(0, 10)}` : ''}
                     </p>
                   </div>
 
@@ -103,7 +116,7 @@ export default async function AdminServicesPage() {
                       <Pencil size={14} aria-hidden="true" />
                       Details
                     </Link>
-                    <ServiceReviewControl id={row.id} name={row.name} />
+                    <ServiceReviewControl id={row.id} name={row.name} lat={row.lat} lng={row.lng} />
                   </div>
                 </li>
               ))}
@@ -111,7 +124,23 @@ export default async function AdminServicesPage() {
           </section>
         ) : null}
 
-        <AdminServicesDirectory services={listed} onDelete={deleteService} />
+        <AdminServicesDirectory
+          services={directory.rows}
+          cities={directory.cities}
+          category={category}
+          city={city}
+          total={directory.total}
+          onDelete={deleteService}
+        />
+
+        <AdminPagination
+          path="/admin/services"
+          params={params}
+          page={page}
+          pageSize={directory.pageSize}
+          total={directory.total}
+          noun={['service', 'services']}
+        />
       </div>
     </>
   )

@@ -78,9 +78,41 @@ export function formatPkr(rupees: number): string {
   const trim = (value: number, places: number) =>
     Number(value.toFixed(places)).toString().replace(/\.0+$/, '')
 
-  if (rupees >= 10_000_000) return `PKR ${trim(rupees / 10_000_000, 4)} Cr`
-  if (rupees >= 100_000) return `PKR ${trim(rupees / 100_000, 2)} Lakh`
+  /*
+    The unit is chosen after rounding, not before.
+
+    It used to compare the raw figure against a crore, so 9,999,999 went down
+    the lakh branch and rounded there to "100 Lakh" — a number that is a crore
+    in everything but name, printed in the unit nobody uses above 99. Rounding
+    to the lakh's two places first and then asking whether that reached 100
+    sends it to "1 Cr", which is what a buyer would say.
+  */
+  if (rupees >= 100_000) {
+    const lakh = Number((rupees / 100_000).toFixed(2))
+    if (lakh >= 100) return `PKR ${trim(rupees / 10_000_000, 4)} Cr`
+    return `PKR ${trim(lakh, 2)} Lakh`
+  }
   return `PKR ${rupees.toLocaleString('en-PK')}`
+}
+
+/**
+ * A published span as one string: "410–450 km", or "271 km" when both ends
+ * are the same figure.
+ *
+ * Several rows store the same number as both ends — a source that quoted one
+ * figure into a two-column field — and every surface printed them as
+ * "271–271 km", which reads as a typo and suggests a range that does not
+ * exist. One helper for every surface, so the card, the spec sheet and the
+ * comparison cannot disagree about it.
+ */
+export function formatSpan(
+  low: number | null | undefined,
+  high: number | null | undefined,
+  unit: string,
+): string | null {
+  if (low === null || low === undefined) return null
+  if (high === null || high === undefined || high === low) return `${low} ${unit}`
+  return `${low}–${high} ${unit}`
 }
 
 /**
@@ -211,14 +243,27 @@ export function hasActiveFilters(filters: CarFilterState): boolean {
 }
 
 /**
- * The distance a car can go on electricity, whichever field holds it.
+ * The distance a car can go on electricity alone.
  *
- * An EV keeps it in `range` and a PHEV in `electricRange`, so a single "range"
- * filter has to read both or it would silently exclude every plug-in hybrid the
- * moment somebody dragged the slider.
+ * An EV keeps it in `range` and a PHEV or REEV in `electricRange`, so a single
+ * "range" filter has to read both or it would silently exclude every plug-in
+ * hybrid the moment somebody dragged the slider.
+ *
+ * Chosen by category, not by whichever field is filled. It was
+ * `range ?? electricRange`, and several plug-in rows also carry `range` — the
+ * combined petrol-plus-battery figure, often over 1,000 km — so a PHEV ranked
+ * above every EV on "Range: highest" and passed a 500 km minimum on a 100 km
+ * battery. A full hybrid has no electric-only range, so it returns null.
  */
 export function electricDistance(car: Car): number | null {
-  return car.range ?? car.electricRange
+  return car.category === 'EV' ? car.range : car.electricRange
+}
+
+/** The upper end of the same electric-only span, or its single figure. */
+export function electricDistanceMax(car: Car): number | null {
+  return car.category === 'EV'
+    ? (car.rangeMax ?? car.range)
+    : (car.electricRangeMax ?? car.electricRange)
 }
 
 /**
@@ -336,10 +381,7 @@ export function headlineSpecs(car: Car): Array<{ label: string; value: string }>
     if (value) out.push({ label, value })
   }
 
-  const span = (low: number | null, high: number | null, unit: string) => {
-    if (low === null) return null
-    return high ? `${low}–${high} ${unit}` : `${low} ${unit}`
-  }
+  const span = formatSpan
 
   push('Battery', car.batteryCapacity ? `${car.batteryCapacity} ${car.batteryUnit}` : null)
 
@@ -471,8 +513,7 @@ const SLOT_SHORT: Record<CardSlot, string> = {
 
 export function cardSpecs(car: Car): CardSpec[] {
   /** A span keeps both ends as one figure — see splitFigure. */
-  const span = (low: number | null, high: number | null, unit: string) =>
-    low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+  const span = formatSpan
 
   /*
     The range unit carries its test cycle when the row states one.
@@ -546,8 +587,7 @@ export function fullSpecs(car: Car): Array<{ label: string; value: string }> {
     }
   }
 
-  const span = (low: number | null, high: number | null, unit: string) =>
-    low === null ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+  const span = formatSpan
 
   push('Category', car.category)
   push('Price', car.price.display)
@@ -592,8 +632,10 @@ export function carSeo(car: Car): {
 
   const facts = [
     car.batteryCapacity ? `${car.batteryCapacity} kWh battery` : null,
-    car.range ? `${car.range} km range` : null,
-    car.electricRange ? `${car.electricRange} km electric range` : null,
+    // An EV's range only: on a plug-in the `range` column is the combined
+    // figure, and quoting it as "range" beside the electric range overstates it.
+    car.category === 'EV' && car.range ? `${car.range} km range` : null,
+    car.category !== 'EV' && car.electricRange ? `${car.electricRange} km electric range` : null,
     car.power ? `${car.power} hp` : null,
   ].filter(Boolean)
 
@@ -652,8 +694,7 @@ const CATEGORY_FULL: Record<CarCategory, string> = {
 }
 
 export function specGroups(car: Car): SpecGroup[] {
-  const span = (low: number | null | undefined, high: number | null | undefined, unit: string) =>
-    low === null || low === undefined ? null : high ? `${low}–${high} ${unit}` : `${low} ${unit}`
+  const span = formatSpan
 
   /** A figure with its unit, or null. Zero is a real value; only null/undefined drop. */
   const q = (value: number | null | undefined, unit: string, dp?: number) =>
@@ -833,7 +874,16 @@ export function filtersToParams(
  * no longer exists are dropped rather than throwing, so a mangled link still
  * lands on a working page.
  */
-export function paramsToFilters(params: URLSearchParams): {
+export function paramsToFilters(
+  params: URLSearchParams,
+  /**
+   * The catalogue the page actually loaded. Brands, categories and connectors
+   * are validated against it, not against the seed: the seed holds a few dozen
+   * cars and the database several times that, so a shared /cars?brand= link
+   * for a brand that exists only in the database was silently dropped.
+   */
+  catalogue: Car[] = cars,
+): {
   query: string
   filters: CarFilterState
   sort: CarSort
@@ -851,9 +901,9 @@ export function paramsToFilters(params: URLSearchParams): {
     return Number.isFinite(value) && value > 0 ? value : null
   }
 
-  const validBrands = new Set(getBrands())
-  const validCategories = new Set(getCategories())
-  const validConnectors = new Set(getConnectors())
+  const validBrands = new Set(getBrands(catalogue))
+  const validCategories = new Set(getCategories(catalogue))
+  const validConnectors = new Set(getConnectors(catalogue))
   const sortKey = params.get('sort')
 
   return {

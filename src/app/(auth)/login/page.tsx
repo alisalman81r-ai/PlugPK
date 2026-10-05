@@ -22,18 +22,11 @@ interface PageProps {
  * heading for the business form had to find their way back by hand.
  */
 /*
-  The Google button is not rendered.
-
-  SocialLoginButtons is a stub: its handler waits 1500ms, shows "Connecting...",
-  then returns to idle. No OAuth client, no redirect, no session — nothing is
-  wired behind it. As the largest and highest control on the page it was the
-  first thing most people would reach for, and it did nothing but fake a
-  loading state, which is worse than not offering it: a dead end that looks
-  like the fast path, on the screen where somebody is trying to get in.
-
-  Email and password work — LoginForm checks a scrypt hash on the User row and
-  issues a signed cookie. So the form stands alone until OAuth is real, at
-  which point putting the button back is these two lines and the divider.
+  Email and password is the only way in. There is no OAuth client behind the
+  site, so no "Continue with Google" button is offered: one that did nothing
+  would be a dead end that looks like the fast path. Adding social sign-in is
+  a server-side job first (a provider, a callback route, account linking);
+  the button is the last step, not the first.
 */
 /*
   ── Two doors, one account ──────────────────────────────────────────

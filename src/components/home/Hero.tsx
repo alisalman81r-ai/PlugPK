@@ -267,9 +267,9 @@ export function Hero({ stats }: HeroProps) {
               */}
               <div className="relative">
                 <h1 className="text-[clamp(2.5rem,3.7vw,4.5rem)] font-bold leading-[1.04] tracking-[-0.035em] text-white">
-                  <span className="hero-rise hero-rise-2 block">Find every EV charger</span>
+                  <span className="hero-rise hero-rise-2 block">Find EV chargers</span>
                   <span className="hero-rise hero-rise-3 block">
-                    in{' '}
+                    across{' '}
                     <span className="bg-gradient-to-r from-plug-cyan-500 via-plug-cyan-400 to-plug-cyan-200 bg-clip-text text-transparent">
                       Pakistan.
                     </span>

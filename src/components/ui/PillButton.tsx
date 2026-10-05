@@ -1,112 +1,43 @@
 // src/components/ui/PillButton.tsx
 import { ArrowUpRight } from '@/components/ui/icons'
-import Link from 'next/link'
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { Button } from './Button'
 
 /**
- * The pill-and-badge call to action: a full-round pill with its label on the
- * left and a circular badge on the right holding a diagonal arrow.
+ * A link-styled call to action with a trailing arrow — now a thin wrapper
+ * around Button.
  *
- * The movement is a swap, not a nudge. Two arrows sit stacked in the badge and
- * it clips them: on hover the first leaves through the top-right corner while
- * the second arrives from the bottom-left, so the arrow appears to travel
- * through the circle rather than drift inside it. The travel is 24px on a 40px
- * badge — far enough to clear the clip at both ends, so neither arrow is ever
- * caught halfway.
+ * It used to be its own full-round pill with a two-arrow swap animation, one
+ * of the five competing "primary" treatments the design-system audit found. It
+ * is kept as a name so the call sites on the home page, Partner Up and the
+ * community pages keep compiling, and maps each tone onto the canonical
+ * variant for the surface it sits on:
  *
- * Extracted from the route promo, which had the only copy. The free band now
- * wants the same button, and two hand-maintained copies of a twenty-line
- * effect drift apart — the second one always ends up with a slightly different
- * duration or travel distance.
+ *   dark   (on a light section)  → primary
+ *   light  (on a dark section)   → inverse
+ *   brand                        → primary; the gradient is no longer a
+ *                                  separate primary
  *
- * CSS rather than the framer-motion presets in AnimatedIcon, deliberately.
- * There are two glyphs moving in opposite directions here, both driven by the
- * same parent hover, which `group-hover` expresses directly; and staying on
- * CSS keeps this usable from server components without a client boundary.
+ * New code should use <Button href rightIcon> directly.
  */
-
 export interface PillButtonProps {
   href: string
   children: React.ReactNode
-  /**
-   * Which surface it sits on. `dark` is the reference: a dark pill with a
-   * white badge, for light sections. `light` inverts it for dark sections —
-   * a white pill takes the dark badge. `brand` is the forest gradient, for the one
-   * or two places that want the CTA to read as the loudest thing in view.
-   */
   tone?: 'dark' | 'light' | 'brand'
   className?: string
 }
 
-const TONES = {
-  dark: {
-    pill: 'bg-plug-navy-900 text-white hover:bg-plug-navy-800 focus-visible:ring-plug-blue-500 hover:shadow-[0_14px_34px_-12px_rgba(11,51,44,0.45)]',
-    badge: 'bg-white text-slate-900',
-  },
-  light: {
-    pill: 'bg-white text-slate-950 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-plug-navy-950 hover:shadow-[0_14px_34px_-12px_rgba(255,255,255,0.35)]',
-    badge: 'bg-plug-navy-950 text-white',
-  },
-  brand: {
-    pill: 'bg-gradient-brand text-white focus-visible:ring-plug-blue-500 hover:shadow-[0_16px_38px_-12px_rgba(11,51,44,0.55)]',
-    badge: 'bg-white text-plug-blue-600',
-  },
-} as const
-
 export function PillButton({ href, children, tone = 'dark', className }: PillButtonProps) {
-  const styles = TONES[tone]
-
-  /**
-   * Both arrows carry the same transform classes, so the pair is built here
-   * rather than written twice. The second starts offset by the travel
-   * distance, which is what puts it out of sight until the first leaves.
-   */
-  const arrow = 'absolute transition-transform duration-300 ease-out motion-reduce:transition-none'
-
   return (
-    <Link
+    <Button
       href={href}
-      className={cn(
-        'group/cta inline-flex h-14 items-center gap-4 rounded-full pl-7 pr-2 text-ui font-bold',
-        'transition-all duration-300 hover:-translate-y-0.5 focus-visible:outline-none',
-        'focus-visible:ring-2 focus-visible:ring-offset-2 motion-reduce:transition-none',
-        'motion-reduce:hover:translate-y-0',
-        styles.pill,
-        className,
-      )}
+      size="lg"
+      variant={tone === 'light' ? 'inverse' : 'primary'}
+      rightIcon={<ArrowUpRight size={18} aria-hidden="true" />}
+      className={className}
     >
       {children}
-
-      <span
-        aria-hidden="true"
-        className={cn(
-          'relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full',
-          styles.badge,
-        )}
-      >
-        {/* Leaves through the top-right. */}
-        <ArrowUpRight
-          size={18}
-          className={cn(
-            arrow,
-            'group-hover/cta:-translate-y-6 group-hover/cta:translate-x-6',
-            'motion-reduce:group-hover/cta:translate-x-0 motion-reduce:group-hover/cta:translate-y-0',
-          )}
-        />
-        {/* Arrives from the bottom-left. Hidden outright under reduced motion,
-            since with no travel it would simply sit on top of the first. */}
-        <ArrowUpRight
-          size={18}
-          className={cn(
-            arrow,
-            '-translate-x-6 translate-y-6',
-            'group-hover/cta:translate-x-0 group-hover/cta:translate-y-0',
-            'motion-reduce:hidden',
-          )}
-        />
-      </span>
-    </Link>
+    </Button>
   )
 }

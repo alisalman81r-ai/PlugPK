@@ -1,46 +1,46 @@
 // src/components/admin/CarInventory.tsx
 'use client'
 
-import { AlertTriangle, ChevronRight, ExternalLink, ImageOff, Search, X } from '@/components/ui/icons'
+import { AlertTriangle, ChevronRight, ExternalLink, ImageOff } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
-import * as React from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import type { CarAudit } from '@/lib/car-admin'
+import { electricDistance, electricDistanceMax } from '@/lib/cars'
 import { cn } from '@/lib/utils'
+
+import { AdminSearch } from './AdminSearch'
+import { LENSES, type Lens, type SortKey } from './car-inventory-filter'
+import { buildHref, flattenParams } from './list-params'
 
 /**
  * The catalogue, as a working list.
  *
- * Filtering runs in the browser over the whole set. Thirty-six rows is far
- * inside the size where a round trip per keystroke would cost more than it
- * saves, and every field the filters touch is already on the page.
+ * Search, lens and sort are in the URL and applied by the cars page on the
+ * server, which hands this component one page of rows (see
+ * car-inventory-filter.ts).
  *
  * ── Why a photograph column, and why it is first ───────────────────────
  *
  * Every other admin list leads with a name, because a station or a service is a
  * name. A car is a shape: an operator scanning for the Sealion 6 recognises the
  * car before they finish reading "Sealion". The thumbnail is also the fastest
- * possible check that a row has the *right* photograph — the failure this
- * catalogue is most exposed to, since two of its images were the wrong car
- * before the filename guards were tightened. A missing photo shows as a marked
- * empty frame rather than a blank cell, so the gap is a thing you can see and
- * count rather than an absence you have to notice.
+ * possible check that a row has the *right* photograph. A missing photo shows
+ * as a marked empty frame rather than a blank cell, so the gap is a thing you
+ * can see and count rather than an absence you have to notice.
  */
 
 export interface CarInventoryProps {
+  /** One page, already filtered and sorted. */
   audits: CarAudit[]
+  /** Matches across every page. */
+  total: number
+  counts: Record<Lens, number>
+  lens: Lens
+  sort: SortKey
+  query: string
 }
-
-type SortKey = 'name' | 'price' | 'completeness' | 'category'
-type Lens = 'all' | 'attention' | 'no-photo' | 'indicative'
-
-const LENSES: { key: Lens; label: string; hint: string }[] = [
-  { key: 'all', label: 'All cars', hint: 'The whole catalogue' },
-  { key: 'attention', label: 'Needs attention', hint: 'Carries at least one warning' },
-  { key: 'no-photo', label: 'No photograph', hint: 'Falls back to a placeholder on the site' },
-  { key: 'indicative', label: 'Indicative price', hint: 'Not from a dealer price list' },
-]
 
 const CATEGORY_TONE: Record<string, string> = {
   EV: 'border-emerald-200 bg-emerald-50 text-emerald-700',
@@ -57,93 +57,29 @@ function meterTone(value: number): string {
   return 'bg-red-500'
 }
 
-export function CarInventory({ audits }: CarInventoryProps) {
-  const [query, setQuery] = React.useState('')
-  const [lens, setLens] = React.useState<Lens>('all')
-  const [sort, setSort] = React.useState<SortKey>('name')
-
-  const counts = React.useMemo(
-    () => ({
-      all: audits.length,
-      attention: audits.filter((a) => a.issues.some((i) => i.level === 'warn')).length,
-      'no-photo': audits.filter((a) => a.car.image === null).length,
-      indicative: audits.filter((a) => !a.priceConfirmed).length,
-    }),
-    [audits],
-  )
-
-  const visible = React.useMemo(() => {
-    const needle = query.trim().toLowerCase()
-
-    let rows = audits
-    if (needle) {
-      rows = rows.filter((audit) =>
-        [audit.car.fullName, audit.car.brand, audit.car.model, audit.car.category, audit.car.slug]
-          .join(' ')
-          .toLowerCase()
-          .includes(needle),
-      )
-    }
-
-    if (lens === 'attention') {
-      rows = rows.filter((audit) => audit.issues.some((issue) => issue.level === 'warn'))
-    } else if (lens === 'no-photo') {
-      rows = rows.filter((audit) => audit.car.image === null)
-    } else if (lens === 'indicative') {
-      rows = rows.filter((audit) => !audit.priceConfirmed)
-    }
-
-    return [...rows].sort((a, b) => {
-      if (sort === 'price') return a.car.price.min - b.car.price.min
-      // Least complete first: a completeness sort is a work queue, so the row
-      // that needs doing belongs at the top rather than buried at the bottom.
-      if (sort === 'completeness') return a.completeness - b.completeness
-      if (sort === 'category') {
-        return (
-          a.car.category.localeCompare(b.car.category) ||
-          a.car.fullName.localeCompare(b.car.fullName)
-        )
-      }
-      return a.car.fullName.localeCompare(b.car.fullName)
-    })
-  }, [audits, query, lens, sort])
+export function CarInventory({ audits, total, counts, lens, sort, query }: CarInventoryProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const params = flattenParams(Object.fromEntries(searchParams.entries()))
+  const visible = audits
 
   return (
     <div>
       {/* ── Controls ─────────────────────────────────────────────── */}
       <div className="mb-5 flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[240px] flex-1">
-            <Search
-              size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by name, brand or slug"
-              aria-label="Search the catalogue"
-              className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-9 text-ui text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus-visible:border-plug-blue-500 focus-visible:shadow-focus [&::-webkit-search-cancel-button]:appearance-none"
-            />
-            {query ? (
-              <button
-                type="button"
-                onClick={() => setQuery('')}
-                aria-label="Clear search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-              >
-                <X size={15} />
-              </button>
-            ) : null}
-          </div>
+          <AdminSearch placeholder="Search by name, brand or slug" label="Search the catalogue" />
 
           <label className="flex items-center gap-2 text-ui-sm text-slate-500">
             Sort
             <select
               value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
+              onChange={(event) =>
+                router.push(buildHref(pathname, params, { sort: event.target.value === 'name' ? undefined : event.target.value }), {
+                  scroll: false,
+                })
+              }
               className="h-10 cursor-pointer rounded-lg border border-slate-300 bg-white px-3 text-ui-sm font-medium text-slate-700 outline-none transition-shadow focus-visible:border-plug-blue-500 focus-visible:shadow-focus"
             >
               <option value="name">Name</option>
@@ -160,19 +96,18 @@ export function CarInventory({ audits }: CarInventoryProps) {
           guessed price?" — and each carries its own count, so the answer is
           visible before the click.
         */}
-        <div role="radiogroup" aria-label="Filter the catalogue" className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Filter the catalogue" className="flex flex-wrap gap-2">
           {LENSES.map((entry) => {
             const selected = lens === entry.key
             const count = counts[entry.key]
 
             return (
-              <button
+              <Link
                 key={entry.key}
-                type="button"
-                role="radio"
-                aria-checked={selected}
+                href={buildHref(pathname, params, { lens: entry.key })}
+                scroll={false}
+                aria-current={selected ? 'true' : undefined}
                 title={entry.hint}
-                onClick={() => setLens(entry.key)}
                 className={cn(
                   'inline-flex h-9 items-center gap-2 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
@@ -193,11 +128,12 @@ export function CarInventory({ audits }: CarInventoryProps) {
                 >
                   {count}
                 </span>
-              </button>
+              </Link>
             )
           })}
         </div>
       </div>
+
 
       {/* ── The list ─────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -242,8 +178,8 @@ export function CarInventory({ audits }: CarInventoryProps) {
               {visible.map((audit) => {
                 const { car } = audit
                 const warnings = audit.issues.filter((issue) => issue.level === 'warn')
-                const range = car.range ?? car.electricRange
-                const rangeMax = car.range !== null ? car.rangeMax : car.electricRangeMax
+                const range = electricDistance(car)
+                const rangeMax = electricDistanceMax(car)
 
                 return (
                   <tr
@@ -313,8 +249,8 @@ export function CarInventory({ audits }: CarInventoryProps) {
                         <>
                           {range}
                           {rangeMax !== null ? `–${rangeMax}` : ''} km
-                          {car.range === null ? (
-                            <span className="ml-1 text-ui-xs text-slate-400">EV-only</span>
+                          {car.category !== 'EV' ? (
+                            <span className="ml-1 text-ui-xs text-slate-400">electric only</span>
                           ) : null}
                         </>
                       ) : (
@@ -386,24 +322,19 @@ export function CarInventory({ audits }: CarInventoryProps) {
                 : 'Nothing in this view — which, for this filter, is the good outcome.'}
             </p>
             {(query || lens !== 'all') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery('')
-                  setLens('all')
-                }}
+              <Link
+                href={pathname}
                 className="mt-4 inline-flex h-9 items-center rounded-lg border border-slate-300 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
               >
                 Show all cars
-              </button>
+              </Link>
             )}
           </div>
         ) : null}
       </div>
 
       <p aria-live="polite" className="mt-3 text-ui-sm text-slate-500">
-        Showing <span className="font-semibold text-slate-900">{visible.length}</span> of{' '}
-        {audits.length} cars
+        <span className="font-semibold text-slate-900">{total}</span> of {counts.all} cars match
       </p>
     </div>
   )

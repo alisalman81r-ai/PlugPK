@@ -1,14 +1,17 @@
 // src/components/community/CommunitySidebar.tsx
 'use client'
 
-import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users, Zap } from '@/components/ui/icons'
+import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users } from '@/components/ui/icons'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import type { CommunityStats } from '@/hooks/useCommunity'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { POST_CATEGORY_META } from '@/lib/constants'
 import type { CommunityPost, EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+import { signUpHref } from './auth-links'
 
 export interface CommunitySidebarProps {
   clubs: EVClub[]
@@ -33,6 +36,7 @@ const CLUB_TONES = [
 
 export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarProps) {
   const { user, loading: sessionLoading } = useCurrentUser()
+  const pathname = usePathname()
 
   const figures = [
     { icon: MessageSquare, value: stats.discussions, label: 'Discussions' },
@@ -48,8 +52,12 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
         <h2 className="mb-1 font-display text-lg font-bold text-white">The board so far</h2>
         {/* white/75 rather than white/60: this panel sits on the brand
             gradient's lighter cyan end, where the old value fell under 4.5:1. */}
+        {/* Counted from active memberships. This read "1,200 members across
+            every club" from seeded baseline totals nobody could source. */}
         <p className="mb-5 text-ui-sm text-white/75">
-          {stats.clubMembers.toLocaleString('en-PK')} members across every club.
+          {stats.clubMembers === 0
+            ? 'Every figure here is counted from the board itself.'
+            : `${stats.clubMembers.toLocaleString('en-PK')} ${stats.clubMembers === 1 ? 'member' : 'members'} across the clubs.`}
         </p>
 
         <dl className="grid grid-cols-2 gap-4">
@@ -93,7 +101,7 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
           </Link>
         ) : (
           <Link
-            href="/signup"
+            href={signUpHref(pathname)}
             className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
           >
             Join
@@ -160,6 +168,9 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
           </Link>
         </div>
 
+        {clubs.length === 0 ? (
+          <p className="py-4 text-sm text-slate-400">No clubs are listed yet.</p>
+        ) : null}
         {clubs.map((club, index) => (
           <div
             key={club.id}
@@ -193,31 +204,6 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
         ))}
       </div>
 
-      {/* ── Newsletter ───────────────────────────────────────── */}
-      <div className="rounded-2xl bg-plug-navy-900 p-6 text-white">
-        <Zap size={28} className="mb-3 text-plug-cyan-400" aria-hidden="true" />
-
-        <h2 className="mb-2 text-lg font-bold text-white">EV Pakistan Weekly</h2>
-        <p className="mb-5 text-sm text-white/60">
-          Get the latest EV news and community highlights.
-        </p>
-
-        <form className="flex gap-2">
-          <input
-            type="email"
-            name="email"
-            placeholder="Your email"
-            aria-label="Email address"
-            className="field-dark h-10 min-w-0 flex-1 rounded-xl border border-white/15 bg-white/10 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/40 focus-visible:border-plug-cyan-400 focus-visible:bg-white/[0.15]"
-          />
-          <button
-            type="submit"
-            className="h-10 shrink-0 rounded-xl bg-plug-cyan-500 px-4 text-sm font-semibold text-plug-blue-600 transition-colors hover:bg-plug-cyan-400"
-          >
-            Subscribe
-          </button>
-        </form>
-      </div>
     </div>
   )
 }

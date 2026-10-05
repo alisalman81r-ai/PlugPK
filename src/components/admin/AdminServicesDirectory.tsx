@@ -2,16 +2,20 @@
 
 import { ExternalLink, Filter, Pencil, ShieldCheck } from '@/components/ui/icons'
 import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
-import type { AdminServiceRow } from '@/lib/db/queries'
+import type { AdminServiceListRow } from '@/lib/db/admin-queries'
 import { cn } from '@/lib/utils'
+
+import { AdminSearch } from './AdminSearch'
+import { buildHref, flattenParams } from './list-params'
 
 const STATUS_CHIP: Record<string, string> = {
   approved: 'border-emerald-300 bg-emerald-50 text-emerald-700',
-  rejected: 'border-slate-300 bg-slate-50 text-slate-500',
+  rejected: 'border-red-200 bg-red-50 text-red-700',
 }
 
 const CATEGORY_ACCENT: Record<string, string> = {
@@ -23,33 +27,39 @@ const CATEGORY_ACCENT: Record<string, string> = {
   'roadside-assistance': 'from-rose-500 to-red-400',
 }
 
+/**
+ * The decided services, one page at a time.
+ *
+ * The filters used to run over the whole directory in the browser. They now
+ * write to the URL and the server reads one filtered page, so the selects
+ * below only navigate.
+ */
 export function AdminServicesDirectory({
   services,
+  cities,
+  category,
+  city,
+  total,
   onDelete,
 }: {
-  services: AdminServiceRow[]
+  services: AdminServiceListRow[]
+  cities: string[]
+  category: string
+  city: string
+  /** Matches across every page. */
+  total: number
   onDelete: (id: string) => Promise<{ ok: boolean; message?: string }>
 }) {
-  const [category, setCategory] = React.useState('all')
-  const [city, setCity] = React.useState('all')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const go = (patch: Record<string, string>) =>
+    router.push(buildHref(pathname, flattenParams(Object.fromEntries(searchParams.entries())), patch), { scroll: false })
 
-  const cities = React.useMemo(
-    () => Array.from(new Set(services.map((service) => service.city))).sort((a, b) => a.localeCompare(b)),
-    [services],
-  )
-
-  const filtered = React.useMemo(
-    () =>
-      services.filter(
-        (service) =>
-          (category === 'all' || service.category === category) &&
-          (city === 'all' || service.city === city),
-      ),
-    [services, category, city],
-  )
+  const filtered = services
 
   const grouped = React.useMemo(() => {
-    const groups = new Map<string, AdminServiceRow[]>()
+    const groups = new Map<string, AdminServiceListRow[]>()
     for (const service of filtered) {
       const group = groups.get(service.category)
       if (group) group.push(service)
@@ -72,7 +82,7 @@ export function AdminServicesDirectory({
           </span>
           <select
             value={category}
-            onChange={(event) => setCategory(event.target.value)}
+            onChange={(event) => go({ category: event.target.value })}
             aria-label="Filter by service type"
             className="h-10 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 hover:bg-white focus-visible:border-plug-blue-500 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-plug-blue-500/30"
           >
@@ -83,15 +93,16 @@ export function AdminServicesDirectory({
           </select>
           <select
             value={city}
-            onChange={(event) => setCity(event.target.value)}
+            onChange={(event) => go({ city: event.target.value })}
             aria-label="Filter by city"
             className="h-10 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 hover:bg-white focus-visible:border-plug-blue-500 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-plug-blue-500/30"
           >
             <option value="all">All cities</option>
             {cities.map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
-          <span className="ml-auto rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-500">
-            <strong className="text-slate-900">{filtered.length}</strong> service{filtered.length === 1 ? '' : 's'} shown
+          <AdminSearch placeholder="Search name, slug, city or contact" label="Search the services directory" />
+          <span className="rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-500">
+            <strong className="text-slate-900">{total}</strong> service{total === 1 ? '' : 's'} match
           </span>
         </div>
       </div>

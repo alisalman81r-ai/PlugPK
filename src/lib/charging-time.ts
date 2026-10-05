@@ -41,6 +41,16 @@
 
 export type ChargeMode = 'ac' | 'dc'
 
+/**
+ * The most charger power the calculator accepts.
+ *
+ * The fastest public chargers in service are in the 350–400 kW class, and no
+ * car in the catalogue accepts more than a fraction of that. Without a ceiling
+ * a typo — "1000" for "100" — produced a confident two-minute charge. Above
+ * this the calculator asks again rather than answering.
+ */
+export const MAX_CHARGER_KW = 400
+
 /** Fraction of wall energy that reaches the battery. */
 export const EFFICIENCY: Record<ChargeMode, number> = {
   ac: 0.9,
@@ -74,6 +84,12 @@ export type PowerLimit =
   | 'car'
   /** The charger is the slower of the two. */
   | 'charger'
+  /**
+   * The car and the charger have the same limit. Called out separately
+   * because the "charger is the limit" wording — "your car can accept more" —
+   * is false when the two figures are equal.
+   */
+  | 'matched'
   /** We have no figure for the car, so the charger's power is assumed. */
   | 'car-unknown'
 
@@ -131,10 +147,23 @@ export function estimateCharge(input: ChargeInput): ChargeEstimate | ChargeProbl
   if (!valid(chargerKw)) {
     return { ok: false, field: 'power', message: 'Choose a charger power above 0 kW.' }
   }
+  if (chargerKw > MAX_CHARGER_KW) {
+    return {
+      ok: false,
+      field: 'power',
+      message: `Enter a charger power up to ${MAX_CHARGER_KW} kW — check the figure printed on the charger.`,
+    }
+  }
 
   const carKnown = valid(carLimitKw)
   const powerKw = carKnown ? Math.min(chargerKw, carLimitKw) : chargerKw
-  const limitedBy: PowerLimit = !carKnown ? 'car-unknown' : carLimitKw < chargerKw ? 'car' : 'charger'
+  const limitedBy: PowerLimit = !carKnown
+    ? 'car-unknown'
+    : carLimitKw < chargerKw
+      ? 'car'
+      : carLimitKw === chargerKw
+        ? 'matched'
+        : 'charger'
 
   const energyKwh = (batteryKwh * (toPct - fromPct)) / 100
   const gridKwh = energyKwh / EFFICIENCY[mode]
@@ -191,6 +220,8 @@ export function formatDuration(minutes: number): string {
 }
 
 export function formatKwh(kwh: number): string {
+  // Two places for a sliver, so 0.04 kWh is not printed as "0.0 kWh".
+  if (kwh > 0 && kwh < 0.1) return `${kwh.toFixed(2)} kWh`
   return `${kwh < 10 ? kwh.toFixed(1) : Math.round(kwh).toLocaleString('en-PK')} kWh`
 }
 
@@ -248,10 +279,32 @@ export function readyAt(start: Date, minutes: number): string | null {
  * the minutes put in. Capped at 100%.
  */
 export interface TimeBoxedCharge {
+  /** Where the battery gets to, to one decimal place. */
   toPct: number
   energyKwh: number
   /** True when the battery fills before the time is up. */
   full: boolean
+}
+
+/**
+ * A charge level for display: whole numbers as they are, anything else to one
+ * decimal place.
+ */
+export function formatPct(pct: number): string {
+  return Number.isInteger(pct) ? `${pct}%` : `${pct.toFixed(1)}%`
+}
+
+/**
+ * How much a charge added, as a percentage people can read.
+ *
+ * "<1%" for a sliver rather than "0%": a 7 kW charger for fifteen minutes on a
+ * 100 kWh pack adds a real 1.6 kWh, and printing that as +0% read as the
+ * calculator saying the charge did nothing.
+ */
+export function formatPctAdded(added: number): string {
+  if (!(added > 0)) return '0%'
+  if (added < 1) return '<1%'
+  return `${Number.isInteger(added) ? added : added.toFixed(1)}%`
 }
 
 export function chargeWithin(input: {
@@ -285,6 +338,11 @@ export function chargeWithin(input: {
     }
   }
 
-  const toPct = Math.min(100, Math.floor(soc))
+  /*
+    One decimal, not floored to a whole percent. Flooring made every short,
+    slow charge read "20% → 20%, +0.0 kWh" — the energy computed from the
+    floored level rather than from where the walk actually ended.
+  */
+  const toPct = Math.min(100, Math.round(soc * 10) / 10)
   return { toPct, energyKwh: (batteryKwh * (toPct - fromPct)) / 100, full: toPct >= 100 }
 }

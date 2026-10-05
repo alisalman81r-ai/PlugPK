@@ -1,4 +1,6 @@
 // src/lib/db/admin-badges.ts
+import { cache } from 'react'
+
 import { prisma } from './client'
 
 /**
@@ -58,8 +60,8 @@ const QUEUES: Queue[] = [
     // A community post is a notification until the admin opens Community.
     href: '/admin/community',
     title: 'Community posts',
-    one: 'new community post',
-    many: 'new community posts',
+    one: 'community post not yet reviewed',
+    many: 'community posts not yet reviewed',
     count: () =>
       prisma.communityPost.count({ where: { adminViewedAt: null } }),
   },
@@ -114,32 +116,84 @@ export interface PendingQueue {
   count: number
   /** Already pluralised against the count. */
   label: string
+  /** True when the count could not be read, so 0 must not be shown as "clear". */
+  failed?: boolean
 }
+
+/**
+ * Every count, and which ones could not be read.
+ *
+ * Wrapped in React's cache() so one request counts once. The layout and the
+ * dashboard both ask, and they used to run every COUNT(*) twice per page view.
+ */
+export interface AdminQueueState {
+  counts: AdminBadgeCounts
+  /** Hrefs whose count failed. Empty when everything was read. */
+  failed: string[]
+}
+
+/**
+ * Counts every queue in one round trip's worth of parallel COUNT(*)s.
+ *
+ * A failing query does not reject the whole set. This runs in the admin
+ * layout, which wraps every admin page: if one count threw — a table missing
+ * because a migration has not been applied on some machine, say — an
+ * unhandled rejection here would take down the entire portal rather than
+ * losing one badge.
+ *
+ * It used to resolve a failure to zero, though, and zero is what "all clear"
+ * looks like: a broken database read as a quiet day. Failures are now reported
+ * by href, and the sidebar and dashboard say the count is unavailable.
+ */
+export const getAdminQueueState = cache(async (): Promise<AdminQueueState> => {
+  const results = await Promise.all(
+    QUEUES.map(async (queue) => {
+      try {
+        return { href: queue.href, value: await queue.count(), failed: false }
+      } catch (error) {
+        console.error('[admin-badges] could not count', queue.href, error)
+        return { href: queue.href, value: 0, failed: true }
+      }
+    }),
+  )
+
+  const counts: AdminBadgeCounts = {}
+  const failed: string[] = []
+  for (const result of results) {
+    if (result.failed) failed.push(result.href)
+    // Zero is left out entirely rather than stored, so the nav's check is a
+    // plain truthiness test and a badge can never render as "0".
+    else if (result.value > 0) counts[result.href] = result.value
+  }
+  return { counts, failed }
+})
 
 /**
  * The same queues the badges count, described in words for the dashboard.
  *
- * Shares one source with getAdminBadgeCounts deliberately: a dashboard that
- * said "nothing waiting" while a sidebar badge showed 5 would make both
+ * Shares one source with the badges deliberately: a dashboard that said
+ * "nothing waiting" while a sidebar badge showed 5 would make both
  * untrustworthy, and two separate lists is how that happens.
- */
-/**
- * Every queue, including the empty ones.
  *
- * The dashboard's "Needs your attention" panel lists all of them so an admin
- * can see at a glance that each one was checked and is clear, rather than
- * inferring it from a panel that only appears when something is waiting.
+ * Every queue, including the empty ones, so an admin can see at a glance that
+ * each one was checked and is clear — or that it could not be checked.
  */
 export async function listAllQueues(): Promise<(PendingQueue & { title: string })[]> {
-  const counts = await getAdminBadgeCounts()
+  const { counts, failed } = await getAdminQueueState()
   return QUEUES.map((queue) => {
     const count = counts[queue.href] ?? 0
-    return { href: queue.href, title: queue.title, count, label: count === 1 ? queue.one : queue.many }
+    return {
+      href: queue.href,
+      title: queue.title,
+      count,
+      label: count === 1 ? queue.one : queue.many,
+      failed: failed.includes(queue.href),
+    }
   })
 }
 
 export async function listPendingQueues(): Promise<PendingQueue[]> {
-  const counts = await getAdminBadgeCounts()
+  const { counts } = await getAdminQueueState()
 
   return QUEUES.filter((queue) => (counts[queue.href] ?? 0) > 0).map((queue) => {
     const count = counts[queue.href] as number
@@ -147,32 +201,7 @@ export async function listPendingQueues(): Promise<PendingQueue[]> {
   })
 }
 
-/**
- * Counts every queue in one round trip's worth of parallel COUNT(*)s.
- *
- * A failing query resolves to zero rather than rejecting. This runs in the
- * admin layout, which wraps every admin page: if one count threw — a table
- * missing because a migration has not been applied on some machine, say — an
- * unhandled rejection here would take down the entire portal rather than
- * losing one badge. Losing a badge is recoverable by opening the page; losing
- * the portal is not.
- */
+/** The counts alone, for callers that only draw badges. */
 export async function getAdminBadgeCounts(): Promise<AdminBadgeCounts> {
-  const results = await Promise.all(
-    QUEUES.map(async (queue) => {
-      try {
-        return [queue.href, await queue.count()] as const
-      } catch {
-        return [queue.href, 0] as const
-      }
-    }),
-  )
-
-  const counts: AdminBadgeCounts = {}
-  for (const [href, value] of results) {
-    // Zero is left out entirely rather than stored, so the nav's check is a
-    // plain truthiness test and a badge can never render as "0".
-    if (value > 0) counts[href] = value
-  }
-  return counts
+  return (await getAdminQueueState()).counts
 }

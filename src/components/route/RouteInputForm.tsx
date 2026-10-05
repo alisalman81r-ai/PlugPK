@@ -5,23 +5,23 @@ import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from '@/components/u
 import * as React from 'react'
 
 import { PAKISTAN_CITIES } from '@/lib/constants'
-import type { EVModel } from '@/lib/types'
+import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
 import { BatterySlider } from './BatterySlider'
 import { VehicleSelector } from './VehicleSelector'
 
 export interface RouteInputFormProps {
   /** What the EV picker offers. */
-  vehicles: EVModel[]
+  vehicles: RouteVehicle[]
   origin: string
   destination: string
-  selectedVehicle: EVModel | null
+  selectedVehicle: RouteVehicle | null
   batteryPercent: number
   isCalculating: boolean
   canCalculate: boolean
   onOriginChange: (value: string) => void
   onDestinationChange: (value: string) => void
-  onVehicleSelect: (value: EVModel | null) => void
+  onVehicleSelect: (value: RouteVehicle | null) => void
   onBatteryChange: (value: number) => void
   onSwapLocations: () => void
   onCalculate: () => void

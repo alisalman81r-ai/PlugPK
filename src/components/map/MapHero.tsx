@@ -35,8 +35,19 @@ export interface MapHeroProps {
   shown: number
   /** City names from the data, for the copy and the count. */
   cities: string[]
-  /** How many of the stations are reporting free ports right now. */
-  availableNow: number
+  /**
+   * Ports installed across the stations shown.
+   *
+   * This was "free right now", counted from a status column. Plug.pk has no
+   * live connection to any charger — the FAQ says so a scroll further down
+   * this page — so the headline figure contradicted the page it sat on.
+   */
+  portsInstalled: number
+  /**
+   * How many of `total` are sample listings (lib/sample-listings). The copy
+   * says so, rather than counting six examples as six places to charge.
+   */
+  exampleCount: number
   onLocateMe: () => void
   isLocating: boolean
   /** The search field, passed in so this owns layout and not behaviour. */
@@ -47,7 +58,8 @@ export function MapHero({
   total,
   shown,
   cities,
-  availableNow,
+  portsInstalled,
+  exampleCount,
   onLocateMe,
   isLocating,
   search,
@@ -98,14 +110,26 @@ export function MapHero({
                     {others > 0 ? ` and ${others} more ${others === 1 ? 'city' : 'cities'}` : ''}
                   </>
                 ) : null}
-                . Search a city, filter by connector and speed, and get one-tap
-                directions — no app needed.
+                {exampleCount > 0
+                  ? exampleCount === total
+                    ? ' — all of them example listings for now'
+                    : ` — ${exampleCount} of them example listings`
+                  : ''}
+                .{' '}
+                {/* The second sentence waits for room: on a phone the map comes
+                    first and this band follows it, so it stays short. */}
+                <span className="hidden sm:inline">
+                  Search a city, filter by connector and speed, and get one-tap
+                  directions — no app needed.
+                </span>
               </>
             )}
           </p>
 
           {/* ── Search ───────────────────────────────────────────── */}
-          <div className="mx-auto mt-7 max-w-xl">{search}</div>
+          {/* Desktop only: on a phone the same search is laid over the map,
+              which comes first there. */}
+          <div className="mx-auto mt-7 hidden max-w-xl md:block">{search}</div>
 
           {/* ── Locate ───────────────────────────────────────────── */}
           <div className="mt-4 flex justify-center">
@@ -130,7 +154,7 @@ export function MapHero({
           */}
           <dl className="mx-auto mt-8 grid max-w-lg grid-cols-3 items-start divide-x divide-white/10 sm:flex sm:items-center sm:justify-center">
             <Stat icon={MapPin} value={shown} total={shown === total ? undefined : total} label="shown on map" />
-            <Stat icon={Zap} value={availableNow} label="free right now" tone="cyan" />
+            <Stat icon={Zap} value={portsInstalled} label="ports installed" tone="cyan" />
             <Stat value={cities.length} label={cities.length === 1 ? 'city' : 'cities'} />
           </dl>
         </div>

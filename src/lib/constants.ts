@@ -10,27 +10,54 @@ export const SITE_CONFIG = {
   tagline: "Pakistan's EV Ecosystem Platform",
   description: 'Find charging stations, plan routes, and connect with EV owners across Pakistan.',
   url: 'https://plug.pk',
-  ogImage: '/og-image.jpg',
+  ogImage: '/opengraph-image',
   email: 'hello@plug.pk',
   twitter: '@plugpk',
 }
 
+/**
+ * The header's primary links, in the order a driver reaches for them.
+ *
+ * This was eight items with Cars last and two calculators sitting between
+ * Services and Community as if they were destinations. Cars is the site's
+ * second catalogue, so it comes early; the range converter and the charging
+ * calculator are utilities, so they share one "Tools" menu (NAV_TOOLS) rather
+ * than taking a slot each in the bar and the sheet.
+ *
+ * Partner Up covers listing a charger: it explains the offer, shows the plans
+ * and the existing partners, and carries the calls to action into the form. A
+ * second heading straight to /business/signup sat beside it doing the same
+ * job — and that route redirects a signed-out visitor to login, so the one
+ * item a new business owner would click led to a wall rather than a form.
+ */
 export const NAV_LINKS: NavLink[] = [
-  { label: 'Map',       href: '/map' },
-  { label: 'Routes',    href: '/routes' },
-  { label: 'Services',  href: '/services' },
-  { label: 'Range Converter', href: '/range-converter' },
-  { label: 'Calculator', href: '/charging-calculator' },
-  { label: 'Community', href: '/community' },
-  // Partner Up covers listing a charger: it explains the offer, shows the
-  // plans and the existing partners, and carries the calls to action into the
-  // form. A second heading straight to /business/signup sat beside it doing
-  // the same job — and worse, that route redirects a signed-out visitor to
-  // login, so the one item a new business owner would click led to a wall
-  // rather than a form.
-  { label: 'Partner Up', href: '/partners' },
+  { label: 'Map',        href: '/map' },
+  { label: 'Routes',     href: '/routes' },
   { label: 'Cars',       href: '/cars' },
+  { label: 'Services',   href: '/services' },
+  { label: 'Community',  href: '/community' },
+  { label: 'Partner Up', href: '/partners' },
 ]
+
+/** The utilities grouped under "Tools" in the header and the mobile sheet. */
+export const NAV_TOOLS: NavLink[] = [
+  { label: 'Charging calculator', href: '/charging-calculator' },
+  { label: 'Range converter',     href: '/range-converter' },
+]
+
+/**
+ * Community length limits, shared by the composer and the server.
+ *
+ * The form capped titles at 120 and bodies at 2,000 while the server allowed
+ * 140 and 10,000, so the two disagreed about what a post could be. One set,
+ * read by both: the browser's counter is a convenience, the server's check is
+ * the rule.
+ */
+export const COMMUNITY_LIMITS = {
+  title: 120,
+  content: 5_000,
+  comment: 2_000,
+} as const
 
 /**
  * The handful offered as shortcuts in the hero and the route planner.
@@ -192,7 +219,7 @@ export const SERVICE_CATEGORIES = [
 export interface ServiceCategoryMeta {
   label: string
   description: string
-  /** lucide-react icon name, resolved to a component by the UI. */
+  /** Icon name, resolved to a component from @/components/ui/icons by the UI. */
   icon: 'Car' | 'Wrench' | 'Home' | 'Package' | 'Shield' | 'LifeBuoy'
   /** Tailwind classes for the icon chip. */
   tone: string
@@ -311,7 +338,7 @@ export interface PostCategoryMeta {
   id: PostCategory
   label: string
   color: string
-  /** lucide-react icon name, resolved to a component by the UI. */
+  /** Icon name, resolved to a component from @/components/ui/icons by the UI. */
   icon: 'MessageCircle' | 'Zap' | 'Map' | 'Car' | 'ShoppingCart' | 'Newspaper'
   /** Tailwind classes for the unselected pill badge. */
   badge: string
