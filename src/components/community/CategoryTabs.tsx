@@ -97,7 +97,10 @@ export function CategoryTabs({
         a category with two posts replaces one with nine.
       */}
       <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
-        <div className="min-w-0 flex-1">
+        {/* A floor on the title's width, so the sort control wraps below it
+            when there is no room. At flex-1 alone, a 414px phone fitted the
+            control alongside and crushed the title to a 12px column. */}
+        <div className="min-w-[11rem] flex-1">
           <p className="mb-1.5 flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em] text-plug-blue-600">
             <ListFilter size={13} aria-hidden="true" />
             Browse
@@ -120,7 +123,7 @@ export function CategoryTabs({
         <div
           role="radiogroup"
           aria-label="Sort discussions"
-          className="scrollbar-hide flex shrink-0 gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1"
+          className="scrollbar-hide flex w-full shrink-0 gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1 sm:w-auto"
         >
           {SORTS.map((sort) => {
             const selected = sortBy === sort.key
@@ -133,7 +136,7 @@ export function CategoryTabs({
                 aria-checked={selected}
                 onClick={() => onSortChange(sort.key)}
                 className={cn(
-                  'min-w-0 rounded-xl px-3.5 py-2 text-center transition-all duration-200',
+                  'min-w-0 flex-1 rounded-xl px-3.5 py-2 text-center transition-all duration-200 sm:flex-none',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                   selected ? 'bg-white shadow-e1' : 'hover:bg-white/60',
                 )}

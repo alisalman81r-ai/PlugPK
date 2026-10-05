@@ -111,7 +111,7 @@ export function FilterRail({
         answer to the controls it sits with, and a figure set over a map is a
         figure a pin can slide behind.
       */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-4 py-4 sm:gap-x-4 sm:px-6">
         {/* Outlined, like every other icon holder on the site. The filter chips
             below keep their tint, and deliberately — a fill there means "this
             filter is on", which is state the user needs to see. This glyph
@@ -125,7 +125,7 @@ export function FilterRail({
         </span>
 
         <div className="min-w-0 flex-1">
-          <h2 className="font-display text-lg font-bold tracking-tight text-slate-900">
+          <h2 className="font-display text-base font-bold tracking-tight text-slate-900 sm:text-lg">
             Refine the map
           </h2>
           <p aria-live="polite" className="text-ui-sm text-slate-500">

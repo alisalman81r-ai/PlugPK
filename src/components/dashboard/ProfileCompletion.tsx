@@ -99,7 +99,7 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
   const C = 2 * Math.PI * R
 
   return (
-    <section aria-labelledby="profile-completion-title" className="rounded-2xl border border-slate-200 bg-white p-6">
+    <section aria-labelledby="profile-completion-title" className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
         <div className="flex items-center gap-4 sm:w-64 sm:shrink-0">
           <div
@@ -148,7 +148,7 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
               <li
                 key={part.key}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5',
+                  'flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-3 py-2.5 sm:flex-nowrap',
                   part.done ? 'bg-slate-50/60' : 'border border-amber-200 bg-amber-50/60',
                 )}
               >
@@ -161,7 +161,9 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
                 >
                   {part.done ? <Check size={16} /> : <Icon size={16} />}
                 </span>
-                <span className="min-w-0 flex-1">
+                {/* Below sm the button takes its own line under the text: beside
+                    it, the reason was squeezed to three words a line. */}
+                <span className={cn('min-w-0 flex-1', !part.done && 'basis-[calc(100%-2.75rem)] sm:basis-auto')}>
                   <span className={cn('block text-ui-sm font-semibold', part.done ? 'text-slate-500' : 'text-slate-900')}>
                     {part.label}
                     <span className="sr-only">{part.done ? ' — done' : ' — not added yet'}</span>
@@ -173,7 +175,7 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
                 ) : (
                   <Link
                     href={part.href}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-ui-sm font-semibold text-plug-blue-700 ring-1 ring-plug-blue-200 transition-colors hover:bg-plug-blue-50"
+                    className="ml-11 inline-flex shrink-0 items-center gap-1 rounded-lg bg-white px-3 py-1.5 sm:ml-0 text-ui-sm font-semibold text-plug-blue-700 ring-1 ring-plug-blue-200 transition-colors hover:bg-plug-blue-50"
                   >
                     {part.cta}
                     <ArrowRight size={14} aria-hidden="true" />

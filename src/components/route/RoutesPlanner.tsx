@@ -313,7 +313,7 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
           <div
             role="status"
             aria-live="polite"
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-white/[0.92] backdrop-blur-md"
+            className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 bg-white/[0.92] backdrop-blur-md"
           >
             <RouteIcon size={48} className="animate-pulse text-plug-blue-600" aria-hidden="true" />
 

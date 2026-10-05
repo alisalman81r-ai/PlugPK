@@ -167,6 +167,13 @@ export function MapViewLibre({
       onLoad={(event) => {
         const map = event.target
         applyEnglishLabels(map)
+        // MapLibre opens a compact attribution expanded and only folds it on
+        // the first drag. On a phone the open credit is two lines across the
+        // whole map, under the zoom buttons; start it folded to its (i).
+        map
+          .getContainer()
+          .querySelector('.maplibregl-ctrl-attrib.maplibregl-compact-show')
+          ?.classList.remove('maplibregl-compact-show')
         map.resize()
         requestAnimationFrame(() => {
           map.resize()

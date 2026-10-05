@@ -56,7 +56,7 @@ export default async function AdminReviewsPage({
           <AdminSearch placeholder="Search review text, author or listing" label="Search reviews" />
           {/* A plain GET form: picking a listing is a URL change, and it works
               before any script has loaded. */}
-          <form method="get" action={PATH} className="flex items-center gap-2">
+          <form method="get" action={PATH} className="flex w-full min-w-0 items-center gap-2 lg:w-auto">
             {q ? <input type="hidden" name="q" value={q} /> : null}
             <label htmlFor="listing" className="sr-only">
               Filter by listing
@@ -65,7 +65,7 @@ export default async function AdminReviewsPage({
               id="listing"
               name="listing"
               defaultValue={listingFilter}
-              className="h-10 max-w-[18rem] cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-ui-sm font-medium text-slate-700 outline-none focus-visible:border-plug-blue-500"
+              className="h-10 min-w-0 flex-1 cursor-pointer rounded-lg lg:max-w-[18rem] lg:flex-none border border-slate-200 bg-slate-50 px-3 text-ui-sm font-medium text-slate-700 outline-none focus-visible:border-plug-blue-500"
             >
               <option value="">Every listing</option>
               {listing.listings.map((option) => (
@@ -76,7 +76,7 @@ export default async function AdminReviewsPage({
             </select>
             <button
               type="submit"
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="h-10 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
               Apply
             </button>

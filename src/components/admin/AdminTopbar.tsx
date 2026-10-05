@@ -60,6 +60,8 @@ function defaultSection(pathname: string): string {
  * Derived rather than passed down, so a new admin route gets a correct title
  * without anyone remembering to register it here.
  */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 function useCrumbs() {
   const pathname = usePathname()
   return React.useMemo(() => {
@@ -67,8 +69,11 @@ function useCrumbs() {
     if (parts.length === 0) return [{ label: 'Dashboard', href: '/admin' }]
 
     return parts.map((part, index) => ({
-      // Ids and slugs read better with their hyphens opened out.
-      label: part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase()),
+      // Ids and slugs read better with their hyphens opened out. A UUID does
+      // not: opened out it was 36 characters of nothing, wider than a phone.
+      label: UUID.test(part)
+        ? 'Details'
+        : part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase()),
       href: `/admin/${parts.slice(0, index + 1).join('/')}`,
     }))
   }, [pathname])
@@ -164,14 +169,19 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
           {crumbs.map((crumb, index) => {
             const last = index === crumbs.length - 1
             return (
-              <li key={crumb.href} className="flex shrink-0 items-center gap-1.5">
+              <li
+                key={crumb.href}
+                // The current page may shrink and truncate; the trail before it
+                // keeps its width.
+                className={cn('flex items-center gap-1.5', last ? 'min-w-0' : 'shrink-0')}
+              >
                 {index > 0 ? (
                   <span aria-hidden="true" className="text-slate-300">
                     /
                   </span>
                 ) : null}
                 {last ? (
-                  <span aria-current="page" className="text-ui-sm font-semibold text-slate-900">
+                  <span aria-current="page" className="truncate text-ui-sm font-semibold text-slate-900">
                     {crumb.label}
                   </span>
                 ) : (

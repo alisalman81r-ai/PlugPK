@@ -96,7 +96,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
 ]
 
 const LINK =
-  'inline-flex min-h-11 items-center text-[15px] text-white transition-opacity duration-200 hover:opacity-70 focus-visible:underline focus-visible:outline-none'
+  'inline-flex min-h-11 items-center text-[14px] text-white transition-opacity sm:text-[15px] duration-200 hover:opacity-70 focus-visible:underline focus-visible:outline-none'
 
 const PILL =
   'inline-flex h-11 items-center gap-2 rounded-full border border-white/80 px-5 text-[15px] text-white'
@@ -111,8 +111,8 @@ export function Footer() {
         className="relative z-10 rounded-br-[5rem] lg:rounded-br-[8rem]"
         style={{ backgroundColor: NAVY }}
       >
-        <div className="container-plug pb-16 pt-20 lg:pb-20 lg:pt-24">
-          <div className="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,15rem))_1fr_auto]">
+        <div className="container-plug pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-20 lg:pt-24">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-10 sm:gap-y-12 lg:grid-cols-[repeat(3,minmax(0,15rem))_1fr_auto]">
             <nav aria-label="Footer" className="contents">
               {FOOTER_COLUMNS.map((column) => (
                 <div key={column.heading}>
@@ -133,7 +133,7 @@ export function Footer() {
             {/* The reference's empty fourth column: space before the right rail. */}
             <div aria-hidden="true" className="hidden lg:block" />
 
-            <div className="flex flex-col gap-10 sm:col-span-2 lg:col-span-1">
+            <div className="col-span-2 flex flex-col gap-10 lg:col-span-1">
               <div>
                 <h3 className="mb-3 text-[15px] font-semibold text-white">Contact</h3>
                 <p className="mb-4 max-w-[17rem] text-[14px] leading-relaxed text-white/70">
@@ -161,7 +161,7 @@ export function Footer() {
           </div>
 
           {/* The small row at the panel's foot. */}
-          <div className="mt-16 flex flex-wrap items-center gap-x-10 gap-y-1 text-[14px] text-white">
+          <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-1 text-[14px] text-white sm:mt-16">
             <span className="inline-flex min-h-11 items-center">Built for EV drivers in Pakistan</span>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
@@ -175,8 +175,8 @@ export function Footer() {
 
       {/* ── The layer underneath: pinned to the bottom of the viewport ── */}
       <div className="sticky bottom-0 z-0 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
-        <div className="container-plug flex justify-end pt-4 text-[13px] text-white">
-          <p className="flex flex-wrap items-center justify-end gap-x-4">
+        <div className="container-plug flex justify-start pt-4 text-[13px] text-white sm:justify-end">
+          <p className="flex flex-wrap items-center gap-x-4 sm:justify-end">
             <span className="inline-flex min-h-11 items-center">
               &copy; {year} {SITE_CONFIG.name}. All rights reserved.
             </span>

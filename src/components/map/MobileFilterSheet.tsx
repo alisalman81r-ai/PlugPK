@@ -43,14 +43,14 @@ export function MobileFilterSheet({
         <div
           aria-hidden="true"
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 lg:hidden"
+          className="fixed inset-0 z-[55] bg-black/40 transition-opacity duration-200 lg:hidden"
         />
       ) : null}
 
       <div
         aria-hidden={!isOpen}
         className={cn(
-          'scrollbar-hide fixed inset-x-0 bottom-0 z-50 max-h-sheet overflow-y-auto rounded-t-3xl bg-white transition-transform duration-[350ms] ease-decelerate lg:hidden',
+          'scrollbar-hide fixed inset-x-0 bottom-0 z-[60] max-h-sheet overflow-y-auto rounded-t-3xl bg-white transition-transform duration-[350ms] ease-decelerate lg:hidden',
           isOpen ? 'translate-y-0' : 'pointer-events-none translate-y-full',
         )}
       >

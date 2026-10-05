@@ -116,17 +116,28 @@ const TILE =
 const TILE_ICON = 'text-slate-500 group-hover/act:text-plug-blue-600'
 const TILE_LABEL = 'text-ui-xs font-medium text-slate-500'
 
-function ActionTiles({ station, className }: { station: Station; className?: string }) {
+function ActionTiles({
+  station,
+  className,
+  compact = false,
+}: {
+  station: Station
+  className?: string
+  /** Icon-only squares, for the phone bar where every pixel above the tab bar counts. */
+  compact?: boolean
+}) {
   const { signedIn, saved, signInHref, onSave, saveError, onShare, shareState, reportHref } =
     useStationActions(station)
+  const tile = compact ? cn(TILE, 'w-11 shrink-0') : TILE
+  const label = compact ? 'sr-only' : TILE_LABEL
 
   return (
     <>
-      <div className={cn('grid grid-cols-3 gap-3', className)}>
+      <div className={cn(compact ? 'flex gap-2' : 'grid grid-cols-3 gap-3', className)}>
         {signedIn === false ? (
-          <Link href={signInHref} className={TILE} aria-label={`Sign in to save ${station.name}`}>
+          <Link href={signInHref} className={tile} aria-label={`Sign in to save ${station.name}`}>
             <Bookmark size={18} className={TILE_ICON} aria-hidden="true" />
-            <span className={TILE_LABEL}>Save</span>
+            <span className={label}>Save</span>
           </Link>
         ) : (
           <button
@@ -136,7 +147,7 @@ function ActionTiles({ station, className }: { station: Station; className?: str
             // until then, so a tap cannot be lost.
             disabled={signedIn === null}
             aria-pressed={saved}
-            className={cn(TILE, saved && 'border-plug-blue-200 bg-plug-blue-50', 'disabled:opacity-60')}
+            className={cn(tile, saved && 'border-plug-blue-200 bg-plug-blue-50', 'disabled:opacity-60')}
           >
             <MorphIcon
               active={saved}
@@ -145,13 +156,13 @@ function ActionTiles({ station, className }: { station: Station; className?: str
               size={18}
               className={saved ? 'text-plug-blue-600' : TILE_ICON}
             />
-            <span className={cn(TILE_LABEL, saved && 'text-plug-blue-600')}>
+            <span className={cn(label, saved && 'text-plug-blue-600')}>
               {saved ? 'Saved' : 'Save'}
             </span>
           </button>
         )}
 
-        <button type="button" onClick={() => void onShare()} className={TILE}>
+        <button type="button" onClick={() => void onShare()} className={tile}>
           <MorphIcon
             active={shareState === 'copied'}
             on={Check}
@@ -159,19 +170,29 @@ function ActionTiles({ station, className }: { station: Station; className?: str
             size={18}
             className={shareState === 'copied' ? 'text-green-600' : TILE_ICON}
           />
-          <span className={TILE_LABEL} aria-live="polite">
+          <span className={label} aria-live="polite">
             {shareState === 'copied' ? 'Link copied' : shareState === 'failed' ? 'Copy failed' : 'Share'}
           </span>
         </button>
 
-        <a href={reportHref} className={TILE}>
+        <a href={reportHref} className={tile}>
           <Flag size={18} className={TILE_ICON} aria-hidden="true" />
-          <span className={TILE_LABEL}>Report</span>
+          <span className={label}>Report</span>
         </a>
       </div>
 
       {saveError ? (
-        <p role="alert" className="mt-3 text-center text-ui-sm text-red-600">
+        <p
+          role="alert"
+          className={cn(
+            'text-center text-ui-sm text-red-600',
+            // In the phone bar the row has no room below it, so the message
+            // floats just above the bar instead.
+            compact
+              ? 'absolute inset-x-4 bottom-full mb-2 rounded-lg bg-white px-3 py-2 shadow-md'
+              : 'mt-3',
+          )}
+        >
           {saveError}
         </p>
       ) : null}
@@ -190,28 +211,23 @@ function ActionTiles({ station, className }: { station: Station; className?: str
  */
 export function StationMobileBar({ station }: StationSidebarProps) {
   return (
-    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-slate-100 bg-white px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden">
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold text-slate-900">{station.name}</p>
-          {station.reviewCount > 0 ? (
-            <RatingStars rating={station.rating} size="sm" showNumber />
-          ) : (
-            <p className="text-ui-xs text-slate-500">No reviews yet</p>
-          )}
-        </div>
+    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-slate-100 bg-white px-4 py-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden">
+      {/* One row. It was two — the name and rating over the three tiles — and
+          with the tab bar beneath, the pair covered a quarter of a 360px
+          screen. The name is already the page's heading. */}
+      <div className="flex items-center gap-2">
+        <ActionTiles station={station} compact />
 
         <button
           type="button"
           onClick={() => openDirections(station)}
-          className="flex h-11 shrink-0 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_8px_20px_rgba(11,51,44,0.30)]"
+          aria-label={`Navigate to ${station.name}`}
+          className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-brand px-4 font-semibold text-white shadow-[0_8px_20px_rgba(11,51,44,0.30)]"
         >
           Navigate
           <Navigation2 size={18} aria-hidden="true" />
         </button>
       </div>
-
-      <ActionTiles station={station} className="mt-3" />
     </div>
   )
 }

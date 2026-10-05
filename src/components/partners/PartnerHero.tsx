@@ -3,6 +3,7 @@ import { ArrowRight, Building2, Check, MapPin, Plug, Zap, type IconType } from '
 import Link from 'next/link'
 
 import { PillButton } from '@/components/ui'
+import { cn } from '@/lib/utils'
 
 /**
  * The pitch at the top of Partner Up.
@@ -169,7 +170,14 @@ export function PartnerHero({ stats }: PartnerHeroProps) {
               band do it — not a column beside the heading, which is what made
               this page read as a different product. */}
           {figures.length >= 2 ? (
-            <dl className="mx-auto mt-10 flex max-w-lg flex-wrap items-center justify-center divide-white/10 sm:divide-x">
+            <dl
+              className={cn(
+                // One row on a phone, as RouteHero does it. Wrapping flex left
+                // "1 partner" alone on a second line at 360px.
+                'mx-auto mt-10 grid max-w-lg items-start divide-x divide-white/10 sm:flex sm:items-center sm:justify-center',
+                figures.length === 3 ? 'grid-cols-3' : 'grid-cols-2',
+              )}
+            >
               {figures.map((figure) => (
                 <Stat
                   key={figure.label}
@@ -212,7 +220,7 @@ function Stat({
   tone?: 'plain' | 'cyan'
 }) {
   return (
-    <div className="px-5 py-1 text-center">
+    <div className="px-2 py-1 text-center sm:px-5">
       <dt className="sr-only">{label}</dt>
       <dd>
         <span className="flex items-center justify-center gap-1.5">

@@ -133,8 +133,8 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
             // dt before dd in the source, which is the order a definition
             // list requires; flex-col-reverse puts the number on top where
             // the eye wants it without lying about the structure.
-            <div key={stat.label} className="flex flex-col-reverse px-4 py-4">
-              <dt className="mt-1 text-ui-xs uppercase tracking-[0.12em] text-white/60">
+            <div key={stat.label} className="flex min-w-0 flex-col-reverse px-2 py-4 sm:px-4">
+              <dt className="mt-1 text-ui-xs uppercase tracking-[0.08em] text-white/60 sm:tracking-[0.12em]">
                 {stat.label}
               </dt>
               <dd className="text-2xl font-black tabular-nums text-white sm:text-3xl">

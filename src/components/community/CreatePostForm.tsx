@@ -191,7 +191,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
       aria-modal="true"
       aria-labelledby="create-post-title"
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
     >
       <div
         onClick={(event) => event.stopPropagation()}

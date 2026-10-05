@@ -199,8 +199,15 @@ function supportingLine(car: Car): string {
  * src/data/cars.ts. The qualifier is then stripped from the price below, so the
  * caveat appears once as a chip instead of twice in two registers.
  */
-function chips(car: Car): Array<{ label: string; className: string }> {
-  const out: Array<{ label: string; className: string }> = []
+interface Chip {
+  label: string
+  /** Shown instead of the label below sm, where a card is ~170px wide. */
+  short?: string
+  className: string
+}
+
+function chips(car: Car): Array<Chip> {
+  const out: Array<Chip> = []
 
   if (car.category !== 'EV') {
     out.push({ label: car.category, className: CATEGORY_CHIP[car.category] })
@@ -230,6 +237,9 @@ function chips(car: Car): Array<{ label: string; className: string }> {
     */
     out.push({
       label: 'No charging port',
+      // At two columns on a phone the full label broke over three lines and
+      // covered the photograph.
+      short: 'No plug',
       className: 'border-slate-300/80 bg-white/95 text-slate-600',
     })
   }
@@ -421,12 +431,21 @@ export function CarCard({
                 <span
                   key={chip.label}
                   className={cn(
-                    'inline-flex items-center rounded-md border px-1.5 py-1 font-mono text-ui-xs sm:px-2',
+                    'inline-flex items-center whitespace-nowrap rounded-md border px-1.5 py-1 font-mono text-ui-xs sm:px-2',
                     'font-medium uppercase leading-none tracking-[0.1em] backdrop-blur-sm',
                     chip.className,
                   )}
                 >
-                  {chip.label}
+                  {chip.short ? (
+                    <>
+                      <span aria-hidden="true" className="sm:hidden">
+                        {chip.short}
+                      </span>
+                      <span className="sr-only sm:not-sr-only">{chip.label}</span>
+                    </>
+                  ) : (
+                    chip.label
+                  )}
                 </span>
               ))}
             </div>

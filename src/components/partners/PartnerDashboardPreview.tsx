@@ -80,7 +80,7 @@ export function PartnerDashboardPreview({ className }: PartnerDashboardPreviewPr
         </div>
       </div>
 
-      <div className="grid gap-5 px-5 py-6 sm:px-6 lg:grid-cols-[1fr_1.15fr] lg:gap-8 lg:px-8 lg:py-8">
+      <div className="grid grid-cols-1 gap-5 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8 lg:px-8 lg:py-8">
         {/* ── The listing, and what gets counted about it ─────────── */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">

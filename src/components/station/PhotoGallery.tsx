@@ -197,7 +197,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
           role="dialog"
           aria-modal="true"
           aria-label={`${stationName} photos`}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95"
           onClick={() => setIsLightboxOpen(false)}
         >
           <button

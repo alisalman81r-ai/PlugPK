@@ -172,7 +172,7 @@ function Handset() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold leading-tight text-slate-900">My EV</p>
-                <p className="whitespace-nowrap text-[10px] leading-tight text-slate-500">72% · 263 km range</p>
+                <p className="truncate text-[10px] leading-tight text-slate-500">72% · 263 km range</p>
               </div>
               <span className="h-1.5 w-12 overflow-hidden rounded-full bg-slate-200">
                 <span className="block h-full w-[72%] rounded-full bg-plug-cyan-500" />

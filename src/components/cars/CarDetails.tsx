@@ -600,7 +600,15 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           </div>
 
           <div className="mt-6 flex justify-center">
-            <Link href={compareHref} className={buttonClasses({ variant: 'secondary' })}>
+            {/* Two model names can outrun a phone: let the label wrap rather
+                than push the page sideways. */}
+            <Link
+              href={compareHref}
+              className={buttonClasses({
+                variant: 'secondary',
+                className: 'h-auto min-h-11 max-w-full whitespace-normal py-2.5 text-center',
+              })}
+            >
               Compare {carModelName(car)} with {similar[0] ? carModelName(similar[0]) : null}
               <ArrowUpRight size={15} aria-hidden="true" />
             </Link>
