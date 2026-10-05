@@ -136,7 +136,7 @@ export function CategoryTabs({
                 aria-checked={selected}
                 onClick={() => onSortChange(sort.key)}
                 className={cn(
-                  'min-w-0 flex-1 rounded-xl px-3.5 py-2 text-center transition-all duration-200 sm:flex-none',
+                  'min-w-0 flex-1 rounded-xl px-2 py-2 text-center transition-all duration-200 sm:flex-none sm:px-3.5',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                   selected ? 'bg-white shadow-e1' : 'hover:bg-white/60',
                 )}
