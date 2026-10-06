@@ -168,9 +168,25 @@ station status, because a status must never share a hue with the brand.
 
 ### 2.9 Theme
 
-The product is **light-first with dark bands**, not a light/dark pair. There's no
-user-facing dark mode. **App:** ship light only, keep the pine bands, and match the
-status bar to the band under it (light content over pine, dark content over mist).
+The website is **light-first with dark bands** and has no user-facing dark mode.
+**App:** offers Light, Dark and Auto (follows the phone). Keep the pine bands in both, and
+match the status bar to the band under it (light content over pine, dark content over mist).
+
+The app's dark palette keeps the brand greens and moves the grounds to ink:
+
+| Token | Light | Dark |
+|---|---|---|
+| Ground | `#F1F4F3` | `#08110F` |
+| Card face | `#FFFFFF` | `#0F1D1A` |
+| Border | `#DCE3E0` | mint at 9% (`rgba(196,248,236,.09)`) |
+| Primary text | `#0B332C` | `#EAF2EF` |
+| Muted text | `#626D6B` | `#93A5A0` |
+| Primary button | forest fill, white text | **turquoise fill, pine text** (forest disappears on ink) |
+| Accent as text | `#0F7A6A` | `#4FDCC4` |
+
+Car photos have white grounds, so they always sit on a light "stage" (mist gradient, photo
+blended with `multiply`), in dark mode too. The working values are in
+`public/app-prototype/app.css`.
 
 ---
 
