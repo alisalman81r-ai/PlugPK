@@ -677,3 +677,37 @@ a.btn, a.list-row { text-decoration: none; }
 .map-card img { width: 76px; }
 .map-card .btn-sm { padding: 0 10px; }
 .soc .labels span { background: var(--surface); color: var(--fg) !important; padding: 6px 10px; border-radius: 10px; font-size: 16px; box-shadow: var(--shadow-1); }
+
+/* ── Welcome screen: animated car ──────────────────────────────────── */
+@property --pct { syntax: "<integer>"; inherits: true; initial-value: 24; }
+.hero-car { position: relative; width: 100%; max-width: 400px; aspect-ratio: 935 / 515; margin-top: 40px; }
+.onb .art .hero-car img { width: 100%; max-width: none; filter: none; animation: none; display: block; }
+.hc-img { position: absolute; inset: 0; animation: hcDrive 1.1s cubic-bezier(.2,.8,.2,1) both; }
+.hc-sheen { position: absolute; inset: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.55) 50%, transparent 62%) 0 0 / 300% 100% no-repeat;
+  animation: hcSheen 4.5s ease-in-out 1.4s infinite; mix-blend-mode: soft-light; }
+.hc-shadow { position: absolute; left: 4%; right: 2%; bottom: -3%; height: 12%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0,0,0,.55), rgba(0,0,0,.25) 60%, transparent); filter: blur(2px); animation: hcFade 1.1s ease both; }
+.hc-glow { position: absolute; left: 10%; right: 0; bottom: -14%; height: 46%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(38,205,178,.38), rgba(38,205,178,.08) 60%, transparent); animation: hcGlow 3.2s ease-in-out infinite; }
+.hc-spark { position: absolute; bottom: 28%; width: 5px; height: 5px; border-radius: 50%; background: #8EEEDA; box-shadow: 0 0 10px 2px rgba(38,205,178,.7);
+  opacity: 0; animation: hcSpark 3s ease-in infinite; }
+.hc-chip { position: absolute; right: 2%; top: -26%; display: flex; align-items: center; gap: 8px; padding: 8px 12px 8px 8px; border-radius: 14px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  font-size: 13px; font-weight: 600; color: #fff; box-shadow: 0 12px 30px -10px rgba(0,0,0,.5);
+  animation: hcPop .6s cubic-bezier(.2,.9,.3,1.3) 1s both, hcBob 4s ease-in-out 1.6s infinite; }
+.hc-bolt { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: #26CDB2; color: #05241E; animation: hcPulse 1.6s ease-in-out infinite; }
+.hc-pct { min-width: 34px; color: #8EEEDA; counter-reset: pct var(--pct); }
+.hc-pct::after { content: counter(pct) "%"; }
+.hc-bar { width: 44px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.15); overflow: hidden; }
+.hc-bar i { display: block; height: 100%; width: calc(var(--pct) * 1%); border-radius: 3px; background: linear-gradient(90deg, #4FDCC4, #26CDB2); }
+.hero-car { animation: hcCount 6s linear 1.2s infinite; }
+@keyframes hcDrive { from { transform: translateX(28%) scale(.96); opacity: 0; } 70% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes hcSheen { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
+@keyframes hcFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hcGlow { 0%, 100% { opacity: .6; transform: scaleX(.92); } 50% { opacity: 1; transform: scaleX(1.04); } }
+@keyframes hcSpark { 0% { opacity: 0; transform: translateY(0) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-120px) scale(1.1); } }
+@keyframes hcPop { from { opacity: 0; transform: translateY(10px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes hcBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes hcPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(38,205,178,.6); } 50% { box-shadow: 0 0 0 6px rgba(38,205,178,0); } }
+@keyframes hcCount { 0% { --pct: 24; } 85%, 100% { --pct: 80; } }

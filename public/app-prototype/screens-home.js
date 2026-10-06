@@ -6,7 +6,17 @@ const POPULAR_SLUGS = ['byd-atto-3-advanced', 'mg-zs-ev', 'byd-seal', 'byd-atto-
 // ─── Onboarding ────────────────────────────────────────────────────
 const SLIDES = [
   {
-    art: () => `<img src="${img('home/freedom-car-hd.png')}" alt="">`,
+    art: () => {
+      const car = img('home/freedom-car-clean.png')
+      const sparks = [[30, 0, 2.6], [44, 0.7, 3.1], [58, 1.3, 2.8], [70, 0.4, 3.4], [82, 1.9, 2.9], [18, 1.1, 3.2], [64, 2.4, 2.7]]
+      return `<div class="hero-car" role="img" aria-label="An electric car plugged into a charger">
+        <div class="hc-glow"></div>
+        <div class="hc-shadow"></div>
+        <div class="hc-img"><img src="${car}" alt=""><span class="hc-sheen" style="-webkit-mask-image:url('${car}');mask-image:url('${car}')"></span></div>
+        ${sparks.map(([x, d, t]) => `<i class="hc-spark" style="left:${x}%;animation-delay:${d}s;animation-duration:${t}s"></i>`).join('')}
+        <div class="hc-chip"><span class="hc-bolt">${ic('bolt', 14, { fill: true, sw: 1 })}</span>Charging<b class="hc-pct mono"></b><span class="hc-bar"><i></i></span></div>
+      </div>`
+    },
     title: 'Find a charger <span class="hl">anywhere in Pakistan</span>',
     body: 'Every listed charger on one map, with the plug, the speed and what’s nearby while you wait.',
   },
