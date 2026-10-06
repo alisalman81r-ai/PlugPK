@@ -131,13 +131,13 @@ p { margin: 0; }
 }
 .app { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); isolation: isolate; }
 .statusbar { display: none; }
-@media (min-width: 560px) and (min-height: 640px) {
+@media (min-width: 560px) {
   .stage { padding: 24px; background:
       radial-gradient(60% 50% at 20% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
       radial-gradient(50% 50% at 90% 90%, color-mix(in srgb, var(--band-3) 30%, transparent), transparent 70%),
       var(--page); }
   .device {
-    width: 393px; height: min(852px, calc(100vh - 48px)); flex: none;
+    width: 393px; height: 852px; flex: none; zoom: var(--fit, 1);
     border-radius: 56px; padding: 11px; background: #0A0F0E;
     box-shadow: 0 0 0 1.5px #2A3431, 0 40px 90px -20px rgba(5,36,30,.55), inset 0 0 0 1px #000;
   }
@@ -155,7 +155,7 @@ p { margin: 0; }
   .statusbar .sb-r { display: flex; gap: 6px; align-items: center; }
   .device .app { --top: 50px; }
 }
-@media (min-width: 960px) and (min-height: 640px) {
+@media (min-width: 960px) {
   .stage-side { display: block; }
 }
 .app { --top: max(14px, env(safe-area-inset-top, 0px)); --bottom: env(safe-area-inset-bottom, 0px); }

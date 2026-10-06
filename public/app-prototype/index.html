@@ -64,6 +64,13 @@
     if (v === 'restart') { S.onboarded = false; U.onbStep = 0; U.stack = [{ s: 'home' }]; save(); render() }
     else A.theme(v)
   }))
+  // Shrink the phone frame to fit short laptop windows (it stays a phone, never full screen).
+  function fitDevice() {
+    const fit = Math.min(1, (window.innerHeight - 32) / 874)
+    document.documentElement.style.setProperty('--fit', Math.max(0.55, fit).toFixed(3))
+  }
+  fitDevice()
+  window.addEventListener('resize', fitDevice)
   render()
 </script>
 </body>

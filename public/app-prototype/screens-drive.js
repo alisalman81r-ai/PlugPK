@@ -149,15 +149,15 @@ SCREENS.routeResult = () => {
       <div class="scroll pad" style="padding-bottom:110px">
         <div class="route-map">
           <svg viewBox="0 0 390 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-            <rect width="390" height="220" fill="var(--map-block)"/>
-            <g stroke="var(--map-street)" stroke-width="3" opacity=".9">${Array.from({ length: 14 }, (_, i) => `<path d="M ${i * 34 - 40} 0 L ${i * 34 + 40} 220"/><path d="M 0 ${i * 26} L 390 ${i * 26 - 30}"/>`).join('')}</g>
-            <path d="${pathD}" stroke="var(--map-road-edge)" stroke-width="12" fill="none" stroke-linecap="round"/>
+            <rect width="390" height="220" style="fill:var(--map-block)"/>
+            <g style="stroke:var(--map-street)" stroke-width="3" opacity=".9">${Array.from({ length: 14 }, (_, i) => `<path d="M ${i * 34 - 40} 0 L ${i * 34 + 40} 220"/><path d="M 0 ${i * 26} L 390 ${i * 26 - 30}"/>`).join('')}</g>
+            <path d="${pathD}" style="stroke:var(--map-road-edge)" stroke-width="12" fill="none" stroke-linecap="round"/>
             <path id="rpath" d="${pathD}" stroke="${p.kind === 'gap' ? '#F59E0B' : '#26CDB2'}" stroke-width="5" fill="none" stroke-linecap="round" ${p.kind === 'gap' ? 'stroke-dasharray="8 7"' : ''}/>
             ${gapAt != null ? `<path d="${pathD}" stroke="#26CDB2" stroke-width="5" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="${gapAt * 100} 100"/>` : ''}
             <circle cx="40" cy="180" r="9" fill="#22C55E" stroke="#fff" stroke-width="3"/>
             <circle cx="350" cy="34" r="9" fill="#EF4444" stroke="#fff" stroke-width="3"/>
             ${p.kind === 'topup' || p.kind === 'tophome' ? `<g transform="translate(62 162)"><circle r="13" fill="#05241E" stroke="#26CDB2" stroke-width="2"/><path d="M1.5-7-5 1.5h5l-1 6 6.5-8.5h-5z" fill="#26CDB2"/></g>` : ''}
-            <g font-family="Figtree, sans-serif" font-weight="700" font-size="13" fill="var(--fg)"><text x="56" y="205">${p.from}</text><text x="340" y="62" text-anchor="end">${p.to}</text></g>
+            <g font-family="Figtree, sans-serif" font-weight="700" font-size="13" style="fill:var(--fg)"><text x="56" y="205">${p.from}</text><text x="340" y="62" text-anchor="end">${p.to}</text></g>
           </svg>
         </div>
         <div class="tiles mt-12" style="grid-template-columns:repeat(4,1fr)">${summary.map(([k, v, u]) => `<div class="tile" style="padding:10px"><div class="k" style="font-size:11px">${k}</div><div class="v" style="font-size:16px">${v}<small>${u}</small></div></div>`).join('')}</div>

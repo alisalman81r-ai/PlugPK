@@ -79,21 +79,21 @@ function mapSvg(city) {
   const roadPaths = art.roads.map(([d], i) => `<path id="rd-${city}-${i}" d="${d}"/>`).join('')
   return `<svg width="${WORLD}" height="${WORLD}" viewBox="0 0 ${WORLD} ${WORLD}" aria-hidden="true">
     <defs>${roadPaths}</defs>
-    <rect width="${WORLD}" height="${WORLD}" fill="var(--map-block)"/>
+    <rect width="${WORLD}" height="${WORLD}" style="fill:var(--map-block)"/>
     <g transform="rotate(${art.rot} 700 700)">
-      <path d="${streets}" stroke="var(--map-street)" stroke-width="7" fill="none"/>
-      <path d="${lanes.join(' ')}" stroke="var(--map-street)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="${streets}" style="stroke:var(--map-street)" stroke-width="7" fill="none"/>
+      <path d="${lanes.join(' ')}" style="stroke:var(--map-street)" stroke-width="4" fill="none" stroke-linecap="round"/>
     </g>
-    ${art.hills ? `<path d="${art.hills}" fill="var(--map-park)"/><path d="${art.hills}" fill="none" stroke="var(--map-land)" stroke-width="2" stroke-dasharray="2 10" transform="translate(0 -40)"/>` : ''}
-    ${(art.water || []).map((d) => `<path d="${d}" fill="var(--map-water)"/>`).join('')}
-    ${art.canal ? `<path d="${art.canal}" stroke="var(--map-water)" stroke-width="16" fill="none"/>` : ''}
-    ${art.parks.map(([x, y, w, h]) => `<rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="18" fill="var(--map-park)" transform="rotate(${art.rot} ${x} ${y})"/>`).join('')}
-    ${art.roads.map(([d]) => `<path d="${d}" stroke="var(--map-road-edge)" stroke-width="20" fill="none" stroke-linecap="round"/>`).join('')}
-    ${art.roads.map(([d]) => `<path d="${d}" stroke="var(--map-road)" stroke-width="15" fill="none" stroke-linecap="round"/>`).join('')}
-    <g font-family="Figtree, system-ui, sans-serif" fill="var(--map-label)">
+    ${art.hills ? `<path d="${art.hills}" style="fill:var(--map-park)"/><path d="${art.hills}" fill="none" style="stroke:var(--map-land)" stroke-width="2" stroke-dasharray="2 10" transform="translate(0 -40)"/>` : ''}
+    ${(art.water || []).map((d) => `<path d="${d}" style="fill:var(--map-water)"/>`).join('')}
+    ${art.canal ? `<path d="${art.canal}" style="stroke:var(--map-water)" stroke-width="16" fill="none"/>` : ''}
+    ${art.parks.map(([x, y, w, h]) => `<rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="18" style="fill:var(--map-park)" transform="rotate(${art.rot} ${x} ${y})"/>`).join('')}
+    ${art.roads.map(([d]) => `<path d="${d}" style="stroke:var(--map-road-edge)" stroke-width="20" fill="none" stroke-linecap="round"/>`).join('')}
+    ${art.roads.map(([d]) => `<path d="${d}" style="stroke:var(--map-road)" stroke-width="15" fill="none" stroke-linecap="round"/>`).join('')}
+    <g font-family="Figtree, system-ui, sans-serif" style="fill:var(--map-label)">
       ${art.roads.map(([, name], i) => `<text font-size="13" font-weight="600" dy="4.5"><textPath href="#rd-${city}-${i}" startOffset="${30 + (i % 3) * 12}%">${name}</textPath></text>`).join('')}
       ${art.areas.map(([x, y, t]) => `<text x="${x}" y="${y}" font-size="15" font-weight="700" letter-spacing="3" text-anchor="middle" opacity=".75">${t}</text>`).join('')}
-      ${art.parks.filter((p) => p[4]).map(([x, y, , , t]) => `<text x="${x}" y="${y + 4}" font-size="12" font-weight="600" text-anchor="middle" fill="var(--ok-fg)" opacity=".8">${t}</text>`).join('')}
+      ${art.parks.filter((p) => p[4]).map(([x, y, , , t]) => `<text x="${x}" y="${y + 4}" font-size="12" font-weight="600" text-anchor="middle" style="fill:var(--ok-fg)" opacity=".8">${t}</text>`).join('')}
       ${(art.tag || []).map(([x, y, t]) => `<text x="${x}" y="${y}" font-size="16" font-style="italic" font-weight="600" text-anchor="middle" opacity=".8">${t}</text>`).join('')}
     </g>
   </svg>`
@@ -197,6 +197,7 @@ SCREENS.map = () => {
         <button class="glass-btn" data-a="zoom" data-v="1.4" aria-label="Zoom in">${ic('plus', 20)}</button>
         <button class="glass-btn" data-a="zoom" data-v="0.7" aria-label="Zoom out">${ic('minus', 20)}</button>
         <button class="glass-btn" data-a="locate" aria-label="Centre on me">${ic('locate', 20)}</button>
+        <button class="glass-btn" data-a="flipTheme" aria-label="Switch to ${isDark() ? 'light' : 'dark'} mode">${ic(isDark() ? 'sun' : 'moon', 20)}</button>
       </div>
       <div class="map-carousel"><div class="hscroll" id="map-cards" data-part="cards">${list.map(mapCard).join('') || `<div class="map-card" style="width:calc(100% - 0px)"><div class="grow t14 muted">No station here matches your filters. <button class="link" data-a="clearFilters">Clear filters</button></div></div>`}</div></div>`,
     after: mapAfter,
