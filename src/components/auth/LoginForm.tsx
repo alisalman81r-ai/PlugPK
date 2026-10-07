@@ -10,6 +10,7 @@ import { Button, MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import { authHref } from './auth-links'
+import { CheckYourEmail } from './CheckYourEmail'
 import {
   EMAIL_PATTERN,
   FIELD_CLASS,
@@ -31,6 +32,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [unverifiedEmail, setUnverifiedEmail] = React.useState<string | null>(null)
   const [fieldError, setFieldError] = React.useState<string | null>(null)
   const [attempts, setAttempts] = React.useState(0)
 
@@ -88,8 +90,25 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
       return
     }
 
+    // Right password, unverified address: offer a fresh link rather than a
+    // dead end. Not counted as a failed attempt.
+    if (result.needsVerification) {
+      setUnverifiedEmail(email.trim().toLowerCase())
+      return
+    }
+
     setError(result.message ?? 'Incorrect email or password')
     setAttempts((count) => count + 1)
+  }
+
+  if (unverifiedEmail) {
+    return (
+      <CheckYourEmail
+        email={unverifiedEmail}
+        heading="Please verify your email first"
+        onBack={() => setUnverifiedEmail(null)}
+      />
+    )
   }
 
   return (

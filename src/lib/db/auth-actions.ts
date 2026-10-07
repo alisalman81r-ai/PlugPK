@@ -10,26 +10,31 @@ import { hashPassword } from '@/lib/passwords'
 import { checkEmail, checkText } from '@/lib/validate'
 
 import { prisma } from './client'
-import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
-import { startSession } from './session'
+import {
+  consumeVerificationToken,
+  sendVerificationEmail,
+  type VerifyResult,
+} from './email-verification'
+import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 
 /**
- * Registration for EV owners.
+ * Registration for EV owners, and email verification.
  *
  * The password is hashed with scrypt against a per-user random salt
  * (src/lib/passwords.ts) and the plaintext is never written anywhere.
  *
- * hashPassword and verifyPassword used to be exported from here, which made
- * them public endpoints; they now live in a server-only module.
- *
- * Not yet done: verifying that the address belongs to the person signing up.
- * That needs an email provider. Until one is connected, a listing submitted
- * under an account is checked by an operator before it goes live.
+ * A new account starts unverified and is sent a one-time link
+ * (email-verification.ts). It cannot sign in until that link is opened —
+ * session-actions.ts enforces that at sign-in.
  */
 
 export interface SignUpResult {
   ok: boolean
   message?: string
+  /** On sign-up: whether the verification email actually went out. */
+  verificationSent?: boolean
+  /** On sign-up: the normalised address the link was sent to. */
+  email?: string
 }
 
 export async function registerUser(form: FormData): Promise<SignUpResult> {
@@ -79,16 +84,59 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
     throw error
   }
 
-  // Signed in immediately, so the vehicle onboarding that follows saves to it.
-  if (!(await startSession(userId))) {
-    return {
-      ok: false,
-      message: 'Your account was created, but signing you in failed. Please sign in.',
-    }
-  }
+  /*
+    Not signed in yet. The account is unverified until its owner opens the
+    link sent to the address they typed — a well-formed address proves
+    nothing about who owns it. Signing in is allowed once it is verified.
+  */
+  const { sent } = await sendVerificationEmail({ id: userId, email: email.value, name: name.value })
 
   revalidatePath('/')
-  revalidatePath('/dashboard')
 
-  return { ok: true }
+  return { ok: true, verificationSent: sent, email: email.value }
+}
+
+/*
+  ── Resending a link ───────────────────────────────────────────────────
+
+  Always answers the same way, whether or not the address has an account or
+  is already verified, so this cannot be used to discover who has signed up.
+  Limited per address (a minute between sends, five an hour) and per IP.
+*/
+const RESEND_REPLY =
+  'If that address has an account waiting to be verified, a new link is on its way. Check your inbox and spam folder.'
+
+export async function resendVerificationEmail(rawEmail: string): Promise<SignUpResult> {
+  const email = checkEmail(rawEmail)
+  if (!email.ok) return email
+
+  const limit = await checkLimits([
+    { key: `verify:cooldown:${keyPart(email.value)}`, limit: 1, windowSeconds: 60 },
+    { key: `verify:email:${keyPart(email.value)}`, limit: 5, windowSeconds: 60 * 60 },
+    { key: `verify:ip:${clientFingerprint()}`, limit: 15, windowSeconds: 60 * 60 },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'A link was sent very recently') }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: email.value },
+    select: { id: true, email: true, name: true, emailVerified: true },
+  })
+  if (user && !user.emailVerified) {
+    await sendVerificationEmail(user)
+  }
+
+  return { ok: true, message: RESEND_REPLY }
+}
+
+/** Uses a verification link. Called by the button on /verify-email. */
+export async function confirmEmail(token: string): Promise<{ result: VerifyResult }> {
+  // Guessing tokens is hopeless (256 bits), but there is no reason to let a
+  // script try millions; this caps attempts per IP.
+  const limit = await checkLimits([
+    { key: `verify:confirm:${clientFingerprint()}`, limit: 30, windowSeconds: 60 * 60 },
+  ])
+  if (!limit.allowed) return { result: 'invalid' }
+  return { result: await consumeVerificationToken(token) }
 }

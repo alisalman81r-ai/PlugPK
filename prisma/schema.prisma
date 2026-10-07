@@ -316,18 +316,23 @@ model User {
   /// account has open — on password change, admin reset, or "sign out
   /// everywhere" — which a self-contained signed cookie cannot do on its own.
   sessionVersion     Int     @default(0)
+  /// True once the person has opened a verification link sent to this
+  /// address. New accounts start false and cannot sign in until it is set;
+  /// admin accounts may sign in regardless (they are created deliberately).
+  emailVerified      Boolean @default(false)
   /// Set when an operator issues a temporary password; cleared when the
   /// account chooses its own.
   mustChangePassword Boolean @default(false)
 
   createdAt DateTime @default(now())
 
-  businesses  Business[]
-  saved       SavedStation[]
-  vehicles    UserVehicle[]
-  routes      SavedRoute[]
-  clubs       ClubMember[]
-  memberships Membership[]
+  businesses              Business[]
+  saved                   SavedStation[]
+  vehicles                UserVehicle[]
+  routes                  SavedRoute[]
+  clubs                   ClubMember[]
+  memberships             Membership[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@index([createdAt])
 }
@@ -1442,4 +1447,23 @@ model AdminAuditLog {
 
   @@index([createdAt])
   @@index([targetType, targetId])
+}
+
+/// A one-time link proving the account holder owns its email address.
+///
+/// Only a SHA-256 hash of the token is stored: the raw token exists in the
+/// email alone, so a copy of this table cannot be used to verify anything.
+/// A row is deleted when it is used, and every older row for the account is
+/// deleted when a new link is sent, so each link works once and only the
+/// newest one works at all.
+model EmailVerificationToken {
+  id        String   @id
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
