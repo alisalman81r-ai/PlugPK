@@ -26,8 +26,6 @@ export interface SessionResult {
    * whether an account may use the operator portal is a fact about its row.
    */
   redirectTo?: string
-  /** Sign-in refused because the account's email is not verified yet. */
-  needsVerification?: boolean
 }
 
 export interface CurrentUser {
@@ -73,20 +71,6 @@ export async function signIn(form: FormData): Promise<SessionResult> {
 
   if (!user) return WRONG
   if (!(await verifyPassword(password, user.passwordHash))) return WRONG
-
-  /*
-    Only after the password is right, so this reveals nothing to someone who
-    does not already hold the account's password. Admin accounts are exempt:
-    they are created deliberately (scripts/promote-admin.ts), and an operator
-    locked out of the portal by an undelivered email is worse than useless.
-  */
-  if (!user.emailVerified && !user.isAdmin) {
-    return {
-      ok: false,
-      needsVerification: true,
-      message: 'Please verify your email before signing in. We sent a link to your inbox.',
-    }
-  }
 
   if (!(await startSession(user.id))) {
     console.error('[auth] could not start a session:', getUserAuthConfigError())

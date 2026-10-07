@@ -3,6 +3,7 @@
 
 import { AlertCircle, Check, Eye, EyeOff, Lock, Mail, User } from '@/components/ui/icons'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Button, MorphIcon } from '@/components/ui'
@@ -10,7 +11,6 @@ import { cn } from '@/lib/utils'
 import { registerUser } from '@/lib/db/auth-actions'
 
 import { authHref } from './auth-links'
-import { CheckYourEmail } from './CheckYourEmail'
 
 export interface SignUpFormProps {
   onSuccess?: () => void
@@ -125,8 +125,7 @@ interface Errors {
 }
 
 export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
-  // Set once the account exists: the form gives way to "check your email".
-  const [sentTo, setSentTo] = React.useState<{ email: string; sent: boolean } | null>(null)
+  const router = useRouter()
 
   const [fullName, setFullName] = React.useState('')
   const [email, setEmail] = React.useState('')
@@ -204,19 +203,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     }
 
     onSuccess?.()
-    // Not signed in yet: the account has to be verified first. After the
-    // link, they sign in and land where they were headed (onboarding by default).
-    setSentTo({ email: result.email ?? email, sent: result.verificationSent !== false })
-  }
-
-  if (sentTo) {
-    return (
-      <CheckYourEmail
-        email={sentTo.email}
-        sent={sentTo.sent}
-        signInHref={authHref('/login', redirectTo ?? '/onboarding/vehicle')}
-      />
-    )
+    router.push(redirectTo ?? '/onboarding/vehicle')
   }
 
   return (
