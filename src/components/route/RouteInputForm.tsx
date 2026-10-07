@@ -4,6 +4,7 @@
 import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { useListKeyboard } from '@/hooks/useListKeyboard'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
@@ -70,6 +71,24 @@ function CityField({
 
   const showSuggestions = isFocused && suggestions.length > 0 && !suggestions.includes(value)
 
+  const pick = (city: string) => {
+    onChange(city)
+    setIsFocused(false)
+  }
+
+  // ↓/↑ move through the suggestions, Enter picks, Escape closes.
+  const keys = useListKeyboard({
+    count: suggestions.length,
+    open: showSuggestions,
+    onPick: (index) => {
+      const city = suggestions[index]
+      if (city) pick(city)
+    },
+    onClose: () => setIsFocused(false),
+    onOpen: () => setIsFocused(true),
+    resetKey: value,
+  })
+
   return (
     <div ref={wrapperRef}>
       <label htmlFor={id} className="mb-2 flex items-center gap-2">
@@ -88,24 +107,42 @@ function CityField({
           id={id}
           type="text"
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => {
+            onChange(event.target.value)
+            // Typing after Escape brings the suggestions back.
+            setIsFocused(true)
+          }}
           onFocus={() => setIsFocused(true)}
+          onKeyDown={keys.onKeyDown}
           placeholder={placeholder}
           autoComplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={showSuggestions}
+          aria-controls={keys.listId}
+          aria-activedescendant={showSuggestions ? keys.activeId : undefined}
           className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus focus:outline-none"
         />
 
         {showSuggestions ? (
-          <div className="absolute inset-x-0 top-full z-40 mt-2 max-h-[220px] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-e3">
-            {suggestions.map((city) => (
+          <div
+            id={keys.listId}
+            role="listbox"
+            className="absolute inset-x-0 top-full z-40 mt-2 max-h-[220px] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-e3"
+          >
+            {suggestions.map((city, index) => (
               <button
                 key={city}
                 type="button"
-                onClick={() => {
-                  onChange(city)
-                  setIsFocused(false)
-                }}
-                className="flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors duration-150 last:border-b-0 hover:bg-slate-50"
+                role="option"
+                tabIndex={-1}
+                {...keys.optionProps(index)}
+                aria-selected={keys.active === index}
+                // mousedown, not click: keeps focus in the input so the list
+                // does not close before the pick lands.
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => pick(city)}
+                className="flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors duration-150 last:border-b-0 data-[active]:bg-slate-100"
               >
                 <span className="shrink-0 rounded-lg bg-plug-blue-50 p-1.5">
                   <MapPin size={16} className="text-plug-blue-600" aria-hidden="true" />

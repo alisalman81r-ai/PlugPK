@@ -9,6 +9,7 @@ import * as React from 'react'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
 import { NAV_LINKS, NAV_TOOLS } from '@/lib/constants'
+import { useMenuKeyboard } from '@/hooks/useListKeyboard'
 import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
 import { MobileMenu } from './MobileMenu'
@@ -55,7 +56,11 @@ function Underline({ active }: { active: boolean }) {
 function ToolsMenu({ pathname }: { pathname: string }) {
   const [isOpen, setIsOpen] = React.useState(false)
   const ref = React.useRef<HTMLDivElement>(null)
+  const menuRef = React.useRef<HTMLDivElement>(null)
   const active = NAV_TOOLS.some((tool) => isActivePath(pathname, tool.href))
+  // ↓ on the button opens the menu on its first tool; ↓/↑ then move between
+  // the tools and Enter follows the focused one.
+  const menuKeys = useMenuKeyboard(menuRef, isOpen, setIsOpen)
 
   React.useEffect(() => setIsOpen(false), [pathname])
 
@@ -80,7 +85,9 @@ function ToolsMenu({ pathname }: { pathname: string }) {
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={menuKeys.onTriggerKeyDown}
         aria-expanded={isOpen}
+        aria-haspopup="true"
         aria-controls="nav-tools"
         className={cn(LINK, 'gap-1', active || isOpen ? 'text-white' : 'text-white/75 hover:text-white')}
       >
@@ -102,6 +109,8 @@ function ToolsMenu({ pathname }: { pathname: string }) {
       {isOpen ? (
         <div
           id="nav-tools"
+          ref={menuRef}
+          onKeyDown={menuKeys.onMenuKeyDown}
           className="absolute left-0 top-[calc(100%+6px)] z-50 w-56 overflow-hidden rounded-2xl border border-white/10 bg-plug-navy-950 p-1.5 shadow-[0_18px_40px_-18px_rgba(0,0,0,0.6)]"
         >
           {NAV_TOOLS.map((tool) => {
@@ -112,7 +121,7 @@ function ToolsMenu({ pathname }: { pathname: string }) {
                 href={tool.href}
                 aria-current={current ? 'page' : undefined}
                 className={cn(
-                  'flex min-h-11 items-center rounded-xl px-3 text-sm font-medium transition-colors',
+                  'flex min-h-11 items-center rounded-xl px-3 text-sm font-medium transition-colors focus-visible:bg-white/10 focus-visible:text-white focus-visible:outline-none',
                   current ? 'bg-white/10 text-white' : 'text-white/75 hover:bg-white/[0.06] hover:text-white',
                 )}
               >

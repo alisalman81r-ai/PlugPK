@@ -5,6 +5,7 @@ import { Car, Check, ChevronDown, Search, X } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { TurnIcon } from '@/components/ui'
+import { useListKeyboard } from '@/hooks/useListKeyboard'
 import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
 
@@ -98,14 +99,56 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
 
   const hasResults = grouped.length > 0
 
+  // The groups flattened into one list, which is the order ↓/↑ walk in;
+  // `offsets` maps each group's first option to its place in that list.
+  const { flat, offsets } = React.useMemo(() => {
+    const offsets: number[] = []
+    const flat: RouteVehicle[] = []
+    for (const [, groupVehicles] of grouped) {
+      offsets.push(flat.length)
+      flat.push(...groupVehicles)
+    }
+    return { flat, offsets }
+  }, [grouped])
+
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const close = () => {
+    setIsOpen(false)
+    // Back to the trigger, so Tab carries on from the picker, not the page top.
+    triggerRef.current?.focus()
+  }
+  const choose = (vehicle: RouteVehicle | null) => {
+    onSelect(vehicle)
+    close()
+  }
+
+  // ↓/↑ move through the cars, Enter picks, Escape closes.
+  const keys = useListKeyboard({
+    count: flat.length,
+    open: isOpen,
+    onPick: (index) => {
+      const vehicle = flat[index]
+      if (vehicle) choose(vehicle)
+    },
+    onClose: close,
+    onOpen: () => setIsOpen(true),
+    resetKey: searchQuery,
+  })
+
   return (
     <div ref={containerRef} className={cn('relative', className)}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         // Typing on the closed picker opens it with that letter already in
-        // the search, the way a native select jumps to a match.
+        // the search, the way a native select jumps to a match. ↓ opens it.
         onKeyDown={(event) => {
+          if (!isOpen && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+            event.preventDefault()
+            setIsOpen(true)
+            return
+          }
           if (event.key.length === 1 && !event.metaKey && !event.ctrlKey && !event.altKey && event.key !== ' ') {
             event.preventDefault()
             setSearchQuery(event.key)
@@ -156,38 +199,44 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
                 ref={searchRef}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Escape') setIsOpen(false)
-                }}
+                onKeyDown={keys.onKeyDown}
                 placeholder="Search your EV..."
                 aria-label="Search vehicles"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={isOpen}
+                aria-controls={keys.listId}
+                aria-activedescendant={keys.activeId}
                 className="w-full border-none bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
               />
             </div>
           </div>
 
-          <div className="scrollbar-hide max-h-[260px] overflow-y-auto" role="listbox">
+          <div id={keys.listId} className="scrollbar-hide max-h-[260px] overflow-y-auto" role="listbox">
             {hasResults ? (
-              grouped.map(([make, vehicles]) => (
+              grouped.map(([make, vehicles], groupIndex) => (
                 <div key={make}>
                   <p className="sticky top-0 bg-slate-50 px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-400">
                     {make}
                   </p>
 
-                  {vehicles.map((vehicle) => {
+                  {vehicles.map((vehicle, indexInGroup) => {
                     const isSelected = selectedVehicle?.id === vehicle.id
+                    const index = (offsets[groupIndex] ?? 0) + indexInGroup
 
                     return (
                       <button
                         key={vehicle.id}
                         type="button"
                         role="option"
-                        aria-selected={isSelected}
-                        onClick={() => {
-                          onSelect(vehicle)
-                          setIsOpen(false)
-                        }}
-                        className="flex w-full items-center justify-between border-b border-slate-50 px-4 py-3 text-left transition-colors duration-100 hover:bg-slate-50"
+                        tabIndex={-1}
+                        {...keys.optionProps(index)}
+                        aria-selected={keys.active === index}
+                        // The checkmark marks the chosen car; aria-selected
+                        // follows the keyboard highlight, as the pattern expects.
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => choose(vehicle)}
+                        className="flex w-full items-center justify-between border-b border-slate-50 px-4 py-3 text-left transition-colors duration-100 data-[active]:bg-slate-100"
                       >
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-semibold text-slate-900">
@@ -220,10 +269,7 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
           {selectedVehicle ? (
             <button
               type="button"
-              onClick={() => {
-                onSelect(null)
-                setIsOpen(false)
-              }}
+              onClick={() => choose(null)}
               className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
             >
               <X size={16} aria-hidden="true" />

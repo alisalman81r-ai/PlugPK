@@ -6,6 +6,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { Avatar } from '@/components/ui/Avatar'
+import { useMenuKeyboard } from '@/hooks/useListKeyboard'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -57,6 +58,9 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [isSigningOut, setIsSigningOut] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const menuRef = React.useRef<HTMLDivElement>(null)
+  // ↓/↑ open the menu and move between its items; Enter follows the focused one.
+  const menuKeys = useMenuKeyboard(menuRef, isOpen, setIsOpen)
 
   // A menu that stays open after you click elsewhere reads as stuck, and one
   // that ignores Escape traps keyboard users inside it.
@@ -97,6 +101,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={menuKeys.onTriggerKeyDown}
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
@@ -135,6 +140,8 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
       {isOpen ? (
         <div
           role="menu"
+          ref={menuRef}
+          onKeyDown={menuKeys.onMenuKeyDown}
           className="absolute right-0 top-[calc(100%+8px)] z-50 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card-hover"
         >
           <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
@@ -152,7 +159,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
                 href={link.href}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
-                className="flex h-11 items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                className="flex h-11 items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 focus-visible:bg-slate-100 focus-visible:text-slate-900 focus-visible:outline-none"
               >
                 <link.icon size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
                 {link.label}
@@ -166,7 +173,7 @@ export function AccountMenu({ user, onDark = false }: AccountMenuProps) {
               role="menuitem"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="flex h-11 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-60"
+              className="flex h-11 w-full items-center gap-2.5 rounded-xl px-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none disabled:opacity-60"
             >
               <LogOut size={16} className="shrink-0 text-red-400" aria-hidden="true" />
               {isSigningOut ? 'Signing out…' : 'Sign out'}
