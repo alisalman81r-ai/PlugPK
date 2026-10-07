@@ -277,38 +277,18 @@ export function Hero({ stats }: HeroProps) {
                 </h1>
               </div>
   
-              {/*
-                The supporting line sits closer to the headline and holds a
-                shorter measure than before — 42 characters rather than 46, so
-                it breaks into two balanced lines under a three-line masthead
-                instead of running wider than the type it belongs to.
-              */}
-              {/*
-                Two lines, set as two, not left to wrap. The first names what
-                the product holds, the second says who it is for — the rhythm
-                the reference uses, and it only reads as a rhythm if the break
-                lands in the same place at every width.
-
-                "Real charging speeds" and "driver reviews" are claims the data
-                actually backs: the speeds come from the connector records and
-                the reviews are written by people who used the station.
-              */}
-              <p className="hero-rise hero-rise-4 mt-[clamp(1rem,2.6vh,1.85rem)] max-w-none text-[1.1875rem] leading-[1.65] tracking-[-0.011em] text-slate-300">
-                <span className="block">One map. Real charging speeds. Driver reviews.</span>
-                <span className="block">
-                  Everything you need for a smoother, greener journey.
-                </span>
-              </p>
-  
               {/* One control, shaped like a single button. The visitor's intent
-                  travels with them rather than being re-asked for on arrival. */}
+                  travels with them rather than being re-asked for on arrival.
+                  It follows the headline directly — the supporting line that
+                  sat between them was removed — so the gap above it is the
+                  one space between the masthead and the action. */}
               <form
                 role="search"
                 onSubmit={(event) => {
                   event.preventDefault()
                   go(query)
                 }}
-                className="hero-rise hero-rise-5 mt-[clamp(1.75rem,4.2vh,3rem)] flex w-full items-center gap-2 rounded-full border border-white/10 bg-white p-2 pl-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] ring-0 ring-plug-cyan-500/40 transition-[box-shadow] duration-200 focus-within:ring-4"
+                className="hero-rise hero-rise-4 mt-[clamp(2rem,5vh,3.25rem)] flex w-full items-center gap-2 rounded-full border border-white/10 bg-white p-2 pl-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.7)] ring-0 ring-plug-cyan-500/40 transition-[box-shadow] duration-200 focus-within:ring-4"
               >
                 <Search size={18} className="shrink-0 text-slate-500" aria-hidden="true" />
                 <input
