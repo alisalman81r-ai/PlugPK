@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview'
 import { getDashboardShell, getPostsByUser, getReviewsByUser, getSavedStationsForUser } from '@/lib/db/queries'
+import { getMyClubs } from '@/lib/db/community-queries'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
 /**
@@ -18,11 +19,12 @@ export default async function Page() {
   const profile = await getCurrentProfile()
   if (!profile) redirect('/login?redirect=/dashboard')
 
-  const [shell, saved, reviews, posts] = await Promise.all([
+  const [shell, saved, reviews, posts, clubs] = await Promise.all([
     getDashboardShell(profile),
     getSavedStationsForUser(profile.id),
     getReviewsByUser(profile.id),
     getPostsByUser(profile.id),
+    getMyClubs(profile.id),
   ])
 
   /*
@@ -48,6 +50,7 @@ export default async function Page() {
         savedStations={saved}
         reviews={reviews}
         posts={posts}
+        clubs={clubs}
       />
     </DashboardLayout>
   )

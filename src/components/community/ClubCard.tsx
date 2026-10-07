@@ -2,13 +2,16 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Check, MapPin, UserPlus, Users } from '@/components/ui/icons'
+import { MapPin, Users } from '@/components/ui/icons'
 import Image from 'next/image'
+import Link from 'next/link'
+import * as React from 'react'
 
 import { hoverTrigger } from '@/components/ui'
 import type { EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { CityLandmark, CityScene, cityLandmarkLabel, citySky } from './CityLandmark'
+import { ClubJoinButton } from './ClubJoinButton'
 
 /**
  * One club.
@@ -45,6 +48,8 @@ export interface ClubCardProps {
    */
   photo?: string | null
   variant?: 'default' | 'compact'
+  /** Whether someone is signed in. Signed out, Join leads to sign-in and back. */
+  signedIn?: boolean
   animationDelay?: number
   className?: string
 }
@@ -53,31 +58,22 @@ export function ClubCard({
   club,
   photo,
   variant = 'default',
+  signedIn = false,
   animationDelay,
   className,
 }: ClubCardProps) {
   /*
-    Read from the server, never from a click.
-
-    This was React state that a click toggled, so the button reported a
-    membership nobody had: nothing was written, and a reload put it straight
-    back to "Join club". It looked like the feature worked, which is worse than
-    it plainly not existing — the one bug a Join button must not have.
-
-    Phase 1 removes the pretence. The button now renders the truth the database
-    gave it and does nothing when pressed; the action that opens checkout
-    arrives with Stripe in a later phase.
+    Joining is free and real: the button writes a ClubMember row through
+    joinClub (community-actions.ts). The card answers at once — the count
+    ticks and the button turns to "Joined" — and rolls back with a message if
+    the server refuses. Reloading shows the same thing, because the server
+    render reads the same table.
   */
-  const isJoined = club.isJoined ?? false
   const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
-
-  /*
-    The count as the query gave it. The local adjustment that used to sit here
-    existed only to make the fake join look real; with nothing joining
-    client-side there is nothing to adjust, and an unadjusted figure is one
-    fewer place for the page to disagree with the database.
-  */
-  const memberCount = club.memberCount
+  const [memberCount, setMemberCount] = React.useState(club.memberCount)
+  // A fresh server render is the truth again.
+  React.useEffect(() => setMemberCount(club.memberCount), [club.memberCount])
+  const href = `/community/clubs/${club.id}`
 
   /* ── Compact ──────────────────────────────────────────────────── */
   if (variant === 'compact') {
@@ -105,7 +101,7 @@ export function ClubCard({
         <span className="min-w-0 flex-1">
           <span className="block truncate text-ui-sm font-bold text-slate-900">{club.name}</span>
           <span className="block truncate text-ui-xs text-slate-400">
-            {club.city} · <span className="font-mono">{memberCount}</span> members
+            {club.city} · <span className="font-mono">{memberCount}</span> {memberCount === 1 ? 'member' : 'members'}
           </span>
         </span>
       </motion.div>
@@ -190,13 +186,15 @@ export function ClubCard({
       {/* ── Body ─────────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-display text-ui-lg font-bold leading-snug tracking-tight text-slate-900">
-          {club.name}
+          <Link href={href} className="hover:text-plug-blue-600 hover:underline">
+            {club.name}
+          </Link>
         </h3>
 
         <p className="mt-2 flex items-center gap-1.5 text-ui-sm text-slate-500">
           <Users size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
           <span className="font-mono font-bold tabular-nums text-slate-900">{memberCount}</span>
-          members
+          {memberCount === 1 ? 'member' : 'members'}
         </p>
 
         {club.description ? (
@@ -208,40 +206,20 @@ export function ClubCard({
         {/* mt-auto rather than a fixed description height: the descriptions run
             to different lengths, and pinning the button to the bottom keeps the
             row of buttons level without capping what the copy can say. */}
-        <button
-          type="button"
-          /*
-            Deliberately inert in Phase 1. Wiring it to a server action that
-            creates a membership would give away for free the thing the next
-            phase exists to sell, so it waits for checkout rather than being
-            hooked up to something that skips payment.
-          */
-          disabled
-          aria-pressed={isJoined}
-          title={isJoined ? undefined : 'Joining opens with card payment shortly.'}
-          className={cn(
-            'mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-ui font-bold transition-colors duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-            isJoined
-              ? 'border border-green-200 bg-green-50 text-green-700 focus-visible:ring-green-500'
-              : 'bg-plug-blue-600 text-white focus-visible:ring-plug-blue-500',
-            // No hover lift and a blocked cursor: a control that cannot be
-            // pressed should not answer the pointer as though it can.
-            'disabled:cursor-not-allowed disabled:opacity-60',
-          )}
+        <Link
+          href={href}
+          className="mt-auto pt-4 text-center text-ui-sm font-semibold text-plug-blue-600 hover:underline"
         >
-          {isJoined ? (
-            <>
-              <Check size={16} aria-hidden="true" />
-              Joined
-            </>
-          ) : (
-            <>
-              <UserPlus size={16} aria-hidden="true" />
-              Join club
-            </>
-          )}
-        </button>
+          View club and members
+        </Link>
+        <ClubJoinButton
+          clubId={club.id}
+          initiallyJoined={club.isJoined ?? false}
+          signedIn={signedIn}
+          signInRedirect="/community/clubs"
+          onChange={(joined) => setMemberCount((count) => Math.max(0, count + (joined ? 1 : -1)))}
+          className="mt-3"
+        />
       </div>
     </motion.article>
   )

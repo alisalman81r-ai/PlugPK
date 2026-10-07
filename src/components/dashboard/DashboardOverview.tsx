@@ -1,10 +1,10 @@
 // src/components/dashboard/DashboardOverview.tsx
-import { Bookmark, Calendar, Car, MapPin, Star } from '@/components/ui/icons'
+import { Bookmark, Calendar, Car, MapPin, Star, Users } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { Avatar, RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
-import type { CommunityPost, Station } from '@/lib/types'
+import type { CommunityPost, EVClub, Station } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 
 import type { DashboardStats } from './DashboardSidebar'
@@ -34,6 +34,8 @@ export interface DashboardOverviewProps {
   savedStations: Station[]
   reviews: MyReviewRow[]
   posts: CommunityPost[]
+  /** Clubs the account has joined. */
+  clubs?: EVClub[]
 }
 
 const PREVIEW = 3
@@ -52,7 +54,7 @@ function EmptyHint({ children, href, cta }: { children: React.ReactNode; href: s
   )
 }
 
-export function DashboardOverview({ user, stats, savedStations, reviews, posts }: DashboardOverviewProps) {
+export function DashboardOverview({ user, stats, savedStations, reviews, posts, clubs = [] }: DashboardOverviewProps) {
   const cards = [
     { icon: Bookmark, tone: 'bg-plug-blue-50 text-plug-blue-600', value: stats.totalSaved, label: 'Saved stations' },
     { icon: Star, tone: 'bg-amber-50 text-amber-600', value: stats.totalReviews, label: 'Reviews written' },
@@ -97,6 +99,39 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts }
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-slate-900">Your clubs</h2>
+          <Link href={clubs.length > 0 ? '/dashboard/clubs' : '/community/clubs'} className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+            {clubs.length > 0 ? 'Manage' : 'Browse clubs'}
+          </Link>
+        </div>
+        {clubs.length === 0 ? (
+          <EmptyHint href="/community/clubs" cta="Find a club">
+            Join an EV owners&apos; club in your city to see who else drives electric near you.
+          </EmptyHint>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {clubs.slice(0, PREVIEW).map((club) => (
+              <li key={club.id}>
+                <Link href={`/community/clubs/${club.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50">
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-slate-900">{club.name}</span>
+                    <span className="mt-1 flex items-center gap-1 text-ui-sm text-slate-500">
+                      <MapPin size={12} aria-hidden="true" /> {club.city}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1 text-ui-sm text-slate-500">
+                    <Users size={14} aria-hidden="true" />
+                    <span className="font-mono font-bold text-slate-900">{club.memberCount}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6">

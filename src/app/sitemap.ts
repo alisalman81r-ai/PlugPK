@@ -3,6 +3,7 @@ import type { MetadataRoute } from 'next'
 
 import { SERVICE_CATEGORY_KEYS, SITE_CONFIG } from '@/lib/constants'
 import { getCarSlugs } from '@/lib/db/car-queries'
+import { getClubIds } from '@/lib/db/community-queries'
 import { getPostSlugs, getServiceParams, getStationSlugs } from '@/lib/db/queries'
 
 /**
@@ -58,13 +59,14 @@ async function safely(load: () => Promise<string[]>): Promise<string[]> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
-  const [cars, stations, services, posts] = await Promise.all([
+  const [cars, stations, services, posts, clubs] = await Promise.all([
     safely(async () => (await getCarSlugs()).map((slug) => `/cars/${slug}`)),
     safely(async () => (await getStationSlugs()).map((slug) => `/station/${slug}`)),
     safely(async () =>
       (await getServiceParams()).map(({ category, slug }) => `/services/${category}/${slug}`),
     ),
     safely(async () => (await getPostSlugs()).map((slug) => `/community/post/${slug}`)),
+    safely(async () => (await getClubIds()).map((id) => `/community/clubs/${id}`)),
   ])
 
   const categories = SERVICE_CATEGORY_KEYS.map((category) => `/services/${category}`)
@@ -81,5 +83,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...stations.map((path) => ({ url: `${BASE}${path}`, lastModified: now, priority: 0.7 })),
     ...services.map((path) => ({ url: `${BASE}${path}`, lastModified: now, priority: 0.5 })),
     ...posts.map((path) => ({ url: `${BASE}${path}`, lastModified: now, priority: 0.4 })),
+    ...clubs.map((path) => ({ url: `${BASE}${path}`, lastModified: now, priority: 0.5 })),
   ]
 }

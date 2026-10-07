@@ -10,6 +10,7 @@ import {
   Pencil,
   Route,
   Settings,
+  Users,
   type IconType,
 } from '@/components/ui/icons'
 import Link from 'next/link'
@@ -54,6 +55,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { label: 'My Vehicles', href: '/dashboard/vehicles', icon: Car },
   { label: 'Saved Stations', href: '/dashboard/saved', icon: Bookmark, badgeKey: 'totalSaved' },
   { label: 'Saved Routes', href: '/dashboard/routes', icon: Route, badgeKey: 'totalRoutes' },
+  { label: 'My Clubs', href: '/dashboard/clubs', icon: Users },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

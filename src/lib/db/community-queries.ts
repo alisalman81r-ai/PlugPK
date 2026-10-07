@@ -259,17 +259,40 @@ export async function getLikedPostIds(userId: string, postIds: string[]): Promis
  * project's own rule they cannot be printed. queries.ts getClubs() still adds
  * them on; this does not.
  *
- * What is counted instead is active Membership rows, not ClubMember: per
- * membership.ts, Membership is the only table that decides who is in a club
- * (it knows whether the payment behind a join was confirmed), and ClubMember
- * is read by nothing. Today that count is honestly zero for every club, and
- * the pages say so rather than inventing a crowd.
+ * ── Who counts as a member ─────────────────────────────────────────────
+ *
+ * Joining a club is free: pressing Join writes a ClubMember row
+ * (community-actions.ts joinClub). Paid membership through checkout was the
+ * original plan (membership.ts) and was never built — no payment gateway is
+ * connected — so the button sat disabled and nobody could join anything.
+ *
+ * A member is therefore anyone with a ClubMember row, plus anyone with an
+ * active paid Membership should that ever exist. Both are counted from rows.
  */
+async function clubMemberCounts(): Promise<Map<string, number>> {
+  const [free, paid] = await Promise.all([
+    prisma.clubMember.groupBy({ by: ['clubId'], _count: { _all: true } }),
+    countActiveMembers('club'),
+  ])
+  const counts = new Map(paid)
+  for (const row of free) counts.set(row.clubId, (counts.get(row.clubId) ?? 0) + row._count._all)
+  return counts
+}
+
+async function joinedClubIds(userId: string | undefined): Promise<Set<string>> {
+  if (!userId) return new Set()
+  const [free, paid] = await Promise.all([
+    prisma.clubMember.findMany({ where: { userId }, select: { clubId: true } }),
+    listActiveMembershipIds(userId, 'club'),
+  ])
+  return new Set([...paid, ...free.map((row) => row.clubId)])
+}
+
 export async function getCommunityClubs(userId?: string): Promise<EVClub[]> {
   const [rows, memberCounts, joined] = await Promise.all([
     prisma.club.findMany({ orderBy: [{ name: 'asc' }] }),
-    countActiveMembers('club'),
-    listActiveMembershipIds(userId, 'club'),
+    clubMemberCounts(),
+    joinedClubIds(userId),
   ])
 
   return rows
@@ -306,7 +329,7 @@ export async function getCommunityFigures(): Promise<CommunityFigures> {
     prisma.communityPost.count(),
     prisma.comment.count(),
     prisma.club.findMany({ select: { city: true } }),
-    countActiveMembers('club'),
+    clubMemberCounts(),
     prisma.communityPost.groupBy({ by: ['category'], _count: { _all: true } }),
   ])
 
@@ -327,4 +350,99 @@ export async function getCommunityFigures(): Promise<CommunityFigures> {
 export async function getPostSlugList(): Promise<string[]> {
   const rows = await prisma.communityPost.findMany({ select: { slug: true } })
   return rows.map((row) => row.slug)
+}
+
+// ─── One club, and the clubs an account belongs to ──────
+
+export interface ClubMemberSummary {
+  id: string
+  /** First name and last initial — "Ayesha K." — never the full name or email. */
+  displayName: string
+  avatar: string | null
+  vehicle: string | null
+  joinedAt: string
+}
+
+export interface ClubDetail extends EVClub {
+  members: ClubMemberSummary[]
+}
+
+/** How many members a club page lists; the count above it is the full total. */
+const CLUB_PAGE_MEMBERS = 60
+
+function displayName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return 'Member'
+  const first = parts[0] as string
+  const last = parts.length > 1 ? (parts[parts.length - 1] as string) : ''
+  return last ? `${first} ${last.charAt(0).toUpperCase()}.` : first
+}
+
+/**
+ * A club's own page: the club, its member count, whether the reader is in it,
+ * and the most recent members. Null for an unknown id.
+ *
+ * Members are shown as first name and last initial with their car — enough
+ * to see who is in the group, without publishing anyone's full name or email.
+ */
+export async function getClubDetail(clubId: string, userId?: string): Promise<ClubDetail | null> {
+  const club = await prisma.club.findUnique({ where: { id: clubId } })
+  if (!club) return null
+
+  const [memberTotal, paid, rows, joined] = await Promise.all([
+    prisma.clubMember.count({ where: { clubId } }),
+    countActiveMembers('club'),
+    prisma.clubMember.findMany({
+      where: { clubId },
+      orderBy: { joinedAt: 'desc' },
+      take: CLUB_PAGE_MEMBERS,
+      select: { joinedAt: true, user: { select: { id: true, name: true, avatar: true, vehicle: true } } },
+    }),
+    joinedClubIds(userId),
+  ])
+
+  return {
+    id: club.id,
+    name: club.name,
+    city: club.city,
+    description: club.description,
+    coverPhoto: club.coverPhoto ?? undefined,
+    memberCount: memberTotal + (paid.get(club.id) ?? 0),
+    isJoined: joined.has(club.id),
+    members: rows.map((row) => ({
+      id: row.user.id,
+      displayName: displayName(row.user.name),
+      avatar: row.user.avatar,
+      vehicle: row.user.vehicle,
+      joinedAt: row.joinedAt.toISOString(),
+    })),
+  }
+}
+
+/** The clubs this account has joined, newest first, with their member counts. */
+export async function getMyClubs(userId: string): Promise<(EVClub & { joinedAt: string })[]> {
+  const [rows, counts] = await Promise.all([
+    prisma.clubMember.findMany({
+      where: { userId },
+      orderBy: { joinedAt: 'desc' },
+      select: { joinedAt: true, club: true },
+    }),
+    clubMemberCounts(),
+  ])
+  return rows.map(({ club, joinedAt }) => ({
+    id: club.id,
+    name: club.name,
+    city: club.city,
+    description: club.description,
+    coverPhoto: club.coverPhoto ?? undefined,
+    memberCount: counts.get(club.id) ?? 0,
+    isJoined: true,
+    joinedAt: joinedAt.toISOString(),
+  }))
+}
+
+/** For the sitemap and static params. */
+export async function getClubIds(): Promise<string[]> {
+  const rows = await prisma.club.findMany({ select: { id: true } })
+  return rows.map((row) => row.id)
 }

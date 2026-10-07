@@ -341,3 +341,58 @@ export async function loadComments(
 ): Promise<{ comments: Comment[]; nextCursor: string | null }> {
   return getComments(String(postId), typeof cursor === 'string' && cursor ? cursor : null)
 }
+
+// ─── Clubs ──────────────────────────────────────────────
+
+export interface ClubResult {
+  ok: boolean
+  joined: boolean
+  message?: string
+}
+
+/**
+ * Joins a club — free, for any signed-in account.
+ *
+ * createMany with skipDuplicates against the (clubId, userId) unique index,
+ * so a double click or two tabs leave one membership and never an error.
+ */
+export async function joinClub(clubId: string): Promise<ClubResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, joined: false, message: 'Sign in to join a club.' }
+  if (typeof clubId !== 'string' || !clubId || clubId.length > 100) {
+    return { ok: false, joined: false, message: 'That club could not be found.' }
+  }
+
+  const limit = await checkLimits([{ key: `club:user:${userId}`, limit: 30, windowSeconds: 60 * 60 }])
+  if (!limit.allowed) return { ok: false, joined: false, message: retryMessage(limit.retryAfterSeconds) }
+
+  const club = await prisma.club.findUnique({ where: { id: clubId }, select: { id: true } })
+  if (!club) return { ok: false, joined: false, message: 'That club could not be found.' }
+
+  await prisma.clubMember.createMany({
+    data: [{ id: randomUUID(), clubId, userId }],
+    skipDuplicates: true,
+  })
+
+  revalidatePath('/community/clubs')
+  revalidatePath('/community')
+  return { ok: true, joined: true }
+}
+
+/** Leaves a club. Leaving one you are not in is a no-op, not an error. */
+export async function leaveClub(clubId: string): Promise<ClubResult> {
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, joined: false, message: 'Sign in to manage your clubs.' }
+  if (typeof clubId !== 'string' || !clubId || clubId.length > 100) {
+    return { ok: false, joined: false, message: 'That club could not be found.' }
+  }
+
+  const limit = await checkLimits([{ key: `club:user:${userId}`, limit: 30, windowSeconds: 60 * 60 }])
+  if (!limit.allowed) return { ok: false, joined: true, message: retryMessage(limit.retryAfterSeconds) }
+
+  await prisma.clubMember.deleteMany({ where: { clubId, userId } })
+
+  revalidatePath('/community/clubs')
+  revalidatePath('/community')
+  return { ok: true, joined: false }
+}

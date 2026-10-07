@@ -25,10 +25,12 @@ import { ClubCard } from './ClubCard'
 
 export interface ClubsDirectoryProps {
   clubs: EVClub[]
+  /** Whether the reader is signed in; decides between Join and "Sign in to join". */
+  signedIn?: boolean
   className?: string
 }
 
-export function ClubsDirectory({ clubs, className }: ClubsDirectoryProps) {
+export function ClubsDirectory({ clubs, signedIn = false, className }: ClubsDirectoryProps) {
   const cities = new Set(clubs.map((club) => club.city)).size
 
 
@@ -87,6 +89,7 @@ export function ClubsDirectory({ clubs, className }: ClubsDirectoryProps) {
                   should show itself, not its skyline.
                 */
                 photo={club.coverPhoto ?? cityPhoto(club.city)}
+                signedIn={signedIn}
                 animationDelay={index * STAGGER.TIGHT}
                 className="animate-fade-up opacity-0"
               />

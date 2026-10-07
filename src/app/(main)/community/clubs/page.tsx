@@ -167,7 +167,7 @@ export default async function CommunityClubsPage() {
 
       {/* ── The directory, lifted into the band ───────────────────── */}
       <div className={`relative z-10 ${CARD_LIFT} ${STAGE} pb-20`}>
-        <ClubsDirectory clubs={clubs} />
+        <ClubsDirectory clubs={clubs} signedIn={Boolean(user)} />
       </div>
     </div>
   )
