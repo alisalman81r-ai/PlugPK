@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ClubsDirectory } from '@/components/community/ClubsDirectory'
 import { PillButton } from '@/components/ui'
 import { getCurrentUser } from '@/lib/db/session-actions'
-import { getCommunityClubs } from '@/lib/db/community-queries'
+import { countClubPeople, getCommunityClubs } from '@/lib/db/community-queries'
 
 export const metadata: Metadata = {
   title: 'EV Clubs Pakistan',
@@ -58,7 +58,7 @@ export default async function CommunityClubsPage() {
   const user = await getCurrentUser()
   // Members counted from active memberships, not the seeded baseline totals
   // Club.memberCount holds — see getCommunityClubs for why.
-  const clubs = await getCommunityClubs(user?.id)
+  const [clubs, members] = await Promise.all([getCommunityClubs(user?.id), countClubPeople()])
 
   /**
    * Counted at render time, like every other figure in this band.
@@ -68,7 +68,8 @@ export default async function CommunityClubsPage() {
    * how much is in it, was missing.
    */
   const cities = new Set(clubs.map((club) => club.city)).size
-  const members = clubs.reduce((total, club) => total + club.memberCount, 0)
+  // `members` is different people, not the sum of the club counts: someone in
+  // three clubs is one member here (countClubPeople).
 
   return (
     <div className="min-h-below-nav bg-slate-50">

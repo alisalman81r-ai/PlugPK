@@ -279,6 +279,25 @@ async function clubMemberCounts(): Promise<Map<string, number>> {
   return counts
 }
 
+/**
+ * How many different people are in at least one club.
+ *
+ * A person may belong to several clubs, and each club's own count includes
+ * them once. A total made by adding those counts would count someone in
+ * three clubs three times — so a page-wide "members" figure comes from here
+ * instead: one row per person, across free and paid memberships.
+ */
+export async function countClubPeople(): Promise<number> {
+  const rows = await prisma.$queryRaw<{ people: number }[]>`
+    SELECT COUNT(*)::int AS people FROM (
+      SELECT "userId" FROM "ClubMember"
+      UNION
+      SELECT "userId" FROM "Membership" WHERE "scope" = 'club' AND "status" = 'active'
+    ) AS members
+  `
+  return rows[0]?.people ?? 0
+}
+
 async function joinedClubIds(userId: string | undefined): Promise<Set<string>> {
   if (!userId) return new Set()
   const [free, paid] = await Promise.all([
@@ -317,7 +336,7 @@ export interface CommunityFigures {
   clubs: number
   /** Cities with at least one club. */
   cities: number
-  /** Active club members, counted — see getCommunityClubs. */
+  /** Different people in at least one club — see countClubPeople. */
   clubMembers: number
   /** Posts per category, plus `all`. */
   byCategory: Record<string, number>
@@ -325,11 +344,11 @@ export interface CommunityFigures {
 
 /** The figures the community pages print, all counted from rows. */
 export async function getCommunityFigures(): Promise<CommunityFigures> {
-  const [discussions, replies, clubs, memberCounts, groups] = await Promise.all([
+  const [discussions, replies, clubs, clubPeople, groups] = await Promise.all([
     prisma.communityPost.count(),
     prisma.comment.count(),
     prisma.club.findMany({ select: { city: true } }),
-    clubMemberCounts(),
+    countClubPeople(),
     prisma.communityPost.groupBy({ by: ['category'], _count: { _all: true } }),
   ])
 
@@ -341,7 +360,7 @@ export async function getCommunityFigures(): Promise<CommunityFigures> {
     replies,
     clubs: clubs.length,
     cities: new Set(clubs.map((club) => club.city)).size,
-    clubMembers: Array.from(memberCounts.values()).reduce((sum, n) => sum + n, 0),
+    clubMembers: clubPeople,
     byCategory,
   }
 }
