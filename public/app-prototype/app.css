@@ -836,3 +836,30 @@ a.btn, a.list-row { text-decoration: none; }
 .sv2-status.open { color: var(--ok-fg); }
 .sv2-status.open i { background: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,.18); }
 .sv2-more { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--accent-text); }
+
+/* ── Community feed ────────────────────────────────────────────────── */
+.cm-head { padding-bottom: 22px; }
+.cm-head > * { position: relative; }
+.cm-bar { position: sticky; top: 0; z-index: 4; background: var(--bg); border-bottom: 1px solid var(--line); padding-top: 6px; }
+.cm-tabs { display: flex; gap: 24px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+.cm-tabs button { position: relative; height: 44px; font-size: 15px; font-weight: 600; color: var(--muted); }
+.cm-tabs button.on { color: var(--fg); }
+.cm-tabs button.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2.5px; border-radius: 2px; background: var(--accent); }
+.cm-compose { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px 12px 14px; border-radius: 18px; text-align: left; }
+.cm-compose-field { height: 40px; display: flex; align-items: center; padding: 0 14px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+.cm-compose-btn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 999px; background: var(--primary); color: var(--on-primary); font-size: 14px; font-weight: 600; }
+.cm-club { width: 200px; padding: 14px; border-radius: 18px; display: flex; flex-direction: column; }
+.cm-post { border-radius: 20px; overflow: hidden; }
+.cm-author { display: flex; align-items: center; gap: 10px; padding: 14px 16px 0; }
+.cm-content { display: block; width: 100%; text-align: left; padding: 12px 16px 14px; }
+.cm-title { font-size: 16.5px; line-height: 1.35; letter-spacing: -0.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cm-body { margin-top: 6px; font-size: 14.5px; line-height: 1.55; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cm-photo { position: relative; margin-top: 12px; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 9; background: var(--sunken); }
+.cm-photo img { width: 100%; height: 100%; object-fit: cover; }
+.cm-more { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; background: rgba(3,20,15,.7); color: #fff; font-size: 12px; font-weight: 600; }
+.cm-actions { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+.cm-actions button { display: flex; align-items: center; justify-content: center; gap: 7px; height: 46px; font-size: 13.5px; font-weight: 600; color: var(--muted); transition: background .15s, color .15s; }
+.cm-actions button + button { border-left: 1px solid var(--line); }
+.cm-actions button:active { background: var(--surface-2); }
+.cm-actions button.liked { color: var(--heart); }
+.cm-compose-field { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }

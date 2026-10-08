@@ -24,66 +24,91 @@ function postRow(p) {
     <span class="t12 faint row mt-4" style="gap:10px">${esc(p.name)} · ${ago(p.date)}<span class="row" style="gap:3px">${ic('heart', 12)}${p.likes}</span><span class="row" style="gap:3px">${ic('chat', 12)}${p.comments.length}</span></span></span>
   </button>`
 }
+// A steady colour per person, so the feed is easy to scan by author.
+const AVATAR_TONES = ['#0B332C', '#0F7A6A', '#345A53', '#7E5A1E', '#1E4F7A', '#6B3A5E', '#2F5D3A']
+function avatarFor(name, size = 40) {
+  const n = [...String(name)].reduce((a, ch) => a + ch.charCodeAt(0), 0)
+  return `<span class="avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.42)}px;background:${AVATAR_TONES[n % AVATAR_TONES.length]}">${initial(name)}</span>`
+}
 function postCard(p) {
   const liked = !!S.liked[p.id]
-  return `<article class="frame post-card"><div class="face" style="padding:0;overflow:hidden">
-    <button data-a="go" data-v="post" data-id="${p.id}" style="display:block;width:100%;text-align:left">
-      ${p.photos[0] ? `<div class="cover"><img src="${img(p.photos[0])}" alt="" loading="lazy"></div>` : ''}
-      <div class="bd">
-        <div class="row" style="gap:10px"><span class="avatar">${initial(p.name)}</span><span class="grow" style="min-width:0"><b class="t14">${esc(p.name)}</b>${p.mine ? ' <span class="badge b-teal">You</span>' : ''}<br><span class="t12 faint">${p.car ? `${ic('car', 12).replace('class="i"', 'class="i" style="display:inline;vertical-align:-2px"')} ${esc(p.car)}` : 'EV driver'}</span></span>${catTag(p.category)}</div>
-        <h3 class="t17 clamp2 mt-12" style="line-height:1.3">${esc(p.title)}</h3>
-        <p class="t14 muted clamp3 mt-4">${esc(p.body)}</p>
+  return `<article class="card cm-post">
+    <div class="cm-author">
+      ${avatarFor(p.name)}
+      <div class="grow" style="min-width:0">
+        <div class="row" style="gap:6px"><b class="t14 trunc">${esc(p.name)}</b>${p.mine ? '<span class="badge b-teal">You</span>' : ''}</div>
+        <div class="t12 faint trunc">${p.car ? `${esc(p.car)} · ` : ''}${ago(p.date)}</div>
       </div>
-    </button>
-    <div class="row" style="padding:0 8px 8px 16px;gap:4px">
-      <span class="t13 faint row grow" style="gap:6px">${ic('clock', 14)}${ago(p.date)}</span>
-      <button class="btn btn-sm btn-ghost" style="${liked ? 'color:var(--heart)' : ''}" data-a="like" data-v="${p.id}" aria-pressed="${liked}">${ic('heart', 16, { fill: liked })}<span class="mono">${p.likes}</span></button>
-      <button class="btn btn-sm btn-ghost" data-a="go" data-v="post" data-id="${p.id}">${ic('chat', 16)}<span class="mono">${p.comments.length}</span></button>
-      <button class="btn btn-sm btn-ghost btn-icon" style="width:36px" data-a="sharePost" data-v="${p.id}" aria-label="Share">${ic('share', 16)}</button>
+      ${catTag(p.category)}
     </div>
-  </div></article>`
+    <button class="cm-content" data-a="go" data-v="post" data-id="${p.id}">
+      <h3 class="cm-title">${esc(p.title)}</h3>
+      <p class="cm-body">${esc(p.body)}</p>
+      ${p.photos[0] ? `<div class="cm-photo"><img src="${img(p.photos[0])}" alt="" loading="lazy">${p.photos.length > 1 ? `<span class="cm-more">${ic('image', 13)}+${p.photos.length - 1}</span>` : ''}</div>` : ''}
+    </button>
+    <div class="cm-actions">
+      <button class="${liked ? 'liked' : ''}" data-a="like" data-v="${p.id}" aria-pressed="${liked}">${ic('heart', 18, { fill: liked })}<span class="mono">${p.likes}</span></button>
+      <button data-a="go" data-v="post" data-id="${p.id}">${ic('chat', 18)}<span><span class="mono">${p.comments.length}</span> ${p.comments.length === 1 ? 'reply' : 'replies'}</span></button>
+      <button data-a="sharePost" data-v="${p.id}">${ic('share', 18)}<span>Share</span></button>
+    </div>
+  </article>`
 }
 
 SCREENS.community = () => {
   const c = U.comm
-  let posts = allPosts().filter((p) => c.cat === 'all' || p.category === c.cat)
-  posts = c.sort === 'latest' ? posts.sort((a, b) => new Date(b.date) - new Date(a.date)) : c.sort === 'liked' ? posts.sort((a, b) => b.likes - a.likes) : posts.sort((a, b) => b.comments.length - a.comments.length)
   const all = allPosts()
+  const q = (c.q || '').trim().toLowerCase()
+  let posts = all.filter((p) => (c.cat === 'all' || p.category === c.cat) && (!q || `${p.title} ${p.body} ${p.name}`.toLowerCase().includes(q)))
+  posts = c.sort === 'latest' ? posts.sort((a, b) => new Date(b.date) - new Date(a.date)) : c.sort === 'liked' ? posts.sort((a, b) => b.likes - a.likes) : posts.sort((a, b) => b.comments.length - a.comments.length)
   const cities = new Set(D.clubs.map((x) => x.city)).size
+  const tabs = [['latest', 'Latest'], ['liked', 'Popular'], ['discussed', 'Most active']]
+  const topics = [['all', 'All topics'], ...Object.entries(CAT).map(([k, [l]]) => [k, l])]
+  const clubs = [...D.clubs].sort((a, b) => (a.city === S.city ? -1 : b.city === S.city ? 1 : b.members - a.members))
   return {
     sb: 'light', tabs: true,
     html: `<div class="scroll">
-      <header class="band lift">
-        <div class="eyebrow" style="position:relative">${ic('users', 13)} Community</div>
-        <h1 class="band-title mt-8" style="position:relative">Ask drivers who’ve <span class="hl">done the drive</span></h1>
-        <div class="stat-rail" style="position:relative">
-          <div><div class="fig hi">${ic('chat', 14)}${all.length}</div><div class="lbl">Posts</div></div>
-          <div><div class="fig">${ic('users', 14)}${D.clubs.length}</div><div class="lbl">Clubs</div></div>
-          <div><div class="fig">${ic('pin', 14)}${cities}</div><div class="lbl">Cities</div></div>
-        </div>
+      <header class="band cm-head">
+        <div class="eyebrow">${ic('users', 13)} Community</div>
+        <h1 class="band-title mt-4">Ask drivers who’ve <span class="hl">done the drive</span></h1>
+        <p class="t13 mono mt-8" style="color:rgba(255,255,255,.6)">${all.length} posts · ${D.clubs.length} clubs · ${cities} cities</p>
+        <div class="field mt-16"><span class="lead" style="color:rgba(255,255,255,.5)">${ic('search', 18)}</span><input class="input pk-search" id="cm-q" data-in="commQ" placeholder="Search posts, topics, people" value="${esc(c.q || '')}" autocomplete="off"></div>
       </header>
-      <div class="pad lifted">
-        <div class="sheet-card" style="overflow:hidden">
-          <div style="padding:16px 20px;background:linear-gradient(90deg,var(--surface-2),var(--surface));border-bottom:1px solid var(--line)">
-            <div class="eyebrow">${ic('sort', 13)} Browse</div>
-            <div class="row between mt-4"><h2 class="t24">Discussions</h2><span class="t13 muted">Showing <b class="mono" style="color:var(--fg)">${posts.length}</b> of ${all.length}</span></div>
-          </div>
-          <div style="padding:12px">
-            <div class="seg">${[['latest', 'Latest', 'newest first'], ['liked', 'Popular', 'most liked'], ['discussed', 'Active', 'most replies']].map(([k, l, s]) => `<button class="${c.sort === k ? 'on' : ''}" data-a="commSort" data-v="${k}">${l}<small>${s}</small></button>`).join('')}</div>
-          </div>
-        </div>
+
+      <div class="cm-bar">
+        <div class="cm-tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${c.sort === k}" class="${c.sort === k ? 'on' : ''}" data-a="commSort" data-v="${k}">${l}</button>`).join('')}</div>
+        <div class="chips" style="padding-top:10px;padding-bottom:10px">${topics.map(([k, l]) => `<button class="chip ${c.cat === k ? 'solid on' : ''}" data-a="commCat" data-v="${k}">${l}</button>`).join('')}</div>
       </div>
-      <div class="chips mt-16">${[['all', 'All'], ...Object.entries(CAT).map(([k, [l]]) => [k, l])].map(([k, l]) => `<button class="chip solid ${c.cat === k ? 'on' : ''}" data-a="commCat" data-v="${k}">${l}<span class="cnt">${k === 'all' ? all.length : all.filter((p) => p.category === k).length}</span></button>`).join('')}</div>
+
       <div class="pad mt-16">
-        <button class="card press row" style="padding:14px 16px;gap:14px;width:100%;text-align:left" data-a="go" data-v="clubs">
-          <span class="row" style="gap:0">${D.clubs.slice(0, 3).map((x, i) => `<span class="avatar" style="width:36px;height:36px;font-size:13px;margin-left:${i ? -10 : 0}px;box-shadow:0 0 0 2px var(--surface)">${esc(x.city.slice(0, 2))}</span>`).join('')}</span>
-          <span class="grow"><b class="t15">EV clubs in ${cities} cities</b><br><span class="t13 muted">Meetups, convoys and local advice</span></span>${ic('chevR', 18)}</button>
+        <button class="card cm-compose" data-a="newPost">
+          ${S.user ? avatarFor(S.user.name, 40) : `<span class="avatar" style="background:var(--sunken);color:var(--muted)">${ic('user', 18)}</span>`}
+          <span class="grow cm-compose-field">Ask other EV drivers…</span>
+          <span class="cm-compose-btn">${ic('pencil', 16)}Post</span>
+        </button>
       </div>
-      <div class="pad stack gap-16 mt-16">${posts.map(postCard).join('') || '<div class="empty">No posts in this topic yet. Start the conversation.</div>'}</div>
-    </div>
-    <button class="fab" data-a="newPost">${ic('pencil', 20)}New post</button>`,
+
+      ${!q && c.cat === 'all' ? `<section class="mt-24">
+        <div class="sec-head"><div><h2>EV clubs</h2><p class="sub">Meetups, convoys and local advice</p></div><button class="link" data-a="go" data-v="clubs">See all ${ic('arrowR', 14)}</button></div>
+        <div class="hscroll">${clubs.map((x) => {
+          const joined = S.clubs.includes(x.id)
+          return `<div class="card cm-club">
+            <div class="row between"><span class="badge b-teal">${ic('pin', 12)}${esc(x.city)}</span><span class="t12 mono muted row" style="gap:4px">${ic('users', 13)}${x.members + (joined ? 1 : 0)}</span></div>
+            <b class="t15 clamp2 mt-8" style="line-height:1.3;min-height:39px">${esc(x.name)}</b>
+            <button class="btn btn-sm ${joined ? 'btn-secondary' : 'btn-primary'} btn-block mt-12" data-a="joinClub" data-v="${x.id}">${joined ? `${ic('check', 16)}Joined` : 'Join'}</button>
+          </div>`
+        }).join('')}</div>
+      </section>` : ''}
+
+      <div class="pad row between mt-24" style="margin-bottom:12px">
+        <h2 class="t20">${q ? 'Results' : c.cat === 'all' ? 'Discussions' : CAT[c.cat][0]}</h2>
+        <span class="t13 muted"><b class="mono" style="color:var(--fg)">${posts.length}</b> post${posts.length === 1 ? '' : 's'}</span>
+      </div>
+      <div class="pad stack gap-12">${posts.map(postCard).join('') || `<div class="empty">${q ? `Nothing matches “${esc(c.q.trim())}”. Try another word, or ask it yourself.` : 'No posts in this topic yet. Start the conversation.'}<button class="btn btn-sm btn-primary" data-a="newPost">${ic('pencil', 16)}New post</button></div>`}</div>
+    </div>`,
   }
 }
+IN.commQ = (v) => { U.comm.q = v; render() }
+
 Object.assign(A, {
   commCat: (v) => { U.comm.cat = v; render() },
   commSort: (v) => { U.comm.sort = v; render() },
