@@ -387,45 +387,133 @@ Object.assign(A, {
 })
 
 // ─── Compare ───────────────────────────────────────────────────────
+/** "PKR 6.79 Cr (promo, outgoing eDrive50)" → ["PKR 6.79 Cr", "promo, outgoing eDrive50"], so the figure reads first. */
+const splitPrice = (p) => {
+  const m = /^(.*?)\s*\((.*)\)\s*$/.exec(p || '')
+  return m ? [m[1], m[2]] : [p || '—', '']
+}
+const kwHp = (kw) => Math.round(kw * 1.341)
+
+/**
+ * Spec rows, grouped the way a buyer thinks: what it costs, how far it goes,
+ * how it charges, how it drives, what fits. `get` gives the number that is
+ * compared, `better` which way wins, `fmt` the value and unit as shown.
+ */
+const CMP_GROUPS = [
+  ['Price & type', 'wallet', [
+    { label: 'Price', small: true, get: (c) => c.priceMin, better: 'min', fmt: (c) => { const [p, n] = splitPrice(c.price); return [p, '', n] } },
+    { label: 'Powertrain', fmt: (c) => [KIND[c.category] || '—'] },
+    { label: 'Body', fmt: (c) => [c.body ? c.body.replace(/\s*\(.*\)$/, '') : '—'] },
+    { label: 'Drive', fmt: (c) => [c.drive || '—'] },
+  ]],
+  ['Range & battery', 'batteryBolt', [
+    { label: 'Range', hint: 'Higher is better', get: (c) => carRange(c), better: 'max', bar: true, fmt: (c) => [carRange(c), 'km', c.rangeStd ? `${c.rangeStd} rated` : ''] },
+    { label: 'Battery', hint: 'Usable capacity', get: (c) => c.battery, better: 'max', bar: true, fmt: (c) => [c.battery, 'kWh'] },
+  ]],
+  ['Charging', 'bolt', [
+    { label: 'Fast charging (DC)', hint: 'Peak power', get: (c) => c.dc, better: 'max', bar: true, fmt: (c) => [c.dc, 'kW'] },
+    { label: '10–80% on a fast charger', hint: 'Lower is better', get: (c) => c.dcMin, better: 'min', fmt: (c) => [c.dcMin, 'min'] },
+    { label: 'Home charging (AC)', get: (c) => c.ac, better: 'max', fmt: (c) => [c.ac, 'kW'] },
+    { label: 'Full charge at home', hint: 'Lower is better', get: (c) => c.acHours, better: 'min', fmt: (c) => [c.acHours, 'h'] },
+    { label: 'Plugs', fmt: (c) => [carConns(c).map((t) => CONN[t].label).join(' · ') || '—'] },
+  ]],
+  ['Performance', 'speedo', [
+    { label: 'Power', get: (c) => c.power, better: 'max', bar: true, fmt: (c) => [c.power, 'kW', c.power ? `${kwHp(c.power)} hp` : ''] },
+    { label: 'Torque', get: (c) => c.torque, better: 'max', fmt: (c) => [c.torque, 'Nm'] },
+    { label: '0–100 km/h', hint: 'Lower is better', get: (c) => c.accel, better: 'min', fmt: (c) => [c.accel, 's'] },
+    { label: 'Top speed', get: (c) => c.topSpeed, better: 'max', fmt: (c) => [c.topSpeed, 'km/h'] },
+  ]],
+  ['Size & practicality', 'sedan', [
+    { label: 'Seats', get: (c) => c.seats, fmt: (c) => [c.seats] },
+    { label: 'Boot', get: (c) => c.boot, better: 'max', fmt: (c) => [c.boot, 'L'] },
+    { label: 'Length', fmt: (c) => [c.length ? n0(c.length) : null, 'mm'] },
+    { label: 'Weight', fmt: (c) => [c.weight ? n0(c.weight) : null, 'kg'] },
+  ]],
+]
+
+/** The figure that wins a row, or null when fewer than two cars have one to compare. */
+function cmpBest(cars, row) {
+  if (!row.get || !row.better) return null
+  const vals = cars.map(row.get).filter((v) => v != null)
+  if (vals.length < 2 || new Set(vals).size < 2) return null
+  return row.better === 'max' ? Math.max(...vals) : Math.min(...vals)
+}
+
+function cmpCell(c, row, best, max) {
+  const [v, unit = '', note = ''] = row.fmt(c)
+  if (v == null || v === '' || v === '—') return `<div class="cp-val none"><b>—</b><small>Not published</small></div>`
+  const val = row.get ? row.get(c) : null
+  const win = best != null && val === best
+  const pct = row.bar && val != null && max ? Math.max(6, Math.round((val / max) * 100)) : null
+  return `<div class="cp-val${win ? ' win' : ''}${row.get ? '' : ' text'}${row.small ? ' sm' : ''}">
+      <b>${esc(String(v))}${unit ? `<small>${unit}</small>` : ''}</b>
+      ${note ? `<span class="cp-note">${esc(note)}</span>` : ''}
+      ${pct != null ? `<i class="cp-bar"><i style="width:${pct}%"></i></i>` : ''}
+      ${win ? `<span class="cp-best">${ic('check', 11, { sw: 3 })}Best</span>` : ''}
+    </div>`
+}
+
+function cmpSticky() {
+  const sc = $('#screen .scroll'), bar = $('#cp-sticky'), cars = $('#cp-cars')
+  if (!sc || !bar || !cars) return
+  const f = () => bar.classList.toggle('show', cars.getBoundingClientRect().bottom < sc.getBoundingClientRect().top + 8)
+  sc.addEventListener('scroll', f, { passive: true })
+  f()
+}
+
 SCREENS.compare = () => {
   const cars = S.compare.map(carBySlug).filter(Boolean)
-  const rows = [
-    ['Price', (c) => c.priceMin, (c) => esc(c.price), 'min'],
-    ['Type', null, (c) => KIND[c.category]],
-    ['Range', (c) => carRange(c), (c) => (carRange(c) ? `${carRange(c)} km${c.rangeStd ? ` <span class="faint">${c.rangeStd}</span>` : ''}` : '—'), 'max'],
-    ['Battery', (c) => c.battery, (c) => (c.battery ? `${c.battery} kWh` : '—'), 'max'],
-    ['Power', (c) => c.power, (c) => (c.power ? `${c.power} kW` : '—'), 'max'],
-    ['0–100', (c) => c.accel, (c) => (c.accel ? `${c.accel} s` : '—'), 'min'],
-    ['Top speed', (c) => c.topSpeed, (c) => (c.topSpeed ? `${c.topSpeed} km/h` : '—'), 'max'],
-    ['DC peak', (c) => c.dc, (c) => (c.dc ? `${c.dc} kW` : '—'), 'max'],
-    ['AC max', (c) => c.ac, (c) => (c.ac ? `${c.ac} kW` : '—'), 'max'],
-    ['Plugs', null, (c) => carConns(c).map((t) => CONN[t].label).join(', ') || '—'],
-    ['Seats', (c) => c.seats, (c) => c.seats ?? '—'],
-    ['Boot', (c) => c.boot, (c) => (c.boot ? `${c.boot} L` : '—'), 'max'],
-    ['Weight', (c) => c.weight, (c) => (c.weight ? `${n0(c.weight)} kg` : '—')],
-  ]
-  const best = (get, dir) => {
-    if (!get || !dir) return null
-    const vals = cars.map(get).filter((v) => v != null)
-    if (vals.length < 2) return null
-    return dir === 'max' ? Math.max(...vals) : Math.min(...vals)
+  const cols = `grid-template-columns:repeat(${Math.max(cars.length, 2)},minmax(0,1fr))`
+  const head = (c) => {
+    const [p] = splitPrice(c.price)
+    return `<div class="cp-car">
+        <div class="cp-photo">${carStage(c, '', 'position:absolute;inset:0')}
+          <button class="cp-x" data-a="compare" data-v="${c.slug}" aria-label="Remove ${esc(c.name)}">${ic('x', 14, { sw: 2.4 })}</button></div>
+        <div class="cp-brand">${esc(c.brand)}</div>
+        <button class="cp-model" data-a="go" data-v="car" data-slug="${c.slug}">${esc(c.model)}</button>
+        <div class="cp-price">${esc(p)}</div>
+      </div>`
   }
+  const addSlot = `<button class="cp-add" data-a="sheet" data-v="carPicker" data-target="compare">
+      <span class="cp-add-ico">${ic('plus', 22)}</span><b>Add a car</b><small>Up to 3</small></button>`
+
+  // Who wins the rows people ask about first.
+  const glance = [
+    ['Lowest price', 'wallet', (c) => c.priceMin, 'min', (c) => splitPrice(c.price)[0]],
+    ['Longest range', 'route', (c) => carRange(c), 'max', (c) => `${carRange(c)} km`],
+    ['Fastest charging', 'bolt', (c) => c.dc, 'max', (c) => `${c.dc} kW DC`],
+    ['Quickest 0–100', 'speedo', (c) => c.accel, 'min', (c) => `${c.accel} s`],
+  ].map(([t, icon, get, better, show]) => {
+    const b = cmpBest(cars, { get, better })
+    const w = b == null ? null : cars.find((c) => get(c) === b)
+    return w ? `<div class="cp-win"><span class="cp-win-ico">${ic(icon, 16)}</span><span class="grow" style="min-width:0"><span class="cp-win-t">${t}</span><b class="trunc">${esc(w.name)}</b></span><span class="cp-win-v mono">${esc(show(w))}</span></div>` : ''
+  }).join('')
+
   return {
     sb: 'dark',
     html: `${topbar('Compare cars', S.compare.length ? `<button class="btn btn-sm btn-ghost" data-a="clearCompare">Clear</button>` : '')}
-      <div class="scroll pad" style="padding-bottom:40px">
-        ${cars.length < 2 ? `<div class="empty mt-8">${cars.length ? `${esc(cars[0].name)} is ready. Add one or two more cars to see them side by side.` : 'Pick two or three cars to see their prices, range and charging side by side.'}
-          <div class="row" style="gap:8px"><button class="btn btn-sm btn-primary" data-a="sheet" data-v="carPicker" data-target="compare">${ic('plus', 16)}Add a car</button><button class="btn btn-sm btn-secondary" data-a="tab" data-v="cars">Browse cars</button></div></div>` : ''}
-        ${cars.length ? `<div style="overflow-x:auto;margin:0 -16px;padding:0 16px">
-          <table class="cmp-table" style="min-width:${88 + cars.length * 110}px">
-            <thead><tr><th></th>${cars.map((c) => `<td style="border-top:0;font-family:var(--font)"><div style="position:relative">${carStage(c, '', 'aspect-ratio:4/3;border-radius:12px')}<button class="glass-btn" style="position:absolute;top:4px;right:4px;width:28px;height:28px" data-a="compare" data-v="${c.slug}" aria-label="Remove ${esc(c.name)}">${ic('x', 14)}</button></div><div class="t12 faint b7 mt-8" style="letter-spacing:.08em;text-transform:uppercase">${esc(c.brand)}</div><button class="t14 b7" style="text-align:left;line-height:1.25" data-a="go" data-v="car" data-slug="${c.slug}">${esc(c.model)}</button></td>`).join('')}
-              ${cars.length < 3 ? `<td style="border-top:0;vertical-align:middle"><button class="empty" style="padding:20px 8px;width:100%;gap:6px" data-a="sheet" data-v="carPicker" data-target="compare">${ic('plus', 20)}<span class="t12">Add</span></button></td>` : ''}</tr></thead>
-            <tbody>${rows.map(([label, get, show, dir]) => {
-              const b = best(get, dir)
-              return `<tr><th>${label}</th>${cars.map((c) => `<td class="${b != null && get(c) === b ? 'best' : ''}">${show(c)}</td>`).join('')}${cars.length < 3 ? '<td></td>' : ''}</tr>`
-            }).join('')}</tbody>
-          </table></div>
-          <p class="t12 faint mt-12">Green marks the best figure in a row. Prices are indicative.</p>` : ''}
+      <div class="scroll cp${cars.length === 3 ? ' cp-3' : ''}" style="padding-bottom:40px">
+        <div class="pad">
+          <div class="cp-cars" id="cp-cars" style="${cars.length >= 2 ? cols : 'grid-template-columns:repeat(2,minmax(0,1fr))'}">${cars.map(head).join('')}${cars.length < 2 ? addSlot : ''}${!cars.length ? addSlot : ''}</div>
+          ${cars.length === 2 ? `<button class="cp-add-row" data-a="sheet" data-v="carPicker" data-target="compare">${ic('plus', 18)} Add a third car</button>` : ''}
+        </div>
+        ${cars.length < 2 ? `<div class="pad"><div class="empty mt-16">${cars.length ? `<b>${esc(cars[0].name)}</b> is ready. Add one more car to compare them side by side.` : 'Pick two or three cars to see their price, range, charging and performance side by side.'}
+            <button class="btn btn-sm btn-secondary" data-a="tab" data-v="cars">Browse all cars</button></div></div>` : `
+        <div class="cp-sticky" id="cp-sticky" style="${cols}" aria-hidden="true">${cars.map((c) => `<div class="cp-sticky-car">${carStage(c, '', 'width:34px;height:26px;border-radius:7px;flex:none')}<b class="trunc">${esc(c.model)}</b></div>`).join('')}</div>
+        ${glance ? `<section class="pad mt-20"><h2 class="cp-h">${ic('trophy', 18)} At a glance</h2><div class="cp-wins">${glance}</div></section>` : ''}
+        ${CMP_GROUPS.map(([title, icon, rows]) => `<section class="pad mt-24">
+            <h2 class="cp-h">${ic(icon, 18)} ${title}</h2>
+            <div class="card cp-group">${rows.map((row) => {
+              const best = cmpBest(cars, row)
+              const max = row.bar ? Math.max(...cars.map(row.get).filter((v) => v != null), 0) : 0
+              return `<div class="cp-row">
+                  <div class="cp-label">${row.label}${row.hint ? `<span>${row.hint}</span>` : ''}</div>
+                  <div class="cp-vals" style="${cols}">${cars.map((c) => cmpCell(c, row, best, max)).join('')}</div>
+                </div>`
+            }).join('')}</div>
+          </section>`).join('')}
+        <p class="pad t12 faint mt-16" style="line-height:1.5">${ic('check', 12, { sw: 3 })} marks the best figure where cars differ. Prices are indicative; confirm with the dealer or importer.</p>`}
       </div>`,
+    after: cmpSticky,
   }
 }

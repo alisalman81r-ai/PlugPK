@@ -562,11 +562,6 @@ input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; border-radius
 .tray .thumbs .stage-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--surface); margin-left: -10px; }
 .tray .thumbs .stage-img:first-child { margin-left: 0; }
 .car-hero .stage-img { height: 260px; }
-.cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-.cmp-table th, .cmp-table td { padding: 10px 6px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
-.cmp-table th { font-weight: 500; color: var(--muted); font-size: 12px; width: 88px; }
-.cmp-table td { font-family: var(--mono); font-weight: 600; }
-.cmp-table td.best { color: var(--accent-text); }
 
 /* ── Calculator ────────────────────────────────────────────────────── */
 .soc { position: relative; height: 92px; border-radius: 22px; background: var(--sunken); border: 1px solid var(--line); overflow: hidden; }
@@ -880,3 +875,60 @@ a.btn, a.list-row { text-decoration: none; }
 .ob-specs-in { animation: obSpecs .35s ease both; }
 @keyframes obSpecs { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .ob-stage img.swap, .ob-specs-in { animation: none; } .ob-reel { display: none; } }
+
+/* ── Compare ───────────────────────────────────────────────────────── */
+.cp-cars { display: grid; gap: 10px; padding-top: 4px; }
+.cp-car { min-width: 0; display: flex; flex-direction: column; }
+.cp-photo { position: relative; aspect-ratio: 4 / 3; border-radius: 18px; overflow: hidden; isolation: isolate; box-shadow: 0 1px 0 var(--line), 0 10px 24px -14px rgba(5,36,30,.35); }
+.cp-photo .stage-img img { padding: 6px; }
+.cp-x { position: absolute; z-index: 2; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(5,36,30,.72); color: #fff; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.cp-x:active { transform: scale(.9); }
+.cp-brand { margin-top: 12px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.cp-model { margin-top: 2px; text-align: left; font-size: 17px; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; color: var(--fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cp-price { margin-top: 6px; font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--accent-text); }
+.cp-add { aspect-ratio: 4 / 3; border-radius: 18px; border: 1.5px dashed var(--line-strong); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--muted); background: var(--surface); }
+.cp-add b { font-size: 14px; color: var(--fg); }
+.cp-add small { font-size: 12px; color: var(--faint); }
+.cp-add-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--tint); color: var(--accent-text); margin-bottom: 4px; }
+.cp-add-row { margin-top: 16px; width: 100%; height: 46px; border-radius: 14px; border: 1.5px dashed var(--line-strong); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--accent-text); }
+
+.cp-sticky { position: sticky; top: 0; z-index: 4; display: grid; gap: 10px; margin-top: 18px; padding: 10px 16px; background: var(--bg); border-bottom: 1px solid var(--line); box-shadow: 0 8px 16px -14px rgba(0,0,0,.4); }
+.cp-sticky-car { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13.5px; }
+
+.cp-h { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 12px; }
+.cp-h svg { color: var(--accent-text); }
+
+.cp-wins { display: grid; gap: 8px; }
+.cp-win { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); }
+.cp-win-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--tint); color: var(--accent-text); }
+.cp-win-t { display: block; font-size: 12px; color: var(--muted); }
+.cp-win b { display: block; font-size: 14.5px; }
+.cp-win-v { font-size: 13px; font-weight: 700; color: var(--accent-text); white-space: nowrap; }
+
+.cp-group { padding: 0; overflow: hidden; }
+.cp-row { padding: 14px 16px 16px; }
+.cp-row + .cp-row { border-top: 1px solid var(--line); }
+.cp-label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 10px; }
+.cp-label span { font-size: 11.5px; font-weight: 500; color: var(--faint); }
+.cp-vals { display: grid; gap: 10px; }
+.cp-val { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.cp-val b { font-family: var(--mono); font-size: 19px; font-weight: 700; line-height: 1.2; color: var(--fg); letter-spacing: -.01em; }
+.cp-val b small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 3px; }
+.cp-val.text b { font-family: var(--font); font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.cp-val.none b { color: var(--faint); }
+.cp-val.none small { font-size: 11.5px; color: var(--faint); }
+.cp-note { font-size: 11.5px; color: var(--faint); line-height: 1.35; }
+.cp-bar { display: block; width: 100%; height: 5px; border-radius: 5px; background: var(--sunken); margin-top: 5px; overflow: hidden; }
+.cp-bar i { display: block; height: 100%; border-radius: 5px; background: var(--line-strong); }
+.cp-val.win b { color: var(--accent-text); }
+.cp-val.win .cp-bar i { background: var(--accent); }
+.cp-best { display: inline-flex; align-items: center; gap: 3px; margin-top: 3px; padding: 2px 7px 2px 5px; border-radius: 999px; background: var(--tint); color: var(--accent-text); font-size: 11px; font-weight: 700; }
+.cp-sticky { margin-bottom: -47px; opacity: 0; transform: translateY(-8px); pointer-events: none; transition: opacity .18s, transform .18s; }
+.cp-sticky.show { opacity: 1; transform: none; }
+.cp-val.sm b { font-size: 15px; }
+.cp-3 .cp-val b { font-size: 16.5px; }
+.cp-3 .cp-val.sm b { font-size: 13.5px; }
+.cp-3 .cp-model { font-size: 15.5px; }
+.cp-3 .cp-price { font-size: 12.5px; }
+.cp-3 .cp-cars, .cp-3 .cp-vals, .cp-3 .cp-sticky { gap: 8px; }
+.cp-3 .cp-val.text b { font-size: 13.5px; }
