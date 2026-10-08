@@ -1,6 +1,6 @@
 {
   "exportedAt": "2026-09-21T12:54:47.664Z",
-  "totalRows": 159,
+  "totalRows": 160,
   "models": [
     {
       "model": "Station",
@@ -85,7 +85,7 @@
     {
       "model": "Car",
       "file": "car.json",
-      "rows": 104
+      "rows": 105
     },
     {
       "model": "CarSource",

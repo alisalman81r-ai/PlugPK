@@ -74,6 +74,7 @@ const ARTICLES = {
   'byd-sealion-6': ['BYD Sealion 6', 'BYD Song Plus', 'BYD Song'],
   'dfsk-seres-3': ['Seres 3', 'DFSK Seres 3', 'Seres (marque)', 'Aito'],
   'hyundai-ioniq-5': ['Hyundai Ioniq 5'],
+  'rolls-royce-spectre': ['Rolls-Royce Spectre'],
 }
 
 /**

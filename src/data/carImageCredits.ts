@@ -588,6 +588,13 @@ export const carImageCredits: Record<string, ImageCredit> = {
     source: "https://commons.wikimedia.org/wiki/File:2024_Haval_Xiaolong_BEV_front_view.png",
     changes: "Background removed and set on white; plug.pk number plate added",
   },
+  'rolls-royce-spectre': {
+    author: "Mr.choppers",
+    licence: "CC BY-SA 3.0",
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0',
+    source: "https://commons.wikimedia.org/wiki/File:2024_Rolls-Royce_Spectre_in_Midnight_Sapphire_over_Silver,_front_left.jpg",
+    changes: "Background removed and set on white; plug.pk number plate added",
+  },
 }
 
 /**

@@ -8441,4 +8441,72 @@ export const cars: Car[] = [
       'originally a limited-time year-end offer. Price source: ' +
       'https://www.pakwheels.com/new-cars/honri/ve/2-0--8/ (2025-12).',
   },
+  {
+    id: 'rolls-royce-spectre',
+    slug: 'rolls-royce-spectre',
+    brand: 'Rolls-Royce',
+    model: 'Spectre',
+    variant: null,
+    fullName: 'Rolls-Royce Spectre',
+    category: 'EV',
+    price: { min: crore(30), max: crore(30), display: 'PKR 30 Cr (indicative)' },
+    // Spectre Series II (MY27), the standard car. Black Badge is in `notes`.
+    batteryCapacity: 112.4,
+    batteryUnit: 'kWh',
+    range: 628,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 601,
+    powerUnit: 'hp',
+    acceleration: 4.5,
+    accelerationUnit: 'sec',
+    dcCharging: 195,
+    dcChargingUnit: 'kW',
+    acCharging: 22,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 1015,
+    topSpeed: 250,
+    seats: 4,
+
+    modelYear: 2027,
+    bodyType: 'Ultra-luxury electric coupé (2-door, 4 seats)',
+    driveType: 'AWD',
+    motorPowerKw: 442,
+    rangeStandard: 'WLTP',
+    realWorldRange: 380,
+    realWorldRangeMax: 720,
+    consumption: 17.9,
+    consumptionMax: 19.3,
+    acChargingHours: 6,
+    dcChargingMinutes: 29,
+    batteryTech: 'Lithium-ion NMC (400V)',
+    lengthMm: 5490,
+    widthMm: 2015,
+    heightMm: 1585,
+    wheelbaseMm: 3210,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 380,
+    kerbWeightKg: 3000,
+    availability: 'Not sold new in Pakistan: there is no official Rolls-Royce dealer, so a Spectre comes only as a private import. The price depends on the exchange rate, import duties and the buyer\'s bespoke specification (PakWheels, Oct 2026).',
+    distributor: null,
+    warranty: 'Battery: 8 years / 160,000 km (European terms per EV Database). Pakistani terms not published.',
+
+    image: '/images/cars/rolls-royce-spectre.jpg',
+    notes:
+      'Spectre Series II (MY27), on sale from June 2026. Rolls-Royce figures: 442 kW (601 ' +
+      'hp), 1,015 Nm, 112.4 kWh net battery, WLTP 628 km (up from 530 km on the Series I). ' +
+      'EV Database: 118 kWh gross, 400V, WLTP 582-628 km, rated 179-193 Wh/km, 0-100 4.5 s, ' +
+      '250 km/h, 195 kW DC (10-80% 29 min), 22 kW AC (6 h), 5,490 x 2,015 x 1,585 mm, ' +
+      'wheelbase 3,210 mm, 3,000 kg, 4 seats, 380 L boot. Real-world range is EV Database\'s ' +
+      'cold-highway (380 km) to mild-city (720 km) span. Black Badge: 500 kW and 1,100 Nm in ' +
+      'Infinity Mode. The photograph is a 2024 Series I. Price is PakWheels\' indicative ' +
+      'figure, marked by them as a used-car price; other Pakistani sites quote a converted ' +
+      'US price of about PKR 12.6 Cr before duties, which is not a landed price. Price ' +
+      'source: https://www.pakwheels.com/new-cars/rolls-royce/spectre/ (2026-10).',
+  },
 ]
