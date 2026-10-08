@@ -49,6 +49,15 @@ const nextConfig = {
     ]
   },
 
+  /**
+   * The app prototype is a static page in public/app-prototype. Next serves
+   * public files only by their exact name, so the folder's own address
+   * (/app-prototype, and /app-prototype/ which Next trims to it) 404'd.
+   */
+  async redirects() {
+    return [{ source: '/app-prototype', destination: '/app-prototype/index.html', permanent: false }]
+  },
+
   images: {
     // WebP only, which is also the Next default. AVIF was measured here at
     // 2.44s to encode a 828px variant from cold against WebP's 0.41s — six
