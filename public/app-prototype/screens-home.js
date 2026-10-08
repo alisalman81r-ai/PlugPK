@@ -278,13 +278,24 @@ function greeting() {
 }
 
 function stationMini(s) {
-  const r = stRating(s)
-  return `<button class="card st-card press" data-a="go" data-v="station" data-id="${s.id}" style="text-align:left">
-    <div class="ph"><img src="${img(s.photos[0])}" alt="" loading="lazy">${exampleBadge()}<span class="badge b-glass dist mono">${fmtDist(stDist(s))}</span></div>
-    <div class="bd">
-      <div class="row between"><b class="t15 trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true, sw: 1 })}${r.toFixed(1)}</span>` : ''}</div>
-      <div class="t13 muted trunc">${esc(s.area)}, ${esc(s.city)}</div>
-      <div class="row mt-8 wrap" style="gap:6px">${connBadges(stTypes(s), 2)}${speedBadge(stMax(s))}</div>
+  const r = stRating(s), n = stReviews(s).length, kw = stMax(s), t = tier(kw), h = hoursNow(s.hours)
+  const car = myCar()
+  const fit = car && carConns(car).length ? stTypes(s).some((x) => fits(car, x)) : null
+  return `<button class="card st2 press" data-a="go" data-v="station" data-id="${s.id}" aria-label="${esc(s.name)}, ${fmtKw(kw)} kW, ${fmtDist(stDist(s))} away">
+    <div class="st2-ph">
+      <img src="${img(s.photos[0])}" alt="" loading="lazy">
+      <span class="st2-tag">Example listing</span>
+      <span class="st2-dist mono">${ic('nav', 12)}${fmtDist(stDist(s))}</span>
+      <span class="st2-speed tier-${t}">${ic('bolt', 13, { fill: true, sw: 1 })}<b class="mono">${fmtKw(kw)} kW</b><span>${TIER[t].label}</span></span>
+    </div>
+    <div class="st2-bd">
+      <b class="st2-name">${esc(s.name)}</b>
+      <div class="st2-meta">${r ? `<span class="rating">${ic('star', 13, { fill: true, sw: 1 })}${r.toFixed(1)}</span><span class="faint">(${n})</span><span class="dot-sep"></span>` : ''}<span class="trunc">${esc(s.area)}</span></div>
+      <div class="st2-rows">
+        <div>${ic('plug', 16)}<span>${stTypes(s).map((x) => CONN[x].label).join(' · ')}</span><span class="faint mono">${stPorts(s)} ports</span></div>
+        <div>${ic('clock', 16)}<span class="${h.open ? 'ok' : ''}">${h.text}</span></div>
+      </div>
+      ${fit === true ? `<div class="st2-fit">${ic('check', 14, { sw: 2.6 })}Fits your ${esc(car.model)}</div>` : fit === false ? `<div class="st2-fit no">${ic('info', 14)}No plug for your ${esc(car.model)}</div>` : ''}
     </div>
   </button>`
 }

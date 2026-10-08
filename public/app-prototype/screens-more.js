@@ -218,12 +218,16 @@ const SVC_CAT = {
   'roadside-assistance': ['Roadside assistance', 'buoy', 'Help when you’re stuck'],
 }
 function serviceCard(s, width) {
-  return `<button class="card press svc-card" style="overflow:hidden;text-align:left;${width ? `width:${width}px` : 'width:100%'}" data-a="go" data-v="service" data-id="${s.id}">
-    <div class="ph"><img src="${img(s.photo)}" alt="" loading="lazy">
-      <span class="badge md b-glass" style="left:10px">${ic(SVC_CAT[s.category][1], 13)}${SVC_CAT[s.category][0]}</span>
-      ${s.verified ? `<span class="badge md b-forest" style="right:10px">${ic('shield', 13)}Verified</span>` : ''}</div>
-    <div style="padding:12px 14px 14px"><b class="t17 trunc" style="display:block">${esc(s.name)}</b><div class="t13 muted row" style="gap:4px">${ic('pin', 13)}${esc(s.area)}, ${esc(s.city)}</div>
-    <p class="t14 muted clamp2 mt-4">${esc(s.description)}</p></div>
+  const h = hoursNow(s.hours)
+  const [label, icon] = SVC_CAT[s.category]
+  return `<button class="card press sv2" style="${width ? `width:${width}px` : 'width:100%'}" data-a="go" data-v="service" data-id="${s.id}">
+    <div class="sv2-ph"><img src="${img(s.photo)}" alt="" loading="lazy"><span class="sv2-cat">${ic(icon, 14)}${label}</span></div>
+    <div class="sv2-bd">
+      <div class="row" style="gap:6px"><b class="sv2-name">${esc(s.name)}</b>${s.verified ? `<span class="sv2-ver" title="Verified business">${ic('shield', 16)}</span>` : ''}</div>
+      <div class="sv2-meta">${ic('pin', 14)}<span class="trunc">${esc(s.area)}, ${esc(s.city)}</span></div>
+      ${width ? '' : `<p class="t14 muted clamp2">${esc(s.description)}</p>`}
+      <div class="sv2-foot"><span class="sv2-status ${h.open ? 'open' : ''}"><i></i>${h.text}</span><span class="sv2-more">Details${ic('chevR', 16)}</span></div>
+    </div>
   </button>`
 }
 SCREENS.services = () => {
