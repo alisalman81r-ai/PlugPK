@@ -353,6 +353,10 @@ SCREENS.home = () => {
         <nav class="quick" aria-label="Shortcuts">
           <button class="qa" data-a="tab" data-v="map">${ic('station', 28, { sw: 1.6 })}<span>Chargers</span></button>
           <button class="qa" data-a="tab" data-v="routes">${ic('trip', 28, { sw: 1.6 })}<span>Trip planner</span></button>
+          <button class="qa" data-a="tab" data-v="cars">${ic('sedan', 28, { sw: 1.6 })}<span>Cars</span></button>
+          <button class="qa" data-a="go" data-v="services">${ic('wrench', 28, { sw: 1.6 })}<span>Services</span></button>
+          <button class="qa" data-a="tab" data-v="community">${ic('people', 28, { sw: 1.6 })}<span>Community</span></button>
+          <button class="qa" data-a="go" data-v="partners">${ic('store', 28, { sw: 1.6 })}<span>Partner Up</span></button>
           <button class="qa" data-a="go" data-v="calculator">${ic('batteryBolt', 28, { sw: 1.6 })}<span>Charge time</span></button>
           <button class="qa" data-a="go" data-v="range">${ic('speedo', 28, { sw: 1.6 })}<span>Real range</span></button>
         </nav>
@@ -381,7 +385,6 @@ SCREENS.home = () => {
       <section class="section pad">
         <h2 class="t20" style="margin-bottom:12px">More from plug.pk</h2>
         <div class="list">
-          ${listRow('wrench', 'EV services', 'Dealers, workshops, installers, insurance', 'services')}
           ${listRow('compare', 'Compare cars', 'Prices, range and charging side by side', 'compare')}
           ${listRow('users', 'EV clubs', `Meet drivers in ${new Set(D.clubs.map((c) => c.city)).size} cities`, 'clubs')}
           ${listRow('bookmark', 'Saved', `${S.saved.length} station${S.saved.length === 1 ? '' : 's'} · ${S.routes.length} route${S.routes.length === 1 ? '' : 's'}`, 'profile')}
