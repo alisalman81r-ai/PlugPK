@@ -159,29 +159,29 @@ function authScreen() {
           <button class="btn btn-sm ob-skip" data-a="guest">Skip</button>
         </div>
         <div class="ob-progress mt-12" style="grid-template-columns:1fr 1fr"><i class="on"></i><i></i></div>
-        <div class="eyebrow mt-20" style="color:#8EEEDA">${ic('user', 13)} Your account</div>
+        <div class="eyebrow mt-16" style="color:#8EEEDA">${ic('user', 13)} Your account</div>
         <h1 class="band-title mt-8">${up ? 'Create your <span class="hl">account</span>' : 'Welcome <span class="hl">back</span>'}</h1>
-        <p class="t15 mt-8" style="color:rgba(255,255,255,.65)">${up ? 'Keep your stations, routes and reviews in one place.' : 'Sign in to pick up your saved stations and routes.'}</p>
+        <p class="t14 mt-4" style="color:rgba(255,255,255,.65)">${up ? 'Keep your stations, routes and reviews in one place.' : 'Sign in to pick up your saved stations and routes.'}</p>
       </header>
-      <div class="pad mt-20">
+      <div class="pad mt-16">
         <div class="seg" role="tablist">
           <button class="${up ? 'on' : ''}" role="tab" aria-selected="${up}" data-a="authTo" data-v="signup">Create account</button>
           <button class="${up ? '' : 'on'}" role="tab" aria-selected="${!up}" data-a="authTo" data-v="signin">Sign in</button>
         </div>
       </div>
-      <form class="pad stack gap-16 mt-20" data-submit="authSubmit" novalidate>
+      <form class="pad stack gap-12 mt-16" data-submit="authSubmit" novalidate>
         ${up ? `<div><label class="label" for="au-name">Full name</label><div class="field"><span class="lead">${ic('user', 18)}</span><input class="input ${e.name ? 'bad' : ''}" id="au-name" name="name" autocomplete="name" placeholder="Ahmed Raza" value="${esc(v.name)}"></div>${err('name')}</div>` : ''}
         <div><label class="label" for="au-email">Email</label><div class="field"><span class="lead">${ic('mail', 18)}</span><input class="input ${e.email ? 'bad' : ''}" id="au-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(v.email)}"></div>${err('email')}</div>
         <div>
           <div class="row between"><label class="label" for="au-pass">Password</label>${!up ? '<button type="button" class="link" style="min-height:0;margin-bottom:6px" data-a="forgot">Forgot password?</button>' : ''}</div>
           <div class="field"><span class="lead">${ic('lock', 18)}</span><input class="input ${e.password ? 'bad' : ''}" id="au-pass" name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'At least 8 characters' : 'Your password'}" style="padding-right:52px">
             <span class="trail"><button type="button" class="icon-btn" data-a="togglePass" aria-label="Show password">${ic('eye', 18)}</button></span></div>
-          ${err('password') || (up ? '<p class="hint">Use 8 or more characters.</p>' : '')}
+          ${err('password')}
         </div>
         <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">${up ? 'Create account' : 'Sign in'} ${ic('arrowR', 18)}</button>
-        <div class="row" style="gap:12px;color:var(--faint);font-size:13px"><span class="grow" style="height:1px;background:var(--line)"></span>or<span class="grow" style="height:1px;background:var(--line)"></span></div>
-        <button class="btn btn-secondary btn-lg btn-block" type="button" data-a="guest">Continue as guest</button>
-        <p class="t12 faint" style="text-align:center;line-height:1.6">By continuing you agree to plug.pk’s <a class="accent-text" href="https://plug.pk/terms" target="_blank" rel="noopener">Terms</a> and <a class="accent-text" href="https://plug.pk/privacy" target="_blank" rel="noopener">Privacy policy</a>.<br>Prototype: accounts stay on this device.</p>
+        <div class="row" style="gap:12px;color:var(--faint);font-size:13px;margin:-2px 0"><span class="grow" style="height:1px;background:var(--line)"></span>or<span class="grow" style="height:1px;background:var(--line)"></span></div>
+        <button class="btn btn-secondary btn-block" type="button" data-a="guest">${ic('user', 18)}Continue as guest</button>
+        <p class="t12 faint" style="text-align:center;line-height:1.6">By continuing you agree to plug.pk’s <a class="accent-text" href="https://plug.pk/terms" target="_blank" rel="noopener">Terms</a> and <a class="accent-text" href="https://plug.pk/privacy" target="_blank" rel="noopener">Privacy policy</a>. Prototype: accounts stay on this device.</p>
       </form>
     </div></div>`,
   }
