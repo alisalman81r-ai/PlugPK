@@ -469,6 +469,19 @@ function polish(host) {
     sc.addEventListener('scroll', f, { passive: true })
     f()
   }
+  // A sticky bar pins just under the status bar; once it does, a backing fades in behind the clock so text never runs under it.
+  const stick = host.querySelector('[data-stick]'), scrim = host.querySelector('.sb-scrim')
+  if (stick && scrim && sc) {
+    const sb = $('#statusbar'), dark = sb.classList.contains('on-dark')
+    const g = () => {
+      const stuck = stick.getBoundingClientRect().top - sc.getBoundingClientRect().top <= scrim.offsetHeight + 0.5
+      scrim.classList.toggle('on', stuck)
+      stick.classList.toggle('stuck', stuck)
+      sb.classList.toggle('on-dark', dark && !stuck)
+    }
+    sc.addEventListener('scroll', g, { passive: true })
+    g()
+  }
   host.querySelectorAll('img').forEach((i) => {
     if (i.complete) return
     i.classList.add('ld')

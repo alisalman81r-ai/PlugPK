@@ -66,7 +66,7 @@ SCREENS.community = () => {
   const clubs = [...D.clubs].sort((a, b) => (a.city === S.city ? -1 : b.city === S.city ? 1 : b.members - a.members))
   return {
     sb: 'light', tabs: true,
-    html: `<div class="scroll">
+    html: `<div class="sb-scrim"></div><div class="scroll">
       <header class="band cm-head">
         <div class="eyebrow">${ic('users', 13)} Community</div>
         <h1 class="band-title mt-4">Ask drivers who’ve <span class="hl">done the drive</span></h1>
@@ -74,7 +74,7 @@ SCREENS.community = () => {
         <div class="field mt-16"><span class="lead" style="color:rgba(255,255,255,.5)">${ic('search', 18)}</span><input class="input pk-search" id="cm-q" data-in="commQ" placeholder="Search posts, topics, people" value="${esc(c.q || '')}" autocomplete="off"></div>
       </header>
 
-      <div class="cm-bar">
+      <div class="cm-bar" data-stick>
         <div class="cm-tabs" role="tablist">${tabs.map(([k, l]) => `<button role="tab" aria-selected="${c.sort === k}" class="${c.sort === k ? 'on' : ''}" data-a="commSort" data-v="${k}">${l}</button>`).join('')}</div>
         <div class="chips" style="padding-top:10px;padding-bottom:10px">${topics.map(([k, l]) => `<button class="chip ${c.cat === k ? 'solid on' : ''}" data-a="commCat" data-v="${k}">${l}</button>`).join('')}</div>
       </div>

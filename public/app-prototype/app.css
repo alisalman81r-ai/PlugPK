@@ -863,3 +863,8 @@ a.btn, a.list-row { text-decoration: none; }
 .cm-actions button:active { background: var(--surface-2); }
 .cm-actions button.liked { color: var(--heart); }
 .cm-compose-field { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+/* Sticky bars pin under the status bar, with a backing behind the clock */
+.sb-scrim { position: absolute; z-index: 6; top: 0; left: 0; right: 0; height: var(--top); background: var(--bg); opacity: 0; pointer-events: none; transition: opacity .15s; }
+.sb-scrim.on { opacity: 1; }
+.cm-bar { top: var(--top); }
