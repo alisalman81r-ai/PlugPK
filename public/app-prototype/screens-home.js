@@ -4,33 +4,72 @@
 const POPULAR_SLUGS = ['byd-atto-3-advanced', 'mg-zs-ev', 'byd-seal', 'byd-atto-2', 'mg-4-urban', 'honri-ve-2', 'dfsk-seres-3', 'deepal-s07', 'deepal-l07', 'kia-ev5', 'gwm-ora-03', 'byd-sealion-7-advanced'].filter(carBySlug)
 
 // ─── Onboarding ────────────────────────────────────────────────────
+// ─── Onboarding ────────────────────────────────────────────────────
+// Three slides, each showing real app content rather than illustration:
+// the network today, a route the planner actually computes, a catalogue car.
 const SLIDES = [
   {
-    art: () => {
-      const car = img('home/freedom-car-clean.png')
-      const sparks = [[30, 0, 2.6], [44, 0.7, 3.1], [58, 1.3, 2.8], [70, 0.4, 3.4], [82, 1.9, 2.9], [18, 1.1, 3.2], [64, 2.4, 2.7]]
-      return `<div class="hero-car" role="img" aria-label="An electric car plugged into a charger">
-        <div class="hc-glow"></div>
-        <div class="hc-shadow"></div>
-        <div class="hc-img"><img src="${car}" alt=""><span class="hc-sheen" style="-webkit-mask-image:url('${car}');mask-image:url('${car}')"></span></div>
-        ${sparks.map(([x, d, t]) => `<i class="hc-spark" style="left:${x}%;animation-delay:${d}s;animation-duration:${t}s"></i>`).join('')}
-        <div class="hc-chip"><span class="hc-bolt">${ic('bolt', 14, { fill: true, sw: 1 })}</span>Charging<b class="hc-pct mono"></b><span class="hc-bar"><i></i></span></div>
-      </div>`
-    },
+    eyebrow: ['pin', 'Charger map'],
     title: 'Find a charger <span class="hl">anywhere in Pakistan</span>',
-    body: 'Every listed charger on one map, with the plug, the speed and what’s nearby while you wait.',
+    body: 'Every listed charger on one map, with its plug, its speed and what’s nearby while you wait.',
+    media: () => {
+      const cities = new Set(D.stations.map((s) => s.city)).size
+      return `<img class="ob-photo" src="${img('hero/hero-scene-v4.png')}" alt="An electric SUV beside a charger, with charging stops marked across a map of Pakistan">
+        <div class="ob-card ob-stats">
+          <div><b class="mono">${D.stations.length}</b><span>Chargers listed</span></div>
+          <div><b class="mono">${cities}</b><span>Cities</span></div>
+          <div><b class="mono">${D.cars.length}</b><span>Cars in the catalogue</span></div>
+        </div>`
+    },
   },
   {
-    bg: 'hero/hero-scene-v4.png',
+    eyebrow: ['route', 'Route planner'],
     title: 'Plan drives around <span class="hl">your car’s real range</span>',
     body: 'Tell us what you drive. We work out whether you’ll make it, where to charge and for how long.',
+    media: () => {
+      const car = carBySlug('byd-seal')
+      const p = planRoute('Islamabad', 'Lahore', car, 90)
+      const path = 'M 70 120 C 120 150, 150 170, 180 205 S 250 250, 318 268'
+      return `<svg class="ob-map" viewBox="0 0 390 440" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+          <g stroke="rgba(142,238,218,.07)" stroke-width="1">${Array.from({ length: 15 }, (_, i) => `<path d="M ${i * 30} 0 V 440 M 0 ${i * 30} H 390"/>`).join('')}</g>
+          <path d="M -10 170 C 90 200, 150 140, 400 190" stroke="rgba(142,238,218,.12)" stroke-width="6" fill="none"/>
+          <path d="M 40 440 C 100 330, 260 230, 390 90" stroke="rgba(142,238,218,.1)" stroke-width="4" fill="none"/>
+          <path d="${path}" stroke="rgba(38,205,178,.18)" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <path class="ob-route" d="${path}" pathLength="1" stroke="#26CDB2" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle r="6" fill="#fff" class="ob-runner"><animateMotion dur="2.4s" begin="0.3s" fill="freeze" path="${path}" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .2 1"/></circle>
+          <g font-family="Figtree, sans-serif" font-weight="700" font-size="13" fill="#fff">
+            <circle cx="70" cy="120" r="7" fill="#22C55E" stroke="#05241E" stroke-width="3"/><text x="84" y="112">Islamabad</text>
+            <circle cx="318" cy="268" r="7" fill="#EF4444" stroke="#05241E" stroke-width="3"/><text x="304" y="292" text-anchor="end">Lahore</text>
+          </g>
+        </svg>
+        <div class="ob-card ob-route-card">
+          <div class="row between"><b class="t15">Islamabad → Lahore</b><span class="mono t13" style="color:#8EEEDA">${p.km} km</span></div>
+          <div class="t13" style="color:rgba(255,255,255,.6)">M-2 motorway · <span class="mono">~${fmtDur(p.drive)}</span> · ${esc(car.name)}</div>
+          <div class="ob-batt"><i style="--from:90%;--to:${p.arrive}%"></i></div>
+          <div class="row between t12 mono" style="color:rgba(255,255,255,.55)"><span>Leave 90%</span><span style="color:#8EEEDA">Arrive ${p.arrive}% · no stop</span></div>
+        </div>`
+    },
   },
   {
-    art: () => `<div style="position:relative;width:100%;height:260px">
-      ${['byd-seal', 'byd-atto-3-advanced', 'mg-4-urban'].map((s, i) => `<div class="stage-img" style="position:absolute;width:62%;aspect-ratio:4/3;border-radius:22px;left:${[2, 19, 36][i]}%;top:${[30, 0, 52][i]}px;transform:rotate(${[-6, 0, 5][i]}deg);box-shadow:0 24px 50px rgba(0,0,0,.45);z-index:${[1, 3, 2][i]}"><img src="${img(carBySlug(s).image)}" alt=""></div>`).join('')}
-    </div>`,
+    eyebrow: ['car', 'Car catalogue'],
     title: 'Compare every EV <span class="hl">sold in Pakistan</span>',
     body: `${D.cars.length} cars with PKR prices, real specs and charging times. Then ask the owners.`,
+    media: () => {
+      const c = carBySlug('byd-seal')
+      return `<div class="ob-stage">
+          <span class="ob-price">${esc(c.price)}</span>
+          <img src="${img(c.image)}" alt="${esc(c.name)}">
+        </div>
+        <div class="ob-card ob-specs">
+          <div class="t12" style="color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:700">${esc(c.brand)}</div>
+          <b class="t17">${esc(c.model)}</b>
+          <div class="ob-spec-row">
+            <div><b class="mono">${carRange(c)}<small>km</small></b><span>Range · ${c.rangeStd}</span></div>
+            <div><b class="mono">${c.battery}<small>kWh</small></b><span>Battery</span></div>
+            <div><b class="mono">${c.dc}<small>kW</small></b><span>DC peak</span></div>
+          </div>
+        </div>`
+    },
   },
 ]
 
@@ -39,26 +78,41 @@ SCREENS.onboarding = () => {
   if (st === SLIDES.length) return authScreen()
   if (st === SLIDES.length + 1) return pickCarScreen()
   const s = SLIDES[st]
+  const last = st === SLIDES.length - 1
   return {
     sb: 'light',
-    html: `<div class="onb">
-      ${s.bg ? `<img src="${img(s.bg)}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:70% 20%;opacity:.95"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,36,30,.1) 30%,#05241E 78%)"></div>` : ''}
-      <div class="row between" style="position:absolute;z-index:3;left:0;right:0;top:0;padding:calc(var(--top) + 8px) 20px 0">
-        ${logo(20)}
-        <button class="btn btn-sm" style="color:rgba(255,255,255,.75)" data-a="onbSkip">Skip</button>
-      </div>
-      <div class="art">${s.art ? s.art() : ''}</div>
-      <div class="copy" style="animation:up .5s cubic-bezier(.2,.8,.2,1)">
+    html: `<div class="ob" id="ob">
+      <div class="ob-media ob-media-${st}" key="${st}">${s.media()}</div>
+      <header class="ob-top">
+        <div class="ob-progress" aria-label="Step ${st + 1} of ${SLIDES.length}">${SLIDES.map((_, i) => `<i class="${i < st ? 'done' : i === st ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="row between">${logo(19)}<button class="btn btn-sm ob-skip" data-a="onbSkip">Skip</button></div>
+      </header>
+      <div class="ob-body">
+        <div class="eyebrow" style="color:#8EEEDA">${ic(s.eyebrow[0], 13)} ${s.eyebrow[1]}</div>
         <h1>${s.title}</h1>
         <p>${s.body}</p>
-      </div>
-      <div class="foot">
-        <div class="pg">${SLIDES.map((_, i) => `<i class="${i === st ? 'on' : ''}"></i>`).join('')}</div>
-        <button class="next-fab" data-a="onbNext" aria-label="Next">${ic('arrowR', 26)}</button>
+        <button class="btn btn-glow btn-lg btn-block" data-a="onbNext">${last ? 'Get started' : 'Continue'} ${ic('arrowR', 18)}</button>
+        <button class="btn btn-ghost btn-block ob-signin" data-a="onbSignIn">I already have an account</button>
       </div>
     </div>`,
+    after: onbSwipe,
   }
 }
+/** Swipe left or right between slides, like any native onboarding. */
+function onbSwipe() {
+  const el = $('#ob')
+  if (!el) return
+  let x0 = null
+  el.addEventListener('pointerdown', (e) => { if (!e.target.closest('button')) x0 = e.clientX })
+  el.addEventListener('pointerup', (e) => {
+    if (x0 == null) return
+    const dx = e.clientX - x0
+    x0 = null
+    if (dx < -50) A.onbNext()
+    else if (dx > 50 && U.onbStep > 0) { U.onbStep--; U.dir = 'back'; render() }
+  })
+}
+A.onbSignIn = () => { U.onbStep = SLIDES.length; U.authMode = 'signin'; U.authErr = null; render() }
 
 function authScreen() {
   const up = U.authMode === 'signup'
