@@ -728,3 +728,22 @@ a.btn, a.list-row { text-decoration: none; }
 @keyframes obDraw { to { stroke-dashoffset: 0; } }
 @keyframes obDrain { from { width: var(--from); } to { width: var(--to); } }
 @keyframes obCar { from { opacity: 0; transform: translateX(24%); } to { opacity: 1; transform: none; } }
+
+/* ── Car picker (onboarding step 2) ────────────────────────────────── */
+.pk { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg); }
+.pk-head { position: relative; overflow: hidden; color: #fff; padding: calc(var(--top) + 6px) 16px 22px; border-radius: 0 0 28px 28px;
+  background: linear-gradient(150deg, var(--band-1), var(--band-2) 55%, var(--band-3)); }
+.pk-head::before { content: ""; position: absolute; right: -90px; top: -70px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(38,205,178,.22), transparent 65%); pointer-events: none; }
+.pk-head > * { position: relative; }
+.pk-head .icon-btn { color: #fff; margin-left: -8px; }
+.pk-search { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.14); color: #fff; }
+.pk-search::placeholder { color: rgba(255,255,255,.45); }
+.pick { transition: border-color .2s, box-shadow .2s, transform .15s; }
+.pick:active { transform: scale(.98); }
+.pick.on { border-color: #26CDB2; box-shadow: 0 0 0 3px rgba(38,205,178,.22), var(--shadow-2); }
+.pick.on .bd { background: var(--tint); }
+.pick .tick { z-index: 2; width: 26px; height: 26px; box-shadow: 0 4px 10px rgba(5,36,30,.25); }
+.pk-specs { display: flex; gap: 10px; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--fg-2); }
+.pk-specs small { font-weight: 400; color: var(--faint); margin-left: 2px; }
+.pk-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; gap: 12px; padding: 14px 16px calc(14px + var(--bottom));
+  background: var(--surface); border-top: 1px solid var(--line); border-radius: 22px 22px 0 0; box-shadow: 0 -12px 30px -12px rgba(5,36,30,.25); }

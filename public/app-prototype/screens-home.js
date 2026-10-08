@@ -142,25 +142,63 @@ function authScreen() {
 
 function pickCarScreen() {
   const q = U.pickQ.trim().toLowerCase()
-  const list = q ? D.cars.filter((c) => isPlugIn(c) && `${c.name} ${c.brand}`.toLowerCase().includes(q)) : POPULAR_SLUGS.map(carBySlug)
-  const sel = U.pick ?? S.primary
+  const brand = U.pickBrand || null
+  const plugIns = D.cars.filter(isPlugIn)
+  const rank = (c) => { const i = POPULAR_SLUGS.indexOf(c.slug); return i < 0 ? 999 : i }
+  const filtered = q || brand || U.pickAll
+  const list = filtered
+    ? plugIns.filter((c) => (!brand || c.brand === brand) && (!q || `${c.name} ${c.brand}`.toLowerCase().includes(q))).sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name))
+    : POPULAR_SLUGS.map(carBySlug)
+  // Brands with popular cars first, in that order, then the rest by how many plug-ins they sell.
+  const popBrands = [...new Set(POPULAR_SLUGS.map((x) => carBySlug(x).brand))]
+  const brandRank = (b) => (popBrands.includes(b) ? popBrands.indexOf(b) - 100 : -plugIns.filter((c) => c.brand === b).length)
+  const brands = [...new Set(plugIns.map((c) => c.brand))].sort((a, b) => brandRank(a) - brandRank(b))
+  const sel = carBySlug(U.pick ?? S.primary)
+  const label = q ? `${list.length} match${list.length === 1 ? '' : 'es'} for “${esc(U.pickQ.trim())}”` : brand ? `${list.length} ${esc(brand)} plug-in${list.length === 1 ? '' : 's'}` : U.pickAll ? `All ${list.length} plug-in cars` : 'Popular in Pakistan'
   return {
-    sb: 'dark',
-    html: `<div class="auth">
-      <div class="topbar"><h1 style="margin:0;text-align:left;font-size:24px;padding:8px 4px 0">What do you drive?</h1></div>
-      <div class="scroll" style="padding-bottom:120px">
-        <p class="pad muted t15">We use its battery, range and plug to plan routes and charge times. You can change it any time.</p>
-        <div class="pad mt-16"><div class="field"><span class="lead">${ic('search', 18)}</span><input class="input" id="pick-q" data-in="pickQ" placeholder="Search ${D.cars.filter(isPlugIn).length} plug-in cars" value="${esc(U.pickQ)}"></div></div>
-        <div class="pad mt-16"><p class="group-label" style="margin-top:0">${q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : 'Popular in Pakistan'}</p>
-          <div class="pick-grid">${list.slice(0, 24).map((c) => `<button class="pick ${sel === c.slug ? 'on' : ''}" data-a="pickCar" data-v="${c.slug}">
-            ${carStage(c)}<div class="bd"><div class="t12 faint b7" style="letter-spacing:.1em;text-transform:uppercase">${esc(c.brand)}</div><div class="t14 b7 trunc">${esc(c.model)}</div><div class="t12 mono muted">${carRange(c) ? `${carRange(c)} km` : '—'} · ${c.battery} kWh</div></div>
-            ${sel === c.slug ? `<span class="tick">${ic('check', 14, { sw: 2.6 })}</span>` : ''}</button>`).join('')}</div>
-          ${!list.length ? '<div class="empty">No plug-in car matches that. Try the brand name, like “BYD” or “MG”.</div>' : ''}
+    sb: 'light',
+    html: `<div class="pk">
+      <div class="scroll" style="padding-bottom:${sel ? 150 : 110}px">
+        <header class="pk-head">
+          <div class="row between">
+            <button class="icon-btn" data-a="pickBack" aria-label="Back">${ic('arrowL', 22)}</button>
+            <span class="mono t12" style="color:rgba(255,255,255,.6);letter-spacing:.08em">STEP 2 OF 2</span>
+            <button class="btn btn-sm ob-skip" data-a="finishOnb" data-v="none">Skip</button>
+          </div>
+          <div class="ob-progress mt-12" style="grid-template-columns:1fr 1fr"><i class="done"></i><i class="on"></i></div>
+          <div class="eyebrow mt-20" style="color:#8EEEDA">${ic('car', 13)} Your car</div>
+          <h1 class="band-title mt-8">What do you <span class="hl">drive?</span></h1>
+          <p class="t15 mt-8" style="color:rgba(255,255,255,.65)">Routes, charge times and plug checks all use its real figures. Change it any time.</p>
+          <div class="field mt-16"><span class="lead" style="color:rgba(255,255,255,.5)">${ic('search', 18)}</span><input class="input pk-search" id="pick-q" data-in="pickQ" placeholder="Search ${plugIns.length} plug-in cars" value="${esc(U.pickQ)}" autocomplete="off"></div>
+        </header>
+        <div class="chips mt-16">
+          <button class="chip solid ${!brand ? 'on' : ''}" data-a="pickBrand" data-v="">All brands</button>
+          ${brands.map((b) => `<button class="chip ${brand === b ? 'on' : ''}" data-a="pickBrand" data-v="${esc(b)}">${brand === b ? ic('check', 14, { sw: 2.4 }) : ''}${esc(b)}</button>`).join('')}
+        </div>
+        <div class="pad mt-16">
+          <p class="group-label" style="margin-top:0">${label}</p>
+          <div class="pick-grid">${list.map((c) => {
+            const on = sel?.slug === c.slug
+            return `<button class="pick ${on ? 'on' : ''}" data-a="pickCar" data-v="${c.slug}" aria-pressed="${on}">
+              ${carStage(c)}
+              <div class="bd">
+                <div class="t12 faint b7" style="letter-spacing:.1em;text-transform:uppercase">${esc(c.brand)}</div>
+                <div class="t15 b7 trunc">${esc(c.model)}</div>
+                <div class="pk-specs mono"><span>${carRange(c) ?? '—'}<small>km</small></span><span>${c.battery}<small>kWh</small></span><span>${c.dc ?? c.ac ?? '—'}<small>kW</small></span></div>
+              </div>
+              ${on ? `<span class="tick">${ic('check', 14, { sw: 2.8 })}</span>` : ''}
+            </button>`
+          }).join('')}</div>
+          ${!list.length ? `<div class="empty">No plug-in car matches that. Try the brand name, like “BYD” or “MG”.<button class="btn btn-sm btn-secondary" data-a="pickClear">Clear search</button></div>` : ''}
+          ${!filtered ? `<button class="btn btn-secondary btn-block mt-16" data-a="pickAll">Show all ${plugIns.length} plug-in cars ${ic('chevD', 18)}</button>` : ''}
+          <button class="link mt-8" style="width:100%;justify-content:center" data-a="finishOnb" data-v="none">I don’t have an EV yet</button>
         </div>
       </div>
-      <div class="bottom-bar" style="position:absolute;left:0;right:0;bottom:0">
-        <button class="btn btn-ghost" data-a="finishOnb" data-v="none">No EV yet</button>
-        <button class="btn btn-primary grow" data-a="finishOnb" ${sel ? '' : 'disabled'}>Continue</button>
+      <div class="pk-bar">
+        ${sel ? `<div class="row" style="gap:12px">${carStage(sel, '', 'width:64px;height:44px;border-radius:10px;flex:none')}
+          <div class="grow" style="min-width:0"><div class="t12 faint">Selected</div><b class="t15 trunc" style="display:block">${esc(sel.name)}</b>
+          <div class="t12 mono muted trunc">${carRange(sel) ?? '—'} km${sel.rangeStd ? ` ${sel.rangeStd}` : ''} · ${sel.battery} kWh${carConns(sel).length ? ` · ${carConns(sel).map((t) => CONN[t].label).join(', ')}` : ''}</div></div></div>` : '<p class="t14 muted">Pick a car to continue, or skip if you don’t drive one yet.</p>'}
+        <button class="btn btn-primary btn-lg btn-block" data-a="finishOnb" ${sel ? '' : 'disabled'}>Continue ${ic('arrowR', 18)}</button>
       </div>
     </div>`,
   }
@@ -189,8 +227,13 @@ Object.assign(A, {
     render()
   },
   pickCar: (slug) => { U.pick = slug; render() },
+  pickBrand: (v) => { U.pickBrand = v || null; render() },
+  pickAll: () => { U.pickAll = true; render() },
+  pickClear: () => { U.pickQ = ''; U.pickBrand = null; render() },
+  pickBack: () => { U.onbStep = SLIDES.length; render() },
   finishOnb: (v) => {
-    if (v !== 'none' && U.pick) { S.primary = U.pick; if (!S.garage.includes(U.pick)) S.garage = [U.pick, ...S.garage] }
+    const pick = U.pick ?? S.primary
+    if (v !== 'none' && pick) { S.primary = pick; if (!S.garage.includes(pick)) S.garage = [pick, ...S.garage] }
     if (v === 'none') { S.primary = null; S.garage = [] }
     S.onboarded = true
     save()
