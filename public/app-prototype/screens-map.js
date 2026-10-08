@@ -154,15 +154,19 @@ SCREENS.map = () => {
   const list = all.filter(stationMatches)
   if (m.sel && !list.some((s) => s.id === m.sel)) m.sel = null
   const fc = filterCount()
-  const chips = `<div class="chips" style="padding:0 0 2px;margin:0 -16px;padding-left:16px;padding-right:16px">
-      <button class="chip ${fc ? 'on' : ''}" data-a="sheet" data-v="filters">${ic('sliders', 16)}Filters${fc ? ` <span class="cnt">${fc}</span>` : ''}</button>
-      ${CITIES_WITH_STATIONS.map((c) => `<button class="chip ${S.city === c ? 'solid on' : ''}" data-a="city" data-v="${c}">${c}</button>`).join('')}
+  // One-tap filters for the questions drivers ask most; everything else is in the Filters sheet.
+  const quick = [['conn', 'CCS2', 'CCS2'], ['conn', 'Type2', 'Type 2'], ['speed', 50, '50 kW+'], ['speed', 150, '150 kW+']]
+  const qOn = ([k, v]) => (k === 'conn' ? m.conn.includes(v) : m.speed === v)
+  const chips = `<div class="chips map-chips">
+      <button class="chip ${fc ? 'solid on' : ''}" data-a="sheet" data-v="filters">${ic('sliders', 16)}Filters${fc ? ` <span class="cnt">${fc}</span>` : ''}</button>
+      ${quick.map((q) => `<button class="chip ${qOn(q) ? 'on' : ''}" data-a="quickFilter" data-v="${q[0]}:${q[1]}" aria-pressed="${qOn(q)}">${qOn(q) ? ic('check', 14, { sw: 2.4 }) : ''}${q[2]}</button>`).join('')}
     </div>`
+  const cityBtn = `<button class="map-city" data-a="sheet" data-v="city" aria-label="Change city, now ${S.city}">${ic('pin', 15)}${S.city}${ic('chevD', 14)}</button>`
   if (m.view === 'list') {
     return {
       sb: 'dark', tabs: true,
       html: `<div class="topbar" style="flex-direction:column;align-items:stretch;gap:10px;padding-left:16px;padding-right:16px">
-          <div class="row between"><h1 style="text-align:left;margin:0;font-size:24px">Chargers in ${S.city}</h1><button class="btn btn-sm btn-secondary" data-a="mapView" data-v="map">${ic('map', 16)}Map</button></div>
+          <div class="row between"><div><h1 style="text-align:left;margin:0;font-size:24px">Chargers</h1>${cityBtn.replace('map-city', 'map-city flat')}</div><button class="btn btn-sm btn-secondary" data-a="mapView" data-v="map">${ic('map', 16)}Map</button></div>
           ${chips}
         </div>
         <div class="scroll pad stack gap-12" style="padding-top:4px">
@@ -188,14 +192,12 @@ SCREENS.map = () => {
         </div>
       </div>
       <div class="map-top">
-        <button class="searchbar" data-a="go" data-v="search" style="height:50px">${ic('search', 20)}<span class="grow">Search a station or area</span></button>
+        <div class="map-search"><button class="grow row" style="gap:10px;min-height:48px;text-align:left" data-a="go" data-v="search">${ic('search', 20)}<span class="grow faint">Search stations or areas</span></button>${cityBtn}</div>
         ${chips}
-        <div class="legend">${['ultra', 'rapid', 'fast'].map((t) => `<span><i class="speed-dot" style="background:${TIER[t].dot}"></i>${TIER[t].label}</span>`).join('')}</div>
       </div>
-      <div class="map-ctrl" style="top:calc(var(--top) + 196px)">
+      <div class="map-ctrl" style="top:calc(var(--top) + 132px)">
         <button class="glass-btn" data-a="mapView" data-v="list" aria-label="Show as list">${ic('rows', 20)}</button>
-        <button class="glass-btn" data-a="zoom" data-v="1.4" aria-label="Zoom in">${ic('plus', 20)}</button>
-        <button class="glass-btn" data-a="zoom" data-v="0.7" aria-label="Zoom out">${ic('minus', 20)}</button>
+        <div class="ctrl-group"><button data-a="zoom" data-v="1.4" aria-label="Zoom in">${ic('plus', 20)}</button><button data-a="zoom" data-v="0.7" aria-label="Zoom out">${ic('minus', 20)}</button></div>
         <button class="glass-btn" data-a="locate" aria-label="Centre on me">${ic('locate', 20)}</button>
         <button class="glass-btn" data-a="flipTheme" aria-label="Switch to ${isDark() ? 'light' : 'dark'} mode">${ic(isDark() ? 'sun' : 'moon', 20)}</button>
       </div>
@@ -220,7 +222,7 @@ function mapViewport() {
 /** Centre a world point in the visible part of the map (between the top controls and the cards). */
 function centreOn([x, y], z = U.map.z, animate = true) {
   const [w, h] = mapViewport()
-  const visTop = 200, visBottom = h - 260
+  const visTop = 140, visBottom = h - 250
   U.map.z = clamp(z, 0.35, 2.6)
   U.map.x = w / 2 - x * U.map.z
   U.map.y = (visTop + visBottom) / 2 - y * U.map.z
@@ -345,6 +347,12 @@ Object.assign(A, {
   clearFilters: () => { Object.assign(U.map, { conn: [], speed: 0, amen: [] }); closeSheet(); render() },
   fConn: (v) => { U.map.conn = U.map.conn.includes(v) ? U.map.conn.filter((x) => x !== v) : [...U.map.conn, v]; renderSheet() },
   fSpeed: (v) => { U.map.speed = +v; renderSheet() },
+  quickFilter: (v) => {
+    const [k, val] = v.split(':')
+    if (k === 'conn') U.map.conn = U.map.conn.includes(val) ? U.map.conn.filter((x) => x !== val) : [...U.map.conn, val]
+    else U.map.speed = U.map.speed === +val ? 0 : +val
+    render()
+  },
   fAmen: (v) => { U.map.amen = U.map.amen.includes(v) ? U.map.amen.filter((x) => x !== v) : [...U.map.amen, v]; renderSheet() },
   applyFilters: () => { closeSheet(); render() },
 })
@@ -408,7 +416,7 @@ SCREENS.station = ({ id }) => {
 
         <section class="section">
           <h2 class="t20">Chargers</h2>
-          ${car ? `<p class="t13 muted mt-4">Times are for your ${esc(car.name)}, 20→80%.</p>` : ''}
+          ${car ? `<p class="t13 muted mt-4">Estimates for your ${esc(car.name)}, charging 20→80% at Rs 50 per kWh.</p>` : ''}
           <div class="stack gap-12 mt-12">${s.connectors.map((c, i) => chargerBlock(c, i, car)).join('')}</div>
           <p class="t12 faint mt-12">plug.pk doesn’t have live availability yet, so we show what’s installed, not what’s free.</p>
         </section>
@@ -470,7 +478,10 @@ function chargerBlock(c, i, car) {
   if (car && ok) {
     const mode = dc && car.dc ? 'dc' : 'ac'
     const e = estimateCharge({ kwh: car.battery, from: 20, to: 80, mode, chargerKw: c.kw, carKw: mode === 'dc' ? car.dc : car.ac, rate: 50 })
-    if (e.ok) est = `<div class="row mt-8 t13" style="gap:10px;padding:8px 10px;border-radius:10px;background:var(--tint);color:var(--fg-2)">${ic('timer', 16)}<span><b class="mono">${fmtDur(e.minutes)}</b> at up to <span class="mono">${fmtKw(e.kw)} kW</span> · about <b>${fmtRs(e.cost)}</b> at Rs 50/kWh</span></div>`
+    if (e.ok) est = `<div class="est" title="For your car, 20→80%, at Rs 50 per kWh">
+      <div><span>20→80%</span><b>${fmtDur(e.minutes)}</b></div>
+      <div><span>About</span><b>${fmtRs(e.cost)}</b></div>
+      <div><span>Up to</span><b>${fmtKw(e.kw)} kW</b></div></div>`
   }
   const fit = ok === true ? `<span class="badge b-green">${ic('check', 12, { sw: 2.6 })}Fits your car</span>` : ok === false ? `<span class="badge b-slate">Not for your car</span>` : ''
   return `<div class="card charger">

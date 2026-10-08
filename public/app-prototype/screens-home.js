@@ -117,24 +117,41 @@ A.onbSignIn = () => { U.onbStep = SLIDES.length; U.authMode = 'signin'; U.authEr
 function authScreen() {
   const up = U.authMode === 'signup'
   const e = U.authErr || {}
+  const v = U.authVals || {}
+  const err = (k) => (e[k] ? `<p class="err-msg">${ic('info', 15)}${e[k]}</p>` : '')
   return {
     sb: 'light',
-    html: `<div class="auth"><div class="scroll">
-      <div class="auth-head">
-        <div style="position:relative">${logo(22)}</div>
-        <h1 class="band-title" style="margin-top:28px;position:relative">${up ? 'Create your <span class="hl">plug.pk</span> account' : 'Welcome <span class="hl">back</span>'}</h1>
-        <p class="muted" style="margin-top:8px;position:relative;color:rgba(255,255,255,.65)">${up ? 'Save stations and routes, review chargers and join the community.' : 'Sign in to pick up your saved stations and routes.'}</p>
+    html: `<div class="pk"><div class="scroll" style="padding-bottom:32px">
+      <header class="pk-head">
+        <div class="row between">
+          <button class="icon-btn" data-a="authBack" aria-label="Back">${ic('arrowL', 22)}</button>
+          <span class="mono t12" style="color:rgba(255,255,255,.6);letter-spacing:.08em">STEP 1 OF 2</span>
+          <button class="btn btn-sm ob-skip" data-a="guest">Skip</button>
+        </div>
+        <div class="ob-progress mt-12" style="grid-template-columns:1fr 1fr"><i class="on"></i><i></i></div>
+        <div class="eyebrow mt-20" style="color:#8EEEDA">${ic('user', 13)} Your account</div>
+        <h1 class="band-title mt-8">${up ? 'Create your <span class="hl">account</span>' : 'Welcome <span class="hl">back</span>'}</h1>
+        <p class="t15 mt-8" style="color:rgba(255,255,255,.65)">${up ? 'Keep your stations, routes and reviews in one place.' : 'Sign in to pick up your saved stations and routes.'}</p>
+      </header>
+      <div class="pad mt-20">
+        <div class="seg" role="tablist">
+          <button class="${up ? 'on' : ''}" role="tab" aria-selected="${up}" data-a="authTo" data-v="signup">Create account</button>
+          <button class="${up ? '' : 'on'}" role="tab" aria-selected="${!up}" data-a="authTo" data-v="signin">Sign in</button>
+        </div>
       </div>
-      <form class="pad stack gap-16" style="padding-top:24px;padding-bottom:24px" data-submit="authSubmit" novalidate>
-        ${up ? `<div><label class="label" for="au-name">Your name</label><input class="input" id="au-name" name="name" autocomplete="name" placeholder="Ahmed Raza" value="${esc(U.authVals?.name)}">${e.name ? `<p class="err-msg">${ic('info', 15)}${e.name}</p>` : ''}</div>` : ''}
-        <div><label class="label" for="au-email">Email</label><div class="field"><span class="lead">${ic('mail', 18)}</span><input class="input" id="au-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(U.authVals?.email)}"></div>${e.email ? `<p class="err-msg">${ic('info', 15)}${e.email}</p>` : ''}</div>
-        <div><label class="label" for="au-pass">Password</label><div class="field"><span class="lead">${ic('lock', 18)}</span><input class="input" id="au-pass" name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'At least 8 characters' : 'Your password'}"></div>${e.password ? `<p class="err-msg">${ic('info', 15)}${e.password}</p>` : ''}</div>
-        ${!up ? '<button type="button" class="link" style="align-self:flex-end;margin-top:-8px" data-a="forgot">Forgot password?</button>' : ''}
-        <button class="btn btn-primary btn-lg btn-block" type="submit">${up ? 'Create account' : 'Sign in'}</button>
+      <form class="pad stack gap-16 mt-20" data-submit="authSubmit" novalidate>
+        ${up ? `<div><label class="label" for="au-name">Full name</label><div class="field"><span class="lead">${ic('user', 18)}</span><input class="input ${e.name ? 'bad' : ''}" id="au-name" name="name" autocomplete="name" placeholder="Ahmed Raza" value="${esc(v.name)}"></div>${err('name')}</div>` : ''}
+        <div><label class="label" for="au-email">Email</label><div class="field"><span class="lead">${ic('mail', 18)}</span><input class="input ${e.email ? 'bad' : ''}" id="au-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(v.email)}"></div>${err('email')}</div>
+        <div>
+          <div class="row between"><label class="label" for="au-pass">Password</label>${!up ? '<button type="button" class="link" style="min-height:0;margin-bottom:6px" data-a="forgot">Forgot password?</button>' : ''}</div>
+          <div class="field"><span class="lead">${ic('lock', 18)}</span><input class="input ${e.password ? 'bad' : ''}" id="au-pass" name="password" type="password" autocomplete="${up ? 'new-password' : 'current-password'}" placeholder="${up ? 'At least 8 characters' : 'Your password'}" style="padding-right:52px">
+            <span class="trail"><button type="button" class="icon-btn" data-a="togglePass" aria-label="Show password">${ic('eye', 18)}</button></span></div>
+          ${err('password') || (up ? '<p class="hint">Use 8 or more characters.</p>' : '')}
+        </div>
+        <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">${up ? 'Create account' : 'Sign in'} ${ic('arrowR', 18)}</button>
         <div class="row" style="gap:12px;color:var(--faint);font-size:13px"><span class="grow" style="height:1px;background:var(--line)"></span>or<span class="grow" style="height:1px;background:var(--line)"></span></div>
         <button class="btn btn-secondary btn-lg btn-block" type="button" data-a="guest">Continue as guest</button>
-        <p class="t14 muted" style="text-align:center">${up ? 'Already have an account?' : 'New to plug.pk?'} <button type="button" class="link" data-a="authMode">${up ? 'Sign in' : 'Create one'}</button></p>
-        <p class="t12 faint" style="text-align:center">Prototype: accounts are kept on this device only.</p>
+        <p class="t12 faint" style="text-align:center;line-height:1.6">By continuing you agree to plug.pk’s <a class="accent-text" href="https://plug.pk/terms" target="_blank" rel="noopener">Terms</a> and <a class="accent-text" href="https://plug.pk/privacy" target="_blank" rel="noopener">Privacy policy</a>.<br>Prototype: accounts stay on this device.</p>
       </form>
     </div></div>`,
   }
@@ -225,6 +242,15 @@ Object.assign(A, {
     if (S.onboarded) { closeSheet(); render(); return toast(`Signed in as ${S.user.name}`, 'user') }
     U.onbStep = SLIDES.length + 1
     render()
+  },
+  authTo: (v) => { U.authMode = v; U.authErr = null; render() },
+  authBack: () => { U.onbStep = SLIDES.length - 1; render() },
+  togglePass: (_, el) => {
+    const i = el.closest('.field').querySelector('input')
+    const show = i.type === 'password'
+    i.type = show ? 'text' : 'password'
+    el.innerHTML = ic(show ? 'eyeOff' : 'eye', 18)
+    el.setAttribute('aria-label', show ? 'Hide password' : 'Show password')
   },
   pickCar: (slug) => { U.pick = slug; render() },
   pickBrand: (v) => { U.pickBrand = v || null; render() },
@@ -329,10 +355,6 @@ SCREENS.home = () => {
           <button class="qa" data-a="tab" data-v="routes"><span class="ico">${ic('route', 22)}</span>Plan a trip</button>
           <button class="qa" data-a="go" data-v="calculator"><span class="ico">${ic('timer', 22)}</span>Charge time</button>
           <button class="qa" data-a="go" data-v="range"><span class="ico">${ic('gauge', 22)}</span>Real range</button>
-          <button class="qa" data-a="go" data-v="services"><span class="ico">${ic('wrench', 22)}</span>EV services</button>
-          <button class="qa" data-a="go" data-v="compare"><span class="ico">${ic('compare', 22)}</span>Compare cars</button>
-          <button class="qa" data-a="go" data-v="clubs"><span class="ico">${ic('users', 22)}</span>EV clubs</button>
-          <button class="qa" data-a="go" data-v="partners"><span class="ico">${ic('handshake', 22)}</span>Partner Up</button>
         </div>
       </div>
 
@@ -355,6 +377,16 @@ SCREENS.home = () => {
         <div class="sec-head"><div><h2>EV services in ${city}</h2><p class="sub">Dealers, workshops, installers</p></div><button class="link" data-a="go" data-v="services">All ${ic('arrowR', 14)}</button></div>
         <div class="hscroll">${svcs.map((s) => serviceCard(s, 260)).join('')}</div>
       </section>` : ''}
+
+      <section class="section pad">
+        <h2 class="t20" style="margin-bottom:12px">More from plug.pk</h2>
+        <div class="list">
+          ${listRow('wrench', 'EV services', 'Dealers, workshops, installers, insurance', 'services')}
+          ${listRow('compare', 'Compare cars', 'Prices, range and charging side by side', 'compare')}
+          ${listRow('users', 'EV clubs', `Meet drivers in ${new Set(D.clubs.map((c) => c.city)).size} cities`, 'clubs')}
+          ${listRow('bookmark', 'Saved', `${S.saved.length} station${S.saved.length === 1 ? '' : 's'} · ${S.routes.length} route${S.routes.length === 1 ? '' : 's'}`, 'profile')}
+        </div>
+      </section>
 
       <section class="section pad">
         <div class="result-hero" style="padding:22px">

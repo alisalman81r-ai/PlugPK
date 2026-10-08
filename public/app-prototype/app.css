@@ -747,3 +747,43 @@ a.btn, a.list-row { text-decoration: none; }
 .pk-specs small { font-weight: 400; color: var(--faint); margin-left: 2px; }
 .pk-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; gap: 12px; padding: 14px 16px calc(14px + var(--bottom));
   background: var(--surface); border-top: 1px solid var(--line); border-radius: 22px 22px 0 0; box-shadow: 0 -12px 30px -12px rgba(5,36,30,.25); }
+.input.bad { border-color: #EF4444; }
+.input.bad:focus { box-shadow: 0 0 0 3px rgba(239,68,68,.15); }
+
+/* ── Professional pass ─────────────────────────────────────────────── */
+/* Toasts sit at the top, clear of the tab bar and map cards. */
+.toast-wrap { top: calc(var(--top) + 6px); bottom: auto; }
+.toast { animation: toastIn .35s cubic-bezier(.2,.8,.2,1); }
+.toast.out { transform: translateY(-8px); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-12px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* Map: one search row with the city inside it, one row of quick filters. */
+.map-search { display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 6px 0 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-3); color: var(--faint); }
+.map-city { display: inline-flex; align-items: center; gap: 4px; height: 38px; padding: 0 10px; border-radius: 12px; background: var(--sunken); color: var(--fg); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.map-city .i:first-child { color: var(--accent-text); }
+.map-city.flat { background: none; padding: 0; height: 28px; color: var(--muted); font-weight: 500; }
+.map-chips { margin: 0 -16px; padding: 0 16px 2px; }
+.map-top .chip { box-shadow: var(--shadow-1); }
+.ctrl-group { display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; background: rgba(255,255,255,.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(5,36,30,.14); }
+.ctrl-group button { width: 44px; height: 44px; display: grid; place-items: center; color: #0B332C; }
+.ctrl-group button + button { border-top: 1px solid rgba(5,36,30,.08); }
+.ctrl-group button:active { background: rgba(5,36,30,.06); }
+
+/* Charge estimate: three figures, not a sentence. */
+.est { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 10px; border-radius: 12px; background: var(--tint); border: 1px solid var(--tint-line); }
+.est > div { padding: 8px 10px; display: flex; flex-direction: column; gap: 1px; }
+.est > div + div { border-left: 1px solid var(--tint-line); }
+.est span { font-size: 11.5px; color: var(--muted); }
+.est b { font: 700 14px/1.3 var(--mono); color: var(--tint-fg); }
+
+/* Header gets a hairline once the content scrolls under it. */
+.topbar { transition: box-shadow .2s, border-color .2s; border-bottom: 1px solid transparent; }
+.topbar.scrolled { border-bottom-color: var(--line); box-shadow: 0 6px 16px -12px rgba(5,36,30,.35); }
+
+/* Images fade in instead of popping. */
+#screen img { transition: opacity .35s ease; }
+#screen img.ld { opacity: 0; }
+/* Map controls follow the theme (photo overlays elsewhere stay white). */
+.map-ctrl .glass-btn, .ctrl-group { background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--fg); border: 1px solid var(--line); }
+.ctrl-group button { color: var(--fg); }
+.ctrl-group button + button { border-top-color: var(--line); }
