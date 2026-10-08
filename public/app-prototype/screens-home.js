@@ -54,22 +54,14 @@ const SLIDES = [
     eyebrow: ['car', 'Car catalogue'],
     title: 'Compare every EV <span class="hl">sold in Pakistan</span>',
     body: `${D.cars.length} cars with PKR prices, real specs and charging times. Then ask the owners.`,
-    media: () => {
-      const c = carBySlug('byd-seal')
-      return `<div class="ob-stage">
-          <span class="ob-price">${esc(c.price)}</span>
-          <img src="${img(c.image)}" alt="${esc(c.name)}">
+    media: () => `<div class="ob-stage">
+          <span class="ob-price" id="obc-price"></span>
+          <span class="ob-count mono" id="obc-count"></span>
+          <img id="obc-img" alt="">
+          <div class="ob-reel"><i id="obc-bar"></i></div>
         </div>
-        <div class="ob-card ob-specs">
-          <div class="t12" style="color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:700">${esc(c.brand)}</div>
-          <b class="t17">${esc(c.model)}</b>
-          <div class="ob-spec-row">
-            <div><b class="mono">${carRange(c)}<small>km</small></b><span>Range · ${c.rangeStd}</span></div>
-            <div><b class="mono">${c.battery}<small>kWh</small></b><span>Battery</span></div>
-            <div><b class="mono">${c.dc}<small>kW</small></b><span>DC peak</span></div>
-          </div>
-        </div>`
-    },
+        <div class="ob-card ob-specs" id="obc-specs"></div>`,
+    after: obCarReel,
   },
 ]
 
@@ -95,8 +87,46 @@ SCREENS.onboarding = () => {
         <button class="btn btn-ghost btn-block ob-signin" data-a="onbSignIn">I already have an account</button>
       </div>
     </div>`,
-    after: onbSwipe,
+    after: () => { onbSwipe(); s.after?.() },
   }
+}
+/** Time-lapse through the whole catalogue on the car slide: every car in turn, with its price and specs. */
+const OB_REEL_MS = 1600
+let obReelRun = 0
+function obCarReel() {
+  const run = ++obReelRun
+  const first = carBySlug('byd-seal')
+  const cars = [first, ...D.cars.filter((c) => c !== first && c.image)]
+  let i = 0
+  const show = (c) => {
+    if (run !== obReelRun || !$('#obc-img')) return false
+    $('#obc-price').textContent = c.price
+    $('#obc-count').textContent = `${i + 1} / ${cars.length}`
+    const im = $('#obc-img')
+    im.src = img(c.image)
+    im.alt = c.name
+    im.classList.remove('swap'); void im.offsetWidth; im.classList.add('swap')
+    $('#obc-specs').innerHTML = `<div class="ob-specs-in">
+        <div class="t12" style="color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:700">${esc(c.brand)}</div>
+        <b class="t17">${esc(c.model)}</b>
+        <div class="ob-spec-row">
+          <div><b class="mono">${carRange(c) ?? '—'}<small>km</small></b><span>Range${c.rangeStd ? ' · ' + c.rangeStd : ''}</span></div>
+          <div><b class="mono">${c.battery ?? '—'}<small>kWh</small></b><span>Battery</span></div>
+          <div><b class="mono">${c.dc ?? '—'}<small>kW</small></b><span>DC peak</span></div>
+        </div>
+      </div>`
+    const bar = $('#obc-bar')
+    bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''
+    return true
+  }
+  // Warm the next photo so each swap is instant.
+  const warm = (k) => { new Image().src = img(cars[k % cars.length].image) }
+  show(cars[0]); warm(1)
+  const t = setInterval(() => {
+    i = (i + 1) % cars.length
+    if (!show(cars[i])) clearInterval(t)
+    else warm(i + 1)
+  }, OB_REEL_MS)
 }
 /** Swipe left or right between slides, like any native onboarding. */
 function onbSwipe() {

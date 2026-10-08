@@ -868,3 +868,14 @@ a.btn, a.list-row { text-decoration: none; }
 .sb-scrim { position: absolute; z-index: 6; top: 0; left: 0; right: 0; height: var(--top); background: var(--bg); opacity: 0; pointer-events: none; transition: opacity .15s; }
 .sb-scrim.on { opacity: 1; }
 .cm-bar { top: var(--top); }
+
+/* Onboarding car slide: a time-lapse through the catalogue */
+.ob-stage img.swap { animation: obSwap 1.6s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes obSwap { 0% { opacity: 0; transform: translateX(28px) scale(.97); } 18%, 82% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateX(-28px) scale(.97); } }
+.ob-count { position: absolute; z-index: 1; right: 14px; top: 14px; padding: 6px 9px; border-radius: 10px; background: rgba(5,36,30,.08); color: #05241E; font-size: 12px; font-weight: 600; }
+.ob-reel { position: absolute; z-index: 1; left: 0; right: 0; top: 0; height: 3px; background: rgba(5,36,30,.1); overflow: hidden; }
+.ob-reel i { display: block; height: 100%; width: 100%; background: #0F7A6A; transform-origin: left; animation: obReel 1.6s linear both; }
+@keyframes obReel { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.ob-specs-in { animation: obSpecs .35s ease both; }
+@keyframes obSpecs { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ob-stage img.swap, .ob-specs-in { animation: none; } .ob-reel { display: none; } }
