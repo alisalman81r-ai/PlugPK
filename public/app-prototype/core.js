@@ -388,7 +388,7 @@ const DEFAULT = {
   onboarded: false, user: null, theme: 'system', city: 'Lahore',
   garage: ['byd-atto-3-advanced'], primary: 'byd-atto-3-advanced',
   saved: [], routes: [], fav: [], compare: [], liked: {}, myReviews: [], myPosts: [], myComments: {}, clubs: [],
-  myStory: [], seenStories: {}, storyLikes: {}, savedPosts: [], votes: {},
+  savedPosts: [], votes: {},
   notif: { routes: true, community: true, news: false, offers: false }, seenNotif: false,
 }
 function load() {
