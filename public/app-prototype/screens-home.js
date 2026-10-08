@@ -349,13 +349,13 @@ SCREENS.home = () => {
         <button class="searchbar" data-a="go" data-v="search">${ic('search', 20)}<span class="grow">Search stations, cars, services</span><span class="kbd">${ic('sliders', 18)}</span></button>
       </div>
 
-      <div class="pad mt-20">
-        <div class="quick">
-          <button class="qa dark" data-a="tab" data-v="map"><span class="ico">${ic('pin', 22)}</span>Find chargers</button>
-          <button class="qa" data-a="tab" data-v="routes"><span class="ico">${ic('route', 22)}</span>Plan a trip</button>
-          <button class="qa" data-a="go" data-v="calculator"><span class="ico">${ic('timer', 22)}</span>Charge time</button>
-          <button class="qa" data-a="go" data-v="range"><span class="ico">${ic('gauge', 22)}</span>Real range</button>
-        </div>
+      <div class="pad" style="margin-top:44px">
+        <nav class="quick" aria-label="Shortcuts">
+          <button class="qa" data-a="tab" data-v="map">${ic('station', 28, { sw: 1.6 })}<span>Chargers</span></button>
+          <button class="qa" data-a="tab" data-v="routes">${ic('trip', 28, { sw: 1.6 })}<span>Trip planner</span></button>
+          <button class="qa" data-a="go" data-v="calculator">${ic('batteryBolt', 28, { sw: 1.6 })}<span>Charge time</span></button>
+          <button class="qa" data-a="go" data-v="range">${ic('speedo', 28, { sw: 1.6 })}<span>Real range</span></button>
+        </nav>
       </div>
 
       <section class="section">

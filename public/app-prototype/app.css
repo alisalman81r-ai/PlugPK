@@ -787,3 +787,8 @@ a.btn, a.list-row { text-decoration: none; }
 .map-ctrl .glass-btn, .ctrl-group { background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--fg); border: 1px solid var(--line); }
 .ctrl-group button { color: var(--fg); }
 .ctrl-group button + button { border-top-color: var(--line); }
+/* Home shortcuts: plain icons, even spacing, one-line labels. */
+.quick { gap: 10px; }
+.quick .qa { min-height: 0; gap: 10px; padding: 18px 4px 16px; border-radius: 18px; font-size: 12.5px; letter-spacing: -0.005em; white-space: nowrap; }
+.quick .qa .i { color: var(--accent-text); transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+.quick .qa:active .i { transform: scale(.9); }

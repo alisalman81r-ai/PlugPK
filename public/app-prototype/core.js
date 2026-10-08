@@ -93,6 +93,11 @@ const P = {
   calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
   sort: '<path d="M3 6h18M6 12h12M10 18h4"/>',
+  // Home shortcuts: drawn for their job rather than borrowed.
+  station: '<rect x="3.5" y="3" width="10" height="18" rx="2"/><path d="M3.5 21h10M13.5 9.5h2a2 2 0 0 1 2 2v4.5a1.5 1.5 0 0 0 3 0V8.5L18 6"/><path d="m9.5 7-2.5 4h3.5L8 15"/>',
+  trip: '<circle cx="6" cy="19" r="2.2"/><path d="M8.2 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h5"/><path d="M18.5 2.5a3 3 0 0 0-3 3c0 2.2 3 4.8 3 4.8s3-2.6 3-4.8a3 3 0 0 0-3-3z"/><circle cx="18.5" cy="5.5" r=".6"/>',
+  batteryBolt: '<rect x="2.5" y="6.5" width="16.5" height="11" rx="2.8"/><path d="M22 10.5v3"/><path d="m11.5 8.8-2.8 3.4h3.6l-2.8 3.4"/>',
+  speedo: '<path d="M3.6 18.5a9 9 0 1 1 16.8 0"/><path d="M12 15.5l4-4"/><circle cx="12" cy="15.5" r="1.5"/><path d="M12 6.5V8M6.3 9.3l1 1M17.7 9.3l-1 1M4.6 14.5H6M18 14.5h1.4"/>',
   eyeOff: '<path d="M3 3l18 18M10.6 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
   eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   thermo: '<path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/>',
