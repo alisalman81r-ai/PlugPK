@@ -50,7 +50,7 @@ export const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
  * landscape phones. From md up it scales with the screen but stops at 46rem —
  * the rail sits above the map there, so the fold has to hold both.
  */
-export const MAP_HEIGHT = 'h-[62svh] min-h-[22rem] md:h-[clamp(28rem,68vh,46rem)] md:min-h-0'
+export const MAP_HEIGHT = 'h-[62svh] min-h-[22rem] md:h-[clamp(30rem,72vh,50rem)] md:min-h-0'
 
 /**
  * The frame both cards wear on a desktop: a thin white mount around the
@@ -82,7 +82,7 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
  */
 function MapGrid({ label }: { label?: string }) {
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-slate-100">
+    <div className="relative flex h-full w-full items-center justify-center bg-[#F2F6F4]">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
@@ -237,6 +237,9 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
 
   return (
     <div className="flex flex-col bg-slate-50">
+      {/* Open the connections to the map's servers while the page settles, so
+          the style, fonts and first tiles start sooner when the map boots. */}
+      <link rel="preconnect" href="https://tiles.openfreemap.org" crossOrigin="anonymous" />
       {/* ── The map ─────────────────────────────────────────
           First in the DOM and first on a phone; third on a desktop, directly
           under the rail in the matching mount. */}
@@ -249,7 +252,7 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
               onPointerEnter={bootMapNow}
               onPointerDown={bootMapNow}
               onFocusCapture={bootMapNow}
-              className={`relative ${MAP_HEIGHT} overflow-hidden bg-slate-100 md:rounded-[1.6rem] md:ring-1 md:ring-slate-900/10`}
+              className={`relative ${MAP_HEIGHT} overflow-hidden bg-[#F2F6F4] md:rounded-[1.6rem] md:ring-1 md:ring-slate-900/10`}
             >
               {isMapReady ? (
                 <MapView

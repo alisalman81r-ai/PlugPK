@@ -17,9 +17,16 @@ export interface MapViewProps {
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
+/**
+ * MapLibre is the default: the same detailed, brand-coloured map as the app,
+ * with 3D buildings and grouped pins. Google stays available as an opt-in —
+ * set NEXT_PUBLIC_MAP_ENGINE=google (with the key) to switch back.
+ */
+const USE_GOOGLE = process.env.NEXT_PUBLIC_MAP_ENGINE === 'google' && Boolean(API_KEY)
+
 function EngineLoading() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-slate-100">
+    <div className="flex h-full w-full items-center justify-center bg-[#F2F6F4]">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
     </div>
   )
@@ -41,13 +48,8 @@ const LibreEngine = dynamic(
 )
 
 /**
- * Picks a map engine at runtime.
- *
- * Google Maps has no keyless tier and needs a billing-enabled Cloud project,
- * so requiring it would leave the core page of the product blank for anyone
- * who has not set that up — including on a fresh clone. When a key is
- * present the map renders on Google; when it is not, it falls back to
- * MapLibre against OpenFreeMap's keyless OpenStreetMap tiles.
+ * Picks a map engine: MapLibre on OpenFreeMap's keyless OpenStreetMap tiles,
+ * unless Google has been opted into (see USE_GOOGLE).
  *
  * Both engines take the same props and draw the same pins, so nothing
  * downstream — the list, the preview card, the sheets — knows or cares which
@@ -65,7 +67,7 @@ export function MapView({
 
   return (
     <div className={cn('h-full w-full', className)}>
-      {API_KEY ? <GoogleEngine {...shared} apiKey={API_KEY} /> : <LibreEngine {...shared} />}
+      {USE_GOOGLE && API_KEY ? <GoogleEngine {...shared} apiKey={API_KEY} /> : <LibreEngine {...shared} />}
     </div>
   )
 }

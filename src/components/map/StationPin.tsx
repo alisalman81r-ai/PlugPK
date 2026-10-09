@@ -29,7 +29,7 @@ function pinKind(station: Station): PinKind {
 
 const PIN_COLOR: Record<PinKind, string> = {
   fast: 'bg-plug-blue-600',
-  standard: 'bg-slate-500',
+  standard: 'bg-[#626D6B]',
 }
 
 /**
@@ -65,29 +65,78 @@ export interface StationPinProps {
  */
 export function StationPin({ station, isSelected }: StationPinProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
-  const color = PIN_COLOR[pinKind(station)]
+  const fast = pinKind(station) === 'fast'
 
   return (
-    <span className="relative flex cursor-pointer flex-col items-center">
+    <span
+      className={cn(
+        'group relative flex cursor-pointer flex-col items-center',
+        // Shadows rather than filter: drop-shadow — a filter on every pin is
+        // repainted on every frame of a pan; a box-shadow is not.
+        'origin-bottom transition-transform duration-200 ease-spring motion-reduce:transition-none',
+        isSelected ? 'scale-[1.14]' : 'hover:-translate-y-0.5',
+      )}
+    >
+      {/* The station's name, raised above the selected pin. */}
       <span
         className={cn(
-          'relative flex items-center gap-1 rounded-full border-2 py-1 pl-1.5 pr-2.5 shadow-e2',
-          'transition-transform duration-200 ease-spring motion-reduce:transition-none',
-          color,
-          isSelected ? 'scale-110 border-white ring-2 ring-plug-blue-500/60' : 'border-white',
+          'pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 max-w-[220px] -translate-x-1/2 truncate whitespace-nowrap',
+          'rounded-[10px] bg-white px-2.5 py-1.5 text-ui-xs font-bold leading-tight text-slate-900 shadow-e3',
+          'transition-[opacity,transform] duration-200 motion-reduce:transition-none',
+          isSelected ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
         )}
       >
-        <Zap size={13} className="shrink-0 fill-white text-white" aria-hidden="true" />
+        {station.name}
+      </span>
+
+      <span
+        className={cn(
+          'relative flex h-[34px] items-center gap-[3px] rounded-full border-2 border-white pl-[5px] pr-3',
+          fast
+            ? 'bg-[linear-gradient(160deg,#14594D,#0B332C)] text-plug-cyan-300'
+            : 'bg-[linear-gradient(160deg,#7C8784,#626D6B)] text-white',
+          isSelected
+            ? 'shadow-[0_0_0_6px_rgba(38,205,178,0.28),0_12px_20px_-6px_rgba(5,36,30,0.5)]'
+            : 'shadow-[0_8px_16px_-6px_rgba(5,36,30,0.45)]',
+        )}
+      >
+        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/20">
+          <Zap size={13} className="fill-current" aria-hidden="true" />
+        </span>
         {maxPower > 0 ? (
-          <span className="font-mono text-ui-xs font-bold leading-none text-white">
+          <span className="font-mono text-[13px] font-bold leading-none">
             {maxPower}
-            <span className="ml-px text-[9px] font-semibold opacity-80">kW</span>
+            <span className="ml-px text-[10px] font-semibold opacity-80">kW</span>
           </span>
         ) : null}
       </span>
 
-      {/* Stem, so the pill points at its coordinate. */}
-      <span aria-hidden="true" className={cn('h-1.5 w-0.5 -translate-y-px rounded-b', color)} />
+      {/* A turned square under the pill, so the pin points at its coordinate. */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          '-mt-2 h-3 w-3 rotate-45 border-b-2 border-r-2 border-white',
+          fast ? 'bg-[#0B332C]' : 'bg-[#626D6B]',
+        )}
+      />
+    </span>
+  )
+}
+
+/** Pins that would overlap, merged into one bubble with a count; a click zooms in. */
+export function ClusterPin({ count }: { count: number }) {
+  return (
+    <span
+      className={cn(
+        'flex h-[38px] cursor-pointer items-center gap-[5px] rounded-full border-2 border-white pl-[9px] pr-[13px]',
+        'bg-[linear-gradient(160deg,#14594D,#05241E)] text-plug-cyan-300',
+        'shadow-[0_0_0_6px_rgba(38,205,178,0.22),0_10px_22px_-8px_rgba(5,36,30,0.55)]',
+        'transition-transform duration-200 ease-spring hover:scale-105 motion-reduce:transition-none',
+      )}
+    >
+      <Zap size={13} className="fill-current" aria-hidden="true" />
+      <span className="font-mono text-[15px] font-bold leading-none text-white">{count}</span>
+      <span className="text-[11px] font-semibold leading-none text-white/70">stations</span>
     </span>
   )
 }
