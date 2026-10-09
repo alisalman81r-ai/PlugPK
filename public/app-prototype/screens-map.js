@@ -676,6 +676,13 @@ function wireCards() {
         if (id && id !== U.map.sel) selectStation(id, false)
       }, 120)
     })
+    // Tapping a card (anywhere but its buttons) takes the map to that station,
+    // even when it is already selected and the map has been panned away.
+    cards.addEventListener('click', (e) => {
+      if (e.target.closest('button, a')) return
+      const id = e.target.closest('.map-card[data-id]')?.dataset.id
+      if (id) selectStation(id)
+    })
     if (U.map.sel) scrollToCard(U.map.sel, false)
   }
 }
