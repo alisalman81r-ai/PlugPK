@@ -494,7 +494,7 @@ const firstName = () => (S.user?.name || '').split(' ')[0]
 // Per-session UI state, never saved.
 const U = {
   stack: [{ s: 'home' }], dir: '', sheet: null, sheetAnim: false, onbStep: 0, authMode: 'signup', pick: null, pickQ: '',
-  map: { sel: null, view: 'map', conn: [], speed: 0, amen: [], q: '', z: 1, x: 0, y: 0, fitted: null },
+  map: { sel: null, view: 'map', conn: [], speed: 0, amen: [], q: '', z: 1, x: 0, y: 0, fitted: null, tilt: false },
   cars: { q: '', cat: 'all', brand: null, sort: 'price-asc' },
   comm: { cat: 'all', sort: 'latest', q: '' },
   svc: { cat: 'all', city: 'all' },
@@ -515,6 +515,10 @@ function applyTheme() {
   const meta = $('meta[name="theme-color"]')
   if (meta) meta.content = isDark() ? '#08110F' : '#05241E'
 }
+// Battery level as a colour, as on the website's route planner: green from
+// 60%, amber from 30%, red below.
+const socTone = (v) => (v >= 60 ? 'high' : v >= 30 ? 'mid' : 'low')
+
 function isDark() {
   const a = document.documentElement.getAttribute('data-theme')
   return a ? a === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches

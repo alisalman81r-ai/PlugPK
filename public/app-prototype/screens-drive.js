@@ -41,8 +41,8 @@ SCREENS.routes = () => {
           <div data-part="km" class="row between t13" style="margin-top:-6px">${km ? `<span class="muted">Road distance</span><span class="mono b7">${km} km · ~${fmtDur(driveMin(km))}</span>` : `<span class="muted">${R.from === R.to ? 'Pick two different cities.' : 'No road distance on file for this pair yet.'}</span>`}</div>
           <div><span class="label">Your car</span>${carRowBtn(car, 'sheet', 'carPicker" data-target="route')}</div>
           <div>
-            <div class="row between"><label class="label" for="rt-soc" style="margin:0">Battery when you leave</label><b class="mono t17" data-part="socv">${R.start}%</b></div>
-            <input type="range" id="rt-soc" min="10" max="100" step="5" value="${R.start}" data-in="routeStart" style="--p:${((R.start - 10) / 90) * 100}%">
+            <div class="row between"><label class="label" for="rt-soc" style="margin:0">Battery when you leave</label><b class="mono t17 soc-text tone-${socTone(R.start)}" data-part="socv">${R.start}%</b></div>
+            <input type="range" class="soc-range tone-${socTone(R.start)}" id="rt-soc" min="10" max="100" step="5" value="${R.start}" data-in="routeStart" style="--p:${((R.start - 10) / 90) * 100}%">
             <p class="t13 muted" data-part="soch">${socHint(car, R.start)}</p>
           </div>
           <button class="btn btn-primary btn-lg btn-block" data-a="planRoute" ${km ? '' : 'disabled'}>${ic('route', 20)}Plan route</button>
@@ -101,6 +101,11 @@ IN.routeTo = (v) => { U.route.to = v; render() }
 IN.routeStart = (v, el) => {
   U.route.start = +v
   el.style.setProperty('--p', `${((v - 10) / 90) * 100}%`)
+  el.classList.remove('tone-high', 'tone-mid', 'tone-low')
+  el.classList.add(`tone-${socTone(+v)}`)
+  const label = document.querySelector('[data-part="socv"]')
+  label?.classList.remove('tone-high', 'tone-mid', 'tone-low')
+  label?.classList.add(`tone-${socTone(+v)}`)
   renderPart('socv', 'soch')
 }
 

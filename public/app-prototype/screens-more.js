@@ -81,17 +81,15 @@ A.comment = () => {
 }
 
 // ─── Clubs ─────────────────────────────────────────────────────────
-function landmark(city) {
-  const lm = CITY[city]?.landmark
-  const c = 'rgba(142,238,218,.35)'
-  if (lm === 'minar') return `<path d="M190 96 L200 20 L210 96 Z M178 96 h44 v-8 h-44 z M196 20 l4-12 4 12z" fill="${c}"/>`
-  if (lm === 'faisal') return `<path d="M150 96 L200 40 L250 96 Z" fill="${c}"/><path d="M138 96 V44 l3-8 3 8 V96 M256 96 V44 l3-8 3 8 V96" stroke="${c}" stroke-width="5" fill="none"/>`
-  if (lm === 'quaid') return `<path d="M165 96 V66 h70 V96 Z M172 66 a28 28 0 0 1 56 0 Z" fill="${c}"/><path d="M200 30 v8" stroke="${c}" stroke-width="3"/>`
-  const r = rng(city)
-  let b = ''
-  for (let x = 110; x < 300; x += 18 + r() * 10) { const h = 20 + r() * 50; b += `<rect x="${x}" y="${96 - h}" width="${12 + r() * 10}" height="${h}" rx="2" fill="${c}"/>` }
-  return b
+// The cover for a club: the same drawing of its city as on the website,
+// rendered from the website's own CityScene (scripts/build-app-club-art.tsx).
+const CLUB_ART = new Set(['lahore', 'islamabad', 'karachi', 'rawalpindi', 'faisalabad', 'peshawar', 'multan', 'quetta'])
+const citySlug = (city) => String(city).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+function clubCover(city) {
+  const slug = citySlug(city)
+  return `clubs/${CLUB_ART.has(slug) ? slug : 'generic'}.svg`
 }
+
 SCREENS.clubs = () => ({
   sb: 'dark',
   html: `${topbar('EV clubs')}
@@ -100,8 +98,8 @@ SCREENS.clubs = () => ({
       ${D.clubs.map((c) => {
         const joined = S.clubs.includes(c.id)
         return `<div class="card" style="overflow:hidden">
-          <div class="club-head" style="background:linear-gradient(135deg,#0D1817,#05241E 55%,#0B332C)">
-            <svg viewBox="0 0 400 96" preserveAspectRatio="xMidYMax slice">${landmark(c.city)}<rect y="94" width="400" height="2" fill="rgba(142,238,218,.25)"/></svg>
+          <div class="club-head">
+            <img src="${clubCover(c.city)}" alt="" loading="lazy" decoding="async">
             <span class="badge md" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(6px)">${ic('pin', 13)}${esc(c.city)}</span>
           </div>
           <div style="padding:16px">

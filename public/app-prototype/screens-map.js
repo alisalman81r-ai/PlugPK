@@ -239,6 +239,7 @@ SCREENS.map = () => {
       <div class="map-ctrl" style="top:calc(var(--top) + 132px)">
         <button class="glass-btn" data-a="mapView" data-v="list" aria-label="Show as list">${ic('rows', 20)}</button>
         <div class="ctrl-group"><button data-a="zoom" data-v="1.4" aria-label="Zoom in">${ic('plus', 20)}</button><button data-a="zoom" data-v="0.7" aria-label="Zoom out">${ic('minus', 20)}</button></div>
+        ${LIBRE.failed ? '' : `<button class="glass-btn t3d ${U.map.tilt ? 'on' : ''}" data-a="tilt3d" aria-pressed="${U.map.tilt ? 'true' : 'false'}" aria-label="${U.map.tilt ? 'Flat view' : '3D view'}">3D</button>`}
         <button class="glass-btn" data-a="locate" aria-label="Centre on me">${ic('locate', 20)}</button>
       </div>
       <div class="map-carousel"><div class="hscroll" id="map-cards" data-part="cards">${list.map(mapCard).join('') || `<div class="map-card" style="width:calc(100% - 0px)"><div class="grow t14 muted">${all.length ? `No station here matches your filters. <button class="link" data-a="clearFilters">Clear filters</button>` : `No chargers listed in ${esc(S.city)} yet. <button class="link" data-a="sheet" data-v="city">Choose another city</button>`}</div></div>`}</div></div>`,
@@ -462,6 +463,7 @@ function cityCamera() {
 }
 
 function fitLibre(animate = false) {
+  setTilt(false)
   // The map's own size must be current before it can fit anything into it.
   LM.map.resize()
   LM.map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 })
@@ -506,7 +508,7 @@ const PALETTE = {
   },
   dark: {
     bg: '#0A1412', water: '#0D3036', waterText: '#62BBCB', park: '#10291F', wood: '#0F261D', sand: '#1A1E16',
-    residential: '#0E1A17', landuse: '#10201C', building: '#15241F', b3d: '#1D3530', boundary: '#4F6660',
+    residential: '#0E1A17', landuse: '#10201C', building: '#182B27', b3d: '#2B4D45', boundary: '#4F6660',
     motorway: '#2C6B5E', motorwayCase: '#1B4A40', primary: '#2C3B38', primaryCase: '#1A2522',
     secondary: '#263431', secondaryCase: '#172220', minor: '#1F2B28', minorCase: '#131C1A', path: '#2A3835', rail: '#34443F',
     text: '#E8F3EF', textSoft: '#B2C4BE', poiText: '#A5BBB4', roadText: '#BCCCC6', halo: '#0A1412', relief: 0.12,
@@ -779,13 +781,23 @@ function selectStation(id, scroll = true) {
  * outline, and the map eases back from the tilted 3D view to flat. Zoom and
  * position stay where they are — the tap was a "never mind", not a reset.
  */
+// The 3D switch: its state, and the button showing it, without a re-render.
+function setTilt(on) {
+  U.map.tilt = on
+  const btn = document.querySelector('[data-a="tilt3d"]')
+  if (!btn) return
+  btn.classList.toggle('on', on)
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false')
+  btn.setAttribute('aria-label', on ? 'Flat view' : '3D view')
+}
+
 function deselectStation() {
   if (!U.map.sel) return
   U.map.sel = null
   document.querySelectorAll('#map-cards .map-card.sel').forEach((c) => c.classList.remove('sel'))
   if (hasLibre() && LM.map) {
     syncMarkers()
-    if (LM.map.getPitch() > 0) LM.map.easeTo({ pitch: 0, duration: 500 })
+    if (!U.map.tilt && LM.map.getPitch() > 0) LM.map.easeTo({ pitch: 0, duration: 500 })
   } else {
     renderPart('pins')
   }
@@ -793,6 +805,14 @@ function deselectStation() {
 
 Object.assign(A, {
   pinSel: (id) => { if (!U.map.dragged) selectStation(id) },
+  // Tilts the map so buildings stand up. They only rise from zoom 15, so 3D
+  // also brings the camera down to street level when it is above it.
+  tilt3d: () => {
+    if (!hasLibre() || !LM.map) return
+    const on = !U.map.tilt
+    setTilt(on)
+    LM.map.easeTo({ pitch: on ? 55 : 0, zoom: on ? Math.max(LM.map.getZoom(), 15.2) : LM.map.getZoom(), duration: 900 })
+  },
   zoom: (v) => {
     if (hasLibre() && LM.map) return +v > 1 ? LM.map.zoomIn() : LM.map.zoomOut()
     const [w, h] = mapViewport()
