@@ -27,6 +27,7 @@ export type AuditTarget =
   | 'review'
   | 'meeting'
   | 'member'
+  | 'app-release'
 
 export async function logAdminAction(
   actor: AdminActor,

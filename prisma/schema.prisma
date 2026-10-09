@@ -320,6 +320,12 @@ model User {
   /// account chooses its own.
   mustChangePassword Boolean @default(false)
 
+  /// Where the account was created: 'web' or 'app' (the mobile app).
+  signupSource    String    @default("web")
+  /// Last time this account did anything from the mobile app. Null for an
+  /// account that has never used it.
+  lastAppActiveAt DateTime?
+
   createdAt DateTime @default(now())
 
   businesses  Business[]
@@ -330,6 +336,7 @@ model User {
   memberships Membership[]
 
   @@index([createdAt])
+  @@index([lastAppActiveAt])
 }
 
 /// A paid, one-time membership of something.
@@ -1442,4 +1449,39 @@ model AdminAuditLog {
 
   @@index([createdAt])
   @@index([targetType, targetId])
+}
+
+/// Everything that reaches the server from the mobile app, one row per action
+/// (sign-up, post, review, saved station, partner request…). The admin's
+/// "Mobile app" activity feed. userId is copied without a relation so the
+/// trail survives an account's deletion; summary is a short human line.
+model AppEvent {
+  id         String   @id
+  userId     String?
+  userEmail  String?
+  type       String
+  targetType String?
+  targetId   String?
+  summary    String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([type])
+}
+
+/// A mobile-app update as told to users: written in the admin portal, and
+/// shown once in the app as "What's new" after it is sent. sentAt null means
+/// a draft nobody has seen.
+model AppRelease {
+  id        String    @id
+  version   String
+  title     String
+  notes     String
+  sentAt    DateTime?
+  createdBy String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([sentAt])
 }

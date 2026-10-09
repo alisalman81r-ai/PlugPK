@@ -54,13 +54,29 @@ const SLIDES = [
     eyebrow: ['car', 'Car catalogue'],
     title: 'Compare every EV <span class="hl">sold in Pakistan</span>',
     body: `${D.cars.length} cars with PKR prices, real specs and charging times. Then ask the owners.`,
-    media: () => `<div class="ob-stage">
-          <span class="ob-price" id="obc-price"></span>
-          <span class="ob-count mono" id="obc-count"></span>
-          <img id="obc-img" alt="">
-          <div class="ob-reel"><i id="obc-bar"></i></div>
-        </div>
-        <div class="ob-card ob-specs" id="obc-specs"></div>`,
+    // A studio showroom: the model's name set huge behind the car, a turntable
+    // floor, and an instrument cluster whose dials fill against the best car in
+    // the catalogue. Filled in and animated by obCarReel.
+    media: () => `<div class="obx">
+          <div class="obx-stage">
+            <div class="obx-word" id="obx-word" aria-hidden="true"></div>
+            <div class="obx-floor" aria-hidden="true"><i></i></div>
+            <img class="obx-car" id="obx-prev" alt="" aria-hidden="true">
+            <img class="obx-car" id="obx-car" alt="">
+            <div class="obx-head">
+              <span class="obx-brand" id="obx-brand"></span>
+              <span class="obx-count mono" id="obx-count"></span>
+            </div>
+            <div class="obx-ticks" id="obx-ticks" aria-hidden="true"></div>
+            <span class="obx-price" id="obx-price"></span>
+          </div>
+          <div class="obx-cluster" id="obx-cluster">
+            ${['Range', 'Battery', 'DC peak'].map((label, k) => `<div class="obx-gauge">
+              <svg viewBox="0 0 60 60" aria-hidden="true"><circle class="trk" cx="30" cy="30" r="24"/><circle class="val" id="obx-g${k}" cx="30" cy="30" r="24" pathLength="100"/></svg>
+              <div><b class="mono" id="obx-v${k}">—</b><span>${label}</span></div>
+            </div>`).join('')}
+          </div>
+        </div>`,
     after: obCarReel,
   },
 ]
@@ -90,41 +106,64 @@ SCREENS.onboarding = () => {
     after: () => { onbSwipe(); s.after?.() },
   }
 }
-/** Time-lapse through the whole catalogue on the car slide: every car in turn, with its price and specs. */
-const OB_REEL_MS = 1600
+/**
+ * Sets the model name as large as it fits: measured, then scaled to the stage's
+ * width less a margin each side, so a long name never runs out of the box.
+ */
+function fitWord(word) {
+  const box = word.parentElement.clientWidth - 40
+  word.style.fontSize = '66px'
+  const width = word.scrollWidth
+  if (width > box) word.style.fontSize = `${Math.max(18, Math.floor(66 * (box / width)))}px`
+}
+
+/** The showroom on the car slide: every car in turn, most expensive first. */
+const OB_REEL_MS = 2400
 let obReelRun = 0
 function obCarReel() {
   const run = ++obReelRun
-  // Most expensive first, down to the cheapest. A car's place is the top of its
-  // price range; cars with no published price come last.
+  // A car's place is the top of its price range; cars with no price come last.
   const top = (c) => c.priceMax ?? c.priceMin ?? -1
   const low = (c) => c.priceMin ?? c.priceMax ?? -1
   const cars = D.cars.filter((c) => c.image).sort((a, b) => top(b) - top(a) || low(b) - low(a))
+  // Each dial is measured against the best car in the catalogue.
+  const best = [Math.max(...cars.map((c) => carRange(c) || 0)), Math.max(...cars.map((c) => c.battery || 0)), Math.max(...cars.map((c) => c.dc || 0))]
+  const pad = (n) => String(n).padStart(String(cars.length).length, '0')
   let i = 0
-  const show = (c) => {
-    if (run !== obReelRun || !$('#obc-img')) return false
-    $('#obc-price').textContent = c.price
-    $('#obc-count').textContent = `${i + 1} / ${cars.length}`
-    const im = $('#obc-img')
-    im.src = img(c.image)
-    im.alt = c.name
-    im.classList.remove('swap'); void im.offsetWidth; im.classList.add('swap')
-    $('#obc-specs').innerHTML = `<div class="ob-specs-in">
-        <div class="t12" style="color:rgba(255,255,255,.55);letter-spacing:.12em;text-transform:uppercase;font-weight:700">${esc(c.brand)}</div>
-        <b class="t17">${esc(c.model)}</b>
-        <div class="ob-spec-row">
-          <div><b class="mono">${carRange(c) ?? '—'}<small>km</small></b><span>Range${c.rangeStd ? ' · ' + c.rangeStd : ''}</span></div>
-          <div><b class="mono">${c.battery ?? '—'}<small>kWh</small></b><span>Battery</span></div>
-          <div><b class="mono">${c.dc ?? '—'}<small>kW</small></b><span>DC peak</span></div>
-        </div>
-      </div>`
-    const bar = $('#obc-bar')
-    bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''
+  const show = (c, first) => {
+    if (run !== obReelRun || !$('#obx-car')) return false
+    const car = $('#obx-car'), prev = $('#obx-prev')
+    // The outgoing car drives off left while the next one rolls in.
+    if (!first && car.src) {
+      prev.src = car.src
+      prev.classList.remove('out'); void prev.offsetWidth; prev.classList.add('out')
+    }
+    car.src = img(c.image)
+    car.alt = c.name
+    car.classList.remove('in'); void car.offsetWidth; car.classList.add('in')
+    const word = $('#obx-word')
+    word.textContent = c.model
+    // Long names set smaller, so the word always spans the stage.
+    fitWord(word)
+    word.classList.remove('in'); void word.offsetWidth; word.classList.add('in')
+    $('#obx-brand').textContent = c.brand
+    $('#obx-count').innerHTML = `<b>${pad(i + 1)}</b> / ${cars.length}`
+    const [price, note] = String(c.price || '').split(/\s*\((.+)\)\s*$/)
+    $('#obx-price').innerHTML = `${esc(price || 'Price on request')}${note ? `<small>${esc(note)}</small>` : ''}`
+    const vals = [carRange(c), c.battery, c.dc]
+    const units = ['km', 'kWh', 'kW']
+    vals.forEach((v, k) => {
+      $(`#obx-v${k}`).innerHTML = v ? `${Math.round(v)}<small>${units[k]}</small>` : '—'
+      $(`#obx-g${k}`).style.strokeDashoffset = String(100 - (v ? Math.max(6, Math.round((v / best[k]) * 100)) : 0))
+    })
+    // A sliding window of ticks under the stage: where this car sits in the line-up.
+    const W = 17, start = Math.max(0, Math.min(cars.length - W, i - 8))
+    $('#obx-ticks').innerHTML = Array.from({ length: Math.min(W, cars.length) }, (_, k) => `<i class="${start + k === i ? 'on' : ''}"></i>`).join('')
     return true
   }
   // Warm the next photo so each swap is instant.
   const warm = (k) => { new Image().src = img(cars[k % cars.length].image) }
-  show(cars[0]); warm(1)
+  show(cars[0], true); warm(1)
   const t = setInterval(() => {
     i = (i + 1) % cars.length
     if (!show(cars[i])) clearInterval(t)
@@ -181,6 +220,7 @@ function authScreen() {
             <span class="trail"><button type="button" class="icon-btn" data-a="togglePass" aria-label="Show password">${ic('eye', 18)}</button></span></div>
           ${err('password')}
         </div>
+        ${err('form')}
         <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">${up ? 'Create account' : 'Sign in'} ${ic('arrowR', 18)}</button>
         <div class="row" style="gap:12px;color:var(--faint);font-size:13px;margin:-2px 0"><span class="grow" style="height:1px;background:var(--line)"></span>or<span class="grow" style="height:1px;background:var(--line)"></span></div>
         <button class="btn btn-secondary btn-block" type="button" data-a="guest">${ic('user', 18)}Continue as guest</button>
@@ -271,11 +311,19 @@ Object.assign(A, {
     U.authVals = v
     if (Object.keys(err).length) { U.authErr = err; return render() }
     U.authErr = null
-    S.user = { name: up ? v.name.trim() : (v.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())), email: v.email, joined: new Date().toISOString() }
-    save()
-    if (S.onboarded) { closeSheet(); render(); return toast(`Signed in as ${S.user.name}`, 'user') }
-    U.onbStep = SLIDES.length + 1
-    render()
+    if (U.authBusy) return
+    U.authBusy = true
+    const btn = f.querySelector('[type="submit"]')
+    if (btn) { btn.disabled = true; btn.dataset.label = btn.innerHTML; btn.innerHTML = up ? 'Creating your account…' : 'Signing in…' }
+    // The website's own accounts: the same email and password work on plug.pk.
+    signInRemote(up ? 'signup' : 'signin', v).then((error) => {
+      U.authBusy = false
+      if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.label }
+      if (error) { U.authErr = { form: error }; return S.onboarded ? renderSheet() : render() }
+      if (S.onboarded) { closeSheet(); render(); return toast(`Signed in as ${S.user.name}`, 'user') }
+      U.onbStep = SLIDES.length + 1
+      render()
+    })
   },
   authTo: (v) => { U.authMode = v; U.authErr = null; render() },
   authBack: () => { U.onbStep = SLIDES.length - 1; render() },

@@ -44,6 +44,7 @@ const TYPE_LABEL: Record<(typeof AUDIT_TARGETS)[number], string> = {
   review: 'Reviews',
   meeting: 'Meetings',
   member: 'Members',
+  'app-release': 'App updates',
 }
 
 export default async function AdminActivityPage({

@@ -62,6 +62,9 @@ function defaultSection(pathname: string): string {
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+/** Segments whose page title is not their URL word. */
+const SEGMENT_LABEL: Record<string, string> = { app: 'Mobile app', releases: 'App updates' }
+
 function useCrumbs() {
   const pathname = usePathname()
   return React.useMemo(() => {
@@ -71,9 +74,9 @@ function useCrumbs() {
     return parts.map((part, index) => ({
       // Ids and slugs read better with their hyphens opened out. A UUID does
       // not: opened out it was 36 characters of nothing, wider than a phone.
-      label: UUID.test(part)
-        ? 'Details'
-        : part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase()),
+      label:
+        SEGMENT_LABEL[part] ??
+        (UUID.test(part) ? 'Details' : part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase())),
       href: `/admin/${parts.slice(0, index + 1).join('/')}`,
     }))
   }, [pathname])

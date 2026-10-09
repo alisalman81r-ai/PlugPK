@@ -65,6 +65,7 @@
 <script src="screens-drive.js"></script>
 <script src="screens-more.js"></script>
 <script src="screens-community.js"></script>
+<script src="sync.js"></script>
 <script>
   // The panel beside the phone (wide screens only).
   document.getElementById('side-logo').innerHTML = logo(26, false)
@@ -89,6 +90,8 @@
   fitDevice()
   window.addEventListener('resize', fitDevice)
   render()
+  // Who is signed in, their data and the live community, from the website.
+  bootSync()
   // Fetch the map library and style while the user is on Home, so Stations
   // opens without waiting for them.
   window.addEventListener('load', () => (window.requestIdleCallback || ((cb) => setTimeout(cb, 600)))(() => warmMap()))

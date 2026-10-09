@@ -13,6 +13,8 @@ import {
   Star,
   Plug,
   Menu,
+  RefreshCw,
+  Smartphone,
   Users,
   Wrench,
   X,
@@ -81,6 +83,13 @@ const SECTIONS: NavSection[] = [
       { label: 'Reviews', href: '/admin/reviews', icon: Star },
     ],
   },
+  {
+    heading: 'Mobile app',
+    items: [
+      { label: 'App activity', href: '/admin/app', icon: Smartphone },
+      { label: 'App updates', href: '/admin/app/releases', icon: RefreshCw },
+    ],
+  },
 ]
 
 /**
@@ -95,7 +104,7 @@ const SECTIONS: NavSection[] = [
  * A car detail page (/admin/cars/byd-seal) still highlights Cars, because it has
  * no entry of its own and Cars is where it belongs.
  */
-const EXACT_ONLY = new Set(['/admin', '/admin/cars'])
+const EXACT_ONLY = new Set(['/admin', '/admin/cars', '/admin/app'])
 
 function isActive(pathname: string, href: string): boolean {
   if (EXACT_ONLY.has(href)) {
@@ -116,7 +125,7 @@ function isActive(pathname: string, href: string): boolean {
  * parent entry highlighting for a child that owns its own nav item. The moment
  * one is added back, this is where it goes.
  */
-const CHILD_ROUTES = new Set<string>([])
+const CHILD_ROUTES = new Set<string>(['/admin/app/releases'])
 
 function NavContent({
   onNavigate,

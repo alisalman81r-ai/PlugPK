@@ -401,7 +401,7 @@ function listRow(icon, title, sub, screen) {
   return `<button class="list-row" data-a="go" data-v="${screen}"><span class="ico">${ic(icon, 18)}</span><span class="grow" style="min-width:0"><b class="t15">${title}</b><br><span class="t13 muted trunc" style="display:block">${sub}</span></span><span class="chev">${ic('chevR', 18)}</span></button>`
 }
 Object.assign(A, {
-  signOut: () => { S.user = null; save(); render(); toast('Signed out', 'logout') },
+  signOut: () => { signOutRemote(); S.user = null; save(); render(); toast('Signed out', 'logout') },
   signInFull: (v) => { U.authMode = v; U.authErr = null; needSignIn(v === 'signup' ? 'Create an account to save stations, routes and reviews.' : 'Welcome back.') },
 })
 SHEETS.about = () => ({
@@ -541,9 +541,10 @@ SCREENS.partners = () => {
       </section>
       <section class="section pad" style="padding-bottom:40px">
         <h2 class="t20">Arrange a meeting</h2>
-        ${m.done ? `<div class="notice mint mt-12">${ic('check', 18)}<span><b>Thanks, ${esc(m.name)}.</b> In the live app this request goes straight to the partnerships team, who reply within two working days.</span></div>` : `
+        ${m.done ? `<div class="notice mint mt-12">${ic('check', 18)}<span><b>Thanks, ${esc(m.name)}.</b> Your request is with the partnerships team, who reply within two working days.</span></div>` : `
         <form class="stack gap-16 mt-12" data-submit="meeting" novalidate>
           <div><label class="label" for="mt-name">Your name</label><input class="input" id="mt-name" name="name" autocomplete="name" value="${esc(m.name)}"></div>
+          <div><label class="label" for="mt-email">Email</label><input class="input" id="mt-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@business.com" value="${esc(m.email || S.user?.email || '')}"></div>
           <div><label class="label" for="mt-biz">Business</label><input class="input" id="mt-biz" name="biz" placeholder="e.g. Pearl Continental Lahore" value="${esc(m.biz)}"></div>
           <div><label class="label" for="mt-phone">Phone</label><input class="input" id="mt-phone" name="phone" inputmode="tel" placeholder="03xx xxxxxxx" value="${esc(m.phone)}"></div>
           <div><label class="label" for="mt-msg">What would you like to list? <span class="opt">optional</span></label><textarea class="textarea" id="mt-msg" name="msg" maxlength="600" placeholder="Number of sites, chargers, power">${esc(m.msg)}</textarea></div>
@@ -556,8 +557,15 @@ SCREENS.partners = () => {
 }
 A.meeting = (_, f) => {
   const v = Object.fromEntries(new FormData(f))
-  const err = !v.name.trim() ? 'Enter your name.' : !v.biz.trim() ? 'Enter the business name.' : v.phone.replace(/\D/g, '').length < 10 ? 'Enter a phone number we can call, like 0300 1234567.' : null
-  U.meeting = { ...v, err, done: !err }
-  render()
+  const err = !v.name.trim() ? 'Enter your name.' : !/^\S+@\S+\.\S+$/.test(v.email || '') ? 'Enter an email address like name@business.com.' : !v.biz.trim() ? 'Enter the business name.' : v.phone.replace(/\D/g, '').length < 10 ? 'Enter a phone number we can call, like 0300 1234567.' : null
+  U.meeting = { ...v, err, done: false }
+  if (err) return render()
+  const btn = f.querySelector('[type="submit"]')
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…' }
+  // Straight to the partnerships inbox in the admin portal (Meetings).
+  requestMeetingRemote(v).then((error) => {
+    U.meeting = { ...v, err: error, done: !error }
+    render()
+  })
 }
 A.partnerSignup = () => toast('Business sign-up opens on plug.pk/business/signup', 'building')

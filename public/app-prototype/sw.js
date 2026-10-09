@@ -7,10 +7,10 @@
 // but the map's style, fonts and sprites are cached.
 
 // Bump when the shell list changes; the old cache is deleted on activate.
-const CACHE = 'plugpk-app-v2'
+const CACHE = 'plugpk-app-v3'
 const SHELL = [
   './index.html', './app.css', './icons.js', './data.js', './core.js',
-  './screens-home.js', './screens-map.js', './screens-drive.js', './screens-more.js', './screens-community.js',
+  './screens-home.js', './screens-map.js', './screens-drive.js', './screens-more.js', './screens-community.js', './sync.js',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
 ]
 const TILE_HOSTS = ['tiles.openfreemap.org']

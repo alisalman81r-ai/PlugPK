@@ -33,6 +33,10 @@ const ACTION_LABELS: Record<string, string> = {
   'member.password-reset': 'Reset password',
   'member.grant-admin': 'Granted admin',
   'member.revoke-admin': 'Revoked admin',
+  'app-release.create': 'Drafted app update',
+  'app-release.update': 'Edited app update',
+  'app-release.send': 'Sent app update to users',
+  'app-release.delete': 'Deleted app update',
 }
 
 export function actionLabel(action: string): string {
@@ -61,6 +65,8 @@ export function targetHref(targetType: string, targetId: string | null): string 
       return `/admin/members/${targetId}`
     case 'meeting':
       return '/admin/meetings'
+    case 'app-release':
+      return '/admin/app/releases'
     default:
       // Posts, comments and reviews are moderated from their lists and have
       // no page of their own.
@@ -84,6 +90,7 @@ export const AUDIT_TARGETS = [
   'review',
   'meeting',
   'member',
+  'app-release',
 ] as const
 
 /** Absolute time in Pakistan, so the log reads the same from any server. */
