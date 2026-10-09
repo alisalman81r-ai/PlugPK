@@ -279,14 +279,12 @@ function fitCity() {
 }
 
 // ─── Real map: MapLibre on OpenFreeMap tiles ──────────────────────────
-// The same engine and tile host as the website (src/components/map). Quiet
-// basemaps — positron by day, dark by night — so the station pins carry the
-// colour. The map is created once and kept: re-renders move its element back
-// into the screen instead of reloading tiles every time a filter changes.
-const MAP_STYLES = {
-  light: 'https://tiles.openfreemap.org/styles/positron',
-  dark: 'https://tiles.openfreemap.org/styles/dark',
-}
+// The same engine and tile host as the website (src/components/map). One
+// detailed basemap — liberty: road names, shops, transit, house numbers —
+// recoloured in the brand's light or dark palette (brandMap), so a theme switch
+// is a repaint, not a new style. The map is created once and kept: re-renders
+// move its element back into the screen instead of reloading tiles.
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 const LM = { map: null, el: null, style: null, markers: new Map(), me: null }
 const hasLibre = () => typeof window.maplibregl !== 'undefined'
 
@@ -312,7 +310,7 @@ function loadLibre() {
 // current theme, so opening Stations finds both already downloaded.
 function warmMap() {
   loadLibre().catch(() => {})
-  fetch(MAP_STYLES[isDark() ? 'dark' : 'light']).catch(() => {})
+  fetch(MAP_STYLE).catch(() => {})
 }
 // Room the map keeps clear for the search bar above and the cards below,
 // measured from the screen so a taller card or the tab bar never hides a pin.
@@ -373,7 +371,7 @@ function ensureLibreMap(wrap) {
     wrap.appendChild(LM.el)
     LM.map = new maplibregl.Map({
       container: LM.el,
-      style: MAP_STYLES[key],
+      style: MAP_STYLE,
       // Born on the country view, where the opening fly-in starts.
       bounds: PAKISTAN,
       // Smoothness: a 3x phone screen drawn at 2x is 2.25x fewer pixels per
@@ -414,8 +412,8 @@ function ensureLibreMap(wrap) {
   } else {
     wrap.appendChild(LM.el)
     if (LM.style !== key) {
-      LM.map.setStyle(MAP_STYLES[key])
       LM.style = key
+      if (LM.map.isStyleLoaded()) brandMap(LM.map)
     }
     requestAnimationFrame(() => LM.map.resize())
   }
@@ -499,20 +497,87 @@ function arrive() {
 
 // ─── Brand palette and 3D buildings ───────────────────────────────────
 const PALETTE = {
-  light: { bg: '#F2F6F4', water: '#BFE4E0', park: '#D6F0E2', wood: '#CDEBDA', residential: '#EAF0ED', building: '#E2E9E6', b3d: '#D9E3DF' },
-  dark: { bg: '#07110F', water: '#0B2C2E', park: '#0F2A20', wood: '#0E261D', residential: '#0B1815', building: '#12221F', b3d: '#1B3631' },
+  light: {
+    bg: '#F2F6F4', water: '#A9DDD6', waterText: '#2F7D74', park: '#CFEBD9', wood: '#C6E6D2', sand: '#F1EEDC',
+    residential: '#E8EEEB', landuse: '#E3ECE7', building: '#DEE6E2', b3d: '#D3DDD9', boundary: '#8FA39D',
+    motorway: '#9FE3D3', motorwayCase: '#5CC2AC', primary: '#FFFFFF', primaryCase: '#BCCDC7',
+    secondary: '#FFFFFF', secondaryCase: '#CCD8D4', minor: '#FFFFFF', minorCase: '#D8E0DD', path: '#FFFFFF', rail: '#AEBAB6',
+    text: '#12302A', textSoft: '#3E5751', poiText: '#2F4A44', roadText: '#3E5751', halo: '#F2F6F4', relief: 0.3,
+  },
+  dark: {
+    bg: '#0A1412', water: '#0D3036', waterText: '#62BBCB', park: '#10291F', wood: '#0F261D', sand: '#1A1E16',
+    residential: '#0E1A17', landuse: '#10201C', building: '#15241F', b3d: '#1D3530', boundary: '#4F6660',
+    motorway: '#2C6B5E', motorwayCase: '#1B4A40', primary: '#2C3B38', primaryCase: '#1A2522',
+    secondary: '#263431', secondaryCase: '#172220', minor: '#1F2B28', minorCase: '#131C1A', path: '#2A3835', rail: '#34443F',
+    text: '#E8F3EF', textSoft: '#B2C4BE', poiText: '#A5BBB4', roadText: '#BCCCC6', halo: '#0A1412', relief: 0.12,
+  },
 }
+
+// Which palette colour a road line takes, from its layer id.
+function roadKey(id) {
+  if (id.includes('rail')) return 'rail'
+  if (id.includes('path_pedestrian')) return 'path'
+  const cls = id.includes('motorway') ? 'motorway'
+    : id.includes('trunk_primary') ? 'primary'
+    : id.includes('secondary_tertiary') || id.includes('_link') ? 'secondary'
+    : 'minor'
+  return id.includes('casing') ? cls + 'Case' : cls
+}
+
+// Shops, places and street names shown one zoom step sooner than the base
+// style, so more of the city is named at every zoom.
+const EARLIER = { poi_r1: 14, poi_r7: 15, poi_r20: 16, 'highway-name-minor': 14, 'highway-name-major': 11.5, 'highway-name-path': 15 }
+
 function brandMap(map) {
   const c = PALETTE[LM.style === 'dark' ? 'dark' : 'light']
-  const paint = (id, prop, value) => { if (map.getLayer(id)) map.setPaintProperty(id, prop, value) }
-  paint('background', 'background-color', c.bg)
-  paint('water', 'fill-color', c.water)
-  for (const id of ['park', 'landuse_park']) paint(id, 'fill-color', c.park)
-  paint('landcover_wood', 'fill-color', c.wood)
-  paint('landuse_residential', 'fill-color', c.residential)
-  paint('building', 'fill-color', c.building)
+  const paint = (id, prop, value) => { try { map.setPaintProperty(id, prop, value) } catch {} }
+  for (const layer of map.getStyle()?.layers || []) {
+    const { id, type } = layer
+    const src = layer['source-layer'] || ''
+    if (type === 'background') paint(id, 'background-color', c.bg)
+    else if (type === 'raster') {
+      // The relief shading under the country view, toned down to a hint.
+      paint(id, 'raster-opacity', ['interpolate', ['linear'], ['zoom'], 0, c.relief, 6, 0.04])
+      paint(id, 'raster-saturation', -0.6)
+    } else if (type === 'fill') {
+      if (id === 'road_area_pattern' || id === 'landcover_wetland') continue
+      const color = src === 'water' ? c.water
+        : id === 'park' ? c.park
+        : id === 'landcover_wood' || id === 'landcover_grass' ? c.wood
+        : id === 'landcover_sand' ? c.sand
+        : id === 'landcover_ice' ? c.bg
+        : id === 'landuse_residential' ? c.residential
+        : id === 'building' ? c.building
+        : src === 'landuse' || src === 'aeroway' ? c.landuse
+        : null
+      if (color) { paint(id, 'fill-color', color); paint(id, 'fill-outline-color', color) }
+    } else if (type === 'line') {
+      if (src === 'waterway') paint(id, 'line-color', c.water)
+      else if (src === 'boundary') paint(id, 'line-color', c.boundary)
+      else if (id === 'park_outline') paint(id, 'line-color', c.park)
+      else if (src === 'aeroway') paint(id, 'line-color', c.minor)
+      else if (src === 'transportation') paint(id, 'line-color', c[roadKey(id)])
+    } else if (type === 'fill-extrusion' && id !== 'plug-3d') {
+      // The base style's own 3D buildings; ours below grows in more gently.
+      map.setLayoutProperty(id, 'visibility', 'none')
+    } else if (type === 'symbol' && map.getLayoutProperty(id, 'text-field')) {
+      const color = src === 'place' ? (/country|city|town/.test(id) ? c.text : c.textSoft)
+        : src === 'poi' || src === 'aerodrome_label' ? c.poiText
+        : src === 'transportation_name' ? c.roadText
+        : src === 'water_name' || src === 'waterway' ? c.waterText
+        : null
+      if (!color) continue
+      // A solid, unblurred halo: crisp letters over roads and buildings.
+      paint(id, 'text-color', color)
+      paint(id, 'text-halo-color', c.halo)
+      paint(id, 'text-halo-width', 1.6)
+      paint(id, 'text-halo-blur', 0)
+      if (EARLIER[id] !== undefined) map.setLayerZoomRange(id, EARLIER[id], 24)
+    }
+  }
   // Buildings rise from street level: drawn from zoom 15, full height by 16.
-  if (!map.getLayer('plug-3d') && map.getSource('openmaptiles')) {
+  if (map.getLayer('plug-3d')) paint('plug-3d', 'fill-extrusion-color', c.b3d)
+  else if (map.getSource('openmaptiles')) {
     const firstLabel = (map.getStyle().layers || []).find((l) => l.type === 'symbol')?.id
     map.addLayer({
       id: 'plug-3d',

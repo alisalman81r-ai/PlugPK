@@ -20,6 +20,8 @@ function postRow(p) {
 // A steady colour per person, so the feed is easy to scan by author.
 const AVATAR_TONES = ['#0B332C', '#0F7A6A', '#345A53', '#7E5A1E', '#1E4F7A', '#6B3A5E', '#2F5D3A']
 function avatarFor(name, size = 40) {
+  // Your own posts and replies carry your photo, once you have added one.
+  if (myPhoto() && S.user && name === S.user.name) return `<span class="avatar" style="width:${size}px;height:${size}px"><img class="avatar-img" src="${myPhoto()}" alt=""></span>`
   const n = [...String(name)].reduce((a, ch) => a + ch.charCodeAt(0), 0)
   return `<span class="avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.42)}px;background:${AVATAR_TONES[n % AVATAR_TONES.length]}">${initial(name)}</span>`
 }
@@ -361,7 +363,7 @@ SCREENS.profile = () => {
       <header class="band" style="padding-bottom:28px">
         <div class="row between" style="position:relative"><button class="icon-btn" data-a="back" aria-label="Back">${ic('arrowL', 22)}</button><button class="icon-btn" data-a="go" data-v="settings" aria-label="Settings">${ic('gear', 20)}</button></div>
         <div class="profile-card mt-16">
-          <span class="avatar">${u ? initial(u.name) : ic('user', 28)}</span>
+          ${u ? `<button class="avatar avatar-edit" data-a="sheet" data-v="photo" aria-label="${myPhoto() ? 'Change' : 'Add'} profile photo">${meAvatar(28)}<span class="cam">${ic('camera', 14, { fill: true })}</span></button>` : `<span class="avatar">${ic('user', 28)}</span>`}
           <div class="grow" style="min-width:0"><h1 class="t24 trunc">${u ? esc(u.name) : 'Guest'}</h1><p class="t14 trunc" style="color:rgba(255,255,255,.6)">${u ? esc(u.email) : 'Sign in to keep your stations and routes'}</p></div>
         </div>
         ${!u ? `<div class="row mt-16" style="gap:8px;position:relative"><button class="btn btn-inverse grow" data-a="signInFull" data-v="signup">Create account</button><button class="btn btn-outline-white grow" data-a="signInFull" data-v="signin">Sign in</button></div>` : ''}

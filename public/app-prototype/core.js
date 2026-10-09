@@ -773,6 +773,76 @@ Object.assign(A, {
   dismissInstall: () => { S.installDismissed = true; save(); render() },
 })
 
+// ─── Profile photo ────────────────────────────────────────────────────
+// Kept on this phone with the account (S.user.photo): cropped to a square and
+// shrunk to 256px, a JPEG of about 20 KB, so it fits easily in saved state.
+const myPhoto = () => S.user?.photo || null
+// The signed-in user's avatar contents: their photo, else their initial.
+function meAvatar(iconSize = 20) {
+  if (myPhoto()) return `<img class="avatar-img" src="${myPhoto()}" alt="">`
+  return S.user ? initial(S.user.name) : ic('user', iconSize)
+}
+
+function shrinkPhoto(file, size = 256) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file)
+    const img = new Image()
+    img.onload = () => {
+      // Cover crop from the middle, so a portrait or landscape photo fills the circle.
+      const side = Math.min(img.naturalWidth, img.naturalHeight)
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = size
+      const ctx = canvas.getContext('2d')
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, size, size)
+      URL.revokeObjectURL(url)
+      resolve(canvas.toDataURL('image/jpeg', 0.85))
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('unreadable image')) }
+    img.src = url
+  })
+}
+
+SHEETS.photo = () => ({
+  title: 'Profile photo',
+  body: `<div class="photo-preview">${myPhoto() ? `<img src="${myPhoto()}" alt="Your current photo">` : `<span>${S.user ? initial(S.user.name) : ic('user', 40)}</span>`}</div>
+    <div class="list mt-16">
+      <button class="list-row" data-a="pickPhoto"><span class="ico">${ic('image', 18)}</span><span class="grow"><b class="t15">Choose from gallery</b></span>${ic('chevR', 18)}</button>
+      <button class="list-row" data-a="pickPhoto" data-v="camera"><span class="ico">${ic('camera', 18)}</span><span class="grow"><b class="t15">Take a photo</b></span>${ic('chevR', 18)}</button>
+      ${myPhoto() ? `<button class="list-row" data-a="removePhoto"><span class="ico" style="color:var(--danger, #C2410C)">${ic('trash', 18)}</span><span class="grow"><b class="t15" style="color:var(--danger, #C2410C)">Remove photo</b></span></button>` : ''}
+    </div>`,
+})
+
+Object.assign(A, {
+  pickPhoto: (v) => {
+    if (!S.user) return
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    // Opens the front camera straight away on a phone; ignored on a computer.
+    if (v === 'camera') input.setAttribute('capture', 'user')
+    input.addEventListener('change', async () => {
+      const file = input.files?.[0]
+      if (!file) return
+      if (!file.type.startsWith('image/')) return toast('That file is not a photo', 'info')
+      try {
+        S.user.photo = await shrinkPhoto(file)
+        save(); closeSheet(); render()
+        toast('Profile photo updated')
+      } catch {
+        toast('Could not read that photo, try another', 'info')
+      }
+    })
+    input.click()
+  },
+  removePhoto: () => {
+    if (!S.user) return
+    delete S.user.photo
+    save(); closeSheet(); render()
+    toast('Photo removed')
+  },
+})
+
 SHEETS.installIos = () => ({
   title: 'Add plug.pk to your Home Screen',
   body: `<ol class="install-steps">

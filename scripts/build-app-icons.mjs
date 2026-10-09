@@ -29,7 +29,7 @@ const MAP = {
   speedo: 'Speedometer', send: 'PaperPlaneTilt', plusSq: 'PlusSquare', chart: 'ChartBar', link: 'Link',
   wallet: 'Wallet', trophy: 'Trophy', sedan: 'CarProfile', store: 'Storefront', people: 'UsersThree',
   eyeOff: 'EyeSlash', eye: 'Eye', thermo: 'Thermometer', timer: 'Timer', leaf: 'Leaf', sparkle: 'Sparkle',
-  globe: 'Globe', help: 'Question', ext: 'ArrowSquareOut', dots: 'DotsThree',
+  globe: 'Globe', help: 'Question', ext: 'ArrowSquareOut', dots: 'DotsThree', camera: 'Camera',
 }
 
 const WEIGHTS = ['regular', 'fill', 'light', 'bold']

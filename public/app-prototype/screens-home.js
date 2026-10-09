@@ -360,12 +360,13 @@ SCREENS.home = () => {
   return {
     sb: 'light', tabs: true,
     html: `<div class="scroll">
-      <header class="band lift">
+      <header class="band">
         <div class="home-top">
           <button class="city-btn" data-a="sheet" data-v="city" aria-label="Change city">${ic('pin', 16)}${city}${ic('chevD', 14)}</button>
           <span class="grow"></span>
+          <button class="icon-btn" data-a="go" data-v="search" aria-label="Search stations, cars and services">${ic('search', 20)}</button>
           <button class="icon-btn" data-a="go" data-v="notifications" aria-label="Notifications">${ic('bell', 20)}${S.seenNotif ? '' : '<span class="dot-badge"></span>'}</button>
-          <button class="avatar" data-a="go" data-v="profile" aria-label="Your profile">${S.user ? initial(S.user.name) : ic('user', 20)}</button>
+          <button class="avatar" data-a="go" data-v="profile" aria-label="Your profile">${meAvatar(20)}</button>
         </div>
         <div class="greet">
           <p class="t14" style="color:rgba(255,255,255,.6)">${greeting()}${S.user ? `, ${esc(firstName())}` : ''}</p>
@@ -387,11 +388,7 @@ SCREENS.home = () => {
           <span class="grow"><b class="t17">Add your EV</b><br><span class="t13" style="color:rgba(255,255,255,.6)">Routes and charge times use its real figures.</span></span>${ic('chevR', 20)}</button>`}
       </header>
 
-      <div class="pad lifted">
-        <button class="searchbar" data-a="go" data-v="search">${ic('search', 20)}<span class="grow">Search stations, cars, services</span><span class="kbd">${ic('sliders', 18)}</span></button>
-      </div>
-
-      <div class="pad" style="margin-top:44px">
+      <div class="pad" style="margin-top:20px">
         ${installCard()}
         <nav class="quick" aria-label="Shortcuts">
           <button class="qa" data-a="tab" data-v="map">${ic('station', 28, { sw: 1.6 })}<span>Chargers</span></button>
