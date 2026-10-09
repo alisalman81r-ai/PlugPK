@@ -63,8 +63,18 @@ const CITY_ART = {
   },
 }
 
+// The plain street grid for a city without a hand-drawn map: no named roads,
+// parks or districts, since inventing those would be drawing a city that is
+// not there. The city name sits where a district label would.
+const GENERIC_ART = (city) => ({
+  rot: 0,
+  roads: [],
+  parks: [],
+  areas: [[700, 640, city.toUpperCase()]],
+})
+
 function mapSvg(city) {
-  const art = CITY_ART[city]
+  const art = CITY_ART[city] || GENERIC_ART(city)
   const r = rng(city)
   let streets = ''
   for (let i = -6; i < 34; i++) {
@@ -115,35 +125,47 @@ function stationMatches(s) {
 const cityStations = () => D.stations.filter((s) => s.city === S.city).sort((a, b) => stDist(a) - stDist(b))
 
 // ─── Map screen ────────────────────────────────────────────────────
+// The speed pill laid over a station photo: tier colour, bolt, figure.
+const tierPill = (kw) => `<span class="tier-pill tier-${tier(kw)}">${ic('bolt', 12, { fill: true })}<b class="mono">${fmtKw(kw)}</b><small>kW · ${TIER[tier(kw)].label}</small></span>`
+
+/** The card in the map's bottom carousel: photo header, then the facts, then the two actions. */
 function mapCard(s) {
   const r = stRating(s)
   const sel = U.map.sel === s.id
-  return `<div class="map-card ${sel ? 'sel' : ''}" data-id="${s.id}">
-    <img src="${img(s.photos[0])}" alt="">
-    <div class="grow stack" style="gap:2px">
-      <div class="row between"><b class="t15 trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true, sw: 1 })}${r.toFixed(1)}</span>` : ''}</div>
-      <div class="t13 muted trunc">${ic('pin', 13).replace('class="i"', 'class="i" style="display:inline;vertical-align:-2px"')} ${esc(s.area)} · <span class="mono">${fmtDist(stDist(s))}</span></div>
-      <div class="row wrap mt-4" style="gap:4px">${connBadges(stTypes(s), 2)}${speedBadge(stMax(s))}</div>
-      <div class="row mt-8" style="gap:6px">
+  return `<div class="map-card v2 ${sel ? 'sel' : ''}" data-id="${s.id}">
+    <button class="mc-media" data-a="go" data-v="station" data-id="${s.id}" aria-label="Open ${esc(s.name)}">
+      <img src="${img(s.photos[0])}" alt="" loading="lazy">
+      ${tierPill(stMax(s))}
+      <span class="mc-dist mono">${ic('nav', 12)}${fmtDist(stDist(s))}</span>
+    </button>
+    <div class="mc-body">
+      <div class="mc-head"><b class="trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true })}${r.toFixed(1)}</span>` : ''}</div>
+      <div class="mc-meta trunc">${esc(s.area)} · <span class="mono">${stPorts(s)}</span> ports installed</div>
+      ${reachChip(s)}
+      <div class="mc-plugs">${exampleBadge()}${connBadges(stTypes(s), 2)}</div>
+      <div class="mc-acts">
         <button class="btn btn-sm btn-secondary grow" data-a="go" data-v="station" data-id="${s.id}">Details</button>
-        <a class="btn btn-sm btn-nav grow" href="${navUrl(s)}" target="_blank" rel="noopener">Navigate ${ic('nav', 15)}</a>
+        <a class="btn btn-sm btn-primary grow" href="${navUrl(s)}" target="_blank" rel="noopener">${ic('nav', 15)}Navigate</a>
       </div>
     </div>
   </div>`
 }
 const navUrl = (s) => `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`
 
+/** A station in the list view: a full-width photo card. */
 function stationRow(s) {
   const r = stRating(s)
-  return `<div class="card press" data-a="go" data-v="station" data-id="${s.id}">
-    <div class="st-row">
-      <img class="thumb" src="${img(s.photos[0])}" alt="">
-      <div class="grow stack" style="gap:2px">
-        <div class="row between"><b class="t15 trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true, sw: 1 })}${r.toFixed(1)}</span>` : ''}</div>
-        <div class="row between t13"><span class="muted trunc">${esc(s.area)}, ${esc(s.city)}</span><span class="mono faint t12">${fmtDist(stDist(s))}</span></div>
-        <div class="row wrap mt-4" style="gap:4px">${exampleBadge()}<span class="mono t12 muted">${stPorts(s)} ports installed</span></div>
-        <div class="row wrap mt-4" style="gap:4px">${connBadges(stTypes(s))}${speedBadge(stMax(s))}</div>
-      </div>
+  return `<div class="st-card press" data-a="go" data-v="station" data-id="${s.id}">
+    <div class="st-card-media">
+      <img src="${img(s.photos[0])}" alt="" loading="lazy">
+      ${tierPill(stMax(s))}
+      <span class="mc-dist mono">${ic('nav', 12)}${fmtDist(stDist(s))}</span>
+    </div>
+    <div class="st-card-body">
+      <div class="mc-head"><b class="trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true })}${r.toFixed(1)}</span>` : ''}</div>
+      <div class="mc-meta trunc">${esc(s.area)}, ${esc(s.city)} · <span class="mono">${stPorts(s)}</span> ports installed</div>
+      ${reachChip(s)}
+      <div class="mc-plugs">${exampleBadge()}${connBadges(stTypes(s))}</div>
     </div>
   </div>`
 }
@@ -163,23 +185,34 @@ SCREENS.map = () => {
     </div>`
   const cityBtn = `<button class="map-city" data-a="sheet" data-v="city" aria-label="Change city, now ${S.city}">${ic('pin', 15)}${S.city}${ic('chevD', 14)}</button>`
   if (m.view === 'list') {
+    // The three facts a driver scans for before the list itself.
+    const fastest = all.length ? Math.max(...all.map(stMax)) : 0
+    const nearest = all.length ? fmtDist(stDist(all[0])) : '—'
     return {
       sb: 'dark', tabs: true,
       html: `<div class="topbar" style="flex-direction:column;align-items:stretch;gap:10px;padding-left:16px;padding-right:16px">
-          <div class="row between"><div><h1 style="text-align:left;margin:0;font-size:24px">Chargers</h1>${cityBtn.replace('map-city', 'map-city flat')}</div><button class="btn btn-sm btn-secondary" data-a="mapView" data-v="map">${ic('map', 16)}Map</button></div>
+          <div class="row between"><div><h1 style="text-align:left;margin:0;font-size:24px">Stations</h1>${cityBtn.replace('map-city', 'map-city flat')}</div><button class="btn btn-sm btn-secondary" data-a="mapView" data-v="map">${ic('map', 16)}Map</button></div>
           ${chips}
         </div>
         <div class="scroll pad stack gap-12" style="padding-top:4px">
+          ${all.length ? `<div class="st-sum">
+            <div><b class="mono">${all.length}</b><span>station${all.length === 1 ? '' : 's'}</span></div>
+            <div><b class="mono">${fmtKw(fastest)} kW</b><span>fastest</span></div>
+            <div><b class="mono">${nearest}</b><span>nearest</span></div>
+          </div>` : ''}
           <p class="t13 muted">${list.length} of ${all.length} station${all.length === 1 ? '' : 's'} · nearest to ${CITY[S.city].spot} first</p>
-          ${list.map(stationRow).join('') || `<div class="empty">No station in ${S.city} matches these filters. <button class="btn btn-sm btn-secondary" data-a="clearFilters">Clear filters</button></div>`}
+          ${list.map(stationRow).join('') || (all.length
+            ? `<div class="empty">No station in ${S.city} matches these filters. <button class="btn btn-sm btn-secondary" data-a="clearFilters">Clear filters</button></div>`
+            : `<div class="empty">No chargers listed in ${esc(S.city)} yet. <button class="btn btn-sm btn-secondary" data-a="sheet" data-v="city">Choose another city</button></div>`)}
         </div>`,
     }
   }
-  const me = project(S.city, ...CITY[S.city].me)
-  return {
-    sb: 'dark', tabs: true,
-    html: `<div class="map-wrap" id="map-wrap">
-        <div class="map-world" id="map-world">
+  const me = project(S.city, ...myPos())
+  // The real map (MapLibre) is attached in mapAfter; the drawn map below is
+  // only rendered when the map library could not load, e.g. offline.
+  const world = hasLibre()
+    ? ''
+    : `<div class="map-world" id="map-world">
           ${mapSvg(S.city)}
           <div data-part="pins">${all.map((s) => {
             const [x, y] = project(s.city, s.lat, s.lng)
@@ -189,8 +222,10 @@ SCREENS.map = () => {
               <span class="bubble"><span class="bolt">${ic('bolt', 13, { fill: true, sw: 1 })}</span>${fmtKw(kw)} kW</span><span class="tip"></span></button>`
           }).join('')}</div>
           <span class="me" style="left:${me[0]}px;top:${me[1]}px" title="You (approximate)"></span>
-        </div>
-      </div>
+        </div>`
+  return {
+    sb: 'dark', tabs: true,
+    html: `<div class="map-wrap ${hasLibre() ? 'libre-on' : ''}" id="map-wrap">${world}</div>
       <div class="map-top">
         <div class="map-search"><button class="grow row" style="gap:10px;min-height:48px;text-align:left" data-a="go" data-v="search">${ic('search', 20)}<span class="grow faint">Search stations or areas</span></button>${cityBtn}</div>
         ${chips}
@@ -199,9 +234,8 @@ SCREENS.map = () => {
         <button class="glass-btn" data-a="mapView" data-v="list" aria-label="Show as list">${ic('rows', 20)}</button>
         <div class="ctrl-group"><button data-a="zoom" data-v="1.4" aria-label="Zoom in">${ic('plus', 20)}</button><button data-a="zoom" data-v="0.7" aria-label="Zoom out">${ic('minus', 20)}</button></div>
         <button class="glass-btn" data-a="locate" aria-label="Centre on me">${ic('locate', 20)}</button>
-        <button class="glass-btn" data-a="flipTheme" aria-label="Switch to ${isDark() ? 'light' : 'dark'} mode">${ic(isDark() ? 'sun' : 'moon', 20)}</button>
       </div>
-      <div class="map-carousel"><div class="hscroll" id="map-cards" data-part="cards">${list.map(mapCard).join('') || `<div class="map-card" style="width:calc(100% - 0px)"><div class="grow t14 muted">No station here matches your filters. <button class="link" data-a="clearFilters">Clear filters</button></div></div>`}</div></div>`,
+      <div class="map-carousel"><div class="hscroll" id="map-cards" data-part="cards">${list.map(mapCard).join('') || `<div class="map-card" style="width:calc(100% - 0px)"><div class="grow t14 muted">${all.length ? `No station here matches your filters. <button class="link" data-a="clearFilters">Clear filters</button>` : `No chargers listed in ${esc(S.city)} yet. <button class="link" data-a="sheet" data-v="city">Choose another city</button>`}</div></div>`}</div></div>`,
     after: mapAfter,
     afterPart: () => applyMapTransform(),
   }
@@ -238,7 +272,151 @@ function fitCity() {
   U.map.fitted = S.city
 }
 
+// ─── Real map: MapLibre on OpenFreeMap tiles ──────────────────────────
+// The same engine and tile host as the website (src/components/map). Quiet
+// basemaps — positron by day, dark by night — so the station pins carry the
+// colour. The map is created once and kept: re-renders move its element back
+// into the screen instead of reloading tiles every time a filter changes.
+const MAP_STYLES = {
+  light: 'https://tiles.openfreemap.org/styles/positron',
+  dark: 'https://tiles.openfreemap.org/styles/dark',
+}
+const LM = { map: null, el: null, style: null, markers: new Map(), me: null }
+const hasLibre = () => typeof window.maplibregl !== 'undefined'
+// Room the map keeps clear for the search bar above and the cards below,
+// measured from the screen so a taller card or the tab bar never hides a pin.
+function mapPadding() {
+  const wrap = $('#map-wrap')?.getBoundingClientRect()
+  const top = $('.map-top')?.getBoundingClientRect()
+  const cards = $('.map-carousel')?.getBoundingClientRect()
+  if (!wrap || !wrap.height) return { top: 150, bottom: 380, left: 36, right: 72 }
+  return {
+    // + the pin height: a pin hangs above its point, so its point alone being
+    // clear would still leave the bubble under the chips.
+    top: Math.max(24, (top ? top.bottom - wrap.top : 140) + 28 + 56),
+    bottom: Math.max(40, (cards ? wrap.bottom - cards.top : 360) + 24),
+    left: 36,
+    right: 72,
+  }
+}
+
+// English (then latin) place names, as on the website's map: the basemap's
+// default label is the local-script name, which printed Urdu beside English.
+function englishLabels(map) {
+  for (const layer of map.getStyle()?.layers || []) {
+    if (layer.type !== 'symbol') continue
+    const field = map.getLayoutProperty(layer.id, 'text-field')
+    if (!field || !JSON.stringify(field).includes('name')) continue
+    map.setLayoutProperty(layer.id, 'text-field', ['coalesce', ['get', 'name:en'], ['get', 'name:latin'], ['get', 'name']])
+  }
+}
+
+function pinEl(s) {
+  const kw = stMax(s)
+  const b = document.createElement('button')
+  b.className = `mk tier-${tier(kw)}`
+  b.dataset.a = 'pinSel'
+  b.dataset.v = s.id
+  b.setAttribute('aria-label', `${s.name}, ${fmtKw(kw)} kW`)
+  b.innerHTML = `<span class="mk-in">
+      <span class="mk-name">${esc(s.name)}</span>
+      <span class="mk-body"><span class="mk-bolt">${ic('bolt', 12, { fill: true })}</span><b>${fmtKw(kw)}</b><small>kW</small></span>
+      <span class="mk-tip"></span>
+    </span>`
+  return b
+}
+
+function ensureLibreMap(wrap) {
+  const key = isDark() ? 'dark' : 'light'
+  if (!LM.map) {
+    LM.el = document.createElement('div')
+    LM.el.className = 'libre'
+    wrap.appendChild(LM.el)
+    const [lat, lng] = myPos()
+    LM.map = new maplibregl.Map({
+      container: LM.el,
+      style: MAP_STYLES[key],
+      center: [lng, lat],
+      zoom: 12,
+      attributionControl: false,
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
+    })
+    LM.map.touchZoomRotate.disableRotation()
+    LM.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-left')
+    // Re-applied after every style load, including a light/dark switch.
+    LM.map.on('style.load', () => englishLabels(LM.map))
+    LM.map.once('load', () => {
+      // Collapsed to its (i) button: the credit stays one tap away without
+      // covering the map. MapLibre opens it on first load otherwise.
+      LM.el.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show')
+      if (U.map.fitted !== S.city || !U.map.fitLoaded) { U.map.fitLoaded = true; fitLibre() }
+    })
+    LM.style = key
+  } else {
+    wrap.appendChild(LM.el)
+    if (LM.style !== key) {
+      LM.map.setStyle(MAP_STYLES[key])
+      LM.style = key
+    }
+    requestAnimationFrame(() => LM.map.resize())
+  }
+}
+
+function syncMarkers() {
+  const all = cityStations()
+  const list = all.filter(stationMatches)
+  const keep = new Set(all.map((s) => s.id))
+  for (const [id, mk] of LM.markers) {
+    if (!keep.has(id)) { mk.remove(); LM.markers.delete(id) }
+  }
+  for (const s of all) {
+    let mk = LM.markers.get(s.id)
+    if (!mk) {
+      mk = new maplibregl.Marker({ element: pinEl(s), anchor: 'bottom' }).setLngLat([s.lng, s.lat]).addTo(LM.map)
+      LM.markers.set(s.id, mk)
+    }
+    const el = mk.getElement()
+    const sel = U.map.sel === s.id
+    el.classList.toggle('sel', sel)
+    el.classList.toggle('dim', !list.includes(s))
+    el.style.zIndex = sel ? '3' : '1'
+  }
+  const [lat, lng] = myPos()
+  if (!LM.me) {
+    const dot = document.createElement('span')
+    dot.className = 'me-dot'
+    dot.title = 'You (approximate)'
+    LM.me = new maplibregl.Marker({ element: dot }).setLngLat([lng, lat]).addTo(LM.map)
+  } else {
+    LM.me.setLngLat([lng, lat])
+  }
+}
+
+function fitLibre(animate = false) {
+  // The map's own size must be current before it can fit anything into it.
+  LM.map.resize()
+  const [lat, lng] = myPos()
+  const pts = [[lng, lat], ...cityStations().map((s) => [s.lng, s.lat])]
+  if (pts.length === 1) {
+    LM.map.jumpTo({ center: pts[0], zoom: 11.5 })
+  } else {
+    const bounds = pts.reduce((b, p) => b.extend(p), new maplibregl.LngLatBounds(pts[0], pts[0]))
+    LM.map.fitBounds(bounds, { padding: mapPadding(), maxZoom: 14.5, duration: animate ? 600 : 0 })
+  }
+  U.map.fitted = S.city
+}
+
 function mapAfter() {
+  if (hasLibre()) {
+    ensureLibreMap($('#map-wrap'))
+    syncMarkers()
+    // After layout, so the measured padding is right. A first load also fits
+    // again once the style is ready (see ensureLibreMap).
+    if (U.map.fitted !== S.city) requestAnimationFrame(() => requestAnimationFrame(() => fitLibre()))
+    return wireCards()
+  }
   if (U.map.fitted !== S.city) fitCity()
   else applyMapTransform()
   const wrap = $('#map-wrap')
@@ -297,7 +475,11 @@ function mapAfter() {
     applyMapTransform()
   }, { passive: false })
 
-  // Swiping the cards selects the station in view.
+  wireCards()
+}
+
+// Swiping the cards selects the station in view.
+function wireCards() {
   const cards = $('#map-cards')
   if (cards) {
     let t
@@ -325,15 +507,21 @@ function scrollToCard(id, smooth = true) {
 function selectStation(id, scroll = true) {
   U.map.sel = id
   const s = stById(id)
-  renderPart('pins')
   document.querySelectorAll('#map-cards .map-card').forEach((c) => c.classList.toggle('sel', c.dataset.id === id))
-  centreOn(project(s.city, s.lat, s.lng), Math.max(U.map.z, 0.8))
+  if (hasLibre() && LM.map) {
+    syncMarkers()
+    LM.map.easeTo({ center: [s.lng, s.lat], zoom: Math.max(LM.map.getZoom(), 14), padding: mapPadding(), duration: 550 })
+  } else {
+    renderPart('pins')
+    centreOn(project(s.city, s.lat, s.lng), Math.max(U.map.z, 0.8))
+  }
   if (scroll) scrollToCard(id)
 }
 
 Object.assign(A, {
   pinSel: (id) => { if (!U.map.dragged) selectStation(id) },
   zoom: (v) => {
+    if (hasLibre() && LM.map) return +v > 1 ? LM.map.zoomIn() : LM.map.zoomOut()
     const [w, h] = mapViewport()
     const c = [(w / 2 - U.map.x) / U.map.z, (h / 2 - U.map.y) / U.map.z]
     const z = clamp(U.map.z * +v, 0.35, 2.6)
@@ -342,7 +530,16 @@ Object.assign(A, {
     U.map.z = z
     applyMapTransform(true)
   },
-  locate: () => { centreOn(project(S.city, ...CITY[S.city].me), 1); toast(`Showing ${CITY[S.city].spot} — the prototype has no GPS`, 'locate') },
+  // Centre on me: asks for the phone's location the first time, then flies to it.
+  locate: () => {
+    const fly = () => {
+      const [lat, lng] = myPos()
+      if (hasLibre() && LM.map) LM.map.flyTo({ center: [lng, lat], zoom: 14, padding: mapPadding(), duration: 800 })
+      else centreOn(project(S.city, lat, lng), 1)
+    }
+    if (U.gps) fly()
+    else requestGps(() => requestAnimationFrame(() => requestAnimationFrame(fly)))
+  },
   mapView: (v) => { U.map.view = v; if (v === 'map') U.map.fitted = null; render() },
   clearFilters: () => { Object.assign(U.map, { conn: [], speed: 0, amen: [] }); closeSheet(); render() },
   fConn: (v) => { U.map.conn = U.map.conn.includes(v) ? U.map.conn.filter((x) => x !== v) : [...U.map.conn, v]; renderSheet() },
@@ -399,6 +596,7 @@ SCREENS.station = ({ id }) => {
         <h1 class="detail-title mt-12">${esc(s.name)}</h1>
         <p class="t14 muted mt-4">${esc(s.street)}, ${esc(s.area)}, ${esc(s.city)}</p>
         <div class="row mt-8" style="gap:8px">${r ? `${stars(r, 16)}<b class="t14">${r.toFixed(1)}</b><span class="t13 faint">(${reviews.length} review${reviews.length === 1 ? '' : 's'})</span>` : '<span class="t13 muted">No reviews yet</span>'}<span class="grow"></span><span class="mono t13 muted">${fmtDist(stDist(s))}</span></div>
+        ${reachChip(s) ? `<div class="mt-12">${reachChip(s)}</div>` : ''}
 
         <div class="tiles mt-20">
           <div class="tile"><div class="k">Max power</div><div class="v">${fmtKw(stMax(s))}<small>kW</small></div></div>

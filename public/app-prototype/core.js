@@ -26,103 +26,18 @@ function ago(iso) {
   return fmtDate(iso)
 }
 
-// ─── Icons (24px grid, stroke) ─────────────────────────────────────
-const P = {
-  home: '<path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/>',
-  map: '<path d="M9 4 3.5 6.5v13.5L9 17.5l6 2.5 5.5-2.5V4L15 6.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
-  pin: '<path d="M12 21.5s-7-6.2-7-11.7a7 7 0 0 1 14 0c0 5.5-7 11.7-7 11.7z"/><circle cx="12" cy="9.8" r="2.6"/>',
-  route: '<circle cx="6" cy="18.5" r="2.5"/><circle cx="18" cy="5.5" r="2.5"/><path d="M8.5 18.5H17a3.5 3.5 0 0 0 0-7H7a3.5 3.5 0 0 1 0-7h8.5"/>',
-  car: '<path d="M5 17H3.5a1 1 0 0 1-1-1v-3.3a2 2 0 0 1 .4-1.2L5 8.6a2 2 0 0 1 1.6-.8h10.8a2 2 0 0 1 1.6.8l2.1 2.9a2 2 0 0 1 .4 1.2V16a1 1 0 0 1-1 1H19"/><path d="M9 17h6M5.5 11.5h13"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
-  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a6.5 6.5 0 0 1 3.5 6"/>',
-  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
-  sliders: '<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
-  nav: '<path d="M3.5 11 20.5 3.5 13 20.5l-2-7.5z"/>',
-  locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
-  bookmark: '<path d="M6 3.5h12V21l-6-4-6 4z"/>',
-  share: '<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/>',
-  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
-  heart: '<path d="M12 20s-8-4.7-8-10.5A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.5C20 15.3 12 20 12 20z"/>',
-  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
-  star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
-  bolt: '<path d="M13 2 4.5 13.5H11l-1 8.5 8.5-11.5H12z"/>',
-  plug: '<path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0zM12 17v5"/>',
-  battery: '<rect x="2.5" y="7" width="17" height="10" rx="2.5"/><path d="M22 11v2M6 10.5v3M9.5 10.5v3"/>',
-  gauge: '<path d="M4 18a9 9 0 1 1 16 0"/><path d="m12 14 4-5"/>',
-  compare: '<path d="M7 4 3 8l4 4M3 8h14M17 12l4 4-4 4M21 16H7"/>',
-  grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
-  rows: '<rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/>',
-  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-  building: '<path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M2 21h20M8 8h3M8 12h3M8 16h3"/>',
-  handshake: '<path d="m11 17 2 2a1.4 1.4 0 0 0 2-2"/><path d="m14 14 2.5 2.5a1.4 1.4 0 0 0 2-2l-3-3.1a2 2 0 0 0-2.8 0l-.9.9a1.4 1.4 0 0 1-2-2L12.6 7a3 3 0 0 1 3.9-.3L17 7h4v8h-2M3 7h4l1 1M3 7v8h2l3.5 3.5a1.4 1.4 0 0 0 2-2"/>',
-  shield: '<path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
-  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8h.01"/>',
-  chevL: '<path d="m15 18-6-6 6-6"/>',
-  chevR: '<path d="m9 18 6-6-6-6"/>',
-  chevD: '<path d="m6 9 6 6 6-6"/>',
-  arrowL: '<path d="M19 12H5m6-6-6 6 6 6"/>',
-  arrowR: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
-  arrowUR: '<path d="M7 17 17 7M8 7h9v9"/>',
-  x: '<path d="M6 6l12 12M18 6 6 18"/>',
-  check: '<path d="m5 12.5 4.5 4.5L19 7"/>',
-  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-  fork: '<path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.5 1-4 3.5-4 7v3h4"/>',
-  coffee: '<path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/>',
-  door: '<path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17M3 21h18M14 12h.01"/>',
-  wifi: '<path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>',
-  parking: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M9.5 17V7h3.5a3 3 0 0 1 0 6H9.5"/>',
-  moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
-  bag: '<path d="M5 8h14l-1 13H6zM9 8V6a3 3 0 0 1 6 0v2"/>',
-  bed: '<path d="M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11" r="2"/>',
-  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/>',
-  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-  monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  minus: '<path d="M5 12h14"/>',
-  phone: '<path d="M21.5 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 1.6 4.2 2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L7.5 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.9 2.1z"/>',
-  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
-  copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
-  swap: '<path d="M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4"/>',
-  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/>',
-  package: '<path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',
-  buoy: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M14.8 9.2l3.6-3.6M5.6 18.4l3.6-3.6"/>',
-  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
-  pencil: '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-  trash: '<path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
-  calc: '<rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M8 6.5h8M8 11h.01M12 11h.01M16 11h.01M8 14.5h.01M12 14.5h.01M16 14.5v3.5M8 18h.01M12 18h.01"/>',
-  layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
-  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
-  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
-  sort: '<path d="M3 6h18M6 12h12M10 18h4"/>',
-  // Home shortcuts: drawn for their job rather than borrowed.
-  station: '<rect x="3.5" y="3" width="10" height="18" rx="2"/><path d="M3.5 21h10M13.5 9.5h2a2 2 0 0 1 2 2v4.5a1.5 1.5 0 0 0 3 0V8.5L18 6"/><path d="m9.5 7-2.5 4h3.5L8 15"/>',
-  trip: '<circle cx="6" cy="19" r="2.2"/><path d="M8.2 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h5"/><path d="M18.5 2.5a3 3 0 0 0-3 3c0 2.2 3 4.8 3 4.8s3-2.6 3-4.8a3 3 0 0 0-3-3z"/><circle cx="18.5" cy="5.5" r=".6"/>',
-  batteryBolt: '<rect x="2.5" y="6.5" width="16.5" height="11" rx="2.8"/><path d="M22 10.5v3"/><path d="m11.5 8.8-2.8 3.4h3.6l-2.8 3.4"/>',
-  speedo: '<path d="M3.6 18.5a9 9 0 1 1 16.8 0"/><path d="M12 15.5l4-4"/><circle cx="12" cy="15.5" r="1.5"/><path d="M12 6.5V8M6.3 9.3l1 1M17.7 9.3l-1 1M4.6 14.5H6M18 14.5h1.4"/>',
-  send: '<path d="M21.5 2.5 10.5 13.5"/><path d="M21.5 2.5 14.5 21.5l-4-8-8-4z"/>',
-  plusSq: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/>',
-  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
-  link: '<path d="M10 13.5a4.5 4.5 0 0 0 6.4.4l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.7 1.7"/><path d="M14 10.5a4.5 4.5 0 0 0-6.4-.4l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.7-1.7"/>',
-  wallet: '<path d="M19 7V5a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2.5"/><path d="M3 6v12a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
-  trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
-  sedan: '<path d="M3 15.5v-2.6l2-4.1a2 2 0 0 1 1.8-1.1h7.7a2 2 0 0 1 1.5.7l3 3.6 1.6.6a1.5 1.5 0 0 1 .9 1.4v1.5"/><path d="M3 15.5h2M9 15.5h6M19 15.5h2M4.5 12h15"/><circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/>',
-  store: '<path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5V20h14v-7.5M10 20v-4.5h4V20"/>',
-  people: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3 19.5a6 6 0 0 1 12 0"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14a6 6 0 0 1 3.5 5.5"/>',
-  eyeOff: '<path d="M3 3l18 18M10.6 5.1A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
-  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
-  thermo: '<path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/>',
-  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>',
-  leaf: '<path d="M11 20A7 7 0 0 1 4 13c0-6 5-9 16-9 0 11-3 16-9 16zM4 20c4-4 7-6 11-8"/>',
-  sparkle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
-  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
-  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/>',
-  ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
-  dots: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
-}
+// ─── Icons ─────────────────────────────────────────────────────────
+// Phosphor Icons, the website's own family (DESIGN.md section 7), built into
+// icons.js by scripts/build-app-icons.mjs. Regular weight by default; `fill`
+// for "on" states (a liked heart, a rating star); a stroke width at or below
+// 1.6 maps to light and at or above 2.4 to bold, so call sites that asked for
+// thinner or heavier lines keep reading the way they were designed.
+const ICONS = window.PLUG_ICONS || {}
 function ic(name, size = 20, opt = {}) {
-  const fill = opt.fill ? 'currentColor' : 'none'
-  return `<svg class="i" width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="${opt.sw || 1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || ''}</svg>`
+  const glyph = ICONS[name]
+  const sw = opt.sw || 1.8
+  const weight = opt.fill ? 'fill' : sw <= 1.6 ? 'light' : sw >= 2.4 ? 'bold' : 'regular'
+  return `<svg class="i" width="${size}" height="${size}" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${glyph ? glyph[weight] : ''}</svg>`
 }
 function logoMark(size = 24, color = '#6FE8B6') {
   return `<svg width="${size}" height="${size}" viewBox="4 6 160 160" aria-hidden="true"><g fill="${color}" stroke="${color}" stroke-linejoin="round"><path stroke-width="11" d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z"/><path stroke-width="5" d="M143.5 75 L140.5 85.5 L154 85.5 L154 88.5 L138.5 88.5 L135.5 99.5 L122 101.5 Z"/></g></svg>`
@@ -197,13 +112,182 @@ const CITY = {
   Islamabad: { me: [33.7181, 73.0576], spot: 'F-7 Markaz', landmark: 'faisal' },
   Karachi: { me: [24.8452, 67.0423], spot: 'Shahrah-e-Faisal', landmark: 'quaid' },
 }
-const CITIES_WITH_STATIONS = Object.keys(CITY)
+// Every city the website knows (src/lib/constants.ts PAKISTAN_CITIES), with the
+// approximate centre from src/lib/city-coordinates.ts. Cities with a hand-drawn
+// map and a named "you are here" spot are in CITY above; the rest use the
+// centre as the fixed point and the plain map (screens-map.js GENERIC_ART).
+const ALL_CITIES = [
+  ["Abbottabad", 34.1688, 73.2215],
+  ["Astore", 35.3667, 74.85],
+  ["Attock", 33.766, 72.36],
+  ["Badin", 24.656, 68.837],
+  ["Bagh", 33.98, 73.77],
+  ["Bahawalnagar", 29.9983, 73.2533],
+  ["Bahawalpur", 29.3956, 71.6836],
+  ["Bannu", 32.9889, 70.6056],
+  ["Batkhela", 34.6167, 72],
+  ["Bhakkar", 31.6333, 71.0667],
+  ["Bhimber", 32.974, 74.079],
+  ["Chakwal", 32.9328, 72.863],
+  ["Chaman", 30.92, 66.45],
+  ["Charsadda", 34.1682, 71.7404],
+  ["Chilas", 35.42, 74.1],
+  ["Chiniot", 31.72, 72.9781],
+  ["Chitral", 35.8518, 71.7864],
+  ["Dadu", 26.73, 67.78],
+  ["Dera Ghazi Khan", 30.0561, 70.6403],
+  ["Dera Ismail Khan", 31.8313, 70.9019],
+  ["Dera Murad Jamali", 28.55, 68.2167],
+  ["Faisalabad", 31.4504, 73.135],
+  ["Ghotki", 28, 69.3167],
+  ["Gilgit", 35.9208, 74.308],
+  ["Gujranwala", 32.1877, 74.1945],
+  ["Gujrat", 32.574, 74.0754],
+  ["Gwadar", 25.1264, 62.3225],
+  ["Hafizabad", 32.0709, 73.688],
+  ["Hangu", 33.5333, 71.05],
+  ["Haripur", 33.9942, 72.9333],
+  ["Hub", 25, 67.1],
+  ["Hunza", 36.3167, 74.65],
+  ["Hyderabad", 25.396, 68.3578],
+  ["Islamabad", 33.6844, 73.0479],
+  ["Jacobabad", 28.282, 68.438],
+  ["Jamshoro", 25.43, 68.28],
+  ["Jhang", 31.2781, 72.3317],
+  ["Jhelum", 32.9333, 73.7333],
+  ["Kalat", 29.026, 66.59],
+  ["Karachi", 24.8607, 67.0011],
+  ["Karak", 33.1167, 71.0833],
+  ["Kasur", 31.1187, 74.45],
+  ["Khairpur", 27.5295, 68.7592],
+  ["Khanewal", 30.3017, 71.9321],
+  ["Kharan", 28.585, 65.415],
+  ["Khushab", 32.296, 72.352],
+  ["Khuzdar", 27.812, 66.61],
+  ["Kohat", 33.5869, 71.4414],
+  ["Kotli", 33.518, 73.902],
+  ["Lahore", 31.5204, 74.3587],
+  ["Lakki Marwat", 32.607, 70.911],
+  ["Larkana", 27.558, 68.212],
+  ["Layyah", 30.96, 70.94],
+  ["Lodhran", 29.54, 71.63],
+  ["Loralai", 30.3705, 68.598],
+  ["Mandi Bahauddin", 32.5861, 73.4917],
+  ["Mansehra", 34.33, 73.2],
+  ["Mardan", 34.1989, 72.0231],
+  ["Mastung", 29.799, 66.845],
+  ["Matiari", 25.599, 68.446],
+  ["Mianwali", 32.5839, 71.537],
+  ["Mingora", 34.7795, 72.3614],
+  ["Mirpur", 33.1478, 73.7519],
+  ["Mirpur Khas", 25.5276, 69.0122],
+  ["Multan", 30.1575, 71.5249],
+  ["Muzaffarabad", 34.37, 73.4711],
+  ["Muzaffargarh", 30.0736, 71.1805],
+  ["Nankana Sahib", 31.4492, 73.7126],
+  ["Narowal", 32.1, 74.87],
+  ["Nawabshah", 26.2483, 68.4096],
+  ["Nowshera", 34.0153, 71.9747],
+  ["Nushki", 29.55, 66.02],
+  ["Okara", 30.8138, 73.4534],
+  ["Pakpattan", 30.34, 73.4],
+  ["Panjgur", 26.97, 64.1],
+  ["Peshawar", 34.0151, 71.5249],
+  ["Quetta", 30.1798, 66.975],
+  ["Rahim Yar Khan", 28.4202, 70.2952],
+  ["Rajanpur", 29.1041, 70.3297],
+  ["Rawalakot", 33.8578, 73.7604],
+  ["Rawalpindi", 33.5651, 73.0169],
+  ["Sahiwal", 30.6682, 73.1114],
+  ["Sanghar", 26.046, 68.949],
+  ["Sargodha", 32.0836, 72.6711],
+  ["Sheikhupura", 31.7131, 73.9783],
+  ["Shikarpur", 27.9556, 68.6382],
+  ["Sialkot", 32.4945, 74.5229],
+  ["Sibi", 29.543, 67.877],
+  ["Skardu", 35.2971, 75.6333],
+  ["Sukkur", 27.7052, 68.8574],
+  ["Swabi", 34.12, 72.47],
+  ["Tando Adam", 25.7667, 68.6614],
+  ["Tando Allahyar", 25.46, 68.719],
+  ["Tank", 32.2167, 70.3833],
+  ["Thatta", 24.7461, 67.9243],
+  ["Timergara", 34.8281, 71.8419],
+  ["Toba Tek Singh", 30.9709, 72.4826],
+  ["Turbat", 26.0023, 63.045],
+  ["Umerkot", 25.3614, 69.7361],
+  ["Usta Mohammad", 28.18, 68.05],
+  ["Vehari", 30.0442, 72.3489],
+  ["Wah Cantonment", 33.7667, 72.75],
+  ["Zhob", 31.341, 69.449],
+]
+for (const [name, lat, lng] of ALL_CITIES) {
+  if (!CITY[name]) CITY[name] = { me: [lat, lng], spot: `central ${name}`, landmark: null }
+}
+// Cities that hold at least one listed station, in the order CITY lists them.
+const CITIES_WITH_STATIONS = Object.keys(CITY).filter((c) => D.stations.some((s) => s.city === c))
 function haversine([a, b], [c, d]) {
   const R = 6371, r = Math.PI / 180
   const x = Math.sin(((c - a) * r) / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin(((d - b) * r) / 2) ** 2
   return 2 * R * Math.asin(Math.sqrt(x))
 }
-const stDist = (s) => (CITY[s.city] ? haversine(CITY[s.city].me, [s.lat, s.lng]) * 1.25 : null) // road factor
+// ─── Where you are ─────────────────────────────────────────────────
+// The phone's position when you allow it (this session only, never saved),
+// otherwise the city's fixed "you are here" spot.
+const myPos = () => U.gps || CITY[S.city]?.me
+const stDist = (s) => {
+  const from = U.gps || CITY[s.city]?.me
+  return from ? haversine(from, [s.lat, s.lng]) * 1.25 : null // road factor
+}
+
+function requestGps(after) {
+  if (!navigator.geolocation) return toast('Location isn’t available on this device', 'info')
+  toast('Finding your location…', 'locate')
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const here = [pos.coords.latitude, pos.coords.longitude]
+      const [name, km] = ALL_CITIES.map(([n, la, lo]) => [n, haversine(here, [la, lo])]).sort((a, b) => a[1] - b[1])[0] || []
+      // Further than this from every listed city: probably not in Pakistan, so
+      // distances from here would be meaningless. Keep the chosen city.
+      if (!name || km > 80) return toast(`You seem to be outside the cities we cover, so we’re showing ${S.city}`, 'info')
+      U.gps = here
+      if (S.city !== name) { S.city = name; save() }
+      U.map.fitted = null
+      toast(`Using your location · ${name}`, 'locate')
+      if (U.sheet) closeSheet()
+      render()
+      after?.()
+    },
+    (err) => toast(err.code === 1 ? 'Location is blocked. Choose your city instead.' : 'Couldn’t find your location. Choose your city instead.', 'info'),
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+  )
+}
+
+// ─── Will my car make it? ──────────────────────────────────────────
+// Electric range only: a plug-in hybrid's combined petrol figure says nothing
+// about reaching a charger on battery.
+const elecRange = (c) => (c.category === 'EV' ? c.range : c.eRange ?? c.range)
+// The share of a full battery the drive takes, at 85% of rated range (motorway
+// speed, AC on — the same allowance the route planner uses), and whether any
+// of the station's plugs fits. Current charge is not known, so it is stated as
+// a share of a full battery rather than "you will arrive with X%".
+function reachInfo(s, car = myCar()) {
+  if (!car) return null
+  const range = elecRange(car)
+  const km = stDist(s)
+  const plug = carConns(car).length ? stTypes(s).some((t) => fits(car, t)) : null
+  const pct = range > 0 && km != null ? Math.max(1, Math.ceil((km / (range * 0.85)) * 100)) : null
+  return { pct, plug, model: car.model }
+}
+function reachChip(s) {
+  const r = reachInfo(s)
+  if (!r) return ''
+  if (r.plug === false) return `<span class="reach no">${ic('info', 13)}No plug for your ${esc(r.model)}</span>`
+  const far = r.pct != null && r.pct > 100
+  const text = r.pct == null ? '' : far ? 'Beyond one full charge' : `~${r.pct}% battery to reach`
+  const tone = far ? 'no' : r.pct > 60 ? 'warn' : 'ok'
+  return `<span class="reach ${tone}">${ic(far ? 'info' : 'batteryBolt', 13)}${r.plug ? `Fits your ${esc(r.model)}${text ? ' · ' : ''}` : ''}${text}</span>`
+}
 const fmtDist = (km) => (km == null ? '' : km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`)
 
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
@@ -386,7 +470,9 @@ function planRoute(from, to, car, start) {
 const KEY = 'plugpk-app-v1'
 const DEFAULT = {
   onboarded: false, user: null, theme: 'system', city: 'Lahore',
-  garage: ['byd-atto-3-advanced'], primary: 'byd-atto-3-advanced',
+  // No car until the person picks one: a pre-filled Atto 3 showed up as
+  // already chosen on the onboarding car picker.
+  garage: [], primary: null,
   saved: [], routes: [], fav: [], compare: [], liked: {}, myReviews: [], myPosts: [], myComments: {}, clubs: [],
   savedPosts: [], votes: {},
   notif: { routes: true, community: true, news: false, offers: false }, seenNotif: false,
@@ -531,7 +617,10 @@ function tab(s) {
   U.sheet = null
   render()
 }
-const TABS = [['home', 'home', 'Home'], ['map', 'map', 'Map'], ['routes', 'route', 'Routes'], ['cars', 'car', 'Cars'], ['community', 'users', 'Community']]
+// Four tabs, in order of how often they are used. Map is labelled Stations
+// because finding a charger is what the screen is for; Cars left the bar (it
+// is browsed before buying, not daily) and stays one tap away on Home and in search.
+const TABS = [['home', 'home', 'Home'], ['map', 'station', 'Stations'], ['routes', 'route', 'Routes'], ['community', 'users', 'Community']]
 function tabbar(cur) {
   return `<nav class="tabbar" aria-label="Primary">${TABS.map(([s, i, l]) => `<button class="tab ${cur === s ? 'on' : ''}" data-a="tab" data-v="${s}" ${cur === s ? 'aria-current="page"' : ''}><span class="pill">${ic(i, 22)}</span>${l}</button>`).join('')}</nav>`
 }
@@ -585,7 +674,6 @@ Object.assign(A, {
   closeSheet: () => closeSheet(),
   sheet: (v, el) => openSheet(v, { ...el.dataset }),
   theme: (v) => { S.theme = v; save(); render(); toast(v === 'system' ? 'Following your device' : v === 'dark' ? 'Dark mode on' : 'Light mode on', v === 'dark' ? 'moon' : v === 'light' ? 'sun' : 'monitor') },
-  flipTheme: () => A.theme(isDark() ? 'light' : 'dark'),
   save: (id) => {
     const on = S.saved.includes(id)
     S.saved = on ? S.saved.filter((x) => x !== id) : [id, ...S.saved]
@@ -603,7 +691,8 @@ Object.assign(A, {
     save(); render()
   },
   copy: (v) => copyText(v),
-  city: (v) => { S.city = v; U.map.sel = null; U.map.fitted = null; save(); closeSheet(); render() },
+  // Choosing a city by hand switches GPS off: distances then come from that city.
+  city: (v) => { S.city = v; U.gps = null; U.map.sel = null; U.map.fitted = null; save(); closeSheet(); render() },
   noop: () => {},
 })
 
@@ -631,4 +720,56 @@ document.addEventListener('submit', (e) => {
 })
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') back()
+})
+
+// ─── Install as an app ─────────────────────────────────────────────
+// Chrome and Edge offer their own install dialog (beforeinstallprompt), which
+// the "Install" button opens. iOS has none, so the app shows the two taps
+// (Share, Add to Home Screen) instead. Hidden once installed or dismissed.
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true
+const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  U.installEvt = e
+  if (document.readyState === 'complete') render()
+})
+window.addEventListener('appinstalled', () => {
+  U.installEvt = null
+  S.installDismissed = true
+  save()
+  toast('plug.pk is on your home screen')
+  render()
+})
+const canInstall = () => !isStandalone() && (U.installEvt || isIos())
+
+function installCard() {
+  if (!canInstall() || S.installDismissed) return ''
+  return `<div class="install-card">
+    <img src="icons/icon-192.png" alt="" width="44" height="44">
+    <div class="grow"><b>Install plug.pk</b><span>Full screen and works offline</span></div>
+    <button class="btn btn-sm btn-primary" data-a="installApp">Install</button>
+    <button class="icon-btn sm" data-a="dismissInstall" aria-label="Not now">${ic('x', 16)}</button>
+  </div>`
+}
+
+Object.assign(A, {
+  installApp: async () => {
+    if (U.installEvt) {
+      const evt = U.installEvt
+      U.installEvt = null
+      evt.prompt()
+      await evt.userChoice.catch(() => null)
+      render()
+    } else if (isIos()) openSheet('installIos')
+  },
+  dismissInstall: () => { S.installDismissed = true; save(); render() },
+})
+
+SHEETS.installIos = () => ({
+  title: 'Add plug.pk to your Home Screen',
+  body: `<ol class="install-steps">
+      <li><span class="n">1</span><span>Tap ${ic('share', 18)} <b>Share</b> in Safari’s toolbar.</span></li>
+      <li><span class="n">2</span><span>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</span></li>
+    </ol>
+    <p class="t13 muted mt-12">plug.pk then opens full screen from its own icon, like any other app.</p>`,
 })

@@ -4,11 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#05241E">
+<!-- Installable app: manifest, home-screen icons, full-screen on iOS -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="plug.pk">
 <title>plug.pk App</title>
 <meta name="description" content="A working prototype of the plug.pk mobile app: chargers, routes, cars and community for EV drivers in Pakistan.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<!-- The real map: MapLibre (same engine as the website), pinned version. If it
+     cannot load, the Stations screen falls back to the drawn map. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -43,6 +55,7 @@
   </div>
 </div>
 <script src="data.js"></script>
+<script src="icons.js"></script>
 <script src="core.js"></script>
 <script src="screens-home.js"></script>
 <script src="screens-map.js"></script>
@@ -73,6 +86,11 @@
   fitDevice()
   window.addEventListener('resize', fitDevice)
   render()
+  // Installable app: offline support and instant launch (sw.js). Skipped where
+  // service workers are unavailable, e.g. a non-secure origin.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}))
+  }
 </script>
 </body>
 </html>

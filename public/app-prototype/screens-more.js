@@ -370,6 +370,7 @@ SCREENS.profile = () => {
       <div class="pad">
         <p class="group-label">Your stuff</p>
         <div class="list">
+          ${canInstall() ? `<button class="list-row" data-a="installApp"><span class="ico">${ic('plusSq', 18)}</span><span class="grow"><b class="t15">Install the app</b><br><span class="t13 muted">Add plug.pk to your home screen</span></span>${ic('chevR', 18)}</button>` : ''}
           ${listRow('car', 'My garage', `${S.garage.length} car${S.garage.length === 1 ? '' : 's'}${myCar() ? ` · ${esc(myCar().model)} is main` : ''}`, 'vehicles')}
           ${listRow('bookmark', 'Saved stations', `${S.saved.length} saved`, 'saved')}
           ${listRow('route', 'Saved routes', `${S.routes.length} saved`, 'savedRoutes')}

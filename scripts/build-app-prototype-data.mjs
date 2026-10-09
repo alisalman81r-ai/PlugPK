@@ -8,12 +8,15 @@
 // Ratings are worked out from the review rows, never the stored rating columns,
 // for the same reason the website does it (see src/lib/sample-listings.ts).
 
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (name) => JSON.parse(readFileSync(join(root, 'data/db-export', `${name}.json`), 'utf8'))
+// A table an older export may not contain yet (e.g. postLike): no rows, not a crash.
+const readOptional = (name) => (existsSync(join(root, 'data/db-export', `${name}.json`)) ? read(name) : [])
+const countBy = (rows, key) => rows.reduce((m, r) => m.set(r[key], (m.get(r[key]) || 0) + 1), new Map())
 const json = (value, fallback) => {
   try {
     return value ? JSON.parse(value) : fallback
@@ -121,7 +124,12 @@ const services = read('eVService')
     verified: s.isVerified === true,
   }))
 
+// Counted from rows, as the website counts them. The stored likeCount and
+// memberCount columns hold seeded figures with nothing behind them, and the
+// app printing "234 members" while the website said 0 was the same club
+// contradicting itself.
 const comments = read('comment')
+const postLikes = countBy(readOptional('postLike'), 'postId')
 const posts = read('communityPost').map((p) => ({
   id: p.id,
   slug: p.slug,
@@ -131,19 +139,23 @@ const posts = read('communityPost').map((p) => ({
   body: p.content,
   category: p.category,
   photos: json(p.photos, []).map(img),
-  likes: p.likeCount,
+  likes: postLikes.get(p.id) || 0,
   date: p.createdAt,
   comments: comments
     .filter((c) => c.postId === p.id)
-    .map((c) => ({ id: c.id, name: c.userName, text: c.content, likes: c.likeCount, date: c.createdAt })),
+    // Comment likes are not stored anywhere (the website dropped them), so none are shown.
+    .map((c) => ({ id: c.id, name: c.userName, text: c.content, likes: 0, date: c.createdAt })),
 }))
 
+// Free joins (ClubMember) plus any active paid membership — the website's definition.
+const clubMembers = countBy(read('clubMember'), 'clubId')
+const paidMembers = countBy(read('membership').filter((m) => m.scope === 'club' && m.status === 'active'), 'scopeId')
 const clubs = read('club').map((c) => ({
   id: c.id,
   name: c.name,
   city: c.city,
   description: c.description,
-  members: c.memberCount,
+  members: (clubMembers.get(c.id) || 0) + (paidMembers.get(c.id) || 0),
 }))
 
 const data = { stations, cars, services, posts, clubs, builtAt: new Date().toISOString().slice(0, 10) }

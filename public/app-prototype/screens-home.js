@@ -95,8 +95,11 @@ const OB_REEL_MS = 1600
 let obReelRun = 0
 function obCarReel() {
   const run = ++obReelRun
-  const first = carBySlug('byd-seal')
-  const cars = [first, ...D.cars.filter((c) => c !== first && c.image)]
+  // Most expensive first, down to the cheapest. A car's place is the top of its
+  // price range; cars with no published price come last.
+  const top = (c) => c.priceMax ?? c.priceMin ?? -1
+  const low = (c) => c.priceMin ?? c.priceMax ?? -1
+  const cars = D.cars.filter((c) => c.image).sort((a, b) => top(b) - top(a) || low(b) - low(a))
   let i = 0
   const show = (c) => {
     if (run !== obReelRun || !$('#obc-img')) return false
@@ -200,7 +203,8 @@ function pickCarScreen() {
   const popBrands = [...new Set(POPULAR_SLUGS.map((x) => carBySlug(x).brand))]
   const brandRank = (b) => (popBrands.includes(b) ? popBrands.indexOf(b) - 100 : -plugIns.filter((c) => c.brand === b).length)
   const brands = [...new Set(plugIns.map((c) => c.brand))].sort((a, b) => brandRank(a) - brandRank(b))
-  const sel = carBySlug(U.pick ?? S.primary)
+  // Only this session's pick: onboarding never shows a car as chosen before one is tapped.
+  const sel = carBySlug(U.pick)
   const label = q ? `${list.length} match${list.length === 1 ? '' : 'es'} for “${esc(U.pickQ.trim())}”` : brand ? `${list.length} ${esc(brand)} plug-in${list.length === 1 ? '' : 's'}` : U.pickAll ? `All ${list.length} plug-in cars` : 'Popular in Pakistan'
   return {
     sb: 'light',
@@ -288,7 +292,7 @@ Object.assign(A, {
   pickClear: () => { U.pickQ = ''; U.pickBrand = null; render() },
   pickBack: () => { U.onbStep = SLIDES.length; render() },
   finishOnb: (v) => {
-    const pick = U.pick ?? S.primary
+    const pick = U.pick
     if (v !== 'none' && pick) { S.primary = pick; if (!S.garage.includes(pick)) S.garage = [pick, ...S.garage] }
     if (v === 'none') { S.primary = null; S.garage = [] }
     S.onboarded = true
@@ -309,8 +313,6 @@ function greeting() {
 
 function stationMini(s) {
   const r = stRating(s), n = stReviews(s).length, kw = stMax(s), t = tier(kw), h = hoursNow(s.hours)
-  const car = myCar()
-  const fit = car && carConns(car).length ? stTypes(s).some((x) => fits(car, x)) : null
   return `<button class="card st2 press" data-a="go" data-v="station" data-id="${s.id}" aria-label="${esc(s.name)}, ${fmtKw(kw)} kW, ${fmtDist(stDist(s))} away">
     <div class="st2-ph">
       <img src="${img(s.photos[0])}" alt="" loading="lazy">
@@ -325,7 +327,7 @@ function stationMini(s) {
         <div>${ic('plug', 16)}<span>${stTypes(s).map((x) => CONN[x].label).join(' · ')}</span><span class="faint mono">${stPorts(s)} ports</span></div>
         <div>${ic('clock', 16)}<span class="${h.open ? 'ok' : ''}">${h.text}</span></div>
       </div>
-      ${fit === true ? `<div class="st2-fit">${ic('check', 14, { sw: 2.6 })}Fits your ${esc(car.model)}</div>` : fit === false ? `<div class="st2-fit no">${ic('info', 14)}No plug for your ${esc(car.model)}</div>` : ''}
+      ${reachChip(s) ? `<div class="st2-reach">${reachChip(s)}</div>` : ''}
     </div>
   </button>`
 }
@@ -362,7 +364,6 @@ SCREENS.home = () => {
         <div class="home-top">
           <button class="city-btn" data-a="sheet" data-v="city" aria-label="Change city">${ic('pin', 16)}${city}${ic('chevD', 14)}</button>
           <span class="grow"></span>
-          <button class="icon-btn" data-a="flipTheme" aria-label="Switch to ${isDark() ? 'light' : 'dark'} mode">${ic(isDark() ? 'sun' : 'moon', 20)}</button>
           <button class="icon-btn" data-a="go" data-v="notifications" aria-label="Notifications">${ic('bell', 20)}${S.seenNotif ? '' : '<span class="dot-badge"></span>'}</button>
           <button class="avatar" data-a="go" data-v="profile" aria-label="Your profile">${S.user ? initial(S.user.name) : ic('user', 20)}</button>
         </div>
@@ -391,6 +392,7 @@ SCREENS.home = () => {
       </div>
 
       <div class="pad" style="margin-top:44px">
+        ${installCard()}
         <nav class="quick" aria-label="Shortcuts">
           <button class="qa" data-a="tab" data-v="map">${ic('station', 28, { sw: 1.6 })}<span>Chargers</span></button>
           <button class="qa" data-a="tab" data-v="routes">${ic('trip', 28, { sw: 1.6 })}<span>Trip planner</span></button>
@@ -456,14 +458,42 @@ Object.assign(A, {
   },
 })
 
-SHEETS.city = () => ({
-  title: 'Choose your city',
-  body: `<p class="t14 muted" style="margin-bottom:12px">We list chargers in these cities so far. More arrive as operators join.</p>
-    <div class="list">${CITIES_WITH_STATIONS.map((c) => {
-      const n = D.stations.filter((s) => s.city === c).length
-      return `<button class="list-row" data-a="city" data-v="${c}"><span class="ico">${ic('pin', 18)}</span><span class="grow"><b>${c}</b><br><span class="t13 muted">${n} charger${n === 1 ? '' : 's'} listed</span></span>${S.city === c ? `<span class="accent-text">${ic('check', 20, { sw: 2.4 })}</span>` : ''}</button>`
-    }).join('')}</div>`,
-})
+SHEETS.city = () => {
+  // Cities with chargers first, with their counts; then every other city A–Z.
+  const row = (c) => {
+    const n = D.stations.filter((s) => s.city === c).length
+    const on = S.city === c
+    return `<button class="list-row" data-a="city" data-v="${esc(c)}" data-city="${esc(c.toLowerCase())}"${on ? ' aria-current="true"' : ''}><span class="ico">${ic('pin', 18)}</span><span class="grow"><b>${esc(c)}</b><br><span class="t13 muted">${n ? `${n} charger${n === 1 ? '' : 's'} listed` : 'No chargers listed yet'}</span></span>${on ? ic('check', 20) : ''}</button>`
+  }
+  const rest = ALL_CITIES.map(([c]) => c).filter((c) => !CITIES_WITH_STATIONS.includes(c))
+  return {
+    title: 'Choose your city',
+    full: true,
+    body: `<button class="list-row use-loc" data-a="useMyLocation" style="margin-bottom:12px"><span class="ico">${ic('locate', 18)}</span><span class="grow"><b>Use my current location</b><br><span class="t13 muted">${U.gps ? 'On · distances are from where you are' : 'Nearest city and real distances to chargers'}</span></span>${U.gps ? ic('check', 20) : ic('chevR', 18)}</button>
+      <div class="field" style="margin-bottom:14px"><span class="lead">${ic('search', 18)}</span><input class="input" id="city-q" data-in="cityQ" placeholder="Search ${ALL_CITIES.length} cities" autocomplete="off" aria-label="Search cities"></div>
+      <p class="group-label" data-city-group>With chargers</p>
+      <div class="list">${CITIES_WITH_STATIONS.map(row).join('')}</div>
+      <p class="group-label" data-city-group style="margin-top:18px">All cities</p>
+      <div class="list">${rest.map(row).join('')}</div>
+      <p class="t14 muted" id="city-none" hidden style="padding:16px 4px">No city matches that. Try another spelling.</p>`,
+  }
+}
+// Filters the rows in place rather than re-rendering the sheet, so the search
+// box keeps focus and the cursor while you type.
+A.useMyLocation = () => requestGps()
+
+IN.cityQ = (v) => {
+  const q = v.trim().toLowerCase()
+  let shown = 0
+  document.querySelectorAll('#sheet [data-city]').forEach((el) => {
+    const hit = !q || el.dataset.city.includes(q)
+    el.style.display = hit ? '' : 'none'
+    if (hit) shown += 1
+  })
+  document.querySelectorAll('#sheet [data-city-group]').forEach((el) => { el.style.display = q ? 'none' : '' })
+  const none = document.getElementById('city-none')
+  if (none) none.hidden = shown > 0
+}
 
 // ─── Search ────────────────────────────────────────────────────────
 SCREENS.search = () => {
