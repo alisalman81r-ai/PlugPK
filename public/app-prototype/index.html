@@ -17,10 +17,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
-<!-- The real map: MapLibre (same engine as the website), pinned version. If it
-     cannot load, the Stations screen falls back to the drawn map. -->
+<!-- The real map: MapLibre (same engine as the website), pinned version. The
+     library (~800 KB) is NOT loaded here: it would hold up the whole app for a
+     screen most launches never open. screens-map.js loads it in the background
+     once the app is up (warmMap), and the connections are opened early below. -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
-<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
@@ -86,10 +89,20 @@
   fitDevice()
   window.addEventListener('resize', fitDevice)
   render()
+  // Fetch the map library and style while the user is on Home, so Stations
+  // opens without waiting for them.
+  window.addEventListener('load', () => (window.requestIdleCallback || ((cb) => setTimeout(cb, 600)))(() => warmMap()))
   // Installable app: offline support and instant launch (sw.js). Skipped where
   // service workers are unavailable, e.g. a non-secure origin.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}))
+    // A new version took over: reload once so every file is from that version,
+    // rather than a new script running against an older stylesheet.
+    const hadController = Boolean(navigator.serviceWorker.controller)
+    let reloaded = false
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hadController && !reloaded) { reloaded = true; window.location.reload() }
+    })
   }
 </script>
 </body>

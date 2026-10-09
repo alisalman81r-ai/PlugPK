@@ -279,14 +279,18 @@ function reachInfo(s, car = myCar()) {
   const pct = range > 0 && km != null ? Math.max(1, Math.ceil((km / (range * 0.85)) * 100)) : null
   return { pct, plug, model: car.model }
 }
-function reachChip(s) {
+// One line on the cards ("Fits your car · ~2% battery"); the station page, which
+// has the room, names the car (`full`). The full sentence is the tooltip either way.
+function reachChip(s, { full = false } = {}) {
   const r = reachInfo(s)
   if (!r) return ''
-  if (r.plug === false) return `<span class="reach no">${ic('info', 13)}No plug for your ${esc(r.model)}</span>`
+  const car = full ? `your ${esc(r.model)}` : 'your car'
+  if (r.plug === false) return `<span class="reach no" title="None of these plugs fits your ${esc(r.model)}">${ic('info', 13)}No plug for ${car}</span>`
   const far = r.pct != null && r.pct > 100
-  const text = r.pct == null ? '' : far ? 'Beyond one full charge' : `~${r.pct}% battery to reach`
+  const text = r.pct == null ? '' : far ? 'Beyond one full charge' : `~${r.pct}% battery`
   const tone = far ? 'no' : r.pct > 60 ? 'warn' : 'ok'
-  return `<span class="reach ${tone}">${ic(far ? 'info' : 'batteryBolt', 13)}${r.plug ? `Fits your ${esc(r.model)}${text ? ' · ' : ''}` : ''}${text}</span>`
+  const title = `${r.plug ? `Fits your ${esc(r.model)}. ` : ''}${far ? 'Further than one full charge.' : r.pct != null ? `About ${r.pct}% of a full battery to get there.` : ''}`
+  return `<span class="reach ${tone}" title="${title}">${ic(far ? 'info' : r.plug ? 'check' : 'batteryBolt', 13)}${r.plug ? `Fits ${car}${text ? ' · ' : ''}` : ''}${text}</span>`
 }
 const fmtDist = (km) => (km == null ? '' : km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`)
 
@@ -532,6 +536,8 @@ function view() {
 let rendered = null
 function render() {
   applyTheme()
+  // Lets CSS drop costly effects (backdrop blur) while the live map is showing.
+  $("#app").classList.toggle("on-map", cur().s === "map")
   const host = $('#screen')
   const old = host.firstElementChild
   if (old && rendered) {
@@ -612,6 +618,8 @@ function tab(s) {
     if (sc) sc.scrollTo({ top: 0, behavior: 'smooth' })
     return
   }
+  // Opening Stations plays the country-to-city fly-in (screens-map.js).
+  if (s === 'map') U.map.intro = true
   U.stack = [{ s }]
   U.dir = 'fade'
   U.sheet = null

@@ -3,9 +3,11 @@
 // App files (HTML, CSS, JS, data): network first, so a new version shows up on
 // the next launch, with the cached copy as the offline fallback. Photos, fonts
 // and the map library: cache first, they never change under the same address.
-// Map tiles are left alone — caching a city's worth would fill the phone.
+// Map tiles are left alone — caching a city's worth would fill the phone —
+// but the map's style, fonts and sprites are cached.
 
-const CACHE = 'plugpk-app-v1'
+// Bump when the shell list changes; the old cache is deleted on activate.
+const CACHE = 'plugpk-app-v2'
 const SHELL = [
   './index.html', './app.css', './icons.js', './data.js', './core.js',
   './screens-home.js', './screens-map.js', './screens-drive.js', './screens-more.js', './screens-community.js',
@@ -28,7 +30,11 @@ self.addEventListener('activate', (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE)
   try {
-    const response = await fetch(request)
+    // no-cache: always revalidate with the server, so a stylesheet updated
+    // alongside a script can never be served from an older copy.
+    // (A navigation request cannot take options; the page itself is sent with
+    // max-age=0 and revalidated anyway.)
+    const response = await fetch(request.mode === 'navigate' ? request : new Request(request, { cache: 'no-cache' }))
     if (response.ok) cache.put(request, response.clone())
     return response
   } catch {
@@ -53,7 +59,13 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
   const url = new URL(request.url)
-  if (TILE_HOSTS.includes(url.hostname)) return
+  // The map's style, fonts and sprites never change under the same address:
+  // cache them, so reopening Stations does not fetch them again. The tiles
+  // themselves (/planet/…) are left to the browser.
+  if (TILE_HOSTS.includes(url.hostname)) {
+    if (!url.pathname.startsWith('/planet')) event.respondWith(cacheFirst(request))
+    return
+  }
 
   const sameOrigin = url.origin === self.location.origin
   const appFile = sameOrigin && url.pathname.startsWith('/app-prototype/')

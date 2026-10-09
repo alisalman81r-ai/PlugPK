@@ -128,24 +128,29 @@ const cityStations = () => D.stations.filter((s) => s.city === S.city).sort((a, 
 // The speed pill laid over a station photo: tier colour, bolt, figure.
 const tierPill = (kw) => `<span class="tier-pill tier-${tier(kw)}">${ic('bolt', 12, { fill: true })}<b class="mono">${fmtKw(kw)}</b><small>kW · ${TIER[tier(kw)].label}</small></span>`
 
-/** The card in the map's bottom carousel: photo header, then the facts, then the two actions. */
+/**
+ * The card in the map's bottom carousel. Compact on purpose — a thumbnail
+ * beside four short lines — so the map stays the main thing on screen; the
+ * full photo, plugs and amenities are one tap away on the station page.
+ */
 function mapCard(s) {
   const r = stRating(s)
   const sel = U.map.sel === s.id
-  return `<div class="map-card v2 ${sel ? 'sel' : ''}" data-id="${s.id}">
-    <button class="mc-media" data-a="go" data-v="station" data-id="${s.id}" aria-label="Open ${esc(s.name)}">
+  const kw = stMax(s)
+  const plugs = stTypes(s).map((t) => CONN[t]?.label || t).join(', ')
+  return `<div class="map-card v3 ${sel ? 'sel' : ''}" data-id="${s.id}">
+    <button class="mc3-thumb" data-a="go" data-v="station" data-id="${s.id}" aria-label="Open ${esc(s.name)}">
       <img src="${img(s.photos[0])}" alt="" loading="lazy">
-      ${tierPill(stMax(s))}
-      <span class="mc-dist mono">${ic('nav', 12)}${fmtDist(stDist(s))}</span>
+      <span class="mc3-tag">Example</span>
+      <span class="mc3-kw tier-${tier(kw)}">${ic('bolt', 11, { fill: true })}<b class="mono">${fmtKw(kw)}</b>kW</span>
     </button>
-    <div class="mc-body">
-      <div class="mc-head"><b class="trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 13, { fill: true })}${r.toFixed(1)}</span>` : ''}</div>
-      <div class="mc-meta trunc">${esc(s.area)} · <span class="mono">${stPorts(s)}</span> ports installed</div>
+    <div class="mc3-body">
+      <div class="mc-head"><b class="trunc">${esc(s.name)}</b>${r ? `<span class="rating">${ic('star', 12, { fill: true })}${r.toFixed(1)}</span>` : ''}</div>
+      <div class="mc-meta trunc"><span class="mono">${fmtDist(stDist(s))}</span> · ${esc(s.area)} · ${esc(plugs)}</div>
       ${reachChip(s)}
-      <div class="mc-plugs">${exampleBadge()}${connBadges(stTypes(s), 2)}</div>
-      <div class="mc-acts">
+      <div class="mc3-acts">
         <button class="btn btn-sm btn-secondary grow" data-a="go" data-v="station" data-id="${s.id}">Details</button>
-        <a class="btn btn-sm btn-primary grow" href="${navUrl(s)}" target="_blank" rel="noopener">${ic('nav', 15)}Navigate</a>
+        <a class="btn btn-sm btn-primary grow" href="${navUrl(s)}" target="_blank" rel="noopener">${ic('nav', 14)}Navigate</a>
       </div>
     </div>
   </div>`
@@ -210,8 +215,9 @@ SCREENS.map = () => {
   const me = project(S.city, ...myPos())
   // The real map (MapLibre) is attached in mapAfter; the drawn map below is
   // only rendered when the map library could not load, e.g. offline.
-  const world = hasLibre()
-    ? ''
+  // The real map unless its library failed to load; then the drawn map.
+  const world = !LIBRE.failed
+    ? (hasLibre() ? '' : `<div class="map-loading" role="status">${ic('map', 22)}<span>Loading map…</span></div>`)
     : `<div class="map-world" id="map-world">
           ${mapSvg(S.city)}
           <div data-part="pins">${all.map((s) => {
@@ -225,7 +231,7 @@ SCREENS.map = () => {
         </div>`
   return {
     sb: 'dark', tabs: true,
-    html: `<div class="map-wrap ${hasLibre() ? 'libre-on' : ''}" id="map-wrap">${world}</div>
+    html: `<div class="map-wrap ${!LIBRE.failed ? 'libre-on' : ''}" id="map-wrap">${world}</div>
       <div class="map-top">
         <div class="map-search"><button class="grow row" style="gap:10px;min-height:48px;text-align:left" data-a="go" data-v="search">${ic('search', 20)}<span class="grow faint">Search stations or areas</span></button>${cityBtn}</div>
         ${chips}
@@ -283,8 +289,41 @@ const MAP_STYLES = {
 }
 const LM = { map: null, el: null, style: null, markers: new Map(), me: null }
 const hasLibre = () => typeof window.maplibregl !== 'undefined'
+
+// The library is fetched on demand rather than in <head>: 800 KB that held up
+// every launch for a screen many launches never open.
+const LIBRE_JS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js'
+const LIBRE = { promise: null, failed: false }
+function loadLibre() {
+  if (hasLibre()) return Promise.resolve()
+  if (!LIBRE.promise) {
+    LIBRE.promise = new Promise((resolve, reject) => {
+      const tag = document.createElement('script')
+      tag.src = LIBRE_JS
+      tag.async = true
+      tag.onload = () => resolve()
+      tag.onerror = () => { LIBRE.failed = true; LIBRE.promise = null; reject(new Error('map library unavailable')) }
+      document.head.appendChild(tag)
+    })
+  }
+  return LIBRE.promise
+}
+// Called once the app is idle (index.html): library plus the style for the
+// current theme, so opening Stations finds both already downloaded.
+function warmMap() {
+  loadLibre().catch(() => {})
+  fetch(MAP_STYLES[isDark() ? 'dark' : 'light']).catch(() => {})
+}
 // Room the map keeps clear for the search bar above and the cards below,
 // measured from the screen so a taller card or the tab bar never hides a pin.
+// Centres a point in the clear area between the chips and the cards. An
+// offset rather than a camera `padding`: MapLibre keeps a padding on the map
+// after the move, and every later fit then counts it twice — a city no longer
+// "fits", the fit comes back empty and the map stays where it was.
+function clearOffset() {
+  const pad = mapPadding()
+  return [(pad.left - pad.right) / 2, (pad.top - pad.bottom) / 2]
+}
 function mapPadding() {
   const wrap = $('#map-wrap')?.getBoundingClientRect()
   const top = $('.map-top')?.getBoundingClientRect()
@@ -332,12 +371,18 @@ function ensureLibreMap(wrap) {
     LM.el = document.createElement('div')
     LM.el.className = 'libre'
     wrap.appendChild(LM.el)
-    const [lat, lng] = myPos()
     LM.map = new maplibregl.Map({
       container: LM.el,
       style: MAP_STYLES[key],
-      center: [lng, lat],
-      zoom: 12,
+      // Born on the country view, where the opening fly-in starts.
+      bounds: PAKISTAN,
+      // Smoothness: a 3x phone screen drawn at 2x is 2.25x fewer pixels per
+      // frame and looks the same on a map; no repeated worlds either side; a
+      // short label fade.
+      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      renderWorldCopies: false,
+      fadeDuration: 150,
+      maxPitch: 60,
       attributionControl: false,
       dragRotate: false,
       pitchWithRotate: false,
@@ -346,12 +391,24 @@ function ensureLibreMap(wrap) {
     LM.map.touchZoomRotate.disableRotation()
     LM.map.addControl(new maplibregl.AttributionControl({ compact: true }), 'top-left')
     // Re-applied after every style load, including a light/dark switch.
-    LM.map.on('style.load', () => englishLabels(LM.map))
+    LM.map.on('style.load', () => { englishLabels(LM.map); brandMap(LM.map) })
+    LM.map.on('moveend', updateClusters)
+    // A tap on the map itself — not on a pin or a group — deselects. MapLibre
+    // only reports a click when the pointer did not drag, so panning keeps the
+    // selection.
+    LM.map.on('click', (e) => {
+      if (e.originalEvent?.target?.closest?.('.mk, .cluster, .me-dot')) return
+      deselectStation()
+    })
+    LM.map.on('zoom', () => LM.spot?.getElement().classList.toggle('on', LM.map.getZoom() < 9))
     LM.map.once('load', () => {
       // Collapsed to its (i) button: the credit stays one tap away without
       // covering the map. MapLibre opens it on first load otherwise.
       LM.el.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show')
-      if (U.map.fitted !== S.city || !U.map.fitLoaded) { U.map.fitLoaded = true; fitLibre() }
+      LM.loaded = true
+      // First time the map exists: always open with the country fly-in.
+      U.map.intro = true
+      arrive()
     })
     LM.style = key
   } else {
@@ -394,27 +451,151 @@ function syncMarkers() {
   }
 }
 
+// The city's camera: its stations and you, framed inside the clear area.
+function cityCamera() {
+  const [lat, lng] = myPos()
+  const pts = [[lng, lat], ...cityStations().map((s) => [s.lng, s.lat])]
+  if (pts.length === 1) return { center: pts[0], zoom: 11.5, pitch: 0, bearing: 0 }
+  const bounds = pts.reduce((b, p) => b.extend(p), new maplibregl.LngLatBounds(pts[0], pts[0]))
+  // Worked out flat: the tilted street view after a station can frame less.
+  const cam = LM.map.cameraForBounds(bounds, { padding: mapPadding(), maxZoom: 14.5, pitch: 0, bearing: 0 }) ||
+    { center: bounds.getCenter(), zoom: 11.5 }
+  return { ...cam, pitch: 0, bearing: 0 }
+}
+
 function fitLibre(animate = false) {
   // The map's own size must be current before it can fit anything into it.
   LM.map.resize()
-  const [lat, lng] = myPos()
-  const pts = [[lng, lat], ...cityStations().map((s) => [s.lng, s.lat])]
-  if (pts.length === 1) {
-    LM.map.jumpTo({ center: pts[0], zoom: 11.5 })
-  } else {
-    const bounds = pts.reduce((b, p) => b.extend(p), new maplibregl.LngLatBounds(pts[0], pts[0]))
-    LM.map.fitBounds(bounds, { padding: mapPadding(), maxZoom: 14.5, duration: animate ? 600 : 0 })
-  }
+  LM.map.setPadding({ top: 0, bottom: 0, left: 0, right: 0 })
+  const cam = cityCamera()
+  if (animate) LM.map.flyTo({ ...cam, duration: 1250, curve: 1.25, essential: true })
+  else LM.map.jumpTo(cam)
   U.map.fitted = S.city
 }
 
+// ─── Opening the map: all of Pakistan, then down into the city ─────────
+const PAKISTAN = [[60.8, 23.6], [77.9, 37.1]]
+function introFly() {
+  LM.map.resize()
+  const country = LM.map.cameraForBounds(PAKISTAN, { padding: mapPadding() })
+  LM.map.jumpTo({ ...country, pitch: 0, bearing: 0 })
+  updateSpotlight()
+  updateClusters()
+  // Fly down once the country has drawn (or after 0.8 s on a slow network),
+  // so the first thing seen is Pakistan, not an empty map.
+  clearTimeout(LM.introTimer)
+  let flown = false
+  const go = () => { if (flown) return; flown = true; clearTimeout(LM.introTimer); fitLibre(true) }
+  LM.map.once('idle', () => setTimeout(go, 150))
+  LM.introTimer = setTimeout(go, 800)
+  U.map.fitted = S.city
+}
+// What the map does on arriving: the fly-in when Stations was just opened, a
+// flight to the new city after a city change, otherwise stay where it is.
+function arrive() {
+  if (U.map.intro) { U.map.intro = false; return introFly() }
+  if (U.map.fitted !== S.city) fitLibre(true)
+}
+
+// ─── Brand palette and 3D buildings ───────────────────────────────────
+const PALETTE = {
+  light: { bg: '#F2F6F4', water: '#BFE4E0', park: '#D6F0E2', wood: '#CDEBDA', residential: '#EAF0ED', building: '#E2E9E6', b3d: '#D9E3DF' },
+  dark: { bg: '#07110F', water: '#0B2C2E', park: '#0F2A20', wood: '#0E261D', residential: '#0B1815', building: '#12221F', b3d: '#1B3631' },
+}
+function brandMap(map) {
+  const c = PALETTE[LM.style === 'dark' ? 'dark' : 'light']
+  const paint = (id, prop, value) => { if (map.getLayer(id)) map.setPaintProperty(id, prop, value) }
+  paint('background', 'background-color', c.bg)
+  paint('water', 'fill-color', c.water)
+  for (const id of ['park', 'landuse_park']) paint(id, 'fill-color', c.park)
+  paint('landcover_wood', 'fill-color', c.wood)
+  paint('landuse_residential', 'fill-color', c.residential)
+  paint('building', 'fill-color', c.building)
+  // Buildings rise from street level: drawn from zoom 15, full height by 16.
+  if (!map.getLayer('plug-3d') && map.getSource('openmaptiles')) {
+    const firstLabel = (map.getStyle().layers || []).find((l) => l.type === 'symbol')?.id
+    map.addLayer({
+      id: 'plug-3d',
+      type: 'fill-extrusion',
+      source: 'openmaptiles',
+      'source-layer': 'building',
+      minzoom: 15,
+      paint: {
+        'fill-extrusion-color': c.b3d,
+        'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 16, ['coalesce', ['get', 'render_height'], 8]],
+        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+        'fill-extrusion-opacity': 0.82,
+      },
+    }, firstLabel)
+  }
+}
+
+// ─── City spotlight on the country view ───────────────────────────────
+function updateSpotlight() {
+  if (!LM.map) return
+  const row = ALL_CITIES.find(([n]) => n === S.city)
+  const [lat, lng] = row ? [row[1], row[2]] : CITY[S.city].me
+  if (!LM.spot) {
+    const el = document.createElement('div')
+    el.className = 'city-spot'
+    LM.spot = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]).addTo(LM.map)
+  }
+  const el = LM.spot.getElement()
+  // Faded on an inner element: MapLibre sets an inline opacity on the marker
+  // root itself, which would override a class-based fade there.
+  el.innerHTML = `<span class="spot-in"><span class="ring"></span><span class="ring r2"></span><span class="dot"></span><span class="lbl">${esc(S.city)}</span></span>`
+  LM.spot.setLngLat([lng, lat])
+  // Only on the wide views; in the city the pins and the blue dot take over.
+  el.classList.toggle('on', LM.map.getZoom() < 9)
+}
+
+// ─── Pin grouping ─────────────────────────────────────────────────────
+// Pins closer than this on screen merge into one bubble with a count.
+const CLUSTER_PX = 54
+function updateClusters() {
+  if (!LM.map) return
+  for (const c of LM.clusters || []) c.remove()
+  LM.clusters = []
+  const items = [...LM.markers.entries()].map(([id, mk]) => ({ id, mk, p: LM.map.project(mk.getLngLat()) }))
+  const used = new Set()
+  for (const a of items) {
+    if (used.has(a.id)) continue
+    const group = items.filter((b) => !used.has(b.id) && Math.hypot(a.p.x - b.p.x, a.p.y - b.p.y) < CLUSTER_PX)
+    group.forEach((g) => used.add(g.id))
+    if (group.length === 1) { a.mk.getElement().style.display = ''; continue }
+    group.forEach((g) => (g.mk.getElement().style.display = 'none'))
+    const lngLats = group.map((g) => g.mk.getLngLat())
+    const center = [lngLats.reduce((s, l) => s + l.lng, 0) / lngLats.length, lngLats.reduce((s, l) => s + l.lat, 0) / lngLats.length]
+    const el = document.createElement('button')
+    el.className = 'cluster'
+    el.setAttribute('aria-label', `${group.length} stations here, zoom in`)
+    el.innerHTML = `<span class="cl-in">${ic('bolt', 13, { fill: true })}<b>${group.length}</b><small>stations</small></span>`
+    el.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const b = lngLats.reduce((bb, l) => bb.extend(l), new maplibregl.LngLatBounds(lngLats[0], lngLats[0]))
+      LM.map.fitBounds(b, { padding: mapPadding(), maxZoom: 16, duration: 900 })
+    })
+    LM.clusters.push(new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat(center).addTo(LM.map))
+  }
+}
+
+function libreAfter() {
+  $('#map-wrap .map-loading')?.remove()
+  ensureLibreMap($('#map-wrap'))
+  syncMarkers()
+  updateSpotlight()
+  // After layout, so the measured padding is right. Before the style has
+  // loaded, the 'load' handler in ensureLibreMap arrives instead.
+  if (LM.loaded) requestAnimationFrame(() => requestAnimationFrame(() => { arrive(); updateClusters() }))
+}
+
 function mapAfter() {
-  if (hasLibre()) {
-    ensureLibreMap($('#map-wrap'))
-    syncMarkers()
-    // After layout, so the measured padding is right. A first load also fits
-    // again once the style is ready (see ensureLibreMap).
-    if (U.map.fitted !== S.city) requestAnimationFrame(() => requestAnimationFrame(() => fitLibre()))
+  if (!LIBRE.failed) {
+    if (hasLibre()) libreAfter()
+    // Still downloading (opened very soon after launch): show the placeholder,
+    // then attach the map if Stations is still the screen. If it cannot load
+    // at all, re-render with the drawn map.
+    else loadLibre().then(() => { if ($('#map-wrap')) libreAfter() }).catch(() => render())
     return wireCards()
   }
   if (U.map.fitted !== S.city) fitCity()
@@ -458,6 +639,8 @@ function mapAfter() {
     if (!ptrs.size) {
       wrap.classList.remove('dragging')
       U.map.dragged = start?.moved
+      // A tap (no drag) on empty map deselects, as on the real map.
+      if (start && !start.moved && !e.target.closest?.(".pin")) deselectStation()
       setTimeout(() => (U.map.dragged = false), 50)
       start = null
     }
@@ -510,12 +693,30 @@ function selectStation(id, scroll = true) {
   document.querySelectorAll('#map-cards .map-card').forEach((c) => c.classList.toggle('sel', c.dataset.id === id))
   if (hasLibre() && LM.map) {
     syncMarkers()
-    LM.map.easeTo({ center: [s.lng, s.lat], zoom: Math.max(LM.map.getZoom(), 14), padding: mapPadding(), duration: 550 })
+    // Street level with a tilt, so the 3D buildings around the station show.
+    LM.map.easeTo({ center: [s.lng, s.lat], zoom: Math.max(LM.map.getZoom(), 15.6), pitch: 48, offset: clearOffset(), duration: 900 })
   } else {
     renderPart('pins')
     centreOn(project(s.city, s.lat, s.lng), Math.max(U.map.z, 0.8))
   }
   if (scroll) scrollToCard(id)
+}
+
+/**
+ * Clears the selection: the pin drops its name and highlight, the card its
+ * outline, and the map eases back from the tilted 3D view to flat. Zoom and
+ * position stay where they are — the tap was a "never mind", not a reset.
+ */
+function deselectStation() {
+  if (!U.map.sel) return
+  U.map.sel = null
+  document.querySelectorAll('#map-cards .map-card.sel').forEach((c) => c.classList.remove('sel'))
+  if (hasLibre() && LM.map) {
+    syncMarkers()
+    if (LM.map.getPitch() > 0) LM.map.easeTo({ pitch: 0, duration: 500 })
+  } else {
+    renderPart('pins')
+  }
 }
 
 Object.assign(A, {
@@ -534,7 +735,7 @@ Object.assign(A, {
   locate: () => {
     const fly = () => {
       const [lat, lng] = myPos()
-      if (hasLibre() && LM.map) LM.map.flyTo({ center: [lng, lat], zoom: 14, padding: mapPadding(), duration: 800 })
+      if (hasLibre() && LM.map) LM.map.flyTo({ center: [lng, lat], zoom: 15.6, pitch: 48, offset: clearOffset(), duration: 1100 })
       else centreOn(project(S.city, lat, lng), 1)
     }
     if (U.gps) fly()
@@ -596,7 +797,7 @@ SCREENS.station = ({ id }) => {
         <h1 class="detail-title mt-12">${esc(s.name)}</h1>
         <p class="t14 muted mt-4">${esc(s.street)}, ${esc(s.area)}, ${esc(s.city)}</p>
         <div class="row mt-8" style="gap:8px">${r ? `${stars(r, 16)}<b class="t14">${r.toFixed(1)}</b><span class="t13 faint">(${reviews.length} review${reviews.length === 1 ? '' : 's'})</span>` : '<span class="t13 muted">No reviews yet</span>'}<span class="grow"></span><span class="mono t13 muted">${fmtDist(stDist(s))}</span></div>
-        ${reachChip(s) ? `<div class="mt-12">${reachChip(s)}</div>` : ''}
+        ${reachChip(s) ? `<div class="mt-12">${reachChip(s, { full: true })}</div>` : ''}
 
         <div class="tiles mt-20">
           <div class="tile"><div class="k">Max power</div><div class="v">${fmtKw(stMax(s))}<small>kW</small></div></div>
