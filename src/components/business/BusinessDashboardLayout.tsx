@@ -17,6 +17,7 @@ import {
 } from './BusinessDashboardSidebar'
 import { listingHref } from './listing-state'
 import { Logo } from '@/components/ui/Logo'
+import { ThemeMenu } from '@/components/layout/ThemeSwitcher'
 
 export interface BusinessDashboardLayoutProps {
   children: React.ReactNode
@@ -60,15 +61,18 @@ export function BusinessDashboardLayout({
           </span>
         </Link>
 
-        {listingSlug ? (
-          <Link
-            href={`/station/${listingSlug}`}
-            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
-          >
-            View Listing
-            <ExternalLink size={14} aria-hidden="true" />
-          </Link>
-        ) : null}
+        <div className="flex items-center gap-3">
+          {listingSlug ? (
+            <Link
+              href={`/station/${listingSlug}`}
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+            >
+              View Listing
+              <ExternalLink size={14} aria-hidden="true" />
+            </Link>
+          ) : null}
+          <ThemeMenu tone="onSurface" />
+        </div>
       </header>
 
       <div className="flex">

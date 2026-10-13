@@ -152,7 +152,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
           )}
 
           {busy ? (
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-slate-900/55 text-ui-sm font-semibold text-white">
+            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-plug-navy-900/55 text-ui-sm font-semibold text-white">
               <Loader2 size={16} className="animate-spin" aria-hidden="true" />
               {status.label}
             </div>

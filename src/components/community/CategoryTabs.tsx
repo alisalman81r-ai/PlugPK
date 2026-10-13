@@ -244,7 +244,7 @@ function Tab({
         'flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-ui-sm font-semibold transition-all duration-150',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
         selected
-          ? cn('border-transparent shadow-e1', activeClass ?? 'bg-plug-navy-900 text-white')
+          ? cn('border-transparent shadow-e1', activeClass ?? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]')
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900',
       )}
     >

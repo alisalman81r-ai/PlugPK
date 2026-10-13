@@ -1,5 +1,8 @@
 // tailwind.config.ts
 import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
+
+import { ISLANDS, bandColors, scaleColors, surface, themeVars } from './tailwind.tokens'
 
 /*
   ── The palette ─────────────────────────────────────────────────────────
@@ -41,58 +44,23 @@ import type { Config } from 'tailwindcss'
   of the same grey at 5.4:1 on white and 4.6:1 on Mist.
 */
 
-/* Green-tinted neutrals. The dark end runs into the brand greens on purpose:
-   body type is forest, not black, which is most of what makes the palette read
-   as a brand rather than a grey theme. */
-const neutral = {
-  0: '#FFFFFF',
-  25: '#FAFBFA',
-  50: '#F1F4F3',
-  100: '#E9EEEC',
-  200: '#DCE3E0',
-  300: '#BAC2C0',
-  400: '#989FA1',
-  450: '#727C7A',
-  500: '#626D6B',
-  600: '#4A5A57',
-  700: '#345A53',
-  800: '#1A3F38',
-  900: '#0B332C',
-  950: '#05241E',
-}
+/* The scales themselves — light values above, dark values beside them — live
+   in tailwind.tokens.ts as CSS custom properties, which is what lets the site
+   change theme without a `dark:` variant on every class. See the note there. */
+const neutral = scaleColors('neutral')
+const brand = scaleColors('brand')
+const accent = scaleColors('accent')
 
-/* The action scale. 600 is the primary button and link colour — forest, as
-   the reference does it — and 700 its pressed state. 500 is turquoise, which
-   is where the focus ring and every accent border land. The pale steps are
-   mint, for selected rows and tinted chips. */
-const brand = {
-  50: '#EDFCF8',
-  100: '#C4F8EC',
-  200: '#A3EBDB',
-  300: '#6FDCC6',
-  400: '#3FD4BC',
-  500: '#26CDB2',
-  600: '#0B332C',
-  700: '#05241E',
-  800: '#041C17',
-  900: '#03140F',
-  950: '#020D0B',
-}
+/* As type, some steps read differently in the dark theme: a forest link has to
+   turn bright, where a forest button only lifts off the page. */
+const neutralText = scaleColors('neutral', true)
+const brandText = scaleColors('brand', true)
+const accentText = scaleColors('accent', true)
 
-/* The accent scale, turquoise at 500. 600 and 700 are deeper cuts for the few
-   places an accent has to be read as text on white: 700 is 5.2:1. */
-const accent = {
-  50: '#EDFCF8',
-  100: '#D8FBF2',
-  200: '#C4F8EC',
-  300: '#8EEEDA',
-  400: '#4FDCC4',
-  500: '#26CDB2',
-  600: '#159E89',
-  700: '#0F7A6A',
-  800: '#345A53',
-  900: '#0B332C',
-}
+/* Tailwind's own hues, which carry status, made theme-aware the same way. */
+const STATUS = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
+const status = Object.fromEntries(STATUS.map((name) => [name, scaleColors(name)]))
+const statusText = Object.fromEntries(STATUS.map((name) => [name, scaleColors(name, true)]))
 
 const config: Config = {
   content: [
@@ -118,25 +86,40 @@ const config: Config = {
         teal: accent,
         /* Dark grounds. 900 and 950 are forest and pine; 800 and 700 step up
            to mineral so a hover on a dark band has somewhere to go. White on
-           900 is 13.8:1, on 950 16.4:1. */
-        'plug-navy': {
-          700: '#345A53',
-          800: '#1A3F38',
-          900: '#0B332C',
-          950: '#05241E',
-        },
+           900 is 13.8:1, on 950 16.4:1. In the dark theme they take the
+           app's band values — see BANDS in tailwind.tokens.ts. */
+        'plug-navy': bandColors,
         /* The light end, for type and rules on the dark grounds. */
         'plug-sky': {
           100: '#C4F8EC',
           300: '#BAC2C0',
           500: '#727C7A',
         },
+        ...status,
         dark: {
           base: '#0D1817',
           elevated: '#05241E',
           card: '#0B332C',
         },
       },
+      /* Type reads the text variants of each scale. `white` is not among them:
+         as type it is the label on dark buttons and bands, white in both themes. */
+      textColor: {
+        slate: neutralText,
+        'plug-slate': neutralText,
+        'plug-blue': brandText,
+        'plug-cyan': accentText,
+        cyan: accentText,
+        sky: accentText,
+        teal: accentText,
+        ...statusText,
+      },
+      /* As a ground, a border or a ring, white is a surface — see surface(). */
+      backgroundColor: { white: surface },
+      borderColor: { white: surface },
+      ringColor: { white: surface },
+      ringOffsetColor: { white: surface },
+      gradientColorStops: { white: surface },
       fontFamily: {
         /*
           Figtree everywhere, with a real fallback stack behind it.
@@ -275,10 +258,10 @@ const config: Config = {
          * Reach for these first; a bracket value should be a deliberate
          * exception, not the default.
          */
-        e1: '0 1px 2px rgba(5,36,30,0.04), 0 2px 8px rgba(5,36,30,0.05)',
-        e2: '0 8px 16px rgba(5,36,30,0.06), 0 16px 32px rgba(5,36,30,0.08)',
-        e3: '0 8px 32px rgba(5,36,30,0.12)',
-        e4: '0 24px 64px rgba(5,36,30,0.20)',
+        e1: 'var(--shadow-e1)',
+        e2: 'var(--shadow-e2)',
+        e3: 'var(--shadow-e3)',
+        e4: 'var(--shadow-e4)',
 
         /** Focus ring used by every text input: a turquoise halo. */
         focus: '0 0 0 3px rgba(38,205,178,0.22)',
@@ -288,20 +271,21 @@ const config: Config = {
         blue: '0 8px 24px rgba(11,51,44,0.22)',
         'blue-lg': '0 16px 40px rgba(11,51,44,0.30)',
         cyan: '0 8px 24px rgba(38,205,178,0.28)',
-        card: '0 4px 6px rgba(5,36,30,0.05), 0 2px 4px rgba(5,36,30,0.04)',
-        'card-hover': '0 20px 25px rgba(5,36,30,0.08), 0 10px 10px rgba(5,36,30,0.04)',
+        card: 'var(--shadow-card)',
+        'card-hover': 'var(--shadow-card-hover)',
         nav: '0 1px 40px rgba(5,36,30,0.08)',
-        modal: '0 25px 50px rgba(5,36,30,0.22)',
+        modal: 'var(--shadow-modal)',
       },
       backgroundImage: {
-        /* Carries white type in buttons and avatars, so both stops stay dark:
-           white on mineral, the lighter end, is 7.7:1. */
-        'gradient-brand': 'linear-gradient(90deg, #0B332C, #345A53)',
+        /* Carries the label in buttons and avatars. Light theme: forest to
+           mineral under white type (7.7:1 at the lighter end). Dark theme: the
+           app's turquoise gradient under pine type (--on-brand), see globals.css. */
+        'gradient-brand': 'var(--gradient-brand)',
         /* For fills with nothing on them — progress bars, rules, stripes —
            where the turquoise end can show. Never put type on this one. */
         'gradient-accent': 'linear-gradient(90deg, #0B332C, #26CDB2)',
-        'gradient-hero': 'linear-gradient(135deg, #0D1817 0%, #05241E 55%, #0B332C 100%)',
-        'gradient-card': 'linear-gradient(180deg, #FFFFFF 0%, #F1F4F3 100%)',
+        'gradient-hero': 'var(--gradient-hero)',
+        'gradient-card': 'linear-gradient(180deg, rgb(var(--c-surface)) 0%, rgb(var(--c-neutral-50)) 100%)',
         'gradient-dark': 'linear-gradient(135deg, #0D1817 0%, #05241E 100%)',
       },
       borderRadius: {
@@ -402,7 +386,17 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    /* The theme's custom properties: light on :root, dark under .dark, and the
+       light set again on grounds that are dark in both themes. */
+    plugin(({ addBase }) => {
+      addBase({
+        ':root': { ...themeVars('light'), colorScheme: 'light' },
+        '.dark': { ...themeVars('dark'), colorScheme: 'dark' },
+        [ISLANDS.map((island) => `.dark ${island}`).join(', ')]: themeVars('light', { island: true }),
+      })
+    }),
+  ],
 }
 
 export default config

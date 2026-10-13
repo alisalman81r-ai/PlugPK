@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { ThemeMenu } from '@/components/layout/ThemeSwitcher'
 import { cn } from '@/lib/utils'
 
 /**
@@ -257,6 +258,9 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
           </form>
         ) : null}
       </div>
+
+      {/* ── Theme ──────────────────────────────────────────────────── */}
+      <ThemeMenu tone="onSurface" className="shrink-0" />
 
       {/* ── Notifications ──────────────────────────────────────────── */}
       <div className="relative shrink-0">

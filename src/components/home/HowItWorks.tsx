@@ -406,7 +406,7 @@ function ReviewsScreen({ station }: { station: ShowcaseStation }) {
             className="rounded-[1.6em] border border-slate-100 bg-white p-[1.4em] shadow-[0_0.6em_1.6em_-1em_rgba(5,36,30,0.25)]"
           >
             <div className="flex items-center gap-[0.9em]">
-              <span className="flex h-[3.4em] w-[3.4em] shrink-0 items-center justify-center rounded-full bg-[#E3F6EF] text-[1.2em] font-bold text-[#0B332C]">
+              <span className="flex h-[3.4em] w-[3.4em] shrink-0 items-center justify-center rounded-full bg-[#E3F6EF] text-[1.2em] font-bold text-[#0B332C] dark:bg-plug-cyan-100 dark:text-plug-cyan-700">
                 {r.userName
                   .split(' ')
                   .map((p) => p[0])
@@ -667,7 +667,7 @@ function ConnectorsScreen({ connectors }: { connectors: ShowcaseConnectors }) {
 
       {/* The car the filter is for. */}
       <div className="mt-[1.2em] flex items-center gap-[1em] rounded-[1.4em] bg-slate-50 px-[1.3em] py-[1.1em]">
-        <span className="flex h-[3.4em] w-[3.4em] shrink-0 items-center justify-center rounded-full bg-[#E3F6EF] text-[#0B332C]">
+        <span className="flex h-[3.4em] w-[3.4em] shrink-0 items-center justify-center rounded-full bg-[#E3F6EF] text-[#0B332C] dark:bg-plug-cyan-100 dark:text-plug-cyan-700">
           <Car className="h-[1.7em] w-[1.7em]" strokeWidth={1.9} />
         </span>
         <span className="min-w-0">
@@ -688,7 +688,7 @@ function ConnectorsScreen({ connectors }: { connectors: ShowcaseConnectors }) {
               key={t.type}
               className={
                 'relative rounded-[1.4em] border-[0.15em] p-[1.1em] ' +
-                (on ? 'border-[#159E89] bg-[#EAFAF3]' : 'border-slate-100 bg-white')
+                (on ? 'border-[#159E89] bg-[#EAFAF3] dark:bg-plug-cyan-50' : 'border-slate-100 bg-white')
               }
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -699,7 +699,7 @@ function ConnectorsScreen({ connectors }: { connectors: ShowcaseConnectors }) {
                   <Check className="h-[1.1em] w-[1.1em]" strokeWidth={3} />
                 </span>
               ) : null}
-              <ConnectorGlyph type={t.type} className={'h-[3.6em] w-[2.9em] ' + (on ? 'text-[#0B332C]' : 'text-slate-400')} />
+              <ConnectorGlyph type={t.type} className={'h-[3.6em] w-[2.9em] ' + (on ? 'text-[#0B332C] dark:text-plug-cyan-600' : 'text-slate-400')} />
               <span className="mt-[0.7em] block text-[1.3em] font-bold text-slate-900">{info.label}</span>
               <span className="block text-[1em] text-slate-500">
                 {info.kind} · {Math.round(t.maxPowerKw * 10) / 10} kW
@@ -815,7 +815,7 @@ export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItW
   const chipY = slide.chipY ?? CHIP.y
 
   const ctrl =
-    'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition-colors duration-200 hover:border-[#0B332C] hover:text-[#0B332C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#159E89] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50'
+    'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition-colors duration-200 hover:border-[#0B332C] hover:text-[#0B332C] dark:hover:border-plug-cyan-500 dark:hover:text-plug-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#159E89] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50'
 
   return (
     <section

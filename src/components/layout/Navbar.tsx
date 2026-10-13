@@ -13,6 +13,7 @@ import { useMenuKeyboard } from '@/hooks/useListKeyboard'
 import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
 import { MobileMenu } from './MobileMenu'
+import { ThemeMenu } from './ThemeSwitcher'
 
 /** True for the link's own route and anything nested beneath it. */
 function isActivePath(pathname: string, href: string): boolean {
@@ -236,6 +237,7 @@ export function Navbar() {
             app's status lives on the home page's app band and in the footer.
           */}
           <div className="hidden shrink-0 items-center gap-2 lg:flex">
+            <ThemeMenu />
             {user ? (
               <AccountMenu user={user} onDark />
             ) : (

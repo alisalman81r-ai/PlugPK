@@ -29,23 +29,22 @@
    */
   --nav-h: 72px;
 
-  /* The palette, for the CSS that cannot reach Tailwind. The full scale and
-     the contrast rules behind it are in tailwind.config.ts. */
-  --color-primary: #0B332C;
+  /* The palette, for the CSS that cannot reach Tailwind. These follow the
+     theme: the scales and their dark values are in tailwind.tokens.ts. */
+  --color-primary: rgb(var(--c-brand-600));
   --color-accent: #26CDB2;
   --color-dark: #0D1817;
-  --color-text: #0B332C;
-  --color-text-muted: #626D6B;
-  --color-border: #DCE3E0;
-  --color-bg: #F1F4F3;
-  --color-bg-alt: #E9EEEC;
+  --color-text: rgb(var(--c-neutral-900));
+  --color-text-muted: rgb(var(--c-neutral-500));
+  --color-border: rgb(var(--c-neutral-200));
+  --color-bg: rgb(var(--c-neutral-50));
+  --color-bg-alt: rgb(var(--c-neutral-100));
+  --color-surface: rgb(var(--c-surface));
 
-  --gradient-brand: linear-gradient(90deg, #0B332C, #345A53);
-  --gradient-hero: linear-gradient(135deg, #0D1817 0%, #05241E 55%, #0B332C 100%);
+  /* --gradient-brand and --gradient-hero follow the theme, and are declared
+     with the palette in tailwind.tokens.ts. */
 
   --shadow-blue: 0 8px 24px rgba(11, 51, 44, 0.22);
-  --shadow-card: 0 4px 6px rgba(5, 36, 30, 0.05);
-  --shadow-card-hover: 0 20px 25px rgba(5, 36, 30, 0.08), 0 10px 10px rgba(5, 36, 30, 0.04);
 
   --radius-card: 12px;
   --radius-button: 10px;
@@ -110,8 +109,8 @@
   }
 
   ::selection {
-    background: #C4F8EC;
-    color: #0B332C;
+    background: rgb(var(--c-brand-100));
+    color: rgb(var(--t-brand-600));
   }
 
   :focus-visible {
@@ -354,7 +353,7 @@
   }
 
   .glass {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgb(var(--c-surface) / 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
@@ -380,9 +379,9 @@
   .shimmer-bg {
     background: linear-gradient(
       90deg,
-      #E9EEEC 0%,
-      #DCE3E0 50%,
-      #E9EEEC 100%
+      rgb(var(--c-neutral-100)) 0%,
+      rgb(var(--c-neutral-200)) 50%,
+      rgb(var(--c-neutral-100)) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
@@ -426,8 +425,8 @@
   }
 
   .card-base {
-    background: white;
-    border: 1px solid #DCE3E0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-card);
     transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -435,31 +434,31 @@
   .card-base:hover {
     box-shadow: var(--shadow-card-hover);
     transform: translateY(-4px);
-    border-color: #A3EBDB;
+    border-color: rgb(var(--c-brand-200));
   }
 
   .status-available {
-    color: #16A34A;
-    background: #F0FDF4;
-    border-color: #BBF7D0;
+    color: rgb(var(--t-green-600));
+    background: rgb(var(--c-green-50));
+    border-color: rgb(var(--c-green-200));
   }
 
   .status-limited {
-    color: #D97706;
-    background: #FFFBEB;
-    border-color: #FDE68A;
+    color: rgb(var(--t-amber-600));
+    background: rgb(var(--c-amber-50));
+    border-color: rgb(var(--c-amber-200));
   }
 
   .status-offline {
-    color: #DC2626;
-    background: #FEF2F2;
-    border-color: #FECACA;
+    color: rgb(var(--t-red-600));
+    background: rgb(var(--c-red-50));
+    border-color: rgb(var(--c-red-200));
   }
 
   .status-unknown {
-    color: #626D6B;
-    background: #F1F4F3;
-    border-color: #DCE3E0;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border-color: var(--color-border);
   }
 }
 
@@ -485,16 +484,16 @@ html::-webkit-scrollbar {
 }
 
 ::-webkit-scrollbar-track {
-  background: #E9EEEC;
+  background: rgb(var(--c-neutral-100));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #BAC2C0;
+  background: rgb(var(--c-neutral-300));
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #727C7A;
+  background: rgb(var(--c-neutral-450));
 }
 
 /* ── Viewport height below the fixed 72px navbar ─────────────────
@@ -588,8 +587,8 @@ html::-webkit-scrollbar {
     to right,
     var(--range-color) 0%,
     var(--range-color) var(--fill, 0%),
-    #DCE3E0 var(--fill, 0%),
-    #DCE3E0 100%
+    rgb(var(--c-neutral-200)) var(--fill, 0%),
+    rgb(var(--c-neutral-200)) 100%
   );
   outline: none;
   cursor: pointer;
@@ -887,7 +886,7 @@ html::-webkit-scrollbar {
         rgb(38 205 178 / 0),
         transparent 70%
       ),
-      linear-gradient(to bottom, rgb(220 227 224), rgb(220 227 224), rgb(233 238 236));
+      linear-gradient(to bottom, rgb(var(--c-neutral-200)), rgb(var(--c-neutral-200)), rgb(var(--c-neutral-100)));
     transition:
       box-shadow 300ms ease,
       transform 300ms ease;
@@ -898,11 +897,11 @@ html::-webkit-scrollbar {
       radial-gradient(
         16rem circle at var(--px) var(--py),
         rgb(38 205 178 / 0.95),
-        rgb(196 248 236 / 0.6) 38%,
-        rgb(186 194 192 / 0.35) 68%,
+        rgb(var(--c-brand-100) / 0.6) 38%,
+        rgb(var(--c-neutral-300) / 0.35) 68%,
         transparent 78%
       ),
-      linear-gradient(to bottom, rgb(220 227 224), rgb(220 227 224), rgb(233 238 236));
+      linear-gradient(to bottom, rgb(var(--c-neutral-200)), rgb(var(--c-neutral-200)), rgb(var(--c-neutral-100)));
   }
 
   /*
@@ -1173,4 +1172,42 @@ html::-webkit-scrollbar {
   .flow-dashes {
     animation: none;
   }
+}
+
+/*
+  MapLibre's attribution badge brings its own white CSS. In the dark theme it
+  takes the card colour, and the (i) glyph — a black SVG — is inverted.
+*/
+.dark .maplibregl-ctrl-attrib {
+  background-color: rgb(var(--c-surface) / 0.8);
+  color: rgb(var(--c-neutral-500));
+}
+.dark .maplibregl-ctrl-attrib a {
+  color: inherit;
+}
+.dark .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}
+
+/*
+  ── The label on the brand fill, in the dark theme ──────────────────────
+
+  The app's primary button is turquoise with pine type (DESIGN.md §2.9). On
+  the site it is written bg-plug-blue-600 text-white — about ninety times — so
+  in the dark theme the fill turns turquoise through the palette and these
+  rules turn the white label pine, on the button itself and on anything white
+  inside it (an icon, a count). The same goes for the brand gradient and the
+  700 step.
+
+  The colour is a variable, --on-brand, rather than pine outright: inside a
+  pine band the light values are restored (see ISLANDS in tailwind.tokens.ts),
+  so a brand button there keeps its forest fill and white label. The second
+  rule is the turquoise hover there, which takes forest type as it always has.
+*/
+.dark :is(.bg-plug-blue-600, .bg-plug-blue-700, .bg-gradient-brand):is(.text-white, [class*='text-white/'], .text-plug-cyan-300),
+.dark :is(.bg-plug-blue-600, .bg-plug-blue-700, .bg-gradient-brand) :is(.text-white, [class*='text-white/']) {
+  color: rgb(var(--on-brand));
+}
+.dark :is(.bg-plug-blue-600, .bg-gradient-brand).hover\:bg-plug-cyan-500:hover {
+  color: rgb(var(--on-brand-hover));
 }

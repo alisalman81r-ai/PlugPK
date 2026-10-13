@@ -424,6 +424,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               >
                 <span className="relative block h-24 overflow-hidden bg-white/70 sm:h-28">
                   <PhotoFrame
+                    studio
                     src={car.image ?? undefined}
                     alt={carDisplayName(car)}
                     sizes="(max-width: 640px) 50vw, 320px"

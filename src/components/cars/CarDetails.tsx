@@ -314,6 +314,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             <div className="flex items-center justify-center p-3 sm:p-8 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:pl-0">
               <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl">
                 <PhotoFrame
+                  studio
                   src={car.image ?? undefined}
                   alt={carDisplayName(car)}
                   sizes="(max-width: 1024px) 100vw, 700px"
@@ -577,6 +578,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 <Link href={`/cars/${other.slug}`} className={cn(FACE, 'gap-3 p-3')}>
                   <span className="relative block aspect-[16/10] overflow-hidden rounded-xl bg-slate-50">
                     <PhotoFrame
+                      studio
                       src={other.image ?? undefined}
                       alt={carDisplayName(other)}
                       sizes="(max-width: 640px) 100vw, 300px"

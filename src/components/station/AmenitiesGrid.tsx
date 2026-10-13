@@ -57,7 +57,7 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
               'flex flex-col items-center rounded-2xl border p-4 text-center transition-colors duration-150',
               amenity.available
                 ? 'border-slate-200 bg-white hover:border-plug-blue-200 hover:bg-plug-blue-50'
-                : 'border-slate-100 bg-[#FAFBFA] opacity-50',
+                : 'border-slate-100 bg-slate-25 opacity-50',
             )}
           >
             <span

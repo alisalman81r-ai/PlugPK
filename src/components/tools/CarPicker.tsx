@@ -211,7 +211,7 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
       {open ? (
         <>
           {/* The phone's sheet needs a scrim; the desktop menu does not. */}
-          <div aria-hidden="true" className="fixed inset-0 z-[65] bg-slate-900/30 sm:hidden" onClick={() => close(false)} />
+          <div aria-hidden="true" className="fixed inset-0 z-[65] bg-plug-navy-900/30 sm:hidden" onClick={() => close(false)} />
 
           <div
             className={cn(

@@ -45,7 +45,7 @@ export function AdminFilterChips({ label, param, options, current, path, params 
             className={cn(
               'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-              on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100',
+              on ? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]' : 'text-slate-800 hover:bg-slate-100',
             )}
           >
             {option.label}

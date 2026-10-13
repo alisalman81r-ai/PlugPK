@@ -222,7 +222,7 @@ function NavContent({
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                         collapsed ? 'justify-center px-0' : 'gap-3 px-3',
                         active
-                          ? 'bg-plug-navy-900 text-white'
+                          ? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                       )}
                     >
@@ -442,7 +442,7 @@ export function AdminNav({ badges, failedBadges = [], collapsed = false }: Admin
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
         className={cn(
-          'fixed inset-0 z-40 bg-slate-900/40 transition-opacity duration-200 lg:hidden',
+          'fixed inset-0 z-40 bg-plug-navy-900/40 transition-opacity duration-200 lg:hidden',
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
       />

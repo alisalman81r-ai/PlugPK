@@ -82,7 +82,7 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
  */
 function MapGrid({ label }: { label?: string }) {
   return (
-    <div className="relative flex h-full w-full items-center justify-center bg-[#F2F6F4]">
+    <div className="relative flex h-full w-full items-center justify-center bg-[#F2F6F4] dark:bg-slate-50">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
@@ -252,7 +252,7 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
               onPointerEnter={bootMapNow}
               onPointerDown={bootMapNow}
               onFocusCapture={bootMapNow}
-              className={`relative ${MAP_HEIGHT} overflow-hidden bg-[#F2F6F4] md:rounded-[1.6rem] md:ring-1 md:ring-slate-900/10`}
+              className={`relative ${MAP_HEIGHT} overflow-hidden bg-[#F2F6F4] dark:bg-slate-50 md:rounded-[1.6rem] md:ring-1 md:ring-slate-900/10`}
             >
               {isMapReady ? (
                 <MapView

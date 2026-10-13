@@ -23,7 +23,8 @@ import * as React from 'react'
  * band with no box around it — at 3× the source, with a smoothed, feathered
  * outline, so its edge reads as a photograph and not as a sticker. Its floor
  * shadow is redrawn in the band's ink, so the shadow and the sentence share
- * one colour.
+ * one colour. In the dark theme the sentence takes the body type colour
+ * instead (slate-900, near-white there), or the ink would vanish into the page.
  *
  * ── The scroll ────────────────────────────────────────────────────────
  *
@@ -42,8 +43,6 @@ import * as React from 'react'
  * transform and opacity only, so it stays on the compositor. Under
  * prefers-reduced-motion nothing moves: the band is simply there, full size.
  */
-
-const INK = '#17313A'
 
 /** Scroll progress in, eased by a spring so wheel steps do not show. */
 const SPRING = { stiffness: 140, damping: 28, mass: 0.35 }
@@ -84,8 +83,8 @@ export function FreedomBand() {
         </motion.div>
         <motion.h2
           id="freedom-heading"
-          className="max-w-[46rem] origin-center text-[clamp(1.75rem,2.6vw,2.9rem)] font-bold leading-[1.22] tracking-[-0.025em] [will-change:transform] md:origin-left lg:max-w-none"
-          style={reduce ? { color: INK } : { color: INK, scale: textScale, opacity: textOpacity }}
+          className="max-w-[46rem] origin-center text-[clamp(1.75rem,2.6vw,2.9rem)] font-bold leading-[1.22] tracking-[-0.025em] [will-change:transform] md:origin-left lg:max-w-none text-[#17313A] dark:text-slate-900"
+          style={reduce ? undefined : { scale: textScale, opacity: textOpacity }}
         >
           <span className="block lg:whitespace-nowrap">Drive anywhere in Pakistan, worry-free.</span>
           <span className="block lg:whitespace-nowrap">No range anxiety, just the open road.</span>

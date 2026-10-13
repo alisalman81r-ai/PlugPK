@@ -450,7 +450,7 @@ export function CarsBrowser({
             type="button"
             aria-label="Close filters"
             onClick={() => setDrawerOpen(false)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-plug-navy-900/40 backdrop-blur-sm"
           />
 
           {/* A sheet: header and the apply button pinned, only the controls
@@ -627,7 +627,7 @@ function Segment({
       className={cn(
         'inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
         active
-          ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(5,36,30,0.5)]'
+          ? 'border-slate-900 bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E] shadow-[0_4px_14px_-6px_rgba(5,36,30,0.5)]'
           : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
         count === 0 && !active && 'opacity-45',
       )}

@@ -64,7 +64,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
      * a blur still takes its colour from whichever pool is behind it, which is
      * the effect the dark version was getting and the flat white page was not.
      */
-    <section className="relative isolate overflow-hidden bg-[#E9EEEC] py-14 lg:py-20">
+    <section className="relative isolate overflow-hidden bg-slate-100 py-14 lg:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(5,36,30,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
