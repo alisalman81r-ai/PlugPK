@@ -39,6 +39,15 @@ export function databaseUnavailable(error: unknown): string | null {
     return unreachable
   }
 
+  // P2024: timed out waiting for a connection from Prisma's pool. With the
+  // database unreachable, the first reads fail with P1001 while the rest queue
+  // for one of the pool's five connections and give up with this instead — so
+  // it is the same outage, arriving second. It was the one the landing page
+  // still threw on, and it took the whole page to the error boundary.
+  if (code === 'P2024') {
+    return 'the database did not hand out a connection in time — it is slow or unreachable'
+  }
+
   // Connected, but the schema is not there yet.
   if (code === 'P2021') {
     return 'the database has no tables yet — run `prisma migrate deploy` against it'
