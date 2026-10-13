@@ -54,30 +54,22 @@ const SLIDES = [
     eyebrow: ['car', 'Car catalogue'],
     title: 'Compare every EV <span class="hl">sold in Pakistan</span>',
     body: `${D.cars.length} cars with PKR prices, real specs and charging times. Then ask the owners.`,
-    // A studio showroom: the model's name set huge behind the car, a turntable
-    // floor, and an instrument cluster whose dials fill against the best car in
-    // the catalogue. Filled in and animated by obCarReel.
-    media: () => `<div class="obx">
-          <div class="obx-stage">
-            <div class="obx-word" id="obx-word" aria-hidden="true"></div>
-            <div class="obx-floor" aria-hidden="true"><i></i></div>
-            <img class="obx-car" id="obx-prev" alt="" aria-hidden="true">
-            <img class="obx-car" id="obx-car" alt="">
-            <div class="obx-head">
-              <span class="obx-brand" id="obx-brand"></span>
-              <span class="obx-count mono" id="obx-count"></span>
+    // Two rivals, head to head: the comparison the app actually makes, with
+    // no photographs. Each row's bars grow out from the middle and the winner's
+    // side lights up. A new pair every few seconds. Filled in by obCompareReel.
+    media: () => `<div class="obc">
+          <div class="obc-card" id="obc-card">
+            <div class="obc-head">
+              <div class="obc-car" id="obc-a"></div>
+              <span class="obc-vs" aria-hidden="true">VS</span>
+              <div class="obc-car obc-car-b" id="obc-b"></div>
             </div>
-            <div class="obx-ticks" id="obx-ticks" aria-hidden="true"></div>
-            <span class="obx-price" id="obx-price"></span>
+            <div class="obc-rows" id="obc-rows"></div>
+            <div class="obc-verdict" id="obc-verdict"></div>
           </div>
-          <div class="obx-cluster" id="obx-cluster">
-            ${['Range', 'Battery', 'DC peak'].map((label, k) => `<div class="obx-gauge">
-              <svg viewBox="0 0 60 60" aria-hidden="true"><circle class="trk" cx="30" cy="30" r="24"/><circle class="val" id="obx-g${k}" cx="30" cy="30" r="24" pathLength="100"/></svg>
-              <div><b class="mono" id="obx-v${k}">—</b><span>${label}</span></div>
-            </div>`).join('')}
-          </div>
+          <div class="obc-dots" id="obc-dots" aria-hidden="true"></div>
         </div>`,
-    after: obCarReel,
+    after: obCompareReel,
   },
 ]
 
@@ -89,7 +81,7 @@ SCREENS.onboarding = () => {
   const last = st === SLIDES.length - 1
   return {
     sb: 'light',
-    html: `<div class="ob" id="ob">
+    html: `<div class="ob ob-step-${st}" id="ob">
       <div class="ob-media ob-media-${st}" key="${st}">${s.media()}</div>
       <header class="ob-top">
         <div class="ob-progress" aria-label="Step ${st + 1} of ${SLIDES.length}">${SLIDES.map((_, i) => `<i class="${i < st ? 'done' : i === st ? 'on' : ''}"></i>`).join('')}</div>
@@ -107,68 +99,75 @@ SCREENS.onboarding = () => {
   }
 }
 /**
- * Sets the model name as large as it fits: measured, then scaled to the stage's
- * width less a margin each side, so a long name never runs out of the box.
+ * Rivals at the same price, as people in Pakistan actually cross-shop them.
+ * Any pair whose cars are missing from the catalogue is dropped.
  */
-function fitWord(word) {
-  const box = word.parentElement.clientWidth - 40
-  word.style.fontSize = '66px'
-  const width = word.scrollWidth
-  if (width > box) word.style.fontSize = `${Math.max(18, Math.floor(66 * (box / width)))}px`
-}
+const OB_PAIRS = [
+  ['byd-atto-3-advanced', 'mg-zs-ev'],
+  ['byd-seal', 'deepal-s07'],
+  ['byd-atto-2', 'gwm-ora-03'],
+  ['deepal-l07', 'byd-sealion-7-advanced'],
+  ['bmw-ix', 'audi-q8-e-tron'],
+]
 
-/** The showroom on the car slide: every car in turn, most expensive first. */
-const OB_REEL_MS = 2400
-let obReelRun = 0
-function obCarReel() {
-  const run = ++obReelRun
-  // A car's place is the top of its price range; cars with no price come last.
-  const top = (c) => c.priceMax ?? c.priceMin ?? -1
-  const low = (c) => c.priceMin ?? c.priceMax ?? -1
-  const cars = D.cars.filter((c) => c.image).sort((a, b) => top(b) - top(a) || low(b) - low(a))
-  // Each dial is measured against the best car in the catalogue.
-  const best = [Math.max(...cars.map((c) => carRange(c) || 0)), Math.max(...cars.map((c) => c.battery || 0)), Math.max(...cars.map((c) => c.dc || 0))]
-  const pad = (n) => String(n).padStart(String(cars.length).length, '0')
+/** The rows of the card: what is compared, and which way is better. */
+const OB_ROWS = [
+  { label: 'Range', unit: 'km', get: (c) => carRange(c), higher: true },
+  { label: 'Battery', unit: 'kWh', get: (c) => c.battery, higher: true },
+  { label: 'Fast charging', unit: 'kW', get: (c) => c.dc, higher: true },
+  { label: '0–100 km/h', unit: 's', get: (c) => c.accel, higher: false },
+]
+
+const OB_COMPARE_MS = 3800
+let obCompareRun = 0
+function obCompareReel() {
+  const run = ++obCompareRun
+  const pairs = OB_PAIRS.map((p) => p.map(carBySlug)).filter((p) => p[0] && p[1])
+  if (!pairs.length) return
+  const num = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1))
+  const head = (c) => {
+    // The price without its note: "(launch price)" belongs on the car's page.
+    const price = String(c.price || 'Price on request').replace(/\s*\(.+\)\s*$/, '')
+    return `<span class="obc-brand">${esc(c.brand)}</span><b class="obc-name">${esc(c.model)}</b><span class="obc-price">${esc(price)}</span>`
+  }
   let i = 0
-  const show = (c, first) => {
-    if (run !== obReelRun || !$('#obx-car')) return false
-    const car = $('#obx-car'), prev = $('#obx-prev')
-    // The outgoing car drives off left while the next one rolls in.
-    if (!first && car.src) {
-      prev.src = car.src
-      prev.classList.remove('out'); void prev.offsetWidth; prev.classList.add('out')
-    }
-    car.src = img(c.image)
-    car.alt = c.name
-    car.classList.remove('in'); void car.offsetWidth; car.classList.add('in')
-    const word = $('#obx-word')
-    word.textContent = c.model
-    // Long names set smaller, so the word always spans the stage.
-    fitWord(word)
-    word.classList.remove('in'); void word.offsetWidth; word.classList.add('in')
-    $('#obx-brand').textContent = c.brand
-    $('#obx-count').innerHTML = `<b>${pad(i + 1)}</b> / ${cars.length}`
-    const [price, note] = String(c.price || '').split(/\s*\((.+)\)\s*$/)
-    $('#obx-price').innerHTML = `${esc(price || 'Price on request')}${note ? `<small>${esc(note)}</small>` : ''}`
-    const vals = [carRange(c), c.battery, c.dc]
-    const units = ['km', 'kWh', 'kW']
-    vals.forEach((v, k) => {
-      $(`#obx-v${k}`).innerHTML = v ? `${Math.round(v)}<small>${units[k]}</small>` : '—'
-      $(`#obx-g${k}`).style.strokeDashoffset = String(100 - (v ? Math.max(6, Math.round((v / best[k]) * 100)) : 0))
+  const show = () => {
+    if (run !== obCompareRun || !$('#obc-card')) return false
+    const [a, b] = pairs[i]
+    const wins = [0, 0]
+    const rows = OB_ROWS.map((row) => {
+      const va = row.get(a), vb = row.get(b)
+      const both = va != null && vb != null
+      // The better figure fills its half; the other is drawn in proportion.
+      // With one figure missing there is nothing to weigh, so neither gets a bar.
+      const score = (v, other) => (!both ? 0 : row.higher ? v / Math.max(v, other) : Math.min(v, other) / v)
+      const sa = score(va, vb), sb = score(vb, va)
+      const win = both && va !== vb ? ((row.higher ? va > vb : va < vb) ? 0 : 1) : -1
+      if (win >= 0) wins[win]++
+      const side = (v, s, k) => `<div class="obc-side ${k ? 'right' : 'left'} ${win === k ? 'win' : ''}">
+          <span class="obc-val mono">${v == null ? '—' : `${num(v)}<small>${row.unit}</small>`}</span>
+          <i class="obc-bar"><i style="--s:${s}"></i></i>
+        </div>`
+      return `<div class="obc-row"><span class="obc-label">${row.label}</span><div class="obc-pair">${side(va, sa, 0)}${side(vb, sb, 1)}</div></div>`
     })
-    // A sliding window of ticks under the stage: where this car sits in the line-up.
-    const W = 17, start = Math.max(0, Math.min(cars.length - W, i - 8))
-    $('#obx-ticks').innerHTML = Array.from({ length: Math.min(W, cars.length) }, (_, k) => `<i class="${start + k === i ? 'on' : ''}"></i>`).join('')
+    $('#obc-a').innerHTML = head(a)
+    $('#obc-b').innerHTML = head(b)
+    $('#obc-rows').innerHTML = rows.join('')
+    const counted = wins[0] + wins[1]
+    const lead = wins[0] === wins[1] ? null : wins[0] > wins[1] ? a : b
+    $('#obc-verdict').innerHTML = lead
+      ? `${ic('check', 15)}<span><b>${esc(lead.model)}</b> leads on ${Math.max(...wins)} of ${counted}</span>`
+      : `<span>Level on ${wins[0]} each — the owners decide</span>`
+    const card = $('#obc-card')
+    card.classList.remove('in'); void card.offsetWidth; card.classList.add('in')
+    $('#obc-dots').innerHTML = pairs.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')
     return true
   }
-  // Warm the next photo so each swap is instant.
-  const warm = (k) => { new Image().src = img(cars[k % cars.length].image) }
-  show(cars[0], true); warm(1)
+  show()
   const t = setInterval(() => {
-    i = (i + 1) % cars.length
-    if (!show(cars[i])) clearInterval(t)
-    else warm(i + 1)
-  }, OB_REEL_MS)
+    i = (i + 1) % pairs.length
+    if (!show()) clearInterval(t)
+  }, OB_COMPARE_MS)
 }
 /** Swipe left or right between slides, like any native onboarding. */
 function onbSwipe() {
