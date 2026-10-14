@@ -54,22 +54,12 @@ const SLIDES = [
     eyebrow: ['car', 'Car catalogue'],
     title: 'Compare every EV <span class="hl">sold in Pakistan</span>',
     body: `${D.cars.length} cars with PKR prices, real specs and charging times. Then ask the owners.`,
-    // Two rivals, head to head: the comparison the app actually makes, with
-    // no photographs. Each row's bars grow out from the middle and the winner's
-    // side lights up. A new pair every few seconds. Filled in by obCompareReel.
-    media: () => `<div class="obc">
-          <div class="obc-card" id="obc-card">
-            <div class="obc-head">
-              <div class="obc-car" id="obc-a"></div>
-              <span class="obc-vs" aria-hidden="true">VS</span>
-              <div class="obc-car obc-car-b" id="obc-b"></div>
-            </div>
-            <div class="obc-rows" id="obc-rows"></div>
-            <div class="obc-verdict" id="obc-verdict"></div>
-          </div>
-          <div class="obc-dots" id="obc-dots" aria-hidden="true"></div>
-        </div>`,
-    after: obCompareReel,
+    // The catalogue as a little universe: a glowing core counting up to the
+    // number of cars, and the biggest brands on two rings turning slowly round
+    // it, each with how many of its cars are listed. Sized to the
+    // space it is given, so it fits any phone. Built by obOrbit.
+    media: () => `<div class="obo"><div class="obo-sys" id="obo-sys"></div></div>`,
+    after: obOrbit,
   },
 ]
 
@@ -99,75 +89,129 @@ SCREENS.onboarding = () => {
   }
 }
 /**
- * Rivals at the same price, as people in Pakistan actually cross-shop them.
- * Any pair whose cars are missing from the catalogue is dropped.
+ * The car slide's universe: the biggest brands in orbit round a core that
+ * counts the catalogue. The orbit is tilted back like a galaxy, so chips at
+ * the back pass behind the core and chips at the front pass before it.
+ *
+ * Every few seconds one brand is lit and the core turns to it — how many of
+ * its cars are listed, its cheapest price, its longest range. Tapping a brand
+ * lights it at once and holds it for a while before the tour moves on.
  */
-const OB_PAIRS = [
-  ['byd-atto-3-advanced', 'mg-zs-ev'],
-  ['byd-seal', 'deepal-s07'],
-  ['byd-atto-2', 'gwm-ora-03'],
-  ['deepal-l07', 'byd-sealion-7-advanced'],
-  ['bmw-ix', 'audi-q8-e-tron'],
-]
+const OB_SPOT_MS = 2600
+let obOrbitRun = 0
+const obOrbitState = { brands: [], spot: -1, hold: 0 }
 
-/** The rows of the card: what is compared, and which way is better. */
-const OB_ROWS = [
-  { label: 'Range', unit: 'km', get: (c) => carRange(c), higher: true },
-  { label: 'Battery', unit: 'kWh', get: (c) => c.battery, higher: true },
-  { label: 'Fast charging', unit: 'kW', get: (c) => c.dc, higher: true },
-  { label: '0–100 km/h', unit: 's', get: (c) => c.accel, higher: false },
-]
+/** 8990000 → "89.9 Lakh", 14800000 → "1.48 Cr". */
+function pkrShort(n) {
+  const trim = (x, d) => x.toFixed(d).replace(/\.?0+$/, '')
+  return n >= 1e7 ? `${trim(n / 1e7, 2)} Cr` : `${trim(n / 1e5, 1)} Lakh`
+}
 
-const OB_COMPARE_MS = 3800
-let obCompareRun = 0
-function obCompareReel() {
-  const run = ++obCompareRun
-  const pairs = OB_PAIRS.map((p) => p.map(carBySlug)).filter((p) => p[0] && p[1])
-  if (!pairs.length) return
-  const num = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1))
-  const head = (c) => {
-    // The price without its note: "(launch price)" belongs on the car's page.
-    const price = String(c.price || 'Price on request').replace(/\s*\(.+\)\s*$/, '')
-    return `<span class="obc-brand">${esc(c.brand)}</span><b class="obc-name">${esc(c.model)}</b><span class="obc-price">${esc(price)}</span>`
+function obOrbit() {
+  const run = ++obOrbitRun
+  const sys = $('#obo-sys')
+  if (!sys) return
+  // Brands by how many cars each has listed; "iCAUR (Chery)" reads as iCAUR,
+  // and Mercedes-Benz as Mercedes so its chip is not twice the width of BMW's.
+  const byBrand = new Map()
+  for (const c of D.cars) {
+    const name = c.brand.replace(/\s*\(.+\)$/, '').replace('Mercedes-Benz', 'Mercedes')
+    if (!byBrand.has(name)) byBrand.set(name, [])
+    byBrand.get(name).push(c)
   }
-  let i = 0
-  const show = () => {
-    if (run !== obCompareRun || !$('#obc-card')) return false
-    const [a, b] = pairs[i]
-    const wins = [0, 0]
-    const rows = OB_ROWS.map((row) => {
-      const va = row.get(a), vb = row.get(b)
-      const both = va != null && vb != null
-      // The better figure fills its half; the other is drawn in proportion.
-      // With one figure missing there is nothing to weigh, so neither gets a bar.
-      const score = (v, other) => (!both ? 0 : row.higher ? v / Math.max(v, other) : Math.min(v, other) / v)
-      const sa = score(va, vb), sb = score(vb, va)
-      const win = both && va !== vb ? ((row.higher ? va > vb : va < vb) ? 0 : 1) : -1
-      if (win >= 0) wins[win]++
-      const side = (v, s, k) => `<div class="obc-side ${k ? 'right' : 'left'} ${win === k ? 'win' : ''}">
-          <span class="obc-val mono">${v == null ? '—' : `${num(v)}<small>${row.unit}</small>`}</span>
-          <i class="obc-bar"><i style="--s:${s}"></i></i>
-        </div>`
-      return `<div class="obc-row"><span class="obc-label">${row.label}</span><div class="obc-pair">${side(va, sa, 0)}${side(vb, sb, 1)}</div></div>`
+  const brands = [...byBrand]
+    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+    .slice(0, 12)
+    .map(([name, cars]) => {
+      const prices = cars.map((c) => c.priceMin ?? c.priceMax).filter((v) => v > 0)
+      const ranges = cars.map(carRange).filter((v) => v > 0)
+      return { name, n: cars.length, from: prices.length ? Math.min(...prices) : null, range: ranges.length ? Math.max(...ranges) : null }
     })
-    $('#obc-a').innerHTML = head(a)
-    $('#obc-b').innerHTML = head(b)
-    $('#obc-rows').innerHTML = rows.join('')
-    const counted = wins[0] + wins[1]
-    const lead = wins[0] === wins[1] ? null : wins[0] > wins[1] ? a : b
-    $('#obc-verdict').innerHTML = lead
-      ? `${ic('check', 15)}<span><b>${esc(lead.model)}</b> leads on ${Math.max(...wins)} of ${counted}</span>`
-      : `<span>Level on ${wins[0]} each — the owners decide</span>`
-    const card = $('#obc-card')
-    card.classList.remove('in'); void card.offsetWidth; card.classList.add('in')
-    $('#obc-dots').innerHTML = pairs.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')
-    return true
+  obOrbitState.brands = brands
+  obOrbitState.spot = -1
+  obOrbitState.hold = 0
+
+  // Four on the inner ring and eight on the outer, every outer chip halfway
+  // between two inner ones. The rings turn together, so those gaps never
+  // close and no two chips can meet, at any angle.
+  const ring = (list, offset, radius, cls) => {
+    const step = 360 / list.length
+    return `<div class="obo-ring ${cls}">${list.map((b, k) => `<div class="obo-at" style="--a:${Math.round(k * step + (cls === 'outer' ? step / 2 : 0))}deg;--r:${radius}cqmin">
+        <button class="obo-chip" id="obo-c${offset + k}" data-a="obBrand" data-v="${offset + k}" style="--d:${(0.45 + (offset + k) * 0.06).toFixed(2)}s" aria-label="${esc(b.name)}, ${b.n} cars"><b>${esc(b.name)}</b><small class="mono">${b.n}</small></button>
+      </div>`).join('')}</div>`
   }
-  show()
-  const t = setInterval(() => {
-    i = (i + 1) % pairs.length
-    if (!show()) clearInterval(t)
-  }, OB_COMPARE_MS)
+  sys.innerHTML = `
+    <div class="obo-plane">
+      <i class="obo-orbit o1"></i><i class="obo-orbit o2"></i><i class="obo-orbit o3"></i>
+      ${ring(brands.slice(0, 4), 0, 23, 'inner')}
+      ${ring(brands.slice(4, 12), 4, 39, 'outer')}
+      <div class="obo-core" id="obo-core">
+        <div class="obo-face" id="obo-face"></div>
+      </div>
+    </div>`
+
+  // First the whole catalogue, counting up as the core lights.
+  const total = D.cars.length
+  $('#obo-face').innerHTML = `<span class="obo-kicker">Every EV</span><b class="mono" id="obo-n">0</b><span class="obo-sub">on sale in Pakistan</span><small>${byBrand.size} brands</small>`
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) $('#obo-n').textContent = total
+  else {
+    const t0 = performance.now() + 250
+    const tick = (now) => {
+      const el = $('#obo-n')
+      if (!el || run !== obOrbitRun) return
+      const p = Math.min(1, Math.max(0, (now - t0) / 1400))
+      el.textContent = Math.round(total * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
+  // Depth. A chip toward the back of the orbit fades, so one passing behind
+  // the core reads as far away rather than cut off. Measured each frame from
+  // where the chip actually is on screen: twelve rects, no layout written.
+  const chips = [...sys.querySelectorAll('.obo-chip')]
+  const depth = () => {
+    if (run !== obOrbitRun || !sys.isConnected) return
+    const box = sys.getBoundingClientRect()
+    const mid = box.top + box.height / 2, reach = box.height * 0.26
+    for (const chip of chips) {
+      const r = chip.getBoundingClientRect()
+      const back = Math.min(1, Math.max(0, (mid - (r.top + r.height / 2)) / reach))
+      chip.style.setProperty('--fade', (1 - back * 0.6).toFixed(3))
+    }
+    requestAnimationFrame(depth)
+  }
+  requestAnimationFrame(depth)
+
+  // Then the tour: one brand after another, in the order they sit.
+  const timer = setInterval(() => {
+    if (run !== obOrbitRun || !$('#obo-core')) return clearInterval(timer)
+    if (obOrbitState.hold > Date.now()) return
+    obSpot((obOrbitState.spot + 1) % brands.length)
+  }, OB_SPOT_MS)
+}
+
+/** Lights one brand and turns the core to it. */
+function obSpot(k) {
+  const b = obOrbitState.brands[k]
+  const face = $('#obo-face')
+  if (!b || !face) return
+  obOrbitState.spot = k
+  document.querySelectorAll('.obo-chip.on').forEach((el) => el.classList.remove('on'))
+  $(`#obo-c${k}`)?.classList.add('on')
+  face.innerHTML = `<span class="obo-kicker">${esc(b.name)}</span>
+    <b class="mono">${b.n}<em>${b.n === 1 ? 'EV' : 'EVs'}</em></b>
+    ${b.from ? `<span class="obo-sub">from PKR ${pkrShort(b.from)}</span>` : '<span class="obo-sub">price on request</span>'}
+    ${b.range ? `<small>up to <span class="mono">${b.range}</span> km</small>` : ''}`
+  face.classList.remove('flip'); void face.offsetWidth; face.classList.add('flip')
+  const core = $('#obo-core')
+  core.classList.remove('ping'); void core.offsetWidth; core.classList.add('ping')
+}
+
+/** A tap on a brand lights it now, and holds it before the tour moves on. */
+A.obBrand = (v) => {
+  obOrbitState.hold = Date.now() + 6000
+  obSpot(Number(v))
 }
 /** Swipe left or right between slides, like any native onboarding. */
 function onbSwipe() {
