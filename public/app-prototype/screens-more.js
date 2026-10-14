@@ -696,6 +696,41 @@ A.lbSubmit = async () => {
   render()
 }
 
+/**
+ * "Use my current location", under the address. One tap fills the street line
+ * and the city from where the phone is, and sets the map pin as well, so the
+ * Location step opens already on the spot. The address comes from the
+ * website's own lookup and is only a suggestion: it lands in the field to be
+ * checked, and nothing is sent until the form is.
+ */
+A.lbLocate = (_, el) => {
+  if (!navigator.geolocation) return toast('Location isn’t available on this device', 'info')
+  if (el) { el.disabled = true; el.innerHTML = `${ic('locate', 16)} Finding you…` }
+  navigator.geolocation.getCurrentPosition(
+    async (p) => {
+      const lat = Number(p.coords.latitude.toFixed(6)), lng = Number(p.coords.longitude.toFixed(6))
+      const lb = U.lb
+      if (!lb) return
+      lb.v.pin = [lat, lng]
+      const r = await reverseGeocodeRemote(lat, lng)
+      // The city the lookup names, if it is one we list; otherwise the nearest
+      // listed city, when the phone is close enough to one for that to be true.
+      const named = r?.city ? ALL_CITIES.find(([n]) => n.toLowerCase() === r.city.toLowerCase())?.[0] : null
+      const [near, km] = ALL_CITIES.map(([n, la, lo]) => [n, haversine([lat, lng], [la, lo])]).sort((a, b) => a[1] - b[1])[0] || []
+      if (named || km < 60) lb.v.city = named || near
+      if (r?.address) lb.v[lb.kind === 'charger' ? 'address' : 'street'] = r.address
+      lb.err = null
+      render()
+      toast(r?.address ? 'Address filled from your location — check it’s right' : 'Pin set from your location. Type the street address.', 'locate')
+    },
+    (e) => {
+      render()
+      toast(e.code === 1 ? 'Location is blocked. Type the address instead.' : 'Couldn’t find your location. Type the address instead.', 'info')
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
+  )
+}
+
 /** The pin: a map that moves under a fixed pin in the middle. */
 let lbMap = null
 function lbMountMap() {
@@ -750,6 +785,7 @@ SCREENS.listBiz = () => {
       : `<input class="input" id="lb-${name}" name="${name}" data-in="lb" ${opts.type ? `type="${opts.type}"` : ''} ${opts.mode ? `inputmode="${opts.mode}"` : ''} ${opts.auto ? `autocomplete="${opts.auto}"` : ''} maxlength="${opts.max || 200}" placeholder="${opts.ph || ''}" value="${esc(v[name] || '')}">`}
     ${opts.hint ? `<p class="t12 muted mt-4">${opts.hint}</p>` : ''}</div>`
   const pick = (key, list) => `<div class="lb-pick">${list.map(([val, label, icon]) => `<button class="lb-opt ${v[key] === val ? 'on' : ''}" data-a="lbPick" data-k="${key}" data-v="${val}" aria-pressed="${v[key] === val}">${ic(icon, 18)}<span>${label}</span></button>`).join('')}</div>`
+  const locateBtn = `<div class="lb-locate-row"><button class="lb-locate" data-a="lbLocate">${ic('locate', 16)} Use my current location</button>${v.pin ? `<span class="lb-locate-note">${ic('check', 14)} Map pin set</span>` : ''}</div>`
   const citySelect = `<div><label class="label" for="lb-city">City</label><select class="input" id="lb-city" name="city" data-in="lb">${ALL_CITIES.map(([n]) => `<option ${n === v.city ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>`
 
   let body = ''
@@ -768,7 +804,7 @@ SCREENS.listBiz = () => {
       ${field('businessName', 'Business name', { ph: 'e.g. Pearl Continental Lahore', max: 120, hint: 'As drivers will see it on the map.' })}
       <div><span class="label">What kind of place is it?</span>${pick('businessType', LB_TYPES)}</div>
       ${citySelect}
-      ${field('address', 'Address', { ph: 'Street, area', max: 300, auto: 'street-address' })}
+      <div>${field('address', 'Address', { ph: 'Street, area', max: 300, auto: 'street-address' })}${locateBtn}</div>
       ${field('phone', 'Phone', { ph: '03xx xxxxxxx', mode: 'tel', auto: 'tel', max: 40 })}
       ${field('website', 'Website', { ph: 'https://', mode: 'url', optional: true, max: 300 })}
     </div>`
@@ -778,7 +814,7 @@ SCREENS.listBiz = () => {
       <div><span class="label">What do you offer?</span>${pick('category', LB_CATEGORIES)}</div>
       ${citySelect}
       ${field('area', 'Area', { ph: 'e.g. Gulberg III', optional: true, max: 120 })}
-      ${field('street', 'Street address', { ph: 'Building, street', optional: true, max: 200 })}
+      <div>${field('street', 'Street address', { ph: 'Building, street', optional: true, max: 200 })}${locateBtn}</div>
       ${field('description', 'About your business', { area: true, max: 1000, ph: 'What you do for EV owners, which brands, how long you’ve done it' })}
     </div>`
   } else if (stepName === 'Contact') {

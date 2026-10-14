@@ -277,3 +277,9 @@ async function applyServiceRemote(v) {
   if (r.offline) return 'You seem to be offline. Connect and try again — nothing you entered is lost.'
   return r.ok ? null : r.message || 'That did not go through. Please try again.'
 }
+
+/** A position to { address, city } — a suggestion for the listing forms. */
+async function reverseGeocodeRemote(lat, lng) {
+  const r = await api('sync', { method: 'POST', body: { type: 'geo.reverse', lat, lng } })
+  return r.ok ? r : null
+}

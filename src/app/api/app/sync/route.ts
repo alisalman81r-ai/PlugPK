@@ -17,6 +17,7 @@ import { registerBusiness, saveMyChargers } from '@/lib/db/business-actions'
 import { requestMeeting } from '@/lib/db/meeting-actions'
 import { submitReview } from '@/lib/db/review-actions'
 import { removeMyRoute, saveMyRoute } from '@/lib/db/route-actions'
+import { reverseGeocode } from '@/lib/geocode-actions'
 import { getSessionUserId } from '@/lib/db/session'
 import { applyToListService } from '@/lib/db/service-application-actions'
 import { toggleSavedStation } from '@/lib/db/session-actions'
@@ -250,6 +251,18 @@ export async function POST(request: Request) {
         await log('business.register', 'business', businessId, `${who} listed “${str(body.businessName, 120)}” for review`)
       }
       return json(result)
+    }
+
+    // ── Where am I: a position to a street line and a city ──────────
+    //
+    // For the listing forms' "Use my current location". The website's own
+    // lookup, run here because the address service wants a User-Agent a
+    // browser cannot send. A suggestion only: the form shows it to be checked.
+    case 'geo.reverse': {
+      if (typeof body.lat !== 'number' || typeof body.lng !== 'number') {
+        return json({ ok: false, message: 'Those coordinates are not a position.' })
+      }
+      return json(await reverseGeocode(body.lat, body.lng))
     }
 
     // ── List an EV service: dealer, workshop, installer… (no account) ─
