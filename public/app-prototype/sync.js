@@ -226,3 +226,54 @@ SHEETS.whatsNew = () => {
   }
 }
 A.seenRelease = () => { if (U.release) S.seenRelease = U.release.id; _save(); closeSheet() }
+
+/**
+ * List chargers at a venue — the website's sign-up, in the same three calls:
+ * create the listing, upload each charger photo, attach them. The listing id
+ * and each uploaded photo's URL are kept on the form's state, so a retry after
+ * a dropped connection carries on where it stopped instead of starting a
+ * second listing or uploading the same photo twice.
+ */
+async function listBusinessRemote(v, progress) {
+  const offline = 'You seem to be offline. Connect and try again — nothing you entered is lost.'
+  const chargers = v.chargers.map((c) => ({ connectorType: c.connectorType, maxPowerKw: Number(c.maxPowerKw) || 0, ports: Number(c.ports) || 1 }))
+  progress('Creating your listing…')
+  const r = await api('sync', {
+    method: 'POST',
+    body: {
+      type: 'business.register', businessId: v.businessId, businessName: v.businessName, businessType: v.businessType,
+      city: v.city, address: v.address, phone: v.phone, website: v.website, lat: v.pin?.[0] ?? null, lng: v.pin?.[1] ?? null, chargers,
+    },
+  })
+  if (r.offline) return offline
+  if (!r.ok) return r.message || 'That did not go through. Please try again.'
+  v.businessId = r.businessId
+  for (const [k, c] of v.chargers.entries()) {
+    if (c.url) continue
+    progress(`Uploading photo ${k + 1} of ${v.chargers.length}…`)
+    const u = await api('sync', { method: 'POST', body: { type: 'business.photo', businessId: v.businessId, dataUrl: c.photo } })
+    if (u.offline) return offline
+    if (!u.ok || !u.url) return `Charger ${k + 1}: ${u.message || 'that photo could not be uploaded.'}`
+    c.url = u.url
+  }
+  progress('Attaching your photos…')
+  const s = await api('sync', {
+    method: 'POST',
+    body: { type: 'business.chargers', businessId: v.businessId, businessName: v.businessName, chargers: v.chargers.map((c, k) => ({ ...chargers[k], photo: c.url })) },
+  })
+  if (s.offline) return offline
+  return s.ok ? null : s.message || 'Could not attach the charger photos. Please try again.'
+}
+
+/** Apply to list an EV service — dealer, workshop, installer and the rest. */
+async function applyServiceRemote(v) {
+  const r = await api('sync', {
+    method: 'POST',
+    body: {
+      type: 'service.apply', name: v.name, category: v.category, city: v.city, area: v.area, street: v.street,
+      description: v.description, phone: v.phone, email: v.email, website: v.website, lat: v.pin?.[0] ?? null, lng: v.pin?.[1] ?? null,
+    },
+  })
+  if (r.offline) return 'You seem to be offline. Connect and try again — nothing you entered is lost.'
+  return r.ok ? null : r.message || 'That did not go through. Please try again.'
+}

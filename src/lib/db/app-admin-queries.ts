@@ -16,7 +16,7 @@ import { prisma } from './client'
 export const APP_EVENT_KINDS = {
   all: { label: 'All', types: null },
   accounts: { label: 'Accounts', types: ['account.signup', 'account.signin', 'account.signout', 'profile.photo', 'profile.photoRemove'] },
-  partners: { label: 'Partner requests', types: ['meeting.request'] },
+  partners: { label: 'Partners & listings', types: ['meeting.request', 'business.register', 'service.apply'] },
   community: { label: 'Community', types: ['post.create', 'comment.create', 'post.like', 'post.unlike', 'club.join', 'club.leave'] },
   reviews: { label: 'Reviews', types: ['review.create'] },
   saved: { label: 'Saved & garage', types: ['station.save', 'station.unsave', 'garage.update', 'route.save', 'route.remove'] },
@@ -33,7 +33,7 @@ export async function getAppOverview() {
     prisma.user.count({ where: { lastAppActiveAt: { not: null } } }),
     prisma.user.count({ where: { lastAppActiveAt: { gte: weekAgo } } }),
     prisma.appEvent.count({ where: { createdAt: { gte: dayAgo } } }),
-    prisma.appEvent.count({ where: { type: 'meeting.request' } }),
+    prisma.appEvent.count({ where: { type: { in: ['meeting.request', 'business.register', 'service.apply'] } } }),
     prisma.appRelease.findFirst({ where: { sentAt: { not: null } }, orderBy: { sentAt: 'desc' } }),
     prisma.appRelease.count({ where: { sentAt: null } }),
   ])

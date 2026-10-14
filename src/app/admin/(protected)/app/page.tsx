@@ -42,6 +42,10 @@ function editHref(row: { type: string; targetType: string | null; targetId: stri
       return row.targetId ? `/admin/reviews?listing=station:${row.targetId}` : '/admin/reviews'
     case 'meeting':
       return '/admin/meetings'
+    case 'business':
+      return row.targetId ? `/admin/businesses/${row.targetId}` : '/admin/businesses'
+    case 'service':
+      return row.targetId ? `/admin/services/${row.targetId}` : '/admin/services'
     case 'station':
       return row.targetId ? `/admin/stations/${row.targetId}` : null
     default:
@@ -53,6 +57,8 @@ const TYPE_TONE: Record<string, string> = {
   account: 'bg-sky-50 text-sky-800 border-sky-200',
   profile: 'bg-sky-50 text-sky-800 border-sky-200',
   meeting: 'bg-amber-50 text-amber-800 border-amber-200',
+  business: 'bg-amber-50 text-amber-800 border-amber-200',
+  service: 'bg-amber-50 text-amber-800 border-amber-200',
   post: 'bg-violet-50 text-violet-800 border-violet-200',
   comment: 'bg-violet-50 text-violet-800 border-violet-200',
   club: 'bg-violet-50 text-violet-800 border-violet-200',
@@ -66,6 +72,8 @@ const TYPE_LABEL: Record<string, string> = {
   'profile.photo': 'Profile photo',
   'profile.photoRemove': 'Photo removed',
   'meeting.request': 'Partner request',
+  'business.register': 'Business listing',
+  'service.apply': 'Service listing',
   'post.create': 'New post',
   'comment.create': 'Reply',
   'post.like': 'Like',
@@ -149,9 +157,9 @@ export default async function AdminAppPage({
             icon={Activity}
           />
           <MetricCard
-            label="Partner requests"
+            label="Partners & listings"
             value={String(overview.partnerRequests)}
-            detail="Sent from the app's Partner Up"
+            detail="Meeting requests and businesses listed from the app"
             icon={CalendarClock}
             href={buildHref(PATH, {}, { kind: 'partners' })}
           />

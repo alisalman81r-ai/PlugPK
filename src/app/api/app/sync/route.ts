@@ -2,7 +2,7 @@
 //
 // Every write the mobile app makes, one `type` at a time: saved stations,
 // garage, clubs, posts, comments, likes, reviews, routes, partner meeting
-// requests and the profile photo. Each one goes through the website's own
+// requests, business and service listings, and the profile photo. Each one goes through the website's own
 // server action — the same validation, rate limits and revalidation — and is
 // written to the admin's "Mobile app" feed (AppEvent).
 //
@@ -13,12 +13,14 @@ import { prisma } from '@/lib/db/client'
 import { FORBIDDEN, json, recordAppEvent, sameOrigin } from '@/lib/db/app-api'
 import { createComment, createPost, joinClub, leaveClub, togglePostLike } from '@/lib/db/community-actions'
 import { addMyCar, removeMyCar, setPrimaryCatalogueCar } from '@/lib/db/garage-actions'
+import { registerBusiness, saveMyChargers } from '@/lib/db/business-actions'
 import { requestMeeting } from '@/lib/db/meeting-actions'
 import { submitReview } from '@/lib/db/review-actions'
 import { removeMyRoute, saveMyRoute } from '@/lib/db/route-actions'
 import { getSessionUserId } from '@/lib/db/session'
+import { applyToListService } from '@/lib/db/service-application-actions'
 import { toggleSavedStation } from '@/lib/db/session-actions'
-import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
+import { removeMyAvatar, uploadChargerPhoto, uploadMyAvatar } from '@/lib/db/upload-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,14 +33,14 @@ const id = (value: unknown) => {
   return s && /^[\w-]+$/.test(s) ? s : ''
 }
 
-/** `data:image/jpeg;base64,…` → a File the upload action accepts. */
-function fileFromDataUrl(dataUrl: string): File | null {
+/** `data:image/jpeg;base64,…` → a File the upload actions accept. */
+function fileFromDataUrl(dataUrl: string, name = 'avatar'): File | null {
   const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl)
   if (!match) return null
   const bytes = Buffer.from(match[2]!, 'base64')
   if (bytes.length === 0 || bytes.length > 2 * 1024 * 1024) return null
   const extension = match[1] === 'image/png' ? 'png' : match[1] === 'image/webp' ? 'webp' : 'jpg'
-  return new File([bytes], `avatar.${extension}`, { type: match[1] })
+  return new File([bytes], `${name}.${extension}`, { type: match[1] })
 }
 
 export async function POST(request: Request) {
@@ -191,6 +193,82 @@ export async function POST(request: Request) {
           type: 'meeting.request',
           targetType: 'meeting',
           summary: `${str(body.name, 120)} (${str(body.company, 160)}) asked for a partner meeting`,
+        })
+      }
+      return json(result)
+    }
+
+    // ── List a business: chargers at a venue (account needed) ────────
+    //
+    // The website's sign-up, in the same three calls: create the listing,
+    // upload each charger photo, attach them. A retry sends the id it was
+    // given, and registerBusiness updates that draft instead of making a
+    // second listing. The listing is pending until the team approves it.
+    case 'business.register': {
+      const chargers = (Array.isArray(body.chargers) ? body.chargers : []).slice(0, 20).map((raw) => {
+        const c = (raw && typeof raw === 'object' ? raw : {}) as Body
+        return { connectorType: str(c.connectorType, 40), maxPowerKw: num(c.maxPowerKw), ports: num(c.ports) }
+      })
+      const result = await registerBusiness({
+        businessName: str(body.businessName, 120),
+        businessType: str(body.businessType, 40),
+        city: str(body.city, 80),
+        address: str(body.address, 300),
+        phone: str(body.phone, 40),
+        website: str(body.website, 300),
+        lat: typeof body.lat === 'number' ? body.lat : null,
+        lng: typeof body.lng === 'number' ? body.lng : null,
+        chargers,
+        businessId: id(body.businessId) || undefined,
+      })
+      return json(result)
+    }
+
+    case 'business.photo': {
+      const businessId = id(body.businessId)
+      const file = fileFromDataUrl(str(body.dataUrl, 3_000_000), 'charger')
+      if (!businessId || !file) return json({ ok: false, message: 'That photo could not be used. Try another.' })
+      const form = new FormData()
+      form.set('file', file)
+      return json(await uploadChargerPhoto(businessId, form))
+    }
+
+    case 'business.chargers': {
+      const businessId = id(body.businessId)
+      const chargers = (Array.isArray(body.chargers) ? body.chargers : []).slice(0, 20).map((raw) => {
+        const c = (raw && typeof raw === 'object' ? raw : {}) as Body
+        return {
+          connectorType: str(c.connectorType, 40),
+          maxPowerKw: num(c.maxPowerKw),
+          ports: num(c.ports),
+          photo: str(c.photo, 500) || undefined,
+          photoLabel: 'charger' as const,
+        }
+      })
+      const result = await saveMyChargers(businessId, chargers)
+      if (result.ok) {
+        await log('business.register', 'business', businessId, `${who} listed “${str(body.businessName, 120)}” for review`)
+      }
+      return json(result)
+    }
+
+    // ── List an EV service: dealer, workshop, installer… (no account) ─
+    case 'service.apply': {
+      const form = new FormData()
+      for (const [key, max] of [['name', 120], ['category', 40], ['city', 80], ['area', 120], ['street', 200], ['description', 1000], ['phone', 40], ['email', 254], ['website', 300]] as const) {
+        form.set(key, str(body[key], max))
+      }
+      form.set('lat', typeof body.lat === 'number' ? String(body.lat) : '')
+      form.set('lng', typeof body.lng === 'number' ? String(body.lng) : '')
+      const result = await applyToListService(form)
+      if (result.ok && result.serviceId) {
+        await recordAppEvent({
+          userId: user?.id,
+          userEmail: user?.email ?? str(body.email, 254),
+          type: 'service.apply',
+          targetType: 'service',
+          targetId: result.serviceId,
+          summary: `${user?.name ?? str(body.name, 120)} applied to list “${str(body.name, 120)}” as a service`,
         })
       }
       return json(result)

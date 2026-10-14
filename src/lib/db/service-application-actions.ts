@@ -35,6 +35,8 @@ export interface ApplyResult {
   message?: string
   /** Field name to focus, when the failure is one specific input. */
   field?: string
+  /** The new application's id, for the admin feed's link to it. */
+  serviceId?: string
 }
 
 /** Applications per address per hour. A real applicant sends one. */
@@ -150,9 +152,10 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     return { ok: true, message: 'We already have your application, and it is waiting to be reviewed.' }
   }
 
+  const serviceId = randomUUID()
   await prisma.eVService.create({
     data: {
-      id: randomUUID(),
+      id: serviceId,
       slug: await uniqueSlug(name.value),
       name: name.value,
       category,
@@ -177,7 +180,7 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
   revalidatePath('/admin/services')
   revalidatePath('/admin')
 
-  return { ok: true }
+  return { ok: true, serviceId }
 }
 
 /**

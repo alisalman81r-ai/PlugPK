@@ -160,7 +160,7 @@ SCREENS.services = () => {
       <div class="sec-head section" style="margin-top:28px"><h2>${f.cat === 'all' ? 'All services' : SVC_CAT[f.cat][0]}</h2>${f.cat !== 'all' ? '<button class="link" data-a="svcCat" data-v="all">Show all</button>' : `<span class="t13 muted mono">${list.length}</span>`}</div>
       <div class="chips">${['all', ...cities].map((c) => `<button class="chip ${f.city === c ? 'on' : ''}" data-a="svcCity" data-v="${c}">${f.city === c ? ic('check', 14, { sw: 2.4 }) : ''}${c === 'all' ? 'All cities' : c}</button>`).join('')}</div>
       <div class="pad stack gap-16 mt-12" style="padding-bottom:32px">${list.map((s) => serviceCard(s)).join('') || '<div class="empty">Nothing listed for this city yet. Try all cities.</div>'}
-        <div class="card p20" style="text-align:center"><b class="t17">Run an EV business?</b><p class="t14 muted mt-4">Dealers, workshops and installers can list for free once checked.</p><button class="btn btn-secondary mt-12" data-a="go" data-v="partners">Get listed</button></div>
+        <div class="card p20" style="text-align:center"><b class="t17">Run an EV business?</b><p class="t14 muted mt-4">Dealers, workshops and installers can list for free once checked.</p><button class="btn btn-secondary mt-12" data-a="listBiz" data-v="service">Get listed</button></div>
       </div>
     </div>`,
   }
@@ -537,6 +537,10 @@ SCREENS.partners = () => {
           <p class="t14 muted">Fleets, chains and multi-site operators.</p>
           <div class="stack gap-8 mt-16">${['Everything in Standard', 'Several sites under one account', 'Terms agreed for your sites', 'A meeting to set it up with us'].map((f) => `<div class="feat"><span class="tick">${ic('check', 12, { sw: 2.6 })}</span>${f}</div>`).join('')}</div>
         </div></div>
+        <button class="frame" data-a="listBiz" data-v="service" style="display:block;width:100%;text-align:left"><div class="face row" style="gap:14px;padding:16px">
+          <span class="accent-text">${ic('wrench', 22)}</span>
+          <div class="grow"><b class="t15">Run an EV service instead?</b><p class="t13 muted">Dealers, workshops, installers and insurers — list in Services.</p></div>
+          ${ic('chevR', 18)}</div></button>
         <div class="notice neutral">${ic('info', 18)}<span>You set the price and you keep it. plug.pk doesn’t set your rates, take the payment or take a cut.</span></div>
       </section>
       <section class="section pad" style="padding-bottom:40px">
@@ -568,4 +572,284 @@ A.meeting = (_, f) => {
     render()
   })
 }
-A.partnerSignup = () => toast('Business sign-up opens on plug.pk/business/signup', 'building')
+// ─── List a business ───────────────────────────────────────────────
+// The website's two listing forms, in the app: chargers at a venue (Partner
+// Up, needs an account, the listing is managed on plug.pk) and an EV service
+// in the directory (dealer, workshop, installer…, no account needed). Both go
+// through the website's own server actions and land in the admin's review
+// queue; nothing is published until a person approves it.
+//
+// Every field writes into U.lb as it is typed (IN.lb), so a re-render — a chip
+// tapped, a step changed — never loses what was entered.
+
+const LB_TYPES = [['hotel', 'Hotel', 'building'], ['restaurant', 'Restaurant', 'fork'], ['mall', 'Mall', 'bag'], ['office', 'Office', 'building'], ['dealership', 'Dealership', 'car'], ['service-center', 'Service centre', 'wrench'], ['home', 'My home', 'home']]
+const LB_CATEGORIES = [['dealership', 'Dealership', 'car'], ['service-center', 'Service centre', 'wrench'], ['home-charger-installer', 'Charger installer', 'plug'], ['accessories', 'Accessories', 'bag'], ['insurance', 'Insurance', 'shield'], ['roadside-assistance', 'Roadside help', 'nav']]
+const LB_PLUGS = [['CCS2', 'CCS2'], ['Type2', 'Type 2'], ['CHAdeMO', 'CHAdeMO'], ['GBT', 'GB/T'], ['Type1', 'Type 1']]
+const LB_STEPS = { charger: ['Business', 'Location', 'Chargers', 'Review'], service: ['Service', 'Contact', 'Location', 'Review'] }
+
+/** A fresh form. `kind` is 'charger' or 'service'. */
+function lbStart(kind) {
+  U.lb = {
+    kind, step: 0, err: null, busy: false, progress: '', done: false,
+    v: { city: S.city, phone: '', website: '', email: S.user?.email || '', pin: null, businessType: kind === 'charger' ? 'hotel' : '', category: '', chargers: [{ connectorType: 'CCS2', maxPowerKw: '', ports: 1 }] },
+  }
+}
+
+A.listBiz = (kind) => {
+  if (kind === 'charger' && !S.user) return needSignIn('Sign in to list your chargers. The listing belongs to your account, so you can update it and answer reviews later.')
+  lbStart(kind)
+  go('listBiz')
+}
+A.partnerSignup = () => A.listBiz('charger')
+
+const lbClearErr = () => { if (U.lb.err) { U.lb.err = null; $('#lb-err')?.remove() } }
+IN.lb = (value, el) => { U.lb.v[el.name] = value; lbClearErr() }
+IN.lbCh = (value, el) => { U.lb.v.chargers[Number(el.dataset.k)][el.name] = value; lbClearErr() }
+IN.lbPhoto = (_, el) => {
+  const file = el.files?.[0]
+  if (!file) return
+  const k = Number(el.dataset.k)
+  // Large enough for the reviewer to read a connector's label, small enough
+  // to upload on a weak connection.
+  const r = new FileReader()
+  r.onload = () => {
+    const im = new Image()
+    im.onload = () => {
+      const s = Math.min(1, 1400 / Math.max(im.width, im.height))
+      const cv = document.createElement('canvas')
+      cv.width = Math.round(im.width * s); cv.height = Math.round(im.height * s)
+      cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height)
+      Object.assign(U.lb.v.chargers[k], { photo: cv.toDataURL('image/jpeg', 0.82), url: null })
+      U.lb.err = null
+      render()
+    }
+    im.onerror = () => toast('That file isn’t a photo we can read. Try another.', 'info')
+    im.src = r.result
+  }
+  r.readAsDataURL(file)
+}
+A.lbPick = (value, el) => { U.lb.v[el.dataset.k] = value; U.lb.err = null; render() }
+A.lbPlug = (value, el) => { U.lb.v.chargers[Number(el.dataset.k)].connectorType = value; U.lb.err = null; render() }
+A.lbPorts = (d, el) => {
+  const c = U.lb.v.chargers[Number(el.dataset.k)]
+  c.ports = Math.min(50, Math.max(1, (Number(c.ports) || 1) + Number(d)))
+  U.lb.err = null
+  render()
+}
+A.lbAddCharger = () => { U.lb.v.chargers.push({ connectorType: 'CCS2', maxPowerKw: '', ports: 1 }); U.lb.err = null; render() }
+A.lbDropCharger = (k) => { U.lb.v.chargers.splice(Number(k), 1); U.lb.err = null; render() }
+A.lbBack = () => { if (U.lb.step === 0) return back(); U.lb.step--; U.lb.err = null; render() }
+
+/** What is wrong with the current step, in the website's words, or null. */
+function lbCheck() {
+  const { kind, step, v } = U.lb
+  const name = LB_STEPS[kind][step]
+  const phoneOk = (p) => (p || '').replace(/\D/g, '').length >= 10
+  if (name === 'Business') {
+    if (!(v.businessName || '').trim()) return 'Enter the name of your business, as drivers will see it.'
+    if (!v.city) return 'Choose a city.'
+    if (!(v.address || '').trim()) return 'Enter the address, so drivers can find the chargers.'
+    if (!phoneOk(v.phone)) return 'Enter a phone number drivers can call, like 0300 1234567.'
+  }
+  if (name === 'Service') {
+    if ((v.name || '').trim().length < 2) return 'Enter the business name.'
+    if (!v.category) return 'Choose the kind of service you offer.'
+    if (!v.city) return 'Choose a city.'
+    if ((v.description || '').trim().length < 20) return 'A sentence or two about what you do — at least 20 characters.'
+  }
+  if (name === 'Contact') {
+    const email = (v.email || '').trim()
+    if (email && !/^\S+@\S+\.\S+$/.test(email)) return 'Enter an email address like name@business.com.'
+    if (!phoneOk(v.phone) && !email) return 'Leave a phone number or an email so we can reach you.'
+  }
+  if (name === 'Location' && !v.pin) {
+    return kind === 'service' ? 'Set your location on the map — drivers get directions to this pin.' : 'Set the chargers’ location on the map, so the pin lands on your car park.'
+  }
+  if (name === 'Chargers') {
+    if (!v.chargers.length) return 'Add at least one charger.'
+    for (const [k, c] of v.chargers.entries()) {
+      if (!(Number(c.maxPowerKw) > 0)) return `Charger ${k + 1}: enter its power in kW — it’s on the charger’s label.`
+      if (!c.photo) return `Charger ${k + 1}: add a photo of the charger. The team checks every one before it goes live.`
+    }
+  }
+  return null
+}
+
+A.lbNext = () => {
+  U.lb.err = lbCheck()
+  if (U.lb.err) return render()
+  U.lb.step++
+  render()
+  $('#screen .scroll')?.scrollTo({ top: 0 })
+}
+
+A.lbSubmit = async () => {
+  const lb = U.lb
+  if (lb.busy) return
+  if (lb.kind === 'charger' && !S.user) return needSignIn('Sign in to list your chargers.')
+  lb.busy = true; lb.err = null; render()
+  const progress = (text) => { lb.progress = text; const el = $('#lb-progress'); if (el) el.textContent = text }
+  const error = lb.kind === 'charger' ? await listBusinessRemote(lb.v, progress) : await applyServiceRemote(lb.v)
+  lb.busy = false; lb.progress = ''
+  if (error) lb.err = error
+  else lb.done = true
+  render()
+}
+
+/** The pin: a map that moves under a fixed pin in the middle. */
+let lbMap = null
+function lbMountMap() {
+  const el = $('#lb-map')
+  if (!el) return
+  const v = U.lb.v
+  const city = ALL_CITIES.find(([n]) => n === v.city)
+  const start = v.pin || (city ? [city[1], city[2]] : CITY[S.city]?.me || [31.5204, 74.3587])
+  loadLibre().then(() => {
+    if (!el.isConnected) return
+    lbMap?.remove?.()
+    lbMap = new maplibregl.Map({ container: el, style: MAP_STYLE, center: [start[1], start[0]], zoom: v.pin ? 16 : 12, attributionControl: false })
+    lbMap.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left')
+    lbMap.on('load', () => { try { brandMap(lbMap) } catch {} })
+    // Placed once the map has moved: opening the step is not choosing a spot.
+    lbMap.on('moveend', (e) => {
+      if (!e.originalEvent && !lbMap._lbFly) return
+      lbMap._lbFly = false
+      const c = lbMap.getCenter()
+      v.pin = [Number(c.lat.toFixed(6)), Number(c.lng.toFixed(6))]
+      U.lb.err = null
+      const label = $('#lb-pin-label')
+      if (label) label.innerHTML = `${ic('check', 15)} Pin set · <span class="mono">${v.pin[0].toFixed(4)}, ${v.pin[1].toFixed(4)}</span>`
+      $('#lb-pin-wrap')?.classList.add('set')
+      $('#lb-err')?.remove()
+    })
+  }).catch(() => { el.innerHTML = `<div class="lb-map-off">${ic('info', 18)}<span>The map couldn’t load. Use your location instead.</span></div>` })
+}
+A.lbHere = () => {
+  if (!navigator.geolocation) return toast('Location isn’t available on this device', 'info')
+  toast('Finding your location…', 'locate')
+  navigator.geolocation.getCurrentPosition(
+    (p) => {
+      const at = [p.coords.latitude, p.coords.longitude]
+      if (lbMap) { lbMap._lbFly = true; lbMap.flyTo({ center: [at[1], at[0]], zoom: 17, duration: 1200 }) }
+      else { U.lb.v.pin = at; render() }
+    },
+    (e) => toast(e.code === 1 ? 'Location is blocked. Move the map to your spot instead.' : 'Couldn’t find your location. Move the map instead.', 'info'),
+    { enableHighAccuracy: true, timeout: 10000 },
+  )
+}
+
+SCREENS.listBiz = () => {
+  const lb = U.lb
+  if (!lb) { lbStart('charger') }
+  const { kind, step, v } = U.lb
+  const steps = LB_STEPS[kind]
+  const stepName = steps[step]
+  const field = (name, label, opts = {}) => `<div><label class="label" for="lb-${name}">${label}${opts.optional ? ' <span class="opt">optional</span>' : ''}</label>
+    ${opts.area
+      ? `<textarea class="textarea" id="lb-${name}" name="${name}" data-in="lb" maxlength="${opts.max || 600}" placeholder="${opts.ph || ''}">${esc(v[name] || '')}</textarea>`
+      : `<input class="input" id="lb-${name}" name="${name}" data-in="lb" ${opts.type ? `type="${opts.type}"` : ''} ${opts.mode ? `inputmode="${opts.mode}"` : ''} ${opts.auto ? `autocomplete="${opts.auto}"` : ''} maxlength="${opts.max || 200}" placeholder="${opts.ph || ''}" value="${esc(v[name] || '')}">`}
+    ${opts.hint ? `<p class="t12 muted mt-4">${opts.hint}</p>` : ''}</div>`
+  const pick = (key, list) => `<div class="lb-pick">${list.map(([val, label, icon]) => `<button class="lb-opt ${v[key] === val ? 'on' : ''}" data-a="lbPick" data-k="${key}" data-v="${val}" aria-pressed="${v[key] === val}">${ic(icon, 18)}<span>${label}</span></button>`).join('')}</div>`
+  const citySelect = `<div><label class="label" for="lb-city">City</label><select class="input" id="lb-city" name="city" data-in="lb">${ALL_CITIES.map(([n]) => `<option ${n === v.city ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></div>`
+
+  let body = ''
+  if (lb?.done || U.lb.done) {
+    body = `<div class="lb-done">
+        <span class="lb-done-mark">${ic('check', 34, { sw: 2.4 })}</span>
+        <h2 class="t24 b7 mt-16">Submitted for review</h2>
+        <p class="t15 muted mt-8">${kind === 'charger'
+          ? `Thanks${S.user ? `, ${esc(S.user.name.split(' ')[0])}` : ''}. A person checks the address, the pin and every photo before <b>${esc(v.businessName)}</b> goes on the map — usually within two working days.`
+          : `Thanks. A person checks <b>${esc(v.name)}</b> before it appears in Services — usually within two working days. We’ll contact you on the details you left.`}</p>
+        ${kind === 'charger' ? `<div class="notice neutral mt-16">${ic('info', 18)}<span>Once it’s live you can update the listing, add photos and reply to reviews in the business portal on <b>plug.pk/business</b>.</span></div>` : ''}
+        <button class="btn btn-primary btn-lg btn-block mt-24" data-a="back">Done</button>
+      </div>`
+  } else if (stepName === 'Business') {
+    body = `<div class="stack gap-16">
+      ${field('businessName', 'Business name', { ph: 'e.g. Pearl Continental Lahore', max: 120, hint: 'As drivers will see it on the map.' })}
+      <div><span class="label">What kind of place is it?</span>${pick('businessType', LB_TYPES)}</div>
+      ${citySelect}
+      ${field('address', 'Address', { ph: 'Street, area', max: 300, auto: 'street-address' })}
+      ${field('phone', 'Phone', { ph: '03xx xxxxxxx', mode: 'tel', auto: 'tel', max: 40 })}
+      ${field('website', 'Website', { ph: 'https://', mode: 'url', optional: true, max: 300 })}
+    </div>`
+  } else if (stepName === 'Service') {
+    body = `<div class="stack gap-16">
+      ${field('name', 'Business name', { ph: 'e.g. EV Care Workshop', max: 120 })}
+      <div><span class="label">What do you offer?</span>${pick('category', LB_CATEGORIES)}</div>
+      ${citySelect}
+      ${field('area', 'Area', { ph: 'e.g. Gulberg III', optional: true, max: 120 })}
+      ${field('street', 'Street address', { ph: 'Building, street', optional: true, max: 200 })}
+      ${field('description', 'About your business', { area: true, max: 1000, ph: 'What you do for EV owners, which brands, how long you’ve done it' })}
+    </div>`
+  } else if (stepName === 'Contact') {
+    body = `<div class="stack gap-16">
+      <p class="t14 muted">One way to reach you is enough. Drivers see these once you’re approved.</p>
+      ${field('phone', 'Phone', { ph: '03xx xxxxxxx', mode: 'tel', auto: 'tel', max: 40 })}
+      ${field('email', 'Email', { type: 'email', mode: 'email', auto: 'email', ph: 'you@business.com', max: 254 })}
+      ${field('website', 'Website', { ph: 'https://', mode: 'url', optional: true, max: 300 })}
+    </div>`
+  } else if (stepName === 'Location') {
+    body = `<div class="stack gap-12">
+      <p class="t14 muted">${kind === 'charger' ? 'Move the map until the pin sits on the chargers — the car park, not the front door.' : 'Move the map until the pin sits on your entrance. Drivers get directions to this exact spot.'}</p>
+      <div class="lb-pin-wrap ${v.pin ? 'set' : ''}" id="lb-pin-wrap">
+        <div class="lb-map" id="lb-map"></div>
+        <span class="lb-pin" aria-hidden="true">${ic('pin', 34)}</span>
+        <button class="btn btn-sm lb-here" data-a="lbHere">${ic('locate', 16)} Use my location</button>
+      </div>
+      <p class="lb-pin-label" id="lb-pin-label">${v.pin ? `${ic('check', 15)} Pin set · <span class="mono">${v.pin[0].toFixed(4)}, ${v.pin[1].toFixed(4)}</span>` : `${ic('pin', 15)} Drag the map to place the pin`}</p>
+    </div>`
+  } else if (stepName === 'Chargers') {
+    body = `<div class="stack gap-12">
+      <p class="t14 muted">One entry per charger. A clear photo of each — with its label readable — is what gets a listing approved quickly.</p>
+      ${v.chargers.map((c, k) => `<div class="card lb-ch">
+        <div class="row between"><b class="t15">Charger ${k + 1}</b>${v.chargers.length > 1 ? `<button class="link t13" data-a="lbDropCharger" data-v="${k}">Remove</button>` : ''}</div>
+        <span class="label mt-12">Plug</span>
+        <div class="chips lb-plugs">${LB_PLUGS.map(([val, label]) => `<button class="chip ${c.connectorType === val ? 'on' : ''}" data-a="lbPlug" data-k="${k}" data-v="${val}" aria-pressed="${c.connectorType === val}">${label}</button>`).join('')}</div>
+        <div class="lb-two mt-12">
+          <div><label class="label" for="lb-kw-${k}">Power</label><div class="lb-unit"><input class="input" id="lb-kw-${k}" name="maxPowerKw" data-in="lbCh" data-k="${k}" inputmode="decimal" placeholder="e.g. 60" value="${esc(String(c.maxPowerKw ?? ''))}"><span>kW</span></div></div>
+          <div><span class="label">Ports</span><div class="lb-step"><button data-a="lbPorts" data-k="${k}" data-v="-1" aria-label="One fewer port">−</button><b class="mono">${c.ports}</b><button data-a="lbPorts" data-k="${k}" data-v="1" aria-label="One more port">+</button></div></div>
+        </div>
+        <label class="lb-photo ${c.photo ? 'has' : ''} mt-12">
+          ${c.photo ? `<img src="${c.photo}" alt="Charger ${k + 1}">` : ''}
+          <span class="lb-photo-cta">${ic(c.photo ? 'image' : 'camera', 20)}${c.photo ? 'Change photo' : 'Add a photo of the charger'}</span>
+          <input type="file" accept="image/*" data-ch="lbPhoto" data-k="${k}" hidden>
+        </label>
+      </div>`).join('')}
+      ${v.chargers.length < 20 ? `<button class="btn btn-secondary btn-block" data-a="lbAddCharger">${ic('plus', 18)} Add another charger</button>` : ''}
+    </div>`
+  } else {
+    const row = (label, value) => (value ? `<div class="lb-row"><span>${label}</span><b>${value}</b></div>` : '')
+    const type = (list, val) => list.find(([x]) => x === val)?.[1] || ''
+    body = `<div class="stack gap-12">
+      <div class="card p16">
+        ${kind === 'charger'
+          ? row('Business', esc(v.businessName)) + row('Type', type(LB_TYPES, v.businessType)) + row('City', esc(v.city)) + row('Address', esc(v.address)) + row('Phone', esc(v.phone)) + row('Website', esc(v.website))
+          : row('Business', esc(v.name)) + row('Service', type(LB_CATEGORIES, v.category)) + row('City', esc(v.city)) + row('Area', esc(v.area)) + row('Phone', esc(v.phone)) + row('Email', esc(v.email))}
+        ${row('Pin', v.pin ? `<span class="mono">${v.pin[0].toFixed(4)}, ${v.pin[1].toFixed(4)}</span>` : '')}
+      </div>
+      ${kind === 'charger' ? `<div class="card p16 stack gap-8">${v.chargers.map((c, k) => `<div class="row" style="gap:12px">${c.photo ? `<img class="lb-thumb" src="${c.photo}" alt="">` : ''}<div><b class="t15">${type(LB_PLUGS, c.connectorType)} · ${esc(String(c.maxPowerKw))} kW</b><p class="t13 muted">${c.ports} port${c.ports > 1 ? 's' : ''}</p></div></div>`).join('')}</div>` : ''}
+      <div class="notice neutral">${ic('shield', 18)}<span>${kind === 'charger' ? 'Listing is PKR 4,999 a month once approved. Nothing is charged now — the team contacts you after the review.' : 'Nothing goes live until a person has checked it. Listing in Services is PKR 4,999 a month once approved.'}</span></div>
+    </div>`
+  }
+
+  const done = U.lb.done
+  return {
+    sb: 'dark',
+    html: `<div class="scroll lb">
+      <header class="topbar solid">
+        <button class="icon-btn" data-a="${done ? 'back' : 'lbBack'}" aria-label="Back">${ic('arrowL', 22)}</button>
+        <div class="grow"><b class="t17">${kind === 'charger' ? 'List your chargers' : 'List your EV service'}</b>${done ? '' : `<p class="t12 muted">Step ${step + 1} of ${steps.length} · ${stepName}</p>`}</div>
+      </header>
+      ${done ? '' : `<div class="lb-steps pad">${steps.map((s, k) => `<i class="${k < step ? 'done' : k === step ? 'on' : ''}"></i>`).join('')}</div>`}
+      <div class="pad mt-16" style="padding-bottom:28px">${body}</div>
+    </div>
+    ${done ? '' : `<div class="lb-foot">
+      ${U.lb.err ? `<p class="err-msg" id="lb-err">${ic('info', 15)}${esc(U.lb.err)}</p>` : ''}
+      ${U.lb.busy ? `<p class="t13 muted" id="lb-progress" style="text-align:center">${esc(U.lb.progress || 'Sending…')}</p>` : ''}
+      ${stepName === 'Review'
+        ? `<button class="btn btn-primary btn-lg btn-block" data-a="lbSubmit" ${U.lb.busy ? 'disabled' : ''}>${U.lb.busy ? 'Sending…' : 'Submit for review'} ${U.lb.busy ? '' : ic('arrowR', 18)}</button>`
+        : `<button class="btn btn-primary btn-lg btn-block" data-a="lbNext">Continue ${ic('arrowR', 18)}</button>`}
+    </div>`}`,
+    after: () => { if (stepName === 'Location' && !done) lbMountMap() },
+  }
+}
