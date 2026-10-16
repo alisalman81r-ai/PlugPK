@@ -644,7 +644,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   <th
                     scope="colgroup"
                     colSpan={cars.length + 1}
-                    className="border-y border-slate-900/[0.08] bg-white/55 px-4 py-3.5 font-display text-[1.0625rem] font-extrabold uppercase tracking-[0.08em] text-plug-navy-800"
+                    className="border-y border-slate-900/[0.08] bg-white/55 px-4 py-3.5 font-display text-[1.0625rem] font-extrabold uppercase tracking-[0.08em] text-plug-navy-800 dark:text-slate-900"
                   >
                     {group.title}
                   </th>

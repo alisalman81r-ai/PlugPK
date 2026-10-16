@@ -485,7 +485,10 @@ export function CarsExplorer({
                 >
                   {masthead.title}
                   <br />
-                  <span className="text-plug-navy-700">{masthead.emphasis}</span>
+                  {/* plug-cyan-800 is the same #345A53 as plug-navy-700 in the light
+                      theme, but turns mint in the dark one; navy is a band colour
+                      and stays dark, which left this line invisible on a dark page. */}
+                  <span className="text-plug-cyan-800">{masthead.emphasis}</span>
                 </h2>
                 <p className="mt-4 max-w-xl text-ui leading-relaxed text-slate-600">
                   {masthead.blurb}

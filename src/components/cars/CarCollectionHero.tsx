@@ -405,7 +405,7 @@ function Stage({ cars }: { cars: Car[] }) {
               <span className="block truncate font-display text-lg font-bold leading-tight text-slate-900">
                 {carModelName(active)}
               </span>
-              <span className="mt-0.5 block text-ui-xs font-semibold text-plug-navy-700">
+              <span className="mt-0.5 block text-ui-xs font-semibold text-plug-cyan-800">
                 {formatCarPrice(active)}
                 {distance ? <span className="text-slate-500"> · up to {distance} km</span> : null}
               </span>

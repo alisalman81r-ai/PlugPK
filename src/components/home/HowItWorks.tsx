@@ -925,7 +925,10 @@ export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItW
                 <PeekVisual visual={next.visual} />
               </motion.div>
             </AnimatePresence>
-            <div className="absolute inset-0 bg-slate-50/55" />
+            {/* The page ground laid over the picture so it fades into the page.
+                55% of near-white does that over mint; 55% of the dark ground
+                left a solid grey slab, so the dark theme needs a heavier veil. */}
+            <div className="absolute inset-0 bg-slate-50/55 dark:bg-slate-50/85" />
           </div>
 
           {/* The card's shadow lives on a wrapper: clip-path would cut it off the card itself. */}
