@@ -775,15 +775,6 @@ function Visual({ visual, priority }: { visual: Visual; priority?: boolean }) {
   )
 }
 
-/** The peek only needs a hint of the next picture. */
-function PeekVisual({ visual }: { visual: Visual }) {
-  if (visual.kind === 'photo')
-    return (
-      <Image src={visual.image} alt="" fill sizes="104px" className="object-cover" style={{ objectPosition: `${visual.focusX} center` }} />
-    )
-  return <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_20%_10%,#E9FAF3_0%,#CDEFE2_45%,#A9DFCB_100%)]" />
-}
-
 const visualKey = (v: Visual) => (v.kind === 'photo' ? v.image : v.kind)
 
 export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItWorksProps) {
@@ -796,7 +787,6 @@ export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItW
   const clipId = React.useId().replace(/:/g, '')
   const n = slides.length
   const slide = slides[index]!
-  const next = slides[(index + 1) % n]!
 
   const go = React.useCallback((d: 1 | -1) => setState(([i]) => [(i + d + n) % n, d]), [n])
   const goTo = (i: number) => setState(([cur]) => [i, i >= cur ? 1 : -1])
@@ -908,29 +898,6 @@ export function HowItWorks({ stats, showcase, search, connectors, pins }: HowItW
 
         {/* ── The picture ────────────────────────────────────────────── */}
         <div className="relative order-1 mx-auto w-[min(20rem,78vw)] sm:w-[22rem] lg:order-2 lg:mr-[clamp(4rem,7vw,7.5rem)] lg:w-[clamp(22rem,27vw,27rem)]">
-          {/* The next step, peeking in from the right and dimmed. */}
-          <div
-            aria-hidden="true"
-            className="absolute left-[calc(100%+2.25rem)] top-[11%] hidden h-[74%] w-[6.5rem] overflow-hidden rounded-[1.75rem] sm:block"
-          >
-            <AnimatePresence initial={false}>
-              <motion.div
-                key={visualKey(next.visual)}
-                className="absolute inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={t(0.5)}
-              >
-                <PeekVisual visual={next.visual} />
-              </motion.div>
-            </AnimatePresence>
-            {/* The page ground laid over the picture so it fades into the page.
-                55% of near-white does that over mint; 55% of the dark ground
-                left a solid grey slab, so the dark theme needs a heavier veil. */}
-            <div className="absolute inset-0 bg-slate-50/55 dark:bg-slate-50/85" />
-          </div>
-
           {/* The card's shadow lives on a wrapper: clip-path would cut it off the card itself. */}
           <div className="[filter:drop-shadow(0_30px_40px_rgba(5,36,30,0.18))]">
             <motion.div
