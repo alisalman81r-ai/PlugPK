@@ -71,6 +71,29 @@ const jetbrainsMono = localFont({
   ],
 })
 
+/*
+  JetBrains Mono's 0 has a dot in its counter, and it is the only zero the font
+  has: the `zero` feature changes nothing. These files hold JetBrains Mono's own
+  0 at each weight with that dot removed — nothing else — and the face is
+  limited to U+0030, so the browser takes only the zero from it. Because it
+  does not cover the space character, it is never the "first available font",
+  so line height and every other glyph still come from JetBrains Mono.
+  Derived from JetBrains Mono, SIL Open Font License 1.1.
+*/
+const plainZero = localFont({
+  variable: '--font-plain-zero',
+  display: 'swap',
+  adjustFontFallback: false,
+  declarations: [{ prop: 'unicode-range', value: 'U+0030' }],
+  src: [
+    { path: './fonts/plain-zero-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/plain-zero-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/plain-zero-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/plain-zero-700.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/plain-zero-800.woff2', weight: '800', style: 'normal' },
+  ],
+})
+
 export const metadata: Metadata = {
   title: {
     default: "Plug.pk — Pakistan's EV Ecosystem Platform",
@@ -134,7 +157,7 @@ export default function RootLayout({
       <html> before React hydrates, which is the point of it. The exemption
       covers this one element's attributes, not its children.
     */
-    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable} ${plainZero.variable}`} suppressHydrationWarning>
       <head>
         {/* Inline and first, so the theme is set before anything paints. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />

@@ -2,6 +2,16 @@
    Tokens follow DESIGN.md: forest type, mist grounds, turquoise as a highlight only.
    Dark mode keeps the same greens and moves the grounds to ink and pine. */
 
+/* JetBrains Mono's only 0 has a dot inside. These faces are that same 0 at each
+   weight with the dot removed, limited to U+0030, so --mono takes just the zero
+   from them and everything else (and the line height) from JetBrains Mono.
+   Derived from JetBrains Mono, SIL Open Font License 1.1. */
+@font-face { font-family: "Plugpk Plain Zero"; src: url("fonts/plain-zero-400.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0030; }
+@font-face { font-family: "Plugpk Plain Zero"; src: url("fonts/plain-zero-500.woff2") format("woff2"); font-weight: 500; font-display: swap; unicode-range: U+0030; }
+@font-face { font-family: "Plugpk Plain Zero"; src: url("fonts/plain-zero-600.woff2") format("woff2"); font-weight: 600; font-display: swap; unicode-range: U+0030; }
+@font-face { font-family: "Plugpk Plain Zero"; src: url("fonts/plain-zero-700.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+0030; }
+@font-face { font-family: "Plugpk Plain Zero"; src: url("fonts/plain-zero-800.woff2") format("woff2"); font-weight: 800; font-display: swap; unicode-range: U+0030; }
+
 /* Layout: one phone screen. On a wide display it sits in a device frame; on a phone it is the whole page. */
 :root {
   --bg: #F1F4F3;
@@ -49,7 +59,7 @@
   --shadow-3: 0 8px 32px rgba(5,36,30,.12);
   --shadow-4: 0 24px 64px rgba(5,36,30,.20);
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mono: "Plugpk Plain Zero", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --r-sm: 12px;
   --r-md: 16px;
   --r-lg: 24px;

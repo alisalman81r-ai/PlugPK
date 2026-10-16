@@ -267,7 +267,7 @@ function calcResult() {
         <circle cx="66" cy="66" r="${R}" stroke="url(#rg)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="${(L * pct) / 100} ${L}" transform="rotate(-90 66 66)"/>
         <circle cx="66" cy="66" r="${R}" stroke="rgba(255,255,255,.35)" stroke-width="12" fill="none" stroke-dasharray="1.5 ${L}" stroke-dashoffset="${-(L * c.from) / 100}" transform="rotate(-90 66 66)"/>
         <defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stop-color="#4FDCC4"/><stop offset="1" stop-color="#26CDB2"/></linearGradient></defs>
-        <text x="66" y="64" text-anchor="middle" fill="#fff" font-family="JetBrains Mono, monospace" font-weight="700" font-size="26">${pct}%</text>
+        <text x="66" y="64" text-anchor="middle" fill="#fff" font-family="Plugpk Plain Zero, JetBrains Mono, monospace" font-weight="700" font-size="26">${pct}%</text>
         <text x="66" y="84" text-anchor="middle" fill="rgba(255,255,255,.55)" font-family="Figtree, sans-serif" font-size="12">target</text></svg>
     </div>
     <div class="garage-specs mt-16" style="position:relative">

@@ -154,7 +154,9 @@ const config: Config = {
           'Arial',
           'sans-serif',
         ],
-        mono: ['var(--font-jetbrains)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        /* --font-plain-zero covers the digit 0 only (see layout.tsx), so every
+           other character, and the line metrics, still come from JetBrains. */
+        mono: ['var(--font-plain-zero)', 'var(--font-jetbrains)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       /*
         The two heaviest weights, pulled back one step.

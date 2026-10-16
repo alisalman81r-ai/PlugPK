@@ -129,8 +129,8 @@ export const CAP_RULE = ''
   So the numeral takes the interface face, whose 0 is a plain oval. It loses
   the technical character the mono gave it; a stroked outline at this size is
   carrying the character anyway. Every other mono figure on the site — port
-  counts, distances, slugs — keeps JetBrains, where a dotted zero is an
-  advantage rather than a blemish.
+  counts, distances, slugs — keeps JetBrains, whose zero is now drawn without
+  the dot site-wide (the plain-zero face in src/app/layout.tsx).
 */
 export const NUMERAL =
   'pointer-events-none absolute right-7 top-8 flex h-14 select-none items-center ' +
