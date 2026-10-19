@@ -9,7 +9,7 @@ import { Button } from '@/components/ui'
 import { ArrowRight } from '@/components/ui/icons'
 import { confirmEmail } from '@/lib/db/auth-actions'
 
-export function ConfirmEmailButton({ token }: { token: string }) {
+export function ConfirmEmailButton({ tokenHash, type }: { tokenHash: string; type: string }) {
   const router = useRouter()
   const [busy, setBusy] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -19,7 +19,7 @@ export function ConfirmEmailButton({ token }: { token: string }) {
     setError(null)
     let result: Awaited<ReturnType<typeof confirmEmail>>
     try {
-      result = await confirmEmail(token)
+      result = await confirmEmail(tokenHash, type)
     } catch {
       result = { ok: false, message: 'We could not reach the server. Check your connection and try again.' }
     }

@@ -1,15 +1,34 @@
 // src/lib/db/member-actions.ts
 'use server'
 
-import { randomBytes, randomInt } from 'node:crypto'
+import { randomInt } from 'node:crypto'
 
 import { revalidatePath } from 'next/cache'
 
 import { assertAdmin, type AdminActor } from './admin-access'
 import { logAdminAction } from './audit'
 
-import { hashPassword } from '@/lib/passwords'
+import { authErrorCode, supabaseAdmin } from '@/lib/supabase-auth'
 import { prisma } from './client'
+
+/**
+ * Removes the account's Supabase user, so its email and password can never
+ * sign in again. Runs before the website row changes: sign-in recreates a
+ * website account for any Supabase user it cannot find, so a Supabase user
+ * left behind would bring a deleted member back.
+ */
+async function removeAuthUser(authUserId: string | null): Promise<boolean> {
+  if (!authUserId) return true
+  const { error } = await supabaseAdmin().auth.admin.deleteUser(authUserId)
+  if (!error || authErrorCode(error) === 'user_not_found') return true
+  console.error('[admin] could not delete Supabase user', authErrorCode(error), error.message)
+  return false
+}
+
+const AUTH_FAILED: MemberResult = {
+  ok: false,
+  message: 'Could not remove their sign-in from Supabase. Nothing was changed; try again.',
+}
 
 /**
  * Administration of registered accounts.
@@ -89,6 +108,7 @@ export async function deleteMember(id: string): Promise<MemberResult> {
         name: true,
         email: true,
         isAdmin: true,
+        authUserId: true,
         _count: { select: { businesses: true, memberships: true } },
       },
     })
@@ -102,6 +122,8 @@ export async function deleteMember(id: string): Promise<MemberResult> {
         message: `${user.name} has ${user._count.memberships} membership record${user._count.memberships === 1 ? '' : 's'}, which would be deleted with the account. Anonymise them instead — that keeps the payment record and removes the person.`,
       }
     }
+
+    if (!(await removeAuthUser(user.authUserId))) return AUTH_FAILED
 
     const posts = await prisma.communityPost.findMany({ where: { userId: id }, select: { id: true } })
     const postIds = posts.map((post) => post.id)
@@ -171,8 +193,8 @@ async function commentCountCorrections(userId: string, ownPostIds: string[]) {
  *
  * - name becomes "Deleted member", email a unique address on the reserved
  *   .invalid domain (so the unique index holds and nothing can be sent there);
- * - the password hash is replaced by one of 48 random bytes nobody has, so the
- *   account can never be signed into again;
+ * - their Supabase user is deleted and the link to it cleared, so the account
+ *   can never be signed into again;
  * - avatar, city and vehicle are cleared, and every open session ends;
  * - the copies of their name and picture on posts, comments and reviews are
  *   rewritten too, since those were denormalised onto each row.
@@ -187,14 +209,14 @@ export async function anonymiseMember(id: string): Promise<MemberResult> {
   try {
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { id: true, name: true, email: true, isAdmin: true },
+      select: { id: true, name: true, email: true, isAdmin: true, authUserId: true },
     })
     if (!user) return { ok: false, message: 'That account no longer exists.' }
     if (user.isAdmin) {
       return { ok: false, message: `${user.name} is an admin. Remove their admin role first.` }
     }
 
-    const unusable = await hashPassword(randomBytes(48).toString('base64url'))
+    if (!(await removeAuthUser(user.authUserId))) return AUTH_FAILED
 
     await prisma.$transaction([
       prisma.user.update({
@@ -202,7 +224,9 @@ export async function anonymiseMember(id: string): Promise<MemberResult> {
         data: {
           name: DELETED_NAME,
           email: `deleted-${id}@deleted.invalid`,
-          passwordHash: unusable,
+          passwordHash: null,
+          authUserId: null,
+          emailVerifiedAt: null,
           avatar: null,
           city: null,
           vehicle: null,
@@ -243,10 +267,10 @@ export async function anonymiseMember(id: string): Promise<MemberResult> {
 /**
  * Gives a member a new, one-time password, shown to the admin once.
  *
- * The site has no email service, so "forgot password" cannot send a link. A
- * member who is locked out writes to support from the address on the account;
- * an admin sets a temporary password here and passes it on, and the member is
- * made to change it on their next sign-in. Only the hash is stored — the plain
+ * "Forgot password?" emails a reset link now; this stays for a member who
+ * cannot receive it and writes to support from the address on the account. An
+ * admin sets a temporary password here and passes it on, and the member is
+ * made to change it on their next sign-in. Supabase stores it — the plain
  * password exists in this response and nowhere else.
  *
  * The reset also ends every session the account has open. A locked-out member
@@ -266,7 +290,10 @@ export async function setTemporaryPassword(id: string): Promise<MemberResult & {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { id }, select: { id: true, name: true, email: true, isAdmin: true } })
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, name: true, email: true, isAdmin: true, authUserId: true },
+    })
     if (!user) return { ok: false, message: 'That account no longer exists.' }
     if (user.isAdmin) {
       return {
@@ -287,10 +314,29 @@ export async function setTemporaryPassword(id: string): Promise<MemberResult & {
     }
     const password = chars.join('')
 
+    // Supabase holds the password. An account not yet moved there gets its
+    // Supabase user now, still unconfirmed: a temporary password from support
+    // does not skip confirming the email.
+    let authUserId = user.authUserId
+    if (authUserId) {
+      const { error } = await supabaseAdmin().auth.admin.updateUserById(authUserId, { password })
+      if (error) throw error
+    } else {
+      const { data, error } = await supabaseAdmin().auth.admin.createUser({
+        email: user.email,
+        password,
+        email_confirm: false,
+        user_metadata: { name: user.name },
+      })
+      if (error || !data.user) throw error ?? new Error('createUser returned no user')
+      authUserId = data.user.id
+    }
+
     await prisma.user.update({
       where: { id },
       data: {
-        passwordHash: await hashPassword(password),
+        authUserId,
+        passwordHash: null,
         mustChangePassword: true,
         sessionVersion: { increment: 1 },
       },

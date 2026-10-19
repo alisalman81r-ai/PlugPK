@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { ConfirmEmailButton } from '@/components/auth/ConfirmEmailButton'
 import { buttonClasses } from '@/components/ui'
-import { isVerificationTokenLive } from '@/lib/db/email-verification'
 
 export const metadata: Metadata = {
   title: 'Confirm your email',
@@ -16,26 +15,27 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 interface PageProps {
-  searchParams: { token?: string }
+  searchParams: { token_hash?: string; type?: string }
 }
 
 /*
-  Where the emailed link lands. Opening the page uses nothing up — the button
-  does, through a POST. Mail scanners fetch links to check them, and a page
-  that redeemed the token on GET would let one spend it before the person
+  Where Supabase's confirmation email lands (its "Confirm signup" template
+  links here with token_hash and type). Opening the page uses nothing up — the
+  button does, through a POST. Mail scanners fetch links to check them, and a
+  page that redeemed the token on GET would let one spend it before the person
   ever clicked.
 */
-export default async function VerifyEmailPage({ searchParams }: PageProps) {
-  const token = typeof searchParams.token === 'string' ? searchParams.token : ''
-  const live = token ? await isVerificationTokenLive(token) : false
+export default function VerifyEmailPage({ searchParams }: PageProps) {
+  const tokenHash = typeof searchParams.token_hash === 'string' ? searchParams.token_hash : ''
+  const type = searchParams.type === 'email' ? 'email' : 'signup'
 
-  if (!live) {
+  if (!tokenHash) {
     return (
       <>
         <AuthHeader
           eyebrow="Confirm your email"
-          title="This link no longer works"
-          subtitle="It has expired, was already used, or a newer one was sent. Sign in with your email and password and we'll offer to send a fresh link. If you already confirmed, you can just sign in."
+          title="This link is incomplete"
+          subtitle="Open the link straight from the email we sent. If it still does not work, sign in with your email and password and we'll offer to send a fresh one."
         />
         <Link href="/login" className={buttonClasses({ size: 'lg', fullWidth: true })}>
           Go to sign in
@@ -51,7 +51,7 @@ export default async function VerifyEmailPage({ searchParams }: PageProps) {
         title="Confirm your email"
         subtitle="One click and your account is active. You'll be signed in on this device."
       />
-      <ConfirmEmailButton token={token} />
+      <ConfirmEmailButton tokenHash={tokenHash} type={type} />
     </>
   )
 }
