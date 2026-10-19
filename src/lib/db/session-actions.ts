@@ -26,6 +26,8 @@ export interface SessionResult {
    * whether an account may use the operator portal is a fact about its row.
    */
   redirectTo?: string
+  /** The password was right but the email is not confirmed yet. */
+  unverified?: boolean
 }
 
 export interface CurrentUser {
@@ -71,6 +73,15 @@ export async function signIn(form: FormData): Promise<SessionResult> {
 
   if (!user) return WRONG
   if (!(await verifyPassword(password, user.passwordHash))) return WRONG
+
+  // Said only after the password matched, so it reveals nothing to a guesser.
+  if (!user.emailVerifiedAt) {
+    return {
+      ok: false,
+      unverified: true,
+      message: 'Confirm your email first: open the link we sent when you signed up.',
+    }
+  }
 
   if (!(await startSession(user.id))) {
     console.error('[auth] could not start a session:', getUserAuthConfigError())

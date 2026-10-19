@@ -10,6 +10,7 @@ import { Button, MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import { authHref } from './auth-links'
+import { CheckEmailPanel } from './CheckEmailPanel'
 import {
   EMAIL_PATTERN,
   FIELD_CLASS,
@@ -33,6 +34,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   const [error, setError] = React.useState<string | null>(null)
   const [fieldError, setFieldError] = React.useState<string | null>(null)
   const [attempts, setAttempts] = React.useState(0)
+  const [unverified, setUnverified] = React.useState(false)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -88,8 +90,17 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
       return
     }
 
+    if (result.unverified) {
+      setUnverified(true)
+      return
+    }
+
     setError(result.message ?? 'Incorrect email or password')
     setAttempts((count) => count + 1)
+  }
+
+  if (unverified) {
+    return <CheckEmailPanel email={email.trim().toLowerCase()} onBack={() => setUnverified(false)} />
   }
 
   return (

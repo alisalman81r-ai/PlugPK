@@ -3,7 +3,6 @@
 
 import { AlertCircle, Check, Eye, EyeOff, Lock, Mail, User } from '@/components/ui/icons'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { Button, MorphIcon } from '@/components/ui'
@@ -11,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { registerUser } from '@/lib/db/auth-actions'
 
 import { authHref } from './auth-links'
+import { CheckEmailPanel } from './CheckEmailPanel'
 
 export interface SignUpFormProps {
   onSuccess?: () => void
@@ -125,8 +125,7 @@ interface Errors {
 }
 
 export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
-  const router = useRouter()
-
+  const [sentTo, setSentTo] = React.useState<string | null>(null)
   const [fullName, setFullName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -188,6 +187,8 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     payload.set('name', fullName)
     payload.set('email', email)
     payload.set('password', password)
+    // Where the emailed link lands once the address is confirmed.
+    if (redirectTo) payload.set('redirect', redirectTo)
 
     let result: Awaited<ReturnType<typeof registerUser>>
     try {
@@ -202,9 +203,14 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
       return
     }
 
+    // No session yet: the account starts once the emailed link is opened, and
+    // that link carries on to redirectTo (or vehicle onboarding).
     onSuccess?.()
-    router.push(redirectTo ?? '/onboarding/vehicle')
+    setPassword('')
+    setSentTo(result.verifyEmail ?? email.trim().toLowerCase())
   }
+
+  if (sentTo) return <CheckEmailPanel email={sentTo} onBack={() => setSentTo(null)} />
 
   return (
     <form onSubmit={handleSubmit} noValidate>

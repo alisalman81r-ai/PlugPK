@@ -186,6 +186,12 @@ async function signInRemote(mode, values) {
   const r = await api('session', { method: 'POST', body: { mode, name: values.name, email: values.email, password: values.password } })
   if (r.offline) return 'You seem to be offline. Connect and try again.'
   if (!r.ok) return r.message || 'That did not work. Please try again.'
+  // A new account has no session until its email is confirmed: send them to
+  // their inbox, and leave the form on "Sign in" for when they come back.
+  if (r.verifyEmail) {
+    U.authMode = 'signin'
+    return `Almost done: we sent a link to ${esc(r.verifyEmail)}. Open it to activate your account, then sign in.`
+  }
   const snapshot = await api('session')
   if (!snapshot.user) return 'Signed in, but this browser blocked the session cookie.'
   applyServer(snapshot, { merge: true })

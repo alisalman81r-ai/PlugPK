@@ -27,6 +27,7 @@ import { prisma } from './client'
  * Checks the signature and expiry, then that the account still exists and the
  * cookie's version matches User.sessionVersion — so a deleted account, a
  * password change or an operator reset ends the session on the next request.
+ * An account whose email is unverified never has a session.
  */
 export async function getSessionUserId(): Promise<string | null> {
   const claims = readUserSession(cookies().get(USER_COOKIE_NAME)?.value)
@@ -34,19 +35,24 @@ export async function getSessionUserId(): Promise<string | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: claims.userId },
-    select: { sessionVersion: true },
+    select: { sessionVersion: true, emailVerifiedAt: true },
   })
-  if (!user || user.sessionVersion !== claims.version) return null
+  if (!user || user.sessionVersion !== claims.version || !user.emailVerifiedAt) return null
   return claims.userId
 }
 
-/** Issues the session cookie for an account at its current version. */
+/**
+ * Issues the session cookie for an account at its current version.
+ *
+ * Refuses an unverified account. This is the one place a session is made, so
+ * checking here covers every caller — sign-in, sign-up and any added later.
+ */
 export async function startSession(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { sessionVersion: true },
+    select: { sessionVersion: true, emailVerifiedAt: true },
   })
-  if (!user) return false
+  if (!user || !user.emailVerifiedAt) return false
 
   const value = createUserSessionValue(userId, user.sessionVersion)
   if (!value) return false

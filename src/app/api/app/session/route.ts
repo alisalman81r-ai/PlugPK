@@ -38,9 +38,11 @@ export async function POST(request: Request) {
   }
 
   if (body.mode === 'signup') {
+    // The emailed link brings them back into the app once confirmed.
+    form.set('redirect', '/app-prototype')
     const result = await registerUser(form)
     if (!result.ok) return json({ ok: false, message: result.message ?? 'Could not create the account.' })
-    const email = String(body.email ?? '').trim().toLowerCase()
+    const email = result.verifyEmail ?? String(body.email ?? '').trim().toLowerCase()
     const user = await prisma.user.update({
       where: { email },
       data: { signupSource: 'app', lastAppActiveAt: new Date() },
@@ -54,11 +56,18 @@ export async function POST(request: Request) {
       targetId: user.id,
       summary: `${user.name} created an account in the app`,
     })
-    return json({ ok: true })
+    // No session yet: the account is inactive until the emailed link is opened.
+    return json({ ok: true, verifyEmail: user.email })
   }
 
   const result = await signIn(form)
-  if (!result.ok) return json({ ok: false, message: result.message ?? 'Email or password is incorrect.' })
+  if (!result.ok) {
+    return json({
+      ok: false,
+      unverified: result.unverified === true,
+      message: result.message ?? 'Email or password is incorrect.',
+    })
+  }
 
   const email = String(body.email ?? '').trim().toLowerCase()
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, email: true, name: true } })

@@ -326,6 +326,12 @@ model User {
   /// account that has never used it.
   lastAppActiveAt DateTime?
 
+  /// When the owner proved they hold the address, by opening the link we
+  /// emailed. Null means unverified: no session is ever issued for the account
+  /// (session.ts refuses), so it cannot sign in or act. Accounts that existed
+  /// before verification shipped were backfilled with their createdAt.
+  emailVerifiedAt DateTime?
+
   createdAt DateTime @default(now())
 
   businesses  Business[]
@@ -334,6 +340,7 @@ model User {
   routes      SavedRoute[]
   clubs       ClubMember[]
   memberships Membership[]
+  emailTokens EmailToken[]
 
   @@index([createdAt])
   @@index([lastAppActiveAt])
@@ -1421,6 +1428,28 @@ model PostLike {
 
   @@id([postId, userId])
   @@index([userId])
+}
+
+/// A single-use link sent by email — today only "verify this address".
+///
+/// Only a SHA-256 of the token is stored. The token itself exists in the email
+/// and nowhere else, so read access to this table cannot be turned into a
+/// working link. usedAt is set by the same statement that checks it is null,
+/// so a link cannot be redeemed twice by two simultaneous clicks.
+model EmailToken {
+  id         String    @id
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// 'verify'
+  purpose    String
+  tokenHash  String    @unique
+  /// Where to land after confirming, already passed through safeRedirect.
+  redirectTo String?
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, purpose])
 }
 
 /// Fixed-window counters for rate limiting (sign-in attempts, public forms,
