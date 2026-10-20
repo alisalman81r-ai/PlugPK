@@ -1,13 +1,13 @@
 // src/app/api/app/session/route.ts
 //
 // The mobile app's account: who is signed in (with everything the app keeps
-// per account), signing in or up, and signing out. Sign-in and sign-up are the
+// per account), signing in or up, confirming the emailed code, and signing out. Sign-in and sign-up are the
 // website's own actions, so the same passwords, rules and rate limits apply,
 // and an account made in the app works on the website and the other way round.
 
 import { prisma } from '@/lib/db/client'
 import { FORBIDDEN, appSnapshot, json, recordAppEvent, sameOrigin, touchAppActive } from '@/lib/db/app-api'
-import { registerUser } from '@/lib/db/auth-actions'
+import { registerUser, resendVerification, verifyEmailCode } from '@/lib/db/auth-actions'
 import { getSessionUserId } from '@/lib/db/session'
 import { signIn, signOut } from '@/lib/db/session-actions'
 
@@ -21,7 +21,11 @@ export async function GET() {
   return json(snapshot)
 }
 
-/** `{ mode: 'signin' | 'signup', name?, email, password }` */
+/**
+ * `{ mode: 'signin' | 'signup', name?, email, password }`
+ * `{ mode: 'verify', email, code }`  — the 6-digit code; signs in on success
+ * `{ mode: 'resend', email }`        — a new code
+ */
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return FORBIDDEN()
 
@@ -37,9 +41,33 @@ export async function POST(request: Request) {
     if (typeof body[key] === 'string') form.set(key, body[key] as string)
   }
 
+  if (body.mode === 'verify') {
+    const result = await verifyEmailCode(String(body.email ?? ''), String(body.code ?? ''))
+    if (!result.ok) {
+      return json({ ok: false, needsNewCode: result.needsNewCode === true, message: result.message ?? 'That code is not right.' })
+    }
+    const user = await prisma.user.findUnique({
+      where: { email: String(body.email ?? '').trim().toLowerCase() },
+      select: { id: true, email: true, name: true },
+    })
+    if (user) {
+      await recordAppEvent({
+        userId: user.id,
+        userEmail: user.email,
+        type: 'account.verify',
+        targetType: 'member',
+        targetId: user.id,
+        summary: `${user.name} confirmed their email in the app`,
+      })
+    }
+    return json({ ok: true })
+  }
+
+  if (body.mode === 'resend') {
+    return json(await resendVerification(String(body.email ?? '')))
+  }
+
   if (body.mode === 'signup') {
-    // The emailed link brings them back into the app once confirmed.
-    form.set('redirect', '/app-prototype')
     const result = await registerUser(form)
     if (!result.ok) return json({ ok: false, message: result.message ?? 'Could not create the account.' })
     const email = result.verifyEmail ?? String(body.email ?? '').trim().toLowerCase()
@@ -56,8 +84,8 @@ export async function POST(request: Request) {
       targetId: user.id,
       summary: `${user.name} created an account in the app`,
     })
-    // No session yet: the account is inactive until the emailed link is opened.
-    return json({ ok: true, verifyEmail: user.email })
+    // No session yet: the account is inactive until the emailed code is entered.
+    return json({ ok: true, verifyEmail: user.email, emailSent: result.emailSent === true, message: result.message })
   }
 
   const result = await signIn(form)
@@ -65,6 +93,7 @@ export async function POST(request: Request) {
     return json({
       ok: false,
       unverified: result.unverified === true,
+      emailSent: result.emailSent === true,
       message: result.message ?? 'Email or password is incorrect.',
     })
   }

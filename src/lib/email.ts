@@ -1,18 +1,27 @@
 // src/lib/email.ts
 import 'server-only'
 
-import { SITE_CONFIG } from '@/lib/constants'
+import { lookup } from 'node:dns/promises'
+import { isIP } from 'node:net'
+
+import nodemailer from 'nodemailer'
 
 /**
- * Outgoing email, through Resend's HTTP API.
+ * Outgoing email over SMTP — Gmail (smtp.gmail.com:587 with an app password)
+ * or any other provider.
  *
- * A plain fetch rather than the SDK: one endpoint, one request shape, and no
- * dependency to keep current for it.
+ *   SMTP_HOST   e.g. smtp.gmail.com
+ *   SMTP_PORT   587 (STARTTLS) or 465 (TLS from the first byte)
+ *   SMTP_USER   the mailbox to sign in as
+ *   SMTP_PASS   its password — for Gmail, a 16-character app password
+ *   MAIL_FROM   sender shown to recipients, e.g. "Plug.pk <you@gmail.com>"
  *
- * Production needs RESEND_API_KEY and EMAIL_FROM, and fails closed without
- * them — sign-up refuses rather than create accounts nobody can verify. In
- * development, with no key, the message is printed to the server console
- * instead, so the whole flow can be clicked through locally.
+ * Every variable is required in every environment. There is no "print it to
+ * the console instead" fallback: a verification code in a log is a code
+ * anyone with log access can use. Sign-up refuses while email is not set up.
+ *
+ * Nothing secret is ever logged — not the password, not the message body
+ * (which carries the code). Failures log the SMTP error code and response only.
  */
 
 export interface OutgoingEmail {
@@ -22,67 +31,87 @@ export interface OutgoingEmail {
   html: string
 }
 
-function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production'
+export interface SendResult {
+  ok: boolean
+  /** SMTP's reply to the message, e.g. "250 2.0.0 OK …", when it was accepted. */
+  response?: string
 }
 
-/** Null when email can be sent (or printed, in development). */
+/** Null when email can be sent; otherwise which setting is missing. */
 export function getEmailConfigError(): string | null {
-  if (!isProduction()) return null
-  if (!process.env.RESEND_API_KEY) return 'RESEND_API_KEY is not set.'
-  if (!process.env.EMAIL_FROM) return 'EMAIL_FROM is not set.'
+  for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'MAIL_FROM'] as const) {
+    if (!process.env[key]?.trim()) return `${key} is not set.`
+  }
+  const port = Number(process.env.SMTP_PORT)
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) return 'SMTP_PORT is not a port number.'
   return null
 }
 
 /**
- * The origin links in emails point at.
+ * Connects over IPv4.
  *
- * Never taken from the request's Host header: that is chosen by whoever sends
- * the request, and would let them have our server mail a real member a link
- * to their own site.
+ * On some Windows machines smtp.gmail.com resolves to an IPv6 address first
+ * and the connection fails with ECONNREFUSED on port 587, because the network
+ * has no working IPv6 route. Every SMTP host also answers on IPv4, so the name
+ * is resolved to an IPv4 address here, and the original name is kept as the
+ * TLS servername — the certificate is still checked against smtp.gmail.com,
+ * not against an IP address. On Vercel, IPv4 is what it would use anyway.
  */
-export function appOrigin(): string {
-  const configured = process.env.APP_URL?.trim().replace(/\/+$/, '')
-  if (configured) return configured
-  return isProduction() ? SITE_CONFIG.url : 'http://localhost:3000'
+async function ipv4For(host: string): Promise<string> {
+  if (isIP(host)) return host
+  try {
+    const { address } = await lookup(host, { family: 4 })
+    return address
+  } catch {
+    // No IPv4 record: let the connection resolve the name normally.
+    return host
+  }
 }
 
-export async function sendEmail(message: OutgoingEmail): Promise<boolean> {
-  const key = process.env.RESEND_API_KEY
-
-  if (!key) {
-    if (isProduction()) {
-      console.error('[email] not sent:', getEmailConfigError())
-      return false
-    }
-    console.info(
-      `\n[email] RESEND_API_KEY is not set, so this was not sent:\n` +
-        `  to:      ${message.to}\n  subject: ${message.subject}\n\n${message.text}\n`,
-    )
-    return true
+export async function sendEmail(message: OutgoingEmail): Promise<SendResult> {
+  const configError = getEmailConfigError()
+  if (configError) {
+    console.error('[email] not sent:', configError)
+    return { ok: false }
   }
 
+  const host = process.env.SMTP_HOST!.trim()
+  const port = Number(process.env.SMTP_PORT)
+
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM ?? `Plug.pk <${SITE_CONFIG.email}>`,
-        to: [message.to],
-        subject: message.subject,
-        text: message.text,
-        html: message.html,
-      }),
-      cache: 'no-store',
+    const transport = nodemailer.createTransport({
+      host: await ipv4For(host),
+      port,
+      // 465 is TLS from the start; 587 upgrades with STARTTLS.
+      secure: port === 465,
+      // Refuse to send credentials over a connection that did not upgrade.
+      // SMTP_REQUIRE_TLS=false exists only for a local test server.
+      requireTLS: port !== 465 && process.env.SMTP_REQUIRE_TLS !== 'false',
+      auth: { user: process.env.SMTP_USER!.trim(), pass: process.env.SMTP_PASS! },
+      tls: { servername: isIP(host) ? undefined : host },
+      connectionTimeout: 15_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
     })
-    if (!response.ok) {
-      console.error('[email] Resend refused the message:', response.status, await response.text())
-      return false
+
+    const info = await transport.sendMail({
+      from: process.env.MAIL_FROM!.trim(),
+      to: message.to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    })
+    transport.close()
+
+    if (info.rejected.length > 0 || info.accepted.length === 0) {
+      console.error('[email] recipient refused by SMTP:', info.response)
+      return { ok: false }
     }
-    return true
+    return { ok: true, response: info.response }
   } catch (error) {
-    console.error('[email] could not reach Resend:', error)
-    return false
+    const e = error as { code?: string; responseCode?: number; response?: string; command?: string }
+    console.error('[email] SMTP send failed:', e.code ?? 'error', e.responseCode ?? '', e.command ?? '', e.response ?? '')
+    return { ok: false }
   }
 }
 

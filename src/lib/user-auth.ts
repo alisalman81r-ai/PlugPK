@@ -43,6 +43,9 @@ function getSecret(): string | null {
   return fallback && fallback.length > 0 ? fallback : null
 }
 
+/** The same key, for other server-side HMACs (email verification codes). */
+export const getServerSecret = getSecret
+
 export function getUserAuthConfigError(): string | null {
   if (getSecret()) return null
   return process.env.NODE_ENV === 'production'

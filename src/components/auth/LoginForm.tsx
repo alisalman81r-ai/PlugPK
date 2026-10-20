@@ -10,7 +10,7 @@ import { Button, MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import { authHref } from './auth-links'
-import { CheckEmailPanel } from './CheckEmailPanel'
+import { VerifyEmailForm } from './VerifyEmailForm'
 import {
   EMAIL_PATTERN,
   FIELD_CLASS,
@@ -34,7 +34,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   const [error, setError] = React.useState<string | null>(null)
   const [fieldError, setFieldError] = React.useState<string | null>(null)
   const [attempts, setAttempts] = React.useState(0)
-  const [unverified, setUnverified] = React.useState(false)
+  const [unverified, setUnverified] = React.useState<{ sent: boolean; notice?: string } | null>(null)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -91,7 +91,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
     }
 
     if (result.unverified) {
-      setUnverified(true)
+      setUnverified({ sent: result.emailSent === true, notice: result.message })
       return
     }
 
@@ -100,7 +100,14 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   }
 
   if (unverified) {
-    return <CheckEmailPanel email={email.trim().toLowerCase()} onBack={() => setUnverified(false)} />
+    return (
+      <VerifyEmailForm
+        email={email.trim().toLowerCase()}
+        sent={unverified.sent}
+        notice={unverified.notice}
+        onBack={() => setUnverified(null)}
+      />
+    )
   }
 
   return (

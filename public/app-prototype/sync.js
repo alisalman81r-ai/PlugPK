@@ -181,26 +181,117 @@ async function bootSync() {
   }
 }
 
-/** Real sign-in or sign-up. Returns an error message, or null on success. */
+/** Returned by signInRemote when the next step is entering the emailed code. */
+const VERIFY = '__verify__'
+
+/**
+ * Real sign-in or sign-up. Returns an error message, null on success, or
+ * VERIFY when the account needs its emailed 6-digit code first (a new
+ * sign-up, or signing in before confirming) — U.verify then holds the state.
+ */
 async function signInRemote(mode, values) {
   const r = await api('session', { method: 'POST', body: { mode, name: values.name, email: values.email, password: values.password } })
   if (r.offline) return 'You seem to be offline. Connect and try again.'
+  if (!r.ok && r.unverified) return startVerify(values.email, r.emailSent, r.message)
   if (!r.ok) return r.message || 'That did not work. Please try again.'
-  // A new account has no session until its email is confirmed: send them to
-  // their inbox, and leave the form on "Sign in" for when they come back.
-  if (r.verifyEmail) {
-    U.authMode = 'signin'
-    return `Almost done: we sent a link to ${esc(r.verifyEmail)}. Open it to activate your account, then sign in.`
-  }
+  // A new account has no session until its email is confirmed.
+  if (r.verifyEmail) return startVerify(r.verifyEmail, r.emailSent, r.message)
+  return finishSignIn(r.mustChangePassword)
+}
+
+/** After the server set the session cookie: load the account into the app. */
+async function finishSignIn(mustChangePassword) {
   const snapshot = await api('session')
   if (!snapshot.user) return 'Signed in, but this browser blocked the session cookie.'
   applyServer(snapshot, { merge: true })
   SYNC.ready = true
   await loadFeed()
   push()
-  if (r.mustChangePassword) toast('Set a new password on plug.pk before anything else', 'lock')
+  if (mustChangePassword) toast('Set a new password on plug.pk before anything else', 'lock')
   return null
 }
+
+// ─── Email verification: the 6-digit code ──────────────────────────
+//
+// Same server actions as the website (api/app/session modes 'verify' and
+// 'resend'): the same code, expiry, attempt limit and rate limits. Shown in
+// place of the sign-in form — the full screen during onboarding, the sheet
+// after it — and on success carries on exactly as a sign-in would.
+
+function startVerify(email, sent, message) {
+  const sentOk = sent === true
+  U.verify = { email: String(email || '').trim().toLowerCase(), err: sentOk ? null : message || null, note: sentOk ? message || null : null }
+  U.authErr = null
+  return VERIFY
+}
+
+const reRenderAuth = () => (S.onboarded ? renderSheet() : render())
+
+function verifyFormHtml() {
+  const v = U.verify
+  return `<form class="stack gap-12" data-submit="verifySubmit" novalidate>
+      <p class="t14 muted">We sent a 6-digit code to <b>${esc(v.email)}</b>. Your account stays inactive until you enter it. It expires in 10 minutes — check spam if it isn’t there.</p>
+      <div><label class="label" for="vf-code">Verification code</label>
+        <input class="input ${v.err ? 'bad' : ''}" id="vf-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="123456" style="text-align:center;font-size:24px;letter-spacing:.5em;font-family:var(--mono, ui-monospace, monospace)"></div>
+      ${v.err ? `<p class="err-msg" role="alert">${ic('info', 15)}${esc(v.err)}</p>` : ''}
+      ${v.note ? `<p class="t14" role="status" style="color:var(--ok-fg)">${esc(v.note)}</p>` : ''}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Verify email ${ic('arrowR', 18)}</button>
+      <button class="btn btn-secondary btn-block" type="button" data-a="verifyResend">Send a new code</button>
+      <button class="link" type="button" style="width:100%;justify-content:center" data-a="verifyBack">Use a different email</button>
+    </form>`
+}
+
+/** The onboarding screen's version: same header as the account step. */
+function verifyScreen() {
+  return {
+    sb: 'light',
+    html: `<div class="pk"><div class="scroll" style="padding-bottom:32px">
+      <header class="pk-head">
+        <div class="row between">
+          <button class="icon-btn" data-a="verifyBack" aria-label="Back">${ic('arrowL', 22)}</button>
+          <span class="mono t12" style="color:rgba(255,255,255,.6);letter-spacing:.08em">STEP 1 OF 2</span>
+          <span></span>
+        </div>
+        <div class="ob-progress mt-12" style="grid-template-columns:1fr 1fr"><i class="on"></i><i></i></div>
+        <div class="eyebrow mt-16" style="color:#8EEEDA">${ic('mail', 13)} Confirm your email</div>
+        <h1 class="band-title mt-8">Enter your <span class="hl">code</span></h1>
+      </header>
+      <div class="pad mt-16">${verifyFormHtml()}</div>
+    </div></div>`,
+  }
+}
+
+A.verifySubmit = async (_, f) => {
+  if (U.verifyBusy) return
+  const code = String(new FormData(f).get('code') || '').replace(/\D/g, '')
+  if (code.length !== 6) { U.verify.err = 'Enter the 6-digit code from the email.'; U.verify.note = null; return reRenderAuth() }
+  U.verifyBusy = true
+  const btn = f.querySelector('[type="submit"]')
+  if (btn) { btn.disabled = true; btn.textContent = 'Checking…' }
+  const r = await api('session', { method: 'POST', body: { mode: 'verify', email: U.verify.email, code } })
+  let error = r.offline ? 'You seem to be offline. Connect and try again.' : !r.ok ? r.message || 'That code is not right.' : null
+  if (!error) error = await finishSignIn(false)
+  U.verifyBusy = false
+  if (error) { U.verify.err = error; U.verify.note = null; return reRenderAuth() }
+  U.verify = null
+  if (S.onboarded) { closeSheet(); render(); return toast(`Signed in as ${S.user.name}`, 'user') }
+  // Onboarding carries on to choosing a car, as after any sign-in.
+  U.onbStep = SLIDES.length + 1
+  render()
+}
+
+A.verifyResend = async () => {
+  if (U.verifyBusy) return
+  U.verifyBusy = true
+  const r = await api('session', { method: 'POST', body: { mode: 'resend', email: U.verify.email } })
+  U.verifyBusy = false
+  if (r.offline) { U.verify.err = 'You seem to be offline. Connect and try again.'; U.verify.note = null }
+  else if (r.ok) { U.verify.note = r.message; U.verify.err = null }
+  else { U.verify.err = r.message || 'Could not send a new code. Try again in a minute.'; U.verify.note = null }
+  reRenderAuth()
+}
+
+A.verifyBack = () => { U.verify = null; U.authErr = null; reRenderAuth() }
 
 async function signOutRemote() {
   SYNC.ready = false

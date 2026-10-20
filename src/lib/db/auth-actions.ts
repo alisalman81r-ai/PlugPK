@@ -12,7 +12,7 @@ import { safeRedirect } from '@/lib/safe-redirect'
 import { checkEmail, checkText } from '@/lib/validate'
 
 import { prisma } from './client'
-import { redeemVerificationToken, sendVerificationEmail } from './email-verification'
+import { checkVerificationCode, sendVerificationCode, type SendCodeResult } from './email-verification'
 import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 import { startSession } from './session'
 
@@ -25,16 +25,26 @@ import { startSession } from './session'
  * hashPassword and verifyPassword used to be exported from here, which made
  * them public endpoints; they now live in a server-only module.
  *
- * A new account is not signed in. It gets an emailed link, and only opening
- * that link (confirmEmail) verifies the address and starts a session — so
- * nobody can hold an account under an address they do not control.
+ * A new account is not signed in. It is emailed a six-digit code, and only
+ * entering that code (verifyEmailCode) verifies the address and starts a
+ * session — so nobody can hold an account under an address they do not
+ * control.
  */
 
 export interface SignUpResult {
   ok: boolean
   message?: string
-  /** Set on success: the address the confirmation link was sent to. */
+  /** Set on success: the address the code was (or should have been) sent to. */
   verifyEmail?: string
+  /** False when the account exists but the code email could not be sent. */
+  emailSent?: boolean
+}
+
+/** What to tell someone after a send attempt. Never claims a failed send. */
+function sendResultMessage(result: SendCodeResult, email: string): string {
+  if (result.ok) return `We sent a 6-digit code to ${email}.`
+  if (result.reason === 'cooldown') return 'A code was sent less than a minute ago. Check your inbox, or wait a moment and ask again.'
+  return 'We could not send the email just now. Wait a moment, then tap "Send a new code".'
 }
 
 export async function registerUser(form: FormData): Promise<SignUpResult> {
@@ -55,7 +65,7 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
     return { ok: false, message: 'Password must be 200 characters or fewer.' }
   }
 
-  // Checked before the row is written: an account whose link can never be sent
+  // Checked before the row is written: an account whose code can never be sent
   // would be stuck unverified for good.
   const emailError = getEmailConfigError()
   if (emailError) {
@@ -95,14 +105,17 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
     throw error
   }
 
-  // A failed send still leaves a usable account: the "check your email" step
-  // offers a resend, and signing in offers one too.
-  if (!(await sendVerificationEmail(user, redirectTo))) {
-    console.error('[auth] verification email failed for', user.id)
-  }
+  // A failed send still leaves a usable account: the code screen offers a
+  // resend, and signing in sends a fresh code too.
+  const sent = await sendVerificationCode(user, { redirectTo, force: true })
 
   revalidatePath('/')
-  return { ok: true, verifyEmail: user.email }
+  return {
+    ok: true,
+    verifyEmail: user.email,
+    emailSent: sent.ok,
+    message: sendResultMessage(sent, user.email),
+  }
 }
 
 export interface ResendResult {
@@ -111,21 +124,20 @@ export interface ResendResult {
 }
 
 /**
- * Sends a new confirmation link.
- *
- * The answer is the same whether or not an unverified account holds the
- * address, so this cannot be used to discover who has signed up.
+ * Sends a new code. An address with no unconfirmed account gets the same
+ * reply as one that was sent a code, so this cannot list who has signed up —
+ * but a send that failed says so, rather than claiming an email went out.
  */
 export async function resendVerification(rawEmail: string): Promise<ResendResult> {
   const email = checkEmail(rawEmail)
   if (!email.ok) return { ok: false, message: email.message ?? 'Enter a valid email address.' }
 
   const limit = await checkLimits([
-    { key: `verify-resend:email:${keyPart(email.value)}`, limit: 3, windowSeconds: 60 * 60 },
-    { key: `verify-resend:ip:${clientFingerprint()}`, limit: 10, windowSeconds: 60 * 60 },
+    { key: `verify-resend:email:${keyPart(email.value)}`, limit: 5, windowSeconds: 60 * 60 },
+    { key: `verify-resend:ip:${clientFingerprint()}`, limit: 15, windowSeconds: 60 * 60 },
   ])
   if (!limit.allowed) {
-    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many emails sent') }
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many codes sent') }
   }
 
   const user = await prisma.user.findUnique({
@@ -133,48 +145,72 @@ export async function resendVerification(rawEmail: string): Promise<ResendResult
     select: { id: true, email: true, name: true, emailVerifiedAt: true },
   })
   if (user && !user.emailVerifiedAt) {
-    // Keep the destination the original sign-up asked for.
-    const previous = await prisma.emailToken.findFirst({
-      where: { userId: user.id, purpose: 'verify' },
-      orderBy: { createdAt: 'desc' },
-      select: { redirectTo: true },
-    })
-    await sendVerificationEmail(user, previous?.redirectTo ?? null)
+    const sent = await sendVerificationCode(user)
+    if (!sent.ok) return { ok: false, message: sendResultMessage(sent, user.email) }
   }
 
-  return {
-    ok: true,
-    message: `If ${email.value} has an account waiting for confirmation, a new link is on its way.`,
-  }
+  return { ok: true, message: `If ${email.value} is waiting for confirmation, a new code is on its way.` }
 }
 
-export interface ConfirmResult {
+export interface VerifyResult {
   ok: boolean
   message?: string
+  /** Where to go next, on success. */
   redirectTo?: string
+  /** The code is spent (expired or too many tries): only a new one can work. */
+  needsNewCode?: boolean
 }
 
 /**
- * Redeems the emailed link: verifies the address and signs the account in.
- *
- * A POST from the confirm page's button rather than a GET on the link itself.
- * Mail scanners open links to check them; a GET that redeemed the token would
- * let a scanner use it up before the person ever clicked.
+ * Checks the emailed code, and on success verifies the address and signs the
+ * account in. Wrong guesses are limited per code (MAX_ATTEMPTS), and per
+ * address and per IP here, so the million possible codes cannot be walked.
  */
-export async function confirmEmail(token: string): Promise<ConfirmResult> {
-  const redeemed = await redeemVerificationToken(String(token ?? ''))
-  if (!redeemed) {
-    return {
-      ok: false,
-      message: 'This link has expired or was already used. Sign in to get a new one.',
+export async function verifyEmailCode(rawEmail: string, rawCode: string): Promise<VerifyResult> {
+  const email = checkEmail(rawEmail)
+  if (!email.ok) return { ok: false, message: email.message ?? 'Enter a valid email address.' }
+  const code = String(rawCode ?? '').replace(/\s+/g, '')
+  if (!/^\d{6}$/.test(code)) return { ok: false, message: 'Enter the 6-digit code from the email.' }
+
+  const limit = await checkLimits([
+    { key: `verify-code:email:${keyPart(email.value)}`, limit: 15, windowSeconds: 15 * 60 },
+    { key: `verify-code:ip:${clientFingerprint()}`, limit: 50, windowSeconds: 15 * 60 },
+  ])
+  if (!limit.allowed) {
+    return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many tries') }
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: email.value },
+    select: { id: true, emailVerifiedAt: true },
+  })
+  if (!user) return { ok: false, message: 'That code is not right. Check the email and try again.' }
+  if (user.emailVerifiedAt) {
+    return { ok: false, message: 'This email is already confirmed. Sign in with your password.' }
+  }
+
+  const result = await checkVerificationCode(user.id, code)
+  if (!result.ok) {
+    switch (result.reason) {
+      case 'wrong':
+        return {
+          ok: false,
+          message: `That code is not right. ${result.attemptsLeft} ${result.attemptsLeft === 1 ? 'try' : 'tries'} left.`,
+        }
+      case 'expired':
+        return { ok: false, needsNewCode: true, message: 'That code has expired. Send a new one.' }
+      case 'too-many':
+        return { ok: false, needsNewCode: true, message: 'Too many wrong tries. Send a new code.' }
+      default:
+        return { ok: false, needsNewCode: true, message: 'There is no active code for this email. Send a new one.' }
     }
   }
 
-  if (!(await startSession(redeemed.userId))) {
+  if (!(await startSession(user.id))) {
     return { ok: false, message: 'Your email is confirmed. Please sign in.', redirectTo: '/login' }
   }
 
   revalidatePath('/')
   revalidatePath('/dashboard')
-  return { ok: true, redirectTo: redeemed.redirectTo ?? '/onboarding/vehicle' }
+  return { ok: true, redirectTo: result.redirectTo ?? '/onboarding/vehicle' }
 }

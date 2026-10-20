@@ -1,112 +1,164 @@
 // src/lib/db/email-verification.ts
 import 'server-only'
 
-import { createHash, randomBytes, randomUUID } from 'node:crypto'
+import { createHmac, randomInt, randomUUID, timingSafeEqual } from 'node:crypto'
 
-import { appOrigin, escapeHtml, sendEmail } from '@/lib/email'
+import { escapeHtml, sendEmail } from '@/lib/email'
+import { getServerSecret } from '@/lib/user-auth'
 
 import { prisma } from './client'
 
 /**
- * Proving an account's owner holds its email address.
+ * Six-digit codes that prove an account's owner holds its email address.
  *
- * Not a 'use server' module: issuing and redeeming links must only happen
- * behind the checks in auth-actions.ts, never straight from a browser.
+ * Not a 'use server' module: issuing and checking codes only happens behind
+ * the rate limits in auth-actions.ts and session-actions.ts.
  *
- * The link carries 32 random bytes. Only their SHA-256 is stored, so the
- * table alone cannot be turned into a working link. Each new link replaces
- * the account's previous unused ones, so only the most recent email works.
+ * - The code comes from crypto.randomInt, uniformly over 000000–999999.
+ * - Only HMAC-SHA256(secret, userId + code) is stored, so the table cannot be
+ *   turned back into codes, even by trying all million of them.
+ * - It expires after 10 minutes and dies after MAX_ATTEMPTS wrong guesses.
+ * - A new code replaces the account's unused ones: only the latest email works.
+ * - It is used once: usedAt is claimed with a conditional update, and only the
+ *   request that claims it marks the account verified.
  */
 
-const PURPOSE = 'verify'
-const LINK_LIFETIME_MS = 24 * 60 * 60 * 1000
+const PURPOSE = 'verify-code'
+const CODE_LIFETIME_MS = 10 * 60 * 1000
+export const MAX_ATTEMPTS = 5
+/** A new code is not sent while the last one is younger than this. */
+const RESEND_COOLDOWN_MS = 60 * 1000
 
-function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex')
+function hashCode(userId: string, code: string): string | null {
+  const secret = getServerSecret()
+  if (!secret) return null
+  return createHmac('sha256', secret).update(`${userId}:${code}`).digest('hex')
 }
 
-/** Creates a fresh link for the account and emails it. False if sending failed. */
-export async function sendVerificationEmail(
-  user: { id: string; email: string; name: string },
-  redirectTo: string | null,
-): Promise<boolean> {
-  const token = randomBytes(32).toString('base64url')
+export type SendCodeResult =
+  | { ok: true; response?: string }
+  | { ok: false; reason: 'send-failed' | 'cooldown' | 'config' }
 
+/**
+ * Creates a fresh code for the account and emails it.
+ *
+ * Returns ok only when the SMTP server accepted the message. On failure the
+ * new code is deleted again, so a code nobody received is never left live.
+ */
+export async function sendVerificationCode(
+  user: { id: string; email: string; name: string },
+  { redirectTo = null, force = false }: { redirectTo?: string | null; force?: boolean } = {},
+): Promise<SendCodeResult> {
+  if (!force) {
+    const recent = await prisma.emailToken.findFirst({
+      where: { userId: user.id, purpose: PURPOSE, usedAt: null, createdAt: { gt: new Date(Date.now() - RESEND_COOLDOWN_MS) } },
+      select: { id: true },
+    })
+    if (recent) return { ok: false, reason: 'cooldown' }
+  }
+
+  const code = String(randomInt(0, 1_000_000)).padStart(6, '0')
+  const tokenHash = hashCode(user.id, code)
+  if (!tokenHash) {
+    console.error('[verify] no server secret: SESSION_SECRET is not set')
+    return { ok: false, reason: 'config' }
+  }
+
+  // Keep the destination the first code was sent with, unless a new one is given.
+  const previous = redirectTo
+    ? null
+    : await prisma.emailToken.findFirst({
+        where: { userId: user.id, purpose: PURPOSE },
+        orderBy: { createdAt: 'desc' },
+        select: { redirectTo: true },
+      })
+
+  const id = randomUUID()
   await prisma.$transaction([
     prisma.emailToken.deleteMany({ where: { userId: user.id, purpose: PURPOSE, usedAt: null } }),
     prisma.emailToken.create({
       data: {
-        id: randomUUID(),
+        id,
         userId: user.id,
         purpose: PURPOSE,
-        tokenHash: hashToken(token),
-        redirectTo,
-        expiresAt: new Date(Date.now() + LINK_LIFETIME_MS),
+        tokenHash,
+        redirectTo: redirectTo ?? previous?.redirectTo ?? null,
+        expiresAt: new Date(Date.now() + CODE_LIFETIME_MS),
       },
     }),
   ])
 
-  const link = `${appOrigin()}/verify-email?token=${token}`
   const first = user.name.split(/\s+/)[0] || 'there'
-
-  return sendEmail({
+  const sent = await sendEmail({
     to: user.email,
-    subject: 'Confirm your email for Plug.pk',
+    subject: `${code} is your Plug.pk verification code`,
     text:
       `Hi ${first},\n\n` +
-      `Confirm this is your email address to finish creating your Plug.pk account:\n\n${link}\n\n` +
-      `The link works once and expires in 24 hours. If you did not sign up, ignore this email ` +
-      `and no account will be activated.\n\n— Plug.pk`,
+      `Your Plug.pk verification code is:\n\n    ${code}\n\n` +
+      `Enter it on the sign-up screen to confirm this email address. It expires in 10 minutes ` +
+      `and works once.\n\nIf you did not create a Plug.pk account, ignore this email — ` +
+      `no account will be activated.\n\n— Plug.pk`,
     html: `<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.6;color:#0f172a;max-width:480px">
   <p>Hi ${escapeHtml(first)},</p>
-  <p>Confirm this is your email address to finish creating your Plug.pk account.</p>
-  <p style="margin:28px 0"><a href="${link}" style="background:#2563eb;color:#fff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:10px;display:inline-block">Confirm my email</a></p>
-  <p style="color:#64748b;font-size:13px">Or paste this link into your browser:<br><span style="word-break:break-all">${link}</span></p>
-  <p style="color:#64748b;font-size:13px">The link works once and expires in 24 hours. If you did not sign up, ignore this email and no account will be activated.</p>
+  <p>Your Plug.pk verification code is:</p>
+  <p style="font-size:32px;font-weight:700;letter-spacing:8px;margin:20px 0;font-family:ui-monospace,Consolas,monospace">${code}</p>
+  <p>Enter it on the sign-up screen to confirm this email address. It expires in 10 minutes and works once.</p>
+  <p style="color:#64748b;font-size:13px">If you did not create a Plug.pk account, ignore this email — no account will be activated.</p>
 </div>`,
   })
+
+  if (!sent.ok) {
+    await prisma.emailToken.deleteMany({ where: { id } })
+    return { ok: false, reason: 'send-failed' }
+  }
+  return { ok: true, response: sent.response }
 }
+
+export type CheckCodeResult =
+  | { ok: true; redirectTo: string | null }
+  | { ok: false; reason: 'wrong'; attemptsLeft: number }
+  | { ok: false; reason: 'expired' | 'too-many' | 'none' }
 
 /**
- * Redeems a link: marks the token used and the account verified.
- *
- * The token is claimed with a conditional update (unused and unexpired), so
- * two clicks racing each other cannot both succeed. Returns the account and
- * where to send it, or null for an unknown, used or expired link.
+ * Checks a code for the account. A wrong guess is counted before the
+ * comparison is reported, with a conditional update, so parallel guesses
+ * cannot exceed the limit. On success the code is spent and the account
+ * marked verified, in one transaction.
  */
-export async function redeemVerificationToken(
-  token: string,
-): Promise<{ userId: string; redirectTo: string | null } | null> {
-  if (typeof token !== 'string' || token.length < 20 || token.length > 100) return null
-  const tokenHash = hashToken(token)
-  const now = new Date()
+export async function checkVerificationCode(userId: string, rawCode: string): Promise<CheckCodeResult> {
+  const code = String(rawCode ?? '').replace(/\s+/g, '')
+  const token = await prisma.emailToken.findFirst({
+    where: { userId, purpose: PURPOSE, usedAt: null },
+    orderBy: { createdAt: 'desc' },
+    select: { id: true, tokenHash: true, expiresAt: true, attempts: true, redirectTo: true },
+  })
+  if (!token) return { ok: false, reason: 'none' }
+  if (token.expiresAt <= new Date()) return { ok: false, reason: 'expired' }
+  if (token.attempts >= MAX_ATTEMPTS) return { ok: false, reason: 'too-many' }
 
+  const expected = /^\d{6}$/.test(code) ? hashCode(userId, code) : null
+  const matches =
+    !!expected && timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(token.tokenHash, 'hex'))
+
+  if (!matches) {
+    const counted = await prisma.emailToken.updateMany({
+      where: { id: token.id, usedAt: null, attempts: { lt: MAX_ATTEMPTS } },
+      data: { attempts: { increment: 1 } },
+    })
+    if (counted.count === 0) return { ok: false, reason: 'too-many' }
+    const left = MAX_ATTEMPTS - (token.attempts + 1)
+    return left > 0 ? { ok: false, reason: 'wrong', attemptsLeft: left } : { ok: false, reason: 'too-many' }
+  }
+
+  // Claim first; only the request that claims the code may verify the account.
+  const now = new Date()
   const claimed = await prisma.emailToken.updateMany({
-    where: { tokenHash, purpose: PURPOSE, usedAt: null, expiresAt: { gt: now } },
+    where: { id: token.id, usedAt: null, expiresAt: { gt: now }, attempts: { lt: MAX_ATTEMPTS } },
     data: { usedAt: now },
   })
-  if (claimed.count !== 1) return null
-
-  const row = await prisma.emailToken.findUnique({
-    where: { tokenHash },
-    select: { userId: true, redirectTo: true },
-  })
-  if (!row) return null
+  if (claimed.count !== 1) return { ok: false, reason: 'none' }
 
   // updateMany so an already-verified account keeps its original date.
-  await prisma.user.updateMany({
-    where: { id: row.userId, emailVerifiedAt: null },
-    data: { emailVerifiedAt: now },
-  })
-  return row
-}
-
-/** Whether a link is still redeemable, without using it up. For the confirm page. */
-export async function isVerificationTokenLive(token: string): Promise<boolean> {
-  if (typeof token !== 'string' || token.length < 20 || token.length > 100) return false
-  const row = await prisma.emailToken.findUnique({
-    where: { tokenHash: hashToken(token) },
-    select: { purpose: true, usedAt: true, expiresAt: true },
-  })
-  return !!row && row.purpose === PURPOSE && !row.usedAt && row.expiresAt > new Date()
+  await prisma.user.updateMany({ where: { id: userId, emailVerifiedAt: null }, data: { emailVerifiedAt: now } })
+  return { ok: true, redirectTo: token.redirectTo }
 }

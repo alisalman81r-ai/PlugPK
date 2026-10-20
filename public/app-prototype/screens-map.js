@@ -1042,7 +1042,11 @@ SHEETS.report = (sh) => ({
     ${sh.err ? `<p class="err-msg">${ic('info', 15)}Pick what’s wrong first.</p>` : ''}`,
   foot: `<button class="btn btn-primary btn-block" data-a="sendReport">Send report</button>`,
 })
-SHEETS.signin = (sh) => ({
+SHEETS.signin = (sh) => U.verify ? ({
+  // Signed up or signed in before confirming: the emailed code (sync.js).
+  title: 'Confirm your email',
+  body: verifyFormHtml(),
+}) : ({
   title: 'Sign in to continue',
   body: `<p class="t14 muted">${esc(sh.why || 'Sign in to save this to your account.')}</p>
     <form class="stack gap-16 mt-16" data-submit="authSubmit" id="signin-form" novalidate>

@@ -9,6 +9,7 @@ import { hashPassword, verifyPassword } from '@/lib/passwords'
 import { getUserAuthConfigError } from '@/lib/user-auth'
 
 import { prisma } from './client'
+import { sendVerificationCode } from './email-verification'
 import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 import { clearSession, getSessionUserId, revokeSessions, startSession } from './session'
 
@@ -28,6 +29,8 @@ export interface SessionResult {
   redirectTo?: string
   /** The password was right but the email is not confirmed yet. */
   unverified?: boolean
+  /** With `unverified`: whether a code is in the inbox (sent now, or within the last minute). */
+  emailSent?: boolean
 }
 
 export interface CurrentUser {
@@ -75,11 +78,18 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   if (!(await verifyPassword(password, user.passwordHash))) return WRONG
 
   // Said only after the password matched, so it reveals nothing to a guesser.
+  // A fresh code goes out now — the one from sign-up has likely expired — unless
+  // one was sent in the last minute, which is then still the one to use.
   if (!user.emailVerifiedAt) {
+    const sent = await sendVerificationCode(user)
+    const delivered = sent.ok || sent.reason === 'cooldown'
     return {
       ok: false,
       unverified: true,
-      message: 'Confirm your email first: open the link we sent when you signed up.',
+      emailSent: delivered,
+      message: delivered
+        ? 'Confirm your email first: enter the 6-digit code we just emailed you.'
+        : 'Confirm your email first. We could not send the code just now — tap "Send a new code".',
     }
   }
 

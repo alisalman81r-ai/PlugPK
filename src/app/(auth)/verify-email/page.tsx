@@ -1,57 +1,33 @@
 // src/app/(auth)/verify-email/page.tsx
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { AuthHeader } from '@/components/auth/AuthHeader'
-import { ConfirmEmailButton } from '@/components/auth/ConfirmEmailButton'
-import { buttonClasses } from '@/components/ui'
-import { isVerificationTokenLive } from '@/lib/db/email-verification'
+import { VerifyEmailStart } from '@/components/auth/VerifyEmailStart'
 
 export const metadata: Metadata = {
   title: 'Confirm your email',
-  // The token is in the URL; keep it out of the Referer header of anything this page loads.
-  referrer: 'no-referrer',
 }
 
-export const dynamic = 'force-dynamic'
-
 interface PageProps {
-  searchParams: { token?: string }
+  searchParams: { email?: string }
 }
 
 /*
-  Where the emailed link lands. Opening the page uses nothing up — the button
-  does, through a POST. Mail scanners fetch links to check them, and a page
-  that redeemed the token on GET would let one spend it before the person
-  ever clicked.
+  Enter the six-digit code that was emailed after sign-up, from any device.
+  Sign-up and sign-in show the same form in place; this page is for someone
+  who closed the tab, and takes ?email= to fill the address in.
 */
-export default async function VerifyEmailPage({ searchParams }: PageProps) {
-  const token = typeof searchParams.token === 'string' ? searchParams.token : ''
-  const live = token ? await isVerificationTokenLive(token) : false
-
-  if (!live) {
-    return (
-      <>
-        <AuthHeader
-          eyebrow="Confirm your email"
-          title="This link no longer works"
-          subtitle="It has expired, was already used, or a newer one was sent. Sign in with your email and password and we'll offer to send a fresh link. If you already confirmed, you can just sign in."
-        />
-        <Link href="/login" className={buttonClasses({ size: 'lg', fullWidth: true })}>
-          Go to sign in
-        </Link>
-      </>
-    )
-  }
+export default function VerifyEmailPage({ searchParams }: PageProps) {
+  const email = typeof searchParams.email === 'string' ? searchParams.email.trim().toLowerCase().slice(0, 254) : ''
 
   return (
     <>
       <AuthHeader
-        eyebrow="Almost there"
-        title="Confirm your email"
-        subtitle="One click and your account is active. You'll be signed in on this device."
+        eyebrow="Confirm your email"
+        title="Verify your account"
+        subtitle="Enter the 6-digit code we emailed you. No code, or it expired? You can send a new one."
       />
-      <ConfirmEmailButton token={token} />
+      <VerifyEmailStart initialEmail={email} />
     </>
   )
 }

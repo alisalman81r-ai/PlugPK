@@ -230,6 +230,7 @@ function onbSwipe() {
 A.onbSignIn = () => { U.onbStep = SLIDES.length; U.authMode = 'signin'; U.authErr = null; render() }
 
 function authScreen() {
+  if (U.verify) return verifyScreen()
   const up = U.authMode === 'signup'
   const e = U.authErr || {}
   const v = U.authVals || {}
@@ -362,6 +363,8 @@ Object.assign(A, {
     signInRemote(up ? 'signup' : 'signin', v).then((error) => {
       U.authBusy = false
       if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.label }
+      // Next step is the emailed code (sync.js); U.verify holds it.
+      if (error === VERIFY) return S.onboarded ? renderSheet() : render()
       if (error) { U.authErr = { form: error }; return S.onboarded ? renderSheet() : render() }
       if (S.onboarded) { closeSheet(); render(); return toast(`Signed in as ${S.user.name}`, 'user') }
       U.onbStep = SLIDES.length + 1

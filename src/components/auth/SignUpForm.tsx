@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { registerUser } from '@/lib/db/auth-actions'
 
 import { authHref } from './auth-links'
-import { CheckEmailPanel } from './CheckEmailPanel'
+import { VerifyEmailForm } from './VerifyEmailForm'
 
 export interface SignUpFormProps {
   onSuccess?: () => void
@@ -125,7 +125,7 @@ interface Errors {
 }
 
 export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
-  const [sentTo, setSentTo] = React.useState<string | null>(null)
+  const [sentTo, setSentTo] = React.useState<{ email: string; sent: boolean; notice?: string } | null>(null)
   const [fullName, setFullName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -203,14 +203,27 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
       return
     }
 
-    // No session yet: the account starts once the emailed link is opened, and
-    // that link carries on to redirectTo (or vehicle onboarding).
+    // No session yet: the account starts once the emailed code is entered, and
+    // then carries on to redirectTo (or vehicle onboarding).
     onSuccess?.()
     setPassword('')
-    setSentTo(result.verifyEmail ?? email.trim().toLowerCase())
+    setSentTo({
+      email: result.verifyEmail ?? email.trim().toLowerCase(),
+      sent: result.emailSent === true,
+      notice: result.message,
+    })
   }
 
-  if (sentTo) return <CheckEmailPanel email={sentTo} onBack={() => setSentTo(null)} />
+  if (sentTo) {
+    return (
+      <VerifyEmailForm
+        email={sentTo.email}
+        sent={sentTo.sent}
+        notice={sentTo.notice}
+        onBack={() => setSentTo(null)}
+      />
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} noValidate>
