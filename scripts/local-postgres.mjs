@@ -8,6 +8,10 @@
 // migration and imports data/db-export/. Later runs just start it. Leave it
 // running in its own terminal; Ctrl-C stops it and keeps the data.
 //
+// Usually you never run this yourself: `npm run dev` (scripts/dev-preflight.mjs)
+// starts it in the background when it is not already up, logging to
+// .localdb/server.log.
+//
 // ── Why this exists ───────────────────────────────────────────────────
 //
 // The project moved from SQLite to Postgres, deliberately with no fallback, so

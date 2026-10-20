@@ -23,8 +23,10 @@
 //
 // Both are cheap to detect before Next starts, and neither is obvious after.
 
+import { execSync, spawn } from 'node:child_process'
 import { connect } from 'node:net'
-import { readFileSync, existsSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 const PORT = Number(process.env.PORT ?? 3000)
 
@@ -133,12 +135,89 @@ if (!/^postgres(ql)?:\/\//.test(url)) {
   ])
 }
 
+/*
+  The local database (npm run db:local) is started here when it is not
+  running, rather than asking for it every morning. It is spawned detached,
+  with its output in .localdb/server.log, so it keeps running after the dev
+  server stops and the next `npm run dev` finds it already up. A restart of
+  the machine stops it; the next `npm run dev` starts it again.
+*/
+const LOCAL_DB_PORT = 55432
+const LOCAL_DB_LOG = join('.localdb', 'server.log')
+
+async function startLocalDatabase(host, port) {
+  const firstRun = !existsSync(join('.localdb', 'data'))
+  console.log('')
+  console.log(bold('  Starting the local database in the background…'))
+  if (firstRun) console.log(dim('  First run: installing Postgres and importing the data, a few minutes.'))
+  console.log(dim(`  Its output goes to ${LOCAL_DB_LOG}.`))
+
+  mkdirSync('.localdb', { recursive: true })
+  const log = openSync(LOCAL_DB_LOG, 'a')
+  const child = spawn(process.execPath, [join('scripts', 'local-postgres.mjs')], {
+    cwd: process.cwd(),
+    detached: true,
+    stdio: ['ignore', log, log],
+    windowsHide: true,
+  })
+  child.unref()
+  closeSync(log)
+
+  let exited = null
+  child.once('exit', (code) => {
+    exited = code
+  })
+
+  const deadline = Date.now() + (firstRun ? 10 * 60_000 : 90_000)
+  while (Date.now() < deadline) {
+    if (await portInUse(port, host, 1000)) {
+      console.log(dim('  Database is up.'))
+      return true
+    }
+    if (exited !== null) break
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+  return false
+}
+
 // Reachability. A URL that parses but answers nothing is the other half of the
 // same problem, and the message Prisma gives for it arrives one page at a time.
 try {
   const parsed = new URL(url)
   const dbPort = Number(parsed.port || 5432)
   const dbHost = parsed.hostname
+  const isLocalDb = ['127.0.0.1', 'localhost'].includes(dbHost) && dbPort === LOCAL_DB_PORT
+
+  if (isLocalDb && !(await portInUse(dbPort, dbHost, 1500))) {
+    if (!(await startLocalDatabase(dbHost, dbPort))) {
+      fail([
+        red('  The local database did not start.'),
+        '',
+        `  See what it printed in ${LOCAL_DB_LOG}, or run it in its own terminal:`,
+        '',
+        dim('    npm run db:local'),
+      ])
+    }
+  }
+
+  // New migrations pulled since the last run, applied before any page needs
+  // them. Local database only: a hosted one is migrated deliberately.
+  if (isLocalDb) {
+    try {
+      execSync('npx prisma migrate deploy', { stdio: 'pipe', env: { ...process.env, DATABASE_URL: url } })
+    } catch (error) {
+      fail([
+        red('  Applying migrations to the local database failed.'),
+        '',
+        dim(String(error.stderr ?? error.stdout ?? error.message).trim().split('\n').slice(-6).join('\n')),
+        '',
+        '  Run it yourself to see the whole output:',
+        '',
+        dim('    npx prisma migrate deploy'),
+      ])
+    }
+  }
+
   if (!(await portInUse(dbPort, dbHost, 2500))) {
     fail([
       red(`  Nothing is answering at ${dbHost}:${dbPort}.`),
