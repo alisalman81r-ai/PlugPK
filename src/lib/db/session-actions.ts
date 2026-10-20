@@ -5,18 +5,9 @@ import { randomUUID } from 'node:crypto'
 
 import { revalidatePath } from 'next/cache'
 
-import { verifyPassword } from '@/lib/passwords'
-import {
-  appOrigin,
-  authErrorCode,
-  authErrorMessage,
-  getSupabaseAuthConfigError,
-  supabaseAdmin,
-  supabasePublic,
-} from '@/lib/supabase-auth'
+import { hashPassword, verifyPassword } from '@/lib/passwords'
 import { getUserAuthConfigError } from '@/lib/user-auth'
 
-import { linkAuthUser } from './auth-link'
 import { prisma } from './client'
 import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 import { clearSession, getSessionUserId, revokeSessions, startSession } from './session'
@@ -53,63 +44,13 @@ function signInLimits(email: string) {
   ]
 }
 
-const WRONG = { ok: false as const, message: 'Email or password is incorrect.' }
-const UNAVAILABLE = { ok: false as const, message: 'Signing in is unavailable right now. Please try again later.' }
-// Said only after the password matched, so neither reveals anything to a guesser.
-const UNCONFIRMED: SessionResult = {
-  ok: false,
-  unverified: true,
-  message: 'Confirm your email first: open the link we sent when you signed up.',
-}
-const MOVED: SessionResult = {
-  ok: false,
-  unverified: true,
-  message: 'We have upgraded sign-in. To keep your account safe, confirm your email: we just sent you a link.',
-}
-
-/**
- * An account from before Supabase, signing in with its correct old password.
- *
- * That password is in hand right now and at no other time, so this is the one
- * moment the account can move to Supabase without the member choosing a new
- * one. Supabase then emails a confirmation link, and the account stays locked
- * until it is opened — every existing member confirms, like every new one.
- *
- * Returns null when Supabase already has a user for the address (made from
- * another environment sharing the project); the caller then signs in through
- * Supabase as normal.
- */
-async function moveLegacyAccount(user: { id: string; email: string; name: string }, password: string) {
-  const { data, error } = await supabasePublic().auth.signUp({
-    email: user.email,
-    password,
-    options: { emailRedirectTo: `${appOrigin()}/verify-email`, data: { name: user.name } },
-  })
-  const code = authErrorCode(error)
-  if (code === 'user_already_exists' || code === 'email_exists') return null
-  if (!error && data.user && data.user.identities?.length === 0) return null
-  if (error || !data.user) {
-    console.error('[auth] could not move account to Supabase:', code, error?.message)
-    return {
-      ok: false,
-      message: authErrorMessage(error) ?? 'We could not finish signing you in. Use "Forgot password?" to set a new one.',
-    }
-  }
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { authUserId: data.user.id, passwordHash: null, emailVerifiedAt: null },
-  })
-  return MOVED
-}
-
 /**
  * Signs someone in and issues the session cookie.
  *
- * Supabase checks the password; the website then issues its own session for
- * the linked account, and only if the email is confirmed. The failure message
- * is identical whether the email is unknown or the password is wrong, so this
- * cannot be used to test which addresses hold accounts. Attempts are rate
- * limited per email and per IP before anything is checked.
+ * The failure message is identical whether the email is unknown or the
+ * password is wrong, so this cannot be used to test which addresses hold
+ * accounts. Attempts are rate limited per email and per IP before any
+ * password is hashed, which also stops the endpoint being used to burn CPU.
  */
 export async function signIn(form: FormData): Promise<SessionResult> {
   const email = String(form.get('email') ?? '').trim().toLowerCase()
@@ -122,46 +63,25 @@ export async function signIn(form: FormData): Promise<SessionResult> {
     return { ok: false, message: 'Email or password is incorrect.' }
   }
 
-  const configError = getSupabaseAuthConfigError()
-  if (configError) {
-    console.error('[auth] sign-in refused:', configError)
-    return UNAVAILABLE
-  }
-
   const limit = await checkLimits(signInLimits(email))
   if (!limit.allowed) {
     return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many sign-in attempts') }
   }
 
-  const legacy = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, email: true, name: true, authUserId: true, passwordHash: true },
-  })
-  if (legacy && !legacy.authUserId) {
-    if (!legacy.passwordHash || !(await verifyPassword(password, legacy.passwordHash))) return WRONG
-    const moved = await moveLegacyAccount(legacy, password)
-    if (moved) return moved
-  }
+  const user = await prisma.user.findUnique({ where: { email } })
+  const WRONG = { ok: false as const, message: 'Email or password is incorrect.' }
 
-  const { data, error } = await supabasePublic().auth.signInWithPassword({ email, password })
-  if (error || !data.user) {
-    const code = authErrorCode(error)
-    if (code === 'invalid_credentials') return WRONG
-    if (code === 'email_not_confirmed') return UNCONFIRMED
-    const message = authErrorMessage(error)
-    if (message) return { ok: false, message }
-    console.error('[auth] Supabase sign-in failed:', code, error?.message)
-    return UNAVAILABLE
-  }
-
-  const account = await linkAuthUser(data.user, { confirmed: !!data.user.email_confirmed_at })
-  if (!account) return WRONG
-  const user = await prisma.user.findUnique({
-    where: { id: account.id },
-    select: { id: true, emailVerifiedAt: true, mustChangePassword: true, isAdmin: true },
-  })
   if (!user) return WRONG
-  if (!user.emailVerifiedAt) return UNCONFIRMED
+  if (!(await verifyPassword(password, user.passwordHash))) return WRONG
+
+  // Said only after the password matched, so it reveals nothing to a guesser.
+  if (!user.emailVerifiedAt) {
+    return {
+      ok: false,
+      unverified: true,
+      message: 'Confirm your email first: open the link we sent when you signed up.',
+    }
+  }
 
   if (!(await startSession(user.id))) {
     console.error('[auth] could not start a session:', getUserAuthConfigError())
@@ -338,34 +258,23 @@ export async function changeMyPassword(
   ])
   if (!limit.allowed) return { ok: false, message: retryMessage(limit.retryAfterSeconds) }
 
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, authUserId: true } })
+  const user = await prisma.user.findUnique({ where: { id: userId } })
   if (!user) return { ok: false, message: 'That account no longer exists.' }
-  // A signed-in account is always confirmed, and confirming links it to Supabase.
-  if (!user.authUserId) return { ok: false, message: 'Sign out and sign in again, then retry.' }
 
-  // Supabase checks the current password: it is the only place that holds it.
-  const current = String(currentPassword ?? '')
-  const check = current
-    ? await supabasePublic().auth.signInWithPassword({ email: user.email, password: current })
-    : null
-  if (!check || check.error || check.data.user?.id !== user.authUserId) {
+  if (!(await verifyPassword(String(currentPassword ?? ''), user.passwordHash))) {
     return { ok: false, message: 'Your current password is not correct.' }
   }
-  if (newPassword === current) {
+  if (await verifyPassword(newPassword, user.passwordHash)) {
     return { ok: false, message: 'Choose a password different from your current one.' }
-  }
-
-  const { error } = await supabaseAdmin().auth.admin.updateUserById(user.authUserId, { password: newPassword })
-  if (error) {
-    const message = authErrorMessage(error)
-    if (message) return { ok: false, message }
-    console.error('[auth] could not change password:', authErrorCode(error), error.message)
-    return { ok: false, message: 'Could not change your password. Please try again.' }
   }
 
   await prisma.user.update({
     where: { id: userId },
-    data: { mustChangePassword: false, sessionVersion: { increment: 1 } },
+    data: {
+      passwordHash: await hashPassword(newPassword),
+      mustChangePassword: false,
+      sessionVersion: { increment: 1 },
+    },
   })
   await startSession(userId)
 

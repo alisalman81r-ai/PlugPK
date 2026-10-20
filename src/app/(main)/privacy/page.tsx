@@ -97,7 +97,7 @@ const SECTIONS: LegalSection[] = [
         <p>We do not sell or rent your information. It is processed by the services that run the site:</p>
         <ul>
           <li>Vercel, which hosts the site and stores uploaded photos;</li>
-          <li>Supabase, which hosts the database, stores your password in hashed form and sends account emails;</li>
+          <li>Supabase, which hosts the database;</li>
           <li>OpenFreeMap, which serves map tiles (it sees the map area you are viewing, not who you are).</li>
         </ul>
         <p>

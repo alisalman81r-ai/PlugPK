@@ -1,55 +1,20 @@
 // src/app/(auth)/reset-password/page.tsx
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
-import { AuthHeader } from '@/components/auth/AuthHeader'
-import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm'
-import { buttonClasses } from '@/components/ui'
-
+// Titled even though it only redirects, so a tab caught mid-redirect or a
+// crawler that records the hop does not show the bare site default.
 export const metadata: Metadata = {
   title: 'Reset Password',
-  description: 'Choose a new password for your Plug.pk account.',
-  // The token is in the URL; keep it out of the Referer header of anything this page loads.
-  referrer: 'no-referrer',
-}
-
-export const dynamic = 'force-dynamic'
-
-interface PageProps {
-  searchParams: { token_hash?: string }
+  description: 'Password resets are handled by the Plug.pk team.',
 }
 
 /*
-  Where Supabase's "Reset password" email lands, with a token_hash. The token
-  is redeemed only when the new password is submitted, so a mail scanner
-  opening the link spends nothing.
+  A reset page needs a reset link to arrive from, and with no email service
+  the site sends none — this page could only ever be reached by typing it, and
+  it would then "reset" nothing. Until email is connected, resets go through
+  support (see /forgot-password), so this address points there.
 */
-export default function ResetPasswordPage({ searchParams }: PageProps) {
-  const tokenHash = typeof searchParams.token_hash === 'string' ? searchParams.token_hash : ''
-
-  if (!tokenHash) {
-    return (
-      <>
-        <AuthHeader
-          eyebrow="Password help"
-          title="This link is incomplete"
-          subtitle="Open the link straight from the reset email, or ask for a new one."
-        />
-        <Link href="/forgot-password" className={buttonClasses({ size: 'lg', fullWidth: true })}>
-          Get a new link
-        </Link>
-      </>
-    )
-  }
-
-  return (
-    <>
-      <AuthHeader
-        eyebrow="Password help"
-        title="Choose a new password"
-        subtitle="You'll be signed in on this device, and signed out everywhere else."
-      />
-      <ResetPasswordForm tokenHash={tokenHash} />
-    </>
-  )
+export default function ResetPasswordPage() {
+  redirect('/forgot-password')
 }

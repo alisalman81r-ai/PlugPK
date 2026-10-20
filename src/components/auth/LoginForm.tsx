@@ -185,11 +185,13 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             {error}
             {attempts >= 3 ? (
               <span className="mt-1 block">
+                {/* Not "Reset your password": there is no self-service reset,
+                    and the page this leads to explains the manual one. */}
                 <Link
                   href={authHref('/forgot-password', redirectTo)}
                   className="font-medium text-plug-blue-600 hover:underline"
                 >
-                  Forgotten it? Reset your password
+                  Forgotten it? Here&apos;s how to get back in
                 </Link>
               </span>
             ) : null}

@@ -1,18 +1,17 @@
 // src/lib/passwords.ts
 import 'server-only'
 
-import { scrypt, timingSafeEqual } from 'node:crypto'
+import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 
 /**
- * Checking the legacy scrypt hashes, from before Supabase Auth held passwords.
- *
- * Nothing new is ever hashed here. An account that has not signed in since
- * the move still has one of these on its User row; signIn checks it once,
- * hands the password to Supabase, and clears the hash.
+ * Password hashing.
  *
  * Lives outside every 'use server' file on purpose. An export from one of those
- * is a public POST endpoint — a free way to make the server burn scrypt CPU.
+ * is a public POST endpoint, so these used to be callable from any browser —
+ * not a leak, but a free way to make the server burn scrypt CPU on demand.
+ *
+ * scrypt against a per-user random salt; the plaintext is never stored.
  */
 
 const scryptAsync = promisify(scrypt) as (
@@ -22,6 +21,12 @@ const scryptAsync = promisify(scrypt) as (
 ) => Promise<Buffer>
 
 const KEY_LENGTH = 64
+
+export async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString('hex')
+  const derived = await scryptAsync(password, salt, KEY_LENGTH)
+  return `${salt}:${derived.toString('hex')}`
+}
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [salt, key] = stored.split(':')
