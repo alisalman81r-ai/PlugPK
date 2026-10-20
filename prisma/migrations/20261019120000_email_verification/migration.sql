@@ -1,11 +1,16 @@
--- Email verification: an account cannot sign in until its owner opens the
--- link we emailed. Additive: one nullable column and one new table.
+-- Email verification: an account cannot sign in until its owner confirms the
+-- address. Additive: one nullable column and one new table.
+--
+-- IF NOT EXISTS because 20261016120000_email_verification already added the
+-- column to the shared database (from an implementation reverted before it
+-- was committed). On a fresh database that migration runs first and adds it.
 
-ALTER TABLE "User" ADD COLUMN "emailVerifiedAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "emailVerifiedAt" TIMESTAMP(3);
 
 -- Accounts made before verification existed were never asked to verify.
 -- Treating them as unverified would lock every current member out on deploy,
--- so they keep access and count as verified from the day they joined.
+-- so they keep access and count as verified from the day they joined. This
+-- also covers accounts created after 20261016120000 ran, which it left null.
 UPDATE "User" SET "emailVerifiedAt" = "createdAt" WHERE "emailVerifiedAt" IS NULL;
 
 CREATE TABLE "EmailToken" (
