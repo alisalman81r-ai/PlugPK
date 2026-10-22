@@ -36,12 +36,13 @@ const id = (value: unknown) => {
 
 /** `data:image/jpeg;base64,…` → a File the upload actions accept. */
 function fileFromDataUrl(dataUrl: string, name = 'avatar'): File | null {
-  const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl)
+  // The type here only gets the payload past this parse; upload-store reads the
+  // real format from the bytes and stores WebP, so the name is never used.
+  const match = /^data:(image\/(?:jpeg|png|webp|gif|avif|tiff));base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl)
   if (!match) return null
   const bytes = Buffer.from(match[2]!, 'base64')
   if (bytes.length === 0 || bytes.length > 2 * 1024 * 1024) return null
-  const extension = match[1] === 'image/png' ? 'png' : match[1] === 'image/webp' ? 'webp' : 'jpg'
-  return new File([bytes], `${name}.${extension}`, { type: match[1] })
+  return new File([bytes], name, { type: match[1] })
 }
 
 export async function POST(request: Request) {

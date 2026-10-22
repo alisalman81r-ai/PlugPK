@@ -15,6 +15,14 @@
 
 export type UploadBucket = 'chargers' | 'avatars' | 'cars'
 
+/**
+ * What a file picker offers and what the upload copy names. The server decides
+ * from the file's bytes (upload-store.ts) and stores WebP whatever arrives, so
+ * these only steer the picker; they are kept here so the two cannot drift.
+ */
+export const ACCEPTED_FORMATS = 'JPEG, PNG, WebP, GIF, AVIF or TIFF'
+export const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,image/avif,image/tiff'
+
 const BLOB_HOST_SUFFIX = '.public.blob.vercel-storage.com'
 
 export function isLocalUploadUrl(bucket: UploadBucket, url: string): boolean {

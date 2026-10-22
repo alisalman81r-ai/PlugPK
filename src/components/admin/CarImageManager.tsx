@@ -9,6 +9,7 @@ import * as React from 'react'
 import type { ImageCredit } from '@/data/carImageCredits'
 import { setCarImage } from '@/lib/db/car-actions'
 import { uploadCarPhoto } from '@/lib/db/upload-actions'
+import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
 import { cn } from '@/lib/utils'
 
 import { runAction } from './run-action'
@@ -245,7 +246,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={IMAGE_ACCEPT}
             onChange={onFile}
             disabled={busy}
             className="hidden"
@@ -274,7 +275,7 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
         </div>
 
         <p className="mt-3 text-ui-xs leading-relaxed text-slate-500">
-          JPEG, PNG or WebP, up to {MAX_MB}MB. Landscape suits the cards, which crop to 16:10. The
+          {ACCEPTED_FORMATS}, up to {MAX_MB}MB. Landscape suits the cards, which crop to 16:10. The
           file type is checked from the file&apos;s own first bytes, not its name, and it is stored
           under a generated filename.
         </p>

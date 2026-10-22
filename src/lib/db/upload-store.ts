@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import { join, resolve, sep } from 'node:path'
 
-import { isUploadUrl } from '@/lib/upload-urls'
+import { ACCEPTED_FORMATS, isUploadUrl } from '@/lib/upload-urls'
 
 /**
  * Photos of the chargers on a listing.
@@ -70,21 +70,17 @@ const RW_TOKEN = process.env.BLOB_READ_WRITE_TOKEN?.startsWith('vercel_blob_rw_'
 const BLOB_TOKEN = RW_TOKEN ?? (process.env.BLOB_STORE_ID ? 'oidc' : undefined)
 const blobAuth = () => (RW_TOKEN ? { token: RW_TOKEN } : {})
 
-const MIME: Record<string, string> = {
-  jpg: 'image/jpeg',
-  png: 'image/png',
-  webp: 'image/webp',
-}
-
 /**
  * The kinds of image this application accepts, and where each lands.
  *
  * Keeping them in one table means a new kind cannot quietly skip the checks
- * below — validation, naming and deletion all read from here.
+ * below — validation, naming and deletion all read from here. `maxSide` is the
+ * longest edge the stored copy is shrunk to: an avatar is never shown larger
+ * than a header chip and a settings card, a listing or car photo fills a card.
  */
 const BUCKETS = {
-  chargers: { dir: join(UPLOAD_ROOT, 'chargers'), prefix: '/uploads/chargers/' },
-  avatars: { dir: join(UPLOAD_ROOT, 'avatars'), prefix: '/uploads/avatars/' },
+  chargers: { dir: join(UPLOAD_ROOT, 'chargers'), prefix: '/uploads/chargers/', maxSide: 2000 },
+  avatars: { dir: join(UPLOAD_ROOT, 'avatars'), prefix: '/uploads/avatars/', maxSide: 512 },
   /**
    * Car photographs uploaded through the admin portal.
    *
@@ -101,7 +97,7 @@ const BUCKETS = {
    * path under /images/cars came from the seed, one under /uploads/cars was put
    * there by a person.
    */
-  cars: { dir: join(UPLOAD_ROOT, 'cars'), prefix: '/uploads/cars/' },
+  cars: { dir: join(UPLOAD_ROOT, 'cars'), prefix: '/uploads/cars/', maxSide: 2000 },
 } as const
 
 export type Bucket = keyof typeof BUCKETS
@@ -113,34 +109,49 @@ export interface UploadResult {
 }
 
 /**
- * The declared MIME type is chosen by whoever is posting, so the file's own
- * first bytes are checked instead. This is what stops a script being uploaded
- * with `image/png` written on the envelope.
+ * Formats a person can upload. Everything is re-encoded to WebP before it is
+ * stored, so this list is about what can be read, not what is served.
+ *
+ * Decided by sharp from the file's own bytes — the declared MIME type and the
+ * filename are chosen by whoever is posting, so neither is trusted. SVG is
+ * deliberately absent even though sharp can read it: an SVG is a document that
+ * can carry script, and it is the one "image" a browser would execute. HEIC
+ * (an iPhone's default) is absent because sharp's prebuilt binaries ship
+ * without the HEVC decoder; AVIF arrives as `heif` with AV1 compression.
  */
-function sniff(bytes: Uint8Array): 'jpg' | 'png' | 'webp' | null {
-  if (bytes.length < 12) return null
+const READABLE = new Set(['jpeg', 'png', 'webp', 'gif', 'tiff', 'heif'])
 
+type Encoded = { ok: true; bytes: Buffer } | { ok: false; message: string }
 
-  // Read through a helper so the length check above satisfies the compiler as
-  // well as the reader — indexing a Uint8Array is typed as possibly undefined.
-  const at = (index: number): number => bytes[index] ?? 0
-
-  if (at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff) return 'jpg'
-
-  if (
-    at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47 &&
-    at(4) === 0x0d && at(5) === 0x0a && at(6) === 0x1a && at(7) === 0x0a
-  ) {
-    return 'png'
+/**
+ * Reads any accepted format and writes one WebP: turned upright from the
+ * camera's EXIF orientation, shrunk to the bucket's size, and stripped of
+ * metadata — which is where a phone keeps the GPS position the photo was taken
+ * at, a thing nobody means to publish with their profile picture.
+ */
+async function toWebp(input: Uint8Array, maxSide: number): Promise<Encoded> {
+  const unreadable = { ok: false as const, message: `That file is not an image we can read. Use a ${ACCEPTED_FORMATS} file.` }
+  const { default: sharp } = await import('sharp')
+  try {
+    // limitInputPixels refuses a decompression bomb — a tiny file that expands
+    // to gigabytes — before it is decoded. Animated GIF/WebP keep their first frame.
+    const image = sharp(input, { limitInputPixels: 40_000_000, animated: false, failOn: 'error' })
+    const meta = await image.metadata()
+    if (!meta.format || !READABLE.has(meta.format)) return unreadable
+    if (meta.format === 'heif' && meta.compression !== 'av1') {
+      return { ok: false, message: `iPhone HEIC photos cannot be read yet. Use a ${ACCEPTED_FORMATS} file, or set the camera to Most Compatible.` }
+    }
+    const bytes = await image
+      .rotate()
+      .resize({ width: maxSide, height: maxSide, fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer()
+    return { ok: true, bytes }
+  } catch {
+    return unreadable
   }
-
-  const text = (from: number): string =>
-    String.fromCharCode(at(from), at(from + 1), at(from + 2), at(from + 3))
-
-  if (text(0) === 'RIFF' && text(8) === 'WEBP') return 'webp'
-
-  return null
 }
+
 export async function store(bucket: Bucket, form: FormData): Promise<UploadResult> {
   const file = form.get('file')
   if (!(file instanceof File) || file.size === 0) {
@@ -150,17 +161,15 @@ export async function store(bucket: Bucket, form: FormData): Promise<UploadResul
     return { ok: false, message: 'Images must be 4MB or smaller.' }
   }
 
-  const bytes = new Uint8Array(await file.arrayBuffer())
-  const kind = sniff(bytes)
-  if (!kind) {
-    return { ok: false, message: 'That file is not a JPEG, PNG or WebP image.' }
-  }
+  const { dir, prefix, maxSide } = BUCKETS[bucket]
+  const encoded = await toWebp(new Uint8Array(await file.arrayBuffer()), maxSide)
+  if (!encoded.ok) return { ok: false, message: encoded.message }
+  const bytes = encoded.bytes
 
   // The name is generated here and the client's is discarded entirely: a
   // filename from a form is attacker-chosen text, and one containing ../ is
   // the classic way an upload lands somewhere it should not.
-  const name = `${randomUUID()}.${kind}`
-  const { dir, prefix } = BUCKETS[bucket]
+  const name = `${randomUUID()}.webp`
 
   if (BLOB_TOKEN) {
     /*
@@ -170,15 +179,13 @@ export async function store(bucket: Bucket, form: FormData): Promise<UploadResul
       does not match what is written to the row.
     */
     const { put } = await import('@vercel/blob')
-    // Buffer, not the Uint8Array: the SDK's body type does not accept a bare
-    // typed array. Buffer.from over the same memory, so nothing is copied.
     // A store problem (wrong access type, revoked credentials, outage) is a
     // message to the visitor, not a crashed page; the cause goes to the logs.
     try {
-      const blob = await put(`${bucket}/${name}`, Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength), {
+      const blob = await put(`${bucket}/${name}`, bytes, {
         access: 'public',
         ...blobAuth(),
-        contentType: MIME[kind] ?? 'application/octet-stream',
+        contentType: 'image/webp',
         addRandomSuffix: false,
       })
       return { ok: true, url: blob.url }

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui'
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import { saveMyChargers, type DraftCharger } from '@/lib/db/business-actions'
 import { deleteChargerPhoto, uploadChargerPhoto } from '@/lib/db/upload-actions'
+import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
 
 /**
  * The chargers on the owner's listing.
@@ -292,7 +293,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                         : 'Add image'}
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
+                      accept={IMAGE_ACCEPT}
                       className="sr-only"
                       onChange={(event) => {
                         const file = event.target.files?.[0]
@@ -306,7 +307,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
 
                   {!row.photo && uploading !== index ? (
                     <span className="text-ui-sm text-slate-500">
-                      Primary charger photo required. JPEG, PNG or WebP, up to 4MB.
+                      Primary charger photo required. {ACCEPTED_FORMATS}, up to 4MB.
                     </span>
                   ) : null}
 
@@ -338,7 +339,7 @@ export function ChargerManager({ businessId, chargers, isLive }: ChargerManagerP
                     {row.portPhoto ? 'Replace port photo' : 'Add port photo'}
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
+                      accept={IMAGE_ACCEPT}
                       className="sr-only"
                       onChange={(event) => {
                         const file = event.target.files?.[0]

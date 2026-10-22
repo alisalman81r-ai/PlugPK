@@ -29,6 +29,7 @@ import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
 import { registerBusiness, saveMyChargers } from '@/lib/db/business-actions'
 import { deleteChargerPhoto, uploadChargerPhoto } from '@/lib/db/upload-actions'
 import type { BusinessType, ConnectorType } from '@/lib/types'
+import { IMAGE_ACCEPT } from '@/lib/upload-urls'
 import { cn } from '@/lib/utils'
 
 interface DraftCharger {
@@ -651,7 +652,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                       {charger.photoFile ? charger.photoFile.name : 'Add charger photo *'}
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept={IMAGE_ACCEPT}
                         className="sr-only"
                         onChange={(event) => {
                           const file = event.target.files?.[0]
@@ -669,7 +670,7 @@ export function BusinessSignUpForm({ account }: BusinessSignUpFormProps) {
                       {charger.portPhotoFile ? charger.portPhotoFile.name : 'Add port close-up (recommended)'}
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept={IMAGE_ACCEPT}
                         className="sr-only"
                         onChange={(event) => {
                           const file = event.target.files?.[0]

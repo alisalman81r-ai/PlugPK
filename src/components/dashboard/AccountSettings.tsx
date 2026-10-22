@@ -10,6 +10,7 @@ import { Avatar, Button } from '@/components/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { changeMyPassword, signOutEverywhere, updateMyProfile } from '@/lib/db/session-actions'
 import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
+import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
 
 /**
  * Editing the signed-in account.
@@ -210,7 +211,7 @@ export function AccountSettings({ user, mustChangePassword = false }: AccountSet
           <div>
             <p id="photo" className="scroll-mt-28 text-sm font-semibold text-slate-900">Profile picture</p>
             <p className="mt-0.5 text-ui-sm text-slate-500">
-              JPEG, PNG or WebP, up to 4MB. Shown in the header and on your account.
+              {ACCEPTED_FORMATS}, up to 4MB. Shown in the header and on your account.
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -225,7 +226,7 @@ export function AccountSettings({ user, mustChangePassword = false }: AccountSet
                 {avatarBusy ? 'Working…' : avatar ? 'Change picture' : 'Add a picture'}
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept={IMAGE_ACCEPT}
                   className="sr-only"
                   onChange={(event) => {
                     const file = event.target.files?.[0]
