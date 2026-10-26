@@ -66,7 +66,9 @@ export async function saveMyRoute(input: SaveRouteInput): Promise<RouteResult> {
       ("id", "userId", "origin", "destination", "carId", "carName", "batteryPercent", "distanceKm", "durationMin", "stops", "createdAt")
     SELECT ${id}, ${userId}, ${origin}, ${destination}, ${carId}, ${carName},
       ${clamp(input.batteryPercent, 0, 100)}, ${clamp(input.distanceKm, 0, 5000)}, ${clamp(input.durationMin, 0, 10000)},
-      ${clamp(input.stops, 0, 50)}, now()
+      ${clamp(input.stops, 0, 50)},
+      -- The time as UTC from here, not the database's now() (see rate-limit.ts).
+      ${new Date().toISOString()}::timestamptz AT TIME ZONE 'UTC'
     WHERE (SELECT count(*) FROM "SavedRoute" WHERE "userId" = ${userId}) < ${MAX_ROUTES}`
   if (!inserted) return { ok: false, message: `You can keep up to ${MAX_ROUTES} routes. Remove one first.` }
 

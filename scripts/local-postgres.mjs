@@ -123,6 +123,22 @@ if (firstRun) {
   run('npx tsx scripts/import-db.ts', { env: { ...process.env, DATABASE_URL: DB_URL } })
 }
 
+/*
+  UTC, like every hosted Postgres. initdb takes the zone from the machine, so
+  on a Pakistan-time PC the database stamped now() in local time into columns
+  the app reads as UTC — five hours off ("try again in 6 hours" for a one-hour
+  limit). Set on every start so existing clusters are corrected too; it applies
+  to new connections, which is all of them once the dev server starts.
+*/
+try {
+  const client = pg.getPgClient(DBNAME)
+  await client.connect()
+  await client.query(`ALTER DATABASE "${DBNAME}" SET timezone TO 'UTC'`)
+  await client.end()
+} catch (error) {
+  console.log(dim(`  timezone: ${String(error.message).slice(0, 100)}`))
+}
+
 console.log('')
 console.log(green(bold('  Postgres is running.')))
 console.log('')

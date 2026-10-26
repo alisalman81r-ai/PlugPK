@@ -50,12 +50,18 @@ export async function consumeRateLimit(
   windowSeconds: number,
 ): Promise<RateLimitResult> {
   try {
+    // Times come from here, as UTC, never from the database's NOW(): resetAt is
+    // a timestamp without time zone that Prisma reads as UTC, and NOW() would be
+    // written in whatever zone the database session uses. On a server set to
+    // Pakistan time that made a one-hour window report "try again in 6 hours".
+    const now = new Date().toISOString()
+    const resetAt = new Date(Date.now() + windowSeconds * 1000).toISOString()
     const rows = await prisma.$queryRaw<{ count: number; resetAt: Date }[]>`
       INSERT INTO "RateLimit" ("key", "count", "resetAt")
-      VALUES (${key}, 1, NOW() + make_interval(secs => ${windowSeconds}))
+      VALUES (${key}, 1, ${resetAt}::timestamptz AT TIME ZONE 'UTC')
       ON CONFLICT ("key") DO UPDATE SET
-        "count" = CASE WHEN "RateLimit"."resetAt" < NOW() THEN 1 ELSE "RateLimit"."count" + 1 END,
-        "resetAt" = CASE WHEN "RateLimit"."resetAt" < NOW() THEN EXCLUDED."resetAt" ELSE "RateLimit"."resetAt" END
+        "count" = CASE WHEN "RateLimit"."resetAt" < (${now}::timestamptz AT TIME ZONE 'UTC') THEN 1 ELSE "RateLimit"."count" + 1 END,
+        "resetAt" = CASE WHEN "RateLimit"."resetAt" < (${now}::timestamptz AT TIME ZONE 'UTC') THEN EXCLUDED."resetAt" ELSE "RateLimit"."resetAt" END
       RETURNING "count", "resetAt"
     `
     const row = rows[0]

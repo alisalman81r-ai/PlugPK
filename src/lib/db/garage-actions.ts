@@ -84,7 +84,9 @@ export async function addMyCar(carId: string): Promise<GarageResult> {
         WITH c AS (SELECT count(*)::int AS n FROM "UserVehicle" WHERE "userId" = ${userId}),
         ins AS (
           INSERT INTO "UserVehicle" ("id", "userId", "vehicleId", "isDefault", "createdAt")
-          SELECT ${id}, ${userId}, ${carId}, (SELECT n FROM c) = 0, now()
+          SELECT ${id}, ${userId}, ${carId}, (SELECT n FROM c) = 0,
+            -- The time as UTC from here, not the database's now() (see rate-limit.ts).
+            ${new Date().toISOString()}::timestamptz AT TIME ZONE 'UTC'
           WHERE (SELECT n FROM c) < ${MAX_CARS}
           RETURNING "isDefault"
         ),
