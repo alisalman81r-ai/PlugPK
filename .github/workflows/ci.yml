@@ -1,0 +1,79 @@
+# .github/workflows/ci.yml
+#
+# Every push to main and every pull request: the schema is valid, the
+# migrations apply to an empty Postgres, the committed data export imports,
+# and the site type-checks, lints and builds.
+#
+# The build needs a real database — pages like /cars and /services are
+# prerendered from it — so a throwaway Postgres runs alongside, filled the same
+# way `npm run db:local` fills a new local one. Nothing here touches the
+# production database, and no secret is needed: the values below are for this
+# throwaway container only.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Type-check, lint, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: plugpk
+          POSTGRES_PASSWORD: plugpk
+          POSTGRES_DB: plugpk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U plugpk"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      DATABASE_URL: postgresql://plugpk:plugpk@localhost:5432/plugpk
+      DIRECT_URL: postgresql://plugpk:plugpk@localhost:5432/plugpk
+      # Only signs cookies inside this job; not a real secret.
+      SESSION_SECRET: ci-only-session-secret-not-used-anywhere-else
+      NEXT_TELEMETRY_DISABLED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prisma schema is valid
+        run: npx prisma validate
+
+      - name: Migrations apply to an empty database
+        run: npx prisma migrate deploy
+
+      - name: Data export imports
+        run: npx tsx scripts/import-db.ts
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

@@ -163,6 +163,8 @@ Set these under **Settings → Environment Variables**:
 | Variable | Notes |
 | --- | --- |
 | `DATABASE_URL` | From step 1. Set it for Production, Preview and Development. |
+| `DIRECT_URL` | The **direct** (unpooled, port 5432) connection string. Production only. With it, every production build applies pending migrations before `next build` (`scripts/deploy-migrate.mjs`); without it the build warns and skips them. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Email for sign-up verification and password-reset codes — see `.env.example`. Without them sign-up and reset refuse. Mark `SMTP_PASS` sensitive. |
 | `SESSION_SECRET` | Signs user and admin cookies. **Generate a new one** — do not reuse the local value. |
 | `ADMIN_PASSWORD` | Admin portal login. |
 | `ENABLE_ADMIN` | Leave **unset** unless `/admin` is meant to be reachable in production. Without it those routes 404. |
