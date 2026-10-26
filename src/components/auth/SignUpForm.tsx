@@ -24,9 +24,14 @@ export interface SignUpFormProps {
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 
-/** Shared field classes so every auth input looks identical. */
+/**
+ * Shared field classes so every auth input looks identical.
+ *
+ * The ::-ms-reveal / ::-ms-clear rules hide Edge's own eye and clear buttons,
+ * which otherwise sit beside the show-password toggle as a second eye.
+ */
 export const FIELD_CLASS =
-  'h-12 w-full rounded-xl border-[1.5px] bg-white pl-11 pr-11 text-ui text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400'
+  'h-12 w-full rounded-xl border-[1.5px] bg-white pl-11 pr-11 text-ui text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden'
 
 export const FIELD_OK =
   'border-slate-200 focus:border-plug-blue-500 focus:shadow-focus'

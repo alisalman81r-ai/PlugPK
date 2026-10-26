@@ -243,9 +243,9 @@ export async function anonymiseMember(id: string): Promise<MemberResult> {
 /**
  * Gives a member a new, one-time password, shown to the admin once.
  *
- * The site has no email service, so "forgot password" cannot send a link. A
- * member who is locked out writes to support from the address on the account;
- * an admin sets a temporary password here and passes it on, and the member is
+ * "Forgot password?" resets by emailed code now; this is the fallback for a
+ * member who cannot reach the inbox and writes to support from the address on
+ * the account. An admin sets a temporary password here and passes it on, and the member is
  * made to change it on their next sign-in. Only the hash is stored — the plain
  * password exists in this response and nowhere else.
  *

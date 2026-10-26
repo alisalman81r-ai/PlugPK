@@ -4,76 +4,51 @@ import Link from 'next/link'
 
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { authHref } from '@/components/auth/auth-links'
-import { CopyEmailButton } from '@/components/auth/CopyEmailButton'
-import { buttonClasses } from '@/components/ui'
-import { ArrowLeft, Mail } from '@/components/ui/icons'
+import { PasswordResetFlow } from '@/components/auth/PasswordResetFlow'
+import { ArrowLeft } from '@/components/ui/icons'
 import { SITE_CONFIG } from '@/lib/constants'
 import { safeRedirect } from '@/lib/safe-redirect'
 
 export const metadata: Metadata = {
   title: 'Forgot Password',
-  description: 'How to get back into your Plug.pk account.',
+  description: 'Reset your Plug.pk password with a code sent to your email.',
 }
 
 interface PageProps {
-  searchParams: { redirect?: string }
+  searchParams: { redirect?: string; email?: string }
 }
 
 /*
-  The site has no email service, so it cannot send a reset link. This page
-  used to show a form that said "check your email" and sent nothing — a dead
-  end that looked like it had worked. Resets are done by a person instead:
-  the member writes from the address on the account, and an admin sets a
-  temporary password on the member's page in the admin portal. Signing in
-  with it lands on Settings, which asks for a new one before anything else.
-
-  The turnaround is the same "two working days" the meeting-request form
-  promises, because both land in the same small team's inbox; quoting a
-  faster figure here would be a promise nobody has checked.
+  A reset by emailed six-digit code (auth-actions.ts → requestPasswordReset,
+  resetPasswordWithCode). It used to be a manual process — write to support,
+  wait for a temporary password — because the site had no email service.
+  Support stays as the fallback for someone whose inbox is unreachable; an
+  admin can still set a temporary password from the member's page.
 */
-const SUPPORT = SITE_CONFIG.email
-const MAILTO = `mailto:${SUPPORT}?subject=${encodeURIComponent('Password reset')}&body=${encodeURIComponent(
-  'Hi Plug.pk team,\n\nI cannot sign in to my account. Please send me a temporary password.\n\nThe email on my account is this one.\n',
-)}`
-
-const STEP = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-plug-blue-50 text-ui-xs font-bold text-plug-blue-700'
-
 export default function ForgotPasswordPage({ searchParams }: PageProps) {
   const redirect = safeRedirect(searchParams.redirect, '')
+  const email = typeof searchParams.email === 'string' ? searchParams.email.trim().slice(0, 254) : ''
 
   return (
     <>
       <AuthHeader
         eyebrow="Password help"
-        title="Forgot your password?"
-        subtitle="There is no automatic reset yet. A person on our team sets you up with a new one."
+        title="Reset your password"
+        subtitle="We'll email you a 6-digit code. Enter it with a new password and you're back in."
       />
 
-      <ol className="space-y-4 text-ui-sm text-slate-600">
-        <li className="flex gap-3">
-          <span className={STEP}>1</span>
-          <span>
-            Email <span className="font-semibold text-slate-900">{SUPPORT}</span>{' '}
-            <strong>from the address you signed up with</strong>, so we know the account is yours.
-          </span>
-        </li>
-        <li className="flex gap-3">
-          <span className={STEP}>2</span>
-          <span>We reply with a temporary password. We usually reply within two working days.</span>
-        </li>
-        <li className="flex gap-3">
-          <span className={STEP}>3</span>
-          <span>Sign in with it. You will be asked to choose your own straight away.</span>
-        </li>
-      </ol>
+      <PasswordResetFlow initialEmail={email} />
 
-      <div className="mt-8 space-y-3">
-        <a href={MAILTO} className={buttonClasses({ variant: 'primary', size: 'lg', fullWidth: true })}>
-          <Mail size={18} aria-hidden="true" />
-          Open your email app
-        </a>
-        <CopyEmailButton email={SUPPORT} />
-      </div>
+      <p className="mt-6 text-ui-xs leading-relaxed text-slate-500">
+        No access to that inbox any more? Write to{' '}
+        <a
+          href={`mailto:${SITE_CONFIG.email}?subject=${encodeURIComponent('Password reset')}`}
+          className="font-semibold text-plug-blue-600 hover:underline"
+        >
+          {SITE_CONFIG.email}
+        </a>{' '}
+        and we&apos;ll help you back in.
+      </p>
 
       <Link
         href={authHref('/login', redirect)}
