@@ -1042,7 +1042,11 @@ SHEETS.report = (sh) => ({
     ${sh.err ? `<p class="err-msg">${ic('info', 15)}Pick what’s wrong first.</p>` : ''}`,
   foot: `<button class="btn btn-primary btn-block" data-a="sendReport">Send report</button>`,
 })
-SHEETS.signin = (sh) => U.verify ? ({
+SHEETS.signin = (sh) => U.reset ? ({
+  // Forgotten password: the emailed reset code (sync.js).
+  title: 'Reset your password',
+  body: resetFormHtml(),
+}) : U.verify ? ({
   // Signed up or signed in before confirming: the emailed code (sync.js).
   title: 'Confirm your email',
   body: verifyFormHtml(),
@@ -1052,7 +1056,7 @@ SHEETS.signin = (sh) => U.verify ? ({
     <form class="stack gap-16 mt-16" data-submit="authSubmit" id="signin-form" novalidate>
       ${U.authMode === 'signup' ? `<div><label class="label" for="si-name">Your name</label><input class="input" id="si-name" name="name" autocomplete="name" placeholder="Ahmed Raza" value="${esc(U.authVals?.name)}"></div>` : ''}
       <div><label class="label" for="si-email">Email</label><input class="input" id="si-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(U.authVals?.email)}"></div>
-      <div><label class="label" for="si-pass">Password</label><input class="input" id="si-pass" name="password" type="password" placeholder="At least 8 characters"></div>
+      <div><div class="row between"><label class="label" for="si-pass">Password</label>${U.authMode === 'signup' ? '' : '<button type="button" class="link" style="min-height:0;margin-bottom:6px" data-a="forgot">Forgot password?</button>'}</div><input class="input" id="si-pass" name="password" type="password" placeholder="At least 8 characters"></div>
       ${U.authErr ? `<p class="err-msg">${ic('info', 15)}${Object.values(U.authErr)[0]}</p>` : ''}
       <button class="btn btn-primary btn-lg btn-block" type="submit">${U.authMode === 'signup' ? 'Create account' : 'Sign in'}</button>
       <p class="t14 muted" style="text-align:center">${U.authMode === 'signup' ? 'Have an account?' : 'New here?'} <button type="button" class="link" data-a="sheetAuthMode">${U.authMode === 'signup' ? 'Sign in' : 'Create one'}</button></p>

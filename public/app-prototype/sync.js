@@ -293,6 +293,140 @@ A.verifyResend = async () => {
 
 A.verifyBack = () => { U.verify = null; U.authErr = null; reRenderAuth() }
 
+// ─── Forgotten password: reset with a 6-digit code ─────────────────
+//
+// The website's own reset (api/app/session modes 'reset-request' and
+// 'reset'), so the code, its expiry, attempt limit, rate limits and replies
+// are the same as on plug.pk/forgot-password. Two steps in one form — the
+// address, then the code with a new password — shown in place of the sign-in
+// form like the verification code. The code step appears whatever the server
+// says about the address, so the app never reveals who has an account.
+
+function startReset(email) {
+  U.reset = { step: 'email', email: String(email || '').trim().toLowerCase(), err: null, note: null }
+  U.verify = null
+  U.authErr = null
+  reRenderAuth()
+}
+
+function resetFormHtml() {
+  const v = U.reset
+  const msgs = `${v.err ? `<p class="err-msg" role="alert">${ic('info', 15)}${esc(v.err)}</p>` : ''}
+      ${v.note ? `<p class="t14" role="status" style="color:var(--ok-fg)">${esc(v.note)}</p>` : ''}`
+  if (v.step === 'email') {
+    return `<form class="stack gap-12" data-submit="resetRequestSubmit" novalidate>
+      <p class="t14 muted">Enter the email you signed up with. We’ll send a 6-digit code to choose a new password.</p>
+      <div><label class="label" for="rs-email">Email</label>
+        <input class="input ${v.err ? 'bad' : ''}" id="rs-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(v.email)}"></div>
+      ${msgs}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Email me a reset code ${ic('arrowR', 18)}</button>
+      <button class="link" type="button" style="width:100%;justify-content:center" data-a="resetBack">Back to sign in</button>
+    </form>`
+  }
+  return `<form class="stack gap-12" data-submit="resetSubmit" novalidate>
+      <p class="t14 muted">Enter the 6-digit code sent to <b>${esc(v.email)}</b>, then choose a new password. The code expires in 10 minutes — check spam if it isn’t there.</p>
+      <div><label class="label" for="rs-code">Reset code</label>
+        <input class="input" id="rs-code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="123456" style="text-align:center;font-size:24px;letter-spacing:.5em;font-family:var(--mono, ui-monospace, monospace)"></div>
+      <div><label class="label" for="rs-pass">New password</label>
+        <div class="field"><span class="lead">${ic('lock', 18)}</span><input class="input" id="rs-pass" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters, a letter and a number" style="padding-right:52px">
+          <span class="trail"><button type="button" class="icon-btn" data-a="togglePass" aria-label="Show password">${ic('eye', 18)}</button></span></div></div>
+      ${msgs}
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Set new password ${ic('arrowR', 18)}</button>
+      <button class="btn btn-secondary btn-block" type="button" data-a="resetResend">Send a new code</button>
+      <button class="link" type="button" style="width:100%;justify-content:center" data-a="resetToEmail">Use a different email</button>
+    </form>`
+}
+
+/** The onboarding screen's version: same header as the account step. */
+function resetScreen() {
+  return {
+    sb: 'light',
+    html: `<div class="pk"><div class="scroll" style="padding-bottom:32px">
+      <header class="pk-head">
+        <div class="row between">
+          <button class="icon-btn" data-a="resetBack" aria-label="Back">${ic('arrowL', 22)}</button>
+          <span></span><span></span>
+        </div>
+        <div class="eyebrow mt-16" style="color:#8EEEDA">${ic('lock', 13)} Password help</div>
+        <h1 class="band-title mt-8">Reset your <span class="hl">password</span></h1>
+      </header>
+      <div class="pad mt-16">${resetFormHtml()}</div>
+    </div></div>`,
+  }
+}
+
+const OFFLINE_MSG = 'You seem to be offline. Connect and try again.'
+
+/** Asks the server for a code. True when the next step should show. */
+async function requestResetCode() {
+  const r = await api('session', { method: 'POST', body: { mode: 'reset-request', email: U.reset.email } })
+  if (r.offline) { U.reset.err = OFFLINE_MSG; U.reset.note = null; return false }
+  if (!r.ok) { U.reset.err = r.message || 'Could not send a code. Try again in a minute.'; U.reset.note = null; return false }
+  U.reset.note = r.message
+  U.reset.err = null
+  return true
+}
+
+A.resetRequestSubmit = async (_, f) => {
+  if (U.resetBusy) return
+  const email = String(new FormData(f).get('email') || '').trim().toLowerCase()
+  U.reset.email = email
+  if (!/^\S+@\S+\.\S+$/.test(email)) { U.reset.err = 'Enter an email address like name@example.com.'; U.reset.note = null; return reRenderAuth() }
+  U.resetBusy = true
+  const btn = f.querySelector('[type="submit"]')
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…' }
+  const ok = await requestResetCode()
+  U.resetBusy = false
+  if (ok) U.reset.step = 'code'
+  reRenderAuth()
+}
+
+A.resetSubmit = async (_, f) => {
+  if (U.resetBusy) return
+  const data = new FormData(f)
+  const code = String(data.get('code') || '').replace(/\D/g, '')
+  const password = String(data.get('password') || '')
+  if (code.length !== 6) { U.reset.err = 'Enter the 6-digit code from the email.'; U.reset.note = null; return reRenderAuth() }
+  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    U.reset.err = 'Use at least 8 characters with a letter and a number.'; U.reset.note = null; return reRenderAuth()
+  }
+  U.resetBusy = true
+  const btn = f.querySelector('[type="submit"]')
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…' }
+  const r = await api('session', { method: 'POST', body: { mode: 'reset', email: U.reset.email, code, password } })
+  U.resetBusy = false
+  if (r.offline || !r.ok) {
+    U.reset.err = r.offline ? OFFLINE_MSG : r.message || 'That code is not right.'
+    U.reset.note = null
+    return reRenderAuth()
+  }
+  // Changed, but the server could not sign this device in: sign in by hand.
+  if (r.signedIn === false) {
+    U.reset = null
+    U.authMode = 'signin'
+    U.authErr = { form: r.message || 'Your password is changed. Please sign in.' }
+    return reRenderAuth()
+  }
+  const error = await finishSignIn(false)
+  if (error) { U.reset.err = error; U.reset.note = null; return reRenderAuth() }
+  U.reset = null
+  if (S.onboarded) { closeSheet(); render(); return toast('Password changed — you’re signed in', 'lock') }
+  // Onboarding carries on to choosing a car, as after any sign-in.
+  U.onbStep = SLIDES.length + 1
+  render()
+}
+
+A.resetResend = async () => {
+  if (U.resetBusy) return
+  U.resetBusy = true
+  await requestResetCode()
+  U.resetBusy = false
+  reRenderAuth()
+}
+
+A.resetToEmail = () => { U.reset.step = 'email'; U.reset.err = null; U.reset.note = null; reRenderAuth() }
+A.resetBack = () => { U.reset = null; U.authMode = 'signin'; U.authErr = null; reRenderAuth() }
+
 async function signOutRemote() {
   SYNC.ready = false
   SYNC.base = null

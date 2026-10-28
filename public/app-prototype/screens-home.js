@@ -230,6 +230,7 @@ function onbSwipe() {
 A.onbSignIn = () => { U.onbStep = SLIDES.length; U.authMode = 'signin'; U.authErr = null; render() }
 
 function authScreen() {
+  if (U.reset) return resetScreen()
   if (U.verify) return verifyScreen()
   const up = U.authMode === 'signup'
   const e = U.authErr || {}
@@ -343,7 +344,8 @@ Object.assign(A, {
   onbNext: () => { U.onbStep++; render() },
   onbSkip: () => { U.onbStep = SLIDES.length; render() },
   authMode: () => { U.authMode = U.authMode === 'signup' ? 'signin' : 'signup'; U.authErr = null; render() },
-  forgot: () => toast('We’d email you a reset link — not wired up in the prototype', 'mail'),
+  // The website's reset by emailed code (sync.js), starting from the address already typed.
+  forgot: () => startReset(document.querySelector('#au-email, #si-email')?.value || U.authVals?.email),
   guest: () => { S.user = null; U.onbStep = SLIDES.length + 1; render() },
   authSubmit: (_, f) => {
     const v = Object.fromEntries(new FormData(f))

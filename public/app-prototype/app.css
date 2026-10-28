@@ -354,6 +354,8 @@ p { margin: 0; }
 }
 .textarea { height: auto; min-height: 120px; padding: 12px 16px; resize: none; line-height: 1.55; }
 .input::placeholder, .textarea::placeholder { color: var(--faint); }
+/* Edge's own reveal / clear buttons sit beside our show-password toggle as a second eye. */
+.input::-ms-reveal, .input::-ms-clear { display: none; }
 .input:focus, .select:focus, .textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(38,205,178,.22); }
 .field .lead { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
 .field .lead + .input { padding-left: 44px; }

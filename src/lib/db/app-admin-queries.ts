@@ -15,7 +15,7 @@ import { prisma } from './client'
 /** The feed's filter chips, each a set of AppEvent types. */
 export const APP_EVENT_KINDS = {
   all: { label: 'All', types: null },
-  accounts: { label: 'Accounts', types: ['account.signup', 'account.signin', 'account.signout', 'account.verify', 'profile.photo', 'profile.photoRemove'] },
+  accounts: { label: 'Accounts', types: ['account.signup', 'account.signin', 'account.signout', 'account.verify', 'account.reset', 'profile.photo', 'profile.photoRemove'] },
   partners: { label: 'Partners & listings', types: ['meeting.request', 'business.register', 'service.apply'] },
   community: { label: 'Community', types: ['post.create', 'comment.create', 'post.like', 'post.unlike', 'club.join', 'club.leave'] },
   reviews: { label: 'Reviews', types: ['review.create'] },

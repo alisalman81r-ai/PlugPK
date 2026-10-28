@@ -86,6 +86,7 @@ const TYPE_LABEL: Record<string, string> = {
   'account.signin': 'Signed in',
   'account.signout': 'Signed out',
   'account.verify': 'Confirmed email',
+  'account.reset': 'Reset password',
   'profile.photo': 'Profile photo',
   'profile.photoRemove': 'Photo removed',
   'meeting.request': 'Partner request',
