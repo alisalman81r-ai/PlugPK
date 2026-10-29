@@ -294,6 +294,14 @@ export interface EVService {
   operatingHours: OperatingHours
   isVerified: boolean
   createdAt: string
+  /** From the application. The contact person is for the admin only. */
+  contactName?: string
+  contactRole?: string
+  whatsapp?: string
+  socialUrl?: string
+  yearEstablished?: number
+  brands?: string
+  pricing?: string
 }
 
 // ─── Business ───────────────────────────────────────

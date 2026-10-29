@@ -9,6 +9,7 @@ import {
   LifeBuoy,
   Mail,
   MapPin,
+  MessageCircle,
   MessageSquare,
   Navigation2,
   Package,
@@ -75,6 +76,14 @@ function formatDay(hours: DayHours | undefined): string {
   return hours.isClosed ? 'Closed' : `${hours.open} – ${hours.close}`
 }
 
+/** "0300 1234567" → "923001234567": wa.me wants the international number, digits only. */
+function waNumber(phone: string): string {
+  const digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('00')) return digits.slice(2)
+  if (digits.startsWith('0')) return `92${digits.slice(1)}`
+  return digits
+}
+
 function resolveCategory(value: string): ServiceCategory | null {
   return SERVICE_CATEGORY_KEYS.find((key) => key === value) ?? null
 }
@@ -120,6 +129,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
   // Rendered through safeHref: a website stored before input was checked
   // could be a javascript: link.
   const website = safeHref(service.website)
+  const social = safeHref(service.socialUrl)
+  const whatsappHref = service.whatsapp ? `https://wa.me/${waNumber(service.whatsapp)}` : null
   const fullAddress = [service.address.street, service.address.area, service.address.city]
     .filter((part) => part && part.trim())
     .join(', ')
@@ -241,7 +252,37 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             <section>
               <h2 className="mb-4 text-2xl font-bold text-slate-900">About {service.name}</h2>
               <p className="leading-relaxed text-slate-600">{service.description}</p>
+
+              {service.yearEstablished || service.brands ? (
+                <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {service.yearEstablished ? (
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">In business since</dt>
+                      <dd className="mt-1 font-semibold text-slate-900">{service.yearEstablished}</dd>
+                    </div>
+                  ) : null}
+                  {service.brands ? (
+                    <div className="rounded-xl border border-slate-200 bg-white p-4">
+                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">EV makes</dt>
+                      <dd className="mt-1 font-semibold text-slate-900">{service.brands}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+              ) : null}
             </section>
+
+            {service.pricing ? (
+              <>
+                <hr className="my-10 border-slate-100" />
+                <section>
+                  <h2 className="mb-4 text-2xl font-bold text-slate-900">Prices</h2>
+                  <p className="whitespace-pre-line rounded-2xl border border-slate-200 bg-white p-5 leading-relaxed text-slate-700">
+                    {service.pricing}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">As given by the business. Confirm before you book.</p>
+                </section>
+              </>
+            ) : null}
 
             <hr className="my-10 border-slate-100" />
 
@@ -303,6 +344,18 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 Call Now
               </a>
 
+              {whatsappHref ? (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="-mt-3 mb-5 flex h-10 items-center justify-center gap-2 rounded-xl border-[1.5px] border-green-600 text-sm font-semibold text-green-700 transition-colors hover:bg-green-50"
+                >
+                  <MessageCircle size={16} aria-hidden="true" />
+                  WhatsApp
+                </a>
+              ) : null}
+
               {service.email ? (
                 <div className="mb-4 flex items-center gap-3">
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
@@ -334,6 +387,25 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                       className="block truncate font-semibold text-plug-blue-600 hover:underline"
                     >
                       {website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    </a>
+                  </span>
+                </div>
+              ) : null}
+
+              {social ? (
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
+                    <Globe size={20} className="text-plug-blue-600" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-xs uppercase text-slate-400">Social page</span>
+                    <a
+                      href={social}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block truncate font-semibold text-plug-blue-600 hover:underline"
+                    >
+                      {social.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
                     </a>
                   </span>
                 </div>

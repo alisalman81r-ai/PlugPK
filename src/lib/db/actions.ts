@@ -12,6 +12,7 @@ import { checkEmail, checkPhone, checkText, checkWebsite, isInPakistan } from '@
 import { assertAdmin, type AdminActor } from './admin-access'
 import { logAdminAction } from './audit'
 import { prisma } from './client'
+import { readServiceDetails } from './service-details'
 import { getCurrentUser } from './session-actions'
 
 /**
@@ -332,6 +333,9 @@ export async function saveService(id: string | null, form: FormData): Promise<Ac
   const website = checkWebsite(form.get('website'))
   if (!website.ok) return website
 
+  const details = readServiceDetails(form)
+  if (!details.ok) return { ok: false, message: details.message }
+
   /*
     An operator-entered service is approved unless they say otherwise.
 
@@ -364,6 +368,7 @@ export async function saveService(id: string | null, form: FormData): Promise<Ac
     phone: phone.value ?? '',
     email,
     website: website.value,
+    ...details.value,
     coverPhoto: readString(form, 'coverPhoto') || null,
     // No rating: services have no review table, so a typed figure would be
     // invented. Existing values are left as they are rather than zeroed.

@@ -211,6 +211,18 @@ model EVService {
   photos     String  @default("[]")
   coverPhoto String?
 
+  /// From the application form. The contact person is for the reviewer and is
+  /// never shown publicly; the rest appears on the listing once approved.
+  contactName     String?
+  contactRole     String?
+  whatsapp        String?
+  socialUrl       String?
+  yearEstablished Int?
+  /// EV makes the business works with, as typed ("BYD, MG, Hyundai").
+  brands          String?
+  /// Typical prices, as typed ("Home charger install from PKR 25,000").
+  pricing         String?
+
   rating         Float   @default(0)
   reviewCount    Int     @default(0)
   operatingHours String  @default("{}")

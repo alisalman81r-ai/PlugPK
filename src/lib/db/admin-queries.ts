@@ -616,9 +616,18 @@ function toServiceRow(row: ServiceRecord): AdminServiceListRow {
   return { ...row, submittedAt: row.submittedAt?.toISOString() ?? null }
 }
 
-/** Status and review note for the edit form, which EVService does not carry. */
-export async function getServiceReviewState(id: string): Promise<{ status: string; reviewNote: string | null } | null> {
-  return prisma.eVService.findUnique({ where: { id }, select: { status: true, reviewNote: true } })
+/** Status, review note and who applied, for the edit page — none of which EVService carries. */
+export async function getServiceReviewState(id: string): Promise<{
+  status: string
+  reviewNote: string | null
+  submittedAt: string | null
+  user: AdminSender | null
+} | null> {
+  const row = await prisma.eVService.findUnique({
+    where: { id },
+    select: { status: true, reviewNote: true, submittedAt: true, user: SENDER_SELECT },
+  })
+  return row ? { ...row, submittedAt: row.submittedAt?.toISOString() ?? null } : null
 }
 
 /** The queue. Bounded, because a queue longer than this is a different problem. */

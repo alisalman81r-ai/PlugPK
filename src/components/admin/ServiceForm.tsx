@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { AdminField, FIELD_CLASS, TEXTAREA_CLASS } from '@/components/admin/AdminField'
+import { HoursFields } from '@/components/services/HoursFields'
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -248,6 +249,54 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
             <p className="text-ui-xs text-slate-500">
               Your own assertion that you have checked this business exists — shown publicly as a badge.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/*
+        What the applicant told us. Editable, because a reviewer often fixes a
+        typo before approving; the contact person never appears publicly.
+      */}
+      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
+        <h2 className="mb-1 font-semibold text-slate-900">Applicant and details</h2>
+        <p className="mb-5 text-ui-sm text-slate-500">
+          The contact person is for the team only. WhatsApp, social page, year, makes, prices and
+          hours appear on the public listing once it is approved.
+        </p>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <AdminField label="Contact person" htmlFor="contactName">
+            <input id="contactName" name="contactName" maxLength={120} defaultValue={service?.contactName} className={FIELD_CLASS} />
+          </AdminField>
+          <AdminField label="Their role" htmlFor="contactRole" hint="Owner, manager…">
+            <input id="contactRole" name="contactRole" maxLength={80} defaultValue={service?.contactRole} className={FIELD_CLASS} />
+          </AdminField>
+          <AdminField label="WhatsApp" htmlFor="whatsapp">
+            <input id="whatsapp" name="whatsapp" type="tel" maxLength={20} defaultValue={service?.whatsapp} className={FIELD_CLASS} />
+          </AdminField>
+          <AdminField label="Year established" htmlFor="yearEstablished">
+            <input
+              id="yearEstablished"
+              name="yearEstablished"
+              type="number"
+              min={1947}
+              max={new Date().getFullYear()}
+              defaultValue={service?.yearEstablished}
+              className={FIELD_CLASS}
+            />
+          </AdminField>
+          <AdminField label="Facebook or Instagram page" htmlFor="socialUrl" className="sm:col-span-2">
+            <input id="socialUrl" name="socialUrl" type="url" maxLength={300} defaultValue={service?.socialUrl} className={FIELD_CLASS} />
+          </AdminField>
+          <AdminField label="EV makes they work with" htmlFor="brands" className="sm:col-span-2">
+            <input id="brands" name="brands" maxLength={300} defaultValue={service?.brands} className={FIELD_CLASS} />
+          </AdminField>
+          <AdminField label="Prices" htmlFor="pricing" className="sm:col-span-2">
+            <textarea id="pricing" name="pricing" rows={3} maxLength={600} defaultValue={service?.pricing} className={TEXTAREA_CLASS} />
+          </AdminField>
+          <div className="sm:col-span-2">
+            <p className="mb-3 text-ui-sm font-semibold text-slate-900">Opening hours</p>
+            <HoursFields initial={service?.operatingHours} />
           </div>
         </div>
       </section>

@@ -1,10 +1,12 @@
 // src/app/(main)/services/list/page.tsx
 import type { Metadata } from 'next'
-import { BadgeCheck, MapPinned, Wrench } from '@/components/ui/icons'
+import Link from 'next/link'
+import { BadgeCheck, Lock, MapPinned, Wrench } from '@/components/ui/icons'
 
 import { ServiceApplicationForm } from '@/components/services/ServiceApplicationForm'
 import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH } from '@/components/shared/frame'
 import { getServiceCategoryCounts } from '@/lib/db/queries'
+import { getCurrentProfile } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
 /**
@@ -20,6 +22,11 @@ import { cn } from '@/lib/utils'
  * on the category page" is what the directory does once the row is approved.
  */
 
+// Per visitor: signed out sees the sign-up step, signed in sees the form.
+export const dynamic = 'force-dynamic'
+
+const RETURN = encodeURIComponent('/services/list')
+
 export const metadata: Metadata = {
   title: 'List your EV service',
   description:
@@ -34,7 +41,7 @@ const STEPS = [
   {
     icon: Wrench,
     title: 'Tell us what you do',
-    body: 'Your name, the kind of service you offer, where you are on the map and a way to reach you.',
+    body: 'Your business, who we should talk to, where you are on the map and when you are open. About five minutes.',
   },
   {
     icon: BadgeCheck,
@@ -49,7 +56,7 @@ const STEPS = [
 ]
 
 export default async function ListServicePage() {
-  const counts = await getServiceCategoryCounts()
+  const [counts, profile] = await Promise.all([getServiceCategoryCounts(), getCurrentProfile()])
   const listed = Object.values(counts).reduce((sum, n) => sum + n, 0)
 
   return (
@@ -112,7 +119,42 @@ export default async function ListServicePage() {
           </ol>
 
           <div className="mx-auto mt-12 max-w-3xl lg:mt-16">
-            <ServiceApplicationForm />
+            {profile ? (
+              <ServiceApplicationForm applicant={{ name: profile.name, email: profile.email }} />
+            ) : (
+              <div className={FRAME}>
+                <div className={cn(FACE, 'p-8 text-center sm:p-10')}>
+                  <span
+                    aria-hidden="true"
+                    className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-plug-blue-300 text-plug-blue-600"
+                  >
+                    <Lock size={24} />
+                  </span>
+                  <h2 className="mt-6 text-xl font-bold tracking-tight text-slate-900">
+                    Create a free account to apply
+                  </h2>
+                  <p className="mx-auto mt-3 max-w-md text-ui leading-relaxed text-slate-500">
+                    Your application belongs to your Plug.pk account, so our team knows who sent it
+                    and you can sign in to keep it up to date. It takes a minute; you come straight
+                    back here afterwards.
+                  </p>
+                  <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                    <Link
+                      href={`/signup?redirect=${RETURN}`}
+                      className="inline-flex h-12 items-center justify-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+                    >
+                      Create a free account
+                    </Link>
+                    <Link
+                      href={`/login?redirect=${RETURN}`}
+                      className="inline-flex h-12 items-center justify-center rounded-xl border-[1.5px] border-slate-300 bg-white px-6 text-ui font-semibold text-slate-800 transition-colors hover:border-slate-900"
+                    >
+                      I already have an account
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

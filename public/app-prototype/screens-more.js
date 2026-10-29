@@ -597,6 +597,7 @@ function lbStart(kind) {
 
 A.listBiz = (kind) => {
   if (kind === 'charger' && !S.user) return needSignIn('Sign in to list your chargers. The listing belongs to your account, so you can update it and answer reviews later.')
+  if (kind === 'service' && !S.user) return needSignIn('Sign in to list your EV service. Create a free account first — the application is tied to it.')
   lbStart(kind)
   go('listBiz')
 }
@@ -686,7 +687,7 @@ A.lbNext = () => {
 A.lbSubmit = async () => {
   const lb = U.lb
   if (lb.busy) return
-  if (lb.kind === 'charger' && !S.user) return needSignIn('Sign in to list your chargers.')
+  if (!S.user) return needSignIn(lb.kind === 'charger' ? 'Sign in to list your chargers.' : 'Sign in to list your EV service.')
   lb.busy = true; lb.err = null; render()
   const progress = (text) => { lb.progress = text; const el = $('#lb-progress'); if (el) el.textContent = text }
   const error = lb.kind === 'charger' ? await listBusinessRemote(lb.v, progress) : await applyServiceRemote(lb.v)

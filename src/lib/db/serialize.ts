@@ -147,6 +147,13 @@ export function toService(row: ServiceRow): EVService {
     operatingHours: parseJson<OperatingHours>(row.operatingHours, {} as OperatingHours),
     isVerified: row.isVerified,
     createdAt: row.createdAt.toISOString(),
+    contactName: row.contactName ?? undefined,
+    contactRole: row.contactRole ?? undefined,
+    whatsapp: row.whatsapp ?? undefined,
+    socialUrl: row.socialUrl ?? undefined,
+    yearEstablished: row.yearEstablished ?? undefined,
+    brands: row.brands ?? undefined,
+    pricing: row.pricing ?? undefined,
   }
 }
 

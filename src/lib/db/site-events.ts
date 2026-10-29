@@ -35,6 +35,11 @@ export interface SiteEventInput {
   fallbackName?: string
 }
 
+/** Whether this request is a Server Action from a website page (not the app's API). */
+export function isWebsiteRequest(): boolean {
+  return fromWebsite()
+}
+
 function fromWebsite(): boolean {
   try {
     return headers().get('next-action') !== null

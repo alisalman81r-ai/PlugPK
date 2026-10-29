@@ -13,7 +13,8 @@ import { logAdminAction } from './audit'
 import { prisma } from './client'
 import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
-import { recordSiteEvent } from './site-events'
+import { readServiceDetails } from './service-details'
+import { isWebsiteRequest, recordSiteEvent } from './site-events'
 
 /**
  * Applications to be listed in the EV services directory.
@@ -85,6 +86,12 @@ async function uniqueSlug(name: string): Promise<string> {
  * are a convenience for the person typing.
  */
 export async function applyToListService(form: FormData): Promise<ApplyResult> {
+  // An account first, as for chargers: the application belongs to it, and an
+  // anonymous endpoint that writes a row per call is a spam inlet. The page
+  // shows sign-up instead of the form when signed out; this is the real check.
+  const userId = await getSessionUserId()
+  if (!userId) return { ok: false, field: 'signin', message: 'Sign in to apply. Create a free account first — your application is tied to it.' }
+
   const name = checkText(form.get('name'), 'the business name', { max: 120, min: 2, required: true })
   if (!name.ok) return { ok: false, field: 'name', message: name.message }
 
@@ -132,6 +139,15 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     }
   }
 
+  // The website's form asks for a contact person and a confirmation; the
+  // app's shorter form does not, so those are required only from the website.
+  const fromWebsite = isWebsiteRequest()
+  const details = readServiceDetails(form, { contactRequired: fromWebsite })
+  if (!details.ok) return details
+  if (fromWebsite && form.get('agree') !== 'on') {
+    return { ok: false, field: 'agree', message: 'Confirm the details are correct to send your application.' }
+  }
+
   const limit = await checkLimits([
     { key: `service-apply:ip:${clientFingerprint()}`, limit: APPLICATIONS_PER_HOUR, windowSeconds: 60 * 60 },
   ])
@@ -154,8 +170,6 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     return { ok: true, message: 'We already have your application, and it is waiting to be reviewed.' }
   }
 
-  // Applying needs no account; a signed-in applicant is linked to theirs.
-  const userId = await getSessionUserId()
   const serviceId = randomUUID()
   await prisma.eVService.create({
     data: {
@@ -176,6 +190,7 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
       phone: phone.value ?? '',
       email: email && email.ok ? email.value : null,
       website: website.value,
+      ...details.value,
       status: 'pending',
       submittedAt: new Date(),
     },

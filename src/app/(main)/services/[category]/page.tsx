@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { ListYourServiceBand } from '@/components/services/ListYourServiceBand'
 import { ServiceCard } from '@/components/services/ServiceCard'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import { getServicesByCategory } from '@/lib/db/service-queries'
@@ -100,6 +101,8 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
           </div>
         )}
       </div>
+
+      <ListYourServiceBand category={SERVICE_CATEGORY_META[category].label} className="pb-16" />
     </>
   )
 }

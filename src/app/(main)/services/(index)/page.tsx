@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
+import { ListYourServiceBand } from '@/components/services/ListYourServiceBand'
 import { ServiceHero } from '@/components/services/ServiceHero'
 import { ServicesDirectory } from '@/components/services/ServicesDirectory'
 import { FaqSection } from '@/components/shared/FaqSection'
@@ -67,6 +68,8 @@ export default async function ServicesPage() {
       >
         <ServicesDirectory services={services} />
       </Suspense>
+
+      <ListYourServiceBand className="py-12 lg:py-16" />
 
       <FaqSection items={SERVICES_FAQS} />
     </>

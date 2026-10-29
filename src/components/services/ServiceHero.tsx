@@ -1,5 +1,5 @@
 // src/components/services/ServiceHero.tsx
-import { Search } from '@/components/ui/icons'
+import { ArrowRight, Search, Wrench } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { SearchSelect } from '@/components/ui/SearchSelect'
@@ -153,16 +153,18 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
           common case and keeps the top of the page, and a provider looking to
           be listed will read this far.
         */}
-        <p className="mt-8 text-center text-ui-sm text-white/60">
-          Offer an EV service?{' '}
+        <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-4">
+          <span className="text-ui-sm text-white/70">Offer an EV service?</span>
           <Link
             href="/services/list"
-            className="font-semibold text-plug-sky-100 underline decoration-plug-sky-300/50 underline-offset-4 transition-colors hover:text-white hover:decoration-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-plug-cyan-300/60 bg-plug-cyan-400/10 px-5 text-ui-sm font-bold text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
           >
+            <Wrench size={16} aria-hidden="true" />
             Apply to be listed
-          </Link>{' '}
-          — PKR 4,999 a month, and checked before it goes live.
-        </p>
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+        <p className="mt-2 text-center text-ui-xs text-white/45">Checked by our team before it goes live.</p>
       </div>
     </section>
   )
