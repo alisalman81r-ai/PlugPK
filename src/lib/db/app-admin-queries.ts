@@ -1,16 +1,19 @@
 // src/lib/db/app-admin-queries.ts
 import 'server-only'
 
-import type { Prisma } from '@prisma/client'
+import type { AppEvent, Prisma } from '@prisma/client'
 
 import { ADMIN_PAGE_SIZE } from './admin-queries'
 import { prisma } from './client'
 
 /**
  * Reads for the admin portal's "Mobile app" section: what has come in from the
- * app (AppEvent), who uses it (User.signupSource / lastAppActiveAt) and the
- * release log (AppRelease).
+ * app (AppEvent with source 'app'), who uses it (User.signupSource /
+ * lastAppActiveAt) and the release log (AppRelease). Website activity shares
+ * the AppEvent table (source 'web') and is left out of every count here.
  */
+
+const FROM_APP = { source: 'app' } as const
 
 /** The feed's filter chips, each a set of AppEvent types. */
 export const APP_EVENT_KINDS = {
@@ -64,7 +67,7 @@ export async function getAppDashboard(range: AppRange) {
 
   // Listings sent from the app, so "pending" below means pending *from the app*.
   const sentFromApp = await prisma.appEvent.findMany({
-    where: { type: { in: ['business.register', 'service.apply'] }, targetId: { not: null } },
+    where: { ...FROM_APP, type: { in: ['business.register', 'service.apply'] }, targetId: { not: null } },
     select: { type: true, targetId: true },
   })
   const businessIds = sentFromApp.filter((e) => e.type === 'business.register').map((e) => e.targetId!)
@@ -84,8 +87,8 @@ export async function getAppDashboard(range: AppRange) {
     prisma.user.count({ where: { lastAppActiveAt: { gte: new Date(now - 30 * DAY_MS) } } }),
     prisma.user.count({ where: { signupSource: 'app', createdAt: { gte: since } } }),
     prisma.user.count({ where: { signupSource: { not: 'app' }, createdAt: { gte: since } } }),
-    prisma.appEvent.count({ where: { createdAt: { gte: since } } }),
-    prisma.appEvent.count({ where: { createdAt: { gte: before, lt: since } } }),
+    prisma.appEvent.count({ where: { ...FROM_APP, createdAt: { gte: since } } }),
+    prisma.appEvent.count({ where: { ...FROM_APP, createdAt: { gte: before, lt: since } } }),
     // createdAt is stored as UTC; the day boundaries are Pakistan's.
     prisma.$queryRaw<{ day: string; actions: number; users: number }[]>`
       SELECT to_char((e."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE ${TZ}, 'YYYY-MM-DD') AS day,
@@ -95,13 +98,13 @@ export async function getAppDashboard(range: AppRange) {
              count(DISTINCT u.id)::int AS users
       FROM "AppEvent" e
       LEFT JOIN "User" u ON u.id = e."userId"
-      WHERE e."createdAt" >= ${since}
+      WHERE e."createdAt" >= ${since} AND e."source" = 'app'
       GROUP BY 1
       ORDER BY 1`,
-    prisma.appEvent.groupBy({ by: ['type'], where: { createdAt: { gte: since } }, _count: { _all: true } }),
+    prisma.appEvent.groupBy({ by: ['type'], where: { ...FROM_APP, createdAt: { gte: since } }, _count: { _all: true } }),
     prisma.appEvent.groupBy({
       by: ['userId'],
-      where: { createdAt: { gte: since }, userId: { not: null } },
+      where: { ...FROM_APP, createdAt: { gte: since }, userId: { not: null } },
       _count: { _all: true },
       orderBy: { _count: { userId: 'desc' } },
       take: 5,
@@ -172,11 +175,34 @@ export async function getAppDashboard(range: AppRange) {
   }
 }
 
+/**
+ * Rows with each account's current name. The name is looked up rather than
+ * copied, so a member who renames shows under the new name; a deleted account
+ * keeps the email written at the time.
+ */
+export async function withNames(rows: AppEvent[]) {
+  const ids = [...new Set(rows.map((row) => row.userId).filter((id): id is string => !!id))]
+  const users = ids.length ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : []
+  const names = new Map(users.map((user) => [user.id, user.name]))
+  return rows.map((row) => ({
+    id: row.id,
+    type: row.type,
+    targetType: row.targetType,
+    targetId: row.targetId,
+    userId: row.userId && names.has(row.userId) ? row.userId : null,
+    userEmail: row.userEmail,
+    userName: row.userId ? (names.get(row.userId) ?? null) : null,
+    summary: row.summary,
+    source: row.source,
+    createdAt: row.createdAt.toISOString(),
+  }))
+}
+
 export async function listAppEventsPage({ q, kind, page }: { q: string; kind: AppEventKind; page: number }) {
   const types = APP_EVENT_KINDS[kind].types
   const search: Prisma.AppEventWhereInput = q
-    ? { OR: [{ summary: { contains: q, mode: 'insensitive' } }, { userEmail: { contains: q, mode: 'insensitive' } }] }
-    : {}
+    ? { ...FROM_APP, OR: [{ summary: { contains: q, mode: 'insensitive' } }, { userEmail: { contains: q, mode: 'insensitive' } }] }
+    : FROM_APP
   const where: Prisma.AppEventWhereInput = { ...search, ...(types ? { type: { in: [...types] } } : {}) }
 
   const [rows, total, grouped] = await Promise.all([
@@ -202,7 +228,7 @@ export async function listAppEventsPage({ q, kind, page }: { q: string; kind: Ap
   ) as Record<AppEventKind, number>
 
   return {
-    rows: rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() })),
+    rows: await withNames(rows),
     total,
     counts,
     pageSize: ADMIN_PAGE_SIZE,

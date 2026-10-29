@@ -1,5 +1,6 @@
 // src/app/admin/(protected)/meetings/page.tsx
 import { CalendarClock, Mail, Phone } from '@/components/ui/icons'
+import Link from 'next/link'
 
 import { AdminFilterChips } from '@/components/admin/AdminFilterChips'
 import { AdminHeader } from '@/components/admin/AdminHeader'
@@ -99,6 +100,17 @@ export default async function AdminMeetingsPage({
                         ) : null}
                       </p>
                       <p className="mt-0.5 text-ui-sm text-slate-600">{row.name}</p>
+                      {row.user ? (
+                        <p className="mt-1 text-ui-xs text-slate-500">
+                          Sent by{' '}
+                          <Link href={`/admin/members/${row.user.id}`} className="font-semibold text-plug-blue-600 hover:underline">
+                            {row.user.name}
+                          </Link>{' '}
+                          <span className="text-slate-400">({row.user.email})</span>
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-ui-xs text-slate-400">Sent without signing in</p>
+                      )}
 
                       {/* Real links, so an operator can act without retyping. */}
                       <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">

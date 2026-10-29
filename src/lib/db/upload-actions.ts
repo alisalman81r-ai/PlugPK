@@ -9,6 +9,7 @@ import { isRequestAdmin } from './admin-access'
 import { prisma } from './client'
 import { checkLimits, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
+import { recordSiteEvent } from './site-events'
 import { discard, store, type UploadResult } from './upload-store'
 
 /**
@@ -116,6 +117,13 @@ export async function uploadMyAvatar(form: FormData): Promise<UploadResult> {
 
   // Only the dashboard renders the avatar server-side; the header reads /api/me.
   revalidatePath('/dashboard', 'layout')
+  await recordSiteEvent({
+    userId,
+    type: 'profile.photo',
+    targetType: 'member',
+    targetId: userId,
+    summary: (who) => `${who} changed their profile photo`,
+  })
   return result
 }
 
@@ -132,6 +140,13 @@ export async function removeMyAvatar(): Promise<UploadResult> {
   if (existing?.avatar) await discard('avatars', existing.avatar)
 
   revalidatePath('/dashboard', 'layout')
+  await recordSiteEvent({
+    userId,
+    type: 'profile.photoRemove',
+    targetType: 'member',
+    targetId: userId,
+    summary: (who) => `${who} removed their profile photo`,
+  })
   return { ok: true }
 }
 

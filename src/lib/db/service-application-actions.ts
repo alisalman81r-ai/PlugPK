@@ -12,6 +12,8 @@ import { getAdminActor } from './admin-access'
 import { logAdminAction } from './audit'
 import { prisma } from './client'
 import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
+import { getSessionUserId } from './session'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Applications to be listed in the EV services directory.
@@ -152,10 +154,13 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     return { ok: true, message: 'We already have your application, and it is waiting to be reviewed.' }
   }
 
+  // Applying needs no account; a signed-in applicant is linked to theirs.
+  const userId = await getSessionUserId()
   const serviceId = randomUUID()
   await prisma.eVService.create({
     data: {
       id: serviceId,
+      userId,
       slug: await uniqueSlug(name.value),
       name: name.value,
       category,
@@ -180,6 +185,13 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
   revalidatePath('/admin/services')
   revalidatePath('/admin')
 
+  await recordSiteEvent({
+    userId,
+    type: 'service.apply',
+    targetType: 'service',
+    targetId: serviceId,
+    summary: (who) => `${who} applied to list ${name.value} (${city.value})`,
+  })
   return { ok: true, serviceId }
 }
 

@@ -11,6 +11,8 @@ import { assertAdmin } from './admin-access'
 import { logAdminAction } from './audit'
 import { prisma } from './client'
 import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
+import { getSessionUserId } from './session'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Meeting requests from businesses.
@@ -69,9 +71,14 @@ export async function requestMeeting(form: FormData): Promise<MeetingResult> {
     return { ok: false, message: retryMessage(limit.retryAfterSeconds, 'Too many requests') }
   }
 
+  // Signed in or not, the request is accepted; when signed in, it is tied to
+  // the account so the admin sees who really sent it, whatever name was typed.
+  const userId = await getSessionUserId()
+  const meetingId = randomUUID()
   await prisma.meetingRequest.create({
     data: {
-      id: randomUUID(),
+      id: meetingId,
+      userId,
       name: name.value,
       company: company.value,
       email: email.value,
@@ -83,6 +90,14 @@ export async function requestMeeting(form: FormData): Promise<MeetingResult> {
   })
 
   revalidatePath('/admin/meetings')
+  await recordSiteEvent({
+    userId,
+    type: 'meeting.request',
+    targetType: 'meeting',
+    targetId: meetingId,
+    fallbackName: name.value,
+    summary: (who) => `${who} asked for a Partner Up meeting for ${company.value}`,
+  })
   return { ok: true }
 }
 

@@ -10,6 +10,7 @@ import { getSessionUserId } from './session'
 
 import { prisma } from './client'
 import { LEGACY_ID, mirrorCar } from './garage'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Add, swap, remove and promote the cars on the signed-in account.
@@ -71,6 +72,18 @@ async function withMirror<T>(carId: string, statement: () => Promise<T>): Promis
   }
 }
 
+/** One line in the member timeline for a car added to or removed from the garage. */
+async function logGarage(userId: string, carId: string, verb: 'added' | 'removed') {
+  const car = await prisma.vehicle.findUnique({ where: { id: carId }, select: { brand: true, model: true } })
+  await recordSiteEvent({
+    userId,
+    type: 'garage.update',
+    targetType: 'member',
+    targetId: userId,
+    summary: (who) => `${who} ${verb} ${car ? `${car.brand} ${car.model}` : 'a car'} ${verb === 'added' ? 'to' : 'from'} their garage`,
+  })
+}
+
 export async function addMyCar(carId: string): Promise<GarageResult> {
   const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to add a car.' }
@@ -103,6 +116,7 @@ export async function addMyCar(carId: string): Promise<GarageResult> {
     if (isForeignKeyViolation(error)) return { ok: false, message: 'That car is not in the catalogue.' }
     throw error
   }
+  await logGarage(userId, carId, 'added')
   return done({ id })
 }
 
@@ -144,6 +158,8 @@ export async function replaceMyCar(rowId: string, carId: string): Promise<Garage
 export async function removeMyCar(rowId: string): Promise<GarageResult> {
   const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in to remove a car.' }
+  const row = await prisma.userVehicle.findFirst({ where: { id: rowId, userId }, select: { vehicleId: true } })
+  if (row) await logGarage(userId, row.vehicleId, 'removed')
 
   if (rowId === LEGACY_ID) {
     await prisma.user.update({ where: { id: userId }, data: { vehicle: null } })

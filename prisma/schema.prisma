@@ -230,6 +230,10 @@ model EVService {
   status      String    @default("pending")
   /// When the applicant submitted it. Null for admin-created rows.
   submittedAt DateTime?
+  /// The account that applied, when they were signed in. The typed email is
+  /// kept as the contact either way; this is who actually sent it.
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   /// Free-text note from the reviewer, shown to nobody but the admin.
   reviewNote  String?
 
@@ -238,6 +242,7 @@ model EVService {
   @@index([category])
   @@index([city])
   @@index([status])
+  @@index([userId])
 }
 
 model CommunityPost {
@@ -341,6 +346,9 @@ model User {
   clubs       ClubMember[]
   memberships Membership[]
   emailTokens EmailToken[]
+
+  meetingRequests     MeetingRequest[]
+  serviceApplications EVService[]
 
   @@index([createdAt])
   @@index([lastAppActiveAt])
@@ -459,10 +467,15 @@ model MeetingRequest {
    * new | handled — deliberately a string, not an enum, so SQLite stays simple.
    */
   status        String   @default("new")
+  /// The account that sent it, when they were signed in. The typed name and
+  /// email can be anything; this is who actually asked.
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt     DateTime @default(now())
 
   @@index([status])
   @@index([createdAt])
+  @@index([userId])
 }
 
 /**
@@ -1484,10 +1497,12 @@ model AdminAuditLog {
   @@index([targetType, targetId])
 }
 
-/// Everything that reaches the server from the mobile app, one row per action
-/// (sign-up, post, review, saved station, partner request…). The admin's
-/// "Mobile app" activity feed. userId is copied without a relation so the
-/// trail survives an account's deletion; summary is a short human line.
+/// Everything a member does, one row per action (sign-up, post, review, saved
+/// station, partner request…), from the mobile app and from the website.
+/// `source` tells them apart: the admin's "Mobile app" section reads only
+/// 'app'; the member timeline (Activity, and each member's page) reads both.
+/// userId is copied without a relation so the trail survives an account's
+/// deletion; summary is a short human line.
 model AppEvent {
   id         String   @id
   userId     String?
@@ -1496,11 +1511,14 @@ model AppEvent {
   targetType String?
   targetId   String?
   summary    String?
+  /// 'app' (the mobile app's API) or 'web' (the website's server actions).
+  source     String   @default("app")
   createdAt  DateTime @default(now())
 
   @@index([createdAt])
   @@index([userId])
   @@index([type])
+  @@index([source, createdAt])
 }
 
 /// A mobile-app update as told to users: written in the admin portal, and

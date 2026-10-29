@@ -11,6 +11,7 @@ import { checkText } from '@/lib/validate'
 import { prisma } from './client'
 import { checkLimits, keyPart, retryMessage } from './rate-limit'
 import { getCurrentUser } from './session-actions'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Writing a review.
@@ -93,11 +94,12 @@ export async function submitReview(
   // URL is its slug, not its id — revalidating `/station/<id>` refreshed a
   // page that does not exist and left the real one stale.
   let pagePath: string
+  let listingName: string
 
   if (target === 'business') {
     const business = await prisma.business.findUnique({
       where: { id: targetId },
-      select: { status: true, userId: true },
+      select: { status: true, userId: true, businessName: true },
     })
     if (!business || business.status !== 'approved') {
       return { ok: false, message: 'That listing is not open for reviews.' }
@@ -107,13 +109,15 @@ export async function submitReview(
       return { ok: false, message: 'You cannot review your own listing.' }
     }
     pagePath = `/station/${targetId}`
+    listingName = business.businessName
   } else {
     const station = await prisma.station.findUnique({
       where: { id: targetId },
-      select: { slug: true },
+      select: { slug: true, name: true },
     })
     if (!station) return { ok: false, message: 'That station no longer exists.' }
     pagePath = `/station/${station.slug}`
+    listingName = station.name
   }
 
   const where =
@@ -172,6 +176,14 @@ export async function submitReview(
   revalidatePath('/business/reviews')
   revalidatePath('/map')
 
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'review.create',
+    // 'review' opens the station's reviews in the admin; a business opens its listing.
+    targetType: target === 'station' ? 'review' : 'business',
+    targetId,
+    summary: (who) => `${who} rated ${listingName} ${score}/5`,
+  })
   return { ok: true }
 }
 

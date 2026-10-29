@@ -5,21 +5,16 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
-  Bookmark,
   Building2,
   CheckCircle2,
-  ExternalLink,
   Inbox,
   AlertCircle,
-  MessageSquare,
   RefreshCw,
   Smartphone,
-  Star,
   TrendingUp,
   UserPlus,
   Users,
   Wrench,
-  type IconType,
 } from '@/components/ui/icons'
 
 import { AdminFilterChips } from '@/components/admin/AdminFilterChips'
@@ -29,6 +24,7 @@ import { AdminSearch } from '@/components/admin/AdminSearch'
 import { AppActivityChart } from '@/components/admin/AppActivityChart'
 import { DashboardPanel, PanelEmpty } from '@/components/admin/DashboardPanel'
 import { MetricCard } from '@/components/admin/MetricCard'
+import { EVENT_KIND_META as KIND_META, MemberEventFeed } from '@/components/admin/member-events'
 import { buildHref, flattenParams, pick, type ListParams } from '@/components/admin/list-params'
 import { toPage, toQuery } from '@/lib/db/admin-queries'
 import {
@@ -50,84 +46,8 @@ const PATH = '/admin/app'
 const VIEWS = ['overview', 'activity', 'users'] as const
 const VIEW_LABEL: Record<(typeof VIEWS)[number], string> = { overview: 'Overview', activity: 'Activity', users: 'Users' }
 
-/** Where an app action can be seen and edited in the portal. */
-function editHref(row: { type: string; targetType: string | null; targetId: string | null; userId: string | null; summary: string | null }) {
-  switch (row.targetType) {
-    case 'member':
-      return row.targetId ? `/admin/members/${row.targetId}` : null
-    case 'post':
-      return `/admin/community?q=${encodeURIComponent((row.summary?.match(/“(.+)”/)?.[1] ?? '').slice(0, 60))}`
-    case 'review':
-      return row.targetId ? `/admin/reviews?listing=station:${row.targetId}` : '/admin/reviews'
-    case 'meeting':
-      return '/admin/meetings'
-    case 'business':
-      return row.targetId ? `/admin/businesses/${row.targetId}` : '/admin/businesses'
-    case 'service':
-      return row.targetId ? `/admin/services/${row.targetId}` : '/admin/services'
-    case 'station':
-      return row.targetId ? `/admin/stations/${row.targetId}` : null
-    default:
-      return row.userId ? `/admin/members/${row.userId}` : null
-  }
-}
-
-/** Each kind of app action: its icon and chip colours, shared by every view. */
-const KIND_META: Record<Exclude<AppEventKind, 'all'>, { icon: IconType; tone: string; hint: string }> = {
-  accounts: { icon: Users, tone: 'bg-sky-50 text-sky-800 border-sky-200', hint: 'Sign-ups, sign-ins, email confirmations, profile photos' },
-  community: { icon: MessageSquare, tone: 'bg-violet-50 text-violet-800 border-violet-200', hint: 'Posts, replies, likes, joining clubs' },
-  saved: { icon: Bookmark, tone: 'bg-emerald-50 text-emerald-800 border-emerald-200', hint: 'Saved stations and routes, garage changes' },
-  reviews: { icon: Star, tone: 'bg-yellow-50 text-yellow-800 border-yellow-200', hint: 'Station reviews' },
-  partners: { icon: Building2, tone: 'bg-amber-50 text-amber-800 border-amber-200', hint: 'Partner meetings, charger and service listings' },
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  'account.signup': 'Signed up',
-  'account.signin': 'Signed in',
-  'account.signout': 'Signed out',
-  'account.verify': 'Confirmed email',
-  'account.reset': 'Reset password',
-  'profile.photo': 'Profile photo',
-  'profile.photoRemove': 'Photo removed',
-  'meeting.request': 'Partner request',
-  'business.register': 'Business listing',
-  'service.apply': 'Service listing',
-  'post.create': 'New post',
-  'comment.create': 'Reply',
-  'post.like': 'Like',
-  'post.unlike': 'Unlike',
-  'club.join': 'Joined club',
-  'club.leave': 'Left club',
-  'review.create': 'Review',
-  'station.save': 'Saved station',
-  'station.unsave': 'Unsaved station',
-  'garage.update': 'Garage',
-  'route.save': 'Saved route',
-  'route.remove': 'Removed route',
-}
-
-function kindForType(type: string): Exclude<AppEventKind, 'all'> | null {
-  for (const key of APP_EVENT_KIND_KEYS) {
-    const types = APP_EVENT_KINDS[key].types as readonly string[] | null
-    if (types?.includes(type)) return key as Exclude<AppEventKind, 'all'>
-  }
-  return type.startsWith('account.') ? 'accounts' : null
-}
-
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat('en-PK', { timeZone: 'Asia/Karachi', day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
-
-const dayKey = (iso: string) =>
-  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso))
-
-/** "Today", "Yesterday", or "Mon 20 Oct" for a feed's day header. */
-function dayHeading(key: string): string {
-  const today = dayKey(new Date().toISOString())
-  const yesterday = dayKey(new Date(Date.now() - 86_400_000).toISOString())
-  if (key === today) return 'Today'
-  if (key === yesterday) return 'Yesterday'
-  return new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${key}T00:00:00Z`))
-}
 
 const pct = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0)
 
@@ -544,15 +464,6 @@ function ActivityView({
   page: number
   params: ListParams
 }) {
-  // Group the page's rows under a day heading each.
-  const groups: { key: string; rows: Events['rows'] }[] = []
-  for (const row of events.rows) {
-    const key = dayKey(row.createdAt)
-    const last = groups[groups.length - 1]
-    if (last && last.key === key) last.rows.push(row)
-    else groups.push({ key, rows: [row] })
-  }
-
   return (
     <>
       <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 lg:flex-row lg:items-center">
@@ -584,66 +495,7 @@ function ActivityView({
           </p>
         </div>
       ) : (
-        <div className="space-y-5">
-          {groups.map((group) => (
-            <section key={group.key} aria-label={dayHeading(group.key)}>
-              <h3 className="mb-2 flex items-center gap-2 text-ui-xs font-semibold uppercase tracking-wide text-slate-500">
-                {dayHeading(group.key)}
-                <span className="font-normal normal-case tracking-normal text-slate-400">
-                  {group.rows.length} action{group.rows.length === 1 ? '' : 's'}
-                </span>
-              </h3>
-              <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                {group.rows.map((row) => {
-                  const href = editHref(row)
-                  const rowKind = kindForType(row.type)
-                  const meta = rowKind ? KIND_META[rowKind] : null
-                  const Icon = meta?.icon ?? Activity
-                  return (
-                    <li key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
-                      <span
-                        className={cn(
-                          'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border',
-                          meta?.tone ?? 'border-slate-200 bg-slate-50 text-slate-600',
-                        )}
-                        aria-hidden="true"
-                      >
-                        <Icon size={15} />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-ui-sm font-medium text-slate-900">{row.summary ?? row.type}</p>
-                        <p className="mt-0.5 text-ui-xs text-slate-500">
-                          <span className="font-semibold text-slate-600">{TYPE_LABEL[row.type] ?? row.type}</span>
-                          {' · '}
-                          {row.userId ? (
-                            <Link href={`/admin/members/${row.userId}`} className="text-plug-blue-600 hover:underline">
-                              {row.userEmail ?? 'Member'}
-                            </Link>
-                          ) : (
-                            (row.userEmail ?? 'Not signed in')
-                          )}
-                          {' · '}
-                          <time dateTime={row.createdAt} title={formatDate(row.createdAt)}>
-                            {new Intl.DateTimeFormat('en-PK', { timeZone: 'Asia/Karachi', hour: 'numeric', minute: '2-digit' }).format(new Date(row.createdAt))}
-                          </time>
-                        </p>
-                      </div>
-                      {href ? (
-                        <Link
-                          href={href}
-                          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                        >
-                          Open
-                          <ExternalLink size={12} aria-hidden="true" />
-                        </Link>
-                      ) : null}
-                    </li>
-                  )
-                })}
-              </ul>
-            </section>
-          ))}
-        </div>
+        <MemberEventFeed rows={events.rows} />
       )}
 
       <AdminPagination

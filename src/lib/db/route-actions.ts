@@ -9,6 +9,7 @@ import { revalidatePath } from 'next/cache'
 import { getSessionUserId } from './session'
 
 import { prisma } from './client'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Saved routes: keep a planned trip on the account, list it, remove it.
@@ -73,12 +74,28 @@ export async function saveMyRoute(input: SaveRouteInput): Promise<RouteResult> {
   if (!inserted) return { ok: false, message: `You can keep up to ${MAX_ROUTES} routes. Remove one first.` }
 
   revalidatePath('/dashboard/routes')
+  await recordSiteEvent({
+    userId,
+    type: 'route.save',
+    targetType: 'route',
+    targetId: id,
+    summary: (who) => `${who} saved a route: ${origin} → ${destination}`,
+  })
   return { ok: true, id }
 }
 
 export async function removeMyRoute(id: string): Promise<RouteResult> {
   const userId = await currentUserId()
   if (!userId) return { ok: false, message: 'Sign in first.' }
-  await prisma.savedRoute.deleteMany({ where: { id, userId } })
+  const removed = await prisma.savedRoute.deleteMany({ where: { id, userId } })
+  if (removed.count > 0) {
+    await recordSiteEvent({
+      userId,
+      type: 'route.remove',
+      targetType: 'route',
+      targetId: id,
+      summary: (who) => `${who} removed a saved route`,
+    })
+  }
   return { ok: true }
 }

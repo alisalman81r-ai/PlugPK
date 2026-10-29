@@ -23,6 +23,7 @@ import { prisma } from './client'
 import { checkLimits, clientFingerprint, firstInWindow, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
 import { getCurrentUser } from './session-actions'
+import { recordSiteEvent } from './site-events'
 import { discard } from './upload-store'
 
 /**
@@ -343,6 +344,13 @@ export async function registerBusiness(
 
   refreshPublicViews()
   revalidatePath('/business/dashboard')
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'business.register',
+    targetType: 'business',
+    targetId: businessId,
+    summary: (who) => `${who} submitted ${fields.value.businessName} for listing`,
+  })
   return { ok: true, businessId }
 }
 

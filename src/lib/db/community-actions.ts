@@ -21,6 +21,7 @@ import {
 import { checkLimits, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
 import { getCurrentProfile } from './session-actions'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Writing to the community, and the reads the board makes after first paint.
@@ -150,10 +151,11 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
   }
 
   const slug = await uniqueSlug(title.value)
+  const postId = randomUUID()
 
   await prisma.communityPost.create({
     data: {
-      id: randomUUID(),
+      id: postId,
       slug,
       userId: profile.id,
       userName: profile.name,
@@ -166,6 +168,13 @@ export async function createPost(form: FormData): Promise<CommunityResult> {
   })
 
   revalidateCommunity(slug)
+  await recordSiteEvent({
+    userId: profile.id,
+    type: 'post.create',
+    targetType: 'post',
+    targetId: postId,
+    summary: (who) => `${who} posted “${title.value}”`,
+  })
   return { ok: true, slug }
 }
 
@@ -185,7 +194,7 @@ export async function createComment(postId: string, content: string): Promise<Co
 
   const post = await prisma.communityPost.findUnique({
     where: { id: String(postId) },
-    select: { id: true, slug: true },
+    select: { id: true, slug: true, title: true },
   })
   if (!post) return { ok: false, message: 'That post no longer exists.' }
 
@@ -214,6 +223,13 @@ export async function createComment(postId: string, content: string): Promise<Co
   ])
 
   revalidateCommunity(post.slug)
+  await recordSiteEvent({
+    userId: profile.id,
+    type: 'comment.create',
+    targetType: 'post',
+    targetId: post.id,
+    summary: (who) => `${who} replied to “${post.title}”`,
+  })
   return { ok: true, slug: post.slug }
 }
 
@@ -245,7 +261,7 @@ export async function togglePostLike(postId: string): Promise<LikeResult> {
   if (!userId) return { ok: false, message: 'Sign in to like posts.' }
 
   const id = String(postId)
-  const exists = await prisma.communityPost.findUnique({ where: { id }, select: { slug: true } })
+  const exists = await prisma.communityPost.findUnique({ where: { id }, select: { slug: true, title: true } })
   if (!exists) return { ok: false, message: 'That post no longer exists.' }
 
   const limit = await checkLimits([
@@ -276,6 +292,13 @@ export async function togglePostLike(postId: string): Promise<LikeResult> {
     // The post page is statically rendered and prints the count; the board
     // regenerates on its own short interval, so it is left alone here.
     revalidatePath(`/community/post/${exists.slug}`)
+    await recordSiteEvent({
+      userId,
+      type: result.liked ? 'post.like' : 'post.unlike',
+      targetType: 'post',
+      targetId: id,
+      summary: (who) => `${who} ${result.liked ? 'liked' : 'unliked'} “${exists.title}”`,
+    })
     return { ok: true, ...result }
   } catch (error) {
     // A second tab inserting the same like between our delete and create.
@@ -366,16 +389,25 @@ export async function joinClub(clubId: string): Promise<ClubResult> {
   const limit = await checkLimits([{ key: `club:user:${userId}`, limit: 30, windowSeconds: 60 * 60 }])
   if (!limit.allowed) return { ok: false, joined: false, message: retryMessage(limit.retryAfterSeconds) }
 
-  const club = await prisma.club.findUnique({ where: { id: clubId }, select: { id: true } })
+  const club = await prisma.club.findUnique({ where: { id: clubId }, select: { id: true, name: true } })
   if (!club) return { ok: false, joined: false, message: 'That club could not be found.' }
 
-  await prisma.clubMember.createMany({
+  const added = await prisma.clubMember.createMany({
     data: [{ id: randomUUID(), clubId, userId }],
     skipDuplicates: true,
   })
 
   revalidatePath('/community/clubs')
   revalidatePath('/community')
+  if (added.count > 0) {
+    await recordSiteEvent({
+      userId,
+      type: 'club.join',
+      targetType: 'club',
+      targetId: clubId,
+      summary: (who) => `${who} joined ${club.name}`,
+    })
+  }
   return { ok: true, joined: true }
 }
 
@@ -390,9 +422,19 @@ export async function leaveClub(clubId: string): Promise<ClubResult> {
   const limit = await checkLimits([{ key: `club:user:${userId}`, limit: 30, windowSeconds: 60 * 60 }])
   if (!limit.allowed) return { ok: false, joined: true, message: retryMessage(limit.retryAfterSeconds) }
 
-  await prisma.clubMember.deleteMany({ where: { clubId, userId } })
+  const removed = await prisma.clubMember.deleteMany({ where: { clubId, userId } })
 
   revalidatePath('/community/clubs')
   revalidatePath('/community')
+  if (removed.count > 0) {
+    const club = await prisma.club.findUnique({ where: { id: clubId }, select: { name: true } })
+    await recordSiteEvent({
+      userId,
+      type: 'club.leave',
+      targetType: 'club',
+      targetId: clubId,
+      summary: (who) => `${who} left ${club?.name ?? 'a club'}`,
+    })
+  }
   return { ok: true, joined: false }
 }

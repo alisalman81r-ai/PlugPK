@@ -390,8 +390,19 @@ export async function getAdminBusiness(id: string): Promise<AdminBusinessRow | n
 
 // ─── Meetings ───────────────────────────────────────
 
+/** The account a request or application came from, when it was signed in. */
+export interface AdminSender {
+  id: string
+  name: string
+  email: string
+}
+
+const SENDER_SELECT = { select: { id: true, name: true, email: true } } as const
+
 export interface AdminMeetingRow {
   id: string
+  /** Who actually sent it; null when sent signed out. `name` is what they typed. */
+  user: AdminSender | null
   name: string
   company: string
   email: string
@@ -421,6 +432,7 @@ export async function listMeetingsPage(options: {
             { name: contains(options.q) },
             { email: contains(options.q) },
             { note: contains(options.q) },
+            { user: { is: { OR: [{ name: contains(options.q) }, { email: contains(options.q) }] } } },
           ],
         }
       : {}),
@@ -431,6 +443,7 @@ export async function listMeetingsPage(options: {
       where,
       orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
       ...pageWindow(options.page),
+      include: { user: SENDER_SELECT },
     }),
     prisma.meetingRequest.count({ where }),
     prisma.meetingRequest.groupBy({ by: ['status'], _count: { _all: true } }),
@@ -446,7 +459,7 @@ export async function listMeetingsPage(options: {
       new: by.new ?? 0,
       handled: by.handled ?? 0,
     },
-    rows: rows.map((row) => ({ ...row, createdAt: row.createdAt.toISOString() })),
+    rows: rows.map(({ userId: _userId, ...row }) => ({ ...row, createdAt: row.createdAt.toISOString() })),
   }
 }
 
@@ -576,6 +589,8 @@ export interface AdminServiceListRow {
   lat: number
   lng: number
   reviewNote: string | null
+  /** The account that applied; null for admin-created rows and signed-out applicants. */
+  user: AdminSender | null
 }
 
 const SERVICE_SELECT = {
@@ -592,6 +607,7 @@ const SERVICE_SELECT = {
   lat: true,
   lng: true,
   reviewNote: true,
+  user: SENDER_SELECT,
 } satisfies Prisma.EVServiceSelect
 
 type ServiceRecord = Prisma.EVServiceGetPayload<{ select: typeof SERVICE_SELECT }>

@@ -106,6 +106,17 @@ export default async function AdminServicesPage({
                       {row.phone || row.email || 'no contact given'}
                       {row.submittedAt ? ` · applied ${row.submittedAt.slice(0, 10)}` : ''}
                     </p>
+                    {row.user ? (
+                      <p className="mt-1 text-ui-xs text-slate-500">
+                        Sent by{' '}
+                        <Link href={`/admin/members/${row.user.id}`} className="font-semibold text-plug-blue-600 hover:underline">
+                          {row.user.name}
+                        </Link>{' '}
+                        <span className="text-slate-400">({row.user.email})</span>
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-ui-xs text-slate-400">Sent without signing in</p>
+                    )}
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">

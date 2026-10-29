@@ -12,6 +12,7 @@ import { prisma } from './client'
 import { sendVerificationCode } from './email-verification'
 import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 import { clearSession, getSessionUserId, revokeSessions, startSession } from './session'
+import { recordSiteEvent } from './site-events'
 
 /*
   Every export below is a public POST endpoint — that is what 'use server'
@@ -99,6 +100,13 @@ export async function signIn(form: FormData): Promise<SessionResult> {
   }
 
   revalidatePath('/business/dashboard')
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'account.signin',
+    targetType: 'member',
+    targetId: user.id,
+    summary: (who) => `${who} signed in`,
+  })
 
   // A temporary password from an operator has to be replaced before anything else.
   if (user.mustChangePassword) {
@@ -313,6 +321,13 @@ export async function toggleSavedStation(
   const removed = await prisma.savedStation.deleteMany({ where: { userId, listingId } })
   if (removed.count > 0) {
     revalidatePath('/dashboard/saved')
+    await recordSiteEvent({
+      userId,
+      type: 'station.unsave',
+      targetType: 'station',
+      targetId: listingId,
+      summary: (who) => `${who} unsaved a station`,
+    })
     return { ok: true, saved: false }
   }
 
@@ -326,6 +341,13 @@ export async function toggleSavedStation(
     skipDuplicates: true,
   })
   revalidatePath('/dashboard/saved')
+  await recordSiteEvent({
+    userId,
+    type: 'station.save',
+    targetType: 'station',
+    targetId: listingId,
+    summary: (who) => `${who} saved a station`,
+  })
   return { ok: true, saved: true }
 }
 

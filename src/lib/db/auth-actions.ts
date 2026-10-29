@@ -21,6 +21,7 @@ import {
 } from './email-verification'
 import { checkLimits, clientFingerprint, keyPart, retryMessage } from './rate-limit'
 import { startSession } from './session'
+import { recordSiteEvent } from './site-events'
 
 /**
  * Registration for EV owners.
@@ -116,6 +117,13 @@ export async function registerUser(form: FormData): Promise<SignUpResult> {
   const sent = await sendVerificationCode(user, { redirectTo, force: true })
 
   revalidatePath('/')
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'account.signup',
+    targetType: 'member',
+    targetId: user.id,
+    summary: (who) => `${who} created an account`,
+  })
   return {
     ok: true,
     verifyEmail: user.email,
@@ -218,6 +226,13 @@ export async function verifyEmailCode(rawEmail: string, rawCode: string): Promis
 
   revalidatePath('/')
   revalidatePath('/dashboard')
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'account.verify',
+    targetType: 'member',
+    targetId: user.id,
+    summary: (who) => `${who} confirmed their email`,
+  })
   return { ok: true, redirectTo: result.redirectTo ?? '/onboarding/vehicle' }
 }
 
@@ -337,6 +352,13 @@ export async function resetPasswordWithCode(
     },
   })
   await prisma.user.updateMany({ where: { id: user.id, emailVerifiedAt: null }, data: { emailVerifiedAt: now } })
+  await recordSiteEvent({
+    userId: user.id,
+    type: 'account.reset',
+    targetType: 'member',
+    targetId: user.id,
+    summary: (who) => `${who} reset their password`,
+  })
 
   if (!(await startSession(user.id))) {
     return { ok: true, message: 'Your password is changed. Please sign in.', redirectTo: '/login' }

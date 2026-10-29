@@ -1,17 +1,37 @@
 // src/app/admin/(protected)/members/[id]/page.tsx
-import { ArrowLeft, Bookmark, Building2, Car, Mail, MapPin, MessageSquare, Star, Zap } from '@/components/ui/icons'
+import {
+  Activity,
+  ArrowLeft,
+  ArrowRight,
+  Bookmark,
+  Building2,
+  Car,
+  Handshake,
+  Heart,
+  Mail,
+  MapPin,
+  MessageCircle,
+  MessageSquare,
+  Route,
+  Star,
+  Users,
+  Wrench,
+  Zap,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { ActivityPanel } from '@/components/admin/ActivityPanel'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { MemberDeleteCard } from '@/components/admin/MemberDeleteCard'
+import { MemberEventFeed } from '@/components/admin/member-events'
 import { AdminBadge } from '@/components/admin/MemberList'
 import { MemberPasswordCard } from '@/components/admin/MemberPasswordCard'
 import { MemberRoleCard } from '@/components/admin/MemberRoleCard'
 import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
 import { getAdminActor } from '@/lib/db/admin-access'
 import { getMemberAdminFacts } from '@/lib/db/admin-queries'
+import { getMemberActivity } from '@/lib/db/member-activity-queries'
 import { getMemberById } from '@/lib/db/queries'
 import { formatDate, formatRelativeTime } from '@/lib/utils'
 
@@ -50,10 +70,11 @@ function Field({
 }
 
 export default async function AdminMemberPage({ params }: PageProps) {
-  const [member, facts, actor] = await Promise.all([
+  const [member, facts, actor, activity] = await Promise.all([
     getMemberById(params.id),
     getMemberAdminFacts(params.id),
     getAdminActor(),
+    getMemberActivity(params.id),
   ])
   if (!member || !facts) notFound()
   const isSelf = actor?.id === member.id
@@ -107,6 +128,75 @@ export default async function AdminMemberPage({ params }: PageProps) {
             <p className="mt-5 border-t border-slate-100 pt-4 font-mono text-ui-xs text-slate-400">
               {member.id}
             </p>
+          </section>
+
+          {/* ── What they have done ──────────────────────────── */}
+          {/* Website and app alike, newest first: the same rows as Activity →
+              Members, filtered to this account. */}
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <h2 className="flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+                <Activity size={18} className="text-slate-400" aria-hidden="true" />
+                Recent activity ({activity.eventTotal})
+              </h2>
+              {activity.eventTotal > activity.events.length ? (
+                <Link
+                  href={`/admin/activity?q=${encodeURIComponent(member.email)}`}
+                  className="inline-flex items-center gap-1 text-ui-sm font-medium text-plug-blue-600 hover:underline"
+                >
+                  See all
+                  <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+              ) : null}
+            </div>
+            {activity.events.length === 0 ? (
+              <p className="text-ui-sm text-slate-500">Nothing recorded yet. Actions on the website and in the app appear here.</p>
+            ) : (
+              <MemberEventFeed rows={activity.events} showPerson={false} />
+            )}
+          </section>
+
+          {/* ── Partner Up and service applications ──────────── */}
+          {/* Linked by account, not by the typed email: these are what this
+              member sent while signed in, whatever name they typed. */}
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+              <Handshake size={18} className="text-slate-400" aria-hidden="true" />
+              Partner Up &amp; service applications ({activity.meetings.length + activity.services.length})
+            </h2>
+            {activity.meetings.length + activity.services.length === 0 ? (
+              <p className="text-ui-sm text-slate-500">None sent from this account.</p>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {activity.meetings.map((meeting) => (
+                  <li key={meeting.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3">
+                    <Link href={`/admin/meetings?q=${encodeURIComponent(meeting.company)}`} className="min-w-0 font-medium text-slate-900 hover:text-plug-blue-600 hover:underline">
+                      <Handshake size={14} className="mr-1.5 inline text-slate-400" aria-hidden="true" />
+                      Meeting request · {meeting.company}
+                    </Link>
+                    <span className="flex items-center gap-2 text-ui-xs text-slate-500">
+                      <span className={meeting.status === 'new' ? 'rounded-md bg-amber-50 px-1.5 py-0.5 font-semibold text-amber-800' : 'rounded-md bg-slate-100 px-1.5 py-0.5 font-semibold text-slate-600'}>
+                        {meeting.status === 'new' ? 'New' : 'Handled'}
+                      </span>
+                      {formatRelativeTime(meeting.createdAt)}
+                    </span>
+                  </li>
+                ))}
+                {activity.services.map((service) => (
+                  <li key={service.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3">
+                    <Link href={`/admin/services/${service.id}`} className="min-w-0 font-medium text-slate-900 hover:text-plug-blue-600 hover:underline">
+                      <Wrench size={14} className="mr-1.5 inline text-slate-400" aria-hidden="true" />
+                      Service listing · {service.name}
+                      <span className="ml-2 text-ui-sm font-normal text-slate-500">{service.city}</span>
+                    </Link>
+                    <span className="flex items-center gap-2 text-ui-xs text-slate-500">
+                      <ReviewStatusBadge status={service.status} />
+                      {formatRelativeTime(service.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           {/* ── Their listings ───────────────────────────────── */}
@@ -278,6 +368,80 @@ export default async function AdminMemberPage({ params }: PageProps) {
                 ))}
               </ul>
             )}
+          </section>
+
+          {/* ── Replies ──────────────────────────────────────── */}
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+              <MessageCircle size={18} className="text-slate-400" aria-hidden="true" />
+              Comments ({activity.commentCount})
+            </h2>
+            {activity.comments.length === 0 ? (
+              <p className="text-ui-sm text-slate-500">None written.</p>
+            ) : (
+              <ul className="flex flex-col gap-3">
+                {activity.comments.map((comment) => (
+                  <li key={comment.id} className="rounded-lg border border-slate-200 p-4">
+                    <p className="text-ui-xs text-slate-400">
+                      On{' '}
+                      <Link href={`/community/post/${comment.post.slug}`} target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:text-plug-blue-600">
+                        {comment.post.title}
+                      </Link>{' '}
+                      · {formatRelativeTime(comment.createdAt)}
+                    </p>
+                    <p className="mt-1.5 line-clamp-3 text-ui-sm text-slate-700">{comment.content}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/* ── Clubs, likes and routes ──────────────────────── */}
+          <section className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-6">
+              <h2 className="mb-5 flex flex-wrap items-center gap-2 text-ui-lg font-bold text-slate-900">
+                <Users size={18} className="text-slate-400" aria-hidden="true" />
+                Clubs ({activity.clubs.length})
+                <span className="ml-auto inline-flex items-center gap-1 text-ui-sm font-medium text-slate-500">
+                  <Heart size={14} aria-hidden="true" />
+                  {activity.likeCount} {activity.likeCount === 1 ? 'post liked' : 'posts liked'}
+                </span>
+              </h2>
+              {activity.clubs.length === 0 ? (
+                <p className="text-ui-sm text-slate-500">Not in any club.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-2">
+                  {activity.clubs.map((club) => (
+                    <li key={club.id} className="rounded-lg border border-slate-200 px-3 py-1.5 text-ui-sm text-slate-600">
+                      {club.name}
+                      <span className="ml-1.5 text-ui-xs text-slate-400">{formatRelativeTime(club.joinedAt)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-6">
+              <h2 className="mb-5 flex items-center gap-2 text-ui-lg font-bold text-slate-900">
+                <Route size={18} className="text-slate-400" aria-hidden="true" />
+                Saved routes ({activity.routeCount})
+              </h2>
+              {activity.routes.length === 0 ? (
+                <p className="text-ui-sm text-slate-500">No routes saved.</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {activity.routes.map((route) => (
+                    <li key={route.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-ui-sm text-slate-700">
+                      <span>
+                        {route.origin} → {route.destination}
+                      </span>
+                      <span className="text-ui-xs text-slate-400">
+                        {route.distanceKm} km · {formatRelativeTime(route.createdAt)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </section>
 
           <MemberRoleCard
