@@ -1,7 +1,14 @@
 // src/components/cars/CarsBrowser.tsx
 'use client'
 
-import { Car as CarIcon, GitCompareArrows, SlidersHorizontal, X } from '@/components/ui/icons'
+import {
+  Car as CarIcon,
+  ChevronDown,
+  GitCompareArrows,
+  Search,
+  SlidersHorizontal,
+  X,
+} from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -24,28 +31,27 @@ import { CarFilters } from './CarFilters'
 import { MAX_COMPARE, useComparedCars } from './compare-selection'
 
 /**
- * Filters, sorting and the comparison tray, over one list.
+ * The catalogue: one toolbar, one grid.
  *
- * The search query and the filter object are owned by CarsExplorer above,
- * because the hero holds the only search box on the page. Sort, the drawer and
- * the comparison tray are local — nothing outside needs them, and lifting state
- * nobody else reads only makes the parent harder to follow.
+ * The toolbar carries the cuts a buyer makes first — a search, the powertrain,
+ * the brand — in one row above the grid, so the cars start on the first screen
+ * instead of below a hero. The finer filters (battery, range, power, plug) are
+ * behind the filter button in a panel, since few visitors reach for them and
+ * a permanent sidebar cost the grid a third of its width.
  *
- * The filter panel, the sort select and the cards are all controlled, which is
- * what lets the mobile drawer and the desktop sidebar be the same component:
- * they read the same object, so opening the drawer never shows a different set
- * of choices than the sidebar had.
+ * Query, filters and sort are owned by CarsExplorer, which mirrors them into
+ * the URL. The panel, the comparison tray and paging are local.
  *
- * The order of operations matters and is deliberate: search, then filter, then
- * sort. Sorting first would be wasted work, and filtering before searching
- * would make the brand counts describe a list the user cannot see.
+ * The order of operations is search, then filter, then sort: sorting first
+ * would be wasted work, and filtering before searching would make the counts
+ * describe a list the visitor cannot see.
  */
 
 export interface CarsBrowserProps {
   cars: Car[]
+  brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
-  /** Owned by CarsExplorer, because the hero's input is the search box. */
   query: string
   onQueryChange: (query: string) => void
   filters: CarFilterState
@@ -54,24 +60,45 @@ export interface CarsBrowserProps {
   onSortChange: (sort: CarSort) => void
   favouriteIds: string[]
   onToggleFavourite: (car: Car) => void
-  /** Restricts the grid to saved cars. Owned above so the URL can carry it. */
+  /** Restricts the grid to saved cars. */
   savedOnly: boolean
   onSavedOnlyChange: (value: boolean) => void
 }
 
 /**
- * Cards per page of the grid.
- *
- * The catalogue passed a hundred cars and rendered every one, so /cars on a
- * phone measured about 66,000px tall — a single column of cards with the
- * footer a minute of scrolling away. Twenty-four is eight rows of three on a
- * desktop and twelve rows of two on a phone. Filters, search and sort still
- * run over the whole catalogue; only the drawing is paged.
+ * Cards per page. Filters, search and sort run over the whole catalogue; only
+ * the drawing is paged, so a phone is not handed a hundred cards at once.
  */
 const PAGE_SIZE = 24
 
+const CATEGORY_LABEL: Record<CarCategory, string> = {
+  EV: 'EV',
+  PHEV: 'PHEV',
+  REEV: 'REEV',
+  Hybrid: 'Hybrid',
+}
+
+/** Spelled out, for the pill's tooltip and its accessible name. */
+const CATEGORY_TITLE: Record<CarCategory, string> = {
+  EV: 'Fully electric',
+  PHEV: 'Plug-in hybrid',
+  REEV: 'Range extender',
+  Hybrid: 'Hybrid, no plug',
+}
+
+/** How many of the panel's filters are on, for the badge on its button. */
+function panelFilterCount(filters: CarFilterState): number {
+  return (
+    filters.connectors.length +
+    (filters.minBattery !== null ? 1 : 0) +
+    (filters.minRange !== null ? 1 : 0) +
+    (filters.minPower !== null ? 1 : 0)
+  )
+}
+
 export function CarsBrowser({
   cars,
+  brands,
   categories,
   connectors,
   query,
@@ -85,7 +112,7 @@ export function CarsBrowser({
   savedOnly,
   onSavedOnlyChange,
 }: CarsBrowserProps) {
-  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [panelOpen, setPanelOpen] = React.useState(false)
   // Remembered across pages and refreshes — see compare-selection.ts.
   const comparison = useComparedCars()
   const compared = comparison.ids
@@ -94,41 +121,28 @@ export function CarsBrowser({
   const searched = React.useMemo(() => searchCars(cars, query), [cars, query])
   const results = React.useMemo(() => {
     const matched = filterCars(searched, filters)
-    // Applied after the filters rather than inside them: saving is a property
-    // of the visitor, not of the car, and folding it into CarFilterState would
-    // put browser state into the object the URL and the sidebar share.
+    // Saving is a property of the visitor, not the car, so it is applied here
+    // rather than folded into the filter state the URL carries.
     const scoped = savedOnly ? matched.filter((car) => favouriteIds.includes(car.id)) : matched
     return sortCars(scoped, sort)
   }, [searched, filters, sort, savedOnly, favouriteIds])
 
-  /**
-   * The count beside each powertrain segment.
-   *
-   * Computed with the category selection removed, which is what makes it
-   * useful: with EV selected, the count on PHEV has to mean "how many if you
-   * switched to PHEV", not zero.
-   *
-   * There was a matching brandCounts here for the panel's brand checkboxes.
-   * Those are gone (the rail above the grid is the only brand control now, and
-   * it computes its own counts in CarsExplorer), so this is the only facet left
-   * that needs counting.
-   */
+  /*
+    The count on each powertrain pill, with the category itself removed: with
+    EV selected, the number on PHEV has to mean "how many if you switched".
+  */
   const categoryCounts = React.useMemo(() => {
     const base = filterCars(searched, { ...filters, categories: [] })
-    const out: Record<string, number> = {}
-    for (const category of categories) {
-      out[category] = base.filter((car) => car.category === category).length
-    }
+    const out: Record<string, number> = { all: base.length }
+    for (const category of categories) out[category] = base.filter((car) => car.category === category).length
     return out
   }, [searched, filters, categories])
 
+  const panelCount = panelFilterCount(filters)
   const isFiltered = hasActiveFilters(filters) || query.trim().length > 0 || savedOnly
+  const selectedBrand = filters.brands.length === 1 ? (filters.brands[0] ?? '') : ''
 
-  /*
-    Back to the first page whenever the set being drawn changes. A visitor who
-    had shown 72 cars and then picked a brand should see that brand from the
-    top, not a "show more" past the end of a list that is now eight long.
-  */
+  // Back to the first page whenever the set being drawn changes.
   const resultsKey = JSON.stringify([query, filters, sort, savedOnly])
   React.useEffect(() => {
     setVisible(PAGE_SIZE)
@@ -137,8 +151,6 @@ export function CarsBrowser({
   const page = results.slice(0, visible)
   const remaining = results.length - page.length
 
-  const toggleCompare = (car: Car) => comparison.toggle(car.id)
-
   const reset = () => {
     onQueryChange('')
     onFiltersChange(EMPTY_FILTERS)
@@ -146,159 +158,191 @@ export function CarsBrowser({
   }
 
   /*
-    The drawer is a fixed overlay, so the page behind it must not scroll —
-    otherwise a swipe on the backdrop moves the list instead of the drawer.
-
-    Escape closes it, which it did not until an interaction audit went looking.
-    This is a modal: it has a backdrop, it locks the body scroll, and it covers
-    the page. Escape is the keyboard convention for dismissing exactly that, and
-    without it the only ways out were a 30px X and a backdrop tap — both pointer
-    gestures. A keyboard user could open the filters and then have no key that
-    closed them.
-
-    Bound on the document rather than the panel, because the panel does not hold
-    focus when it opens: a keydown listener on the sheet only fires once
-    something inside it has been tabbed to, which is the case where the user
-    least needs the escape hatch.
+    The panel is a modal: the page behind it must not scroll, and Escape closes
+    it. Escape is bound on the document because focus is not inside the panel
+    until something in it has been tabbed to.
   */
   React.useEffect(() => {
-    if (!drawerOpen) return
-
+    if (!panelOpen) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setDrawerOpen(false)
+      if (event.key === 'Escape') setPanelOpen(false)
     }
     document.addEventListener('keydown', onKeyDown)
-
     return () => {
       document.body.style.overflow = previous
       document.removeEventListener('keydown', onKeyDown)
     }
-  }, [drawerOpen])
-
-  const panel = <CarFilters filters={filters} onChange={onFiltersChange} connectors={connectors} />
+  }, [panelOpen])
 
   return (
-    /*
-      The comparison tray is fixed to the bottom of the viewport, so without
-      this the last row of cards sits underneath it and the final card's buttons
-      cannot be reached. Reserved only while the tray is up.
-
-      More of it below lg, because the tray now clears the mobile tab bar rather
-      than hiding under it — see the tray itself. 10rem covers the tray's own
-      ~4.75rem plus the bar's 4rem; 6rem is enough from lg up, where there is no
-      bar and the tray sits on the viewport edge.
-    */
+    /* Room under the grid for the comparison tray while it is up, so the last
+       row's buttons are never underneath it. More below lg, where the tray sits
+       on top of the mobile tab bar. */
     <div className={cn(compared.length > 0 && 'pb-40 lg:pb-24')}>
-      {/*
-        ── Category segments ──────────────────────────────────────
-        A segmented control above the results, not just checkboxes in the
-        sidebar. Powertrain is the first cut almost every buyer makes, and
-        making it a one-tap switch at the top of the grid is faster than
-        opening a panel — on a phone the sidebar is behind a drawer, so
-        without this the primary filter is two taps away.
-
-        It is also the only powertrain control now: the sidebar used to carry a
-        second copy as checkboxes, which meant two places to look for one choice.
-      */}
-      <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <Segment
-          active={filters.categories.length === 0}
-          onClick={() => onFiltersChange({ ...filters, categories: [] })}
-          count={searched.length}
-        >
-          All cars
-        </Segment>
-
-        {categories.map((category) => (
-          <Segment
-            key={category}
-            active={filters.categories.length === 1 && filters.categories[0] === category}
-            onClick={() => onFiltersChange({ ...filters, categories: [category] })}
-            count={categoryCounts[category] ?? 0}
-          >
-            {CATEGORY_LABEL[category]}
-          </Segment>
-        ))}
-
-        {/* Absent until there is something in it — an always-visible Saved tab
-            reading zero is an empty promise on a first visit. */}
-        {favouriteIds.length > 0 ? (
-          <Segment
-            active={savedOnly}
-            onClick={() => onSavedOnlyChange(!savedOnly)}
-            count={favouriteIds.length}
-          >
-            Saved
-          </Segment>
-        ) : null}
-      </div>
-
-      {/* ── Results header ─────────────────────────────────────── */}
-      {/* slate-200, not slate-100 — the ground under this section is slate-100
-          now, and a divider the colour of the page is not a divider. */}
-      <div className="mt-6 flex flex-col gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-          <p aria-live="polite" className="text-ui-sm text-slate-500">
-            <span className="font-bold text-slate-900">{results.length}</span>{' '}
-            {results.length === 1 ? 'car' : 'cars'}
-            {results.length !== cars.length ? (
-              <span className="text-slate-500"> of {cars.length}</span>
-            ) : null}
-          </p>
-
-          {/*
-            What is being searched for, echoed as a removable chip rather than
-            a second input. The hero holds the field; repeating it here would
-            give the page two boxes that could disagree.
-          */}
+      {/* ── Toolbar ─────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+        <label className="relative block w-full lg:w-[20rem] lg:shrink-0">
+          <span className="sr-only">Search cars</span>
+          <Search
+            size={18}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Search by car or brand…"
+            className={cn(
+              'h-12 w-full rounded-full border border-slate-200 bg-white pl-11 pr-11 text-ui text-slate-900',
+              'placeholder:text-slate-400 outline-none transition-colors',
+              'hover:border-slate-300 focus:border-plug-blue-500 focus:ring-4 focus:ring-plug-cyan-500/15',
+              '[&::-webkit-search-cancel-button]:appearance-none',
+            )}
+          />
           {query ? (
             <button
               type="button"
               onClick={() => onQueryChange('')}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:border-slate-400"
+              aria-label="Clear search"
+              className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
             >
-              <span className="truncate">&ldquo;{query}&rdquo;</span>
-              <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
+              <X size={16} aria-hidden="true" />
             </button>
           ) : null}
+        </label>
 
-          {hasActiveFilters(filters) ? (
+        {/* The powertrain pills scroll sideways on a phone rather than wrap: a
+            second row of pills pushes the cars further down for no gain. */}
+        <div className="-mx-4 flex min-w-0 items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+          <Pill
+            active={filters.categories.length === 0 && !savedOnly}
+            onClick={() => {
+              onFiltersChange({ ...filters, categories: [] })
+              onSavedOnlyChange(false)
+            }}
+            count={categoryCounts.all ?? 0}
+          >
+            All
+          </Pill>
+          {categories.map((category) => (
+            <Pill
+              key={category}
+              active={filters.categories.length === 1 && filters.categories[0] === category}
+              onClick={() => onFiltersChange({ ...filters, categories: [category] })}
+              count={categoryCounts[category] ?? 0}
+              title={CATEGORY_TITLE[category]}
+            >
+              {CATEGORY_LABEL[category]}
+            </Pill>
+          ))}
+          {/* Absent until there is something in it — a Saved pill reading zero
+              is an empty promise on a first visit. */}
+          {favouriteIds.length > 0 ? (
+            <>
+              <span aria-hidden="true" className="mx-1 h-6 w-px shrink-0 bg-slate-300" />
+              <Pill active={savedOnly} onClick={() => onSavedOnlyChange(!savedOnly)} count={favouriteIds.length}>
+                Saved
+              </Pill>
+            </>
+          ) : null}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 lg:ml-auto">
+          <label className="relative flex-1 lg:flex-none">
+            <span className="sr-only">Brand</span>
+            <select
+              value={selectedBrand}
+              onChange={(event) =>
+                onFiltersChange({ ...filters, brands: event.target.value ? [event.target.value] : [] })
+              }
+              className={cn(SELECT, 'w-full lg:w-auto lg:min-w-[10.5rem]', selectedBrand && 'border-slate-900')}
+            >
+              {/* Several brands can arrive in a shared link; say so rather than
+                  show "All brands" while the grid is cut to them. */}
+              {filters.brands.length > 1 ? <option value="">{filters.brands.length} brands</option> : null}
+              <option value="">All brands</option>
+              {brands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={() => setPanelOpen(true)}
+            aria-label={panelCount > 0 ? `More filters, ${panelCount} on` : 'More filters'}
+            aria-haspopup="dialog"
+            className={cn(
+              'relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-white text-slate-700 transition-colors',
+              'hover:border-slate-400 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+              panelCount > 0 ? 'border-slate-900' : 'border-slate-200',
+            )}
+          >
+            <SlidersHorizontal size={18} aria-hidden="true" />
+            {panelCount > 0 ? (
+              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-cyan-500 px-1 text-[0.6875rem] font-bold text-plug-navy-950">
+                {panelCount}
+              </span>
+            ) : null}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Results line ───────────────────────────────────────── */}
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <p aria-live="polite" className="mr-1 text-ui-sm text-slate-500">
+            <span className="font-bold text-slate-900">{results.length}</span>{' '}
+            {results.length === 1 ? 'car' : 'cars'}
+            {results.length !== cars.length ? <> of {cars.length}</> : null}
+          </p>
+          {query.trim() ? <Chip onRemove={() => onQueryChange('')}>&ldquo;{query.trim()}&rdquo;</Chip> : null}
+          {filters.brands.map((brand) => (
+            <Chip
+              key={brand}
+              onRemove={() => onFiltersChange({ ...filters, brands: filters.brands.filter((b) => b !== brand) })}
+            >
+              {brand}
+            </Chip>
+          ))}
+          {panelCount > 0 ? (
+            <Chip
+              onRemove={() =>
+                onFiltersChange({ ...filters, connectors: [], minBattery: null, minRange: null, minPower: null })
+              }
+            >
+              {panelCount} {panelCount === 1 ? 'filter' : 'filters'}
+            </Chip>
+          ) : null}
+          {isFiltered ? (
             <button
               type="button"
-              onClick={() => onFiltersChange(EMPTY_FILTERS)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:border-slate-400"
+              onClick={reset}
+              className="px-1 text-ui-sm font-semibold text-slate-600 underline-offset-4 hover:text-slate-900 hover:underline"
             >
-              Filters
-              <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
+              Clear all
             </button>
           ) : null}
         </div>
 
-        <div className="flex gap-3">
-          {/* Only on small screens — the sidebar is always visible above lg. */}
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-[1.5px] border-slate-300 px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-900 lg:hidden"
-          >
-            <SlidersHorizontal size={16} aria-hidden="true" />
-            Filters
-            {hasActiveFilters(filters) ? (
-              <span className="rounded-full bg-plug-navy-900 px-1.5 py-0.5 font-mono text-ui-xs text-white">
-                on
-              </span>
-            ) : null}
-          </button>
-
-          <label className="relative flex h-12 items-center">
-            <span className="sr-only">Sort cars</span>
+        <label className="relative flex items-center gap-2 text-ui-sm text-slate-500">
+          <span className="hidden sm:inline">Sort by</span>
+          <span className="relative">
             <select
               value={sort}
               onChange={(event) => onSortChange(event.target.value as CarSort)}
-              className="h-12 w-full appearance-none rounded-xl border-[1.5px] border-slate-200 bg-white pl-4 pr-9 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 focus:border-plug-blue-500"
+              aria-label="Sort cars"
+              className="h-10 appearance-none rounded-full bg-transparent pl-3 pr-8 text-ui-sm font-semibold text-slate-900 outline-none transition-colors hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             >
               {(Object.keys(SORT_LABELS) as CarSort[]).map((option) => (
                 <option key={option} value={option}>
@@ -306,177 +350,103 @@ export function CarsBrowser({
                 </option>
               ))}
             </select>
-            <SlidersHorizontal
-              size={14}
+            <ChevronDown
+              size={15}
               aria-hidden="true"
-              className="pointer-events-none absolute right-3.5 text-slate-400"
+              className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500"
             />
-          </label>
-        </div>
+          </span>
+        </label>
       </div>
 
-      <div className="mt-8 lg:grid lg:grid-cols-[17.5rem_1fr] lg:gap-8 xl:gap-10">
-        {/* ── Sidebar ─────────────────────────────────────────── */}
-        <aside className="hidden lg:block">
-          {/*
-            A card, not a bare column. The controls previously floated against
-            the page with nothing bounding them, so the sidebar and the results
-            grid read as one undifferentiated field of small type. Sticky below
-            the navbar so the filters stay reachable while a long grid scrolls.
-          */}
-          <div className="sticky top-24 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-e1">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-5 py-3.5">
-              <h2 className="flex items-center gap-2 text-ui font-bold tracking-tight text-slate-900">
-                <SlidersHorizontal size={15} className="text-slate-400" aria-hidden="true" />
-                Filters
-              </h2>
-              {isFiltered ? (
-                <Button variant="ghost" size="sm" onClick={reset} className="-my-1 -mr-2 text-plug-blue-600">
-                  Reset all
-                </Button>
-              ) : null}
-            </div>
-
-            <div className="px-5 py-4">{panel}</div>
+      {/* ── Grid ───────────────────────────────────────────────── */}
+      {results.length > 0 ? (
+        <>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {page.map((car, index) => (
+              <CarCard
+                key={car.id}
+                car={car}
+                isCompared={compared.includes(car.id)}
+                onToggleCompare={(item) => comparison.toggle(item.id)}
+                compareDisabled={compared.length >= MAX_COMPARE}
+                isFavourite={favouriteIds.includes(car.id)}
+                onToggleFavourite={onToggleFavourite}
+                priority={index < 3}
+              />
+            ))}
           </div>
-        </aside>
 
-        {/* ── Results ─────────────────────────────────────────── */}
-        <div>
-          {/*
-            One, two, three — and the two-to-three step is at xl, not lg.
-
-            The card no longer competes with itself for horizontal room. The
-            previous one put the model name and the price on one baseline and the
-            figures in a divided three-cell strip, which needed about 390px to
-            hold together and is why this grid was capped at two columns with an
-            lg:grid-cols-1 dip in the middle. Figures read down the card now, so
-            the only things that need width are the model name and a 44px button
-            pair, and the card works from about 240px.
-
-            Measured, at the container's real widths rather than the viewport's:
-
-              390   1 column,  358px per card
-              768   2 columns, 342px  (no filter rail below lg)
-              1024  2 columns, 262px  (rail takes 17.5rem + a 2rem gap)
-              1280  3 columns, 256px
-              1440  3 columns, 256px  (the container caps at 1280)
-
-            256px is the tightest case and the one to watch: it holds the four
-            figure rows without wrapping a label, and a model name up to about
-            eighteen characters on one line. Longer names wrap to a second line
-            and are clamped there — which is why the actions are pushed down with
-            mt-auto rather than sitting under the price.
-          */}
-          {/*
-            Two columns from the narrowest phone up. One full-width card per
-            row was most of why the page ran to 66,000px; CarCard tightens its
-            padding and type below sm so two fit at 390px.
-          */}
-          {results.length > 0 ? (
-            <>
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-3">
-              {page.map((car, index) => (
-                <CarCard
-                  key={car.id}
-                  car={car}
-                  isCompared={compared.includes(car.id)}
-                  onToggleCompare={toggleCompare}
-                  compareDisabled={compared.length >= MAX_COMPARE}
-                  isFavourite={favouriteIds.includes(car.id)}
-                  onToggleFavourite={onToggleFavourite}
-                  /* The first row only. Three at xl, two below it — asking for
-                     three is harmless at two columns (the third is the start of
-                     row two, still near the fold) and getting it wrong the other
-                     way leaves a hole above the fold. */
-                  priority={index < 3}
-                />
-              ))}
-            </div>
-
-            {remaining > 0 ? (
-              <div className="mt-8 flex flex-col items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => setVisible((count) => count + PAGE_SIZE)}
-                >
-                  Show {Math.min(remaining, PAGE_SIZE)} more
-                </Button>
-                <p className="text-ui-xs text-slate-500" aria-live="polite">
-                  Showing {page.length} of {results.length}
-                </p>
-              </div>
-            ) : null}
-            </>
-          ) : (
-            <div className="flex flex-col items-center py-16 text-center">
-              <AnimatedIcon motion="pop" standalone>
-                <CarIcon size={40} className="text-slate-200" aria-hidden="true" />
-              </AnimatedIcon>
-              <p className="mt-4 text-ui font-semibold text-slate-600">
-                {savedOnly && favouriteIds.length === 0
-                  ? 'Nothing saved yet'
-                  : 'No cars match that'}
+          {remaining > 0 ? (
+            <div className="mt-10 flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setVisible((count) => count + PAGE_SIZE)}
+                className="inline-flex h-12 items-center rounded-full bg-dark-base px-7 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+              >
+                Show {Math.min(remaining, PAGE_SIZE)} more
+              </button>
+              <p className="text-ui-xs text-slate-500" aria-live="polite">
+                Showing {page.length} of {results.length}
               </p>
-              <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
-                {savedOnly && favouriteIds.length === 0
-                  ? 'Tap the heart on a car to keep it here while you browse.'
-                  : 'Try a different brand, or loosen one of the minimums.'}
-              </p>
-              <Button variant="secondary" onClick={reset} className="mt-5">
-                Clear everything
-              </Button>
             </div>
-          )}
+          ) : null}
+        </>
+      ) : (
+        <div className="mt-5 flex flex-col items-center rounded-[1.75rem] bg-slate-100 px-6 py-16 text-center">
+          <AnimatedIcon motion="pop" standalone>
+            <CarIcon size={40} className="text-slate-300" aria-hidden="true" />
+          </AnimatedIcon>
+          <p className="mt-4 text-ui-lg font-bold text-slate-900">
+            {savedOnly && favouriteIds.length === 0 ? 'Nothing saved yet' : 'No cars match that'}
+          </p>
+          <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
+            {savedOnly && favouriteIds.length === 0
+              ? 'Tap the heart on a car to keep it here while you browse.'
+              : 'Try a different brand, or loosen one of the filters.'}
+          </p>
+          <Button variant="secondary" onClick={reset} className="mt-5">
+            Clear everything
+          </Button>
         </div>
-      </div>
+      )}
 
-      {/* ── Mobile drawer ──────────────────────────────────────── */}
-      {drawerOpen ? (
-        /*
-          z-[60], above the mobile tab bar.
-
-          The bar is z-50 fixed to the bottom of the viewport and renders after
-          <main> in src/app/(main)/layout.tsx, so at an equal z-index it painted
-          over the bottom 4rem of this sheet — which is exactly where the
-          "Show N cars" button is. Measured with a pointer-events test: the tap
-          landed on the bar's Community tab and navigated away instead of
-          applying the filters, so on a phone the drawer could only be dismissed
-          by the backdrop. A full-screen modal belongs above primary navigation.
-        */
-        <div className="fixed inset-0 z-[60] lg:hidden">
+      {/* ── Filter panel ───────────────────────────────────────────
+          A bottom sheet on a phone and a side panel from lg. z-[60], above the
+          mobile tab bar, which would otherwise cover the "Show N cars" button. */}
+      {panelOpen ? (
+        <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Filters">
           <button
             type="button"
             aria-label="Close filters"
-            onClick={() => setDrawerOpen(false)}
+            onClick={() => setPanelOpen(false)}
             className="absolute inset-0 bg-plug-navy-900/40 backdrop-blur-sm"
           />
 
-          {/* A sheet: header and the apply button pinned, only the controls
-              between them scrolling — so the count and the way out stay on
-              screen however far down the panel you are. */}
-          <div className="absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-e4">
-            <div className="shrink-0 px-6 pt-3">
-              <span
-                aria-hidden="true"
-                className="mx-auto block h-1 w-10 rounded-full bg-slate-200"
-              />
+          <div className="absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-[1.75rem] bg-white shadow-e4 lg:inset-y-0 lg:left-auto lg:right-0 lg:max-h-none lg:w-[26rem] lg:rounded-l-[1.75rem] lg:rounded-tr-none">
+            <div className="shrink-0 px-6 pt-3 lg:hidden">
+              <span aria-hidden="true" className="mx-auto block h-1 w-10 rounded-full bg-slate-200" />
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-4 px-6 py-4">
-              <h2 className="text-lg font-bold tracking-tight text-slate-900">Filters</h2>
-              <div className="flex items-center gap-3">
-                {isFiltered ? (
-                  <Button variant="ghost" size="sm" onClick={reset} className="text-plug-blue-600">
+            <div className="flex shrink-0 items-center justify-between gap-4 px-6 py-4 lg:pt-6">
+              <h2 className="font-display text-xl font-extrabold tracking-tight text-slate-900">Filters</h2>
+              <div className="flex items-center gap-1">
+                {panelCount > 0 ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      onFiltersChange({ ...filters, connectors: [], minBattery: null, minRange: null, minPower: null })
+                    }
+                  >
                     Reset
                   </Button>
                 ) : null}
                 <button
                   type="button"
-                  onClick={() => setDrawerOpen(false)}
+                  onClick={() => setPanelOpen(false)}
                   aria-label="Close filters"
-                  className="flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100"
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
                 >
                   <X size={18} aria-hidden="true" />
                 </button>
@@ -484,39 +454,28 @@ export function CarsBrowser({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto border-y border-slate-100 px-6 py-4">
-              {panel}
+              <CarFilters filters={filters} onChange={onFiltersChange} connectors={connectors} />
             </div>
 
             <div className="shrink-0 p-6">
-              <Button size="lg" fullWidth onClick={() => setDrawerOpen(false)}>
+              <button
+                type="button"
+                onClick={() => setPanelOpen(false)}
+                className="flex h-12 w-full items-center justify-center rounded-full bg-dark-base text-ui font-semibold text-white transition-colors hover:bg-plug-blue-600"
+              >
                 Show {results.length} {results.length === 1 ? 'car' : 'cars'}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
       ) : null}
 
-      {/* ── Comparison tray ────────────────────────────────────── */}
+      {/* ── Comparison tray ────────────────────────────────────────
+          Above the mobile tab bar rather than under it, with the safe-area
+          inset the bar carries too. */}
       {compared.length > 0 ? (
-        /*
-          Above the mobile tab bar rather than under it.
-
-          This was bottom-0 z-40 against a z-50 tab bar, so below lg the whole
-          tray — the count, Clear, and the Compare button it exists to offer —
-          sat behind 4rem of navigation and could not be seen or tapped. Raising
-          the z-index instead would have hidden the site's primary navigation
-          behind a transient bar, so it sits on top of the bar and both stay
-          reachable. The safe-area inset is added because the bar carries it too;
-          without it the tray overlaps the bar by the home indicator's height on
-          an iPhone.
-        */
         <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-y border-slate-200 bg-white/95 p-4 shadow-[0_-8px_30px_-12px_rgba(5,36,30,0.25)] backdrop-blur lg:bottom-0 lg:border-b-0">
           <div className="container-plug flex flex-wrap items-center justify-between gap-3">
-            {/* nowrap, and the cap hidden on the narrowest screens. The tray
-                only became visible on a phone once it cleared the tab bar, and
-                at 390px the three items measured 340px of the 358px available —
-                so "Compare 2" broke onto a second line inside its own button.
-                The cap is a nicety; the count and the button are not. */}
             <p className="whitespace-nowrap text-ui-sm text-slate-600">
               <span className="font-bold text-slate-900">{compared.length}</span> selected
               <span className="hidden text-slate-400 xs:inline"> · up to {MAX_COMPARE}</span>
@@ -526,14 +485,8 @@ export function CarsBrowser({
               <Button variant="ghost" size="md" onClick={comparison.clear}>
                 Clear
               </Button>
-
-              {/*
-                The comparison lives at its own URL, carrying the ids in the
-                query string. That makes a comparison shareable and survivable
-                across a refresh, which a modal holding it in state would not be.
-                Two cars minimum — comparing one car with nothing is just the
-                detail page.
-              */}
+              {/* Its own URL, so a comparison can be shared and survives a
+                  refresh. Two cars minimum. */}
               <Link
                 href={`/cars/compare?ids=${compared.join(',')}`}
                 aria-disabled={compared.length < 2}
@@ -555,92 +508,62 @@ export function CarsBrowser({
   )
 }
 
-const CATEGORY_LABEL: Record<CarCategory, string> = {
-  EV: 'Electric',
-  PHEV: 'Plug-in hybrid',
-  REEV: 'Range extender',
-  Hybrid: 'Hybrid',
-}
+/** The brand select's pill. */
+const SELECT = cn(
+  'h-12 appearance-none rounded-full border border-slate-200 bg-white pl-5 pr-10 text-ui font-semibold text-slate-900',
+  'outline-none transition-colors hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+)
 
 /**
- * One tab of the segmented control.
- *
- * A count on every segment, including zero — a tab that would return nothing
- * says so before it is tapped, which is kinder than an empty grid and a
- * "nothing matches" message.
+ * One powertrain pill. The count is shown on every pill, zero included, so a
+ * pill that would empty the grid says so before it is tapped.
  */
-function Segment({
+function Pill({
   active,
   onClick,
   count,
+  title,
   children,
 }: {
   active: boolean
   onClick: () => void
   count: number
+  title?: string
   children: React.ReactNode
 }) {
-  const ref = React.useRef<HTMLButtonElement>(null)
-
-  /*
-    Bring the active segment fully into the rail.
-
-    The rail scrolls horizontally on a phone and five segments do not fit, so
-    the selected one is regularly half off the right edge — including on first
-    load, where a category arriving in the URL can select a segment that is not
-    on screen at all. The masthead then describes a powertrain whose tab the
-    reader cannot see, which reads as the page having decided something on its
-    own.
-
-    `block: 'nearest'` was chosen to keep this horizontal, and it is not
-    enough. "Nearest" means the smallest scroll that brings the element into
-    view — which is zero only when it is already visible. On mount this rail is
-    about a thousand pixels down the page, so the element is not visible at
-    all, and the browser scrolls the document to it: measured landing the
-    reader at scrollY 518 on /cars, below the masthead they came to read.
-
-    So the rail is scrolled directly instead of asking the browser to reveal
-    the element. Only scrollLeft is written, on the one element that overflows,
-    so the document's own scroll position is never a party to it. The segment
-    is centred where there is room, which also reads better than flush-left.
-  */
-  React.useEffect(() => {
-    if (!active) return
-    const el = ref.current
-    const rail = el?.parentElement
-    if (!el || !rail) return
-
-    // Nothing to do when the rail does not overflow — every segment is visible.
-    if (rail.scrollWidth <= rail.clientWidth) return
-
-    const target = el.offsetLeft - (rail.clientWidth - el.clientWidth) / 2
-    const left = Math.max(0, Math.min(target, rail.scrollWidth - rail.clientWidth))
-    rail.scrollTo({ left, behavior: 'smooth' })
-  }, [active])
-
   return (
     <button
-      ref={ref}
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      title={title}
+      aria-label={title ? `${title}, ${count}` : undefined}
       className={cn(
-        'inline-flex min-h-11 shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-ui-sm font-semibold transition-all duration-200',
+        'inline-flex h-12 shrink-0 items-center gap-2 rounded-full border px-5 text-ui font-semibold transition-colors duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
         active
-          ? 'border-slate-900 bg-plug-navy-900 text-white shadow-[0_4px_14px_-6px_rgba(5,36,30,0.5)]'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900',
+          ? 'border-dark-base bg-dark-base text-white'
+          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900',
         count === 0 && !active && 'opacity-45',
       )}
     >
       {children}
-      <span
-        className={cn(
-          'font-mono text-ui-xs tabular-nums',
-          active ? 'text-white/70' : 'text-slate-500',
-        )}
-      >
-        {count}
-      </span>
+      <span className={cn('text-ui-xs tabular-nums', active ? 'text-white/60' : 'text-slate-400')}>{count}</span>
+    </button>
+  )
+}
+
+/** A removable chip for something that is narrowing the grid. */
+function Chip({ onRemove, children }: { onRemove: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onRemove}
+      className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-slate-200/70 py-1.5 pl-3 pr-2 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+    >
+      <span className="truncate">{children}</span>
+      <X size={12} aria-hidden="true" className="shrink-0 text-slate-500" />
+      <span className="sr-only">Remove</span>
     </button>
   )
 }

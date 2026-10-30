@@ -936,3 +936,108 @@ export function paramsToFilters(
     sort: sortKey && sortKey in SORT_LABELS ? (sortKey as CarSort) : 'price-asc',
   }
 }
+
+// ─── Body style and summary ─────────────────────────────────
+
+/**
+ * The body as one word, for the card's meta line: "SUV", "Hatchback".
+ *
+ * `bodyType` is free text from the source — "Mid-size luxury electric SUV
+ * (5-door)" — which is right for the spec sheet and far too long for a line
+ * that also carries the brand and the trim. The order matters: a coupe-SUV is
+ * an SUV here, and a pickup is checked before anything it might also mention.
+ */
+export function bodyStyle(car: Car): string | null {
+  const body = car.bodyType?.toLowerCase()
+  if (!body) return null
+  if (body.includes('pickup')) return 'Pickup'
+  if (/\bmpv\b|minivan|\bvan\b/.test(body)) return 'MPV'
+  if (/microcar|\bkei\b/.test(body)) return 'Microcar'
+  if (/\bsuv\b|crossover/.test(body)) return 'SUV'
+  if (body.includes('hatch')) return 'Hatchback'
+  if (/sedan|saloon|liftback|fastback/.test(body)) return 'Sedan'
+  if (/coup[eé]/.test(body)) return 'Coupe'
+  if (/wagon|estate/.test(body)) return 'Estate'
+  return null
+}
+
+/** "Front-wheel drive", only where the row states one layout rather than a choice. */
+export function driveLabel(car: Car): string | null {
+  const drive = car.driveType?.trim()
+  if (!drive) return null
+  if (drive.includes('/')) return drive
+  if (/^FWD\b/.test(drive)) return 'Front-wheel drive'
+  if (/^RWD\b/.test(drive)) return 'Rear-wheel drive'
+  if (/^(AWD|4WD)\b/.test(drive)) return 'All-wheel drive'
+  return drive
+}
+
+/** "an" before a figure read aloud with a vowel: an 8, an 11, an 80. */
+const articleFor = (value: number) => (/^(8|11|18)/.test(String(value)) ? 'an' : 'a')
+
+const SUMMARY_KIND: Record<CarCategory, string> = {
+  EV: 'all-electric',
+  PHEV: 'plug-in hybrid',
+  REEV: 'range-extender',
+  Hybrid: 'self-charging hybrid',
+}
+
+/**
+ * A paragraph introducing the car, written from its figures.
+ *
+ * Every clause is a published number or omitted: no figure is estimated to make
+ * a sentence read better, so a sparse row gets a short paragraph rather than a
+ * padded one.
+ */
+export function carSummary(car: Car): string {
+  const kind = SUMMARY_KIND[car.category]
+  const body = bodyStyle(car)
+  const noun = body ? (body === 'SUV' || body === 'MPV' ? body : body.toLowerCase()) : 'car'
+  const article = /^[aeiou]/i.test(kind) ? 'an' : 'a'
+  const indicative = /\((?:indicative|estimated)\)/i.test(car.price.display)
+  const sentences = [
+    `The ${carDisplayName(car)} is ${article} ${kind} ${noun} sold in Pakistan from ${formatPkr(car.price.min)}${
+      indicative ? ' (indicative)' : ''
+    }.`,
+  ]
+
+  const drive = car.driveType && !car.driveType.includes('/') ? driveLabel(car) : null
+  const wheels =
+    drive === 'Front-wheel drive'
+      ? 'the front wheels'
+      : drive === 'Rear-wheel drive'
+        ? 'the rear wheels'
+        : drive === 'All-wheel drive'
+          ? 'all four wheels'
+          : null
+  const motor = car.motorPowerKw
+    ? `${articleFor(car.motorPowerKw)} ${car.motorPowerKw} kW motor${car.power ? ` making ${car.power} hp` : ''}`
+    : car.power
+      ? `${car.power} hp`
+      : null
+  if (car.batteryCapacity && motor) {
+    sentences.push(`It pairs ${articleFor(car.batteryCapacity)} ${car.batteryCapacity} kWh battery with ${motor}${wheels ? `, driving ${wheels}` : ''}.`)
+  } else if (car.batteryCapacity) {
+    sentences.push(`It carries ${articleFor(car.batteryCapacity)} ${car.batteryCapacity} kWh battery.`)
+  } else if (motor) {
+    sentences.push(`It makes ${car.power ? `${car.power} hp` : motor}${wheels ? `, driving ${wheels}` : ''}.`)
+  }
+
+  const reach = formatSpan(electricDistance(car), electricDistanceMax(car), 'km')
+  if (reach) {
+    const cycle = car.rangeStandard ? ` on the ${car.rangeStandard} cycle` : ''
+    sentences.push(
+      car.category === 'EV'
+        ? `It claims up to ${reach} of range${cycle}.`
+        : `It covers up to ${reach} on electricity alone${cycle}.`,
+    )
+  }
+
+  const seats = car.seats ? `It seats ${car.seats}` : null
+  const dc = car.dcCharging ? `charges at up to ${car.dcCharging} kW DC` : null
+  if (seats && dc) sentences.push(`${seats} and ${dc}.`)
+  else if (seats) sentences.push(`${seats}.`)
+  else if (dc) sentences.push(`It ${dc}.`)
+
+  return sentences.join(' ')
+}

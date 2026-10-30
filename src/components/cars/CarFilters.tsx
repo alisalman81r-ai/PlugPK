@@ -25,8 +25,8 @@ import { cn } from '@/lib/utils'
  * ── What is deliberately not here ─────────────────────────────────────
  *
  * Powertrain and Brand used to head this panel, and both were the second copy
- * of a control the page already had above the grid: powertrain is the segmented
- * strip in CarsBrowser, brand is the BrandRail and the hero's select. All of
+ * of a control the page already had above the grid: powertrain is the pill
+ * row in CarsBrowser's toolbar, brand is its select. All of
  * them wrote into the same two arrays, so the panel was offering a slower route
  * to a choice already one tap away, and pushing the specification filters — the
  * ones with nowhere else to live — below the fold.

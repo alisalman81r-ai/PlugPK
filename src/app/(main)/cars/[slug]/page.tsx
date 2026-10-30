@@ -256,14 +256,10 @@ export default async function CarPage({ params }: CarPageProps) {
 
   return (
     /*
-      A tinted canvas rather than white.
-
-      The panel inside CarDetails is white and the stage the car sits on is
-      tinted again — three tones of depth, which is what gives the reference
-      layout its layered feel. On a white section the panel has no edge to sit
-      against and the whole thing reads as one flat page.
+      The page ground is the lightest grey and the panels on it a step darker,
+      so the car's panel and the spec sheets read as surfaces without borders.
     */
-    <section className="bg-slate-100 py-10 lg:py-14">
+    <section className="bg-slate-50 pb-20 pt-8 lg:pt-12">
       <div className="container-plug">
         <CarDetails car={car} pool={pool} />
       </div>
