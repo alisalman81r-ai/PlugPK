@@ -33,9 +33,15 @@ export interface CarsExplorerProps {
   brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
+  /**
+   * Rendered between the hero and the catalogue: the brand strip. A slot rather
+   * than an import, so it is built on the server from the whole catalogue and
+   * none of that work ships in the client bundle.
+   */
+  beforeResults?: React.ReactNode
 }
 
-export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplorerProps) {
+export function CarsExplorer({ cars, brands, categories, connectors, beforeResults }: CarsExplorerProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -90,6 +96,8 @@ export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplo
         stats={stats}
         onSubmit={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
       />
+
+      {beforeResults}
 
       <section ref={resultsRef} className="scroll-mt-20 bg-slate-50 pb-20 pt-8 sm:pt-10">
         <div className="container-plug">
