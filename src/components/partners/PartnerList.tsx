@@ -145,7 +145,7 @@ export function PartnerList({ partners }: PartnerListProps) {
             className={cn(
               'h-11 rounded-xl px-4 text-ui-sm font-medium transition-colors',
               sortBy === sort.key
-                ? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]'
+                ? 'bg-plug-navy-900 text-white'
                 : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
             )}
           >

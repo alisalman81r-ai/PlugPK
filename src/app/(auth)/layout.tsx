@@ -102,7 +102,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
         the top corner and two thin charge rings in the bottom one — the same
         family as the gauge on the Cars hero — and nothing else.
       */}
-      <div className="relative isolate flex min-h-viewport w-full flex-col overflow-hidden bg-[#F4F8F6] dark:bg-slate-50 lg:w-1/2">
+      <div className="relative isolate flex min-h-viewport w-full flex-col overflow-hidden bg-[#F4F8F6] lg:w-1/2">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -left-40 -top-40 h-[28rem] w-[28rem] rounded-full bg-[#6FE8B6]/20 blur-[110px]" />
           <div className="absolute -bottom-40 -left-40 h-[26rem] w-[26rem] rounded-full border border-plug-cyan-500/15" />

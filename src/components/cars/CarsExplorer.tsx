@@ -391,7 +391,7 @@ export function CarsExplorer({
       <section ref={resultsRef} className="relative scroll-mt-4 bg-slate-100 py-12 lg:py-16">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 dark:hidden bg-[radial-gradient(120%_55%_at_50%_0%,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.45)_30%,transparent_64%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_55%_at_50%_0%,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.45)_30%,transparent_64%)]"
         />
         <span aria-hidden="true" className="grain" />
         <span

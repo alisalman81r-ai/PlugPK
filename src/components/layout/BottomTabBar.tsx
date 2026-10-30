@@ -81,9 +81,7 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label="Primary"
-      // Dark theme: the app's tab bar — raised mineral, a mint edge, white
-      // labels, and a turquoise pill with a pine icon for the current tab.
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] dark:border-[rgba(142,238,218,0.22)] dark:bg-[rgba(36,68,61,0.94)] dark:shadow-[0_-10px_30px_-12px_rgba(0,0,0,0.7)] dark:backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <div className="grid h-16 grid-cols-5">
         {[...TABS, account].map((tab) => {
@@ -101,18 +99,18 @@ export function BottomTabBar() {
               <span
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-1.5 transition-all duration-150',
-                  active && 'bg-plug-blue-50 dark:bg-[#26CDB2]',
+                  active && 'bg-plug-blue-50',
                 )}
               >
                 <Icon
                   size={22}
-                  className={cn('shrink-0', active ? 'text-plug-blue-600 dark:text-[#05241E]' : 'text-slate-500 dark:text-white/65')}
+                  className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-500')}
                   aria-hidden="true"
                 />
                 <span
                   className={cn(
                     'text-[10px] font-medium',
-                    active ? 'text-plug-blue-600 dark:text-[#05241E]' : 'text-slate-500 dark:text-white/65',
+                    active ? 'text-plug-blue-600' : 'text-slate-500',
                   )}
                 >
                   {tab.label}

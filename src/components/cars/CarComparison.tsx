@@ -424,7 +424,6 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
               >
                 <span className="relative block h-24 overflow-hidden bg-white/70 sm:h-28">
                   <PhotoFrame
-                    studio
                     src={car.image ?? undefined}
                     alt={carDisplayName(car)}
                     sizes="(max-width: 640px) 50vw, 320px"
@@ -644,7 +643,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
                   <th
                     scope="colgroup"
                     colSpan={cars.length + 1}
-                    className="border-y border-slate-900/[0.08] bg-white/55 px-4 py-3.5 font-display text-[1.0625rem] font-extrabold uppercase tracking-[0.08em] text-plug-navy-800 dark:text-slate-900"
+                    className="border-y border-slate-900/[0.08] bg-white/55 px-4 py-3.5 font-display text-[1.0625rem] font-extrabold uppercase tracking-[0.08em] text-plug-navy-800"
                   >
                     {group.title}
                   </th>

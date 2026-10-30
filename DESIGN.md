@@ -188,42 +188,16 @@ Car photos have white grounds, so they always sit on a light "stage" (mist gradi
 blended with `multiply`), in dark mode too. The working values are in
 `public/app-prototype/app.css`.
 
-#### Dark mode on the website
+#### The website is light only
 
-The colour scales are CSS custom properties (`tailwind.tokens.ts`). `.dark` on `<html>`
-swaps their values, so **a class keeps its job in both themes and you do not write `dark:`
-for anything on the scales**: `text-slate-900` is body type, `text-slate-500` muted type,
-`bg-white` a card, `bg-slate-50` the page, `bg-red-50 text-red-700` an error chip.
+The website has one theme, light. The dark values above are the app's, not the site's; do not
+add a theme switch or `dark:` variants. The colour scales are CSS custom properties on `:root`
+(`tailwind.tokens.ts`), so Tailwind classes and the plain CSS in `globals.css` read the same
+values, and `color-scheme: light` keeps form controls light on a device set to dark mode.
 
-- **The choice** is stored in `localStorage` (`plug-theme`) and applied by an inline script in
-  `<head>` before first paint (`src/lib/theme.ts`), so the page never flashes and the public
-  pages stay statically rendered. Controls: `ThemeMenu` (navbar, admin and business top bars)
-  and `ThemeSegmented` (phone menu sheet), in `src/components/layout/ThemeSwitcher.tsx`.
-  Components that need the resolved theme (the map) read `useTheme()`.
-- **White.** `text-white` is white in both themes. `bg-`, `border-` and `ring-white` are the
-  card surface. Below `/42` opacity they stay real white, because they are glazes on photos
-  and pine bands.
-- **The dark values are the app's**, token for token (the table above): ground, card, sunken,
-  see-through mint lines, faint/muted/fg type, `--tint` chips, status washes, shadows and bands.
-- **The primary button matches the app: turquoise with pine type.** It is written
-  `bg-plug-blue-600 text-white`. The fill turns turquoise through the palette, and a rule in
-  `globals.css` turns the white label to `--on-brand` (pine). The same applies to
-  `bg-gradient-brand`. As **text**, `plug-blue-600` is `#4FDCC4` and `plug-blue-700` is `#8EEEDA`.
-- **Selected solid chips and tabs** (`bg-plug-navy-900 text-white`) carry
-  `dark:bg-[#26CDB2] dark:text-[#05241E]`, the app's `.chip.solid.on`.
-- **Status hues** (red, amber, green…): `50`–`300` become the hue at 12–42% opacity, and
-  `500`–`900` as text move up to `400`/`300`. Fills from `400` up are unchanged.
-- **Car photos** use `<PhotoFrame studio>`. In dark mode they sit on the app's mist-to-grey stage
-  with `mix-blend-multiply`. The phone tab bar takes the app's mineral bar with a turquoise pill.
-- **Grounds that look the same in both themes** restore the light values for everything inside
-  them: pine bands (`bg-plug-navy-*`, `bg-gradient-hero`, `bg-slate-900/950`…) automatically,
-  `.theme-island` for a dark band set with an arbitrary colour, `.theme-light` for a ground that
-  stays light (the car photo stage).
-- **Arbitrary colours** (`bg-[#E3F6EF]`) do not follow the theme. Prefer a scale class, or add
-  a `dark:` variant beside it.
-- **Scrims** behind modals use `bg-plug-navy-900/40`, not `bg-slate-900/40`, which turns light
-  in dark mode.
-- **The map** recolours to the app's dark map palette (`map-style.ts`) without reloading tiles.
+- **White.** `bg-`, `border-` and `ring-white` are the card surface. Below `/42` opacity they
+  stay real white, because they are glazes on photos and pine bands.
+- **Scrims** behind modals use `bg-plug-navy-900/40`.
 
 ---
 

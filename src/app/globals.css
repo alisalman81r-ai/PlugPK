@@ -29,8 +29,8 @@
    */
   --nav-h: 72px;
 
-  /* The palette, for the CSS that cannot reach Tailwind. These follow the
-     theme: the scales and their dark values are in tailwind.tokens.ts. */
+  /* The palette, for the CSS that cannot reach Tailwind. The scales are in
+     tailwind.tokens.ts. */
   --color-primary: rgb(var(--c-brand-600));
   --color-accent: #26CDB2;
   --color-dark: #0D1817;
@@ -41,8 +41,8 @@
   --color-bg-alt: rgb(var(--c-neutral-100));
   --color-surface: rgb(var(--c-surface));
 
-  /* --gradient-brand and --gradient-hero follow the theme, and are declared
-     with the palette in tailwind.tokens.ts. */
+  /* --gradient-brand and --gradient-hero are declared with the palette in
+     tailwind.tokens.ts. */
 
   --shadow-blue: 0 8px 24px rgba(11, 51, 44, 0.22);
 
@@ -110,7 +110,7 @@
 
   ::selection {
     background: rgb(var(--c-brand-100));
-    color: rgb(var(--t-brand-600));
+    color: rgb(var(--c-brand-600));
   }
 
   :focus-visible {
@@ -438,19 +438,19 @@
   }
 
   .status-available {
-    color: rgb(var(--t-green-600));
+    color: rgb(var(--c-green-600));
     background: rgb(var(--c-green-50));
     border-color: rgb(var(--c-green-200));
   }
 
   .status-limited {
-    color: rgb(var(--t-amber-600));
+    color: rgb(var(--c-amber-600));
     background: rgb(var(--c-amber-50));
     border-color: rgb(var(--c-amber-200));
   }
 
   .status-offline {
-    color: rgb(var(--t-red-600));
+    color: rgb(var(--c-red-600));
     background: rgb(var(--c-red-50));
     border-color: rgb(var(--c-red-200));
   }
@@ -1172,42 +1172,4 @@ html::-webkit-scrollbar {
   .flow-dashes {
     animation: none;
   }
-}
-
-/*
-  MapLibre's attribution badge brings its own white CSS. In the dark theme it
-  takes the card colour, and the (i) glyph — a black SVG — is inverted.
-*/
-.dark .maplibregl-ctrl-attrib {
-  background-color: rgb(var(--c-surface) / 0.8);
-  color: rgb(var(--c-neutral-500));
-}
-.dark .maplibregl-ctrl-attrib a {
-  color: inherit;
-}
-.dark .maplibregl-ctrl-attrib-button {
-  filter: invert(1);
-}
-
-/*
-  ── The label on the brand fill, in the dark theme ──────────────────────
-
-  The app's primary button is turquoise with pine type (DESIGN.md §2.9). On
-  the site it is written bg-plug-blue-600 text-white — about ninety times — so
-  in the dark theme the fill turns turquoise through the palette and these
-  rules turn the white label pine, on the button itself and on anything white
-  inside it (an icon, a count). The same goes for the brand gradient and the
-  700 step.
-
-  The colour is a variable, --on-brand, rather than pine outright: inside a
-  pine band the light values are restored (see ISLANDS in tailwind.tokens.ts),
-  so a brand button there keeps its forest fill and white label. The second
-  rule is the turquoise hover there, which takes forest type as it always has.
-*/
-.dark :is(.bg-plug-blue-600, .bg-plug-blue-700, .bg-gradient-brand):is(.text-white, [class*='text-white/'], .text-plug-cyan-300),
-.dark :is(.bg-plug-blue-600, .bg-plug-blue-700, .bg-gradient-brand) :is(.text-white, [class*='text-white/']) {
-  color: rgb(var(--on-brand));
-}
-.dark :is(.bg-plug-blue-600, .bg-gradient-brand).hover\:bg-plug-cyan-500:hover {
-  color: rgb(var(--on-brand-hover));
 }

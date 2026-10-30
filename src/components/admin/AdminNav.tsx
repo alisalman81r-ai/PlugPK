@@ -222,7 +222,7 @@ function NavContent({
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
                         collapsed ? 'justify-center px-0' : 'gap-3 px-3',
                         active
-                          ? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]'
+                          ? 'bg-plug-navy-900 text-white'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                       )}
                     >

@@ -8,11 +8,10 @@ import { AttributionControl, Map, Marker, type MapRef } from 'react-map-gl/mapli
 import type { Map as MaplibreMap } from 'maplibre-gl'
 
 import { Maximize2, Minus, Plus } from '@/components/ui/icons'
-import { useTheme } from '@/hooks/useTheme'
 import type { Coordinates, Station } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-import { MAP_STYLE, PALETTES, brandMap } from './map-style'
+import { MAP_PALETTE, MAP_STYLE, brandMap } from './map-style'
 import { PAKISTAN_BOUNDS } from './pakistan-bounds'
 import { ClusterPin, StationPin, UserLocationPin, pinTitle } from './StationPin'
 
@@ -156,18 +155,6 @@ export function MapViewLibre({
   const [groups, setGroups] = React.useState<PinGroup[]>(() => ungrouped(stations))
   const selectedId = selectedStation?.id
 
-  /*
-    The basemap follows the site's theme. A switch recolours the loaded style
-    in place — brandMap only sets paint properties — so the map keeps its
-    position and its tiles, and simply changes colour.
-  */
-  const { resolved: mapTheme } = useTheme()
-  const palette = PALETTES[mapTheme]
-  React.useEffect(() => {
-    const map = mapRef.current?.getMap()
-    if (map?.isStyleLoaded()) brandMap(map, mapTheme)
-  }, [mapTheme])
-
   /**
    * Frame Pakistan once, on first load, unless someone arrived with a station
    * already chosen. initialViewState asks for the same box, but it is solved
@@ -282,7 +269,7 @@ export function MapViewLibre({
   return (
     // The ground colour behind the canvas, so the map arrives on its own colour
     // rather than flashing grey.
-    <div className="relative h-full w-full" style={{ backgroundColor: palette.bg }}>
+    <div className="relative h-full w-full" style={{ backgroundColor: MAP_PALETTE.bg }}>
       <div
         className={cn(
           'h-full w-full transition-opacity duration-500 motion-reduce:transition-none',
@@ -319,7 +306,7 @@ export function MapViewLibre({
           onLoad={(event) => {
             const map = event.target
             map.touchZoomRotate.disableRotation()
-            brandMap(map, mapTheme)
+            brandMap(map)
             // MapLibre opens a compact attribution expanded and only folds it
             // on the first drag; start it folded to its (i).
             map

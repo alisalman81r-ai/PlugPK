@@ -4,7 +4,6 @@ import localFont from 'next/font/local'
 import './globals.css'
 
 import { SITE_CONFIG } from '@/lib/constants'
-import { THEME_SCRIPT } from '@/lib/theme'
 
 /**
  * One face for the whole interface: Figtree, headings included.
@@ -152,16 +151,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    /*
-      suppressHydrationWarning: THEME_SCRIPT adds `dark` and data-theme to
-      <html> before React hydrates, which is the point of it. The exemption
-      covers this one element's attributes, not its children.
-    */
-    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable} ${plainZero.variable}`} suppressHydrationWarning>
-      <head>
-        {/* Inline and first, so the theme is set before anything paints. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
-      </head>
+    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable} ${plainZero.variable}`}>
       <body className="bg-slate-50 font-sans text-slate-900 antialiased">{children}</body>
     </html>
   )

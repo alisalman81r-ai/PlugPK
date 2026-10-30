@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils'
  * not drawn as a second series or a second axis: each column's tooltip and the
  * table view carry them instead.
  *
- * Columns are plain elements in the brand class, so the dark theme recolours
- * them through the same tokens as the rest of the portal (plug-cyan-600 clears
- * 3:1 against the card in both themes). Each column is focusable and shows the
+ * Columns are plain elements in the brand class, coloured through the same
+ * tokens as the rest of the portal (plug-cyan-600 clears 3:1 against the
+ * card). Each column is focusable and shows the
  * same tooltip on focus as on hover.
  */
 export interface DayPoint {

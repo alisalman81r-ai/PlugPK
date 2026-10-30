@@ -3,7 +3,7 @@
 // The look of the website's map, shared with the app (public/app-prototype,
 // screens-map.js): OpenFreeMap's detailed `liberty` basemap — road names,
 // shops, banks, mosques, transit, house numbers — recoloured in the brand's
-// palette, light or dark to match the site's theme, with crisp labels and
+// palette, with crisp labels and
 // buildings that rise in 3D at street level.
 
 import type { ExpressionSpecification, Map as MaplibreMap } from 'maplibre-gl'
@@ -16,12 +16,11 @@ import type { ExpressionSpecification, Map as MaplibreMap } from 'maplibre-gl'
 export const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 
 /**
- * The app's two palettes, the same values as screens-map.js. The ground colour
- * also backs the loading state. `relief` is how strongly the terrain shading
- * shows at country zoom: on the dark ground it is turned well down, or the
- * mountains read as smudges.
+ * The app's light palette, the same values as screens-map.js. The ground
+ * colour also backs the loading state. `relief` is how strongly the terrain
+ * shading shows at country zoom.
  */
-const LIGHT = {
+export const MAP_PALETTE = {
   bg: '#F2F6F4',
   water: '#A9DDD6',
   waterText: '#2F7D74',
@@ -50,40 +49,6 @@ const LIGHT = {
   halo: '#F2F6F4',
   relief: 0.3,
 }
-
-const DARK: typeof LIGHT = {
-  bg: '#0A1412',
-  water: '#0D3036',
-  waterText: '#62BBCB',
-  park: '#10291F',
-  wood: '#0F261D',
-  sand: '#1A1E16',
-  residential: '#0E1A17',
-  landuse: '#10201C',
-  building: '#182B27',
-  building3d: '#2B4D45',
-  boundary: '#4F6660',
-  motorway: '#2C6B5E',
-  motorwayCase: '#1B4A40',
-  primary: '#2C3B38',
-  primaryCase: '#1A2522',
-  secondary: '#263431',
-  secondaryCase: '#172220',
-  minor: '#1F2B28',
-  minorCase: '#131C1A',
-  path: '#2A3835',
-  rail: '#34443F',
-  text: '#E8F3EF',
-  textSoft: '#B2C4BE',
-  poiText: '#A5BBB4',
-  roadText: '#BCCCC6',
-  halo: '#0A1412',
-  relief: 0.12,
-}
-
-export type MapTheme = 'light' | 'dark'
-
-export const PALETTES: Record<MapTheme, typeof LIGHT> = { light: LIGHT, dark: DARK }
 
 type RoadKey =
   | 'rail' | 'path'
@@ -133,12 +98,12 @@ const ENGLISH_NAME: ExpressionSpecification = ['coalesce', ['get', 'name:en'], [
 export const BUILDINGS_3D = 'plug-3d'
 
 /**
- * Applies the brand look to a loaded liberty style. Safe to repeat, and it is
- * how the map follows a theme switch: every colour is a paint property, so it
- * recolours in place without fetching the style or a tile again.
+ * Applies the brand look to a loaded liberty style: every colour is a paint
+ * property, so it recolours in place without fetching the style or a tile
+ * again.
  */
-export function brandMap(map: MaplibreMap, theme: MapTheme = 'light') {
-  const c = PALETTES[theme]
+export function brandMap(map: MaplibreMap) {
+  const c = MAP_PALETTE
   const paint = (id: string, prop: string, value: unknown) => {
     try {
       map.setPaintProperty(id, prop, value)

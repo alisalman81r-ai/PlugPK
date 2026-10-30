@@ -361,7 +361,7 @@ export function CarCard({
             more off the sides than 7:5 did; object-center keeps the crop
             symmetrical, and a car photographed side-on loses background rather
             than bodywork. */}
-        <div className="theme-light relative aspect-[4/3] shrink-0 overflow-hidden">
+        <div className="relative aspect-[4/3] shrink-0 overflow-hidden">
           {/* The stage. A vertical wash plus a vignette, under the photograph
               and above nothing — see the stage note at the head of the file for
               what this is compensating for and what it cannot fix. */}
@@ -376,7 +376,6 @@ export function CarCard({
 
           {car.image ? (
             <PhotoFrame
-              studio
               src={car.image}
               alt=""
               /* Widest real column is ~440px at 1440 and the panel is capped by

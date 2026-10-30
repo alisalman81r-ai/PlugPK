@@ -55,7 +55,7 @@ export function StationTable({ stations, total, counts, status, venue, onDelete 
   const filtered = stations
   const isFiltered = q.trim().length > 0 || status !== 'all' || venue !== 'all'
 
-  const chip = (on: boolean) => cn(CHIP, on ? 'bg-plug-navy-900 text-white dark:border-[#26CDB2] dark:bg-[#26CDB2] dark:text-[#05241E]' : 'text-slate-800 hover:bg-slate-100')
+  const chip = (on: boolean) => cn(CHIP, on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100')
   const tally = (on: boolean, n: number) =>
     cn(
       'rounded px-1 text-[11px] tabular-nums',

@@ -2,7 +2,7 @@
 import type { Config } from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
-import { ISLANDS, bandColors, scaleColors, surface, themeVars } from './tailwind.tokens'
+import { bandColors, scaleColors, surface, themeVars } from './tailwind.tokens'
 
 /*
   ── The palette ─────────────────────────────────────────────────────────
@@ -44,23 +44,15 @@ import { ISLANDS, bandColors, scaleColors, surface, themeVars } from './tailwind
   of the same grey at 5.4:1 on white and 4.6:1 on Mist.
 */
 
-/* The scales themselves — light values above, dark values beside them — live
-   in tailwind.tokens.ts as CSS custom properties, which is what lets the site
-   change theme without a `dark:` variant on every class. See the note there. */
+/* The scales themselves live in tailwind.tokens.ts as CSS custom properties,
+   so globals.css reads the same values. See the note there. */
 const neutral = scaleColors('neutral')
 const brand = scaleColors('brand')
 const accent = scaleColors('accent')
 
-/* As type, some steps read differently in the dark theme: a forest link has to
-   turn bright, where a forest button only lifts off the page. */
-const neutralText = scaleColors('neutral', true)
-const brandText = scaleColors('brand', true)
-const accentText = scaleColors('accent', true)
-
-/* Tailwind's own hues, which carry status, made theme-aware the same way. */
+/* Tailwind's own hues, which carry status, read the same way. */
 const STATUS = ['red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose']
 const status = Object.fromEntries(STATUS.map((name) => [name, scaleColors(name)]))
-const statusText = Object.fromEntries(STATUS.map((name) => [name, scaleColors(name, true)]))
 
 const config: Config = {
   content: [
@@ -69,6 +61,8 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  /* Light only. Nothing sets `.dark`, so this keeps any stray `dark:` class
+     from following the device's dark mode, as the default `media` would. */
   darkMode: 'class',
   theme: {
     extend: {
@@ -86,8 +80,7 @@ const config: Config = {
         teal: accent,
         /* Dark grounds. 900 and 950 are forest and pine; 800 and 700 step up
            to mineral so a hover on a dark band has somewhere to go. White on
-           900 is 13.8:1, on 950 16.4:1. In the dark theme they take the
-           app's band values — see BANDS in tailwind.tokens.ts. */
+           900 is 13.8:1, on 950 16.4:1. See BANDS in tailwind.tokens.ts. */
         'plug-navy': bandColors,
         /* The light end, for type and rules on the dark grounds. */
         'plug-sky': {
@@ -101,18 +94,6 @@ const config: Config = {
           elevated: '#05241E',
           card: '#0B332C',
         },
-      },
-      /* Type reads the text variants of each scale. `white` is not among them:
-         as type it is the label on dark buttons and bands, white in both themes. */
-      textColor: {
-        slate: neutralText,
-        'plug-slate': neutralText,
-        'plug-blue': brandText,
-        'plug-cyan': accentText,
-        cyan: accentText,
-        sky: accentText,
-        teal: accentText,
-        ...statusText,
       },
       /* As a ground, a border or a ring, white is a surface — see surface(). */
       backgroundColor: { white: surface },
@@ -279,9 +260,8 @@ const config: Config = {
         modal: 'var(--shadow-modal)',
       },
       backgroundImage: {
-        /* Carries the label in buttons and avatars. Light theme: forest to
-           mineral under white type (7.7:1 at the lighter end). Dark theme: the
-           app's turquoise gradient under pine type (--on-brand), see globals.css. */
+        /* Carries the label in buttons and avatars: forest to mineral under
+           white type (7.7:1 at the lighter end). */
         'gradient-brand': 'var(--gradient-brand)',
         /* For fills with nothing on them — progress bars, rules, stripes —
            where the turquoise end can show. Never put type on this one. */
@@ -389,13 +369,11 @@ const config: Config = {
     },
   },
   plugins: [
-    /* The theme's custom properties: light on :root, dark under .dark, and the
-       light set again on grounds that are dark in both themes. */
+    /* The palette's custom properties, on :root. `color-scheme: light` keeps
+       form controls and scrollbars light on a device set to dark mode. */
     plugin(({ addBase }) => {
       addBase({
-        ':root': { ...themeVars('light'), colorScheme: 'light' },
-        '.dark': { ...themeVars('dark'), colorScheme: 'dark' },
-        [ISLANDS.map((island) => `.dark ${island}`).join(', ')]: themeVars('light', { island: true }),
+        ':root': { ...themeVars(), colorScheme: 'light' },
       })
     }),
   ],

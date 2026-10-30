@@ -17,7 +17,6 @@ import {
 } from './BusinessDashboardSidebar'
 import { listingHref } from './listing-state'
 import { Logo } from '@/components/ui/Logo'
-import { ThemeMenu } from '@/components/layout/ThemeSwitcher'
 
 export interface BusinessDashboardLayoutProps {
   children: React.ReactNode
@@ -71,7 +70,6 @@ export function BusinessDashboardLayout({
               <ExternalLink size={14} aria-hidden="true" />
             </Link>
           ) : null}
-          <ThemeMenu tone="onSurface" />
         </div>
       </header>
 

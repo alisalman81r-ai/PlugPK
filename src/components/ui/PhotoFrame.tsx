@@ -17,13 +17,6 @@ export interface PhotoFrameProps {
   overlay?: boolean
   /** Scales the image on group-hover. Requires a `group` ancestor. */
   zoomOnHover?: boolean
-  /**
-   * A product shot on a white ground — the car photographs. In the dark theme
-   * the frame becomes the app's studio, mist to grey, and the photograph is
-   * multiplied into it, so its white ground takes the studio's colour instead
-   * of glaring out of a dark page. The light theme is unchanged.
-   */
-  studio?: boolean
   className?: string
 }
 
@@ -42,14 +35,12 @@ export function PhotoFrame({
   imageClassName,
   overlay = false,
   zoomOnHover = false,
-  studio = false,
   className,
 }: PhotoFrameProps) {
   return (
     <span
       className={cn(
         'absolute inset-0 block overflow-hidden bg-slate-100',
-        studio && 'dark:bg-[linear-gradient(to_bottom,#E9EEEC_0%,#C8D3CF_100%)]',
         className,
       )}
     >
@@ -62,7 +53,6 @@ export function PhotoFrame({
           priority={priority}
           className={cn(
             'object-cover',
-            studio && 'dark:mix-blend-multiply',
             // transform-only, so the hover stays on the compositor
             zoomOnHover &&
               'transition-transform duration-500 ease-out motion-reduce:transition-none group-hover:scale-[1.04]',

@@ -22,7 +22,6 @@ import { Avatar } from '@/components/ui/Avatar'
 import { NAV_LINKS, NAV_TOOLS } from '@/lib/constants'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
-import { ThemeSegmented } from './ThemeSwitcher'
 
 export interface MobileMenuProps {
   isOpen: boolean
@@ -149,12 +148,7 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
 
           <div className="flex-1" />
 
-          <div className="mt-8">
-            <p className="px-3 pb-2 text-ui-xs font-bold uppercase tracking-[0.16em] text-white/40">Appearance</p>
-            <ThemeSegmented tabIndex={isOpen ? undefined : -1} />
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-6">
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6">
             {user ? (
               <>
                 <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-3">
