@@ -1,5 +1,6 @@
 // src/components/cars/CarDetails.tsx
 import {
+  BadgeCheck,
   Banknote,
   BatteryCharging,
   Car as CarIcon,
@@ -22,6 +23,7 @@ import * as React from 'react'
 
 import { PhotoFrame } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
+import { getCarFeatures } from '@/data/car-features'
 import { getImageCredit } from '@/data/carImageCredits'
 import {
   carDisplayName,
@@ -34,9 +36,11 @@ import {
   getSimilarCars,
   specGroups,
 } from '@/lib/cars'
+import { RATES_CHECKED, RATES_FISCAL_YEAR, onRoadEstimates, onRoadProvinces } from '@/lib/onroad'
 import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
+import { OnRoadPrice } from './OnRoadPrice'
 
 /**
  * One car, in full.
@@ -148,6 +152,8 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
   const stats = headlineStats(car)
   const price = panelPrice(car)
   const name = carDisplayName(car)
+  const features = getCarFeatures(car.slug)
+  const onRoad = onRoadEstimates(car)
 
   const compareHref = `/cars/compare?ids=${[car.id, similar[0]?.id].filter(Boolean).join(',')}`
 
@@ -352,6 +358,18 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
         </p>
       ) : null}
 
+      {/* ── Price in Pakistan ─────────────────────────────────────
+          Only where at least one province has sourced rates. */}
+      {onRoad ? (
+        <OnRoadPrice
+          title={`${name} price in Pakistan`}
+          provinces={onRoadProvinces().filter((entry) => onRoad[entry.key])}
+          estimates={onRoad}
+          fiscalYear={RATES_FISCAL_YEAR}
+          checked={RATES_CHECKED}
+        />
+      ) : null}
+
       {/* ── Every published figure ─────────────────────────────────
           Grouped, so the charging figures sit together and a reader can find
           them without scanning everything; an empty group is dropped, so a PHEV
@@ -389,6 +407,56 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             )
           })}
         </div>
+
+        {/* ── Key features ─────────────────────────────────────────
+            What the Pakistan trim is equipped with, grouped. Only for a car
+            with a reviewed list in src/data/car-features.ts; there is no
+            empty version of this section. Columns rather than a grid, so the
+            groups pack by height instead of leaving holes under short ones. */}
+        {features ? (
+          <div className="mt-4 rounded-[1.5rem] bg-slate-100 px-5 py-5 sm:px-7 sm:py-6">
+            <h3 className="flex items-center gap-2.5 font-display text-[1.25rem] font-extrabold tracking-[-0.02em] text-slate-900">
+              <BadgeCheck size={20} aria-hidden="true" className="text-slate-500" />
+              Key features
+              {features.trim ? (
+                <span className="text-ui-sm font-semibold tracking-normal text-slate-500">· {features.trim}</span>
+              ) : null}
+            </h3>
+            <div className="mt-3 border-t border-slate-300/60 pt-5 sm:columns-2 sm:gap-12 lg:columns-3">
+              {features.groups.map((group) => (
+                <div key={group.title} className="mb-6 break-inside-avoid">
+                  <h4 className="font-display text-ui-lg font-extrabold tracking-[-0.01em] text-slate-900">
+                    {group.title}
+                  </h4>
+                  <ul className="mt-2 flex flex-col gap-2">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex gap-2.5 text-ui leading-snug text-slate-700">
+                        <span aria-hidden="true" className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-[1px] bg-slate-400" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="border-t border-slate-300/60 pt-4 text-ui-xs leading-relaxed text-slate-500">
+              Equipment as listed for the Pakistan model by{' '}
+              {/* One link per site: two brochures on the same site read as a
+                  repeated word otherwise. */}
+              {features.sources
+                .filter((source, index, all) => all.findIndex((other) => new URL(other).hostname === new URL(source).hostname) === index)
+                .map((source, index) => (
+                <React.Fragment key={source}>
+                  {index > 0 ? ', ' : null}
+                  <a href={source} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-slate-700">
+                    {new URL(source).hostname.replace(/^www\./, '')}
+                  </a>
+                </React.Fragment>
+              ))}
+              . Checked {features.checked}. Confirm with the dealer before you buy.
+            </p>
+          </div>
+        ) : null}
 
         {/* The research trail — which source said what, where two disagreed.
             Worth keeping for anyone checking the numbers, behind a disclosure

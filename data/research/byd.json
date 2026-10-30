@@ -1,0 +1,387 @@
+{
+  "byd-atto-2": {
+    "fills": {
+      "variant": {
+        "value": "Premium",
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "The spec table has a single column headed PREMIUM. Matches current DB."
+      },
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "'Electric Range: NEDC Combined Cycle (km) 380'. Matches DB."
+      },
+      "range": {
+        "value": 380,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "NEDC combined. Matches DB."
+      },
+      "batteryCapacity": {
+        "value": 45.12,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Matches DB."
+      },
+      "motorPowerKw": {
+        "value": 130,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Maximum power 130 kW. Matches DB. The flyer gives no hp figure."
+      },
+      "torque": {
+        "value": 290,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Matches DB."
+      },
+      "acceleration": {
+        "value": 7.9,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Matches DB."
+      },
+      "driveType": {
+        "value": "FWD",
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "'Front Wheel Drive'. Matches DB."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "'AC Charging Port - Type 2 (7 kW)'. Matches DB."
+      },
+      "connectors": {
+        "value": "CCS2,Type 2",
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Matches DB."
+      },
+      "batteryTech": {
+        "value": "BYD Blade Battery (LFP)",
+        "source": "https://www.byd-mega.com/brochure/new/atto-2-brochure-aug-2026.pdf",
+        "note": "The brochure says 'Blade Battery'. LFP is the Blade chemistry (the warranty box separately lists the 'low voltage LFP battery'). Matches DB."
+      },
+      "lengthMm": {
+        "value": 4310,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635"
+      },
+      "widthMm": {
+        "value": 1830,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635"
+      },
+      "heightMm": {
+        "value": 1675,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635"
+      },
+      "wheelbaseMm": {
+        "value": 2620,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Track 1,570 mm front and rear."
+      },
+      "kerbWeightKg": {
+        "value": 1550,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Kerb / GVW 1,550 / 1,925 kg. Matches DB."
+      }
+    },
+    "corrections": {
+      "dcCharging": {
+        "value": 82,
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "Mega Motor spec flyer (Jan 2026): DC Charging Port CCS 2 (82 kW). 65 kW came from an older price list."
+      },
+      "bootCapacityL": {
+        "value": 380,
+        "source": "https://www.byd-mega.com/brochure/new/atto-2-brochure-aug-2026.pdf",
+        "note": "BYD Pakistan brochure (Aug 2026): 380 L seats up, 1,320 L folded."
+      },
+      "notes": {
+        "value": "BYD Atto 2 Premium, per the Mega Motor spec flyer (Jan 2026) and the BYD Pakistan brochure (Aug 2026): 45.12 kWh Blade LFP, 130 kW / 290 Nm front motor, 7.9 s 0–100, 380 km NEDC, 82 kW DC (CCS2) and 7 kW AC (Type 2), V2L. 4310×1830×1675 mm, wheelbase 2620 mm, boot 380 L (1,320 L seats folded), kerb 1,550 kg, six airbags, 12.8-inch rotating screen. BYD Pakistan quotes a 30–80% DC charge in 30 minutes; the 38 minutes stored is the 10–80% figure reported at launch. Top speed and ground clearance are not published officially. PKR 7,290,000 with a booking of about 1,400,000. Mega Motor Company.",
+        "source": "https://cache1.pakwheels.com/system/brochures/1466/original/BYD_Atto_2_Flyer_Revised_03_%28Final_20012026%29.pdf?1768909635",
+        "note": "The old note said the 82 kW DC figure was unconfirmed and quoted a 400 L boot."
+      },
+      "warranty": {
+        "value": "Vehicle 6 years / 150,000 km; Blade battery 8 years / 160,000 km; low-voltage LFP battery 6 years / 150,000 km.",
+        "source": "https://www.byd-mega.com/brochure/new/atto-2-brochure-aug-2026.pdf",
+        "note": "Official BYD Pakistan brochure terms replace an incomplete or \"confirm with the dealer\" note."
+      }
+    }
+  },
+  "byd-atto-3-advanced": {
+    "fills": {
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "'410 km NEDC Driving Range'. Matches DB."
+      },
+      "range": {
+        "value": 410,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "NEDC. Matches DB."
+      },
+      "batteryCapacity": {
+        "value": 49.92,
+        "source": "https://www.byd-mega.com/vehicles/atto-3",
+        "note": "Matches DB."
+      },
+      "motorPowerKw": {
+        "value": 150,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "'150 kW peak power'. Matches DB."
+      },
+      "torque": {
+        "value": 310,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "Matches DB."
+      },
+      "acceleration": {
+        "value": 7.9,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "Matches the DB primary figure. The official PK sources give only 7.9 s, and the 7.3 s mentioned in our notes is not from a Pakistan source."
+      },
+      "dcCharging": {
+        "value": 88,
+        "source": "https://www.byd-mega.com/vehicles/atto-3",
+        "note": "'fast charging with a capacity of up to DC 88kW'. Matches DB. Our notes say no kW rating was published, but it is published here."
+      },
+      "batteryTech": {
+        "value": "BYD Blade Battery (LFP)",
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "Matches DB."
+      },
+      "lengthMm": {
+        "value": 4455,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf"
+      },
+      "widthMm": {
+        "value": 1875,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf"
+      },
+      "heightMm": {
+        "value": 1615,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf"
+      },
+      "wheelbaseMm": {
+        "value": 2720,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "Track 1,575 front / 1,580 rear mm."
+      }
+    },
+    "corrections": {
+      "rangeMax": {
+        "value": null,
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "The only official figure is a single 410 km NEDC; 420 km had no official source, and the row's own notes say no maximum is recorded."
+      },
+      "notes": {
+        "value": "BYD Atto 3 Advanced, per the BYD Pakistan brochure (Aug 2026) and byd-mega.com: 49.92 kWh Blade LFP, 150 kW / 310 Nm front motor, 7.9 s 0–100, 410 km NEDC (about 480 km is published elsewhere on WLTP; the two cycles are not a span). DC charging up to 88 kW, 30–80% in 29 minutes; AC about 7 kW. Seven airbags and a 15.6-inch rotating touchscreen. 4455×1875×1615 mm, wheelbase 2720 mm, 1,340 L luggage with seats folded. Top speed, kerb weight and ground clearance are not in official material. PKR 8,990,000. Mega Motor Company. The trim is carried in the model name rather than the variant field.",
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "The old note said no DC kW rating was published, and gave 6 airbags; both are contradicted by BYD Pakistan."
+      },
+      "warranty": {
+        "value": "Vehicle 6 years / 150,000 km; Blade battery 8 years / 160,000 km; low-voltage LFP battery 6 years / 150,000 km.",
+        "source": "https://www.byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf",
+        "note": "Official BYD Pakistan brochure terms replace an incomplete or \"confirm with the dealer\" note."
+      }
+    }
+  },
+  "byd-seal": {
+    "fills": {
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "'Electric Range: NEDC Combined Cycle'. The Mega Motor brochure also quotes NEDC (650 km, Premium)."
+      },
+      "batteryCapacity": {
+        "value": 61.44,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic. Premium is 82.56 kWh, the figure byd-mega.com headlines. Matches DB."
+      },
+      "motorPowerKw": {
+        "value": 150,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic, single rear PMSM. Premium is 230 kW."
+      },
+      "torque": {
+        "value": 310,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic. Premium is 360 Nm. Matches DB."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "'Rear Drive' for Dynamic (and Premium)."
+      },
+      "bodyType": {
+        "value": "Sedan (4-door)",
+        "source": "https://www.byd-mega.com/vehicles/seal",
+        "note": "The BYD Pakistan site calls it a sedan."
+      },
+      "seats": {
+        "value": 5,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Matches DB."
+      },
+      "dcCharging": {
+        "value": 110,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic: CCS2 110 kW. Premium/Performance: 150 kW. Matches DB."
+      },
+      "connectors": {
+        "value": "CCS2,Type 2",
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Matches DB."
+      },
+      "batteryTech": {
+        "value": "BYD Blade Battery (LFP)",
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf",
+        "note": "The brochure says 'BYD Blade Battery'. LFP is the Blade chemistry, as in the other BYD rows."
+      },
+      "lengthMm": {
+        "value": 4800,
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf",
+        "note": "The same in the regional spec table."
+      },
+      "widthMm": {
+        "value": 1875,
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf"
+      },
+      "heightMm": {
+        "value": 1460,
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf"
+      },
+      "wheelbaseMm": {
+        "value": 2920,
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf",
+        "note": "Track 1,620 / 1,625 mm. Turning radius 5.7 m."
+      },
+      "bootCapacityL": {
+        "value": 400,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Rear trunk 400 L plus a 50 L front trunk (the Mega Motor brochure also says 50 L frunk)."
+      },
+      "kerbWeightKg": {
+        "value": 1922,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic. Premium 2,055 kg, Performance 2,185 kg. GVM for Dynamic is 2,344 kg."
+      },
+      "warranty": {
+        "value": "Vehicle 6 years / 150,000 km; Blade battery 8 years / 160,000 km.",
+        "source": "https://www.byd-mega.com/brochure/BYD-SEAL.pdf"
+      }
+    },
+    "corrections": {
+      "variant": {
+        "value": "Dynamic",
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Pakistan sells the 61.44 kWh RWD car as \"Dynamic\"; \"Comfort\" is not a Pakistan trim name."
+      },
+      "range": {
+        "value": 510,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic, NEDC combined. 650 km is the Premium (82.56 kWh) figure."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "The row describes the Dynamic only, so there is no span."
+      },
+      "acceleration": {
+        "value": 7.5,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "Dynamic. 3.8 s is the AWD Performance, not sold in Pakistan; the Premium is 5.9 s."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "AC Charging Port Type 2 (7 kW) on every trim. 11 kW is a European figure."
+      },
+      "priceMin": {
+        "value": 14790000,
+        "source": "https://propakistani.pk/2026/06/12/here-are-byd-car-prices-after-budget-2026-27/amp/",
+        "note": "Seal Dynamic after Budget 2026-27: Rs 14.79 million. The row now describes the Dynamic only."
+      },
+      "priceMax": {
+        "value": 14790000,
+        "source": "https://propakistani.pk/2026/06/12/here-are-byd-car-prices-after-budget-2026-27/amp/",
+        "note": "Seal Dynamic only; the Premium (Rs 16.99 million) is a different trim with different figures."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.479 Cr",
+        "source": "https://propakistani.pk/2026/06/12/here-are-byd-car-prices-after-budget-2026-27/amp/",
+        "note": "Seal Dynamic, Rs 14,790,000."
+      },
+      "notes": {
+        "value": "BYD Seal Dynamic: 61.44 kWh Blade LFP, single 150 kW / 310 Nm rear motor, 7.5 s 0–100, 510 km NEDC, 110 kW DC (CCS2) and 7 kW AC (Type 2). Pakistan also sells the Seal Premium (82.56 kWh, 230 kW, 5.9 s, 650 km NEDC, 150 kW DC) at Rs 16.99 million, which is not this row. Trim figures come from a BYD spec table hosted by PakWheels whose trim names and dimensions match the BYD Pakistan (Mega Motor) brochure. Top speed and ground clearance are not published officially.",
+        "source": "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676",
+        "note": "The row had no notes; it now says which trim it describes and where the figures come from."
+      }
+    }
+  },
+  "byd-sealion-6": {
+    "fills": {},
+    "corrections": {
+      "availability": {
+        "value": "Not yet on sale. Shown at the Pakistan Auto Show (Lahore, 18–20 Sep 2026) as BYD Pakistan's first locally assembled model, with production targeted for late 2026. Trim, price and Pakistan specifications have not been announced.",
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-the-future-at-paps-2026-with-new-lineup-introducing-pakistans-first-locally-assembled-byd-sealion-6/",
+        "note": "There is no Sealion 6 page or brochure on byd-mega.com."
+      },
+      "notes": {
+        "value": "BYD's DM-i plug-in hybrid (BYD Pakistan calls its version Super DM-i). NOT YET ON SALE IN PAKISTAN: the price shown is indicative and has no official source, and the figures stored here come from international listings that mix the FWD Essential (215 hp, 8.5 s) and the AWD Premium (550 Nm). They will be replaced once BYD Pakistan publishes the local trim. The Sealion 7 in this catalogue is a full EV — a different car, one digit apart.",
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-the-future-at-paps-2026-with-new-lineup-introducing-pakistans-first-locally-assembled-byd-sealion-6/",
+        "note": "The old note did not say the car is unreleased or that its figures mix two trims."
+      }
+    }
+  },
+  "byd-sealion-7-advanced": {
+    "fills": {},
+    "corrections": {
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://byd-mega.com/brochure/new/sealion-7-brochure-aug-2026.pdf",
+        "note": "The BYD Pakistan brochure (Aug 2026) states the range as NEDC, not CLTC."
+      },
+      "range": {
+        "value": 567,
+        "source": "https://byd-mega.com/brochure/new/sealion-7-brochure-aug-2026.pdf",
+        "note": "Brochure: driving range (NEDC) up to 567 km. 450 km had no official source."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://byd-mega.com/brochure/new/sealion-7-brochure-aug-2026.pdf",
+        "note": "A single official figure, so no span."
+      },
+      "notes": {
+        "value": "Range 567 km on the NEDC cycle, per the BYD Pakistan brochure (Aug 2026); WLTP for comparable trims elsewhere is about 482 km, and no factor converts between cycles. The brochure lists 9 airbags and confirms 82.56 kWh, 230 kW, 380 Nm and 6.7 s. BYD Pakistan quotes a 30–80% DC charge within 30 minutes but no kW rating; the 150 kW stored is the international figure for this battery and motor. Ex-factory price is PKR 15,490,000 exactly; the headline figure is rounded to 1.55 Cr.",
+        "source": "https://byd-mega.com/brochure/new/sealion-7-brochure-aug-2026.pdf",
+        "note": "The old note called 567 km a CLTC figure."
+      },
+      "warranty": {
+        "value": "Vehicle 6 years or 150,000 km; Blade battery 8 years or 160,000 km; low-voltage LFP battery 6 years or 150,000 km.",
+        "source": "https://byd-mega.com/brochure/new/sealion-7-brochure-aug-2026.pdf",
+        "note": "Official BYD Pakistan brochure terms replace an incomplete or \"confirm with the dealer\" note."
+      }
+    }
+  },
+  "byd-shark-6": {
+    "fills": {
+      "range": {
+        "value": 800,
+        "source": "https://byd-mega.com/brochure/new/shark-6-brochure-aug-2026.pdf",
+        "note": "Combined petrol-electric range, 'up to 800 km (NEDC)'."
+      },
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://byd-mega.com/brochure/new/shark-6-brochure-aug-2026.pdf",
+        "note": "Electric range 100 km (NEDC)."
+      }
+    },
+    "corrections": {
+      "power": {
+        "value": 436,
+        "source": "https://byd-mega.com/brochure/new/shark-6-brochure-aug-2026.pdf",
+        "note": "Brochure and byd-mega.com: combined output 436 HP, 650 Nm — the metric figure for 321 kW. 430 was a mechanical-hp conversion."
+      },
+      "warranty": {
+        "value": "Vehicle 6 years or 150,000 km; Blade battery 8 years or 160,000 km; low-voltage LFP battery 6 years or 150,000 km.",
+        "source": "https://byd-mega.com/brochure/new/shark-6-brochure-aug-2026.pdf",
+        "note": "Official BYD Pakistan brochure terms replace an incomplete or \"confirm with the dealer\" note."
+      }
+    }
+  }
+}
