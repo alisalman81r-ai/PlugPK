@@ -8,13 +8,16 @@ import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import { useFavouriteCars } from '@/hooks/useFavouriteCars'
 import { filtersToParams, paramsToFilters, type CarFilterState, type CarSort } from '@/lib/cars'
 
+import { CarHero } from './CarHero'
 import { CarsBrowser } from './CarsBrowser'
 
 /**
  * The cars page, and the single owner of its state.
  *
- * A title, a toolbar and the grid — the cars start on the first screen. Search,
- * filters and sort live here and are mirrored into the URL, so a filtered view
+ * The dark hero every directory opens with, holding the search and the brand,
+ * then the toolbar and the grid. Search, filters and sort live here, because
+ * the hero and the toolbar both write them, and are mirrored into the URL so a
+ * filtered view
  * can be sent to somebody, bookmarked, or returned to with the back button:
  *
  *   - Initial state is read from the query string, so a shared link opens the
@@ -62,37 +65,52 @@ export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplo
     return () => window.clearTimeout(timer)
   }, [query, filters, sort, pathname, router])
 
-  return (
-    <section className="bg-slate-50 pb-20 pt-8 sm:pt-12 lg:pt-14">
-      <div className="container-plug">
-        <header className="mb-7 sm:mb-9">
-          <h1 className="font-display text-[2.5rem] font-black leading-none tracking-[-0.035em] text-slate-900 sm:text-[3.25rem]">
-            Cars
-          </h1>
-          <p className="mt-3 max-w-2xl text-ui-lg leading-relaxed text-slate-600">
-            {cars.length} electric, plug-in hybrid and hybrid cars on sale in Pakistan — prices, range and charging,
-            as published.
-          </p>
-        </header>
+  const resultsRef = React.useRef<HTMLElement>(null)
+  const heroBrand = filters.brands.length === 1 ? (filters.brands[0] ?? null) : null
 
-        <CarsBrowser
-          cars={cars}
-          brands={brands}
-          categories={categories}
-          connectors={connectors}
-          query={query}
-          onQueryChange={setQuery}
-          filters={filters}
-          onFiltersChange={setFilters}
-          sort={sort}
-          onSortChange={setSort}
-          favouriteIds={favourites.ids}
-          onToggleFavourite={(car) => favourites.toggle(car.id)}
-          savedOnly={savedOnly}
-          onSavedOnlyChange={setSavedOnly}
-        />
-      </div>
-    </section>
+  /* The hero's figures describe the catalogue as a whole, not the filtered
+     grid: the grid has its own live count right above it. */
+  const stats = React.useMemo(
+    () => [
+      { value: String(cars.length), label: 'Cars' },
+      { value: String(brands.length), label: 'Brands' },
+      { value: String(cars.filter((car) => car.category === 'EV').length), label: 'Full EV' },
+    ],
+    [cars, brands],
+  )
+
+  return (
+    <>
+      <CarHero
+        query={query}
+        onQueryChange={setQuery}
+        brand={heroBrand}
+        onBrandChange={(brand) => setFilters((current) => ({ ...current, brands: brand ? [brand] : [] }))}
+        brands={brands}
+        stats={stats}
+        onSubmit={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+      />
+
+      <section ref={resultsRef} className="scroll-mt-20 bg-slate-50 pb-20 pt-8 sm:pt-10">
+        <div className="container-plug">
+          <CarsBrowser
+            cars={cars}
+            categories={categories}
+            connectors={connectors}
+            query={query}
+            onQueryChange={setQuery}
+            filters={filters}
+            onFiltersChange={setFilters}
+            sort={sort}
+            onSortChange={setSort}
+            favouriteIds={favourites.ids}
+            onToggleFavourite={(car) => favourites.toggle(car.id)}
+            savedOnly={savedOnly}
+            onSavedOnlyChange={setSavedOnly}
+          />
+        </div>
+      </section>
+    </>
   )
 }
 

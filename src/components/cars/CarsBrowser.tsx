@@ -5,7 +5,6 @@ import {
   Car as CarIcon,
   ChevronDown,
   GitCompareArrows,
-  Search,
   SlidersHorizontal,
   X,
 } from '@/components/ui/icons'
@@ -33,9 +32,8 @@ import { MAX_COMPARE, useComparedCars } from './compare-selection'
 /**
  * The catalogue: one toolbar, one grid.
  *
- * The toolbar carries the cuts a buyer makes first — a search, the powertrain,
- * the brand — in one row above the grid, so the cars start on the first screen
- * instead of below a hero. The finer filters (battery, range, power, plug) are
+ * The hero above holds the search and the brand; the toolbar here carries the
+ * powertrain, the cut a buyer makes next, right above the grid. The finer filters (battery, range, power, plug) are
  * behind the filter button in a panel, since few visitors reach for them and
  * a permanent sidebar cost the grid a third of its width.
  *
@@ -49,7 +47,6 @@ import { MAX_COMPARE, useComparedCars } from './compare-selection'
 
 export interface CarsBrowserProps {
   cars: Car[]
-  brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
   query: string
@@ -98,7 +95,6 @@ function panelFilterCount(filters: CarFilterState): number {
 
 export function CarsBrowser({
   cars,
-  brands,
   categories,
   connectors,
   query,
@@ -140,7 +136,6 @@ export function CarsBrowser({
 
   const panelCount = panelFilterCount(filters)
   const isFiltered = hasActiveFilters(filters) || query.trim().length > 0 || savedOnly
-  const selectedBrand = filters.brands.length === 1 ? (filters.brands[0] ?? '') : ''
 
   // Back to the first page whenever the set being drawn changes.
   const resultsKey = JSON.stringify([query, filters, sort, savedOnly])
@@ -181,42 +176,13 @@ export function CarsBrowser({
        row's buttons are never underneath it. More below lg, where the tray sits
        on top of the mobile tab bar. */
     <div className={cn(compared.length > 0 && 'pb-40 lg:pb-24')}>
-      {/* ── Toolbar ─────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
-        <label className="relative block w-full lg:w-[20rem] lg:shrink-0">
-          <span className="sr-only">Search cars</span>
-          <Search
-            size={18}
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Search by car or brand…"
-            className={cn(
-              'h-12 w-full rounded-full border border-slate-200 bg-white pl-11 pr-11 text-ui text-slate-900',
-              'placeholder:text-slate-400 outline-none transition-colors',
-              'hover:border-slate-300 focus:border-plug-blue-500 focus:ring-4 focus:ring-plug-cyan-500/15',
-              '[&::-webkit-search-cancel-button]:appearance-none',
-            )}
-          />
-          {query ? (
-            <button
-              type="button"
-              onClick={() => onQueryChange('')}
-              aria-label="Clear search"
-              className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-            >
-              <X size={16} aria-hidden="true" />
-            </button>
-          ) : null}
-        </label>
-
+      {/* ── Toolbar ─────────────────────────────────────────────────
+          The search and the brand are in the hero above; this row carries the
+          powertrain and the finer filters, next to the grid they cut. */}
+      <div className="flex items-center gap-3">
         {/* The powertrain pills scroll sideways on a phone rather than wrap: a
             second row of pills pushes the cars further down for no gain. */}
-        <div className="-mx-4 flex min-w-0 items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+        <div className="-ml-4 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pl-4 [scrollbar-width:none] sm:ml-0 sm:pl-0 [&::-webkit-scrollbar]:hidden">
           <Pill
             active={filters.categories.length === 0 && !savedOnly}
             onClick={() => {
@@ -249,53 +215,24 @@ export function CarsBrowser({
             </>
           ) : null}
         </div>
-
-        <div className="flex shrink-0 items-center gap-2 lg:ml-auto">
-          <label className="relative flex-1 lg:flex-none">
-            <span className="sr-only">Brand</span>
-            <select
-              value={selectedBrand}
-              onChange={(event) =>
-                onFiltersChange({ ...filters, brands: event.target.value ? [event.target.value] : [] })
-              }
-              className={cn(SELECT, 'w-full lg:w-auto lg:min-w-[10.5rem]', selectedBrand && 'border-slate-900')}
-            >
-              {/* Several brands can arrive in a shared link; say so rather than
-                  show "All brands" while the grid is cut to them. */}
-              {filters.brands.length > 1 ? <option value="">{filters.brands.length} brands</option> : null}
-              <option value="">All brands</option>
-              {brands.map((brand) => (
-                <option key={brand} value={brand}>
-                  {brand}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={16}
-              aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
-            />
-          </label>
-
-          <button
-            type="button"
-            onClick={() => setPanelOpen(true)}
-            aria-label={panelCount > 0 ? `More filters, ${panelCount} on` : 'More filters'}
-            aria-haspopup="dialog"
-            className={cn(
-              'relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-white text-slate-700 transition-colors',
-              'hover:border-slate-400 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-              panelCount > 0 ? 'border-slate-900' : 'border-slate-200',
-            )}
-          >
-            <SlidersHorizontal size={18} aria-hidden="true" />
-            {panelCount > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-cyan-500 px-1 text-[0.6875rem] font-bold text-plug-navy-950">
-                {panelCount}
-              </span>
-            ) : null}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setPanelOpen(true)}
+          aria-label={panelCount > 0 ? `More filters, ${panelCount} on` : 'More filters'}
+          aria-haspopup="dialog"
+          className={cn(
+            'relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-white text-slate-700 transition-colors',
+            'hover:border-slate-400 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+            panelCount > 0 ? 'border-slate-900' : 'border-slate-200',
+          )}
+        >
+          <SlidersHorizontal size={18} aria-hidden="true" />
+          {panelCount > 0 ? (
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-cyan-500 px-1 text-[0.6875rem] font-bold text-plug-navy-950">
+              {panelCount}
+            </span>
+          ) : null}
+        </button>
       </div>
 
       {/* ── Results line ───────────────────────────────────────── */}
@@ -507,12 +444,6 @@ export function CarsBrowser({
     </div>
   )
 }
-
-/** The brand select's pill. */
-const SELECT = cn(
-  'h-12 appearance-none rounded-full border border-slate-200 bg-white pl-5 pr-10 text-ui font-semibold text-slate-900',
-  'outline-none transition-colors hover:border-slate-400 focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-)
 
 /**
  * One powertrain pill. The count is shown on every pill, zero included, so a
