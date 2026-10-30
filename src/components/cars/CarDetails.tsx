@@ -214,7 +214,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           {/* The trim lives inside the h1, on its own smaller line: the heading
               is the page's one statement of which car this is, and a crawler
               and a screen reader both read it as one string. */}
-          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-slate-900">
+          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-dark-base">
             {car.model}
             {car.variant ? (
               <span className="mt-2 block text-[clamp(1.0625rem,1.8vw,1.375rem)] font-bold leading-snug tracking-[-0.01em] text-slate-500">
@@ -270,7 +270,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           {/* The trim names the figures below, so it heads them — only when the
               row declares one; otherwise the h1 above has already said it. */}
           {car.variant ? (
-            <p className="mb-4 font-display text-[1.5rem] font-extrabold leading-tight tracking-[-0.02em] text-slate-900">
+            <p className="mb-4 font-display text-[1.5rem] font-extrabold leading-tight tracking-[-0.02em] text-dark-base">
               {car.variant}
             </p>
           ) : null}

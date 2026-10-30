@@ -162,7 +162,7 @@ export function CarCard({
 
       {/* ── Name, context, the figure ───────────────────────────── */}
       <div className="flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-        <h3 className="truncate font-display text-[1.375rem] font-extrabold leading-tight tracking-[-0.02em] text-slate-900 sm:text-[1.5rem]">
+        <h3 className="truncate font-display text-[1.375rem] font-extrabold leading-tight tracking-[-0.02em] text-dark-base sm:text-[1.5rem]">
           {car.model}
         </h3>
         <p className="mt-1 truncate text-ui-sm text-slate-600" title={meta}>
