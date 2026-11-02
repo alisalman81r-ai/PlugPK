@@ -1890,6 +1890,227 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://paknev.com/cars/changan-lumin'],
     checked: '2026-11-02',
   },
+
+  // Chery, from Chery Master Pakistan's brochures (the Tiggo 9's spec pages are
+  // images, read from the rendered pages) and its Tiggo 8 training deck, with
+  // PakNEV for the Chery Q. The Tiggo Cross is not sold here and has none.
+  'chery-tiggo-7-phev': {
+    trim: 'Premium (FWD)',
+    groups: {
+      'Safety': [
+        'Eight airbags, including a driver knee and a centre airbag',
+        'ABS, EBD, brake assist, stability control, hill hold and hill descent',
+        'Tyre pressure monitoring (TPMS)',
+        'Multi-collision braking',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 ADAS: adaptive cruise control with integrated cruise assist',
+        'Automatic emergency braking and forward collision warning',
+        'Lane departure warning and prevention, lane change assist',
+        'Blind spot detection, rear collision warning and door opening warning',
+        'Rear cross traffic alert and braking',
+        'Traffic jam assist and driver monitoring',
+      ],
+      'Parking': [
+        '540° camera with transparent-chassis view',
+        'Front and rear parking radar',
+      ],
+      'Powertrain & Charging': [
+        'Fifth-generation Super Hybrid: 1.5 TGDI with dedicated hybrid transmission',
+        '342 hp and 525 Nm, 90+ km on electricity, 1,200+ km combined',
+        '40 kW DC charging; 7 kW wallbox and portable charger supplied',
+        'Vehicle-to-load (3.3 kW)',
+        'Eco, Normal and Sport modes',
+      ],
+      'Infotainment & Connectivity': [
+        '24.6-inch dual curved display (12.3 + 12.3 inches)',
+        'Snapdragon 8155 chip and smart voice assistant',
+        'Apple CarPlay and Android Auto',
+        '8-speaker Sony sound system',
+        'Chery mobile app',
+      ],
+      'Seats & Interior': [
+        'Faux-leather seats',
+        'Heated and ventilated front seats',
+        '6-way electric driver seat with memory and 4-way electric passenger seat',
+        '64-colour ambient lighting',
+        '60:40 split rear seats',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control with N95 filter and rear vents',
+        '50 W wireless charger',
+        'Hands-free power tailgate',
+        'Heated and cooled front armrest',
+        'Qibla compass',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof with shade',
+        'Infinity tail lamps',
+        'Heated, auto-folding mirrors with memory',
+        '18-inch alloy wheels',
+      ],
+    },
+    sources: ['https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949'],
+    checked: '2026-11-02',
+  },
+  'chery-tiggo-8-phev': {
+    trim: 'Premium (AWD)',
+    groups: {
+      'Safety': [
+        'Ten airbags',
+        'ISOFIX child-seat anchors',
+        'Tyre pressure monitoring (TPMS)',
+        'IP68-rated battery pack with fast high-voltage cut-off',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 ADAS with 19 functions',
+        'Adaptive cruise control and traffic jam assist',
+        'Automatic emergency braking',
+        'Lane departure warning and prevention',
+        'Blind spot monitoring',
+        'Driver monitoring system',
+      ],
+      'Parking': [
+        '540° camera',
+        'Reversing camera with rear radar',
+      ],
+      'Powertrain & Charging': [
+        'Super Hybrid with all-wheel drive, 496 hp and 735 Nm',
+        '90 km on electricity (WLTC), 1,200+ km combined',
+        'DC fast charging: 30–80% in 20 minutes',
+        'Vehicle-to-load (3.3 kW)',
+      ],
+      'Infotainment & Connectivity': [
+        '15.6-inch 2.5K touchscreen with Snapdragon 8155 chip',
+        'Windscreen head-up display (W-HUD)',
+        '12 Sony speakers with headrest speakers',
+        'Apple CarPlay and Android Auto',
+      ],
+      'Seats & Interior': [
+        'Seven seats (5+2)',
+        'Heated, ventilated and massaging electric front seats',
+        '64-colour ambient lighting',
+        'Leather multi-function steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone climate control with rear AC',
+        '50 W ventilated wireless charger',
+        'Power tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Voice-controlled panoramic sunroof',
+        'Matrix LED headlights',
+        'Concealed door handles and metal roof rails',
+        'Rain-sensing wipers',
+        '19-inch alloy wheels',
+      ],
+    },
+    sources: ['https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706', 'https://paknev.com/cars/chery-tiggo-8-phev'],
+    checked: '2026-11-02',
+  },
+  'chery-tiggo-9-phev': {
+    trim: 'Premium (AWD)',
+    groups: {
+      'Safety': [
+        'Front, front side, curtain, second-row side, knee and far-side airbags',
+        'ABS, EBD, brake assist, stability and traction control, hill hold and hill descent',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control with integrated cruise assist',
+        'Automatic emergency braking and forward collision warning',
+        'Lane departure warning and prevention, lane change assist',
+        'Blind spot detection, rear collision warning and door opening warning',
+        'Rear cross traffic alert and traffic jam assist',
+        'Driver monitoring and intelligent high beam',
+      ],
+      'Parking': [
+        'Automatic parking assist',
+        '540° camera with transparent-chassis view',
+        'Front, rear and side radar',
+      ],
+      'Powertrain & Charging': [
+        'Three motors and all-wheel drive: 610 hp and 920 Nm, 0–100 km/h in 5.4 s',
+        '170 km on electricity and up to 1,400 km combined (NEDC)',
+        'DC charging up to 71 kW (CCS2)',
+        'Vehicle-to-load (6.6 kW)',
+        'Six drive modes: Eco, Normal, Sport, Snow, Sand and Off-road',
+      ],
+      'Infotainment & Connectivity': [
+        '15.6-inch touchscreen and 10.25-inch instrument display',
+        'W-HUD head-up display',
+        '14 Sony speakers, including headrest speakers',
+        'Apple CarPlay and Android Auto',
+        'Snapdragon 8155 chip and smart voice assistant',
+      ],
+      'Seats & Interior': [
+        'Leather seats for seven',
+        'Heated, ventilated and massaging front seats with memory',
+        'Heated and ventilated second-row seats',
+        'Heated steering wheel with electric adjustment',
+        '64-colour ambient lighting and second-row privacy curtains',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone climate control with second-row controls and independent third-row AC',
+        'PM0.3 filter and negative-ion air purifier',
+        '50 W ventilated wireless charger',
+        'Hands-free power tailgate',
+        'Trailer hook and Qibla compass',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof with full electric shade',
+        'LED headlights and taillights with dynamic turn signals',
+        'Heated, auto-folding mirrors with memory',
+        '20-inch alloy wheels',
+      ],
+    },
+    sources: ['https://cache4.pakwheels.com/system/brochures/1474/original/Chery_T9_Brochure-Final_Single_page.pdf?1770896912'],
+    checked: '2026-11-02',
+  },
+  'chery-q': {
+    trim: 'Premium',
+    groups: {
+      'Safety': [
+        'Six airbags',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control',
+        'Lane keep assist',
+        'Blind spot monitoring',
+        'Forward collision warning',
+        'Rear cross traffic alert',
+      ],
+      'Parking': [
+        'Automatic parking assist',
+        '540° camera',
+      ],
+      'Powertrain & Charging': [
+        '42.7 kWh LFP battery, 400 km (NEDC)',
+        'DC fast charging: 30–80% in about 17 minutes',
+        'Vehicle-to-load (6.6 kW)',
+      ],
+      'Infotainment & Connectivity': [
+        '15.6-inch touchscreen and 8.8-inch digital cluster',
+        'Apple CarPlay and Android Auto',
+        'Six-speaker audio',
+      ],
+      'Seats & Interior': [
+        '6-way powered driver seat',
+      ],
+      'Comfort & Convenience': [
+        '50 W wireless charger',
+        'Power tailgate',
+        'Electric front trunk',
+      ],
+      'Exterior & Lighting': [
+        'LED daytime running lights',
+        '17-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/chery-q'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain

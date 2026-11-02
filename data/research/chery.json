@@ -1,0 +1,63 @@
+{
+  "chery-tiggo-7-phev": {
+    "corrections": {
+      "priceMin": { "value": 9499000, "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "Chery's price notification effective 17 September 2026 cut the Tiggo 7 PHEV by Rs 5 lakh to PKR 9,499,000 (PakNEV; PakNEV's model page the same). July list price PKR 10,949,000." },
+      "priceMax": { "value": 9499000, "source": "https://paknev.com/cars/chery-tiggo-7-phev", "note": "Single Premium (FWD) version." },
+      "priceDisplay": { "value": "PKR 94.99 Lakh (limited time)", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "Chery calls the September prices limited-time, for limited stock; the July list price is PKR 1.09 Cr." },
+      "rangeStandard": { "value": null, "source": "https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949", "note": "Cleared: Chery's brochure gives the 1,200+ km combined range without a test cycle, so the WLTP label had no source." },
+      "electricRangeStandard": { "value": "NEDC", "source": "https://paknev.com/cars/chery-tiggo-7-phev", "note": "PakNEV: 90 km (NEDC). The brochure says '90+ km' without a cycle." },
+      "acCharging": { "value": 7, "source": "https://paknev.com/cars/chery-tiggo-7-phev", "note": "PakNEV: Max AC 7 kW, the rate of the 7 kW wallbox Chery supplies." },
+      "consumption": { "value": 18, "source": "https://paknev.com/cars/chery-tiggo-7-phev", "note": "PakNEV: 18 kWh/100 km in electric mode (estimate)." },
+      "availability": { "value": "On sale through Chery Master Pakistan, locally assembled. The September 2026 price applies to orders already placed and to new orders for limited stock and a limited time.", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "PakNEV on Chery's 17 September price notification." },
+      "warranty": { "value": "Vehicle 6 years / 150,000 km; battery 8 years / 160,000 km.", "source": "https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949", "note": "Chery Pakistan brochure, whichever comes first." },
+      "notes": { "value": "Chery Tiggo 7 Premium PHEV (FWD), locally assembled by Chery Master Pakistan. Per Chery's Pakistan brochure: fifth-generation Super Hybrid with a 1.5 TGDI engine (1,499 cc), a dedicated hybrid transmission (DHT) and one motor, 255 kW (342 hp) and 525 Nm combined, front-wheel drive, 0–100 km/h in 8.4 s, 18.3 kWh battery, 90+ km on electricity (NEDC per PakNEV) and 1,200+ km combined from the 60 L tank. DC charging 40 kW; a 7 kW wallbox and a portable charger are supplied; vehicle-to-load 3.3 kW. 4,553 × 1,862 × 1,696 mm on a 2,670 mm wheelbase, 175 mm ground clearance, 18-inch wheels on 225/60 R18, 565 L boot (1,386 L with the rear seats folded), 1,785 kg, 5 seats. Equipment includes 8 airbags, a 540° camera, Level 2 ADAS, a 24.6-inch dual curved display, 8 Sony speakers, heated and ventilated front seats and a panoramic sunroof. PKR 9,499,000 from 17 September 2026 for limited stock (July list price PKR 10,949,000). Warranty 6 years / 150,000 km, battery 8 years / 160,000 km. Sources: Chery Pakistan brochure, PakNEV.", "source": "https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949", "note": "Rewritten from the brochure with the September price." }
+    }
+  },
+  "chery-tiggo-8-phev": {
+    "corrections": {
+      "priceMin": { "value": 10999000, "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "Chery's 17 September 2026 notification cut the Tiggo 8 PHEV by Rs 5 lakh to PKR 10,999,000 (PakNEV). July list price PKR 12,999,000." },
+      "priceMax": { "value": 10999000, "source": "https://paknev.com/cars/chery-tiggo-8-phev", "note": "Single Premium (AWD) version." },
+      "priceDisplay": { "value": "PKR 1.10 Cr (limited time)", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "Limited-time price for limited stock; July list price PKR 1.30 Cr." },
+      "bootCapacityL": { "value": 494, "source": "https://paknev.com/cars/chery-tiggo-8-phev", "note": "PakNEV: 494 L." },
+      "consumption": { "value": 18, "source": "https://paknev.com/cars/chery-tiggo-8-phev", "note": "PakNEV: 18 kWh/100 km in electric mode (estimate)." },
+      "availability": { "value": "On sale through Chery Master Pakistan, locally assembled. The September 2026 price applies to orders already placed and to new orders for limited stock and a limited time.", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "PakNEV on Chery's 17 September price notification." },
+      "warranty": { "value": "Vehicle 6 years / 150,000 km; battery 8 years / 160,000 km.", "source": "https://paknev.com/cars/chery-tiggo-8-phev", "note": "PakNEV warranty section; the same terms as Chery's Tiggo 7 and Tiggo 9." },
+      "notes": { "value": "Chery Tiggo 8 Premium PHEV, a seven-seat SUV locally assembled by Chery Master Pakistan. 1.5 TGDI engine (1,499 cc) with Chery's Super Hybrid system and all-wheel drive; Pakistan figures 496 hp and 735 Nm, 0–100 km/h in 6.8 s, 180 km/h. Per Chery's training deck: 90 km on electricity (WLTC) and 1,200+ km combined; AC 6.6 kW (about 3 hours) and DC 40 kW with 30–80% in 20 minutes; vehicle-to-load 3.3 kW; 10 airbags, a 15.6-inch 2.5K screen with W-HUD, 12 Sony speakers and a 540° camera. 4,725 × 1,860 × 1,705 mm on a 2,710 mm wheelbase, 200 mm ground clearance, 494 L boot (PakNEV), 2,063 kg, 7 seats. Battery reported as 19.27 kWh (PakNEV says 18.3 kWh). PKR 10,999,000 from 17 September 2026 for limited stock (July list price PKR 12,999,000). Warranty 6 years / 150,000 km, battery 8 years / 160,000 km. Sources: Chery training deck, PakNEV, PakWheels.", "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706", "note": "Rewritten with the September price; the old note called ground clearance, boot and weight unconfirmed, which the row now has." }
+    }
+  },
+  "chery-tiggo-9-phev": {
+    "corrections": {
+      "priceMin": { "value": 14299000, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV: PKR 14,299,000 (the limited-time price; July list price PKR 15,749,000)." },
+      "priceMax": { "value": 14299000, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "Single Premium (AWD) version." },
+      "priceDisplay": { "value": "PKR 1.43 Cr (limited time)", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "Limited-time price; July list price PKR 1.57 Cr." },
+      "range": { "value": 1400, "source": "https://cache4.pakwheels.com/system/brochures/1474/original/Chery_T9_Brochure-Final_Single_page.pdf?1770896912", "note": "Chery Pakistan brochure spec table: 'Combine Comprehensive Range: Up to 1400 km (NEDC)'." },
+      "rangeStandard": { "value": "NEDC", "source": "https://cache4.pakwheels.com/system/brochures/1474/original/Chery_T9_Brochure-Final_Single_page.pdf?1770896912", "note": "The brochure labels the combined range NEDC. The WLTP label previously stored had no source." },
+      "acCharging": { "value": 7, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV: Max AC 7 kW." },
+      "bootCapacityL": { "value": 448, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV: 448 L." },
+      "consumption": { "value": 19, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV: 19 kWh/100 km in electric mode (estimate)." },
+      "realWorldRange": { "value": 124, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV real-world electric estimate 124 km." },
+      "realWorldRangeMax": { "value": null, "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "Cleared: one figure." },
+      "availability": { "value": "On sale through Chery Master Pakistan, locally assembled; bookings opened at launch in February 2026.", "source": "https://profit.pakistantoday.com.pk/2026/02/14/chery-prices-tiggo-9-phev-at-rs13-69-million-in-pakistan/", "note": "Launch report." },
+      "warranty": { "value": "Vehicle 6 years / 150,000 km; battery 8 years / 160,000 km.", "source": "https://paknev.com/cars/chery-tiggo-9-phev", "note": "PakNEV warranty section." },
+      "notes": { "value": "Chery Tiggo 9 Premium PHEV (AWD), the seven-seat flagship, locally assembled by Chery Master Pakistan. Per Chery's Pakistan brochure: 1.5 TGDI engine (1,499 cc) with three motors and a 3-speed DHT, 455 kW (610 hp) and 920 Nm combined, all-wheel drive, 0–100 km/h in 5.4 s, 34.46 kWh battery, 170 km electric range and up to 1,400 km combined (both NEDC) from the 70 L tank, six drive modes including Snow, Sand and Off-road. DC charging up to 71 kW through CCS2, AC 7 kW (PakNEV), vehicle-to-load 6.6 kW. 4,810 × 1,925 × 1,741 mm on a 2,800 mm wheelbase, 147/183 mm ground clearance laden/unladen, 20-inch wheels on Cooper 245/50 R20, 448 L boot (PakNEV), 2,308 kg, 7 seats. Equipment includes front, side, curtain, second-row side, knee and far-side airbags; a 540° camera and automatic parking; full ADAS; a 15.6-inch screen, 10.25-inch cluster and W-HUD; 14 Sony speakers; heated, ventilated and massaging front seats; heated and ventilated second-row seats; and a panoramic roof with full electric shade. PKR 14,299,000 for limited stock (July list price PKR 15,749,000; launch price PKR 13,694,000). Warranty 6 years / 150,000 km, battery 8 years / 160,000 km. Sources: Chery Pakistan brochure, PakNEV, Profit.", "source": "https://cache4.pakwheels.com/system/brochures/1474/original/Chery_T9_Brochure-Final_Single_page.pdf?1770896912", "note": "Rewritten from the brochure; the old note doubted the NEDC figures and the AC/DC rates, which the brochure settles." }
+    }
+  },
+  "chery-q": {
+    "corrections": {
+      "variant": { "value": "Premium", "source": "https://paknev.com/cars/chery-q", "note": "Single Pakistan version." },
+      "acceleration": { "value": 10.5, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV: 0–100 km/h 10.5 s." },
+      "dcCharging": { "value": 85, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV: Max DC 85 kW." },
+      "dcChargingMinutes": { "value": 17, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV: 'Chery quotes 30–80% in 17 min'. The 40 min previously stored had no stated window." },
+      "dcChargingFromPct": { "value": 30, "source": "https://paknev.com/cars/chery-q", "note": "Chery's quoted DC time is for 30–80%." },
+      "kerbWeightKg": { "value": 1450, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV: 1,450 kg." },
+      "realWorldRange": { "value": 310, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV real-world estimate 310 km." },
+      "consumption": { "value": 9.4, "source": "https://paknev.com/cars/chery-q", "note": "PakNEV: 9.4 kWh/100 km (estimate)." },
+      "priceDisplay": { "value": "PKR 55.54 Lakh (launch price)", "source": "https://paknev.com/cars/chery-q", "note": "Unchanged: PKR 5,554,000, a limited-time introductory price from the 18 September 2026 launch." }
+    }
+  },
+  "chery-tiggo-cross-hev": {
+    "corrections": {
+      "availability": { "value": "Not sold in Pakistan: Chery Master Pakistan sells only the Q and the Tiggo 7, 8 and 9 PHEV, and no Pakistani launch, price or spec sheet has been announced for the Tiggo Cross (November 2026). The figures shown are the global specification.", "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut", "note": "PakNEV's coverage of Chery's lineup lists only plug-in hybrids ('every hybrid Chery sells here is a plug-in') and the Q; PakNEV has no Tiggo Cross page." }
+    }
+  }
+}
