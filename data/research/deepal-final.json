@@ -1,0 +1,14 @@
+{
+  "deepal-s05-reev": {
+    "corrections": {
+      "connectors": { "value": "CCS2,Type 2", "source": "https://paknev.com/cars/deepal-s05", "note": "The S05 charges on DC (54.5 kW, 30–80% in 20 min per the Deepal brochure), so it has a CCS2 inlet as well as Type 2; PakNEV lists both. The row had Type 2 only." },
+      "consumption": { "value": 16.6, "source": "https://paknev.com/cars/deepal-s05", "note": "PakNEV: 16.6 kWh/100 km in electric mode (estimate)." },
+      "availability": { "value": "On sale through Master Changan (Deepal Pakistan). Launch package includes a free 7 kW wall-mounted charger.", "source": "https://deepal.com.pk/s5", "note": "deepal.com.pk: price PKR 9,999,000 including freight, 'Exclusive Launch Package: Free 7kW Wall Mounted Charger'." }
+    }
+  },
+  "deepal-e07": {
+    "corrections": {
+      "availability": { "value": "On sale through Master Changan (Deepal Pakistan). Launch package includes a free 7 kW wall-mounted charger.", "source": "https://deepal.com.pk/e7", "note": "deepal.com.pk: price PKR 19,000,000 including freight, 'Exclusive Launch Package: Free 7kW Wall Mounted Charger'." }
+    }
+  }
+}
