@@ -1,0 +1,101 @@
+{
+  "audi-e-tron-gt": {
+    "corrections": {
+      "variant": {
+        "value": "RS",
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "One e-tron GT listing: the RS, whose price is the best confirmed (PKR 57,000,000 on both PakWheels, updated 14-01-2026, and PakNEV). The quattro's price disagrees between sources (PKR 4.4 Cr on PakNEV, 5.8 Cr on Gari.pk) and is in the notes."
+      },
+      "priceMin": {
+        "value": 57000000,
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "RS e-tron GT PKR 57,000,000 ex-factory (PakWheels; PakNEV the same)."
+      },
+      "priceMax": {
+        "value": 57000000,
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "RS only."
+      },
+      "priceDisplay": {
+        "value": "PKR 5.7 Cr",
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "Listed ex-factory price."
+      },
+      "power": {
+        "value": 590,
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "PakWheels: 590 hp (440 kW), 637 hp with boost."
+      },
+      "motorPowerKw": {
+        "value": 440,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 440 kW peak, 475 kW with boost."
+      },
+      "torque": {
+        "value": 830,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 830 Nm."
+      },
+      "acceleration": {
+        "value": 3.3,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 0–100 km/h 3.3 s with boost (3.6 s without)."
+      },
+      "topSpeed": {
+        "value": 250,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 250 km/h (limited)."
+      },
+      "range": {
+        "value": 496,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 447–496 km WLTP; the upper figure is stored."
+      },
+      "realWorldRange": {
+        "value": 404,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "PakNEV real-world estimate for the RS: 404 km."
+      },
+      "consumption": {
+        "value": 19.8,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 19.8–22.1 kWh/100 km."
+      },
+      "consumptionMax": {
+        "value": 22.1,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Upper end of Audi's range."
+      },
+      "dcChargingFromPct": {
+        "value": 5,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi's RS sheet quotes the 22.5 min DC time for 5–80%."
+      },
+      "heightMm": {
+        "value": 1414,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 1,414 mm."
+      },
+      "bootCapacityL": {
+        "value": 350,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 350 L behind the rear seats."
+      },
+      "kerbWeightKg": {
+        "value": 2345,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1237/file_en/1bc6c25d021edf80ecf5289e69fe15cc1e5351ec/eTD_Audi_RS_e-tron_GT_quattro_440kW_240502.pdf",
+        "note": "Audi data sheet: 2,345 kg without driver."
+      },
+      "availability": {
+        "value": "Sold new by Audi Pakistan; delivery in about 2 months (PakWheels, January 2026). A lower-powered e-tron GT quattro is also listed (see notes).",
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "RS availability from PakWheels."
+      },
+      "notes": {
+        "value": "Audi RS e-tron GT, first generation, as sold in Pakistan. Per Audi's data sheet: 93.4 kWh battery (83.7 kWh usable) on an 800-volt system, 440 kW (590 hp) and 475 kW (637 hp) on boost, 830 Nm, all-wheel drive with a two-speed rear gearbox and a controlled rear differential lock, 0–100 km/h in 3.3 s with boost (3.6 s without), 250 km/h, 447–496 km WLTP at 19.8–22.1 kWh/100 km; PakNEV estimates about 404 km in real-world use. DC charging up to 270 kW with 5–80% in 22.5 min; AC 11 kW (22 kW optional), about 9.5 hours. 4,989 × 1,964 × 1,414 mm on a 2,900 mm wheelbase, 125 mm ground clearance (PakNEV), 350 L boot plus a front trunk, 2,345 kg, four doors and 4+1 seats, 20-inch wheels. PKR 57,000,000 ex-factory (PakWheels, January 2026; PakNEV the same). Also offered: the e-tron GT quattro (350 kW / 469 hp, 630 Nm, 4.1 s, 245 km/h, up to 502 km WLTP), whose price sources disagree — PKR 44,000,000 on PakNEV, PKR 58,000,000 on Gari.pk — so confirm it with Audi Pakistan. Warranty 5 years / 150,000 km, battery 8 years / 160,000 km. The 2025 facelift (97 kWh, up to 912 hp) is not the car sold here. Sources: Audi data sheet (May 2024), PakWheels, PakNEV.",
+        "source": "https://www.pakwheels.com/new-cars/audi/e-tron-gt/",
+        "note": "Rewritten: one e-tron GT listing, the RS, with the quattro in the notes."
+      }
+    }
+  }
+}

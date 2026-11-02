@@ -1154,10 +1154,10 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     checked: '2026-11-02',
   },
   'audi-e-tron-gt': {
-    trim: 'quattro (RS differences noted)',
+    trim: 'RS',
     groups: {
       'Safety': [
-        'Ten airbags (RS)',
+        'Ten airbags',
       ],
       'Driver Assistance (ADAS)': [
         'Adaptive cruise control',
@@ -1196,7 +1196,7 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
         'Matrix LED headlights with Audi laser light',
         'Dynamic lighting sequences and dynamic turn signals front and rear',
         'Panoramic glass roof',
-        '19-inch alloy wheels (20-inch on the RS)',
+        '20-inch alloy wheels',
       ],
     },
     sources: ['https://www.pakwheels.com/new-cars/audi/e-tron-gt/'],
@@ -1237,8 +1237,6 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
 // differs, and that is in the spec sheet.
 CAR_FEATURES['mg-cyberster-gt-dual'] = CAR_FEATURES['mg-cyberster']!
 
-// The RS e-tron GT shares the quattro's list, whose RS differences are marked.
-CAR_FEATURES['audi-rs-e-tron-gt'] = CAR_FEATURES['audi-e-tron-gt']!
 
 /** The features for one car, in display order, or null when none are recorded. */
 export function getCarFeatures(slug: string): {

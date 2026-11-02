@@ -924,17 +924,6 @@
       "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
       "author": "Alexander Migl",
       "source": "https://commons.wikimedia.org/wiki/File:MG_ZS_EV_Facelift_1X7A5867.jpg"
-    },
-    {
-      "carId": "audi-rs-e-tron-gt",
-      "file": "cars/audi-e-tron-gt.jpg",
-      "article": null,
-      "commonsFile": "2024_Audi_e-tron_GT_S_Auto_Zuerich_2024_DSC_6547.jpg",
-      "licence": "CC BY-SA 4.0",
-      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
-      "author": "Alexander-93",
-      "source": "https://commons.wikimedia.org/wiki/File:2024_Audi_e-tron_GT_S_Auto_Zuerich_2024_DSC_6547.jpg",
-      "changes": "Background removed and set on white, mirrored; placard covered; plug.pk number plate added"
     }
   ],
   "missing": [
