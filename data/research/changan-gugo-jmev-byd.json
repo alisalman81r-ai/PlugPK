@@ -1,0 +1,457 @@
+{
+  "changan-nevo-hunter": {
+    "fills": {
+      "motorPowerKw": {
+        "value": 240,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Master Changan spec sheet, grade REEV PLUS 4X4: 'Maximum Total Power (kW) / (HP) 240 (322)'. Front motor 110 kW (148 hp), rear 130 kW (174 hp)."
+      },
+      "range": {
+        "value": 900,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Spec sheet: 'Combined Range 900+ km'. No test cycle is given for the combined figure (only the 131 km electric range is labelled NEDC). changan.com.pk/hunter quotes 700–900 km combined, with 900+ as the headline."
+      },
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Spec sheet: 'Electric Driving Range: NEDC (km) 131'."
+      },
+      "dcCharging": {
+        "value": 41,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Spec sheet: 'Maximum DC Charging Power (kW) 41'; 'DC Charging Time (30-80%) (Minute) 30'."
+      }
+    },
+    "corrections": {
+      "heightMm": {
+        "value": 1920,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "The Pakistani distributor's spec sheet (REEV PLUS 4X4, the only grade sold) gives 'Length x Width x Height (mm) 5,380 x 1,980 x 1,920'. The DB's 1,875 mm came from PakWheels / Changan Philippines; the official Pakistan figure is 1,920 mm (which matches ProPakistani)."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "rangeStandard",
+        "current": "NEDC",
+        "found": null,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "The brochure labels only the electric range as NEDC; the 900+ km combined range has no cycle. If range is filled, rangeStandard NEDC would mislabel it — consider clearing it."
+      },
+      {
+        "column": "torque",
+        "current": 529,
+        "found": 470,
+        "source": "https://changan.com.pk/hunter/",
+        "note": "The changan.com.pk model page says 470 N·m (Power Boost mode), but the official brochure says 'Maximum Total Torque (N-m) 529'. DB matches the brochure; kept."
+      }
+    ]
+  },
+  "deepal-s05-reev": {
+    "fills": {
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table: 'Electric Driving Range: NEDC (km) 170*', with footnote 'The estimated Electric Driving Range is based on tests conducted under the New European Driving Cycle (NEDC)'. deepal.com.pk/s5 also says '170 km (NEDC)'."
+      },
+      "lengthMm": {
+        "value": 4620,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table, grade S05 REEV: 4,620 / 1,900 / 1,600 / 2,880 (length / width / height / wheelbase)."
+      },
+      "widthMm": {
+        "value": 1900,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table width 1,900 mm."
+      },
+      "heightMm": {
+        "value": 1600,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table height 1,600 mm (also on the dimensions drawing)."
+      },
+      "groundClearanceMm": {
+        "value": 169,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table 'Ground Clearance (mm) 169'."
+      },
+      "bootCapacityL": {
+        "value": 492,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Spec table: '492 L Trunk Space'. deepal.com.pk/s5 also says 492 L."
+      },
+      "dcChargingMinutes": {
+        "value": 20,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "'DC Charging Time 30-80% (minute) 20' — a 30–80% window, not 10–80%."
+      }
+    },
+    "corrections": {
+      "batteryCapacity": {
+        "value": 27.28,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "The official Deepal Pakistan spec table gives 'Battery Capacity (kWh) 27.28*' (CATL Golden Shield LFP); the DB's 27.3 is a rounding."
+      },
+      "warranty": {
+        "value": "Battery 8 years / 240,000 km; vehicle 5 years / 150,000 km (limited).",
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "The DB says the warranty is not confirmed. The official brochure says: 'Battery warranty 8 years/240,000 KM | Warranty 5 years/150,000 KM'."
+      },
+      "notes": {
+        "value": "Deepal S05 REEV, a range-extended EV: the wheels are driven only by the rear electric motor and the 1.5-litre (1,497 cc) Blue Whale engine (70 kW / 94 hp, 122 Nm) acts as a generator. Per the Deepal Pakistan brochure and deepal.com.pk: 27.28 kWh CATL Golden Shield LFP battery, 160 kW / 215 hp, 320 Nm, RWD, 170 km electric range (NEDC) and 1,000+ km combined from a 44.9 L tank. AC 6.6 kW, DC 54.5 kW with 30–80% in 20 minutes; V2L up to 6.6 kW. 4,620×1,900×1,600 mm, wheelbase 2,880 mm, ground clearance 169 mm, 492 L boot, 18-inch wheels on 225/60 R18, drag coefficient 0.25. 5 seats, 6 airbags, full ADAS, 15.4-inch touchscreen, head-up display, 14 speakers, panoramic roof, wireless CarPlay and Android Auto. Warranty: battery 8 years / 240,000 km, vehicle 5 years / 150,000 km. Top speed (170 km/h) and 0–100 are not in the official material. Real-world electric range is nearer 110–130 km. PKR 9,999,000. Sold by Master Changan.",
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "The old notes said the 170 km figure had no cycle and that a 145 km WLTP figure was shown instead. The brochure labels 170 km as NEDC, and the row stores 170. They also listed dimensions, boot and warranty as unconfirmed, but these are now filled from the official brochure."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "rangeStandard",
+        "current": "WLTP",
+        "found": "NEDC (electric range only)",
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Official material labels only the 170 km electric range, as NEDC. The combined 1,000+ km has no cycle. WLTP does not appear in any Deepal Pakistan source, so rangeStandard should probably be cleared or set to NEDC. Not changed automatically."
+      }
+    ]
+  },
+  "deepal-l07": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 35,
+        "source": "https://deepal.com.pk/l7/",
+        "note": "deepal.com.pk: 'DC fast charging 30-80% in 35 minutes' — a 30–80% window, not 10–80%."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "deepal-e07": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 183,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "Spec table 'Ground Clearance (mm) 183'. In the PDF's text layer the values are offset one row from their labels; the order is length 5,045 / width 1,996 / height 1,695 / wheelbase 3,120 / track front 1,680 / track rear 1,690 / ground clearance 183 / wading 600. deepal.com.pk independently confirms width 1,996 and wading 600, which validates the alignment. The air suspension adjusts height by 90 mm."
+      },
+      "bootCapacityL": {
+        "value": 524,
+        "source": "https://deepal.com.pk/e7/",
+        "note": "deepal.com.pk: boot 524 L, 1,654 L with rear seats folded; plus a 131 L front trunk (also in the brochure)."
+      },
+      "dcChargingMinutes": {
+        "value": 15,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'DC Charging Time 30 - 80% (Minute) 15'; the website says '30% to 80% in just 15 minutes' (3C charging). A 30–80% window."
+      }
+    },
+    "corrections": {
+      "power": {
+        "value": 590,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "The Pakistan E07 (single version, PKR 19,000,000) is the dual-motor AWD car: 'Maximum Power (kW) / (HP) 440 / 590'. The DB's 342 hp / 252 kW is the rear motor alone ('Rear Motor Power 252 / 337'), i.e. the RWD version that Deepal Pakistan does not list."
+      },
+      "motorPowerKw": {
+        "value": 440,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'Maximum Power (kW) / (HP) 440 / 590' (front 188 kW + rear 252 kW). The website also says '440 kW dual-motor AWD'."
+      },
+      "torque": {
+        "value": 645,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'Maximum Torque (N-m) 645' (front 280 + rear 365). The DB's 365 Nm is the rear motor alone."
+      },
+      "acceleration": {
+        "value": 3.96,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'0 - 100 km/h Acceleration Time (s) 3.96' (the website headline rounds it to 3.9 s). The DB's 6.7 s is for a different (RWD) version."
+      },
+      "driveType": {
+        "value": "AWD",
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'Drivetrain: All Wheel Drive (AWD)'. Deepal Pakistan lists only this version, so 'RWD (Plus) / AWD (Performance)' is wrong for Pakistan."
+      },
+      "heightMm": {
+        "value": 1695,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "The spec table gives height 1,695 mm. The DB's 1,680 matches the brochure's front wheel track, not the height."
+      },
+      "acCharging": {
+        "value": 6.6,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "'Maximum AC Charging Power (kW) 6.6'. The DB's 11 kW is not in Pakistani material."
+      },
+      "notes": {
+        "value": "Deepal E07 as sold in Pakistan (single dual-motor AWD version), per the Deepal Pakistan brochure and deepal.com.pk: 440 kW / 590 hp and 645 Nm (front asynchronous motor 188 kW / 280 Nm, rear PMSM 252 kW / 365 Nm), 0–100 in 3.96 s, 89.98 kWh battery, 590 km NEDC. AC 6.6 kW, DC 240 kW with 30–80% in 15 minutes (3C), V2L 6.6 kW. 5,045×1,996×1,695 mm, wheelbase 3,120 mm, ground clearance 183 mm with 90 mm of air-suspension adjustment, 600 mm wading. Boot 524 L (1,654 L folded) plus a 131 L frunk. 21-inch wheels on 265/45 R21. Battery chemistry is inconsistent in official material: the brochure says ternary lithium, the website says LFP. Top speed, kerb weight and warranty are not published by Deepal Pakistan. PKR 19,000,000. Sold by Master Changan.",
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "The old notes only mentioned a 590–640 km span. They are replaced so the notes match the corrected official Pakistan figures."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "rangeMax",
+        "current": 640,
+        "found": null,
+        "source": "https://deepal.com.pk/e7/",
+        "note": "Deepal Pakistan gives only 590 km NEDC and no 640 km figure. The 640 km likely belongs to another version or market; consider clearing it."
+      },
+      {
+        "column": "batteryTech",
+        "current": "Ternary lithium-ion (NMC)",
+        "found": "LFP",
+        "source": "https://deepal.com.pk/e7/",
+        "note": "The website says '89.98 kWh LFP (Golden Shield Battery)', but the official brochure says 'Battery Type: Ternary Lithium'. The official sources disagree, so the DB value is left as is."
+      },
+      {
+        "column": "topSpeed",
+        "current": 210,
+        "found": null,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "Not stated in any Deepal Pakistan material; the 210 km/h may be for the RWD version."
+      }
+    ]
+  },
+  "deepal-s07": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 35,
+        "source": "https://deepal.com.pk/s7/",
+        "note": "deepal.com.pk: 'DC fast charging: 30-80% in 35 minutes' — a 30–80% window, not 10–80%."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "changan-lumin": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 150,
+        "source": "https://www.pakwheels.com/blog/?p=198670",
+        "note": "PakWheels 'Changan Lumin Mini EV – Official Specs & Features' (26 Oct 2024, the PAPS unveiling of the Pakistan cars): ground clearance 150 mm. Not yet on sale; no Master Changan spec sheet exists."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "heightMm",
+        "current": 1545,
+        "found": 1590,
+        "source": "https://www.pakwheels.com/blog/?p=198670",
+        "note": "PakWheels (PAPS 2024 'official specs') gives 1,590 mm; the DB uses Wikipedia's 1,545. PakWheels also gives length 3,720 mm, which looks like a typo of 3,270 (the DB value)."
+      }
+    ]
+  },
+  "gugo-box": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "torque",
+        "current": 160,
+        "found": 180,
+        "source": "https://www.pakwheels.com/blog/?p=204343",
+        "note": "The PakWheels pre-launch article (3 Feb 2025) gives 180 Nm for all trims; PakWheels' own review (Suneel) gives 160 Nm. Unresolved — GUGO publishes no spec sheet for the Box."
+      }
+    ]
+  },
+  "gugo-gigi": {
+    "fills": {
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf",
+        "note": "GUGO Motors' own GIGI brochure spec table: 'NEDC range/ Max. speed: 220 km/ 100 km per hr'."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "seats",
+        "current": 2,
+        "found": "rear seats implied",
+        "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf",
+        "note": "The brochure lists 'ISOFIX, 2, middle row on both sides' and 'Back seats can be folded down', which implies rear seating, not a 2-seater. No seat count is stated, so the DB is not changed."
+      }
+    ]
+  },
+  "gugo-aion-v": {
+    "fills": {
+      "warranty": {
+        "value": "Vehicle 2 years / 50,000 km; battery 5 years / 120,000 km (GUGO import; the LMC-sold GAC version carries a longer warranty).",
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "Gari.pk launch report for the GUGO AION V6: 'Vehicle: 2 yrs/50,000 km; Battery: 5 yrs/120,000 km'. PakWheels (May 2026 GUGO V6 vs GAC V comparison) also gives the GUGO battery at 5 years / 120,000 km."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 64,
+        "found": 75,
+        "source": "https://www.pakwheels.com/blog/gugo-aion-v6-vs-gac-aion-v-premium-pakistan-2026/",
+        "note": "Gari.pk and PakWheels give the GUGO V6 (Luxury) 75 kWh LFP, 201 hp, 240 Nm and 510 km WLTP. The V5 (Premium) specs are not published. The DB's 64 kWh / 181 hp match neither GUGO trim."
+      },
+      {
+        "column": "power",
+        "current": 181,
+        "found": 201,
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "201 HP for the GUGO V6; V5 not stated."
+      },
+      {
+        "column": "dcChargingMinutes",
+        "current": 24,
+        "found": 20,
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "Gari.pk gives the V6 '180 kW DC, 30–80% in 20 min' (DB: 150 kW, 24 min). These are a different window and rate; the source of the DB figure is unknown."
+      }
+    ]
+  },
+  "gugo-aion-ut": {
+    "fills": {
+      "warranty": {
+        "value": "Vehicle 2 years / 50,000 km; battery 5 years / 120,000 km (GUGO import).",
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "Gari.pk launch report for the GUGO AION UT5: 'Vehicle: 2 yrs/50,000 km; Battery: 5 yrs/120,000 km'. No separate warranty is given for the UT4."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "rangeMax",
+        "current": 500,
+        "found": 425,
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "Gari.pk gives the UT5 (60 kWh, 201 hp, 210 Nm) as 425 km WLTP, not 500 km. It also gives the UT5 80 kW DC with 30–80% in 24 min."
+      }
+    ]
+  },
+  "jmev-ev3": {
+    "fills": {
+      "warranty": {
+        "value": "Vehicle 3 years / 60,000 km; battery 8 years / 120,000 km.",
+        "source": "https://pkrevenue.com/capital-smart-motors-to-start-jmev-ev3-deliveries-soon/",
+        "note": "The article quotes the warranty Capital Smart Motors lists: vehicle 3 years or 60,000 km, battery 8 years or 120,000 km."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "range",
+        "current": 271,
+        "found": 330,
+        "source": "https://pkrevenue.com/capital-smart-motors-to-start-jmev-ev3-deliveries-soon/",
+        "note": "The article cites CSM's listed specifications as 330 km CLTC (the DB stores 271 km WLTP). These are different cycles, so neither is wrong, but the rangeStandard and range pair should be one or the other."
+      }
+    ]
+  },
+  "jmev-elight": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 30,
+        "source": "https://www.gari.pk/news/jmev-elight-sedan-debuts-in-pakistan-price-specs-booking-4636/",
+        "note": "Gari.pk launch report: 'DC fast charging 30–80% in about 30 minutes' — a 30–80% window, not 10–80%. Matches the DB notes."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "rangeStandard",
+        "current": "WLTP",
+        "found": "NEDC",
+        "source": "https://www.gari.pk/news/jmev-elight-sedan-debuts-in-pakistan-price-specs-booking-4636/",
+        "note": "Gari.pk says '500 km, NEDC standard'. The DB notes say CSM calls it WLTP. Unresolved; CSM's own spec sheet was not reachable."
+      }
+    ]
+  },
+  "byd-sealion-6": {
+    "fills": {
+      "range": {
+        "value": 1100,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-the-future-at-paps-2026-with-new-lineup-introducing-pakistans-first-locally-assembled-byd-sealion-6/",
+        "note": "BYD-MMC's PAPS 2026 announcement: 'total range of up to 1,100 km'. No cycle is stated. ProPakistani's companion article says the powertrain figures are the international specification and the Pakistan specs are still to be finalised."
+      },
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "Described as a five-seat plug-in hybrid crossover (C+ segment SUV)."
+      },
+      "lengthMm": {
+        "value": 4775,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "ProPakistani: 4,775 mm L × 1,890 mm W × 1,670 mm H, wheelbase 2,765 mm. The article does not say these are Pakistan-spec, and the local trim is unannounced."
+      },
+      "widthMm": {
+        "value": 1890,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "See lengthMm."
+      },
+      "heightMm": {
+        "value": 1670,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "See lengthMm."
+      },
+      "wheelbaseMm": {
+        "value": 2765,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "See lengthMm."
+      },
+      "distributor": {
+        "value": "Mega Motor Company (BYD Pakistan)",
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-the-future-at-paps-2026-with-new-lineup-introducing-pakistans-first-locally-assembled-byd-sealion-6/",
+        "note": "Shown by 'BYD-MMC' (BYD with Mega Motor Company) at PAPS 2026; local production 'targeted to commence in Q4 2026'."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "electricRange",
+        "current": 92,
+        "found": 70,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "ProPakistani (international spec) gives up to 70 km NEDC with an 18.3 kWh battery; the DB has 92 km. Neither is a Pakistan figure; the local spec is unannounced."
+      },
+      {
+        "column": "power",
+        "current": 215,
+        "found": 319,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "ProPakistani reports 319 hp / 550 Nm (international AWD), while PKRevenue reports an expected ~215 hp / 300 Nm. The DB mixes these (215 hp with 550 Nm). It awaits the BYD Pakistan spec."
+      }
+    ]
+  },
+  "byd-atto-3-advanced": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 30,
+        "source": "https://byd-mega.com/vehicles/atto-3",
+        "note": "byd-mega.com (Nov 2026): 'Supports BYD ATTO 3 to charge from 30% to 80% within 30 mins*' — a 30–80% window. The Aug 2026 brochure (byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf) gives no charge time. The existing DB notes say 29 minutes; the site now says 30."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "byd-shark-6": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "byd-atto-2": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "dcChargingMinutes",
+        "current": 38,
+        "found": 30,
+        "source": "https://byd-mega.com/brochure/new/atto-2-brochure-aug-2026.pdf",
+        "note": "The current Aug 2026 brochure: 'Charges from 30% to 80% in 30 minutes'. The DB's 38 min is a 10–80% figure from launch coverage. These are different windows, so it is not a correction. Every other DB value checked against the Aug 2026 brochure matches: 380 km NEDC, 45.12 kWh, 7.9 s, 380 L / 1,320 L boot, 4,310×1,830×1,675 mm, wheelbase 2,620 mm, warranty 6y/150k vehicle, 8y/160k Blade battery, 6y/150k LV battery. The Aug brochure omits kW, torque, DC kW and kerb weight (those come from the Jan 2026 flyer)."
+      }
+    ]
+  },
+  "byd-seal": {
+    "fills": {},
+    "corrections": {
+      "warranty": {
+        "value": "Vehicle 6 years / 150,000 km; Blade battery 8 years / 160,000 km; low-voltage LFP battery 6 years / 150,000 km.",
+        "source": "https://byd-mega.com/api/v1/image/spec-sheets/BYD-Seal-Spec-Sheet.pdf",
+        "note": "The DB says 'Battery about 8 years — confirm'. The current BYD Pakistan Seal spec sheet on byd-mega.com gives the full terms. This is the same correction byd.json already carries. All other Dynamic values in the DB match this current sheet: 150 kW, 310 Nm, 510 km NEDC, 61.44 kWh, 7.5 s, 110 kW DC, 7 kW AC, 4,800×1,875×1,460 mm, wheelbase 2,920 mm, kerb 1,922 kg, boot 50 L front / 400 L rear."
+      }
+    },
+    "conflicts": []
+  }
+}

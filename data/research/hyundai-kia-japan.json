@@ -1,0 +1,187 @@
+{
+  "hyundai-ioniq-5": {
+    "fills": {
+      "bodyType": {
+        "value": "Compact crossover SUV (5-door)",
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Overview > Category: 'Compact Crossover SUV'; 5 seats, 2 rows."
+      },
+      "driveType": {
+        "value": "AWD",
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Drive Type & Transmission > Drive System: 'AWD', single-speed reduction gear."
+      },
+      "motorPowerKw": {
+        "value": 239,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Electric Motor Max. Power (kW (ps)): '239 (305)'. PMSM."
+      },
+      "batteryTech": {
+        "value": "Lithium-ion, 653 V",
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Battery and Range: Type 'Lithium-Ion', Voltage (V) '653'."
+      },
+      "lengthMm": {
+        "value": 4635,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Exterior L x W x H (mm): '4635 x 1890 x 1605'."
+      },
+      "widthMm": {
+        "value": 1890,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Exterior L x W x H (mm): '4635 x 1890 x 1605'."
+      },
+      "heightMm": {
+        "value": 1605,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Exterior L x W x H (mm): '4635 x 1890 x 1605'."
+      },
+      "wheelbaseMm": {
+        "value": 3000,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Wheelbase (mm): '3000'."
+      },
+      "groundClearanceMm": {
+        "value": 170,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Ground Clearance (mm): '170'."
+      },
+      "kerbWeightKg": {
+        "value": 2020,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Kerb Weight (kg): '2020-2100'; lower bound used. GVW 2,540 kg."
+      },
+      "availability": {
+        "value": "Sold new in Pakistan by Hyundai Nishat Motor in Smart (PKR 22,500,000) and Signature (PKR 24,999,000) trims, ex-factory.",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "HNMPL price list (IONIQ 5: Smart 22,500,000; Signature 24,999,000). The model page https://hyundai-nishat.com/ioniq-5/ still shows 'From PKR 22,500,000'."
+      },
+      "distributor": {
+        "value": "Hyundai Nishat Motor (Private) Limited (hyundai-nishat.com)",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "Price list footer: 'Hyundai Nishat Motor (Private) Limited, 1-B Aziz Avenue, Canal Bank Road, Gulberg V, Lahore'."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km. Battery: 4 years (Hyundai Nishat price list).",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "Footer badges: '4 YEAR 100,000 km Warranty Coverage' and '4 YEAR Battery Warranty'. No km limit printed on the battery badge."
+      }
+    },
+    "corrections": {
+      "batteryCapacity": {
+        "value": 84,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Distributor spec: Battery Capacity (KWH) '84'. The DB's 72.6 kWh is the earlier/RWD global pack, not the AWD car Hyundai Nishat lists."
+      },
+      "power": {
+        "value": 305,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Distributor spec: Electric Motor Max. Power '239 (305)' kW (PS). DB 217 belongs to a single-motor variant. Figure is PS as printed."
+      },
+      "range": {
+        "value": 500,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Distributor spec: All-Electric-Range 'upto 500 km'. No test standard stated, so rangeStandard stays empty. DB 481 is a different variant's figure."
+      },
+      "priceMin": {
+        "value": 22500000,
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "Smart trim ex-factory PKR 22,500,000 (also 'From PKR 22,500,000' on hyundai-nishat.com/ioniq-5/). DB 17,000,000 was an indicative figure."
+      },
+      "priceMax": {
+        "value": 24999000,
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "Signature trim ex-factory PKR 24,999,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 2.25–2.5 Cr",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "Smart 22,500,000 to Signature 24,999,000, ex-factory."
+      }
+    },
+    "conflicts": []
+  },
+  "hyundai-elantra-hybrid": {
+    "fills": {
+      "variant": {
+        "value": "Hybrid Blue",
+        "source": "https://hyundai-nishat.com/elantra-hybrid-specification/",
+        "note": "Single trim; Product label 'Elantra Hybrid Blue' (also 'Hyundai ELANTRA Hybrid Blue' on the Aug 2026 price list)."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km. Hybrid system: 8 years / 160,000 km (Hyundai Nishat price list).",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-ELANTRA-Hybrid-HNMPL.pdf",
+        "note": "Footer badges: '4 YEAR 100,000 km Warranty Coverage' and '8 YEAR 160,000 km Hybrid System'. Hyundai Nishat's conditions page (https://hyundai-nishat.com/conditions/) words it as hybrid components 4 years/100,000 km and high-voltage battery capacity 8 years/160,000 km."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "hyundai-santa-fe-hybrid": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "hyundai-palisade-hybrid": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "hyundai-tucson-hybrid": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "kia-sorento-phev": {
+    "fills": {},
+    "corrections": {
+      "heightMm": {
+        "value": 1700,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/05/Sorento-Brochure-Updated.pdf",
+        "note": "Kia Lucky Motor 'Sorento MY 26' spec sheet, 1.6T AWD PHEV column: Height (mm) 1,700. DB 1,695 came from PakWheels. Same sheet confirms 4,815 x 1,900, wheelbase 2,815, clearance 176, 13.8 kWh / 360 V, 47 L tank, 3.3 kW OBC, 15-95% in 3 h 25 min."
+      }
+    },
+    "conflicts": []
+  },
+  "kia-sorento-hev": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "kia-sportage-l-hybrid": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "kia-ev5": {
+    "fills": {
+      "torque": {
+        "value": 310,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Air column: Maximum Torque Front Motor '310 Nm', combined '160 kW / 310 Nm'. Earth is 230 kW / 480 Nm. Air used to match the row's headline 160 kW / 64.2 kWh / lower price."
+      }
+    },
+    "corrections": {
+      "acceleration": {
+        "value": 8.5,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Air column: Acceleration (0-100 Kph) '8.5 Sec' (Earth 6.1 s). DB 8.4 does not match the distributor sheet; the DB notes already say 8.5 s."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km (Kia Lucky Motor EV5 spec sheet).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Cover page badge: '4 YEARS WARRANTY 100,000* KM'. No separate EV battery term printed. Replaces the DB's 'not publicly confirmed' text."
+      }
+    },
+    "conflicts": []
+  },
+  "toyota-corolla-cross-hev": {
+    "fills": {
+      "motorPowerKw": {
+        "value": 53,
+        "source": "https://toyota-indus.com/wp-content/uploads/2024/03/Specs-Sheet-Final-4-Variants-CP-YQ.pdf",
+        "note": "Performance > Electric Motor Power (kW): 53 for 1.8 HEV X and 1.8 HEV (motor torque 163 Nm; 2ZR-FXE engine 72 kW / 142 Nm). No combined torque is printed, so torque stays empty."
+      }
+    },
+    "corrections": {
+      "warranty": {
+        "value": "Vehicle: 3 years / 100,000 km built-in warranty (extendable to 5 years). Hybrid battery: 6 years / 160,000 km (Toyota Indus).",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Corolla Cross page: 'Hybrid Battery warranty of 6 years or 160,000 KM (whichever comes first)'. Built-in warranty from https://toyota-indus.com/extended-warranty/: '3 years/100,000 KMs (whichever comes first) of built-in warranty', extension packages 'till 5 years'. Replaces the DB's unconfirmed '3–5 years' text."
+      }
+    },
+    "conflicts": []
+  },
+  "honda-hr-v-ehev": { "fills": {}, "corrections": {}, "conflicts": [] },
+  "nissan-sakura": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 145,
+        "source": "https://www-asia.nissan-cdn.net/content/dam/Nissan/jp/vehicles/sakura/2606/pdf/sakura_2606_specsheet.pdf",
+        "note": "Nissan Japan spec sheet (June 2026), 主要諸元: 最低地上高 145 mm for S, X and G (marked as an in-house measurement). The same sheet gives X 1,070 kg, 47 kW / 195 Nm, 20 kWh, 350 V, WLTC 180 km, matching the DB."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  }
+}

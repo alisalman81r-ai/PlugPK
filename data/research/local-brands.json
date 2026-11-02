@@ -1,0 +1,527 @@
+{
+  "forthing-friday-reev": {
+    "fills": {
+      "variant": {
+        "value": "REEV Exclusive",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "Capital Smart Motors brochure spec table: the only REEV column is headed 'REEV Exclusive'. PakWheels lists REEV Exclusive at PKR 9,999,000, matching the DB price."
+      },
+      "range": {
+        "value": 1150,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Combined Range: CLTC (km) ~1150' (REEV Exclusive column). Petrol + battery combined range."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "Row label 'Combined Range: CLTC (km)'."
+      },
+      "electricRangeStandard": {
+        "value": "CLTC",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Electric Drive Range: CLTC (km) ~220'. Matches DB electricRange 220."
+      },
+      "motorPowerKw": {
+        "value": 120,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "Motor 'Maximum Power (kW) 120' (rated 55 kW). Generator engine is separate: 1.498 L naturally aspirated, 75 kW."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Drive Form: FWD | FWD | RWD' - the REEV Exclusive column says RWD (the BEVs are FWD). PakWheels REEV Exclusive page also lists RWD."
+      },
+      "batteryTech": {
+        "value": "LFP",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Battery Type: Lithium Iron Phosphate', capacity 31.94 kWh."
+      },
+      "lengthMm": {
+        "value": 4600,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Length x Width x Height (mm) 4600 x 1860 x 1680'."
+      },
+      "widthMm": {
+        "value": 1860,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "4600 x 1860 x 1680 mm."
+      },
+      "heightMm": {
+        "value": 1680,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "4600 x 1860 x 1680 mm."
+      },
+      "wheelbaseMm": {
+        "value": 2715,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Wheelbase (mm) 2715'."
+      },
+      "kerbWeightKg": {
+        "value": 1820,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Curb Weight (kg) 1820' - the brochure prints the same figure in all three columns (GVW 2195)."
+      },
+      "acChargingHours": {
+        "value": 5.5,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'AC Charging Time (0% to 100%) (Type-2) 5.5h' for the REEV Exclusive."
+      },
+      "dcChargingMinutes": {
+        "value": 30,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'DC Fast Charging Time (SOC 30%-80%, 25 C, charging pile power 120 kW) (CCS2) 30 min'. Window is 30-80%, not 10-80%."
+      },
+      "connectors": {
+        "value": "CCS2,Type 2",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "AC row labelled '(Type-2)', DC row labelled '(CCS2)'; 'Charging Interface: European Standard Interface'."
+      },
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://www.pakwheels.com/blog/?p=213407",
+        "note": "PakWheels: 'Forthing Friday - A 1150 KM Range Hybrid SUV in Pakistan!'"
+      },
+      "groundClearanceMm": {
+        "value": 180,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/reev-exclusive",
+        "note": "PakWheels REEV Exclusive spec page: ground clearance 180 mm. Not in the brochure."
+      },
+      "bootCapacityL": {
+        "value": 480,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/reev-exclusive",
+        "note": "PakWheels REEV Exclusive spec page: boot space 480 L. Not in the brochure."
+      },
+      "distributor": {
+        "value": "Capital Smart Motors",
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/",
+        "note": "PakWheels: 'Capital Smart Motors, the official distributor of Forthing vehicles in Pakistan'."
+      },
+      "availability": {
+        "value": "On sale in Pakistan through Capital Smart Motors; listed at PKR 9,999,000 ex-factory for the REEV Exclusive (2026).",
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/reev-exclusive",
+        "note": "PakWheels lists the 2026 REEV Exclusive at PKR 9,999,000 ex-factory."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 160,000 km.",
+        "source": "https://www.pakwheels.com/blog/?p=213407",
+        "note": "PakWheels (Aug 2025): '8 years / 160,000 km battery warranty' and '5 years / 150,000 km vehicle warranty'. PakWheels spec page repeats the battery term."
+      }
+    },
+    "corrections": {
+      "torque": {
+        "value": 240,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "Capital Smart Motors brochure, REEV Exclusive column: motor 'Maximum Torque (N.m) 240'. 340 Nm is the BEV's figure (BEV columns say 340). PakWheels REEV page also says 240 Nm max combined. A pre-launch PakWheels blog said 340 Nm / 204 hp / 1.5T, which the brochure contradicts (engine is naturally aspirated)."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "topSpeed",
+        "current": 180,
+        "found": 170,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/reev-exclusive",
+        "note": "PakWheels spec page lists 170 km/h max speed. The brochure gives no top speed."
+      },
+      {
+        "column": "acCharging",
+        "current": 6.6,
+        "found": 3.3,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/reev-exclusive",
+        "note": "PakWheels lists 'AC onboard charger 3.3 kW'; the brochure only mentions a '3.3 kW Portable AC Charger' and no on-board rating. Unclear whether 6.6 kW is right."
+      }
+    ]
+  },
+  "forthing-friday-bev": {
+    "fills": {
+      "variant": {
+        "value": "BEV Luxury",
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/bev-luxury",
+        "note": "PKR 8,999,000 ex-factory is the BEV Luxury price, matching the DB price. The BEV Exclusive (PKR 10,499,000) has the same powertrain in the brochure."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "Capital Smart Motors brochure: 'Electric Drive Range: CLTC (km) 500' in both BEV columns. Matches DB range 500."
+      },
+      "motorPowerKw": {
+        "value": 150,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "BEV Luxury column: 'Maximum Power (kW) 150' (rated 80 kW). Torque 340 Nm matches DB."
+      },
+      "driveType": {
+        "value": "FWD",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Drive Form: FWD' for BEV Luxury and BEV Exclusive."
+      },
+      "batteryTech": {
+        "value": "LFP",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Battery Type: Lithium Iron Phosphate', 64.4 kWh."
+      },
+      "lengthMm": {
+        "value": 4600,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'4600 x 1860 x 1680'."
+      },
+      "widthMm": {
+        "value": 1860,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "4600 x 1860 x 1680 mm."
+      },
+      "heightMm": {
+        "value": 1680,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "4600 x 1860 x 1680 mm."
+      },
+      "wheelbaseMm": {
+        "value": 2715,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Wheelbase (mm) 2715'."
+      },
+      "kerbWeightKg": {
+        "value": 1820,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'Curb Weight (kg) 1820' (same figure printed for all three variants)."
+      },
+      "acChargingHours": {
+        "value": 7,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'AC Charging Time (0% to 100%) (Type-2) 7h' for both BEVs."
+      },
+      "dcChargingMinutes": {
+        "value": 30,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "'DC Fast Charging Time (SOC 30%-80%, 25 C, charging pile power 120 kW) (CCS2) 30 min'. Window is 30-80%, not 10-80%. PakWheels instead lists 38 min for 10-80%."
+      },
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://www.pakwheels.com/blog/?p=213407",
+        "note": "PakWheels describes the Forthing Friday as an SUV."
+      },
+      "groundClearanceMm": {
+        "value": 180,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/bev-luxury",
+        "note": "PakWheels BEV Luxury spec page: ground clearance 180 mm. Not in the brochure."
+      },
+      "bootCapacityL": {
+        "value": 480,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/bev-luxury",
+        "note": "PakWheels BEV Luxury spec page: boot space 480 L. Not in the brochure."
+      },
+      "distributor": {
+        "value": "Capital Smart Motors",
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/",
+        "note": "PakWheels: Capital Smart Motors is the official Forthing distributor in Pakistan."
+      },
+      "availability": {
+        "value": "On sale in Pakistan through Capital Smart Motors; BEV Luxury listed at PKR 8,999,000 and BEV Exclusive at PKR 10,499,000 ex-factory (2026).",
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/",
+        "note": "PakWheels: 2026 ex-factory prices from PKR 8,999,000 (BEV Luxury) to PKR 10,499,000 (BEV Exclusive)."
+      },
+      "warranty": {
+        "value": "Battery 8 years / 160,000 km; vehicle 5 years / 150,000 km.",
+        "source": "https://www.pakwheels.com/blog/?p=213407",
+        "note": "PakWheels (Aug 2025) states these terms for the Forthing Friday; the PakWheels BEV Luxury spec page repeats the battery term."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "topSpeed",
+        "current": 180,
+        "found": 170,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/bev-luxury",
+        "note": "PakWheels lists 170 km/h; brochure gives none."
+      },
+      {
+        "column": "dcCharging",
+        "current": 80,
+        "found": 120,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "The brochure's DC test condition is a 120 kW charging pile; it never states the car's own maximum DC rate, so 80 kW is unconfirmed rather than proven wrong."
+      },
+      {
+        "column": "acCharging",
+        "current": 6.6,
+        "found": 3.3,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/bev-luxury",
+        "note": "PakWheels lists 'Onboard AC charger 3.3 kW'; the brochure only mentions a '3.3 kW Portable AC Charger'."
+      }
+    ]
+  },
+  "dongfeng-box": {
+    "fills": {
+      "wheelbaseMm": {
+        "value": 2660,
+        "source": "https://profit.pakistantoday.com.pk/2025/04/16/dongfeng-launches-all-electric-box-ev-in-pakistan",
+        "note": "Profit, Chawla Green Motors launch (Apr 2025): '2,660mm wheelbase'. Stated for the 430 trims; PakWheels lists 2660 mm for Lux/Flagship 430 and 2663 mm for the Smart 330."
+      },
+      "warranty": {
+        "value": "Vehicle 4 years / 150,000 km; battery 8 years / 200,000 km.",
+        "source": "https://profit.pakistantoday.com.pk/2025/04/16/dongfeng-launches-all-electric-box-ev-in-pakistan",
+        "note": "Profit: 'four-year/150,000 km warranty' and 'eight-year/200,000 km battery warranty'. PakWheels spec page also lists battery 200,000 km / 8 years for all three trims."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "lengthMm",
+        "current": 4020,
+        "found": 4030,
+        "source": "https://profit.pakistantoday.com.pk/2025/04/16/dongfeng-launches-all-electric-box-ev-in-pakistan",
+        "note": "Launch report gives 4,030 x 1,810 x 1,570 mm (430 trims). PakWheels gives 4020 mm for the Smart 330 only, so 4020 may be right for the stored trim."
+      },
+      {
+        "column": "widthMm",
+        "current": 1800,
+        "found": 1810,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/box--2/specifications/",
+        "note": "Both PakWheels (all three trims) and the Profit launch report give 1810 mm width."
+      },
+      {
+        "column": "acCharging",
+        "current": 6.6,
+        "found": 3.3,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/box--2/specifications/",
+        "note": "PakWheels lists a 3.3 kW AC on-board charger and 10.5 h home charge for the Smart 330 (6.6 kW for the 430 trims). DB price/battery are the Smart 330's."
+      }
+    ]
+  },
+  "dongfeng-007": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 163,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/007/specifications/",
+        "note": "PakWheels spec page: ground clearance 163 mm, same for Essence, Prestige and Excellence."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 200,000 km.",
+        "source": "https://www.pakwheels.com/blog/dongfeng-epi-007-launch-pakistan-price-specs-features/",
+        "note": "PakWheels launch article (Nov 2025): 'Vehicle: 5 Years / 150,000 km, Battery: 8 Years / 200,000 km'."
+      }
+    },
+    "conflicts": []
+  },
+  "dongfeng-vigo": {
+    "fills": {},
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Battery warranted 8 years / 160,000 km per one source — confirm with the dealer.",
+        "found": "Battery 8 years / 200,000 km",
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/vigo/specifications/",
+        "note": "PakWheels spec page lists battery warranty 8 years or 200,000 km for all trims."
+      },
+      {
+        "column": "range",
+        "current": 430,
+        "found": 415,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/vigo/specifications/",
+        "note": "PakWheels lists 415 km (no cycle). Also note the DB stores 430 km with rangeStandard WLTP while its own notes say 430 is CLTC and 353 is WLTP - the row is internally inconsistent."
+      }
+    ]
+  },
+  "honri-ve-2": {
+    "fills": {
+      "connectors": {
+        "value": "Type 2",
+        "source": "https://www.pakwheels.com/new-cars/honri/ve/2-0--8",
+        "note": "PakWheels VE 2.0 spec page: charge port 'Type 2', AC onboard charger 3.3 kW; fast charge (DC) '-'."
+      }
+    },
+    "conflicts": []
+  },
+  "nora-ev": {
+    "fills": {},
+    "conflicts": []
+  },
+  "alektra-mini-x4": {
+    "fills": {
+      "acChargingHours": {
+        "value": 5,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels lists the car as the Alektra METRO (4-Door variants match the DB prices 1,245,000-1,345,000). Spec table 'Charging time 5.0 hours'; description says about 5-7 hours on a 220V socket."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Not publicly defined — confirm terms with the dealer.",
+        "found": "2-year battery and motor warranty",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels: 2-year warranty on battery and motor; The Pakistan Connect (Aug 2026) also says 'a 2-year battery and motor warranty'."
+      },
+      {
+        "column": "lengthMm",
+        "current": 2450,
+        "found": 2600,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/4-door-12-96-kwh/",
+        "note": "PakWheels' 4-Door 12.96 kWh variant page lists 2600 x 1280 x 1650 mm and wheelbase 1850 mm, while the PakWheels model page lists 2450 x 1250 x 1650 mm. Possibly the 4-door is longer than the 2-door; wheelbase left blank until confirmed."
+      },
+      {
+        "column": "model",
+        "current": "MINI X4",
+        "found": "METRO 4-Door",
+        "source": "https://thepakistanconnect.com/alektra-electric-car-pakistan/",
+        "note": "Pakistani sources and PakWheels name the car 'METRO' (2-Door / 4-Door / Solar 4-Door) with the same prices; no source found using 'MINI X4'. Not a writable column - flag for review."
+      }
+    ]
+  },
+  "alektra-solar-mini-x4": {
+    "fills": {
+      "acChargingHours": {
+        "value": 5,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels METRO model page spec table 'Charging time 5.0 hours' (description: 5-7 hours on 220V); applies across variants including Solar 4-Door."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 1300000,
+        "found": 1295000,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels lists Solar 4-Door ex-factory prices: 7.2 kWh PKR 1,295,000; 10.8 kWh PKR 1,345,000; 12.96 kWh PKR 1,395,000. DB carries 13 Lakh as 'indicative'."
+      },
+      {
+        "column": "priceMax",
+        "current": 1300000,
+        "found": 1395000,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "Solar 4-Door 12.96 kWh: PKR 1,395,000 ex-factory (PakWheels)."
+      },
+      {
+        "column": "warranty",
+        "current": "Not publicly defined — confirm terms with the dealer.",
+        "found": "2-year battery and motor warranty",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels and The Pakistan Connect both state a 2-year battery and motor warranty."
+      }
+    ]
+  },
+  "alektra-mini-x2": {
+    "fills": {
+      "acChargingHours": {
+        "value": 5,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels METRO model page spec table 'Charging time 5.0 hours' (description: 5-7 hours on 220V). 2-Door variants match DB prices 1,095,000-1,195,000."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 2.68,
+        "found": "7.2 / 10.8 / 12.96 kWh",
+        "source": "https://thepakistanconnect.com/alektra-electric-car-pakistan/",
+        "note": "The 2-Door is sold with 7.2, 10.8 or 12.96 kWh packs (PKR 1,095,000 / 1,145,000 / 1,195,000). 2.68 matches no source's battery figure (it echoes a '2.68 hp' power claim). The DB price span runs 7.2 to 12.96 kWh."
+      },
+      {
+        "column": "warranty",
+        "current": "Not publicly defined — confirm terms with the dealer.",
+        "found": "2-year battery and motor warranty",
+        "source": "https://thepakistanconnect.com/alektra-electric-car-pakistan/",
+        "note": "'a 2-year battery and motor warranty'; PakWheels METRO page says the same."
+      }
+    ]
+  },
+  "dfsk-seres-3": {
+    "fills": {
+      "motorPowerKw": {
+        "value": 120,
+        "source": "https://pakwheels.com/new-cars/seres/3--2/",
+        "note": "PakWheels Seres 3 page overview text gives 120 kW (spec table 161 hp, matching DB power). ProPakistani instead quotes 156 hp - see conflicts."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 100,000 km; battery and motor 8 years / 150,000 km (whichever first).",
+        "source": "https://carspiritpk.com/?p=76053",
+        "note": "CarSpiritPK Pakistan launch report: 'backed by a 5-year/ 100,000 km warranty, and an 8-year/ 150,000 km battery & motor warranty (whichever occurs first)'. Page returned 403 to direct fetch; wording taken from the search-indexed text."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 52.56,
+        "found": 54,
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "ProPakistani (Dec 2024, local-assembly launch): '54 kWh lithium-ion battery'. PakWheels spec table also 54.0 kWh (overview text says 49.34). Profit (Oct 2024) says two versions: 49 kWh (3.5) and 54 kWh (4.0)."
+      },
+      {
+        "column": "range",
+        "current": 329,
+        "found": 403,
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "ProPakistani: 'up to 403 km on a single charge (NEDC cycle)' for the 54 kWh car; PakWheels spec table 331 km. Range cycle for the stored 329 km is unknown, so rangeStandard left blank."
+      },
+      {
+        "column": "torque",
+        "current": 300,
+        "found": 280,
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "ProPakistani: 156 hp and 280 Nm. PakWheels overview says 300 Nm."
+      },
+      {
+        "column": "kerbWeightKg",
+        "current": 1760,
+        "found": 1650,
+        "source": "https://pakwheels.com/new-cars/seres/3--2/",
+        "note": "PakWheels spec page lists kerb weight 1650 kg."
+      },
+      {
+        "column": "connectors",
+        "current": "GB/T",
+        "found": "CCS2",
+        "source": "https://pakwheels.com/new-cars/seres/3--2/",
+        "note": "PakWheels lists the DC charge port as 'CCS Combo 2'. Worth confirming with Regal before telling buyers it is GB/T."
+      }
+    ]
+  },
+  "riddara-rd6": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 32,
+        "source": "https://www.pakwheels.com/new-cars/riddara/rd6/",
+        "note": "PakWheels RD6 overview: 30% to 80% in about 32 minutes on a 100 kW charger. Window is 30-80%, not 10-80%; not tied to a specific battery, but the Econ uses the 73 kWh pack listed in the same spec table."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 13300000,
+        "found": 14499000,
+        "source": "https://www.pakwheels.com/new-cars/riddara/rd6/",
+        "note": "PakWheels currently lists the Econ at PKR 14,499,000 ex-factory and the Pro at PKR 17,999,000 (no Ultra listed); DB/notes use 13,299,000 for the Econ."
+      },
+      {
+        "column": "power",
+        "current": 280,
+        "found": 268,
+        "source": "https://www.pakwheels.com/new-cars/riddara/rd6/",
+        "note": "PakWheels lists the Econ at 268 hp; Gari.pk lists 209 hp; Riddara's global press release gives the 4WD Econ 280 kW / 485 Nm. No Pakistan source gives a kW figure, so motorPowerKw left blank."
+      }
+    ]
+  },
+  "hyptec-ht": {
+    "fills": {},
+    "conflicts": [
+      {
+        "column": "kerbWeightKg",
+        "current": null,
+        "found": 1922,
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "Not filled: PakWheels lists 1922 kg, but other sources put the 83 kWh car at 2,120-2,350 kg, so the figure is doubtful."
+      },
+      {
+        "column": "groundClearanceMm",
+        "current": null,
+        "found": "145 / 165",
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "Not filled: the PakWheels page says 'Approx. 145 mm' in the spec table and '165 mm' in its pros/cons."
+      },
+      {
+        "column": "acChargingHours",
+        "current": null,
+        "found": 8,
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "Not filled: PakWheels says about 8 h to full, but with 83 kWh on a 6.6 kW on-board charger that is not physically possible (~12.6 h minimum), so the figure is unreliable."
+      }
+    ]
+  }
+}

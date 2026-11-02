@@ -1,0 +1,147 @@
+{
+  "mercedes-eqc": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 142,
+        "source": "https://www.carsales.com.au/research/mercedes-benz/eqc/2020/eqc400/",
+        "note": "Carsales spec table for the EQC 400 (300 kW, 760 Nm, 80 kWh): 'Ground Clearance 142' (unit not printed; mm per the site's convention). CarWale India also gives 142 mm for the 400 4MATIC. EVKX lists 97 mm tied to an air-suspension setting; not used."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mercedes-c-class-electric": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "mercedes-g580-eq": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 250,
+        "source": "https://autotijd.be/en/dimensions/mercedes/g-class/g-580-eq-587-hp-awd-4302",
+        "note": "Autotijd dimensions page for the G 580 EQ 587 PS AWD (2024-2027): 'Ground clearance 250 mm', 'Wading depth 850 mm' (wading matches Shahnawaz). Mercedes-Benz Canada's G-Class EV page gives 9.8 in (about 249 mm)."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mercedes-eqa": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 151,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqa/250plus-190-hp-4135",
+        "note": "Autotijd dimensions page for the EQA 250plus 190 PS (2024-2027, i.e. the H243 facelift): 'Ground clearance 151 mm'. Length 4,463 / width 1,834 / wheelbase 2,729 mm match the DB."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "heightMm",
+        "current": 1620,
+        "found": 1612,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqa/250plus-190-hp-4135",
+        "note": "Autotijd gives height 1,612 mm for the EQA 250plus; likely a different wheel/measurement basis. Not applied."
+      }
+    ]
+  },
+  "mercedes-eqb": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 135,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqb/250plus-190-hp-4138",
+        "note": "Autotijd dimensions page for the EQB 250plus (2024-2027): 'Ground clearance 135 mm'. Length 4,684 / width 1,834 / wheelbase 2,829 mm match the DB."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "heightMm",
+        "current": 1667,
+        "found": 1673,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqb/250plus-190-hp-4138",
+        "note": "Autotijd gives height 1,673 mm for the EQB 250plus; small difference, likely wheel/roof-rail basis. Not applied."
+      }
+    ]
+  },
+  "mercedes-eqs": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "mercedes-eqs-suv": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 178,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqs-suv/450-360-hp-3527",
+        "note": "Autotijd dimensions page for the EQS SUV 450+ 360 PS (2022-2027): 'Ground clearance 178 mm'; length 5,125 / width 1,959 / height 1,718 / wheelbase 3,210 mm match the DB. Air suspension is standard, so clearance varies with ride height (Mercedes-Benz USA quotes 7.28 in at max load for the EQS 580 SUV)."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mercedes-glc-eq": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "rolls-royce-spectre": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "audi-e-tron-gt": {
+    "fills": {
+      "torque": {
+        "value": 740,
+        "source": "https://www.carexpert.com.au/audi/e-tron-gt/2025-s-sedan-4x4-electric-jsgw5k5m20250704",
+        "note": "CarExpert spec page for the 2025 (facelift) Audi S e-tron GT: 'Maximum Power (kW): 500', 'Maximum Torque (Nm): 740'. Same variant as the DB headline (S, 500 kW). Cars-data.com also lists 740 Nm for the S e-tron GT."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "bmw-i4": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 125,
+        "source": "https://autotijd.be/en/dimensions/bmw/i4/edrive35-5408",
+        "note": "Autotijd dimensions page for the i4 eDrive35 (2024-2027): 'Ground clearance 125 mm'. Autocar India's eDrive35 listing also gives 125 mm."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "bmw-i7": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "mini-aceman": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 143,
+        "source": "https://www.carsales.com.au/research/mini/aceman/2024/e-classic",
+        "note": "Carsales spec table for the Aceman E Classic (135 kW, 290 Nm): 'Ground Clearance 143' (unit not printed; mm). CarExpert's 2026 Aceman page gives 'Ground Clearance Unladen (mm): 143' for the SE and JCW E as well."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mini-cooper-electric": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 124,
+        "source": "https://www.carsales.com.au/research/mini/cooper/2025/e-classic/",
+        "note": "Carsales spec table for the 2025 Cooper E Classic (3-door, 135 kW, 290 Nm, 40.7 kWh): 'Ground Clearance 124' (unit not printed; mm). MotoringFile's EU-market table gives 124 mm for the J01 Cooper SE, and CarExpert 124 mm for the JCW E."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mini-countryman-electric": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  }
+}

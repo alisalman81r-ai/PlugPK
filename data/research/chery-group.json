@@ -1,0 +1,289 @@
+{
+  "jetour-t1-i-dm": {
+    "fills": {
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://cache4.pakwheels.com/system/brochures/1511/original/T1_Folded_Flyer-Low.pdf?1788291679",
+        "note": "Jetour Pakistan T1 flyer spec table, 1.5 PHEV column: 'NEDC pure electric cruising range (Km) 100'. Matches DB electricRange."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "jetour-t2-i-dm": {
+    "fills": {
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://cache1.pakwheels.com/system/brochures/1504/original/T2_Folded_Flyer.pdf?1783347759",
+        "note": "Jetour Pakistan T2 flyer spec table, 1.5 TGDI / 3DHT (i-DM) column: 'NEDC pure electric cruising range (Km) 90'. Matches DB electricRange."
+      },
+      "groundClearanceMm": {
+        "value": 220,
+        "source": "https://cache1.pakwheels.com/system/brochures/1504/original/T2_Folded_Flyer.pdf?1783347759",
+        "note": "Jetour Pakistan T2 flyer side-view dimension graphic: '220 mm (Ground clearance)' (flyer covers T2 Gasoline & i-DM). The PakWheels T2 page also lists 220 mm."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "jaecoo-j7-phev": {
+    "fills": {
+      "lengthMm": {
+        "value": 4500,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels J7 (SHS Premium) spec table: 'Dimensions (L x W x H) 4500 x 1865 x 1670 mm'. The Jaecoo Australia J7 SHS spec sheet also gives a 4,500 mm length."
+      },
+      "groundClearanceMm": {
+        "value": 174,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels J7 spec table: ground clearance 174 mm."
+      },
+      "bootCapacityL": {
+        "value": 412,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels J7 spec table: boot space 412 L. Only Pakistan figure found; the readable pages of the Jaecoo Pakistan brochure carry no spec table."
+      },
+      "range": {
+        "value": 1200,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels J7 page: combined range '1200+ km (with full tank and full charge)'. Matches the ~1,200 km in DB notes."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "widthMm",
+        "current": 1862,
+        "found": 1865,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels and the Jaecoo Australia spec sheet give 1,865 mm. The DB's 1862 x 1696 mm look like Tiggo 7 PHEV figures."
+      },
+      {
+        "column": "heightMm",
+        "current": 1696,
+        "found": 1670,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j7",
+        "note": "PakWheels lists 4500 x 1865 x 1670 mm; 1,670 mm also appears on Philippine J7 spec pages."
+      },
+      {
+        "column": "kerbWeightKg",
+        "current": null,
+        "found": 2210,
+        "source": "https://www.omodajaecoo.com.au/sites/default/files/2026-09/153_24_Jaecoo_J7_Spec_Sheet_AU_SHS_v1.3_compressed%20%281%29.pdf",
+        "note": "NOT filled. PakWheels lists 'Kerb weight 2210 KG', but the Jaecoo Australia spec sheet gives 2,210 kg as GROSS vehicle mass (tare 1,794 kg), so the PakWheels figure is GVM, not kerb weight."
+      }
+    ]
+  },
+  "jaecoo-j6": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "range",
+        "current": 426,
+        "found": 329,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j6",
+        "note": "PakWheels lists range '329 - 426 km' across variants. This row's price (PKR 8,799,000), battery (49.9 kWh) and power are the Comfort RWD's, whose range is 329 km per the DB's own notes; 426 km is the Luxury's. Consider range 329 with rangeMax 426."
+      },
+      {
+        "column": "groundClearanceMm",
+        "current": 175,
+        "found": 195,
+        "source": "https://www.pakwheels.com/new-cars/jaecoo/j6",
+        "note": "PakWheels J6 spec table lists 195 mm ground clearance."
+      }
+    ]
+  },
+  "jaecoo-j5-shs": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "omoda-7": {
+    "fills": {
+      "range": {
+        "value": 1200,
+        "source": "https://propakistani.pk/2026/08/07/omoda-7-phev-officially-launched-in-pakistan/",
+        "note": "ProPakistani launch report quoting the company: 'a combined driving range of approximately 1,200 kilometers' (full tank and full charge). A later ProPakistani piece (29 Aug 2026) says 'up to 1,250 km'."
+      },
+      "electricRangeStandard": {
+        "value": "WLTP",
+        "source": "https://propakistani.pk/2026/08/07/omoda-7-phev-officially-launched-in-pakistan/",
+        "note": "Same article: more than 90 km on electric power alone 'under the WLTP testing standard'. Matches DB electricRange 90."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "omoda-e5": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 180,
+        "source": "https://www.pakwheels.com/new-cars/omoda/e5",
+        "note": "PakWheels Omoda E5 (Lux, only variant) spec table: ground clearance 180 mm."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "kerbWeightKg",
+        "current": 1710,
+        "found": 1735,
+        "source": "https://www.pakwheels.com/new-cars/omoda/e5",
+        "note": "PakWheels E5 spec table lists kerb weight 1735 KG."
+      },
+      {
+        "column": "heightMm",
+        "current": 1588,
+        "found": 1558,
+        "source": "https://www.pakwheels.com/new-cars/omoda/e5",
+        "note": "PakWheels lists 4424 x 1830 x 1558 mm; 1,588 mm is the widely published global figure, so PakWheels may be a typo."
+      }
+    ]
+  },
+  "chery-tiggo-8-phev": {
+    "fills": {
+      "variant": {
+        "value": "Premium",
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-8",
+        "note": "PakWheels lists a single variant 'Premium PHEV 4WD'; the Master Chery training deck also says 'Tiggo 8 PHEV Premium 4WD'."
+      },
+      "range": {
+        "value": 1200,
+        "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706",
+        "note": "Master Auto Engineering (Chery Pakistan) Tiggo 8 training deck: 'WLTC EV range: 90 km  Combined range: 1200+ km'. The deck elsewhere also says the 60 L tank 'enables up to 1115 km range per tank'."
+      },
+      "electricRangeStandard": {
+        "value": "WLTP",
+        "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706",
+        "note": "Deck: 'WLTC EV range: 90 km' (WLTC is the WLTP test cycle). Matches DB electricRange 90."
+      },
+      "dcChargingMinutes": {
+        "value": 20,
+        "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706",
+        "note": "Deck: '40kW charging pile for fast charging 20min (30%-80%)' and 'Fast charging: 30% to 80% in just 20 minutes'. Window is 30-80%, not 10-80%."
+      },
+      "groundClearanceMm": {
+        "value": 200,
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-8",
+        "note": "PakWheels Tiggo 8 Premium PHEV 4WD spec table: ground clearance 200 mm. Not stated in the distributor deck."
+      },
+      "kerbWeightKg": {
+        "value": 2063,
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-8",
+        "note": "PakWheels Tiggo 8 Premium PHEV 4WD spec table: kerb weight 2063 kg."
+      }
+    },
+    "corrections": {
+      "batteryTech": {
+        "value": "LFP",
+        "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706",
+        "note": "Distributor (Master Auto Engineering) Tiggo 8 PHEV deck, Battery Safety page: 'The battery pack ... uses lithium iron phosphate batteries.' DB currently says 'Lithium-ion (LFP not confirmed)'."
+      }
+    },
+    "conflicts": []
+  },
+  "chery-tiggo-7-phev": {
+    "fills": {
+      "variant": {
+        "value": "Premium",
+        "source": "https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949",
+        "note": "Chery Pakistan Tiggo 7 brochure spec table header: 'Model  Tiggo 7 Premium (FWD)'."
+      },
+      "range": {
+        "value": 1200,
+        "source": "https://cache3.pakwheels.com/system/brochures/1492/original/Chery_%28Tiggo-7%29_Brochure_AW-01-YQ_%281%29_compressed.pdf?1775896949",
+        "note": "Brochure spec table: 'Combine Comprehensive Range (km) 1200+'; feature page: 'Combined Range: 1200+ Km'. Test cycle not stated."
+      },
+      "dcChargingMinutes": {
+        "value": 19,
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-7",
+        "note": "PakWheels Tiggo 7 Premium PHEV FWD page: 'DC charging 40 kW, 30-80% in around 19 minutes'. Window is 30-80%. The brochure only states 'DC charging 40 KW'."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "chery-tiggo-9-phev": {
+    "fills": {
+      "variant": {
+        "value": "Premium",
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-9",
+        "note": "PakWheels price listing: 'Premium PHEV AWD' (only variant)."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "electricRange",
+        "current": 170,
+        "found": "170 km NEDC (PakWheels spec page) vs 145 km WLTP (PakWheels launch report)",
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-9",
+        "note": "DB labels rangeStandard WLTP but holds 170 km, which the PakWheels spec page labels '170 km (NEDC)'. PakWheels launch coverage (https://www.pakwheels.com/blog/chery-unveils-tiggo-9-phev-in-pakistan/) gives 'WLTP Range (EV Mode): 145 km'. Either set electricRangeStandard NEDC or change electricRange to 145."
+      },
+      {
+        "column": "range",
+        "current": null,
+        "found": 1400,
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-9",
+        "note": "NOT filled. PakWheels gives 'Combined range: up to 1400 km (NEDC)', but other reports call the 1,400 km a WLTC figure, and the DB notes cite ~1,190 km WLTP. Cycle unresolved."
+      }
+    ]
+  },
+  "chery-tiggo-cross-hev": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "chery-q": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "icaur-v23": {
+    "fills": {
+      "dcCharging": {
+        "value": 85,
+        "source": "https://cache1.pakwheels.com/system/brochures/1519/original/iCAUR_%28V23_Leaflet%29_-_Web_compressed.pdf?1789716209",
+        "note": "iCAUR Pakistan V23 leaflet spec table, V23 RWD column: 'DC Charge Capacity 85kW' (AWD 104kW). Same table: RWD '20%~80% charging time 36 mins', which matches DB dcChargingMinutes."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "icaur-v27": {
+    "fills": {
+      "topSpeed": {
+        "value": 180,
+        "source": "https://icaurpk.com/model/v27/",
+        "note": "iCAUR Pakistan V27 model page: top speed '180 km/h'. PakWheels lists 170 km/h."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148",
+        "note": "iCAUR Pakistan V27-AWD brochure spec table: 'AC Charging Capacity 7 kW' (7 kW wall charger and 3.3 kW portable charger listed; external discharge 6.6 kW). The same table gives 'DC Charging Capacity 100 kW', which matches DB dcCharging."
+      }
+    },
+    "corrections": {
+      "range": {
+        "value": 1000,
+        "source": "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148",
+        "note": "iCAUR Pakistan V27-AWD brochure spec table: 'Combined Range (km) 1000 (NEDC)' and 'Electric Range (km) 150 (NEDC)'. The DB's 995 km came from PakWheels/ProPakistani."
+      },
+      "dcChargingMinutes": {
+        "value": 15,
+        "source": "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148",
+        "note": "iCAUR Pakistan V27-AWD brochure: '20%~80% Charging Time 15 minutes' (window 20-80%). The DB's 30 min came from PakWheels."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "kerbWeightKg",
+        "current": 2284,
+        "found": 2580,
+        "source": "https://icaurpk.com/model/v27/",
+        "note": "The iCAUR Pakistan V27 page lists 'Weight (kg) 2580' without saying kerb or gross; the iCAUR Pakistan brochure table gives Curb Weight 2284 kg, which matches the DB. Left for review."
+      }
+    ]
+  }
+}

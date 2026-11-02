@@ -1,0 +1,340 @@
+{
+  "xpeng-g6": {
+    "fills": {
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://www.gari.pk/news/xpeng-g6-suv-and-x9-mpv-launch-in-pakistan-this-friday-4935/",
+        "note": "Launch coverage calls it the 'G6 SUV'. PakWheels' spec table lists body type 'Crossover'."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://www.gari.pk/new-cars/xpeng/g6/long-range-rwd/",
+        "note": "Rear-wheel drive on the Standard Range RWD (PKR 14.5M, the row's priceMin) and Long Range RWD. The top Performance AWD (PKR 18.5M, the row's priceMax) is all-wheel drive."
+      },
+      "lengthMm": {
+        "value": 4758,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "4758 x 1920 x 1650 mm, same for all three Pakistan variants."
+      },
+      "widthMm": {
+        "value": 1920,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "All variants."
+      },
+      "heightMm": {
+        "value": 1650,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "All variants."
+      },
+      "wheelbaseMm": {
+        "value": 2890,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "2890 mm for all variants (also on gari.pk's Long Range RWD page)."
+      },
+      "bootCapacityL": {
+        "value": 571,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "Boot space 571 L for all variants (gari.pk Long Range RWD page also 571 L)."
+      },
+      "kerbWeightKg": {
+        "value": 2025,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "2025 kg for Standard Range RWD and Long Range RWD; Performance AWD 2130 kg."
+      },
+      "dcChargingMinutes": {
+        "value": 12,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "'Fast charge time (10-80% DC): 12 min' on all variants. No peak DC kW listed."
+      },
+      "acChargingHours": {
+        "value": 7.9,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "Home charge (0-100%) 7.9 h for the Standard Range RWD (68.5 kWh, matching the row's battery); 9.7 h for the 80.8 kWh Long Range and Performance AWD. AC onboard charger 11 kW."
+      },
+      "batteryTech": {
+        "value": "Lithium-ion",
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "Battery type 'Lithium-ion' on all variants; chemistry (LFP/NMC) not stated by a Pakistan source."
+      },
+      "distributor": {
+        "value": "Tesla Industries (XPeng Pakistan)",
+        "source": "https://www.gari.pk/news/xpeng-g6-suv-and-x9-mpv-launch-in-pakistan-this-friday-4935/",
+        "note": "'The launch is being orchestrated by Tesla Industries.' Same wording as the X9 row."
+      },
+      "availability": {
+        "value": "Sold new in Pakistan by Tesla Industries since the 23 January 2026 launch, in Standard Range RWD (PKR 14.5M), Long Range RWD (PKR 15.5M) and Performance AWD (PKR 18.5M) trims.",
+        "source": "https://www.gari.pk/news/xpeng-g6-suv-and-x9-mpv-launch-in-pakistan-this-friday-4935/",
+        "note": "Launch on Friday 23 January 2026; trim prices from gari.pk launch coverage and https://www.pakwheels.com/new-cars/xpeng/g6/ (ex-factory)."
+      },
+      "warranty": {
+        "value": "Battery: 8 years / 160,000 km (PakWheels). Vehicle: not published.",
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "Battery warranty '160,000 km / 8 years' on all variants; no vehicle warranty listed."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 68,
+        "found": 68.5,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "PakWheels lists 68.5 kWh for the Standard Range RWD and 80.8 kWh for Long Range/Performance. Not an official source, so not corrected."
+      },
+      {
+        "column": "range",
+        "current": 535,
+        "found": 480,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "535 km is the Long Range RWD; the Standard Range RWD (68.5 kWh, 248 hp, PKR 14.5M), which the row's battery/power/priceMin describe, is 480 km. No test cycle is stated by any Pakistan source (gari.pk calls the AWD's 510 km NEDC; Europe quotes WLTP), so rangeStandard was left empty. The row also mixes the AWD's 4.1 s 0-100; gari.pk gives 6.6 s for the Long Range RWD."
+      }
+    ]
+  },
+  "xpeng-l03-reev": {
+    "fills": {
+      "connectors": {
+        "value": "CCS2",
+        "source": "https://www.pakwheels.com/new-cars/xpeng/l03/reev/",
+        "note": "Charge port: CCS2."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "acCharging",
+        "current": 11,
+        "found": 6.6,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/l03/reev/",
+        "note": "PakWheels' REEV page lists an AC onboard charger of 6.6 kW (home 0-100% 8.5 h), DC 10-80% 25 min, 240 km electric and 1,000 km combined. The row's notes cite XPeng via ProPakistani for AC 7 or 11 kW. Combined range left empty: ProPakistani's launch article (https://propakistani.pk/2026/10/12/xpeng-launches-pakistans-1st-ultra-fast-charging-reev-with-1100-km-range/) says 'around 1,150 km under the CLTC cycle' in the body but 1,100 km in its headline, and PakWheels says 1,000 km."
+      },
+      {
+        "column": "availability",
+        "current": "Pre-bookings opened in Pakistan on 6 July 2026 ...",
+        "found": "Launched in Pakistan on 12 October 2026 at Rs 11.5 million (REEV) alongside the L03 BEV Long Range (Rs 12.2 million).",
+        "source": "https://propakistani.pk/2026/10/12/xpeng-launches-pakistans-1st-ultra-fast-charging-reev-with-1100-km-range/",
+        "note": "The availability text is out of date: 'XPeng has officially launched the LO3 in Pakistan in two variants: REEV and BEV Long Range.' Not an official XPeng source, so listed here rather than corrected."
+      }
+    ]
+  },
+  "xpeng-x9": {
+    "fills": {
+      "variant": {
+        "value": "Long Range Pro+ 2WD",
+        "source": "https://www.pakwheels.com/new-cars/xpeng/x9/",
+        "note": "Single variant listed: 'Xpeng X9 Long Range Pro+ 2WD', PKR 31,500,000 ex-factory."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mg-hs-phev": {
+    "fills": {
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "MG Pakistan 'ALL NEW' HS Super Hybrid spec sheet: 'NEDC Electric Range (km) 135'."
+      },
+      "torque": {
+        "value": 350,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "'Maximum Combined Torque (Nm) - Nominal 350'. Engine 230 Nm, traction motor 340 Nm."
+      },
+      "acChargingHours": {
+        "value": 4,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "'Est. 7kW Charge Time (Full Charge) 4 Hours'; portable charger 7.5 hours."
+      },
+      "wheelbaseMm": {
+        "value": 2765,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "Wheelbase (mm) 2765."
+      },
+      "groundClearanceMm": {
+        "value": 176,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "Ground Clearance (mm) 176 (the Hybrid+ sheet says 167 mm)."
+      }
+    },
+    "corrections": {
+      "electricRange": {
+        "value": 135,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "MG Pakistan spec sheet for the new HS Super Hybrid (24.7 kWh): 'NEDC Electric Range (km) 135'; the model page says 'electric driving range of up to 135 kms (NEDC)'. 63 km was the previous generation."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "The spec sheet quotes 'Est. 7kW Charge Time (Full Charge) 4 Hours' with a Type 2 connection, so the car accepts 7 kW AC; 3.7 kW has no official source."
+      },
+      "lengthMm": {
+        "value": 4670,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "'Length * Width * Height (mm) 4670 * 1890 * 1663'. 4655 was an approximation."
+      },
+      "heightMm": {
+        "value": 1663,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "'4670 * 1890 * 1663'. 1660 was an approximation."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 9899000,
+        "found": 10199000,
+        "source": "https://propakistani.pk/2026/04/25/mg-launches-all-new-mg-hs-in-pakistan-introducing-hybrid-and-super-hybrid-variants/amp/",
+        "note": "Launch report: 'PKR 10,199,000 for the Super Hybrid variant' (introductory, April 2026). The row's own notes say PKR 10,199,000 too; priceMax/priceDisplay follow the same figure. Not corrected because prices may have moved since (no current official list found)."
+      },
+      {
+        "column": "motorPowerKw",
+        "current": null,
+        "found": "220 (brochure combined) vs 154 (website 'combined')",
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "Left empty. The spec sheet gives engine 105 kW, traction motor 154 kW, combined 220 kW / 350 Nm (220 kW matches the row's 295 hp), but the model page https://mgmotors.com.pk/model/mg-hs-super-hybrid labels 154 kW as 'Maximum Combined power'. Fuel tank 55 L."
+      }
+    ]
+  },
+  "mg-hs-hev": {
+    "fills": {
+      "wheelbaseMm": {
+        "value": 2765,
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "Wheelbase (mm) 2765."
+      },
+      "groundClearanceMm": {
+        "value": 167,
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "Ground Clearance (mm) '167 mm'."
+      }
+    },
+    "corrections": {
+      "lengthMm": {
+        "value": 4670,
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "MG Pakistan 'ALL NEW' HS Hybrid+ spec sheet: 'Length * Width * Height (mm) 4670 * 1890 * 1663'. 4655 was flagged in the notes as approximate."
+      },
+      "heightMm": {
+        "value": 1663,
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "'4670 * 1890 * 1663'. 1660 was approximate."
+      }
+    },
+    "conflicts": []
+  },
+  "mg-zs-ev": {
+    "fills": {
+      "torque": {
+        "value": 280,
+        "source": "https://propakistani.pk/2022/04/12/bookings-open-mg-zs-ev-facelift-has-more-power-and-better-range/",
+        "note": "Pakistan ZS EV facelift: 174 hp and '280 Newton-meters (Nm), sent to the front wheels'. Matches the row's 174 hp Essence."
+      },
+      "kerbWeightKg": {
+        "value": 1610,
+        "source": "https://www.pakwheels.com/new-cars/mg/zs-ev/specifications/",
+        "note": "MCE Essence (51.1 kWh) kerb weight 1610 kg; MCE Long Range 1620 kg."
+      },
+      "dcChargingMinutes": {
+        "value": 54,
+        "source": "https://www.pakwheels.com/new-cars/mg/zs-ev/specifications/",
+        "note": "'Fast charge (10-80% DC)': 54 min for the MCE Essence; 63 min for the MCE Long Range."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "mg-binguo": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 35,
+        "source": "https://mgmotors.com.pk/assets/brochure/Binguo-Brochure.pdf",
+        "note": "MG Pakistan brochure: 'DC Charging (30%-80%) 35 minutes' (30-80% window, not 10-80%). Model page: '10-80% in around thirty-five minutes' - the two official texts disagree on the window. AC (20%-100%) 5.5 hours."
+      }
+    },
+    "corrections": {
+      "warranty": {
+        "value": "Vehicle 5 years or 100,000 km; battery 8 years or 150,000 km (T&C apply).",
+        "source": "https://mgmotors.com.pk/assets/brochure/Binguo-Brochure.pdf",
+        "note": "MG Pakistan Binguo brochure: 'BATTERY WARRANTY 8 YEARS OR 150,000 KM / VEHICLE WARRANTY 5 YEARS OR 100,000 KM', '*T&C apply'."
+      },
+      "torque": {
+        "value": 125,
+        "source": "https://mgmotors.com.pk/model/binguo",
+        "note": "MG Pakistan's Binguo page states '125 Nm'. 150 Nm has no official source. (The same page's banner also shows a stray 'Up To 198 kms' CLTC next to 'Up To 333 KM'; the brochure gives 333 km.)"
+      }
+    },
+    "conflicts": []
+  },
+  "mg-4-urban": {
+    "fills": {
+      "dcCharging": {
+        "value": 82,
+        "source": "https://mgmotors.com.pk/assets/brochure/MG4_EV_Urban_Brochure.pdf",
+        "note": "'Maximum DC Charging Power (kW) 82'; model page: 'Up to 82 kW DC Charging'."
+      },
+      "dcChargingMinutes": {
+        "value": 28,
+        "source": "https://mgmotors.com.pk/assets/brochure/MG4_EV_Urban_Brochure.pdf",
+        "note": "'Estimated CCS Public Charge Time (10% to 80%) / Mins @25C: 28'."
+      },
+      "groundClearanceMm": {
+        "value": 130,
+        "source": "https://mgmotors.com.pk/assets/brochure/MG4_EV_Urban_Brochure.pdf",
+        "note": "'Running Clearance (mm) 130'."
+      },
+      "bootCapacityL": {
+        "value": 382,
+        "source": "https://mgmotors.com.pk/assets/brochure/MG4_EV_Urban_Brochure.pdf",
+        "note": "'Boot Volume Seats In Place (L) 382' (includes 98 L underboot storage); 1,266 L seats folded."
+      }
+    },
+    "corrections": {
+      "acCharging": {
+        "value": 6.6,
+        "source": "https://mgmotors.com.pk/assets/brochure/MG4_EV_Urban_Brochure.pdf",
+        "note": "MG Pakistan spec sheet: 'On-Board Charging Unit (kW) 6.6'. 7 kW was a rounded figure."
+      }
+    },
+    "conflicts": []
+  },
+  "mg-5-ev": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "mg-cyberster": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "mg-zs-hybrid-plus": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "zeekr-009": {
+    "fills": {
+      "dcCharging": {
+        "value": 150,
+        "source": "https://paultan.org/research/zeekr/009/ef1e/luxury-2025/",
+        "note": "Zeekr 009 Luxury (Malaysia; same 116 kWh, 603 hp, 693 Nm, 582 km WLTP trim as Pakistan's Luxury): DC charging rate 150 kW. No Pakistan source gives a DC kW figure."
+      },
+      "acCharging": {
+        "value": 11,
+        "source": "https://www.pakwheels.com/new-cars/zeekr/009/specifications/",
+        "note": "AC onboard charger 11 kW (Luxury and Ultra-Luxury); paultan's Malaysian Luxury page also gives 11 kW."
+      },
+      "connectors": {
+        "value": "CCS2",
+        "source": "https://www.pakwheels.com/new-cars/zeekr/009/specifications/",
+        "note": "Charge port / connector: CCS2."
+      },
+      "groundClearanceMm": {
+        "value": 142,
+        "source": "https://www.pakwheels.com/new-cars/zeekr/009/specifications/",
+        "note": "Ground clearance 142 mm, both trims."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  }
+}

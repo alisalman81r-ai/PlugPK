@@ -1,0 +1,373 @@
+{
+  "gwm-tank-500-phev": {
+    "fills": {
+      "modelYear": {
+        "value": 2026,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Page is titled 'Tank 500 PHEV 2026'. This is the locally assembled car, booked from 26 Jan 2026 at PKR 22,500,000 ex-factory, the same price as the DB row."
+      },
+      "bodyType": {
+        "value": "Full-size SUV",
+        "source": "https://www.pakwheels.com/blog/gwm-tank-500-phev-price-reveal/",
+        "note": "Headline: 'GWM Tank 500 HEV & PHEV Price – Pakistan's 1st Locally Assembled Full-Size SUV'."
+      },
+      "driveType": {
+        "value": "AWD",
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Drive Train row: 'AWD'. The GWM Pakistan site (gwm-pakistan.com) also calls it 'Hi-4T Intelligent AWD Technology'."
+      },
+      "lengthMm": {
+        "value": 5078,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Dimensions row: 5078 x 1934 x 1905 mm."
+      },
+      "widthMm": {
+        "value": 1934,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Dimensions row: 5078 x 1934 x 1905 mm."
+      },
+      "heightMm": {
+        "value": 1905,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Dimensions row: 5078 x 1934 x 1905 mm."
+      },
+      "wheelbaseMm": {
+        "value": 2850,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Wheel Base row: '2850 mm'."
+      },
+      "groundClearanceMm": {
+        "value": 213,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Ground Clearance row: '213 mm'. The HEV page gives 224 mm."
+      },
+      "bootCapacityL": {
+        "value": 795,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Boot Space row: '795 L'."
+      },
+      "acChargingHours": {
+        "value": 7,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "'Home Charge Time (0-100%): 7 Hours', with a 6.6 kW on-board charger."
+      },
+      "dcChargingMinutes": {
+        "value": 24,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "'Fast Charge Time (10-80% DC): 24 min'. This is the 10-80% window."
+      },
+      "availability": {
+        "value": "Locally assembled (CKD) by Sazgar; bookings opened 26 Jan 2026 at PKR 22.5 million ex-factory, with delivery quoted at 3-4 months.",
+        "source": "https://www.pakwheels.com/blog/gwm-tank-500-phev-price-reveal/",
+        "note": "The article states the ex-factory prices, that bookings open from 26 January, and a delivery time of 3 to 4 months."
+      },
+      "distributor": {
+        "value": "Sazgar Engineering Works Limited (gwm-pakistan.com)",
+        "source": "https://www.gwm-pakistan.com/",
+        "note": "The official GWM Pakistan site lists 'TANK 500 PHEV' at an ex-factory price of 22,500,000. The Tank 500 brochure footer reads 'Sazgar Engineering Works Limited ... gwm-pakistan.com'."
+      },
+      "warranty": {
+        "value": "6 years / 150,000 km standard warranty; powertrain (engine and transmission) 10 years / 1,000,000 km.",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "The official warranty page says: 'HAVAL offers a 6 year or 150,000km (whichever comes first) standard warranty for all of its vehicles... power-train (engine and transmission) warranty period is 10 years or 1,000,000km.' The PakWheels variant page adds a battery warranty of 8 years / 150,000 km."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "seats",
+        "current": 7,
+        "found": 5,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "The PakWheels variant page says 'Seating Capacity: 5 persons', and the price-reveal article's table lists the PHEV as a 5-seater against the 7-seat HEV. Not from the distributor, so not corrected."
+      },
+      {
+        "column": "electricRange",
+        "current": 80,
+        "found": 120,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "The variant page lists 'Pure Electric Range: 120 km' with no cycle named. A separate PakWheels article quotes '80-90 km real-world', which is the current DB span. Neither figure is from the distributor."
+      },
+      {
+        "column": "kerbWeightKg",
+        "current": null,
+        "found": 2850,
+        "source": "https://www.pakwheels.com/new-cars/tank/500/phev--5/",
+        "note": "Not filled: the page's 'Kerb Weight 2850 KG' equals its wheelbase figure (2850 mm) and may be a copy error. International specs quoted by Gari.pk give 2,830 kg."
+      }
+    ]
+  },
+  "gwm-tank-300-hev": {
+    "fills": {
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://www.pakwheels.com/new-cars/tank/300/",
+        "note": "Model page: body type SUV, 5 seats. The page covers the Tank 300 model generally and lists no hybrid variant."
+      },
+      "driveType": {
+        "value": "4WD",
+        "source": "https://www.pakwheels.com/new-cars/tank/300/",
+        "note": "Model page drive row: 4WD. This is model-level, not HEV-specific."
+      },
+      "availability": {
+        "value": "Not officially launched in Pakistan: no Tank 300 HEV price or launch has been announced. GWM has brought a Tank 300 Hi4-T PHEV into the country for local testing.",
+        "source": "https://www.gari.pk/news/tank-300-hi4-t-phev-makes-early-arrival-in-pakistan-5487/",
+        "note": "Gari.pk reports an Australian-spec Tank 300 Hi4-T PHEV in Pakistan for testing, with price and launch unconfirmed. The Tank 300 also does not appear in the model list on gwm-pakistan.com."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  },
+  "gwm-tank-500-hev": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "power",
+        "current": 342,
+        "found": 246,
+        "source": "https://www.gwm-pakistan.com/",
+        "note": "The Tank 500 HEV feature tiles on the official GWM Pakistan site read 'Performance: 648Nm Torque, 246HP'. PakWheels lists '342 HP (Combined)'. 246 hp is probably the engine alone (2.0 T, about 180 kW), so it was not used as a correction."
+      }
+    ]
+  },
+  "haval-jolion-hev": {
+    "fills": {
+      "torque": {
+        "value": 375,
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Sazgar Engineering Works Jolion brochure spec table, HEV column: DHT, FWD, Power KW (HP) 140 (190), Torque 375 NM. The gwm-pakistan.com Jolion tile also reads '375Nm Torque, 190HP'."
+      },
+      "topSpeed": {
+        "value": 180,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "Top Speed row: '180 KM/H'."
+      },
+      "bodyType": {
+        "value": "SUV",
+        "source": "https://www.gwm-pakistan.com/",
+        "note": "The official GWM Pakistan site lists 'Haval Jolion' in category 'SUV'."
+      },
+      "driveType": {
+        "value": "FWD",
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Sazgar brochure, Driveline row: FWD for both the 1.5T and the HEV (DHT). PakWheels HEV page: 'Drive Train FWD'."
+      },
+      "lengthMm": {
+        "value": 4475,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "Length row: '4475 mm'. The Sazgar brochure drawing shows both 4472 mm and 4475 mm."
+      },
+      "widthMm": {
+        "value": 1841,
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Brochure dimension drawing: 1841 mm. PakWheels HEV page gives the same."
+      },
+      "heightMm": {
+        "value": 1619,
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Brochure dimension drawing: 1619 mm. PakWheels HEV page gives the same."
+      },
+      "wheelbaseMm": {
+        "value": 2700,
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Brochure: '2700mm Long Wheelbase'."
+      },
+      "groundClearanceMm": {
+        "value": 168,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "Ground Clearance row: '168 mm'."
+      },
+      "kerbWeightKg": {
+        "value": 1530,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "Kerb Weight row: '1530 KG'."
+      },
+      "availability": {
+        "value": "Locally assembled (CKD) by Sazgar; PakWheels lists it at PKR 9,116,216 ex-factory as the top Jolion variant.",
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/",
+        "note": "The variants table lists 'Haval Jolion HEV (Top of the line) 9,116,216' ex-factory. Local assembly is per https://www.pakwheels.com/blog/locally-assembled-haval-jolion-hev-specs-features/."
+      },
+      "distributor": {
+        "value": "Sazgar Engineering Works Limited (gwm-pakistan.com)",
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "Brochure: 'This brochure is published by Sazgar Engineering Works Limited'. haval.pk now redirects to gwm-pakistan.com."
+      },
+      "warranty": {
+        "value": "6 years / 150,000 km standard warranty; powertrain 10 years / 1,000,000 km; hybrid battery, motor and controller 8 years / 160,000 km.",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "Official warranty page: 6 yr/150,000 km standard for all vehicles, engine and transmission 10 yr/1,000,000 km, and 'For the HEV variant, the battery, motor, and controller comes with an 8 year or 160,000km warranty.' The Sazgar Jolion brochure warranty box gives the same three figures."
+      }
+    },
+    "corrections": {
+      "power": {
+        "value": 190,
+        "source": "https://cache2.pakwheels.com/system/brochures/267/original/JOLION.pdf?1711946773",
+        "note": "The Sazgar (Pakistan distributor) brochure gives the HEV system output as 'Power KW (HP) 140 (190)', and gwm-pakistan.com says '190HP'. The DB's 187 is a kW-to-hp conversion of 140 kW rather than the published figure."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 8999000,
+        "found": 9116216,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "PakWheels lists PKR 9,116,216 ex-factory. The DB price is marked indicative. priceMax and priceDisplay would change with it."
+      },
+      {
+        "column": "bootCapacityL",
+        "current": null,
+        "found": 390,
+        "source": "https://www.pakwheels.com/new-cars/haval/jolion/hev--3/",
+        "note": "Not filled: PakWheels HEV page says 390 L, but the Sazgar brochure (covering both variants) says 'Storage Space capacity: 337L'."
+      }
+    ]
+  },
+  "haval-jolion-max-ev": {
+    "fills": {},
+    "corrections": {},
+    "conflicts": []
+  },
+  "haval-h6-phev": {
+    "fills": {
+      "acChargingHours": {
+        "value": 3,
+        "source": "https://propakistani.pk/2025/08/19/haval-h6-phev-launched-in-pakistan-with-1000-km-range-and-360-hp/",
+        "note": "Pakistan launch article: 'Full AC charging takes around three hours.' PakWheels variant page: 'Home Charge Time (0-100%) 3 Hours'."
+      },
+      "dcChargingMinutes": {
+        "value": 28,
+        "source": "https://propakistani.pk/2025/08/19/haval-h6-phev-launched-in-pakistan-with-1000-km-range-and-360-hp/",
+        "note": "'supports DC fast charging from 30% to 80% in under 28 minutes' (30-80% window). PakWheels labels the same 28 min as 10-80%."
+      }
+    },
+    "corrections": {
+      "warranty": {
+        "value": "6 years / 150,000 km standard warranty; powertrain (engine and transmission) 10 years / 1,000,000 km.",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "The DB says 'Not confirmed'. The official GWM Pakistan warranty page states 6 yr/150,000 km standard 'for all of its vehicles' and 10 yr/1,000,000 km powertrain. PakWheels lists the PHEV battery warranty as 8 years / 160,000 km."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "connectors",
+        "current": "Type 2",
+        "found": "CCS2",
+        "source": "https://www.pakwheels.com/new-cars/haval/h6/phev--4/",
+        "note": "The PakWheels variant page gives the charge port as 'CCS2', and the DB has a DC rate (34 kW), which implies a DC port."
+      },
+      {
+        "column": "acCharging",
+        "current": 6,
+        "found": 6.6,
+        "source": "https://www.pakwheels.com/new-cars/haval/h6/phev--4/",
+        "note": "Variant page: 'AC onboard charger 6.6 kW'."
+      },
+      {
+        "column": "batteryTech",
+        "current": null,
+        "found": "Lithium iron phosphate",
+        "source": "https://propakistani.pk/2025/08/19/haval-h6-phev-launched-in-pakistan-with-1000-km-range-and-360-hp/",
+        "note": "Not filled: the same sentence gives an implausible '67 kWh' capacity (DB has 19.09 kWh), so the article's battery details are not reliable."
+      }
+    ]
+  },
+  "haval-h6-gt-phev": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 26,
+        "source": "https://www.mynrma.com.au/open-road/car-reviews/gwm/2025-gwm-haval-h6gt-phev-review",
+        "note": "Australian review of the same 35.4 kWh / 321 kW car: 'a 30 to 80 per cent charge in 26 minutes' at 48 kW (30-80% window). The GWM AU/NZ pages say charge times assume a 48 kW DC charger. No Pakistani source gives a time."
+      },
+      "acChargingHours": {
+        "value": 6,
+        "source": "https://www.mynrma.com.au/open-road/car-reviews/gwm/2025-gwm-haval-h6gt-phev-review",
+        "note": "'from 0 to 100 per cent in six hours' on a 6.6 kW wall charger. Australian-market, same battery and charger rating as the Pakistani car (ProPakistani: 35.43 kWh, 6.6 kW AC)."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Battery: 8 years / 150,000 km. Vehicle: 5 years / 150,000 km (per PakNEV listing).",
+        "found": "6 years / 150,000 km standard; powertrain 10 years / 1,000,000 km",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "The official page says the 6 yr/150,000 km standard warranty applies 'for all of its vehicles' but does not name the H6 GT specifically, so it is not used as a correction."
+      }
+    ]
+  },
+  "haval-h6-hev": {
+    "fills": {
+      "acceleration": {
+        "value": 7.5,
+        "source": "https://propakistani.pk/2022/10/31/locally-assembled-haval-h6-hybrid-officially-launched-in-pakistan/",
+        "note": "Pakistan launch article (company figures): 'capable of going from 0 to 100 kilometers in around 7.5 seconds.' Same 240 hp / 530 Nm FWD DHT drivetrain as the DB row. A PakWheels review measured about 8 s."
+      }
+    },
+    "corrections": {
+      "warranty": {
+        "value": "6 years / 150,000 km standard warranty; powertrain 10 years / 1,000,000 km; hybrid battery, motor and controller 8 years / 160,000 km.",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "The DB says 'Not confirmed'. The official GWM Pakistan warranty page states these terms for all vehicles, plus the HEV battery/motor/controller term. PakWheels' H6 HEV page also lists the battery at 8 years / 160,000 km."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 10500000,
+        "found": 11523015,
+        "source": "https://www.gwm-pakistan.com/",
+        "note": "The official GWM Pakistan model list gives 'Haval H6 HEV' an exFactoryPrice of 11,523,015, and PakWheels gives the same. The DB price is marked indicative. Listed as a conflict so priceMax and priceDisplay can be changed together."
+      },
+      {
+        "column": "driveType",
+        "current": "FWD (DHT dedicated hybrid transmission)",
+        "found": "FWD",
+        "source": "https://www.pakwheels.com/new-cars/haval/h6/hev/",
+        "note": "The value is correct but not in the standard form ('FWD'). Formatting only."
+      }
+    ]
+  },
+  "gwm-ora-03": {
+    "fills": {
+      "dcChargingMinutes": {
+        "value": 41,
+        "source": "https://www.pakwheels.com/new-cars/ora/03/400-pro/",
+        "note": "ORA 03 400-Pro (the Pakistani variant) page: 'Fast Charge Time (10-80% DC): 41 min' (10-80% window)."
+      }
+    },
+    "corrections": {},
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Vehicle: 5 years / 150,000 km. Battery: 8 years / 150,000 km (per PakNEV listing).",
+        "found": "6 years / 150,000 km standard",
+        "source": "https://www.gwm-pakistan.com/warranty",
+        "note": "The official page states a 6 yr/150,000 km standard warranty 'for all of its vehicles'. The ORA 03 is no longer in the official line-up, so its terms at sale may differ. The PakWheels 400-Pro page gives the battery as 8 years / 150,000 km."
+      },
+      {
+        "column": "range",
+        "current": 400,
+        "found": 310,
+        "source": "https://www.pakwheels.com/new-cars/ora/03/400-pro/",
+        "note": "The variant page lists an electric range of 310 km with no cycle (the field shows '-'). This is already discussed in the DB notes (310 km WLTP vs 400 km CLTC)."
+      }
+    ]
+  },
+  "gwm-ora-05": {
+    "fills": {
+      "groundClearanceMm": {
+        "value": 175,
+        "source": "https://evcentral.com.au/cars/gwm/ora-5/",
+        "note": "Australian spec page for the 58.3 kWh / 150 kW ORA 5 (the same battery and motor as the Pakistani car): 'Ground clearance 175mm'. CarExpert NZ also gives 175 mm. No Pakistani source states it."
+      },
+      "dcChargingMinutes": {
+        "value": 30,
+        "source": "https://evcentral.com.au/cars/gwm/ora-5/",
+        "note": "'30 min' for '10-80 per cent' at 120 kW max DC (10-80% window). Australian 58.3 kWh car, the same pack as Pakistan's 58.33 kWh."
+      }
+    },
+    "corrections": {},
+    "conflicts": []
+  }
+}
