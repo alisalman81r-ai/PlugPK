@@ -2395,6 +2395,172 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf', 'https://paknev.com/cars/forthing-friday-reev'],
     checked: '2026-11-02',
   },
+
+  // GUGO, from GUGO Motors' GiGi brochure, PakNEV's Box lists and PakWheels'
+  // AION V and UT pages (GUGO's own imports, not LMC's official GAC cars).
+  'gugo-gigi': {
+    trim: '220',
+    groups: {
+      'Safety': [
+        'Driver airbag',
+        'ABS with EBD, electronic stability control and traction control',
+        'Brake assist and auto hold',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+        'Power cut-off in a collision',
+      ],
+      'Parking': [
+        'Reversing camera',
+        'Rear parking radar',
+      ],
+      'Powertrain & Charging': [
+        '16.8 kWh LFP battery, 220 km (NEDC)',
+        '3.3 kW home charging in 4–5 hours',
+        'Economy and Sport modes with regenerative braking',
+        'Optional 5 kW solar charging parking shed',
+      ],
+      'Infotainment & Connectivity': [
+        '8.8-inch touchscreen',
+        '7-inch digital instrument cluster',
+        'Two speakers',
+      ],
+      'Seats & Interior': [
+        'Four seats',
+        '50:50 folding rear seats for extra load space',
+        'Multi-function steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Keyless entry and push-button start',
+        'Cruise control and speed limiter',
+        'Automatic climate control (cooling and heating)',
+        'Remote central locking',
+      ],
+      'Exterior & Lighting': [
+        'LED daytime running lights',
+        'Electrically adjustable mirrors',
+        '13-inch alloy wheels',
+      ],
+    },
+    sources: ['https://gugomotors.com/pdf/dfsk-gigi-mini.pdf'],
+    checked: '2026-11-02',
+  },
+  'gugo-box': {
+    trim: 'E1 Eco (E3 Premium additions marked)',
+    groups: {
+      'Safety': [
+        'Dual front airbags',
+        'ABS, EBD, brake assist, stability and traction control',
+        'Hill start assist and auto hold',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+      ],
+      'Driver Assistance (ADAS)': [
+        'E3: forward collision warning and lane keep assist',
+        'E3: active electronic braking',
+      ],
+      'Parking': [
+        'Reversing camera and rear parking sensors',
+        'E3: 360° camera',
+      ],
+      'Powertrain & Charging': [
+        'CCS2 DC fast charging: 10–80% in about 30 minutes',
+      ],
+      'Infotainment & Connectivity': [
+        '5-inch digital instrument display',
+        'Intelligent voice control and phone app remote control',
+        'E2 and E3: 12-inch floating touchscreen with navigation and Bluetooth',
+      ],
+      'Seats & Interior': [
+        'Fabric seats (leatherette on E2 and E3)',
+      ],
+      'Comfort & Convenience': [
+        'Smart keyless entry',
+        'Automatic climate control',
+        'Anti-pinch power windows',
+        'Underfloor cable storage',
+      ],
+      'Exterior & Lighting': [
+        'Frameless doors and hidden door handles',
+        'LED taillights (adaptive LED headlights on the E3)',
+        '16-inch steel wheels (alloys on E2 and E3)',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gugo-motors-box'],
+    checked: '2026-11-02',
+  },
+  'gugo-aion-v': {
+    trim: 'V5 Premium (V6 Luxury additions marked)',
+    groups: {
+      'Safety': [
+        'Six airbags',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Advanced driver-assistance suite',
+      ],
+      'Parking': [
+        '360° camera',
+      ],
+      'Powertrain & Charging': [
+        'LFP battery (GAC Magazine technology)',
+        'Fast DC charging up to 150 kW (180 kW on the V6)',
+        'Vehicle-to-load (V2L)',
+      ],
+      'Infotainment & Connectivity': [
+        '15.6-inch floating touchscreen and digital instrument cluster',
+        'Apple CarPlay and Android Auto',
+        'Nine-speaker sound system',
+        'In-car Wi-Fi and phone app control',
+      ],
+      'Seats & Interior': [
+        '6-way electric driver seat and 4-way electric passenger seat',
+        'Reclining lounge-style seats',
+      ],
+      'Comfort & Convenience': [
+        'Built-in car refrigerator',
+        'Rear AC vents and PM2.5 cabin filter',
+        'Wireless phone charging',
+        'Electric tailgate',
+      ],
+      'Exterior & Lighting': [
+        'V6: panoramic sunroof',
+        '19-inch alloy wheels',
+      ],
+    },
+    sources: ['https://www.pakwheels.com/new-cars/gugo/aion-v/'],
+    checked: '2026-11-02',
+  },
+  'gugo-aion-ut': {
+    trim: 'U4 Premium (UT5 Luxury additions marked)',
+    groups: {
+      'Safety': [
+        'Six airbags',
+      ],
+      'Parking': [
+        '360° camera',
+      ],
+      'Powertrain & Charging': [
+        'DC fast charging up to 70 kW (80 kW on the UT5)',
+        'Heat-pump climate system',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch touchscreen and 8.8-inch digital cluster',
+        'Android Auto',
+        'GAC app remote control',
+      ],
+      'Seats & Interior': [
+        '6-way adjustable driver seat',
+      ],
+      'Comfort & Convenience': [
+        'Wireless phone charging',
+      ],
+      'Exterior & Lighting': [
+        'UT5: panoramic sunroof',
+        '16-inch wheels (17-inch on the UT5)',
+      ],
+    },
+    sources: ['https://www.pakwheels.com/new-cars/gugo/aion-ut'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain

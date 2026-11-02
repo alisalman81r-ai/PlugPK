@@ -1,0 +1,46 @@
+{
+  "gugo-box": {
+    "corrections": {
+      "variant": { "value": "E1 Eco / E2 Plus / E3 Premium", "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV's trim names; headline figures are the E1 Eco's." },
+      "priceMin": { "value": 5700000, "source": "https://paknev.com/cars/gugo-motors-box", "note": "E1 Eco PKR 5,700,000 ex-factory (PakNEV, PakWheels, Gari.pk) after GUGO's April 2025 price cut of Rs 10.5 lakh per trim. The PKR 6,300,000 previously stored was the pre-cut price." },
+      "priceMax": { "value": 6650000, "source": "https://paknev.com/cars/gugo-motors-box", "note": "E3 Premium PKR 6,650,000 (was 7,700,000 before the cut). E2 Plus is PKR 6,300,000." },
+      "priceDisplay": { "value": "PKR 57–66.5 Lakh", "source": "https://www.pakwheels.com/new-cars/gugo/box/", "note": "E1 Eco to E3 Premium, ex-factory." },
+      "acceleration": { "value": 12.5, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV, E1 Eco: 0–100 km/h 12.5 s. The 10.6 s previously stored is the 42.3 kWh trims'." },
+      "dcChargingMinutes": { "value": 30, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV: DC 10–80% in 30 min." },
+      "groundClearanceMm": { "value": 160, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV: 160 mm." },
+      "bootCapacityL": { "value": 326, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV: 326 L." },
+      "kerbWeightKg": { "value": 1235, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV, E1 Eco: 1,235 kg (the 42.3 kWh trims 1,312–1,320 kg)." },
+      "realWorldRange": { "value": 238, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV real-world estimate, E1 Eco: 238 km." },
+      "realWorldRangeMax": { "value": 302, "source": "https://paknev.com/cars/gugo-motors-box", "note": "PakNEV, 42.3 kWh trims: 302 km." },
+      "availability": { "value": "On sale through GUGO Motors since February 2025, in E1 Eco, E2 Plus and E3 Premium trims; all three were cut by Rs 10.5 lakh in April 2025. The same car is sold by Chawla Green Motors as the Dongfeng Box.", "source": "https://www.pakwheels.com/blog/gugo-box-ev-price-reduced-by-rs-10-5-lacs/", "note": "PakWheels and ProPakistani on the price cut." },
+      "notes": { "value": "GUGO Box, a compact electric hatchback imported by GUGO Motors (the same car Chawla Green Motors sells as the Dongfeng Box). Three trims after the April 2025 price cut: E1 Eco PKR 5,700,000 with a 31.4 kWh LFP battery and 330 km CLTC; E2 Plus PKR 6,300,000 and E3 Premium PKR 6,650,000 with 42.3 kWh and 430 km CLTC. 70 kW (about 95 hp) front motor, 160 Nm, 0–100 km/h 12.5 s on the E1 (10.6 s on the larger battery), 140 km/h. AC 6.6 kW; DC 50 kW with 10–80% in about 30 minutes; CCS2 and Type 2. 4,020–4,030 × 1,810 × 1,570 mm on a 2,660 mm wheelbase, 160 mm ground clearance, 326 L boot, 1,235–1,320 kg, 5 seats. PakNEV estimates 238–302 km in real-world use. Equipment ranges from dual airbags, ESC, a 5-inch driver display, keyless entry, auto climate and a reversing camera on the E1 to a 12-inch floating touchscreen, 360° camera, forward collision warning, lane keep assist and adaptive LED headlights on the E3. Warranty is quoted by one source as 2 years / 100,000 km on the vehicle and 4 years / 150,000 km on the battery; confirm with GUGO. Sources: PakNEV, PakWheels, Gari.pk, ProPakistani.", "source": "https://paknev.com/cars/gugo-motors-box", "note": "Rewritten with the post-cut prices." }
+    }
+  },
+  "gugo-gigi": {
+    "corrections": {
+      "widthMm": { "value": 1495, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "GUGO brochure dimension drawing: full width 1,495 mm. The row had width and height swapped (1,640 / 1,495)." },
+      "heightMm": { "value": 1640, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "GUGO brochure: height 1,640 mm." },
+      "wheelbaseMm": { "value": 1960, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "GUGO brochure: wheelbase 1,960 mm." },
+      "bodyType": { "value": "Micro hatchback (3-door, 4-seat)", "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "Brochure: remote control for 3 doors; rear seats fold 50:50." },
+      "acceleration": { "value": null, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "Cleared: the 12 s had no source; GUGO publishes only 0–50 km/h in 5.2 s." },
+      "acChargingHours": { "value": 5, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "Brochure: 3.3 kW charging in 4–5 hours; the upper figure is stored." },
+      "dcCharging": { "value": null, "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "Cleared: the car has no DC charging, and 0 displayed as '0 kW'." },
+      "realWorldRange": { "value": 160, "source": "https://paknev.com/cars/gugo-motors-gigi", "note": "PakNEV real-world estimate 160 km." },
+      "realWorldRangeMax": { "value": null, "source": "https://paknev.com/cars/gugo-motors-gigi", "note": "Cleared: one figure." },
+      "consumption": { "value": 7.5, "source": "https://paknev.com/cars/gugo-motors-gigi", "note": "PakNEV: 7.5 kWh/100 km (estimate)." },
+      "notes": { "value": "GUGO GIGI 220, a three-door micro electric car, per GUGO Motors' brochure: 30 kW (40 hp) / 100 Nm permanent-magnet motor driving the rear wheels, 16.8 kWh lithium-iron-phosphate battery (112 V), 220 km NEDC, 100 km/h, 0–50 km/h in 5.2 s. Charges at 3.3 kW in 4–5 hours from a home socket; there is no DC fast charging. A 5 kW solar parking shed is offered as an option. 3,030 × 1,495 × 1,640 mm on a 1,960 mm wheelbase, 135 mm ground clearance, 145/60 R13 alloys, MacPherson front and multi-link rear suspension, about 815 kg, four seats with 50:50 folding rear seats (GUGO quotes 843 L of load space with them folded). Equipment: driver airbag, ABS with EBD, ESC, traction control, auto hold, TPMS, ISOFIX, reversing camera and rear parking radar, keyless entry and start, cruise control, a 7-inch digital cluster and 8.8-inch touchscreen, automatic climate control and electric mirrors. PKR 3,750,000. Sources: GUGO Motors brochure, PakNEV.", "source": "https://gugomotors.com/pdf/dfsk-gigi-mini.pdf", "note": "Rewritten from the brochure; the old note called doors, seats and dimensions unresolved." }
+    }
+  },
+  "gugo-aion-v": {
+    "corrections": {
+      "variant": { "value": "V5 Premium", "source": "https://www.pakwheels.com/new-cars/gugo/aion-v/", "note": "This row is GUGO's V5 Premium (PKR 11,990,000); the V6 Luxury is PKR 12,990,000." },
+      "availability": { "value": "Launched by GUGO Motors in November 2025 (V5 Premium PKR 11,990,000, V6 Luxury PKR 12,990,000). GUGO's own website no longer lists the AION V (November 2026), so confirm stock before booking. Lucky Motor Corporation sells the official GAC Aion V Premium separately at PKR 8,899,000 with an 8-year warranty.", "source": "https://www.pakwheels.com/blog/gugo-aion-v6-vs-gac-aion-v-premium-pakistan-2026/", "note": "PakWheels' May 2026 comparison; gugomotors.com now shows only the GiGi and Box." }
+    }
+  },
+  "gugo-aion-ut": {
+    "corrections": {
+      "variant": { "value": "U4 Premium / UT5 Luxury", "source": "https://www.pakwheels.com/new-cars/gugo/aion-ut", "note": "PakWheels: Premium (U4, PKR 6,990,000) and Luxury (UT5, PKR 8,499,000)." },
+      "availability": { "value": "Launched by GUGO Motors on 6 November 2025 (U4 Premium PKR 6,990,000, UT5 Luxury PKR 8,499,000). GUGO's own website no longer lists the AION UT (November 2026), so confirm stock before booking. Lucky Motor Corporation sells the official GAC Aion UT Elite separately at PKR 6,399,000.", "source": "https://www.pakwheels.com/new-cars/gugo/aion-ut", "note": "PakWheels; ProPakistani on the LMC launch; gugomotors.com now shows only the GiGi and Box." }
+    }
+  }
+}
