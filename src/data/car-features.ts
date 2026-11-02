@@ -2111,6 +2111,61 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://paknev.com/cars/chery-q'],
     checked: '2026-11-02',
   },
+
+  // DFSK / Seres, from Gari.pk's Pakistan listing, keeping items PakWheels'
+  // spec table also shows. PakNEV has no Seres 3 page, and Regal Automobiles
+  // publishes no brochure online.
+  'dfsk-seres-3': {
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'ABS with EBD, brake assist, stability and traction control',
+        'Hill start assist, hill descent control and auto hold',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+        'Electronic parking brake',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Lane departure warning',
+        'Forward collision warning',
+      ],
+      'Parking': [
+        '360° camera',
+        'Front and rear parking sensors',
+      ],
+      'Powertrain & Charging': [
+        '54 kWh battery, 403 km (NEDC)',
+        'CCS2 DC fast charging: 20–80% in about 30 minutes',
+        'Standard, Comfort and Sport modes with regenerative braking',
+        '22 kW wall charger included at launch',
+      ],
+      'Infotainment & Connectivity': [
+        '10.25-inch HD touchscreen with navigation',
+        'Digital instrument cluster',
+        'Wireless smartphone connectivity and Bluetooth',
+        'Six speakers',
+      ],
+      'Seats & Interior': [
+        'Leather seats',
+        '6-way electric, heated front seats',
+        'Multifunction steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Automatic climate control',
+        'Keyless entry and push-button start',
+        'Wireless phone charger',
+        'Electric tailgate with foot sensor',
+      ],
+      'Exterior & Lighting': [
+        'Electric panoramic sunroof',
+        'Automatic LED headlights with daytime running lights',
+        'LED taillights',
+        '18-inch alloy wheels',
+      ],
+    },
+    sources: ['https://www.gari.pk/new-cars/seres/3/', 'https://www.pakwheels.com/new-cars/seres/3--2/specifications/'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain
