@@ -286,6 +286,13 @@ export const carImageCredits: Record<string, ImageCredit> = {
     source: "https://commons.wikimedia.org/wiki/File:2024_Audi_e-tron_GT_S_Auto_Zuerich_2024_DSC_6547.jpg",
     changes: "Background removed and set on white, mirrored; placard covered; plug.pk number plate added",
   },
+  'audi-rs-e-tron-gt': {
+    author: "Alexander-93",
+    licence: "CC BY-SA 4.0",
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    source: "https://commons.wikimedia.org/wiki/File:2024_Audi_e-tron_GT_S_Auto_Zuerich_2024_DSC_6547.jpg",
+    changes: "Background removed and set on white, mirrored; placard covered; plug.pk number plate added",
+  },
   // The second catalogue expansion (September 2026), cut out in the same way.
   'mercedes-eqa': {
     author: "Alexander-93",

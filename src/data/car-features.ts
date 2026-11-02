@@ -1051,11 +1051,194 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://paknev.com/cars/alektra-solar-mini-x4'],
     checked: '2026-11-02',
   },
+
+  // Audi. The Q6 list is PakNEV's; PakNEV has none for the others, so theirs
+  // come from PakWheels' Pakistan pages, keeping only items stated for the
+  // car sold here and leaving out what PakWheels marks as optional.
+  'audi-q6-e-tron': {
+    trim: 'quattro',
+    groups: {
+      'Safety': [
+        'Front, side and curtain airbags',
+        'Tyre pressure monitoring (TPMS)',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control',
+        'Autonomous emergency braking (AEB)',
+        'Lane departure warning and lane change assist',
+        'Swerve assist and turn assist',
+        'Intersection assist',
+        'Rear cross traffic assist',
+        'Exit warning for opening doors',
+        'Traffic sign recognition',
+        'Matrix-beam high-beam assist',
+      ],
+      'Parking': [
+        '360° top-view camera',
+      ],
+      'Powertrain & Charging': [
+        '800-volt system, up to 270 kW DC: 10–80% in about 21 min',
+        '11 kW AC charging',
+        'quattro all-wheel drive',
+      ],
+      'Infotainment & Connectivity': [
+        'MMI panoramic display: 11.9-inch virtual cockpit and 14.5-inch touchscreen',
+        'Android Automotive operating system',
+        'Over-the-air software updates',
+        'Audi sound system',
+      ],
+      'Seats & Interior': [
+        'Power-adjustable front seats with driver memory',
+        'Heated steering wheel',
+        'Ambient lighting',
+        'Soft-touch dashboard and recycled-fabric upholstery',
+      ],
+      'Comfort & Convenience': [
+        'Multi-zone automatic climate control',
+        'Keyless entry and start',
+        'Power tailgate with gesture opening',
+        'Auto-dimming rear-view mirror',
+      ],
+      'Exterior & Lighting': [
+        'Digital matrix LED headlights',
+        'Active digital OLED taillights with 8 selectable light signatures',
+        'Electric panoramic sunroof',
+      ],
+    },
+    sources: ['https://paknev.com/cars/audi-q6-e-tron'],
+    checked: '2026-11-02',
+  },
+  'audi-a6-e-tron': {
+    trim: 'Sportback Signature and Executive Edition',
+    groups: {
+      'Safety': [
+        'Eight airbags',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control',
+        'Autonomous emergency braking and front collision assist',
+        'Lane assist',
+        'Rear cross traffic warning',
+        'Exit warning for opening doors',
+        'Driver fatigue and distraction warning',
+        'Parking assist',
+      ],
+      'Powertrain & Charging': [
+        '800-volt system, up to 225 kW DC: 10–80% in about 21 min',
+        '11 kW AC charging',
+        'Efficiency, Comfort, Auto, Dynamic and Individual drive modes',
+      ],
+      'Infotainment & Connectivity': [
+        '14.5-inch MMI touchscreen',
+        '11.9-inch Audi virtual cockpit',
+        'Wireless Apple CarPlay and Android Auto',
+        'Navigation, Bluetooth and voice control',
+        'Wireless phone charging',
+        '16-speaker audio (Signature)',
+      ],
+      'Seats & Interior': [
+        'Leather seats with power adjustment and driver lumbar support',
+        'Heated seats with memory',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone climate control with rear AC vents',
+        'Power tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Digital lighting with selectable daytime-running and rear-light signatures',
+        '19-inch alloy wheels',
+        'Drag coefficient of 0.21',
+      ],
+    },
+    sources: ['https://www.pakwheels.com/new-cars/audi/a6-e-tron/'],
+    checked: '2026-11-02',
+  },
+  'audi-e-tron-gt': {
+    trim: 'quattro (RS differences noted)',
+    groups: {
+      'Safety': [
+        'Ten airbags (RS)',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control',
+        'Forward collision warning and automatic emergency braking',
+        'Remote self-parking from a smartphone app',
+      ],
+      'Parking': [
+        'Parking aid plus with 360° display',
+      ],
+      'Powertrain & Charging': [
+        '800-volt system, up to 270 kW DC: about 22.5 min to 80%',
+        'Two motors and all-wheel drive with a two-speed rear gearbox',
+        'Boost mode for extra power on launch',
+      ],
+      'Infotainment & Connectivity': [
+        '10.1-inch central touchscreen',
+        'Digital instrument cluster',
+        'Head-up display',
+        'Apple CarPlay and Android Auto',
+        '16-speaker audio',
+        'Wireless phone charging',
+      ],
+      'Seats & Interior': [
+        'Heated and ventilated power front seats with driver memory',
+        'D-shaped leather steering wheel with electric adjustment',
+        'Ambient lighting',
+        'Leather-free interior available',
+      ],
+      'Comfort & Convenience': [
+        'Climate control with rear AC vents',
+        'Comfort key with sensor-operated boot release',
+        'Heated, power-folding, auto-dimming mirrors with memory',
+        'Auto-dimming rear-view mirror',
+      ],
+      'Exterior & Lighting': [
+        'Matrix LED headlights with Audi laser light',
+        'Dynamic lighting sequences and dynamic turn signals front and rear',
+        'Panoramic glass roof',
+        '19-inch alloy wheels (20-inch on the RS)',
+      ],
+    },
+    sources: ['https://www.pakwheels.com/new-cars/audi/e-tron-gt/'],
+    checked: '2026-11-02',
+  },
+  'audi-q8-e-tron': {
+    trim: '50 quattro',
+    groups: {
+      'Safety': [
+        'Eight airbags',
+      ],
+      'Powertrain & Charging': [
+        'quattro all-wheel drive',
+        'Up to 150 kW DC and 11 kW AC charging',
+      ],
+      'Infotainment & Connectivity': [
+        'Navigation',
+        'Apple CarPlay and Android Auto',
+      ],
+      'Seats & Interior': [
+        'Heated seats',
+      ],
+      'Comfort & Convenience': [
+        'Power tailgate',
+        'Rear AC vents',
+        'Adaptive air suspension',
+      ],
+      'Exterior & Lighting': [
+        '20-inch wheels',
+      ],
+    },
+    sources: ['https://www.pakwheels.com/new-cars/audi/q8-e-tron/', 'https://paknev.com/cars/audi-q8-e-tron'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain
 // differs, and that is in the spec sheet.
 CAR_FEATURES['mg-cyberster-gt-dual'] = CAR_FEATURES['mg-cyberster']!
+
+// The RS e-tron GT shares the quattro's list, whose RS differences are marked.
+CAR_FEATURES['audi-rs-e-tron-gt'] = CAR_FEATURES['audi-e-tron-gt']!
 
 // Each Alektra's Standard and Long Range packs share the Base's equipment.
 for (const model of ['alektra-mini-x2', 'alektra-mini-x4', 'alektra-solar-mini-x4']) {

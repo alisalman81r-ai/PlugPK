@@ -1,0 +1,413 @@
+{
+  "audi-a6-e-tron": {
+    "corrections": {
+      "variant": {
+        "value": "Signature / Executive Edition",
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "PakWheels' Pakistan lineup: Signature Sportback and Executive Edition Sportback, both on the 83 kWh / 210 kW powertrain and differing in equipment. Sportback is already in the full name."
+      },
+      "priceMin": {
+        "value": 28850000,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "Signature Sportback PKR 28,850,000 ex-factory (PakNEV; PakWheels the same, updated 09-07-2026). Replaces the PKR 3.6 Cr estimate."
+      },
+      "priceMax": {
+        "value": 33850000,
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "Executive Edition Sportback PKR 33,850,000 ex-factory (PakWheels)."
+      },
+      "priceDisplay": {
+        "value": "PKR 2.885–3.385 Cr",
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "Listed ex-factory prices, so no longer marked 'estimated'."
+      },
+      "batteryCapacity": {
+        "value": 75.8,
+        "source": "https://autotijd.be/en/specs/audi/a6-sportback-e-tron/210-kw-5004",
+        "note": "83 kWh gross / 75.8 kWh net for the 210 kW car Pakistan gets. The 94.9 kWh previously stored is the larger 100 kWh pack, not sold here."
+      },
+      "power": {
+        "value": 282,
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "PakWheels and PakNEV: 282 hp (210 kW / 286 PS). The 362 hp previously stored is the Performance trim."
+      },
+      "motorPowerKw": {
+        "value": 210,
+        "source": "https://autotijd.be/en/specs/audi/a6-sportback-e-tron/210-kw-5004",
+        "note": "210 kW."
+      },
+      "torque": {
+        "value": 435,
+        "source": "https://autotijd.be/en/specs/audi/a6-sportback-e-tron/210-kw-5004",
+        "note": "435 Nm. PakNEV's 855 Nm is the S6's."
+      },
+      "acceleration": {
+        "value": 7,
+        "source": "https://autotijd.be/en/specs/audi/a6-sportback-e-tron/210-kw-5004",
+        "note": "0–100 km/h 7.0 s. PakNEV's 4.5 s is the quattro's."
+      },
+      "range": {
+        "value": 632,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "PakNEV and PakWheels: 632 km WLTP for the 83 kWh Pakistan car. The 756 km previously stored is the 100 kWh Performance's."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://autotijd.be/en/specs/audi/a6-sportback-e-tron/210-kw-5004",
+        "note": "The 210 kW car is rear-wheel drive."
+      },
+      "realWorldRange": {
+        "value": 541,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "PakNEV real-world estimate 541 km."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "Cleared: the old 580-660 km span was for the 100 kWh pack."
+      },
+      "consumptionMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "Cleared: PakNEV gives one figure, 14 kWh/100 km, already stored."
+      },
+      "dcCharging": {
+        "value": 225,
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "PakWheels: up to 225 kW DC on the 83 kWh configuration, 10-80% in about 21 min. The 270 kW previously stored is the 100 kWh pack's."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "Cleared: the 10 h previously stored was the 100 kWh pack's; PakWheels gives 'about 8 hours' without a stated charger, so no figure is stored."
+      },
+      "groundClearanceMm": {
+        "value": 143,
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "PakNEV: 143 mm."
+      },
+      "kerbWeightKg": {
+        "value": 2100,
+        "source": "https://www.inside-digital.de/e-autos/audi-a6-sportback-e-tron",
+        "note": "2,100 kg (DIN, without driver) for the 210 kW car; 2,175 kg EU with driver."
+      },
+      "availability": {
+        "value": "Sold new by Audi Pakistan in two trims; bookings opened at the end of 2025 (Signature) and in January 2026 (Executive Edition), with delivery in about 4 months (PakWheels, July 2026).",
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "Replaces 'pre-orders open (estimated, not confirmed locally)'."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 160,000 km (70% capacity guaranteed).",
+        "source": "https://paknev.com/cars/audi-a6-e-tron",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Audi A6 e-tron Sportback as sold in Pakistan: the 210 kW rear-wheel-drive car with the 83 kWh battery (75.8 kWh usable) on an 800-volt system, in Signature (PKR 28,850,000) and Executive Edition (PKR 33,850,000) trims that share the powertrain and differ in equipment. 210 kW (282 hp / 286 PS) and 435 Nm, 0–100 km/h in 7.0 s, 210 km/h. 632 km WLTP per PakNEV and PakWheels (about 541 km in real-world use). DC charging up to 225 kW with 10–80% in about 21 min; AC 11 kW. 4,928 × 1,923 × 1,487 mm on a 2,946 mm wheelbase, 143 mm ground clearance, 502 L boot plus a front trunk, about 2,100 kg. Equipment includes 8 airbags, a 14.5-inch MMI touchscreen and 11.9-inch virtual cockpit, a 16-speaker sound system (Signature) and a power tailgate. Warranty 5 years / 150,000 km, battery 8 years / 160,000 km. The larger 100 kWh A6 e-tron (Performance, quattro, S6) is not sold in Pakistan. Sources: PakNEV, PakWheels, Autotijd, Inside Digital.",
+        "source": "https://www.pakwheels.com/new-cars/audi/a6-e-tron/",
+        "note": "Rewritten for the Pakistan car; the old note described the 100 kWh Performance."
+      }
+    }
+  },
+  "audi-q6-e-tron": {
+    "corrections": {
+      "variant": {
+        "value": "quattro",
+        "source": "https://www.pakwheels.com/new-cars/audi/q6-e-tron/",
+        "note": "PakWheels and PakNEV list one Pakistan version, the quattro."
+      },
+      "priceMin": {
+        "value": 48200000,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "PKR 48,200,000 ex-factory (PakNEV; PakWheels 'PKR 4.82 crore'). Replaces the PKR 3.5-4.5 Cr estimate."
+      },
+      "priceMax": {
+        "value": 48200000,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "Single version."
+      },
+      "priceDisplay": {
+        "value": "PKR 4.82 Cr",
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "Listed ex-factory price."
+      },
+      "power": {
+        "value": 382,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "PakNEV: 382 hp (285 kW / 387 PS per ADAC). The 322 hp previously stored is the Performance RWD, not sold here."
+      },
+      "motorPowerKw": {
+        "value": 285,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 285 kW (387 PS) system output."
+      },
+      "torque": {
+        "value": 855,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 855 Nm system torque."
+      },
+      "acceleration": {
+        "value": 5.9,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 0–100 km/h 5.9 s."
+      },
+      "range": {
+        "value": 621,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 621 km WLTP (PakNEV rounds to 625). The 641 km previously stored is the Performance RWD's."
+      },
+      "driveType": {
+        "value": "AWD (quattro)",
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "quattro all-wheel drive."
+      },
+      "realWorldRange": {
+        "value": 535,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "PakNEV real-world estimate 535 km."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "Cleared: one figure."
+      },
+      "consumption": {
+        "value": 17.1,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 17.1 kWh/100 km WLTP combined."
+      },
+      "consumptionMax": {
+        "value": null,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "Cleared: one figure."
+      },
+      "heightMm": {
+        "value": 1685,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 1,685 mm."
+      },
+      "wheelbaseMm": {
+        "value": 2889,
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "ADAC: 2,889 mm."
+      },
+      "groundClearanceMm": {
+        "value": 184,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "PakNEV: 184 mm."
+      },
+      "kerbWeightKg": {
+        "value": 2325,
+        "source": "https://paknev.com/cars/audi-q6-e-tron",
+        "note": "PakNEV: 2,325 kg (ADAC's 2,400 kg is the EU figure with a 75 kg driver)."
+      },
+      "availability": {
+        "value": "Sold new by Audi Pakistan as the Q6 e-tron quattro.",
+        "source": "https://www.pakwheels.com/new-cars/audi/q6-e-tron/",
+        "note": "Replaces 'available as an import (estimated, not confirmed locally)'."
+      },
+      "notes": {
+        "value": "Audi Q6 e-tron quattro, the version Audi Pakistan sells, on the 800-volt PPE platform. Per ADAC: 100 kWh battery (94.9 kWh usable), 285 kW (387 PS / 382 hp) and 855 Nm, all-wheel drive, 0–100 km/h in 5.9 s, 210 km/h, 621 km WLTP at 17.1 kWh/100 km; PakNEV estimates about 535 km in real-world use. DC charging up to 270 kW with 10–80% in about 21 min; AC 11 kW, about 10 hours from empty. 4,771 × 1,939 × 1,685 mm on a 2,889 mm wheelbase, 184 mm ground clearance, 526 L boot plus a 64 L front trunk, 2,325 kg. PKR 48,200,000 ex-factory. Equipment includes the MMI panoramic display (11.9-inch virtual cockpit and 14.5-inch touchscreen), digital matrix LED headlights and OLED taillights, a 360° camera and a panoramic sunroof. Sources: ADAC, PakNEV, PakWheels.",
+        "source": "https://www.adac.de/rund-ums-fahrzeug/autokatalog/marken-modelle/audi/q6-e-tron/gf/333634/",
+        "note": "Rewritten for the quattro; the old note led with the Performance RWD."
+      }
+    }
+  },
+  "audi-q8-e-tron": {
+    "corrections": {
+      "variant": {
+        "value": "50 quattro",
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Headline version, the cheapest of the four PakNEV lists (50 / 55 quattro, SUV and Sportback)."
+      },
+      "priceMin": {
+        "value": 38500000,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "PakNEV: 50 quattro PKR 38,500,000, the last ex-factory listing. Replaces the PKR 3.8 Cr estimate."
+      },
+      "priceMax": {
+        "value": 38500000,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "50 quattro only; the other three versions are in the notes."
+      },
+      "priceDisplay": {
+        "value": "PKR 3.85 Cr (last listed)",
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Labelled 'last listed' because the car is no longer in Audi Pakistan's lineup."
+      },
+      "batteryCapacity": {
+        "value": 89,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "PakNEV: 89 kWh usable (95 kWh gross). The catalogue stores usable capacity."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Cleared: 600 km is the Sportback 55's, a different version."
+      },
+      "driveType": {
+        "value": "AWD (quattro)",
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Same value, tidied."
+      },
+      "realWorldRange": {
+        "value": 390,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "PakNEV real-world estimate, 50 quattro: 390 km."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Cleared: one figure."
+      },
+      "consumptionMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Cleared: PakNEV gives one figure for the 50 quattro, 20.1 kWh/100 km, already stored."
+      },
+      "kerbWeightKg": {
+        "value": 2540,
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "PakNEV, 50 quattro SUV: 2,540 kg."
+      },
+      "availability": {
+        "value": "No longer sold new: absent from Audi Pakistan's current lineup (PakWheels), and production ended globally in early 2025. Used examples are on the market.",
+        "source": "https://www.pakwheels.com/new-cars/audi/q8-e-tron/",
+        "note": "PakWheels: 'Q8 e-tron is absent from current official Pakistan lineup.'"
+      },
+      "warranty": {
+        "value": "Vehicle 2 years / unlimited km; battery 8 years / 160,000 km.",
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Audi Q8 e-tron 50 quattro, the entry version of the Q8 e-tron, which is no longer in Audi Pakistan's lineup. 95 kWh battery (89 kWh usable), 250 kW (340 hp) and 664 Nm, quattro all-wheel drive, 0–100 km/h in 6.0 s, 200 km/h, 491 km WLTP (PakNEV quotes 455 km), about 390 km in real-world use per PakNEV. DC up to 150 kW, 10–80% in about 31 min; AC 11 kW. 4,915 × 1,937 × 1,633 mm on a 2,928 mm wheelbase, adaptive air suspension, 569 L boot, 2,540 kg. Last listed prices per PakNEV: 50 quattro PKR 38,500,000; Sportback 50 quattro PKR 41,500,000; 55 quattro (106 kWh, 408 hp, 582 km) PKR 43,500,000; Sportback 55 quattro (600 km) PKR 47,500,000. Warranty 2 years / unlimited km, battery 8 years / 160,000 km. Sources: PakNEV, PakWheels.",
+        "source": "https://paknev.com/cars/audi-q8-e-tron",
+        "note": "Rewritten: discontinued, with the four last-listed prices."
+      }
+    }
+  },
+  "audi-e-tron-gt": {
+    "corrections": {
+      "variant": {
+        "value": "quattro",
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "PakNEV lists two Pakistan versions, quattro and RS e-tron GT. This row is the quattro; the RS has its own row, audi-rs-e-tron-gt."
+      },
+      "modelYear": {
+        "value": 2024,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Pakistan gets the first-generation 93.4 kWh car (PakNEV, PakWheels), whose last Audi data sheet is dated May 2024. The row previously described the 2025 facelift."
+      },
+      "priceMin": {
+        "value": 44000000,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "PakNEV: quattro PKR 44,000,000 ex-factory. Replaces the PKR 5.5 Cr estimate."
+      },
+      "priceMax": {
+        "value": 44000000,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "quattro only; the RS (PKR 57,000,000) has its own row."
+      },
+      "priceDisplay": {
+        "value": "PKR 4.4 Cr",
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "Listed ex-factory price."
+      },
+      "batteryCapacity": {
+        "value": 83.7,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 93.4 kWh gross / 83.7 kWh net. The 97 kWh previously stored is the 2025 facelift's."
+      },
+      "power": {
+        "value": 469,
+        "source": "https://greencarjournal.com/?p=14957",
+        "note": "469 hp (350 kW), 522 hp with boost. The 670 hp previously stored is the facelift S e-tron GT's."
+      },
+      "motorPowerKw": {
+        "value": 350,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 350 kW peak, 390 kW with boost."
+      },
+      "torque": {
+        "value": 630,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 630 Nm."
+      },
+      "acceleration": {
+        "value": 4.1,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 0–100 km/h 4.1 s with boost (4.5 s without)."
+      },
+      "range": {
+        "value": 502,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 458–502 km WLTP combined, depending on equipment; the upper figure is stored."
+      },
+      "realWorldRange": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "Cleared: the 450-520 km previously stored was for the facelift, and PakNEV's 343 km rests on a 401 km claim that contradicts Audi's sheet."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "Cleared."
+      },
+      "consumption": {
+        "value": 19.6,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 19.6–21.6 kWh/100 km WLTP combined."
+      },
+      "consumptionMax": {
+        "value": 21.6,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Upper end of Audi's range."
+      },
+      "dcCharging": {
+        "value": 270,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 270 kW DC. The 320 kW previously stored is the facelift's."
+      },
+      "dcChargingMinutes": {
+        "value": 23,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 10–80% in 22.5 min, stored as 23 (whole minutes)."
+      },
+      "seats": {
+        "value": 5,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 4 doors / 5 seats (the centre rear seat is small; PakWheels calls the car a 4+1)."
+      },
+      "heightMm": {
+        "value": 1396,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 1,396 mm."
+      },
+      "groundClearanceMm": {
+        "value": 125,
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "PakNEV: 125 mm."
+      },
+      "kerbWeightKg": {
+        "value": 2276,
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Audi data sheet: 2,276 kg without driver."
+      },
+      "availability": {
+        "value": "Sold new by Audi Pakistan in quattro and RS versions (PakNEV, PakWheels).",
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "Replaces 'import on order (estimated, not confirmed locally)'."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 160,000 km (70% capacity guaranteed).",
+        "source": "https://paknev.com/cars/audi-e-tron-gt",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Audi e-tron GT quattro, first generation, as sold in Pakistan (the RS e-tron GT has its own page). Per Audi's data sheet: 93.4 kWh battery (83.7 kWh usable) on an 800-volt system, two motors with 350 kW (469 hp) and 390 kW (522 hp) on boost, 630 Nm, all-wheel drive with a two-speed rear gearbox, 0–100 km/h in 4.1 s with boost, 245 km/h, 458–502 km WLTP at 19.6–21.6 kWh/100 km. DC charging up to 270 kW with 10–80% in 22.5 min; AC 11 kW (22 kW optional), about 9.5 hours. 4,989 × 1,964 × 1,396 mm on a 2,900 mm wheelbase, 125 mm ground clearance (PakNEV), 405 L boot plus a front trunk, 2,276 kg, four doors and 4+1 seats. PKR 44,000,000 ex-factory per PakNEV (Gari.pk quotes PKR 58 million for the same car, so confirm with Audi Pakistan). Warranty 5 years / 150,000 km, battery 8 years / 160,000 km. The 2025 facelift (97 kWh, up to 670 hp) is not the car sold here. Sources: Audi data sheet (May 2024), PakNEV, PakWheels.",
+        "source": "https://uploads.audi-mediacenter.com/system/production/car_motorizations/1236/file_de/6d6ceb7f7cd108885f3c22d6922b5cad38407103/TD_Audi_e-tron_GT_quattro_350kW_240502.pdf",
+        "note": "Rewritten for the first-generation quattro."
+      }
+    }
+  }
+}

@@ -5245,6 +5245,77 @@ export const cars: Car[] = [
       'not a dealer list price — confirm with the distributor. Battery warranty 8 years / ' +
       '160,000 km; vehicle warranty not supplied.',
   },
+  {
+    // The RS, split out of audi-e-tron-gt (now the quattro alone) so neither
+    // row mixes the two first-generation versions Audi Pakistan sells.
+    id: 'audi-rs-e-tron-gt',
+    slug: 'audi-rs-e-tron-gt',
+    brand: 'Audi',
+    model: 'e-tron GT',
+    variant: 'RS',
+    fullName: 'Audi e-tron GT',
+    category: 'EV',
+    price: { min: 57000000, max: 57000000, display: 'PKR 5.7 Cr' },
+    batteryCapacity: 83.7,
+    batteryUnit: 'kWh',
+    range: 496,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 590,
+    powerUnit: 'hp',
+    acceleration: 3.3,
+    accelerationUnit: 'sec',
+    dcCharging: 270,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 830,
+    topSpeed: 250,
+    seats: 5,
+
+    modelYear: 2024,
+    bodyType: 'Four-door electric gran turismo',
+    driveType: 'AWD (electric quattro)',
+    motorPowerKw: 440,
+    rangeStandard: 'WLTP',
+    realWorldRange: 404,
+    realWorldRangeMax: null,
+    consumption: 19.8,
+    consumptionMax: 22.1,
+    acChargingHours: 9.5,
+    dcChargingMinutes: 23,
+    dcChargingFromPct: 5,
+    batteryTech: 'Lithium-ion (800V)',
+    lengthMm: 4989,
+    widthMm: 1964,
+    heightMm: 1414,
+    wheelbaseMm: 2900,
+    groundClearanceMm: 125,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 350,
+    kerbWeightKg: 2345,
+    availability: 'Sold new by Audi Pakistan; delivery in about 2 months (PakWheels, January 2026).',
+    distributor: 'Audi Pakistan (Premier Systems)',
+    warranty: 'Vehicle 5 years / 150,000 km; battery 8 years / 160,000 km (70% capacity guaranteed).',
+
+    image: '/images/cars/audi-e-tron-gt.jpg',
+    notes:
+      'Audi RS e-tron GT, first generation, as sold in Pakistan (the e-tron GT quattro has its ' +
+      'own page). Per Audi\'s data sheet: 93.4 kWh battery (83.7 kWh usable) on an 800-volt ' +
+      'system, 440 kW (590 hp) and 475 kW (637 hp) on boost, 830 Nm, all-wheel drive with a ' +
+      'controlled rear differential lock, 0-100 km/h in 3.3 s with boost (3.6 s without), 250 ' +
+      'km/h, 447-496 km WLTP at 19.8-22.1 kWh/100 km; PakNEV estimates about 404 km in ' +
+      'real-world use. DC charging up to 270 kW with 5-80% in 22.5 min; AC 11 kW (22 kW ' +
+      'optional), about 9.5 hours. 4,989 x 1,964 x 1,414 mm on a 2,900 mm wheelbase, 125 mm ' +
+      'ground clearance (PakNEV), 350 L boot plus a front trunk, 2,345 kg, four doors and 4+1 ' +
+      'seats, 20-inch wheels. PKR 57,000,000 ex-factory (PakNEV and PakWheels). Warranty 5 ' +
+      'years / 150,000 km, battery 8 years / 160,000 km. Sources: Audi data sheet (May 2024), ' +
+      'PakNEV, PakWheels, Green Car Journal (hp).',
+  },
 
   /* ─── BMW: seven electric lineups, Dewan Motors ─────────────────────
 
