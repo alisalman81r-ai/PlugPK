@@ -952,11 +952,116 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://paknev.com/cars/mg5-ev'],
     checked: '2026-11-02',
   },
+
+  // Alektra, from PakNEV's model pages. Alektra publishes no spec sheet of its
+  // own. Each list covers all three battery variants of its model, which share
+  // the equipment and differ only in the pack (in the spec sheet).
+  'alektra-mini-x2': {
+    groups: {
+      'Safety': [
+        'Front disc brakes, rear drum brakes',
+      ],
+      'Powertrain & Charging': [
+        'Rear-wheel drive',
+        'Charges from a 220V home socket',
+        'Eco driving mode',
+      ],
+      'Infotainment & Connectivity': [
+        'Digital instrument display',
+        'Bluetooth audio',
+      ],
+      'Seats & Interior': [
+        'Two adult seats',
+        'Small fold-down rear bench for cargo or small children',
+      ],
+      'Comfort & Convenience': [
+        'Front power windows',
+        'Air vents with a cabin cooling fan',
+      ],
+      'Exterior & Lighting': [
+        'LED headlights',
+        'Alloy wheels',
+        'Compact two-door body for city streets',
+      ],
+    },
+    sources: ['https://paknev.com/cars/alektra-mini-x2'],
+    checked: '2026-11-02',
+  },
+  'alektra-mini-x4': {
+    groups: {
+      'Powertrain & Charging': [
+        'Rear-wheel drive',
+        'Charges from a 220V home socket',
+        'Power steering',
+        'Raised suspension for extra clearance',
+      ],
+      'Infotainment & Connectivity': [
+        'Digital multi-information display',
+        'Touchscreen entertainment unit',
+        'USB phone-charging ports',
+      ],
+      'Seats & Interior': [
+        'Seats for four adults',
+        '4-way manually adjustable driver seat',
+        'Luggage space behind the rear seats',
+      ],
+      'Comfort & Convenience': [
+        'Air conditioning',
+        'Cabin heater',
+        'Central locking',
+      ],
+      'Exterior & Lighting': [
+        'Four-door body',
+        '12-inch wheels and tyres for city use',
+      ],
+    },
+    sources: ['https://paknev.com/cars/alektra-mini-x4'],
+    checked: '2026-11-02',
+  },
+  'alektra-solar-mini-x4': {
+    groups: {
+      'Parking': [
+        'Reversing camera shown on the touchscreen',
+      ],
+      'Powertrain & Charging': [
+        'Roof-mounted monocrystalline solar panel',
+        'Solar trickle-charging while parked or driving',
+        'Up to about 50 km of extra range a day from the sun (Alektra claim)',
+        'LFP battery',
+        'Regenerative braking',
+        'Rear-wheel drive',
+        'Charges from a 220V home socket',
+      ],
+      'Infotainment & Connectivity': [
+        'Touchscreen infotainment',
+      ],
+      'Seats & Interior': [
+        'Seats for four adults',
+        'Upgraded dashboard finish',
+      ],
+      'Comfort & Convenience': [
+        'Climate control',
+        'Central locking with remote keyless entry',
+      ],
+      'Exterior & Lighting': [
+        'Four-door body',
+        'LED daytime running lights',
+      ],
+    },
+    sources: ['https://paknev.com/cars/alektra-solar-mini-x4'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain
 // differs, and that is in the spec sheet.
 CAR_FEATURES['mg-cyberster-gt-dual'] = CAR_FEATURES['mg-cyberster']!
+
+// Each Alektra's Standard and Long Range packs share the Base's equipment.
+for (const model of ['alektra-mini-x2', 'alektra-mini-x4', 'alektra-solar-mini-x4']) {
+  CAR_FEATURES[`${model}-standard`] = CAR_FEATURES[model]!
+  CAR_FEATURES[`${model}-long-range`] = CAR_FEATURES[model]!
+}
 
 /** The features for one car, in display order, or null when none are recorded. */
 export function getCarFeatures(slug: string): {

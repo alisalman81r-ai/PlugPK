@@ -1,0 +1,337 @@
+{
+  "alektra-mini-x2": {
+    "corrections": {
+      "variant": {
+        "value": "Base (7.2 kWh)",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV lists the MINI X2 in three variants: Base 7.2 kWh, Standard 10.8 kWh and Long Range 12.96 kWh. This row is now the Base; the other two have their own rows."
+      },
+      "priceMax": {
+        "value": 1095000,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Base PKR 1,095,000. The PKR 1,195,000 top of the old span is the Long Range's, now its own row."
+      },
+      "priceDisplay": {
+        "value": "PKR 10.95 Lakh",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Base only."
+      },
+      "range": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: Claimed Range 100 km (CLTC). The old 80-180 km span covered all three packs."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Cleared: one variant per row now."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV labels every Alektra range CLTC."
+      },
+      "realWorldRange": {
+        "value": 70,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV real-world estimate, Base: 70 km."
+      },
+      "consumption": {
+        "value": 7.2,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV: 7.2 kWh/100 km (estimate)."
+      },
+      "acCharging": {
+        "value": 1.5,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: Max AC Charge 1.5 kW from a 220V socket. The 3 kW previously stored had no source for this pack."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Cleared: the 5 h previously stored was not tied to a pack; PakNEV gives only a 10-80% time (about 3 h 45 min), which this column does not hold."
+      },
+      "power": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Cleared: PakNEV prints 2.68 hp for the X2 Base but 7 hp for every other Alektra with the same motor, so the figure is not reliable enough to show."
+      },
+      "motorPowerKw": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Cleared: the 13 kW previously stored contradicts PakNEV's 7 hp, and no source gives a kW figure for this motor."
+      },
+      "torque": {
+        "value": 30,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: 30 Nm (Standard 40, Long Range 50). The 120 Nm previously stored has no source."
+      },
+      "topSpeed": {
+        "value": 45,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: 45 km/h (the larger packs: 50)."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV: rear-wheel drive."
+      },
+      "seats": {
+        "value": 2,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV: 2 seats ('2 adult capacity', with a small fold-down rear bench for cargo or children)."
+      },
+      "wheelbaseMm": {
+        "value": 1700,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV: 1,700 mm."
+      },
+      "bootCapacityL": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: 100 L."
+      },
+      "kerbWeightKg": {
+        "value": 450,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV, Base: 450 kg."
+      },
+      "warranty": {
+        "value": "Battery 2 years; motor 2 years.",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Base version of the two-door Alektra microcar, with the 7.2 kWh battery (Standard 10.8 kWh and Long Range 12.96 kWh have their own pages). Per PakNEV: 100 km on the CLTC cycle (about 70 km in real-world use, 7.2 kWh/100 km), 30 Nm driving the rear wheels, 45 km/h top speed, AC charging at up to 1.5 kW from a 220V home socket (10-80% in about 3 h 45 min); there is no DC fast charging. PakNEV gives this version 2.68 hp against 7 hp for every other Alektra, so no power figure is shown. 2,450 x 1,250 x 1,650 mm on a 1,700 mm wheelbase, 120 mm ground clearance, 100 L boot, 450 kg, 2 seats plus a small fold-down rear bench. PKR 1,095,000 ex-factory. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Rewritten for the Base variant."
+      }
+    }
+  },
+  "alektra-mini-x4": {
+    "corrections": {
+      "variant": {
+        "value": "Base (7.2 kWh)",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV lists the MINI X4 in three variants: Base 7.2 kWh, Standard 10.8 kWh and Long Range 12.96 kWh. This row is now the Base."
+      },
+      "priceMin": {
+        "value": 1295000,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: PKR 1,295,000. The PKR 1,245,000 previously stored is not on PakNEV."
+      },
+      "priceMax": {
+        "value": 1295000,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Base only."
+      },
+      "priceDisplay": {
+        "value": "PKR 12.95 Lakh",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Base only."
+      },
+      "batteryCapacity": {
+        "value": 7.2,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Base pack. The row previously showed the Long Range's 12.96 kWh against the Base's price."
+      },
+      "range": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: Claimed Range 100 km (CLTC)."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Cleared: one variant per row now."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV labels every Alektra range CLTC."
+      },
+      "realWorldRange": {
+        "value": 70,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV real-world estimate, Base: 70 km."
+      },
+      "consumption": {
+        "value": 7.2,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV: 7.2 kWh/100 km (estimate)."
+      },
+      "acCharging": {
+        "value": 1.5,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: Max AC Charge 1.5 kW."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Cleared: not tied to a pack; PakNEV gives only a 10-80% time."
+      },
+      "motorPowerKw": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Cleared: 13 kW contradicts PakNEV's 7 hp, and no source gives a kW figure."
+      },
+      "torque": {
+        "value": 30,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: 30 Nm. The 120 Nm previously stored has no source."
+      },
+      "topSpeed": {
+        "value": 45,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: 45 km/h."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV: rear-wheel drive."
+      },
+      "bootCapacityL": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: 100 L."
+      },
+      "kerbWeightKg": {
+        "value": 450,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV, Base: 450 kg."
+      },
+      "warranty": {
+        "value": "Battery 2 years; motor 2 years.",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Base version of the four-door Alektra microcar, with the 7.2 kWh battery (Standard 10.8 kWh and Long Range 12.96 kWh have their own pages). Per PakNEV: 100 km on the CLTC cycle (about 70 km in real-world use, 7.2 kWh/100 km), 7 hp and 30 Nm driving the rear wheels, 45 km/h top speed, AC charging at up to 1.5 kW from a 220V home socket (10-80% in about 3 h 45 min); there is no DC fast charging. 2,600 x 1,280 x 1,650 mm on a 1,850 mm wheelbase per the PakWheels and Gari.pk four-door variant pages (PakNEV prints the two-door's 2,450 x 1,250 mm for every Alektra), 120 mm ground clearance, 100 L boot, 450 kg, 4 seats. PKR 1,295,000 ex-factory. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Rewritten for the Base variant."
+      }
+    }
+  },
+  "alektra-solar-mini-x4": {
+    "corrections": {
+      "variant": {
+        "value": "Base (7.2 kWh)",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV lists the Solar MINI X4 in three variants: Base 7.2 kWh, Standard 10.8 kWh and Long Range 12.96 kWh. This row is now the Base."
+      },
+      "priceMin": {
+        "value": 1345000,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: PKR 1,345,000 ex-factory, a listed price, so the old '(indicative)' label is dropped."
+      },
+      "priceMax": {
+        "value": 1345000,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Base only."
+      },
+      "priceDisplay": {
+        "value": "PKR 13.45 Lakh",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Base only."
+      },
+      "batteryCapacity": {
+        "value": 7.2,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Base pack. The row previously showed the Long Range's 12.96 kWh."
+      },
+      "batteryTech": {
+        "value": "LFP (lithium iron phosphate)",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV's Solar MINI X4 feature list names an LFP battery."
+      },
+      "range": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: Claimed Range 100 km (CLTC), before any solar top-up."
+      },
+      "rangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Cleared: one variant per row now."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV labels every Alektra range CLTC."
+      },
+      "realWorldRange": {
+        "value": 70,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV real-world estimate, Base: 70 km."
+      },
+      "consumption": {
+        "value": 7.2,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV: 7.2 kWh/100 km (estimate)."
+      },
+      "acCharging": {
+        "value": 1.5,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: Max AC Charge 1.5 kW. The 7.2 kW previously stored was the battery size written as a charging rate."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Cleared: not tied to a pack; PakNEV gives only a 10-80% time."
+      },
+      "motorPowerKw": {
+        "value": null,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Cleared: 13 kW contradicts PakNEV's 7 hp, and no source gives a kW figure."
+      },
+      "torque": {
+        "value": 30,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: 30 Nm. The 120 Nm previously stored has no source."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV: rear-wheel drive."
+      },
+      "bootCapacityL": {
+        "value": 100,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: 100 L."
+      },
+      "kerbWeightKg": {
+        "value": 450,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV, Base: 450 kg."
+      },
+      "warranty": {
+        "value": "Battery 2 years; motor 2 years.",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV warranty section."
+      },
+      "notes": {
+        "value": "Base version of the four-door Alektra microcar with a roof-mounted solar panel, with the 7.2 kWh battery (Standard 10.8 kWh and Long Range 12.96 kWh have their own pages). Per PakNEV: 100 km on the CLTC cycle (about 70 km in real-world use, 7.2 kWh/100 km), 7 hp and 30 Nm driving the rear wheels, 50 km/h top speed, AC charging at up to 1.5 kW from a 220V home socket (10-80% in about 3 h 45 min); there is no DC fast charging. The roof panel trickle-charges the battery; Alektra credits it with up to about 50 km of extra range a day in sunshine, which is not added to the range here. 2,600 x 1,280 x 1,650 mm on a 1,850 mm wheelbase per the PakWheels and Gari.pk four-door variant pages, 120 mm ground clearance, 100 L boot, 450 kg, 4 seats. PKR 1,345,000 ex-factory. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Rewritten for the Base variant; the price is now a listed one."
+      }
+    }
+  },
+  "mg-zs-ev-long-range": {
+    "corrections": {
+      "fullName": {
+        "value": "MG ZS EV",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "Name fix: the site shows full name + variant, so 'MG ZS EV MCE Long Range' printed the trim twice."
+      }
+    }
+  },
+  "mg-cyberster-gt-dual": {
+    "corrections": {
+      "fullName": {
+        "value": "MG Cyberster",
+        "source": "https://mgmotors.com.pk/model/cyberster",
+        "note": "Name fix: the site shows full name + variant, so 'MG Cyberster GT Dual Motor' printed the trim twice."
+      }
+    }
+  }
+}
