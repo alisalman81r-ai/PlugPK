@@ -1231,6 +1231,329 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://www.pakwheels.com/new-cars/audi/q8-e-tron/', 'https://paknev.com/cars/audi-q8-e-tron'],
     checked: '2026-11-02',
   },
+
+  // BMW, from PakNEV's per-model lists, keeping the items for the version
+  // Dewan Motors sells (PakNEV prints the base and top trims' lists one after
+  // the other). The iX and i7 lists add BMW equipment reported for the same
+  // versions by paultan.org and BMW Pakistan's i7 page (via PakWheels).
+  'bmw-ix1': {
+    trim: 'xDrive30',
+    groups: {
+      'Safety': [
+        'Active Protection crash preparation',
+        'M Sport brakes with red calipers',
+        'ISOFIX child-seat anchors',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant',
+        'Glare-free adaptive high beam',
+        'Head-up display',
+      ],
+      'Parking': [
+        'Reversing camera and parking sensors',
+        'Parking Assistant with automatic parking',
+      ],
+      'Powertrain & Charging': [
+        'xDrive all-wheel drive, 313 hp',
+        'Adaptive M suspension',
+        'Selectable driving modes',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 10.25-inch driver display and 10.7-inch touchscreen',
+        'iDrive 9 with built-in navigation',
+        'Wireless Apple CarPlay and Android Auto',
+        'Harman Kardon sound system',
+        'My BMW app',
+      ],
+      'Seats & Interior': [
+        'Heated front sport seats with electric memory',
+        'Alcantara and Sensatec upholstery with blue contrast stitching',
+        'Heated M leather steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Digital Key Plus',
+        'Wireless phone charging',
+        'Hands-free power tailgate',
+        'Touch and voice climate controls',
+        'Underfloor charging-cable storage',
+      ],
+      'Exterior & Lighting': [
+        'Adaptive LED headlights',
+        'Panoramic sunroof',
+        '19-inch M wheels',
+        'High-gloss Shadowline trim',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-ix1'],
+    checked: '2026-11-02',
+  },
+  'bmw-ix2': {
+    trim: 'xDrive30',
+    groups: {
+      'Safety': [
+        'Active Protection crash preparation',
+        'M Sport brakes',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant Plus with adaptive cruise control',
+        'Blind spot monitoring and rear cross-traffic alert',
+        'Lane departure warning and lane keep assist',
+        'Driver attention monitoring',
+        'Head-up display',
+      ],
+      'Parking': [
+        'Reversing camera and parking sensors',
+        'Parking Assistant',
+      ],
+      'Powertrain & Charging': [
+        'xDrive all-wheel drive, 313 hp',
+        'Adaptive M suspension',
+        'My Modes personalisation',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 10.25-inch driver display and 10.7-inch touchscreen',
+        'iDrive 9',
+        'Wireless Apple CarPlay and Android Auto',
+        'Harman Kardon sound system',
+        'My BMW app',
+      ],
+      'Seats & Interior': [
+        'Powered, heated M Sport front seats with driver memory',
+        'Veganza and Alcantara upholstery',
+        'Thick-rimmed M leather steering wheel',
+        'Floating centre console',
+      ],
+      'Comfort & Convenience': [
+        'Comfort access and Digital Key Plus',
+        'Hands-free power tailgate',
+        'Vertical wireless phone charging',
+        'Dual-zone climate control',
+      ],
+      'Exterior & Lighting': [
+        'Iconic Glow illuminated kidney grille',
+        'Adaptive LED headlights',
+        '20-inch M wheels',
+        'M Sport styling and coupé-SUV roofline',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-ix2'],
+    checked: '2026-11-02',
+  },
+  'bmw-ix3': {
+    trim: '50 xDrive',
+    groups: {
+      'Safety': [
+        'Active Protection crash preparation',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant Professional',
+      ],
+      'Parking': [
+        'Parking Assistant with reversing assistant',
+      ],
+      'Powertrain & Charging': [
+        '800-volt system, up to 400 kW DC: 10–80% in about 21 min',
+        'Adaptive suspension',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Panoramic Vision display across the base of the windscreen',
+        'New BMW Operating System',
+        'Apple CarPlay and Android Auto',
+        'Harman Kardon sound system',
+      ],
+      'Seats & Interior': [
+        'Heated M Sport seats in vegan leather',
+        'M Sport steering wheel',
+        'Ambient lighting and anthracite headliner',
+      ],
+      'Comfort & Convenience': [
+        'Comfort access and Digital Key Plus',
+        'Wireless phone charging',
+        'Automatic tailgate',
+        'Acoustic glazing',
+      ],
+      'Exterior & Lighting': [
+        'Neue Klasse design with a closed, horizontal kidney grille',
+        'Adaptive LED headlights',
+        'Panoramic sunroof',
+        '20-inch M wheels and M aerodynamic package',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-ix3', 'https://www.pakwheels.com/blog/bmw-neue-klasse-ix3-arrives-pakistan-dewan-motors-2026/'],
+    checked: '2026-11-02',
+  },
+  'bmw-i4': {
+    trim: 'eDrive35 (M60 xDrive adds M equipment)',
+    groups: {
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant with forward collision warning',
+        'Lane departure warning',
+        'Attention assist',
+      ],
+      'Parking': [
+        'Reversing camera',
+        'Parking Assistant',
+      ],
+      'Powertrain & Charging': [
+        'Comfort and Eco Pro driving modes',
+        'M60: adaptive M suspension, variable sport steering and Sport Boost',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 12.3-inch driver display and 14.9-inch touchscreen',
+        'iDrive 8.5 with the BMW Intelligent Personal Assistant',
+        'Wireless Apple CarPlay and Android Auto',
+        'My BMW app',
+        'M60: Harman Kardon surround sound',
+      ],
+      'Seats & Interior': [
+        'Heated front sport seats in perforated Sensatec',
+        'Flat-bottomed M leather steering wheel',
+        'Waterfall ambient lighting',
+        'M60: Vernasca leather',
+      ],
+      'Comfort & Convenience': [
+        'Comfort access',
+        'Wireless phone charging',
+        'Power tailgate',
+        'Dual-zone automatic climate control',
+      ],
+      'Exterior & Lighting': [
+        'LED headlights and three-dimensional rear lights',
+        '19-inch M aerodynamic wheels',
+        'M Sport body styling',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-i4'],
+    checked: '2026-11-02',
+  },
+  'bmw-i5': {
+    trim: 'eDrive40',
+    groups: {
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant',
+        'Lane departure warning and lane change assistant',
+      ],
+      'Parking': [
+        'Reversing camera',
+        'Parking Assistant',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 12.3-inch driver display and 14.9-inch touchscreen',
+        'iDrive 8.5',
+        'In-car gaming (AirConsole) and video streaming while parked',
+        'Wireless Apple CarPlay and Android Auto',
+        'Harman Kardon sound system',
+        'My BMW app',
+      ],
+      'Seats & Interior': [
+        'BMW Interaction Bar across the dashboard',
+        'Heated front sport seats in Veganza',
+        'Flat-bottomed M steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Comfort access',
+        'Wireless phone charging',
+        'Automatic tailgate',
+        'Dual-zone automatic climate control',
+        'Underfloor charging-cable storage',
+      ],
+      'Exterior & Lighting': [
+        'Iconic Glow illuminated kidney grille',
+        '19-inch M aerodynamic wheels',
+        'M Sport exterior styling',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-i5'],
+    checked: '2026-11-02',
+  },
+  'bmw-ix': {
+    trim: 'xDrive45',
+    groups: {
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant Professional: adaptive cruise with stop and go, steering and lane-centring assist',
+        'Autonomous emergency braking, lane change and departure warning',
+        'Traffic sign recognition and active speed limit assist',
+      ],
+      'Parking': [
+        'Parking Assistant Plus with 360° camera',
+        'Active park distance control',
+      ],
+      'Powertrain & Charging': [
+        'Two motors, xDrive all-wheel drive, 402 hp',
+        'Adaptive two-axle air suspension',
+        'Up to 175 kW DC: 10–80% in about 34 min',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 12.3-inch driver display and 14.9-inch touchscreen',
+        'iDrive 8.5',
+        'Wireless Apple CarPlay and Android Auto',
+        '18-speaker Harman Kardon surround sound',
+        'My BMW app',
+      ],
+      'Seats & Interior': [
+        'Hexagonal steering wheel',
+        'Floating centre console with CraftedClarity glass controls',
+        'Ambient lighting',
+      ],
+      'Comfort & Convenience': [
+        'Four-zone automatic climate control',
+        'Comfort access and Digital Key Plus',
+        'Wireless phone charging',
+      ],
+      'Exterior & Lighting': [
+        'Sky Lounge panoramic glass roof',
+        'Slim adaptive LED headlights',
+        'Iconic Glow illuminated kidney grille with self-healing coating',
+        'Flush door handles',
+        '21-inch aerodynamic wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-ix', 'https://paultan.org/2025/07/21/2025-bmw-ix-facelift-launched-in-malaysia'],
+    checked: '2026-11-02',
+  },
+  'bmw-i7': {
+    trim: '50 xDrive',
+    groups: {
+      'Driver Assistance (ADAS)': [
+        'Driving Assistant',
+        'Lane departure warning',
+      ],
+      'Parking': [
+        'Reversing camera',
+        'Parking Assistant',
+      ],
+      'Powertrain & Charging': [
+        'Adaptive two-axle air suspension',
+        'Integral active steering (rear-wheel steering)',
+      ],
+      'Infotainment & Connectivity': [
+        'BMW Curved Display: 12.3-inch driver display and 14.9-inch touchscreen',
+        '31.3-inch rear BMW Theatre Screen and rear-door touchscreens',
+        'Bowers & Wilkins surround sound',
+        'Wireless Apple CarPlay and Android Auto',
+        'Remote software upgrades',
+      ],
+      'Seats & Interior': [
+        'BMW Interaction Bar',
+        'Veganza upholstery with fine-wood trim',
+        'Heated front seats and heated steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Automatic, soft-close doors',
+        'Four-zone automatic climate control',
+        'Comfort access and Digital Key Plus',
+        'Wireless phone charging',
+      ],
+      'Exterior & Lighting': [
+        'Sky Lounge panoramic roof with LED light graphics',
+        'Iconic Glow illuminated kidney grille',
+        'Swarovski crystal headlights',
+        '20-inch M aerodynamic wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/bmw-i7', 'https://www.pakwheels.com/blog/dewan-motors-bmw-i7-special-prices-bev-range/'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain
