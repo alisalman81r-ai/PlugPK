@@ -1,0 +1,77 @@
+{
+  "haval-h6-gt-phev": {
+    "corrections": {
+      "topSpeed": { "value": 200, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV: 200 km/h." },
+      "groundClearanceMm": { "value": 170, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV: 170 mm." },
+      "range": { "value": 1000, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV: about 1,000 km total range on a full charge and 55 L tank; no test cycle given." },
+      "rangeStandard": { "value": null, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "Cleared: the NEDC label belongs to the 183 km electric range (now in its own field), not to the combined range." },
+      "electricRangeStandard": { "value": "NEDC", "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV: 183 km (NEDC) electric." },
+      "realWorldRange": { "value": 133, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV real-world electric estimate 133 km." },
+      "consumption": { "value": 18.5, "source": "https://paknev.com/cars/gwm-haval-h6-gt-phev", "note": "PakNEV: 18.5 kWh/100 km in electric mode (estimate)." },
+      "priceDisplay": { "value": "PKR 1.29 Cr", "source": "https://haval-backend.onrender.com/api/models/h6-gt", "note": "GWM Pakistan's own model record: ex-factory PKR 12,949,000, a listed price (no longer a launch price)." }
+    }
+  },
+  "haval-h6-phev": {
+    "corrections": {
+      "variant": { "value": "Hi4 AWD", "source": "https://haval-backend.onrender.com/api/models/haval-h6-phev", "note": "GWM Pakistan lists the H6 PHEV at PKR 12,895,000, the Hi4 AWD (PakNEV also lists an FWD version at PKR 10,849,000 that GWM Pakistan's site does not)." },
+      "electricRangeStandard": { "value": "NEDC", "source": "https://paknev.com/cars/gwm-haval-h6-phev", "note": "PakNEV, Hi4 AWD: 100 km (NEDC)." },
+      "realWorldRange": { "value": 73, "source": "https://paknev.com/cars/gwm-haval-h6-phev", "note": "PakNEV real-world electric estimate, Hi4 AWD: 73 km." },
+      "consumption": { "value": 18.6, "source": "https://paknev.com/cars/gwm-haval-h6-phev", "note": "PakNEV, Hi4 AWD: 18.6 kWh/100 km (estimate)." }
+    }
+  },
+  "haval-jolion-hev": {
+    "corrections": {
+      "acceleration": { "value": 8.5, "source": "https://paknev.com/cars/gwm-haval-jolion-hev", "note": "PakNEV: 0–100 km/h 8.5 s." }
+    }
+  },
+  "haval-jolion-max-ev": {
+    "corrections": {
+      "topSpeed": { "value": 160, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: 160 km/h." },
+      "dcCharging": { "value": 80, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: Max DC 80 kW." },
+      "dcChargingMinutes": { "value": 35, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: DC 10–80% in 35 min." },
+      "bootCapacityL": { "value": 412, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: 412 L." },
+      "kerbWeightKg": { "value": 1800, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: 1,800 kg." },
+      "realWorldRange": { "value": 342, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV real-world estimate 342 km." },
+      "consumption": { "value": 14.5, "source": "https://paknev.com/cars/gwm-haval-jolion-max-ev", "note": "PakNEV: 14.5 kWh/100 km (estimate)." }
+    }
+  },
+  "gwm-ora-03": {
+    "corrections": {
+      "variant": { "value": "400 Pro", "source": "https://paknev.com/cars/gwm-ora-03", "note": "The Pakistani version, ORA 03 400 Pro." },
+      "acceleration": { "value": 8.3, "source": "https://paknev.com/cars/gwm-ora-03", "note": "PakNEV: 0–100 km/h 8.3 s." },
+      "realWorldRange": { "value": 265, "source": "https://paknev.com/cars/gwm-ora-03", "note": "PakNEV real-world estimate 265 km." },
+      "consumption": { "value": 15.5, "source": "https://paknev.com/cars/gwm-ora-03", "note": "PakNEV: 15.5 kWh/100 km (estimate)." }
+    }
+  },
+  "gwm-ora-05": {
+    "corrections": {
+      "priceDisplay": { "value": "PKR 85.99 Lakh", "source": "https://haval-backend.onrender.com/api/models/ora-05", "note": "GWM Pakistan's own model record: ex-factory PKR 8,599,000, a listed price." },
+      "realWorldRange": { "value": 372, "source": "https://paknev.com/cars/gwm-ora-05", "note": "PakNEV real-world estimate 372 km." },
+      "consumption": { "value": 13.4, "source": "https://paknev.com/cars/gwm-ora-05", "note": "PakNEV: 13.4 kWh/100 km (estimate)." }
+    }
+  },
+  "gwm-ora-07": {
+    "corrections": {
+      "variant": { "value": "FWD / AWD Performance", "source": "https://haval-backend.onrender.com/api/models/ora-07", "note": "GWM Pakistan: FWD PKR 15,300,000 and AWD PKR 17,500,000. Headline figures are now the FWD's, matching the lower price; the AWD's are in the notes." },
+      "power": { "value": 204, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV, FWD: 204 hp. The 402 hp previously stored is the AWD Performance's." },
+      "motorPowerKw": { "value": 150, "source": "https://paknev.com/cars/gwm-ora-07", "note": "FWD: 150 kW (204 PS) single motor." },
+      "torque": { "value": 340, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV, FWD: 340 Nm (AWD 680 Nm)." },
+      "acceleration": { "value": 7.9, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV, FWD: 7.9 s (AWD 4.3 s)." },
+      "range": { "value": 640, "source": "https://haval-backend.onrender.com/api/models/ora-07", "note": "GWM Pakistan: 'FWD Range: 640km, AWD Range: 550km'. The 520 km previously stored matched neither." },
+      "rangeStandard": { "value": "NEDC", "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV labels both ranges NEDC." },
+      "driveType": { "value": "FWD (AWD on the Performance)", "source": "https://haval-backend.onrender.com/api/models/ora-07", "note": "Two versions." },
+      "kerbWeightKg": { "value": 1990, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV, FWD: 1,990 kg (AWD 2,115 kg)." },
+      "realWorldRange": { "value": 466, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV real-world estimate, FWD: 466 km (AWD 400 km)." },
+      "consumption": { "value": 16.5, "source": "https://paknev.com/cars/gwm-ora-07", "note": "PakNEV, FWD: 16.5 kWh/100 km (estimate)." },
+      "notes": { "value": "GWM ORA 07, an electric sports sedan, sold by GWM Pakistan (Sazgar) as an import in two versions. FWD (the headline here): 83.5 kWh battery, 150 kW (204 hp) and 340 Nm, 0–100 km/h 7.9 s, 640 km NEDC, 1,990 kg, PKR 15,300,000. AWD Performance: dual motors with 300 kW (402 hp) and 680 Nm, 0–100 km/h 4.3 s, 550 km NEDC, 2,115 kg, PKR 17,500,000. Both: 180 km/h, DC up to 88 kW, AC 11 kW, CCS2 and Type 2. 4,871 × 1,862 × 1,500 mm on a 2,870 mm wheelbase, 125 mm ground clearance, 333 L boot, 5 seats. PakNEV estimates 400–466 km in real-world use. Equipment includes 6 airbags, a full ADAS suite with lane centring and evasion assist, a 360° camera with transparent chassis and automatic parking, a 10.25-inch cluster and 12.3-inch touchscreen, heated and ventilated front seats, frameless doors and a panoramic glass roof. Warranty: vehicle 6 years / 150,000 km, battery 8 years / 180,000 km (PakNEV). Sources: GWM Pakistan, PakNEV.", "source": "https://haval-backend.onrender.com/api/models/ora-07", "note": "Rewritten with FWD as the headline and both versions' figures." }
+    }
+  },
+  "gwm-tank-500-phev": {
+    "corrections": {
+      "range": { "value": 950, "source": "https://paknev.com/cars/gwm-tank-500-phev", "note": "PakNEV: about 950 km total range (70 L tank plus battery); no test cycle given." },
+      "realWorldRange": { "value": 87, "source": "https://paknev.com/cars/gwm-tank-500-phev", "note": "PakNEV real-world electric estimate 87 km." },
+      "consumption": { "value": 17.3, "source": "https://paknev.com/cars/gwm-tank-500-phev", "note": "PakNEV: 17.3 kWh/100 km in electric mode (estimate)." },
+      "dcChargingFromPct": { "value": 30, "source": "https://paknev.com/cars/gwm-tank-500-phev", "note": "PakNEV: 'GWM quotes 30–80% in 24 min'; the stored 24 min is that window." }
+    }
+  }
+}

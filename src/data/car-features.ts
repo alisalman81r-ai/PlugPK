@@ -2561,6 +2561,435 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://www.pakwheels.com/new-cars/gugo/aion-ut'],
     checked: '2026-11-02',
   },
+
+  // GWM (Haval, Tank, ORA), from PakNEV's lists checked against the highlights
+  // on GWM Pakistan's own model pages. The Tank 300 HEV is not sold here and
+  // has none.
+  'haval-jolion-hev': {
+    groups: {
+      'Safety': [
+        'Six airbags',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 driving assistance with adaptive cruise control and lane centring',
+        'Automatic emergency braking and lane keep assist',
+        'Blind spot monitoring and rear cross traffic alert',
+      ],
+      'Parking': [
+        '360° camera',
+      ],
+      'Powertrain & Charging': [
+        'Self-charging hybrid with a 2-speed dedicated hybrid transmission',
+        'Rotary gear selector',
+      ],
+      'Infotainment & Connectivity': [
+        '12.3-inch touchscreen and 7-inch instrument cluster',
+        'Head-up display',
+        'Wireless Apple CarPlay and Android Auto',
+      ],
+      'Seats & Interior': [
+        'Leather seats',
+        '6-way power driver seat and heated front seats',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control with rear vents',
+        'Wireless phone charging',
+        'Push-button start',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'LED headlights with blue hybrid accents',
+        'Rear spoiler and 18-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-haval-jolion-hev', 'https://haval-backend.onrender.com/api/models/haval-jolion'],
+    checked: '2026-11-02',
+  },
+  'haval-h6-hev': {
+    groups: {
+      'Safety': [
+        'Six airbags and a high-strength steel safety cage',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 ADAS with intelligent adaptive cruise control and traffic jam assist',
+        'Lane keep assist, lane departure warning and lane change assist',
+        'Blind spot detection and forward collision mitigation braking',
+        'Traffic sign recognition and door-open warning',
+      ],
+      'Parking': [
+        '360° camera with 540° transparent-chassis view',
+        'Automatic parking and auto reversing up to 50 metres',
+      ],
+      'Powertrain & Charging': [
+        'Self-charging hybrid, 240 hp and 530 Nm',
+        'Electronic rotary gear shifter',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch touchscreen and 10.25-inch driver display',
+        'Wireless Apple CarPlay and Android Auto',
+        'Voice commands',
+        '9-speaker audio with subwoofer',
+      ],
+      'Seats & Interior': [
+        'Heated and ventilated zero-gravity front seats',
+        'Electric driver seat with memory',
+        'Heated steering wheel and leatherette upholstery',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control with rear vents',
+        '50 W wireless charger',
+        'Hands-free power tailgate',
+        'Smart keyless entry and remote start',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'Full-width LED taillight strip',
+        '19-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-haval-h6-hev', 'https://haval-backend.onrender.com/api/models/haval-h6-hev'],
+    checked: '2026-11-02',
+  },
+  'haval-h6-phev': {
+    trim: 'Hi4 AWD',
+    groups: {
+      'Safety': [
+        'Six airbags and a high-strength steel safety cage',
+        'Stability control and tyre pressure monitoring',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 ADAS with adaptive cruise control and traffic jam assist',
+        'Forward collision warning and automatic emergency braking',
+        'Lane departure warning, lane keep assist and blind spot monitoring',
+        'Rear cross traffic alert and traffic sign recognition',
+      ],
+      'Parking': [
+        '540° camera',
+        'Automatic parking and autonomous reverse',
+      ],
+      'Powertrain & Charging': [
+        'Plug-in hybrid with Hi4 all-wheel drive, 360 hp and 760 Nm',
+        'Full EV, EV Priority and Intelligent Hybrid modes',
+        'Vehicle-to-load with an emergency AC socket',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch touchscreen and 10.25-inch driver display',
+        'Windscreen head-up display',
+        'Apple CarPlay and Android Auto, smart voice commands',
+        '4G connected-car app with remote control',
+        '9-speaker audio',
+      ],
+      'Seats & Interior': [
+        '6-way electric driver seat with memory',
+        'Leatherette seats and microfibre steering wheel',
+      ],
+      'Comfort & Convenience': [
+        '50 W wireless charger',
+        'Inductive power tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'Automatic LED headlights and rain-sensing wipers',
+        'Roof rails and 19-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-haval-h6-phev', 'https://haval-backend.onrender.com/api/models/haval-h6-phev'],
+    checked: '2026-11-02',
+  },
+  'haval-h6-gt-phev': {
+    groups: {
+      'Safety': [
+        'Six to seven airbags (5-star ANCAP rating)',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control and traffic jam assist',
+        'Forward collision warning and automatic emergency braking',
+        'Lane keep assist',
+      ],
+      'Parking': [
+        '540° camera',
+        'Fully automatic parking and autonomous reverse',
+      ],
+      'Powertrain & Charging': [
+        'Plug-in hybrid with all-wheel drive, 430 hp and 642 Nm, 0–100 km/h in 4.58 s',
+        'DC charging: 30–80% in 26 minutes',
+        'Full EV, EV Priority and Intelligent Hybrid modes',
+        'Paddle shifters',
+      ],
+      'Infotainment & Connectivity': [
+        '12.3-inch touchscreen and 10.25-inch driver display',
+        'Apple CarPlay and Android Auto',
+        '4G connected-car app with remote control',
+        '8-speaker audio',
+      ],
+      'Seats & Interior': [
+        'Heated and ventilated seats in grey suede-and-leather',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control',
+        'Hands-free power tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Coupé fastback styling',
+        'Panoramic sunroof',
+        'LED headlights and taillights',
+        '19-inch gloss-black alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-haval-h6-gt-phev', 'https://haval-backend.onrender.com/api/models/h6-gt'],
+    checked: '2026-11-02',
+  },
+  'gwm-tank-500-hev': {
+    groups: {
+      'Safety': [
+        'Six airbags',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control and off-road cruise control',
+        'Downhill assist',
+      ],
+      'Parking': [
+        '540° camera',
+        'Automatic parking',
+      ],
+      'Powertrain & Charging': [
+        'Self-charging hybrid with a 9-speed automatic',
+        'Hi-4T four-wheel drive with front and rear differential locks',
+        'Tank turn assist and multiple terrain modes',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch touchscreen and 12.3-inch digital cluster',
+        'Head-up display',
+        '12-speaker audio',
+      ],
+      'Seats & Interior': [
+        'Seven seats in Nappa leather',
+        'Ventilated, memory front seats with massage',
+        '64-colour ambient lighting',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'Automatic side steps',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-tank-500-hev', 'https://haval-backend.onrender.com/api/models/tank-500'],
+    checked: '2026-11-02',
+  },
+  'gwm-tank-500-phev': {
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Tyre pressure monitoring (TPMS)',
+        'Driver drowsiness detection',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control and off-road cruise control',
+        'Lane keep assist, lane centring and lane change assist',
+        'Automatic emergency braking',
+        'Downhill assist',
+      ],
+      'Parking': [
+        '540° camera with clear-chassis view',
+        'Automatic parking',
+      ],
+      'Powertrain & Charging': [
+        'Plug-in hybrid with a 9-speed automatic, 402 hp and 750 Nm',
+        'Hi-4T four-wheel drive with front and rear differential locks',
+        'DC charging: 30–80% in 24 minutes',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch touchscreen and 12.3-inch digital cluster',
+        'Head-up display',
+        'Wireless Apple CarPlay and Android Auto',
+        '12-speaker audio, voice commands, 4G app control',
+      ],
+      'Seats & Interior': [
+        'Nappa leather seats',
+        'Ventilated, memory massage seats front and rear',
+        'Multi-colour ambient lighting',
+      ],
+      'Comfort & Convenience': [
+        '50 W wireless charger',
+        'Soft-close tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-tank-500-phev', 'https://haval-backend.onrender.com/api/models/tank-500-phev'],
+    checked: '2026-11-02',
+  },
+  'gwm-ora-05': {
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Driver monitoring system',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Level 2 ADAS with adaptive cruise control',
+        'Lane keep assist and automatic emergency braking',
+      ],
+      'Parking': [
+        '540° camera',
+      ],
+      'Powertrain & Charging': [
+        '58.33 kWh LFP battery, 435 km (WLTP)',
+        'DC fast charging up to 120 kW: 10–80% in about 30 minutes',
+        'Vehicle-to-load (V2L)',
+        'Heat-pump air conditioning',
+      ],
+      'Infotainment & Connectivity': [
+        '14.6-inch 2K touchscreen and 10.25-inch driver display',
+        'Wireless Apple CarPlay and Android Auto',
+        '6-speaker DTS sound system',
+      ],
+      'Seats & Interior': [
+        'Heated and ventilated front seats',
+        'Driver seat memory',
+      ],
+      'Comfort & Convenience': [
+        '50 W wireless charger',
+        'Power tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic glass roof with electric sunshade',
+        'Intelligent LED headlights with automatic dimming',
+        '18-inch two-tone alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-ora-05', 'https://haval-backend.onrender.com/api/models/ora-05'],
+    checked: '2026-11-02',
+  },
+  'gwm-ora-07': {
+    trim: 'FWD and AWD Performance',
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Stability and traction control',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control with lane centring',
+        'Lane keep assist, emergency lane keeping and intelligent evasion assist',
+        'Blind spot monitoring and rear cross traffic alert',
+        'Forward collision warning and automatic emergency braking',
+        'Traffic sign recognition, drowsiness monitoring and door open warning',
+      ],
+      'Parking': [
+        '360° camera with transparent-chassis view',
+        'Semi-automatic parking and front and rear sensors',
+      ],
+      'Powertrain & Charging': [
+        '83.5 kWh battery: 640 km (FWD) or 550 km (AWD), NEDC',
+        'AWD Performance: dual motors, 402 hp, 0–100 km/h in 4.3 s, track mode',
+      ],
+      'Infotainment & Connectivity': [
+        '12.3-inch touchscreen and 10.25-inch driver display',
+        'Apple CarPlay and Android Auto',
+      ],
+      'Seats & Interior': [
+        'Heated, ventilated and massaging front seats',
+        'Power driver (6-way) and passenger (4-way) seats',
+        'Multi-colour ambient lighting',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control',
+        'Wireless phone charging',
+        'Keyless entry and push-button start',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic glass roof',
+        'Frameless doors and active grille shutters',
+        'LED headlights and daytime running lights',
+        '18-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-ora-07', 'https://haval-backend.onrender.com/api/models/ora-07'],
+    checked: '2026-11-02',
+  },
+  'gwm-ora-03': {
+    trim: '400 Pro',
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'ABS, stability and traction control, roll-movement intervention',
+        'Secondary collision mitigation',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control with stop & go',
+        'Automatic emergency braking and forward collision warning',
+        'Lane keep assist and blind spot monitoring',
+        'Door-open warning',
+      ],
+      'Parking': [
+        '360° camera with transparent-chassis view',
+        'Rear parking sensors',
+      ],
+      'Infotainment & Connectivity': [
+        'Dual 10.25-inch screens',
+        'Hello ORA voice assistant',
+        'Wireless Apple CarPlay and Android Auto',
+        'Over-the-air updates',
+      ],
+      'Seats & Interior': [
+        'Quilted leatherette seats, heated and ventilated in front',
+        '6-way power driver seat',
+        'Face recognition',
+      ],
+      'Comfort & Convenience': [
+        'Smart keyless entry and proximity start',
+        'Wireless phone charging',
+        'Electric sunshade',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'Round LED headlights and light-strip tailgate',
+        '18-inch alloy wheels',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-ora-03'],
+    checked: '2026-11-02',
+  },
+  'haval-jolion-max-ev': {
+    trim: 'Expected Pakistan specification',
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Stability and traction control, hill start and hill descent',
+        'Driver fatigue monitoring',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control',
+        'Automatic emergency braking and forward collision warning',
+        'Lane keep assist, lane departure warning and lane change assist',
+        'Blind spot monitoring and rear cross traffic alert',
+      ],
+      'Parking': [
+        '360° camera',
+      ],
+      'Infotainment & Connectivity': [
+        '12.3-inch touchscreen and 10.25-inch digital cluster',
+        'Head-up display',
+        'Wireless Apple CarPlay and Android Auto, voice control',
+        'Six speakers',
+      ],
+      'Seats & Interior': [
+        'Power-adjustable, ventilated front seats',
+        'Ambient lighting',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone climate control with PM2.5 purifier',
+        'Wireless phone charging',
+        'Electric smart tailgate',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sunroof',
+        'Matrix LED headlights',
+        '18-inch alloy wheels and aluminium roof rails',
+      ],
+    },
+    sources: ['https://paknev.com/cars/gwm-haval-jolion-max-ev'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain
