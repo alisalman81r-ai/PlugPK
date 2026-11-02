@@ -1,0 +1,208 @@
+{
+  "mg-zs-hybrid-plus": {
+    "corrections": {
+      "variant": {
+        "value": "Excite / Essence",
+        "source": "https://mgmotors.com.pk/assets/brochure/mg-zs-spec-sheet.pdf",
+        "note": "MG Pakistan's ZS spec sheet lists two Hybrid+ trims, Excite and Essence."
+      },
+      "priceMin": {
+        "value": 7299000,
+        "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut",
+        "note": "Excite PKR 7,299,000, confirmed by an MG dealership to PakNEV and shown on PakNEV's ZS Hybrid+ page (updated 22 Oct 2026). The PKR 7,499,000 previously stored was a rise reported for 1 October that MG's own site does not show."
+      },
+      "priceMax": {
+        "value": 7699000,
+        "source": "https://mgmotors.com.pk/",
+        "note": "MG Pakistan's homepage lists the MG ZS Hybrid+ at 'Ex-Factory Price PKR: 7,699,000/-' (checked 2 Nov 2026), the Essence price PakNEV also gives. The PKR 7,899,000 previously stored is not on MG's site."
+      },
+      "priceDisplay": {
+        "value": "PKR 72.99–76.99 Lakh",
+        "source": "https://mgmotors.com.pk/",
+        "note": "Excite PKR 7,299,000 to Essence PKR 7,699,000."
+      },
+      "topSpeed": {
+        "value": 168,
+        "source": "https://paknev.com/cars/mg-zs-hybrid-plus",
+        "note": "PakNEV spec table: Top Speed 168 km/h (both trims)."
+      },
+      "kerbWeightKg": {
+        "value": 1410,
+        "source": "https://paknev.com/cars/mg-zs-hybrid-plus",
+        "note": "PakNEV: Excite 1,410 kg, Essence 1,420 kg. The Excite's is stored as the row's headline trim."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; hybrid battery 8 years / 150,000 km.",
+        "source": "https://paknev.com/cars/mg-zs-hybrid-plus",
+        "note": "PakNEV warranty section for both trims. Same wording as before, tidied."
+      },
+      "notes": {
+        "value": "Second-generation MG ZS (2025 on) as the self-charging Hybrid+: there is no plug, and the 1.83 kWh battery is charged by the engine and by braking. MG Pakistan's spec sheet gives a 1,498 cc petrol engine with a 3-speed hybrid transmission, 158 kW (212 hp) and 465 Nm combined, front-wheel drive and a 41 L tank. Dimensions 4,430 × 1,818 × 1,635 mm on a 2,610 mm wheelbase, 161 mm ground clearance, 443 L boot (1,457 L with the rear seats folded). 0–100 km/h in 8.7 s and a 168 km/h top speed per PakNEV; MG quotes up to 940 km on a tank and about 21 km/L. Two trims: Excite (PKR 7,299,000) and Essence (PKR 7,699,000), the price confirmed on MG Pakistan's site. The Essence adds PVC seats, a 6-way electric driver seat, ventilated front seats, a 60/40 folding rear seat, a power tailgate, a panoramic sunroof and 18-inch wheels (Excite: 17-inch). Kerb weight 1,410 kg (Excite) / 1,420 kg (Essence). Warranty 5 years / 150,000 km, hybrid battery 8 years / 150,000 km. Sources: MG Pakistan spec sheet and homepage, PakNEV.",
+        "source": "https://mgmotors.com.pk/assets/brochure/mg-zs-spec-sheet.pdf",
+        "note": "Rewritten to match the corrected price and figures."
+      }
+    }
+  },
+  "mg-hs-hev": {
+    "corrections": {
+      "variant": {
+        "value": "Hybrid+",
+        "source": "https://mgmotors.com.pk/model/mg-hs-hybrid-plus",
+        "note": "MG Pakistan sells the HS hybrid as the single 'HS Hybrid+' trim."
+      },
+      "priceMin": {
+        "value": 9999000,
+        "source": "https://mgmotors.com.pk/",
+        "note": "MG Pakistan homepage: 'MG HS Hybrid+ … Ex-Factory Price PKR: 9,999,000/-' (checked 2 Nov 2026). PakNEV agrees (updated 22 Oct 2026). The PKR 9,499,000 previously stored was the April 2026 launch price."
+      },
+      "priceMax": {
+        "value": 9999000,
+        "source": "https://mgmotors.com.pk/",
+        "note": "Single trim."
+      },
+      "priceDisplay": {
+        "value": "PKR 99.99 Lakh",
+        "source": "https://mgmotors.com.pk/",
+        "note": "PKR 9,999,000 ex-factory."
+      },
+      "motorPowerKw": {
+        "value": 165,
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "MG Pakistan spec sheet: Maximum Combined Power 165 kW (221 hp), the figure this catalogue stores beside hp for MG's other hybrids. The traction motor alone is 146 kW."
+      },
+      "acceleration": {
+        "value": 7.9,
+        "source": "https://paknev.com/cars/mg-hs-hybrid",
+        "note": "PakNEV spec table: 0–100 km/h 7.9 s."
+      },
+      "topSpeed": {
+        "value": 190,
+        "source": "https://paknev.com/cars/mg-hs-hybrid",
+        "note": "PakNEV spec table: Top Speed 190 km/h."
+      },
+      "kerbWeightKg": {
+        "value": 1775,
+        "source": "https://paknev.com/cars/mg-hs-hybrid",
+        "note": "PakNEV spec table: Kerb Weight 1,775 kg."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; hybrid battery 8 years / 150,000 km.",
+        "source": "https://www.gari.pk/new-cars/compare/mg_hs_variants_comparison/",
+        "note": "Gari.pk's HS comparison gives these terms for both HS hybrids; PakNEV's HS Hybrid page gives the same."
+      },
+      "notes": {
+        "value": "2026 second-generation MG HS Hybrid+, a self-charging full hybrid with no plug. Per MG Pakistan's spec sheet: 1,496 cc turbo petrol engine (105 kW, 230 Nm) and a 146 kW traction motor through a hybrid transmission, 165 kW (221 hp) and 340 Nm combined, front-wheel drive, 1.83 kWh battery, 55 L tank. Dimensions 4,670 × 1,890 × 1,663 mm on a 2,765 mm wheelbase, 167 mm ground clearance, 19-inch wheels. 0–100 km/h in 7.9 s, 190 km/h top speed and 1,775 kg kerb weight per PakNEV, which also quotes about 20 km/L and 1,000 km on a tank. Boot 448 L. PKR 9,999,000 ex-factory on MG Pakistan's site (launched at PKR 9,499,000 in April 2026). Warranty 5 years / 150,000 km, hybrid battery 8 years / 150,000 km. Sources: MG Pakistan spec sheet and homepage, PakNEV, Gari.pk.",
+        "source": "https://mgmotors.com.pk/assets/brochure/Hybrid-plus-Back-Updated.pdf",
+        "note": "Rewritten: the old note called the dimensions unconfirmed and said no 0–100 or top speed was published."
+      }
+    }
+  },
+  "mg-hs-phev": {
+    "corrections": {
+      "variant": {
+        "value": "Super Hybrid",
+        "source": "https://mgmotors.com.pk/model/mg-hs-super-hybrid",
+        "note": "MG Pakistan sells the plug-in HS as the 'HS Super Hybrid'."
+      },
+      "range": {
+        "value": 1100,
+        "source": "https://paknev.com/cars/mg-hs-phev",
+        "note": "PakNEV: Total Range 1,100 km (electric plus petrol). No test cycle is given, so no range standard is stored for it; the 135 km electric range is NEDC."
+      },
+      "acceleration": {
+        "value": 6.8,
+        "source": "https://paknev.com/cars/mg-hs-phev",
+        "note": "PakNEV spec table: 0–100 km/h 6.8 s."
+      },
+      "topSpeed": {
+        "value": 190,
+        "source": "https://paknev.com/cars/mg-hs-phev",
+        "note": "PakNEV spec table: Top Speed 190 km/h."
+      },
+      "kerbWeightKg": {
+        "value": 1904,
+        "source": "https://paknev.com/cars/mg-hs-phev",
+        "note": "PakNEV spec table: Kerb Weight 1,904 kg."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.",
+        "source": "https://www.gari.pk/new-cars/mg/hs/super-hybrid/",
+        "note": "Gari.pk's Super Hybrid page; PakNEV's HS PHEV page gives the same terms."
+      },
+      "notes": {
+        "value": "2026 second-generation MG HS Super Hybrid, the plug-in HS. Per MG Pakistan's spec sheet: 1,496 cc turbo petrol engine (105 kW, 230 Nm) and a 154 kW traction motor, 220 kW (295 hp) and 350 Nm combined, front-wheel drive, 24.7 kWh battery for 135 km of electric range on NEDC, 55 L tank. Charging is AC only through a Type 2 inlet: about 4 hours on a 7 kW charger, about 7.5 hours on the portable charger; MG does not list DC charging. Dimensions 4,670 × 1,890 × 1,663 mm on a 2,765 mm wheelbase, 176 mm ground clearance, 19-inch wheels. 0–100 km/h in 6.8 s, 190 km/h, 1,904 kg kerb weight and about 1,100 km total range per PakNEV. PKR 10,199,000 ex-factory on MG Pakistan's site. Warranty 5 years / 150,000 km, battery 8 years / 150,000 km. Sources: MG Pakistan spec sheet and homepage, PakNEV, Gari.pk.",
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "Rewritten: the old note gave a 98 km EPA range and 3.7 kW AC charging, both from before the official sheet was read."
+      }
+    }
+  },
+  "mg-zs-ev": {
+    "corrections": {
+      "variant": {
+        "value": "MCE Essence",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "The row's price (PKR 9,690,000), battery (51.1 kWh) and power (174 hp) are the MCE Essence's per PakNEV."
+      },
+      "range": {
+        "value": 360,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: Claimed Range 360 km (WLTP). The 505 km previously stored is the 72.6 kWh MCE Long Range's, which made the row mix two trims."
+      },
+      "rangeStandard": {
+        "value": "WLTP",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV labels both ZS EV ranges WLTP."
+      },
+      "dcCharging": {
+        "value": 75,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: Max DC Charge 75 kW (the Long Range is 92 kW)."
+      },
+      "dcChargingMinutes": {
+        "value": 40,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: DC 10–80% in 40 min."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: Max AC Charge 7 kW."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "Cleared: the 9 h previously stored has no source for this trim; PakNEV gives only a 10–80% AC time (5 h 45 min), a different window."
+      },
+      "acceleration": {
+        "value": 8.6,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: 0–100 km/h 8.6 s."
+      },
+      "topSpeed": {
+        "value": 175,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV spec table: Top Speed 175 km/h."
+      },
+      "kerbWeightKg": {
+        "value": 1570,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: Kerb Weight 1,570 kg (the 1,610 kg previously stored had no stated trim)."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV warranty section."
+      },
+      "availability": {
+        "value": "No longer listed on MG Pakistan's website (checked November 2026); remaining stock may still be with dealers.",
+        "source": "https://mgmotors.com.pk/",
+        "note": "MG Pakistan's model list now has the ZS petrol and ZS Hybrid+ but no ZS EV."
+      },
+      "notes": {
+        "value": "MG ZS EV (MCE facelift), sold in Pakistan as the MCE Essence and the MCE Long Range; this page describes the Essence. Per PakNEV: Essence 51.1 kWh, 174 hp, 280 Nm, 360 km WLTP, 7 kW AC and 75 kW DC (10–80% in about 40 min), 0–100 km/h in 8.6 s, 1,570 kg, PKR 9,690,000. Long Range 72.6 kWh, 154 hp, 505 km WLTP, 11 kW AC and 92 kW DC (10–80% in about 42 min), 0–100 km/h in 8.4 s, 1,620 kg. Both FWD, 175 km/h, 4,323 × 1,809 × 1,649 mm on a 2,585 mm wheelbase, 177 mm ground clearance, 5 seats. The ZS EV is no longer on MG Pakistan's website. Warranty 5 years / 150,000 km, battery 8 years / 150,000 km. Source: PakNEV.",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "Rewritten so the page describes one trim instead of mixing the Essence and Long Range."
+      }
+    }
+  }
+}
