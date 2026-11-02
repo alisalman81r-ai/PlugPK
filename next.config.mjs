@@ -22,6 +22,19 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
 
   /**
+   * Room for one photo per Server Action call.
+   *
+   * Uploads (charger photos, CNIC scans, payment receipts) are sent through
+   * Server Actions, which refuse any body over 1 MB by default — less than a
+   * typical phone photo, so the request failed before the action's own 4 MB
+   * check could explain anything. 4.5 MB matches the hosting platform's own
+   * ceiling: the file limit stays at 4 MB and the rest is multipart framing.
+   */
+  experimental: {
+    serverActions: { bodySizeLimit: '4.5mb' },
+  },
+
+  /**
    * Baseline security headers on every response.
    *
    * frame-ancestors / X-Frame-Options stop the site — above all the admin

@@ -5,6 +5,9 @@ import { randomUUID } from 'node:crypto'
 
 import { revalidatePath } from 'next/cache'
 
+import type { Prisma } from '@prisma/client'
+
+import { applicationProblem } from '@/lib/listing-application'
 import { checkEmail, checkPhone, checkText, checkWebsite } from '@/lib/validate'
 
 import { getAdminActor, type AdminActor } from './admin-access'
@@ -243,6 +246,50 @@ function refreshPublicViews(): void {
   revalidatePath('/map')
 }
 
+/**
+ * Every listing an owner submits is a paid application: it cannot be approved
+ * until the owner has proved who they are and an operator has confirmed the
+ * listing fee arrived (see src/lib/listing-application.ts). The row is opened
+ * here, at registration, so the requirement also holds for listings sent from
+ * the app — the owner finishes them from their dashboard.
+ */
+async function openApplication(businessId: string): Promise<void> {
+  await prisma.listingApplication.upsert({
+    where: { businessId },
+    create: { businessId },
+    update: {},
+  })
+}
+
+/** Why a paid application cannot be approved yet, or null when it can. */
+async function paidApplicationProblem(
+  db: Prisma.TransactionClient,
+  businessId: string,
+  businessType: string,
+): Promise<string | null> {
+  const app = await db.listingApplication.findUnique({ where: { businessId } })
+  if (!app) return null
+  const [documents, payments] = await Promise.all([
+    db.businessDocument.findMany({ where: { businessId }, select: { kind: true } }),
+    db.listingPayment.findMany({
+      where: { businessId },
+      orderBy: { createdAt: 'desc' },
+      select: { status: true, reviewNote: true },
+    }),
+  ])
+  return applicationProblem(
+    {
+      idType: app.idType,
+      idNumber: app.idNumber,
+      idAddress: app.idAddress,
+      submittedAt: app.submittedAt?.toISOString() ?? null,
+      documents: documents.map((doc) => doc.kind),
+      payments,
+    },
+    businessType,
+  )
+}
+
 export async function registerBusiness(
   application: BusinessApplication,
 ): Promise<BusinessResult> {
@@ -310,6 +357,7 @@ export async function registerBusiness(
         ...(keepChargers ? {} : { chargers: JSON.stringify(cleaned.chargers) }),
       },
     })
+    await openApplication(draft.id)
     refreshPublicViews()
     revalidatePath('/business/dashboard')
     return { ok: true, businessId: draft.id }
@@ -341,6 +389,7 @@ export async function registerBusiness(
       // has an account; this row only records which one.
     },
   })
+  await openApplication(businessId)
 
   refreshPublicViews()
   revalidatePath('/business/dashboard')
@@ -400,13 +449,15 @@ export async function setBusinessStatus(
   const outcome = await prisma.$transaction(async (tx) => {
     const business = await tx.business.findUnique({
       where: { id },
-      select: { chargers: true, lat: true, lng: true, businessName: true },
+      select: { chargers: true, lat: true, lng: true, businessName: true, businessType: true },
     })
     if (!business) return { ok: false as const, message: 'That listing no longer exists.' }
 
     const chargers = parseChargers(business.chargers)
     if (status === 'approved') {
-      const problem = validateForApproval({ lat: business.lat, lng: business.lng, chargers })
+      const problem =
+        validateForApproval({ lat: business.lat, lng: business.lng, chargers }) ??
+        (await paidApplicationProblem(tx, id, business.businessType))
       if (problem) return { ok: false as const, message: problem }
     }
 
@@ -563,7 +614,12 @@ export async function saveBusiness(form: FormData): Promise<BusinessResult> {
 
   let chargers = cleaned.chargers
   if (status === 'approved') {
-    const problem = validateForApproval({ lat: coordinates.lat, lng: coordinates.lng, chargers })
+    // The edit form is not a way around the paid-application check either.
+    const problem =
+      validateForApproval({ lat: coordinates.lat, lng: coordinates.lng, chargers }) ??
+      (existing && existing.status !== 'approved'
+        ? await paidApplicationProblem(prisma, id, fields.value.businessType)
+        : null)
     if (problem) return { ok: false, message: problem }
     chargers = approvePhotos(chargers)
   }

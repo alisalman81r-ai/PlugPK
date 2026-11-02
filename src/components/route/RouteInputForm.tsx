@@ -4,7 +4,9 @@
 import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { MyCarHint } from '@/components/tools/MyCarHint'
 import { useListKeyboard } from '@/hooks/useListKeyboard'
+import { useMyCar } from '@/hooks/useMyCar'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
@@ -172,6 +174,7 @@ export function RouteInputForm({
   onSwapLocations,
   onCalculate,
 }: RouteInputFormProps) {
+  const myCar = useMyCar()
   const [attempted, setAttempted] = React.useState(false)
   const [swapSpin, setSwapSpin] = React.useState(false)
 
@@ -263,6 +266,15 @@ export function RouteInputForm({
             </span>
           </span>
           <VehicleSelector vehicles={vehicles} selectedVehicle={selectedVehicle} onSelect={onVehicleSelect} />
+          {myCar && vehicles.some((v) => v.id === myCar.slug) ? (
+            <div className="mt-2">
+              <MyCarHint
+                car={myCar}
+                selected={selectedVehicle?.id ?? ''}
+                onUse={(slug) => onVehicleSelect(vehicles.find((v) => v.id === slug) ?? null)}
+              />
+            </div>
+          ) : null}
         </div>
 
         <div>

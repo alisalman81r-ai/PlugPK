@@ -1,7 +1,7 @@
 // src/components/map/StationPreviewCard.tsx
 'use client'
 
-import { MapPin, Navigation2, X } from '@/components/ui/icons'
+import { CalendarCheck, MapPin, Navigation2, X } from '@/components/ui/icons'
 import Link from 'next/link'
 
 import { ConnectorBadgeGroup, PhotoFrame, RatingStars, SpeedBadge } from '@/components/ui'
@@ -146,6 +146,16 @@ export function StationPreviewCard({
         {/* Signed-in only; renders nothing otherwise. */}
         <SaveStationButton stationId={station.id} stationName={station.name} className="h-11" />
       </div>
+
+      {/* On every card. The listing's #book section is the booking panel where
+          it takes bookings, otherwise a note and nearby chargers that do. */}
+      <Link
+        href={`/station/${station.slug}#book`}
+        className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 font-semibold text-plug-blue-700 transition-colors duration-150 hover:bg-plug-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+      >
+        <CalendarCheck size={16} className="shrink-0" aria-hidden="true" />
+        Book a slot
+      </Link>
     </div>
   )
 }

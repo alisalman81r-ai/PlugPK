@@ -123,6 +123,12 @@ export interface Connector {
   availablePorts: number
   status: ConnectorStatus
   compatibleVehicles: string[]
+  /**
+   * What the host of a partner listing last said about this charger, and when.
+   * Self-reported, not a live reading, so it is always shown with its time.
+   */
+  hostCondition?: 'working' | 'maintenance' | 'not-working'
+  hostConditionAt?: string
 }
 
 // ─── Amenity ────────────────────────────────────────
@@ -202,6 +208,8 @@ export interface Station {
   phone?: string
   website?: string
   businessId?: string
+  /** A partner listing that takes bookings right now (on, priced, with somewhere to pay). */
+  bookable?: boolean
   createdAt: string
   updatedAt: string
   reviews?: Review[]

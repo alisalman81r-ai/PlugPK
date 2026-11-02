@@ -5,6 +5,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { useMyCar } from '@/hooks/useMyCar'
 import { AlertCircle, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
 import { MIN_RANGE_KM, convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
@@ -79,9 +80,12 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     step through.
   */
   const [hydrated, setHydrated] = React.useState(false)
+  /** The link named a car or a figure of its own, which the driver's car must not override. */
+  const linkChose = React.useRef(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
-    // Only a shared link picks the car; nothing is pre-selected otherwise.
+    linkChose.current = q.has('car') || q.has('km')
+    // A shared link picks the car first; otherwise the driver's own car does (below).
     const fromCar = cars.find((c) => c.slug === q.get('car'))
     if (fromCar) {
       setSlug(fromCar.slug)
@@ -94,6 +98,22 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     if (qStd) setStandard(qStd)
     setHydrated(true)
   }, [cars])
+
+  /*
+    The driver's own car, from their garage: picked once, after the link has
+    been read, and only when the link chose nothing and the driver has not
+    picked anything yet. No car in the garage, nothing is pre-selected.
+  */
+  const myCar = useMyCar()
+  const appliedMyCar = React.useRef(false)
+  React.useEffect(() => {
+    if (!hydrated || myCar === undefined || appliedMyCar.current) return
+    appliedMyCar.current = true
+    if (linkChose.current || slug || !myCar) return
+    if (cars.some((c) => c.slug === myCar.slug)) chooseCar(myCar.slug)
+    // chooseCar is recreated each render; this runs once by design.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, myCar, cars, slug])
 
   React.useEffect(() => {
     if (!hydrated) return
@@ -162,6 +182,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
         <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(5,36,30,0.05),0_24px_60px_-32px_rgba(5,36,30,0.35)] lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
             <div className="space-y-5 p-5 sm:p-7 lg:p-8">
               <CarPicker
+                ownCar={myCar}
                 id="range-car"
                 label="Your EV (optional)"
                 cars={pickerCars}

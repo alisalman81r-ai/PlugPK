@@ -1,11 +1,13 @@
 // src/app/business/signup/page.tsx
-import { BadgeCheck, Camera, MapPin } from '@/components/ui/icons'
+import { BadgeCheck, Banknote, Camera, ShieldCheck } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { BusinessSignUpForm } from '@/components/business/BusinessSignUpForm'
 import { EyebrowBadge } from '@/components/ui'
+import { getListingFee, getPaymentAccounts } from '@/lib/db/listing-fee'
 import { getCurrentProfile } from '@/lib/db/session-actions'
+import { formatPkr } from '@/lib/listing-application'
 import { Logo } from '@/components/ui/Logo'
 
 /**
@@ -33,24 +35,31 @@ export const metadata: Metadata = { title: 'List your charger' }
 
 const RETURN = encodeURIComponent('/business/signup')
 
-/** What the form asks for, so nobody starts it without a photo to hand. */
-const WHAT_YOU_NEED = [
-  {
-    icon: MapPin,
-    title: 'Where your chargers are',
-    body: 'The address and a map pin drivers can navigate to.',
-  },
-  {
-    icon: Camera,
-    title: 'A photo of each charger',
-    body: 'One clear picture per charger, and a close-up of the connector if you can.',
-  },
-  {
-    icon: BadgeCheck,
-    title: 'A person checks it',
-    body: 'Nothing goes on the map until the listing and its photos have been reviewed.',
-  },
-]
+/** What the form asks for, so nobody starts it without their documents to hand. */
+function whatYouNeed(fee: number) {
+  return [
+    {
+      icon: ShieldCheck,
+      title: 'Proof of who you are',
+      body: 'Your CNIC for a home charger, or a business licence or registration for anything else.',
+    },
+    {
+      icon: Camera,
+      title: 'A photo of each charger',
+      body: 'One clear picture per charger, and a close-up of the connector if you can.',
+    },
+    {
+      icon: Banknote,
+      title: `The ${formatPkr(fee)} listing fee`,
+      body: 'Paid by bank transfer, JazzCash or Easypaisa, with the receipt to hand.',
+    },
+    {
+      icon: BadgeCheck,
+      title: 'A person checks it',
+      body: 'Nothing goes on the map until the payment, documents and photos are reviewed.',
+    },
+  ]
+}
 
 function Header({ signedIn }: { signedIn: boolean }) {
   return (
@@ -70,6 +79,7 @@ function Header({ signedIn }: { signedIn: boolean }) {
 
 export default async function BusinessSignUpPage() {
   const profile = await getCurrentProfile()
+  const fee = getListingFee()
 
   if (!profile) {
     return (
@@ -87,8 +97,8 @@ export default async function BusinessSignUpPage() {
             </p>
           </div>
 
-          <ul className="mt-10 grid gap-4 sm:grid-cols-3">
-            {WHAT_YOU_NEED.map((item) => {
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+            {whatYouNeed(fee).map((item) => {
               const Icon = item.icon
               return (
                 <li key={item.title} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -142,7 +152,11 @@ export default async function BusinessSignUpPage() {
           <p className="mt-3 text-lg text-slate-500">Get discovered by EV owners across Pakistan</p>
         </div>
 
-        <BusinessSignUpForm account={{ name: profile.name, email: profile.email, phone: null }} />
+        <BusinessSignUpForm
+          account={{ name: profile.name, email: profile.email, phone: null }}
+          fee={fee}
+          accounts={getPaymentAccounts()}
+        />
       </div>
     </div>
   )

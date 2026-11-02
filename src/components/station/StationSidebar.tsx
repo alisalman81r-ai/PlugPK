@@ -4,6 +4,7 @@
 import {
   Bookmark,
   BookmarkCheck,
+  CalendarCheck,
   Check,
   Clock,
   Copy,
@@ -218,6 +219,17 @@ export function StationMobileBar({ station }: StationSidebarProps) {
       <div className="flex items-center gap-2">
         <ActionTiles station={station} compact />
 
+        {/* On every station. Where the station takes no bookings, #book says
+            so and points to nearby chargers that do. */}
+        <a
+          href="#book"
+          aria-label={`Book a slot at ${station.name}`}
+          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 px-3 text-ui-sm font-semibold text-plug-blue-700"
+        >
+          <CalendarCheck size={16} aria-hidden="true" />
+          Book
+        </a>
+
         <button
           type="button"
           onClick={() => openDirections(station)}
@@ -384,6 +396,16 @@ export function StationSidebar({ station }: StationSidebarProps) {
         </HoverButton>
 
         <ActionTiles station={station} className="mt-3" />
+
+        {/* On every station: the booking panel where the station takes
+            bookings, otherwise a note and nearby chargers that do. */}
+        <a
+          href="#book"
+          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 font-bold text-plug-blue-700 transition-colors hover:bg-plug-blue-100"
+        >
+          <CalendarCheck size={18} aria-hidden="true" />
+          Book a slot
+        </a>
       </div>
 
       {/* ── Hours ────────────────────────────────────────────── */}

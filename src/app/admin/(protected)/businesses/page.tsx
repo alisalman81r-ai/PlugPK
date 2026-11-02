@@ -9,12 +9,15 @@ import { AdminSearch } from '@/components/admin/AdminSearch'
 import { BusinessStatusControl, type BusinessStatus } from '@/components/admin/BusinessStatusControl'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { BusinessPhotoReview } from '@/components/admin/BusinessPhotoReview'
+import { ListingApplicationPanel } from '@/components/admin/ListingApplicationPanel'
 import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
 import { flattenParams, pick } from '@/components/admin/list-params'
 import { listBusinessesPage, toPage, toQuery } from '@/lib/db/admin-queries'
 import { deleteBusiness, setBusinessStatus } from '@/lib/db/business-actions'
 import { validateForApproval, type ListingCharger } from '@/lib/db/business-listing'
+import { getApplications } from '@/lib/db/listing-application-queries'
 import { getBusinessPhotoReports } from '@/lib/db/queries'
+import { applicationProblem, applicationProgress } from '@/lib/listing-application'
 import { formatRelativeTime } from '@/lib/utils'
 import { safeHref } from '@/lib/validate'
 
@@ -48,6 +51,7 @@ export default async function AdminBusinessesPage({
   ])
   const rows = listing.rows
   const { counts } = listing
+  const applications = await getApplications(rows.map((row) => row.id))
 
   return (
     <>
@@ -112,9 +116,13 @@ export default async function AdminBusinessesPage({
               const isPending = row.status === 'pending'
               const totalPorts = row.chargers.reduce((sum, c) => sum + (c.ports || 0), 0)
               const website = safeHref(row.website)
+              const application = applications.get(row.id)
               const approveBlocked = isPending
-                ? validateForApproval({ lat: row.lat, lng: row.lng, chargers: row.chargers as ListingCharger[] })
+                ? (validateForApproval({ lat: row.lat, lng: row.lng, chargers: row.chargers as ListingCharger[] }) ??
+                  (application ? applicationProblem(application, row.businessType) : null))
                 : null
+              const ownerUnfinished =
+                isPending && application ? applicationProgress(application, row.businessType).needsOwner : false
 
               return (
                 <li
@@ -130,6 +138,13 @@ export default async function AdminBusinessesPage({
                       <p className="flex flex-wrap items-center gap-2.5 font-semibold text-slate-900">
                         {row.businessName}
                         <ReviewStatusBadge status={row.status} />
+                        {/* Started but not finished by the owner: nothing to
+                            decide yet, and said so before anyone opens it. */}
+                        {ownerUnfinished ? (
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-semibold text-slate-500">
+                            Waiting for owner
+                          </span>
+                        ) : null}
                       </p>
 
                       {/* The reason it was turned down, so the next operator
@@ -288,6 +303,14 @@ export default async function AdminBusinessesPage({
                         <p className="mt-3 text-ui-xs text-slate-400">No chargers listed.</p>
                       )}
 
+                      {application ? (
+                        <ListingApplicationPanel
+                          application={application}
+                          businessType={row.businessType}
+                          listingStatus={row.status}
+                        />
+                      ) : null}
+
                       <p className="mt-3 text-ui-xs text-slate-400">
                         Applied {formatRelativeTime(row.createdAt)}
                       </p>
@@ -311,7 +334,7 @@ export default async function AdminBusinessesPage({
                       />
                       <DeleteButton
                         label={`the application from ${row.businessName}`}
-                        consequence="its reviews, daily view statistics, photo reports and charger photos"
+                        consequence="its reviews, daily view statistics, photo reports, charger photos, verification documents and payment records"
                         action={async () => {
                           'use server'
                           return deleteBusiness(row.id)

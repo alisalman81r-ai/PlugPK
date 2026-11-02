@@ -66,8 +66,12 @@ export function businessToStation(
       : 'Type2'
     const ports = Math.max(1, charger.ports || 1)
 
+    // A charger the host has marked down is offline for every filter and
+    // count downstream; one with no word from the host keeps the old default.
+    const down = charger.condition === 'maintenance' || charger.condition === 'not-working'
+
     return {
-      id: `${business.id}-c${index}`,
+      id: charger.id ?? `${business.id}-c${index}`,
       stationId: business.id,
       type,
       maxPowerKw: charger.maxPowerKw || 0,
@@ -75,11 +79,16 @@ export function businessToStation(
       // This feed carries no live occupancy. Showing every port free is a
       // claim; showing the count it has is a fact, so availability mirrors
       // the installed total until an operator says otherwise.
-      availablePorts: ports,
-      status: 'available' as const,
+      availablePorts: down ? 0 : ports,
+      status: down ? ('offline' as const) : ('available' as const),
       compatibleVehicles: [],
+      ...(charger.condition ? { hostCondition: charger.condition, hostConditionAt: charger.conditionAt } : {}),
     }
   })
+
+  const downCount = connectors.filter((connector) => connector.status === 'offline').length
+  const stationStatus =
+    connectors.length > 0 && downCount === connectors.length ? 'offline' : downCount > 0 ? 'limited' : 'available'
 
   return {
     id: business.id,
@@ -106,7 +115,7 @@ export function businessToStation(
     // starts at zero rather than borrowing a score.
     rating: rating.rating,
     reviewCount: rating.reviewCount,
-    status: 'available',
+    status: stationStatus,
     isVerified: business.status === 'approved' && hasVerifiedPrimaryPhoto,
     // The network label is what the map shows under the name, so a home charger
     // says so rather than being presented as a commercial site. Someone

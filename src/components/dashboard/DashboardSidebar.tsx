@@ -3,6 +3,7 @@
 
 import {
   Bookmark,
+  CalendarCheck,
   Car,
   LayoutDashboard,
   LogOut,
@@ -55,6 +56,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { label: 'My Vehicles', href: '/dashboard/vehicles', icon: Car },
   { label: 'Saved Stations', href: '/dashboard/saved', icon: Bookmark, badgeKey: 'totalSaved' },
   { label: 'Saved Routes', href: '/dashboard/routes', icon: Route, badgeKey: 'totalRoutes' },
+  { label: 'My Bookings', href: '/dashboard/bookings', icon: CalendarCheck },
   { label: 'My Clubs', href: '/dashboard/clubs', icon: Users },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]

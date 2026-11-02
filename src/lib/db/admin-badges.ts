@@ -89,6 +89,16 @@ const QUEUES: Queue[] = [
     count: () => prisma.meetingRequest.count({ where: { status: 'new' } }),
   },
   {
+    // Bookings at the team's own stations, waiting for someone to check the
+    // advance arrived. A partner's bookings are the partner's to decide and
+    // are not counted here.
+    href: '/admin/bookings',
+    title: 'Station bookings',
+    one: 'station booking to confirm',
+    many: 'station bookings to confirm',
+    count: () => prisma.chargerBooking.count({ where: { stationId: { not: null }, status: 'pending' } }),
+  },
+  {
     // Businesses applying to be listed in the EV services directory. Same
     // shape as the charger-host queue above: submitted by the public, invisible
     // on the site until a person approves it.

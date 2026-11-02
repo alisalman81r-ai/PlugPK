@@ -18,8 +18,11 @@ export type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/l
 
 import type { HeroMapPin, HeroStats, HowItWorksData, ShowcaseStation } from '@/lib/charging'
 
+import { isSampleListing } from '@/lib/sample-listings'
+
 import { businessToStation } from './business-to-station'
 import { prisma } from './client'
+import { getPaymentAccounts } from './listing-fee'
 import { countActiveMembers, listActiveMembershipIds } from './membership'
 import {
   toConnector,
@@ -114,11 +117,62 @@ export async function getStations(): Promise<Station[]> {
  */
 export async function getMapStations(): Promise<Station[]> {
   const [stations, businesses] = await Promise.all([getStations(), getMappableBusinesses()])
-  const ratings = await getBusinessRatings(businesses.map((business) => business.id))
+  const ids = businesses.map((business) => business.id)
+  const [ratings, bookable, bookableStations] = await Promise.all([
+    getBusinessRatings(ids),
+    getBookableBusinessIds(ids),
+    getBookableStationIds(),
+  ])
   return [
-    ...stations,
-    ...businesses.map((business) => businessToStation(business, ratings[business.id])),
+    ...stations.map((station) => (bookableStations.has(station.id) ? { ...station, bookable: true } : station)),
+    ...businesses.map((business) => ({
+      ...businessToStation(business, ratings[business.id]),
+      ...(bookable.has(business.id) ? { bookable: true } : {}),
+    })),
   ]
+}
+
+/**
+ * Which of these listings a driver could book right now: bookings on, an
+ * advance set, and at least one payout account to pay it into. A failed
+ * lookup marks none bookable rather than taking the map down.
+ */
+/**
+ * Operator stations the Plug.pk team takes bookings for: switched on, with an
+ * advance, a real site (never a sample listing), and a Plug.pk account set to
+ * be paid into.
+ */
+async function getBookableStationIds(): Promise<Set<string>> {
+  if (getPaymentAccounts().length === 0) return new Set()
+  try {
+    const rows = await prisma.stationBookingSettings.findMany({
+      where: { bookingEnabled: true, bookingFee: { gt: 0 } },
+      select: { stationId: true },
+    })
+    return new Set(rows.map((row) => row.stationId).filter((id) => !isSampleListing(id)))
+  } catch (error) {
+    console.error('[map] could not read which stations take bookings', error)
+    return new Set()
+  }
+}
+
+async function getBookableBusinessIds(ids: string[]): Promise<Set<string>> {
+  if (ids.length === 0) return new Set()
+  try {
+    const rows = await prisma.hostSettings.findMany({
+      where: {
+        businessId: { in: ids },
+        bookingEnabled: true,
+        bookingFee: { gt: 0 },
+        business: { payoutAccounts: { some: {} } },
+      },
+      select: { businessId: true },
+    })
+    return new Set(rows.map((row) => row.businessId))
+  } catch (error) {
+    console.error('[map] could not read which listings take bookings', error)
+    return new Set()
+  }
 }
 
 /**
@@ -626,6 +680,9 @@ export async function getNewMeetingCount(): Promise<number> {
 // ─── Business applications ──────────────────────────
 
 export interface BusinessCharger {
+  id?: string
+  condition?: 'working' | 'maintenance' | 'not-working'
+  conditionAt?: string
   connectorType: string
   maxPowerKw: number
   ports: number

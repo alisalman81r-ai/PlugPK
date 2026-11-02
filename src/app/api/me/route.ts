@@ -3,6 +3,7 @@
 import { NextResponse } from 'next/server'
 
 import { prisma } from '@/lib/db/client'
+import { getPrimaryCatalogueCar } from '@/lib/db/garage'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 
 /**
@@ -34,7 +35,14 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   const profile = await getCurrentProfile()
   // Only partners are offered the business portal in the account menu.
-  const hasBusiness = profile ? (await prisma.business.count({ where: { userId: profile.id } })) > 0 : false
+  const [hasBusiness, car] = profile
+    ? await Promise.all([
+        prisma.business.count({ where: { userId: profile.id } }).then((count) => count > 0),
+        // The primary car from the garage: every car tool on the site starts
+        // with it, so a driver picks their car once, on their dashboard.
+        getPrimaryCatalogueCar(profile.id).catch(() => null),
+      ])
+    : [false, null]
 
   const user = profile
     ? {
@@ -49,6 +57,7 @@ export async function GET() {
         */
         isAdmin: profile.isAdmin,
         hasBusiness,
+        car,
       }
     : null
 

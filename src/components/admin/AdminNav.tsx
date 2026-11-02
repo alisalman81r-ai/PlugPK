@@ -7,6 +7,7 @@ import {
   ExternalLink,
   LayoutDashboard,
   LogOut,
+  CalendarCheck,
   CalendarClock,
   Activity,
   MessageSquare,
@@ -72,6 +73,7 @@ const SECTIONS: NavSection[] = [
       { label: 'Members', href: '/admin/members', icon: Users },
       { label: 'Businesses', href: '/admin/businesses', icon: Building2 },
       { label: 'Meetings', href: '/admin/meetings', icon: CalendarClock },
+      { label: 'Bookings', href: '/admin/bookings', icon: CalendarCheck },
     ],
   },
   {

@@ -13,6 +13,7 @@ import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
 import { RouteInputForm } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
 import { FaqSection } from '@/components/shared/FaqSection'
+import { useMyCar } from '@/hooks/useMyCar'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { saveMyRoute } from '@/lib/db/route-actions'
 import { ROUTES_FAQS } from '@/lib/faqs'
@@ -86,8 +87,11 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
   */
   const [autoRun, setAutoRun] = React.useState(false)
   const { setOrigin, setDestination, setSelectedVehicle, setBatteryPercent } = planner
+  /** The link named a car, which the driver's own car must not override. */
+  const linkChoseCar = React.useRef(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
+    linkChoseCar.current = q.has('car')
     const from = q.get('from')?.trim()
     const to = q.get('to')?.trim()
     const car = vehicles.find((v) => v.id === q.get('car'))
@@ -104,6 +108,22 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
     }
     setAutoRun(true)
   }, [vehicles, setOrigin, setDestination, setSelectedVehicle, setBatteryPercent])
+
+  /*
+    The driver's own car, from their garage, once the link has been read:
+    only when the link named no car and none is picked yet. No car in the
+    garage, nothing is pre-selected.
+  */
+  const myCar = useMyCar()
+  const appliedMyCar = React.useRef(false)
+  const { selectedVehicle } = planner
+  React.useEffect(() => {
+    if (myCar === undefined || appliedMyCar.current) return
+    appliedMyCar.current = true
+    if (linkChoseCar.current || selectedVehicle || !myCar) return
+    const mine = vehicles.find((v) => v.id === myCar.slug)
+    if (mine) setSelectedVehicle(mine)
+  }, [myCar, vehicles, selectedVehicle, setSelectedVehicle])
 
   const { canCalculate, calculateRoute } = planner
   React.useEffect(() => {

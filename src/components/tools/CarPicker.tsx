@@ -4,7 +4,10 @@
 import * as React from 'react'
 
 import { Check, ChevronDown, Search, X } from '@/components/ui/icons'
+import type { MyCar } from '@/hooks/useMyCar'
 import { cn } from '@/lib/utils'
+
+import { MyCarHint } from './MyCarHint'
 
 /**
  * Pick a car by typing, not by scrolling.
@@ -54,6 +57,8 @@ export interface CarPickerProps {
   placeholder?: string
   /** Shown under the field. */
   hint?: React.ReactNode
+  /** The driver's own car from their garage, offered and labelled as such. */
+  ownCar?: MyCar | null
 }
 
 /** Every word typed must appear somewhere in "brand name". */
@@ -66,7 +71,7 @@ function matches(car: PickerCar, query: string): boolean {
     .every((word) => hay.includes(word))
 }
 
-export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeholder = 'Select your EV', hint }: CarPickerProps) {
+export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeholder = 'Select your EV', hint, ownCar }: CarPickerProps) {
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState('')
   const [active, setActive] = React.useState(0)
@@ -206,6 +211,11 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
         />
       </button>
 
+      {ownCar && cars.some((car) => car.slug === ownCar.slug) ? (
+        <div className="mt-2">
+          <MyCarHint car={ownCar} selected={value} onUse={onChange} />
+        </div>
+      ) : null}
       {hint ? <div className="mt-2.5">{hint}</div> : null}
 
       {open ? (

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { useMyCar } from '@/hooks/useMyCar'
 import { ArrowUpRight, Check, Link2 } from '@/components/ui/icons'
 import { Input } from '@/components/ui'
 import { MAX_CHARGER_KW, estimateCharge, rangeAddedKm, readyAt, type ChargeMode } from '@/lib/charging-time'
@@ -121,8 +122,11 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
     A shared link's settings apply; otherwise no car is picked until you pick one.
   */
   const [hydrated, setHydrated] = React.useState(false)
+  /** The link named a car or a battery size of its own, which the driver's car must not override. */
+  const linkChose = React.useRef(false)
   React.useEffect(() => {
     const q = new URLSearchParams(window.location.search)
+    linkChose.current = q.has('car') || q.has('battery')
     // Only a shared link picks the car. The tool used to reopen on the car
     // last chosen on this device, which read as the site deciding for you.
     const linked = cars.find((c) => c.slug === q.get('car'))
@@ -157,6 +161,23 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
     if (qRate != null && qRate.trim() !== '' && Number.isFinite(Number(qRate)) && Number(qRate) >= 0) setRateText(qRate)
     setHydrated(true)
   }, [cars])
+
+  /*
+    The driver's own car, from their garage: picked once, after the link has
+    been read, and only when the link chose nothing and the driver has not
+    picked anything yet. This is the car they told us they drive — not the
+    last one tried on this device, which the note above rightly removed.
+  */
+  const myCar = useMyCar()
+  const appliedMyCar = React.useRef(false)
+  React.useEffect(() => {
+    if (!hydrated || myCar === undefined || appliedMyCar.current) return
+    appliedMyCar.current = true
+    if (linkChose.current || slug || !myCar) return
+    if (cars.some((c) => c.slug === myCar.slug)) chooseCar(myCar.slug)
+    // chooseCar is recreated each render; this runs once by design.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, myCar, cars, slug])
 
   const [copied, setCopied] = React.useState<'idle' | 'done' | 'failed'>('idle')
   const copyLink = async () => {
@@ -223,6 +244,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             <StepHeading step={1} title="Your car" />
             <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_10.5rem]">
               <CarPicker
+                ownCar={myCar}
                 id="calc-car"
                 label="Model"
                 cars={pickerCars}

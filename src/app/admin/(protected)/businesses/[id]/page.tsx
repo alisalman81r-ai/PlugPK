@@ -4,9 +4,11 @@ import { notFound } from 'next/navigation'
 import { ActivityPanel } from '@/components/admin/ActivityPanel'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { BusinessForm } from '@/components/admin/BusinessForm'
+import { ListingApplicationPanel } from '@/components/admin/ListingApplicationPanel'
 import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
 import { getAdminBusiness } from '@/lib/db/admin-queries'
 import { saveBusiness } from '@/lib/db/business-actions'
+import { getApplication } from '@/lib/db/listing-application-queries'
 import { formatRelativeTime } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -14,6 +16,7 @@ export const dynamic = 'force-dynamic'
 export default async function EditBusinessPage({ params }: { params: { id: string } }) {
   const business = await getAdminBusiness(params.id)
   if (!business) notFound()
+  const application = await getApplication(business.id)
 
   async function update(form: FormData) {
     'use server'
@@ -40,6 +43,13 @@ export default async function EditBusinessPage({ params }: { params: { id: strin
           <p className="mt-2 rounded-lg border border-red-100 bg-red-50/60 px-3 py-2 text-ui-sm text-red-900">
             <span className="font-semibold">Review note:</span> {business.reviewNote}
           </p>
+        ) : null}
+        {application ? (
+          <ListingApplicationPanel
+            application={application}
+            businessType={business.businessType}
+            listingStatus={business.status}
+          />
         ) : null}
       </div>
 

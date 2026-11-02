@@ -2,10 +2,13 @@
 'use client'
 
 import {
+  Banknote,
   BarChart2,
   Building2,
+  CalendarCheck,
   LayoutDashboard,
   Plus,
+  ShieldCheck,
   Star,
   Zap,
   type IconType,
@@ -59,6 +62,9 @@ export const BUSINESS_NAV: BusinessNavItem[] = [
   { label: 'Overview', href: '/business/dashboard', icon: LayoutDashboard, exact: true },
   { label: 'Profile', href: '/business/profile', icon: Building2 },
   { label: 'Chargers', href: '/business/chargers', icon: Zap },
+  { label: 'Bookings', href: '/business/bookings', icon: CalendarCheck },
+  { label: 'Payout accounts', href: '/business/payouts', icon: Banknote },
+  { label: 'Application', href: '/business/application', icon: ShieldCheck },
   { label: 'Reviews', href: '/business/reviews', icon: Star },
   { label: 'Analytics', href: '/business/analytics', icon: BarChart2 },
 ]

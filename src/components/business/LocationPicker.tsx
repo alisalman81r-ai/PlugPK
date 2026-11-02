@@ -111,31 +111,57 @@ export function LocationPicker({
     }
 
     setIsLocating(true)
+
+    const found = (position: GeolocationPosition) => {
+      setIsLocating(false)
+      const next = {
+        // Six decimals is about 0.1m — beyond that is noise, and the extra
+        // digits only make the field harder to read.
+        lat: Number(position.coords.latitude.toFixed(6)),
+        lng: Number(position.coords.longitude.toFixed(6)),
+      }
+      onChange(next)
+      void fillAddressFrom(next)
+    }
+
+    const failed = (positionError: GeolocationPositionError) => {
+      setIsLocating(false)
+      // Each case needs a different action from the person, so they get
+      // different sentences rather than one generic failure.
+      setError(
+        positionError.code === positionError.PERMISSION_DENIED
+          ? 'Location permission was denied. Allow it in your browser, or type the coordinates below.'
+          : positionError.code === positionError.TIMEOUT
+            ? 'Locating took too long. Check that location is turned on for this device, try again, or type the coordinates below.'
+            : 'Could not get your location. Check that location is turned on for this device, or type the coordinates below.',
+      )
+    }
+
+    /*
+      GPS first, then the network.
+
+      High accuracy alone used to be the only attempt, with a 12 second limit.
+      A laptop or desktop has no GPS, so it waited for a fix that never came and
+      always ended in "took too long" — on exactly the machines a business is
+      most likely to fill this form in on. A phone still gets its GPS fix in
+      the first attempt; anything else falls back to the Wi-Fi / network
+      position the device already has, which is quick and usually within a
+      few dozen metres. A refused permission is final, so it is not retried.
+    */
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setIsLocating(false)
-        const next = {
-          // Six decimals is about 0.1m — beyond that is noise, and the extra
-          // digits only make the field harder to read.
-          lat: Number(position.coords.latitude.toFixed(6)),
-          lng: Number(position.coords.longitude.toFixed(6)),
-        }
-        onChange(next)
-        void fillAddressFrom(next)
-      },
+      found,
       (positionError) => {
-        setIsLocating(false)
-        // Each case needs a different action from the person, so they get
-        // different sentences rather than one generic failure.
-        setError(
-          positionError.code === positionError.PERMISSION_DENIED
-            ? 'Location permission was denied. Allow it in your browser, or type the coordinates below.'
-            : positionError.code === positionError.TIMEOUT
-              ? 'Locating took too long. Try again, or type the coordinates below.'
-              : 'Could not get your location. Type the coordinates below instead.',
-        )
+        if (positionError.code === positionError.PERMISSION_DENIED) {
+          failed(positionError)
+          return
+        }
+        navigator.geolocation.getCurrentPosition(found, failed, {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000,
+        })
       },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
     )
   }
 

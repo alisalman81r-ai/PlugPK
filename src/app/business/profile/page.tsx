@@ -9,7 +9,8 @@ import { portalListings, requireOwnerPortal } from '@/lib/db/business-queries'
  * Editing the owner's real listing.
  *
  * Gated on the server like the rest of the portal, and reading the row that
- * belongs to the signed-in account rather than a fixture.
+ * belongs to the signed-in account rather than a fixture. Where the owner is
+ * paid has its own page, /business/payouts.
  */
 
 export const dynamic = 'force-dynamic'

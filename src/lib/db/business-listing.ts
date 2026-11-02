@@ -1,4 +1,5 @@
 // src/lib/db/business-listing.ts
+import type { ChargerCondition } from '@/lib/charger-host'
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import { isUploadUrl } from '@/lib/upload-urls'
 import { isInPakistan } from '@/lib/validate'
@@ -18,6 +19,15 @@ export type PhotoStatus = 'pending' | 'approved' | 'needs-better-photo'
 export type PhotoLabel = 'charger' | 'port' | 'location' | 'signage'
 
 export interface ListingCharger {
+  /**
+   * Stable within the listing, so a booking or a status still points at the
+   * same charger after the owner reorders or edits the list. Assigned by the
+   * server; a row saved before ids existed gets one on its next save.
+   */
+  id?: string
+  /** What the host last said about it, and when. Changed only by setChargerCondition. */
+  condition?: ChargerCondition
+  conditionAt?: string
   connectorType: string
   maxPowerKw: number
   ports: number
@@ -82,6 +92,12 @@ export function cleanChargers(
     return { ok: false, message: `A listing can hold at most ${MAX_CHARGERS} chargers.` }
   }
 
+  // Ids the listing already has, with the condition the host last set on each.
+  // An id from the request is kept only if it is one of these, so a client
+  // cannot invent ids or carry a status across from somewhere else.
+  const storedById = new Map(stored.filter((charger) => charger.id).map((charger) => [charger.id as string, charger]))
+  const usedIds = new Set<string>()
+
   const known = new Map<string, PhotoStatus | undefined>()
   for (const charger of stored) {
     if (charger.photo) known.set(charger.photo, charger.photoStatus)
@@ -103,7 +119,14 @@ export function cleanChargers(
       return { ok: false, message: 'Choose a connector type for every charger.' }
     }
 
+    const claimedId = typeof charger.id === 'string' ? charger.id : ''
+    const previous = storedById.get(claimedId)
+    const id = previous && !usedIds.has(claimedId) ? claimedId : `c-${crypto.randomUUID().slice(0, 8)}`
+    usedIds.add(id)
+
     const next: ListingCharger = {
+      id,
+      ...(previous?.condition ? { condition: previous.condition, conditionAt: previous.conditionAt } : {}),
       connectorType,
       maxPowerKw: Math.min(MAX_POWER_KW, Math.max(0, Number(charger.maxPowerKw) || 0)),
       ports: Math.min(MAX_PORTS, Math.max(1, Math.round(Number(charger.ports) || 1))),

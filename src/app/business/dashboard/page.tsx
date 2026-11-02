@@ -1,12 +1,28 @@
 // src/app/business/dashboard/page.tsx
-import { CheckCircle2, Clock, Globe, Mail, MapPin, Phone, XCircle, Zap } from '@/components/ui/icons'
+import {
+  AlertTriangle,
+  Banknote,
+  CheckCircle2,
+  Clock,
+  Globe,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  XCircle,
+  Zap,
+} from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { BusinessDashboardLayout } from '@/components/business/BusinessDashboardLayout'
+import { ChargerStatusBoard } from '@/components/business/host/ChargerStatusBoard'
 import { listingHref } from '@/components/business/listing-state'
+import { chargerLabel } from '@/lib/charger-host'
 import type { PhotoStatus } from '@/lib/db/business-listing'
 import { portalListings, requireOwnerPortal } from '@/lib/db/business-queries'
+import { getApplications } from '@/lib/db/listing-application-queries'
+import { applicationProgress, type StepState } from '@/lib/listing-application'
 import { formatRelativeTime, cn } from '@/lib/utils'
 import { safeHref } from '@/lib/validate'
 
@@ -61,6 +77,13 @@ const PHOTO_STATE: Record<PhotoStatus, { label: string; tone: string }> = {
   },
 }
 
+const STEP_STATE: Record<StepState, { label: string; tone: string }> = {
+  done: { label: 'Complete', tone: 'text-emerald-700' },
+  waiting: { label: 'Being confirmed', tone: 'text-amber-700' },
+  missing: { label: 'Needed from you', tone: 'text-plug-blue-700' },
+  refused: { label: 'Not accepted — send again', tone: 'text-red-700' },
+}
+
 function photoState(photo: string | undefined, status: PhotoStatus | undefined) {
   if (!photo) return { label: 'No photo yet', tone: 'border-slate-200 bg-slate-50 text-slate-600' }
   // A photo saved before review existed has no status; the listing being
@@ -77,12 +100,38 @@ export default async function BusinessDashboardPage({
   // hide it after, which is not a gate.
   const portal = await requireOwnerPortal('/business/dashboard', searchParams.listing)
   const { user, listings, listing: selected } = portal
+  const applications = await getApplications(listings.map((item) => item.id))
 
   // The chosen listing first, then the rest in their usual order.
   const ordered = [selected, ...listings.filter((item) => item.id !== selected.id)]
 
   return (
     <BusinessDashboardLayout title="Your listings" subtitle={user.email} {...portalListings(portal)}>
+      {/* The thing a host does most, first: say which chargers are working
+          today. One tap per charger; drivers see it on the listing. */}
+      {selected.chargers.length > 0 ? (
+        <section aria-labelledby="charger-status" className="mb-6 rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
+          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="charger-status" className="text-lg font-bold text-slate-900">
+              Charger status today
+            </h2>
+            <p className="text-ui-sm text-slate-500">
+              {listings.length > 1 ? `${selected.businessName} · ` : ''}Drivers see this on your listing
+            </p>
+          </div>
+          <ChargerStatusBoard
+            businessId={selected.id}
+            chargers={selected.chargers.map((charger, index) => ({
+              // The same positional id the server gives a charger saved before ids existed.
+              id: charger.id ?? `c-legacy-${index}`,
+              label: chargerLabel(charger, index),
+              condition: charger.condition ?? null,
+              conditionAt: charger.conditionAt ?? null,
+            }))}
+          />
+        </section>
+      ) : null}
+
       <ul className="flex flex-col gap-4">
         {ordered.map((business) => {
           const state = STATUS[business.status as keyof typeof STATUS] ?? STATUS.pending
@@ -93,6 +142,12 @@ export default async function BusinessDashboardPage({
             (charger) =>
               charger.photoStatus === 'needs-better-photo' || charger.portPhotoStatus === 'needs-better-photo',
           )
+          const application = applications.get(business.id)
+          const progress = application ? applicationProgress(application, business.businessType) : null
+          const waitingOnOwner = business.status === 'pending' && progress?.needsOwner
+          const chip = waitingOnOwner
+            ? { label: 'Action needed', chip: 'bg-plug-blue-100 text-plug-blue-800', Icon: AlertTriangle }
+            : state
 
           return (
             <li
@@ -113,14 +168,63 @@ export default async function BusinessDashboardPage({
                 </div>
 
                 <span
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-ui-sm font-semibold ${state.chip}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-ui-sm font-semibold ${chip.chip}`}
                 >
-                  <state.Icon size={14} className="shrink-0" aria-hidden="true" />
-                  {state.label}
+                  <chip.Icon size={14} className="shrink-0" aria-hidden="true" />
+                  {chip.label}
                 </span>
               </div>
 
-              <p className="mt-3 text-ui-sm text-slate-500">{state.note}</p>
+              <p className="mt-3 text-ui-sm text-slate-500">
+                {waitingOnOwner
+                  ? progress?.payment === 'refused'
+                    ? 'Your payment could not be confirmed. Send it again and the review carries on from where it stopped.'
+                    : 'Not submitted for review yet — finish the verification and payment below and it goes straight to the review team.'
+                  : state.note}
+              </p>
+
+              {/* Where the paid application stands. Shown for every listing
+                  that has one, so a confirmed payment is visible as such and
+                  not only the steps still to do. */}
+              {progress ? (
+                <div
+                  className={cn(
+                    'mt-4 rounded-xl border p-4',
+                    progress.needsOwner && business.status !== 'approved'
+                      ? 'border-plug-blue-200 bg-plug-blue-50/50'
+                      : 'border-slate-200 bg-slate-50/60',
+                  )}
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      { label: 'Verification', Icon: ShieldCheck, state: progress.identity },
+                      { label: 'Listing fee', Icon: Banknote, state: progress.payment },
+                    ].map((step) => (
+                      <div key={step.label} className="flex items-center gap-2.5">
+                        <step.Icon size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
+                        <span className="text-ui-sm text-slate-600">{step.label}</span>
+                        <span className={cn('ml-auto text-ui-sm font-semibold sm:ml-0', STEP_STATE[step.state].tone)}>
+                          {STEP_STATE[step.state].label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {progress.paymentNote ? (
+                    <p className="mt-3 flex items-start gap-2 text-ui-sm text-red-800">
+                      <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
+                      {progress.paymentNote}
+                    </p>
+                  ) : null}
+                  {progress.needsOwner && business.status !== 'approved' ? (
+                    <Link
+                      href={manage('/business/application')}
+                      className="mt-4 inline-flex h-10 items-center rounded-xl bg-plug-blue-600 px-4 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-blue-700"
+                    >
+                      Complete your application
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
 
               {business.status === 'rejected' ? (
                 <div role="note" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">

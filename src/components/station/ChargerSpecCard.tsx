@@ -1,7 +1,20 @@
 // src/components/station/ChargerSpecCard.tsx
 import { ConnectorBadge } from '@/components/ui'
+import { CONDITION_LABEL } from '@/lib/charger-host'
 import type { Connector } from '@/lib/types'
-import { getConnectorConfig } from '@/lib/utils'
+import { cn, formatRelativeTime, getConnectorConfig } from '@/lib/utils'
+
+const CONDITION_TONE = {
+  working: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  maintenance: 'border-amber-200 bg-amber-50 text-amber-800',
+  'not-working': 'border-red-200 bg-red-50 text-red-800',
+} as const
+
+const CONDITION_DOT = {
+  working: 'bg-emerald-500',
+  maintenance: 'bg-amber-500',
+  'not-working': 'bg-red-500',
+} as const
 
 export interface ChargerSpecCardProps {
   connector: Connector
@@ -66,6 +79,26 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
           </div>
         </div>
 
+        {/* The host's own word on this charger, never presented as a live
+            reading: it always says who said it and when. */}
+        {connector.hostCondition ? (
+          <div className="text-right">
+            <span
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-ui-sm font-semibold',
+                CONDITION_TONE[connector.hostCondition],
+              )}
+            >
+              <span aria-hidden="true" className={cn('h-2 w-2 rounded-full', CONDITION_DOT[connector.hostCondition])} />
+              {CONDITION_LABEL[connector.hostCondition]}
+            </span>
+            {connector.hostConditionAt ? (
+              <p className="mt-1 text-ui-xs text-slate-400">
+                Host update · {formatRelativeTime(connector.hostConditionAt)}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">

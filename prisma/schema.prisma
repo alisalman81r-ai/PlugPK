@@ -99,6 +99,9 @@ model Station {
   connectors Connector[]
   reviews    Review[]
 
+  bookingSettings StationBookingSettings?
+  bookings        ChargerBooking[]
+
   @@index([city])
   @@index([status])
 }
@@ -361,6 +364,7 @@ model User {
 
   meetingRequests     MeetingRequest[]
   serviceApplications EVService[]
+  chargerBookings     ChargerBooking[]
 
   @@index([createdAt])
   @@index([lastAppActiveAt])
@@ -553,8 +557,196 @@ model Business {
   dailyStats   BusinessDailyStat[]
   photoReports BusinessPhotoReport[]
 
+  application ListingApplication?
+  documents   BusinessDocument[]
+  payments    ListingPayment[]
+
+  hostSettings   HostSettings?
+  payoutAccounts PayoutAccount[]
+  bookings       ChargerBooking[]
+
   @@index([status])
   @@index([createdAt])
+}
+
+/// The paid application behind an owner-submitted listing: who the owner is
+/// (a CNIC for a home charger, a licence or registration for a business) and
+/// whether they have finished. Kept off Business on purpose — that row feeds
+/// public pages, and an identity number must never be one select away from
+/// them.
+///
+/// A listing with no row here predates paid listing, or was entered by an
+/// operator, and is reviewed under the old rules.
+model ListingApplication {
+  businessId  String    @id
+  /// cnic | licence
+  idType      String?
+  /// CNIC as 12345-1234567-1, or the licence / registration number.
+  idNumber    String?
+  /// For a licence: ntn | secp | trade-licence | other.
+  idDetail    String?
+  /// The address printed on the CNIC, or the registered address on the
+  /// licence. Private, for the reviewer — where the chargers are installed is
+  /// Business.address, which is public.
+  idAddress   String?
+  /// When the owner finished the whole flow, payment included.
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+/// Private files an owner supplies for review: identity and payment proof.
+/// The bytes live here rather than in the Blob store, which is public — a
+/// CNIC scan must not have a URL anyone could open. Served only through
+/// /api/business-documents/[id] to an operator or the listing's owner.
+model BusinessDocument {
+  id         String   @id
+  businessId String
+  /// cnic-front | cnic-back | licence | payment-receipt
+  kind       String
+  mimeType   String
+  size       Int
+  bytes      Bytes
+  createdAt  DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, kind])
+}
+
+/// A listing fee paid by bank transfer or mobile wallet and confirmed by an
+/// operator. One row per attempt, so a payment that was not received stays on
+/// record when the owner sends another.
+model ListingPayment {
+  id          String    @id
+  businessId  String
+  /// Whole rupees, set by the server from the fee in force — never the form.
+  amount      Int
+  currency    String    @default("PKR")
+  /// bank | jazzcash | easypaisa
+  method      String
+  /// The name on the account the money was sent from.
+  payerName   String
+  /// Transaction ID / reference printed on the receipt.
+  reference   String
+  paidOn      String
+  /// submitted | verified | rejected
+  status      String    @default("submitted")
+  reviewNote  String?
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  createdAt   DateTime  @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, createdAt])
+  @@index([status])
+}
+
+/// What a host charges and when drivers can book. One row per listing,
+/// created the first time the owner saves either.
+model HostSettings {
+  businessId     String   @id
+  /// Whole rupees per kWh. Null: the host has not published a price.
+  pricePerKwh    Int?
+  bookingEnabled Boolean  @default(false)
+  /// Advance a driver pays to hold a slot, deducted from the charging bill.
+  bookingFee     Int      @default(0)
+  slotMinutes    Int      @default(60)
+  /// HH:MM, Pakistan time.
+  openTime       String   @default("09:00")
+  closeTime      String   @default("21:00")
+  updatedAt      DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+}
+
+/// Where a host receives booking advances. Shown to a driver only while they
+/// book a live listing — the point of it is to be paid into.
+model PayoutAccount {
+  id            String   @id
+  businessId    String
+  /// bank | jazzcash | easypaisa
+  method        String
+  /// Bank name; null for a wallet.
+  provider      String?
+  accountTitle  String
+  accountNumber String
+  iban          String?
+  qrMime        String?
+  qrBytes       Bytes?
+  createdAt     DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+/// A driver's slot on one charger. The advance goes straight to the host's
+/// payout account; the host confirms it arrived.
+///
+/// Exactly one of businessId and stationId is set: a partner listing, hosted by
+/// its owner, or an operator station, hosted by the Plug.pk team.
+model ChargerBooking {
+  id           String    @id
+  businessId   String?
+  stationId    String?
+  /// The charger's id inside Business.chargers, or the station's Connector id.
+  chargerId    String
+  /// "CCS2 · 60 kW", as it was when booked — the charger list can change.
+  chargerLabel String
+  userId       String
+  /// YYYY-MM-DD and HH:MM, Pakistan time.
+  date         String
+  startTime    String
+  endTime      String
+  /// pending | confirmed | declined | cancelled
+  status       String    @default("pending")
+  fee          Int
+  /// The price per kWh shown when booking, for the driver's reference.
+  pricePerKwh  Int?
+  payMethod    String
+  payerName    String
+  reference    String
+  receiptMime  String
+  receiptBytes Bytes
+  vehicle      String?
+  /// The charge the booking was timed for: from and to %, energy into the
+  /// pack, and the minutes held (charge plus handover), computed by the server.
+  fromPct         Int?
+  toPct           Int?
+  energyKwh       Float?
+  durationMinutes Int?
+  hostNote     String?
+  decidedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  station  Station?  @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, date])
+  @@index([stationId, date])
+  @@index([chargerId, date, startTime])
+  @@index([userId, createdAt])
+}
+
+/// Booking rules for an operator station, set by the Plug.pk team in the admin
+/// portal. Advances are paid to Plug.pk's own accounts (PAYMENT_* in the
+/// environment), so there is no payout account here.
+model StationBookingSettings {
+  stationId      String   @id
+  pricePerKwh    Int?
+  bookingEnabled Boolean  @default(false)
+  bookingFee     Int      @default(0)
+  slotMinutes    Int      @default(30)
+  openTime       String   @default("09:00")
+  closeTime      String   @default("21:00")
+  updatedAt      DateTime @updatedAt
+
+  station Station @relation(fields: [stationId], references: [id], onDelete: Cascade)
 }
 
 model BusinessPhotoReport {

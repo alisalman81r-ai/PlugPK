@@ -7,6 +7,7 @@ import * as React from 'react'
 
 import { Button, Input, Textarea } from '@/components/ui'
 import { submitReview, type ReviewTarget } from '@/lib/db/review-actions'
+import { useMyCar } from '@/hooks/useMyCar'
 import { cn } from '@/lib/utils'
 
 export interface WriteReviewFormProps {
@@ -47,6 +48,12 @@ export function WriteReviewForm({
   const [hoverRating, setHoverRating] = React.useState<number | null>(null)
   const [comment, setComment] = React.useState('')
   const [vehicle, setVehicle] = React.useState('')
+  // The car the review was charged with: the driver's own, from their garage,
+  // until they type something else.
+  const myCar = useMyCar()
+  React.useEffect(() => {
+    if (myCar) setVehicle((current) => current || myCar.name)
+  }, [myCar])
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)

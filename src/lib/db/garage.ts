@@ -135,3 +135,21 @@ export async function mirrorCar(carId: string): Promise<boolean> {
   await prisma.vehicle.upsert({ where: { id: car.id }, create: { id: car.id, ...data }, update: data })
   return true
 }
+
+/**
+ * The account's primary car as the catalogue knows it — the car every tool on
+ * the site starts with. Null when the garage is empty, or when the primary is
+ * a typed-in name that matches no catalogue car (no slug to select).
+ */
+export async function getPrimaryCatalogueCar(userId: string): Promise<{ slug: string; name: string } | null> {
+  const primary = await prisma.userVehicle.findFirst({
+    where: { userId, isDefault: true },
+    select: { vehicleId: true },
+  })
+  if (!primary) return null
+  const car = await prisma.car.findUnique({
+    where: { id: primary.vehicleId },
+    select: { slug: true, fullName: true },
+  })
+  return car ? { slug: car.slug, name: car.fullName } : null
+}

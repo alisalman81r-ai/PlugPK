@@ -128,8 +128,10 @@ type Encoded = { ok: true; bytes: Buffer } | { ok: false; message: string }
  * camera's EXIF orientation, shrunk to the bucket's size, and stripped of
  * metadata — which is where a phone keeps the GPS position the photo was taken
  * at, a thing nobody means to publish with their profile picture.
+ *
+ * Exported for document-store.ts, which keeps identity scans privately.
  */
-async function toWebp(input: Uint8Array, maxSide: number): Promise<Encoded> {
+export async function toWebp(input: Uint8Array, maxSide: number): Promise<Encoded> {
   const unreadable = { ok: false as const, message: `That file is not an image we can read. Use a ${ACCEPTED_FORMATS} file.` }
   const { default: sharp } = await import('sharp')
   try {
