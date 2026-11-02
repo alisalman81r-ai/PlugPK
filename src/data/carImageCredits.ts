@@ -170,13 +170,13 @@ export const carImageCredits: Record<string, ImageCredit> = {
     licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
     source: "https://commons.wikimedia.org/wiki/File:Kia_EV9_1X7A2472.jpg",
   },
-  'mg-hs-phev': {
-    author: "© M 93",
-    licence: "CC BY-SA 3.0 de",
-    licenceUrl: 'https://creativecommons.org/licenses/by-sa/3.0/de/deed.en',
-    source: "https://commons.wikimedia.org/wiki/File:MG_HS_Hybrid%2B_Luxury_(II)_%E2%80%93_f_12032026.jpg",
-  },
   'mg-zs-ev': {
+    author: "Alexander Migl",
+    licence: "CC BY-SA 4.0",
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    source: "https://commons.wikimedia.org/wiki/File:MG_ZS_EV_Facelift_1X7A5867.jpg",
+  },
+  'mg-zs-ev-long-range': {
     author: "Alexander Migl",
     licence: "CC BY-SA 4.0",
     licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
@@ -477,6 +477,13 @@ export const carImageCredits: Record<string, ImageCredit> = {
     changes: "Background removed and set on white, mirrored; plug.pk number plate added",
   },
   'mg-cyberster': {
+    author: "MrWalkr",
+    licence: "CC BY-SA 4.0",
+    licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+    source: "https://commons.wikimedia.org/wiki/File:2024_MG_Cyberster.jpg",
+    changes: "Background removed and set on white; number plate replaced with a plug.pk plate",
+  },
+  'mg-cyberster-gt-dual': {
     author: "MrWalkr",
     licence: "CC BY-SA 4.0",
     licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0',

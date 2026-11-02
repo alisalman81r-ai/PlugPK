@@ -1,0 +1,121 @@
+{
+  "mg-cyberster": {
+    "corrections": {
+      "variant": {
+        "value": "GT Single Motor",
+        "source": "https://mgmotors.com.pk/model/cyberster",
+        "note": "MG Pakistan's Cyberster page offers 'Single Motor' and 'Dual Motor'. This row is now the Single Motor only; the Dual Motor has its own row, mg-cyberster-gt-dual."
+      },
+      "priceMax": {
+        "value": 27000000,
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "PakNEV: PKR 27,000,000 ex-factory (Gari.pk agrees; PakWheels says 26,990,000). The PKR 29.9M top of the old span is the Dual Motor's, now on its own row."
+      },
+      "priceDisplay": {
+        "value": "PKR 2.7 Cr",
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "Single Motor only."
+      },
+      "realWorldRange": {
+        "value": 434,
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "PakNEV real-world estimate 434 km (was EV Database's 425 km); PakNEV is this batch's primary reference."
+      },
+      "consumption": {
+        "value": 19.1,
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "PakNEV: 19.1 kWh/100 km, an estimate (was EV Database's 17.5)."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.",
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "Same terms, tidied wording."
+      },
+      "notes": {
+        "value": "MG Cyberster GT with a single rear motor, one of two Cyberster trims MG Pakistan sells (the all-wheel-drive Dual Motor has its own page). 77 kWh battery (74.4 kWh usable), 250 kW (335 hp) and 475 Nm, rear-wheel drive, 0-100 km/h in 5.0 s, 195 km/h, 507 km WLTP; PakNEV estimates about 434 km in real-world use at 19.1 kWh/100 km. DC charging up to 144 kW with 10-80% in about 38 min (MG Pakistan); AC 11 kW (EV Database; PakNEV says 7.4 kW), about 8 h. 4,535 x 1,913 x 1,329 mm, 2,690 mm wheelbase, 249 L boot, two seats, electric scissor doors and soft top. Kerb weight 1,960 kg is the EU unladen figure (PakNEV gives 2,110 kg, which matches the Dual Motor). PKR 27,000,000. Warranty 5 years / 150,000 km, battery 8 years / 150,000 km. Sources: MG Pakistan, PakNEV, EV Database, PakWheels.",
+        "source": "https://paknev.com/cars/mg-cyberster",
+        "note": "Rewritten for the Single Motor alone."
+      }
+    }
+  },
+  "mg-zs-ev": {
+    "corrections": {
+      "realWorldRange": {
+        "value": 308,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: real-world estimate 308 km."
+      },
+      "consumption": {
+        "value": 14.2,
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "PakNEV, MCE Essence: 14.2 kWh/100 km (estimate)."
+      },
+      "notes": {
+        "value": "MG ZS EV MCE Essence, the smaller-battery ZS EV sold in Pakistan (the MCE Long Range has its own page). Per PakNEV: 51.1 kWh battery, 174 hp and 280 Nm, front-wheel drive, 360 km WLTP (about 308 km in real-world use, 14.2 kWh/100 km), 0-100 km/h in 8.6 s, 175 km/h. AC 7 kW; DC up to 75 kW with 10-80% in about 40 min. 4,323 x 1,809 x 1,649 mm, 2,585 mm wheelbase, 177 mm ground clearance, 1,570 kg, 5 seats. PKR 9,690,000. The ZS EV is no longer on MG Pakistan's website. Warranty 5 years / 150,000 km, battery 8 years / 150,000 km. Source: PakNEV.",
+        "source": "https://paknev.com/cars/mg-zs-ev",
+        "note": "Rewritten to point to the separate Long Range page."
+      }
+    }
+  },
+  "mg-4-urban": {
+    "corrections": {
+      "realWorldRange": {
+        "value": 271,
+        "source": "https://paknev.com/cars/mg4-ev-urban",
+        "note": "PakNEV real-world estimate 271 km."
+      },
+      "consumption": {
+        "value": 13.6,
+        "source": "https://paknev.com/cars/mg4-ev-urban",
+        "note": "PakNEV: 13.6 kWh/100 km (estimate)."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.",
+        "source": "https://paknev.com/cars/mg4-ev-urban",
+        "note": "PakNEV warranty section; the row said only 'Confirm terms with the dealer'."
+      }
+    }
+  },
+  "mg-binguo": {
+    "corrections": {
+      "realWorldRange": {
+        "value": 234,
+        "source": "https://paknev.com/cars/mg-binguo-ev",
+        "note": "PakNEV real-world estimate 234 km."
+      },
+      "consumption": {
+        "value": 9.6,
+        "source": "https://paknev.com/cars/mg-binguo-ev",
+        "note": "PakNEV: 9.6 kWh/100 km (estimate)."
+      },
+      "dcCharging": {
+        "value": 50,
+        "source": "https://paknev.com/cars/mg-binguo-ev",
+        "note": "PakNEV: Max DC Charge 50 kW (the row had no DC power)."
+      },
+      "acCharging": {
+        "value": 6.6,
+        "source": "https://paknev.com/cars/mg-binguo-ev",
+        "note": "PakNEV: Max AC Charge 6.6 kW (the row had no AC power)."
+      }
+    }
+  },
+  "mg-5-ev": {
+    "corrections": {
+      "groundClearanceMm": {
+        "value": 127,
+        "source": "https://paknev.com/cars/mg5-ev",
+        "note": "PakNEV: Ground Clearance 127 mm (the row had none)."
+      }
+    }
+  },
+  "mg-hs-phev": {
+    "corrections": {
+      "image": {
+        "value": "/images/cars/mg-hs-hev.jpg",
+        "source": "https://mgmotors.com.pk/assets/hybrid-plus/hybrid-plus-hero.jpeg",
+        "note": "The row's own photo is the first-generation HS (Trophy). MG Pakistan's photos show the HS sold here is the second-generation body, which the HS Hybrid+ photo already shows; the Super Hybrid is the same body."
+      }
+    }
+  }
+}

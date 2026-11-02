@@ -740,6 +740,73 @@ export const cars: Car[] = [
     notes: null,
   },
   {
+    // The ZS EV's larger-battery trim, split out of mg-zs-ev (now the MCE
+    // Essence alone) as that row's comment proposed, so neither mixes trims.
+    id: 'mg-zs-ev-long-range',
+    slug: 'mg-zs-ev-long-range',
+    brand: 'MG',
+    model: 'ZS EV',
+    variant: 'MCE Long Range',
+    fullName: 'MG ZS EV MCE Long Range',
+    category: 'EV',
+    price: { min: 14999000, max: 14999000, display: 'PKR 1.50 Cr' },
+    batteryCapacity: 72.6,
+    batteryUnit: 'kWh',
+    range: 505,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 154,
+    powerUnit: 'hp',
+    acceleration: 8.4,
+    accelerationUnit: 'sec',
+    dcCharging: 92,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 280,
+    topSpeed: 175,
+    seats: 5,
+
+    modelYear: 2026,
+    bodyType: 'Compact SUV (5-door)',
+    driveType: 'FWD',
+    motorPowerKw: 115,
+    rangeStandard: 'WLTP',
+    realWorldRange: 432,
+    realWorldRangeMax: null,
+    consumption: 14.3,
+    consumptionMax: null,
+    acChargingHours: null,
+    dcChargingMinutes: 42,
+    batteryTech: null,
+    lengthMm: 4323,
+    widthMm: 1809,
+    heightMm: 1649,
+    wheelbaseMm: 2585,
+    groundClearanceMm: 177,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 359,
+    kerbWeightKg: 1620,
+    availability: 'No longer listed on MG Pakistan\'s website (checked November 2026); remaining stock may still be with dealers.',
+    distributor: 'MG Motors Pakistan (JW-SEZ)',
+    warranty: 'Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.',
+
+    image: '/images/cars/mg-zs-ev.jpg',
+    notes:
+      'MG ZS EV MCE Long Range, the larger-battery ZS EV sold in Pakistan alongside the MCE ' +
+      'Essence. Per PakNEV: 72.6 kWh battery, 115 kW (154 hp) and 280 Nm, front-wheel drive, ' +
+      '505 km WLTP (about 432 km in real-world use), 0-100 km/h in 8.4 s, 175 km/h. AC ' +
+      'charging up to 11 kW (10-80% in about 5 h 15 min); DC up to 92 kW with 10-80% in about ' +
+      '42 min. 4,323 x 1,809 x 1,649 mm, 2,585 mm wheelbase, 177 mm ground clearance, 359 L ' +
+      'boot, 1,620 kg, 5 seats. PKR 14,999,000. The ZS EV is no longer on MG Pakistan\'s ' +
+      'website. Warranty 5 years / 150,000 km, battery 8 years / 150,000 km. Source: PakNEV ' +
+      '(paknev.com/cars/mg-zs-ev).',
+  },
+  {
     id: 'mg-zs-ev',
     slug: 'mg-zs-ev',
     brand: 'MG',
@@ -7310,6 +7377,75 @@ export const cars: Car[] = [
       'kWh/100 km). Battery chemistry is not published; NMC is not confirmed. Kerb weight ' +
       '1,960 kg is EU unladen (PakNEV says 2,110 kg). Price basis: PakWheels ex-factory ' +
       'list. Price source: https://www.pakwheels.com/new-cars/mg/cyberster/ (2026-09).',
+  },
+  {
+    // The all-wheel-drive Cyberster, split out of mg-cyberster (now the Single
+    // Motor alone) so neither row mixes the two trims MG Pakistan sells.
+    id: 'mg-cyberster-gt-dual',
+    slug: 'mg-cyberster-gt-dual',
+    brand: 'MG',
+    model: 'Cyberster',
+    variant: 'GT Dual Motor',
+    fullName: 'MG Cyberster GT Dual Motor',
+    category: 'EV',
+    price: { min: crore(2.99), max: crore(2.99), display: 'PKR 2.99 Cr' },
+    batteryCapacity: 74.4,
+    batteryUnit: 'kWh',
+    range: 443,
+    rangeMax: null,
+    rangeUnit: 'km',
+    electricRange: null,
+    electricRangeMax: null,
+    power: 496,
+    powerUnit: 'hp',
+    acceleration: 3.2,
+    accelerationUnit: 'sec',
+    dcCharging: 144,
+    dcChargingUnit: 'kW',
+    acCharging: 11,
+    acChargingUnit: 'kW',
+    connector: ['CCS2', 'Type 2'],
+    engineCapacity: null,
+    torque: 725,
+    topSpeed: 200,
+    seats: 2,
+
+    modelYear: 2026,
+    bodyType: 'Electric two-seat roadster (scissor doors)',
+    driveType: 'AWD',
+    motorPowerKw: 375,
+    rangeStandard: 'WLTP',
+    realWorldRange: null,
+    realWorldRangeMax: null,
+    consumption: null,
+    consumptionMax: null,
+    acChargingHours: 8,
+    dcChargingMinutes: 38,
+    batteryTech: 'Lithium-ion (400V)',
+    lengthMm: 4535,
+    widthMm: 1913,
+    heightMm: 1329,
+    wheelbaseMm: 2690,
+    groundClearanceMm: null,
+    groundClearanceMaxMm: null,
+    bootCapacityL: 249,
+    kerbWeightKg: null,
+    availability: 'Sold new in Pakistan by MG Motors Pakistan, listed on MG Pakistan\'s Cyberster page as the Dual Motor (November 2026).',
+    distributor: 'MG Motors Pakistan (JW-SEZ)',
+    warranty: 'Vehicle 5 years / 150,000 km; battery 8 years / 150,000 km.',
+
+    image: '/images/cars/mg-cyberster.jpg',
+    notes:
+      'MG Cyberster GT with two motors and all-wheel drive, the faster of the two Cyberster ' +
+      'trims MG Pakistan sells (the other is the rear-drive Single Motor). 77 kWh battery ' +
+      '(74.4 kWh usable), 375 kW (496 hp) and 725 Nm, 0-100 km/h in 3.2 s and 200 km/h, as ' +
+      'MG Pakistan\'s Cyberster page quotes for the Dual Motor. Range 443 km WLTP, less than ' +
+      'the Single Motor\'s 507 km. DC charging up to 144 kW with 10-80% in about 38 min; ' +
+      'AC 11 kW, about 8 h. Same body as the Single Motor: 4,535 x 1,913 x 1,329 mm, 2,690 mm ' +
+      'wheelbase, 249 L boot, two seats, electric scissor doors and soft top. Kerb weight is ' +
+      'not published for Pakistan. PKR 29,900,000. Warranty 5 years / 150,000 km, battery ' +
+      '8 years / 150,000 km. Sources: MG Pakistan (mgmotors.com.pk/model/cyberster), Gari.pk ' +
+      'variant comparison, Arnold Clark (WLTP), EVguide (hp), PakNEV (warranty).',
   },
   {
     id: 'mg-5-ev',

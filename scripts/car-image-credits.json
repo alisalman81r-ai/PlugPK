@@ -231,16 +231,6 @@
       "source": "https://commons.wikimedia.org/wiki/File:Haval_H6_III_IMG001_(cropped).jpg"
     },
     {
-      "carId": "mg-hs-phev",
-      "file": "cars/mg-hs-phev.jpg",
-      "article": "MG HS",
-      "commonsFile": "MG_HS_Hybrid+_Luxury_(II)_–_f_12032026.jpg",
-      "licence": "CC BY-SA 3.0 de",
-      "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
-      "author": "© M 93",
-      "source": "https://commons.wikimedia.org/wiki/File:MG_HS_Hybrid%2B_Luxury_(II)_%E2%80%93_f_12032026.jpg"
-    },
-    {
       "carId": "gwm-tank-500-phev",
       "file": "cars/gwm-tank-500-phev.jpg",
       "article": "Tank 500",
@@ -913,6 +903,27 @@
       "author": "Mr.choppers",
       "source": "https://commons.wikimedia.org/wiki/File:2024_Rolls-Royce_Spectre_in_Midnight_Sapphire_over_Silver,_front_left.jpg",
       "changes": "Background removed and set on white; plug.pk number plate added"
+    },
+    {
+      "carId": "mg-cyberster-gt-dual",
+      "file": "cars/mg-cyberster.jpg",
+      "article": null,
+      "commonsFile": "2024_MG_Cyberster.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "MrWalkr",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_MG_Cyberster.jpg",
+      "changes": "Background removed and set on white; number plate replaced with a plug.pk plate"
+    },
+    {
+      "carId": "mg-zs-ev-long-range",
+      "file": "cars/mg-zs-ev.jpg",
+      "article": "MG ZS EV",
+      "commonsFile": "MG_ZS_EV_Facelift_1X7A5867.jpg",
+      "licence": "CC BY-SA 4.0",
+      "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "author": "Alexander Migl",
+      "source": "https://commons.wikimedia.org/wiki/File:MG_ZS_EV_Facelift_1X7A5867.jpg"
     }
   ],
   "missing": [

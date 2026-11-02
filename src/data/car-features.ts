@@ -417,8 +417,7 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
 
   // MG, from MG Pakistan's spec sheets and brochures (mgmotors.com.pk), with
   // PakNEV's per-trim lists for the cars MG's own material does not itemise.
-  // The MG5 EV is not listed: MG Pakistan no longer sells it and no Pakistan
-  // equipment list was found.
+  // The ZS EV and MG5 EV, no longer on MG Pakistan's site, are from PakNEV alone.
   'mg-zs-hybrid-plus': {
     trim: 'Hybrid+ Essence (the Excite differences are noted)',
     groups: {
@@ -850,7 +849,114 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://paknev.com/cars/mg-zs-ev'],
     checked: '2026-11-02',
   },
+  'mg-zs-ev-long-range': {
+    trim: 'MCE Long Range',
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Electronic stability control',
+        'Hill descent control',
+      ],
+      'Driver Assistance (ADAS)': [
+        'MG Pilot driver assistance suite',
+        'Adaptive cruise control',
+        'Forward collision warning',
+        'Autonomous emergency braking (AEB)',
+        'Lane change assist',
+        'Rear cross traffic alert',
+      ],
+      'Parking': [
+        '360° parking camera',
+      ],
+      'Powertrain & Charging': [
+        '72.6 kWh NMC battery, 505 km range (WLTP)',
+        'DC fast charging up to 92 kW: 10–80% in about 42 min',
+        '11 kW AC charging',
+        'Vehicle-to-load (V2L)',
+        'Three-stage brake energy recovery',
+        'Rotary gear selector',
+      ],
+      'Infotainment & Connectivity': [
+        '10.1-inch HD touchscreen',
+        'Fully digital instrument cluster',
+        'Wireless Apple CarPlay and Android Auto',
+        'Smart connectivity apps',
+      ],
+      'Seats & Interior': [
+        'Leather-look seats',
+        'Heated front seats',
+        '6-way electric driver seat',
+      ],
+      'Comfort & Convenience': [
+        'Keyless entry and push-button start',
+        'Automatic climate control with PM2.5 air filter',
+        'Auto hold',
+        'Auto-dimming rear-view mirror',
+      ],
+      'Exterior & Lighting': [
+        'Panoramic sky roof',
+        'LED headlights with dusk sensor',
+        '17-inch alloy wheels',
+        'Integrated roof rails',
+      ],
+    },
+    sources: ['https://paknev.com/cars/mg-zs-ev'],
+    checked: '2026-11-02',
+  },
+  'mg-5-ev': {
+    trim: 'Long Range',
+    groups: {
+      'Safety': [
+        'Six airbags',
+        'Electronic stability control',
+        'Hill start assist',
+      ],
+      'Driver Assistance (ADAS)': [
+        'MG Pilot active safety suite',
+        'Adaptive cruise control and traffic jam assist',
+        'Autonomous emergency braking (AEB)',
+        'Lane keep assist and lane departure warning',
+        'Intelligent speed limit assist',
+      ],
+      'Parking': [
+        '360° parking camera',
+        'Rear parking sensors',
+      ],
+      'Powertrain & Charging': [
+        'NMC (nickel manganese cobalt) battery',
+        'Three regenerative braking modes',
+        'Vehicle-to-load (V2L)',
+        'Rotary gear selector',
+      ],
+      'Infotainment & Connectivity': [
+        '10.25-inch touchscreen',
+        '7-inch virtual driver display',
+        'Apple CarPlay and Android Auto',
+      ],
+      'Seats & Interior': [
+        'Fabric and leather upholstery',
+        '6-way adjustable driver seat',
+      ],
+      'Comfort & Convenience': [
+        'Smart keyless entry and push-button start',
+        'Automatic air conditioning with PM2.5 filter',
+        'Auto hold',
+      ],
+      'Exterior & Lighting': [
+        'LED headlights with automatic lighting',
+        'LED daytime running lights',
+        '16-inch alloy wheels',
+        'Integrated silver roof rails',
+      ],
+    },
+    sources: ['https://paknev.com/cars/mg5-ev'],
+    checked: '2026-11-02',
+  },
 }
+
+// The two Cyberster trims share one equipment list; only the drivetrain
+// differs, and that is in the spec sheet.
+CAR_FEATURES['mg-cyberster-gt-dual'] = CAR_FEATURES['mg-cyberster']!
 
 /** The features for one car, in display order, or null when none are recorded. */
 export function getCarFeatures(slug: string): {

@@ -56,7 +56,7 @@ const COLUMNS: Record<string, 'int' | 'float' | 'string'> = {
   acChargingHours: 'float', dcChargingMinutes: 'int', dcChargingFromPct: 'int', batteryTech: 'string',
   lengthMm: 'int', widthMm: 'int', heightMm: 'int', wheelbaseMm: 'int',
   groundClearanceMm: 'int', groundClearanceMaxMm: 'int', bootCapacityL: 'int', kerbWeightKg: 'int',
-  availability: 'string', distributor: 'string', warranty: 'string', notes: 'string',
+  availability: 'string', distributor: 'string', warranty: 'string', notes: 'string', image: 'string',
   priceMin: 'int', priceMax: 'int', priceDisplay: 'string',
 }
 
