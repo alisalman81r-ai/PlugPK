@@ -1,0 +1,50 @@
+{
+  "forthing-friday-bev": {
+    "corrections": {
+      "modelYear": {
+        "value": 2026,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/",
+        "note": "PakWheels lists the current Pakistan car as the Forthing Friday 2026."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 100,000 km; battery 8 years / 120,000 km.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Capital Smart Motors' own Friday page: 'Warranty Coverage 8yr / 120,000km, 5yr / 100,000km' (PakNEV the same). The 150,000 / 160,000 km terms previously stored came from launch-era press, not the distributor."
+      },
+      "availability": {
+        "value": "On sale through Capital Smart Motors since August 2025: BEV Luxury PKR 8,999,000 and BEV Exclusive PKR 10,499,000 ex-warehouse (plus 1% CVT). Displayed at malls in Islamabad, Lahore and Karachi; a 0% markup 12-month instalment plan has been offered.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Capital Smart Motors price table; launch and financing from Profit and PakWheels."
+      },
+      "notes": {
+        "value": "Forthing Friday BEV, the all-electric version of Dongfeng Forthing's Friday SUV, sold by Capital Smart Motors. Per the Capital Smart Motors brochure: 64.4 kWh LFP battery, front permanent-magnet motor with 150 kW and 340 Nm, front-wheel drive, 500 km CLTC; AC Type 2 in about 7 hours (0–100%) and DC CCS2 30–80% in 30 minutes, with a 3.3 kW portable charger and a camping mode. 0–100 km/h about 8 s and 170 km/h per PakNEV, which estimates about 351 km in real-world use. 4,600 × 1,860 × 1,680 mm on a 2,715 mm wheelbase, 180 mm ground clearance, 480 L boot, 1,820 kg, 19-inch wheels on 235/55 R19 with a full-size spare, 500 mm wading depth, McPherson front and multi-link rear suspension. Two trims: BEV Luxury PKR 8,999,000 and BEV Exclusive PKR 10,499,000; the Exclusive adds the driver-assistance suite, 360° camera and premium materials. Warranty: vehicle 5 years / 100,000 km, battery 8 years / 120,000 km (Capital Smart Motors). Sources: Capital Smart Motors brochure and website, PakNEV, PakWheels.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Warranty sentence brought into line with the distributor page."
+      }
+    }
+  },
+  "forthing-friday-reev": {
+    "corrections": {
+      "modelYear": {
+        "value": 2026,
+        "source": "https://www.pakwheels.com/new-cars/forthing/friday/",
+        "note": "PakWheels lists the current Pakistan car as the Forthing Friday 2026."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 100,000 km; battery 8 years / 120,000 km.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Capital Smart Motors' own Friday page: 'Warranty Coverage 8yr / 120,000km, 5yr / 100,000km' (PakNEV the same)."
+      },
+      "availability": {
+        "value": "On sale through Capital Smart Motors: REEV Exclusive PKR 9,999,000 ex-warehouse (CVT not applicable). Launched at PKR 10,999,000 in August 2025 and cut by Rs 1 million in February 2026; a 0% markup 12-month instalment plan has been offered.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Capital Smart Motors price table; ProPakistani on the February cut."
+      },
+      "notes": {
+        "value": "Forthing Friday REEV, the range-extended version of Dongfeng Forthing's Friday SUV, sold by Capital Smart Motors: a 1.5-litre (1,498 cc) petrol engine only generates electricity, and the wheels are driven by the electric motor. Per the Capital Smart Motors brochure: 31.94 kWh LFP battery, rear permanent-magnet motor with 120 kW and 240 Nm, rear-wheel drive, about 220 km electric and about 1,150 km combined (CLTC) from a 43 L tank; AC Type 2 in about 5.5 hours and DC CCS2 30–80% in 30 minutes (40 kW per PakNEV), 3.3 kW portable charger, camping mode. 0–100 km/h 10.9 s, 170 km/h. 4,600 × 1,860 × 1,680 mm on a 2,715 mm wheelbase, 180 mm ground clearance, 480 L boot, 1,820 kg, 19-inch wheels on 235/55 R19 with a full-size spare. Equipment includes 6 airbags, a 360° camera, adaptive cruise control, AEB, lane keeping, LED matrix headlights, dual HD screens, dual-zone climate control, wireless charging and an electric panoramic sunroof. PKR 9,999,000 (REEV Exclusive). Warranty: vehicle 5 years / 100,000 km, battery 8 years / 120,000 km (Capital Smart Motors). PakNEV lists this car as front-wheel drive with 204 hp, which are the BEV's figures; the brochure is followed here. Sources: Capital Smart Motors brochure and website, PakNEV, PakWheels.",
+        "source": "https://capitalsmartmotors.pk/vehicles/forthing-friday/",
+        "note": "Warranty sentence brought into line with the distributor page."
+      }
+    }
+  }
+}
