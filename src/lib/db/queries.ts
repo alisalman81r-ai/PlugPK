@@ -3,7 +3,8 @@ import 'server-only'
 
 import { cache } from 'react'
 
-import type { CommunityPost, EVClub, EVService, Station } from '@/lib/types'
+import { SERVICE_CATEGORY_KEYS } from '@/lib/constants'
+import type { CommunityPost, EVClub, EVService, ServiceCategory, Station } from '@/lib/types'
 
 /*
   The hero map's shapes and its fast/standard threshold live in lib/charging,
@@ -265,9 +266,16 @@ export async function getStationSlugs(): Promise<string[]> {
  * Admin screens deliberately do NOT use this — see listServicesForAdmin, which
  * returns every status because reviewing them is its job.
  */
+/**
+ * What the public directory may show: approved, and in a category the site
+ * still offers. A row left in a retired category (Accessories and Insurance
+ * were removed) stays in the table for the record but never reaches a page.
+ */
+export const PUBLIC_SERVICE = { status: 'approved', category: { in: SERVICE_CATEGORY_KEYS } } as const
+
 export async function getServices(): Promise<EVService[]> {
   const rows = await prisma.eVService.findMany({
-    where: { status: 'approved' },
+    where: PUBLIC_SERVICE,
     orderBy: { name: 'asc' },
   })
   return rows.map(toService)
@@ -280,8 +288,8 @@ export const getServiceBySlug = cache(async (
 ): Promise<EVService | null> => {
   const row = await prisma.eVService.findUnique({ where: { slug } })
   // The URL carries both, so a mismatched pair is a 404 rather than a
-  // redirect — otherwise /services/insurance/some-dealer would resolve.
-  if (!row || row.category !== category) return null
+  // redirect — otherwise /services/roadside-assistance/some-dealer would resolve.
+  if (!row || row.category !== category || !SERVICE_CATEGORY_KEYS.includes(row.category as ServiceCategory)) return null
   // An unapproved listing is a 404 on the public site, not a preview. Guessing
   // a slug should not be a way to read an application before it is reviewed.
   if (row.status !== 'approved') return null
@@ -296,7 +304,7 @@ export const getServiceById = cache(async (id: string): Promise<EVService | null
 /** Static params for the public detail pages, so only approved ones prerender. */
 export async function getServiceParams(): Promise<{ category: string; slug: string }[]> {
   const rows = await prisma.eVService.findMany({
-    where: { status: 'approved' },
+    where: PUBLIC_SERVICE,
     select: { category: true, slug: true },
   })
   return rows
@@ -1515,7 +1523,7 @@ export async function getPartners(): Promise<PartnerRow[]> {
  * How many services exist in each category.
  *
  * The homepage preview showed hardcoded figures — 24 dealerships, 38 service
- * centres, 45 accessory shops, 140-odd in total — against a table holding
+ * centres, 19 installers, 140-odd in total — against a table holding
  * twelve. Grouped in one query rather than six counts, and returned as a plain
  * record so a category with nothing in it reads as absent rather than as a
  * zero somebody has to interpret.
@@ -1525,7 +1533,7 @@ export async function getServiceCategoryCounts(): Promise<Record<string, number>
   // application must not inflate the figure on the home page.
   const rows = await prisma.eVService.groupBy({
     by: ['category'],
-    where: { status: 'approved' },
+    where: PUBLIC_SERVICE,
     _count: { _all: true },
   })
 

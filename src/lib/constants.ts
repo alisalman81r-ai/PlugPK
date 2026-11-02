@@ -187,22 +187,6 @@ export const SERVICE_CATEGORIES = [
     color: 'purple',
   },
   {
-    id: 'accessories',
-    label: 'Accessories',
-    description: 'EV cables, adapters and accessories',
-    count: 45,
-    icon: 'Package',
-    color: 'amber',
-  },
-  {
-    id: 'insurance',
-    label: 'Insurance',
-    description: 'EV-specific insurance providers',
-    count: 8,
-    icon: 'Shield',
-    color: 'cyan',
-  },
-  {
     id: 'roadside-assistance',
     label: 'Roadside Assistance',
     description: '24/7 EV roadside support',
@@ -220,7 +204,7 @@ export interface ServiceCategoryMeta {
   label: string
   description: string
   /** Icon name, resolved to a component from @/components/ui/icons by the UI. */
-  icon: 'Car' | 'Wrench' | 'Home' | 'Package' | 'Shield' | 'LifeBuoy'
+  icon: 'Car' | 'Wrench' | 'Home' | 'LifeBuoy'
   /** Tailwind classes for the icon chip. */
   tone: string
   /** Tailwind gradient for card cover placeholders. */
@@ -249,20 +233,6 @@ export const SERVICE_CATEGORY_META: Record<ServiceCategory, ServiceCategoryMeta>
     tone: 'bg-purple-50 text-purple-600',
     cover: 'from-purple-50 to-purple-100',
   },
-  accessories: {
-    label: 'Accessories',
-    description: 'EV cables, adapters and accessories',
-    icon: 'Package',
-    tone: 'bg-amber-50 text-amber-600',
-    cover: 'from-amber-50 to-amber-100',
-  },
-  insurance: {
-    label: 'Insurance',
-    description: 'EV-specific insurance providers',
-    icon: 'Shield',
-    tone: 'bg-plug-cyan-50 text-plug-cyan-700',
-    cover: 'from-plug-cyan-50 to-plug-cyan-100',
-  },
   'roadside-assistance': {
     label: 'Roadside Assistance',
     description: '24/7 EV roadside support',
@@ -277,8 +247,6 @@ export const SERVICE_CATEGORY_KEYS: ServiceCategory[] = [
   'dealership',
   'service-center',
   'home-charger-installer',
-  'accessories',
-  'insurance',
   'roadside-assistance',
 ]
 
@@ -307,22 +275,6 @@ export const SERVICE_OFFERINGS: Record<ServiceCategory, string[]> = {
     'Certification',
     'Smart Charger Setup',
     'Post-install Support',
-  ],
-  accessories: [
-    'Charging Cables',
-    'Adapters',
-    'Car Covers',
-    'Seat Covers',
-    'Dash Cams',
-    'EV Accessories',
-  ],
-  insurance: [
-    'Comprehensive Cover',
-    'Third Party',
-    'Battery Cover',
-    'Roadside Assistance',
-    'No Claims Discount',
-    'Online Claims',
   ],
   'roadside-assistance': [
     '24/7 Response',

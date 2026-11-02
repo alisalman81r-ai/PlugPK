@@ -597,7 +597,7 @@ SCREENS.search = () => {
   const svc = q ? D.services.filter((s) => has(s.name) || has(s.city) || has(s.category)).slice(0, 4) : []
   const posts = q ? allPosts().filter((p) => has(p.title) || has(p.body)).slice(0, 4) : []
   const none = q && !st.length && !cars.length && !svc.length && !posts.length
-  const sugg = ['CCS2', 'Lahore', 'BYD', 'Karachi', 'Insurance', 'Trip report']
+  const sugg = ['CCS2', 'Lahore', 'BYD', 'Karachi', 'Service centre', 'Trip report']
   return {
     sb: 'dark',
     html: `<div class="topbar" style="gap:6px">

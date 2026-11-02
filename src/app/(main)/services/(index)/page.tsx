@@ -37,7 +37,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'EV Services Directory',
   description:
-    'EV workshops, home charger installers, dealers, accessory shops, insurers and roadside assistance across Pakistan. Every listing is checked by a person before it appears.',
+    'EV workshops, home charger installers, dealers and roadside assistance across Pakistan. Every listing is checked by a person before it appears.',
   alternates: { canonical: '/services' },
 }
 

@@ -78,7 +78,7 @@ export const SERVICES_FAQS: FaqItem[] = [
   {
     question: 'What counts as an EV service here?',
     answer:
-      'The businesses an EV owner needs that are not charging: workshops and service centres, insurers, charger installers, battery specialists and dealerships. Each entry carries its category, city, contact details and opening hours where we have them.',
+      'The businesses an EV owner needs that are not charging: workshops and service centres, home charger installers, roadside assistance and dealerships. Each entry carries its category, city, contact details and opening hours where we have them.',
   },
   {
     question: 'Are these businesses vetted?',
@@ -93,7 +93,7 @@ export const SERVICES_FAQS: FaqItem[] = [
   {
     question: 'Do you show prices?',
     answer:
-      'No. Rates for servicing, insurance and installation vary too much by vehicle and condition for a published figure to be useful, and a stale price is worse than none. Contact the business directly for a quote.',
+      'No. Rates for servicing, repairs and installation vary too much by vehicle and condition for a published figure to be useful, and a stale price is worse than none. Contact the business directly for a quote.',
   },
 ]
 

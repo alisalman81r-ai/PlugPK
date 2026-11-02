@@ -37,7 +37,7 @@ const SIDES = [
   {
     icon: Wrench,
     title: 'List a service',
-    body: 'Workshops, installers, dealers, accessory shops, insurers and roadside assistance. Drivers find you in the services directory.',
+    body: 'Workshops, home charger installers, dealers and roadside assistance. Drivers find you in the services directory.',
     href: '/services/list',
     cta: 'List your service',
   },

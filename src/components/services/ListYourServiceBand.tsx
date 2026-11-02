@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
  */
 export function ListYourServiceBand({ category, className }: { category?: string; className?: string }) {
   const points = [
-    { icon: Wrench, text: 'Workshops, installers, dealers, insurers, accessories and roadside help' },
+    { icon: Wrench, text: 'Workshops, home charger installers, dealers and roadside help' },
     { icon: BadgeCheck, text: 'Checked by our team before it goes live' },
     { icon: MapPinned, text: 'Found by EV drivers searching your city and category' },
   ]

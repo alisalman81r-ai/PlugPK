@@ -1,5 +1,5 @@
 // src/components/home/ServicesPreview.tsx
-import { ArrowRight, Car, Home, LifeBuoy, Package, Shield, Wrench, type IconType } from '@/components/ui/icons'
+import { ArrowRight, Car, Home, LifeBuoy, Package, Wrench, type IconType } from '@/components/ui/icons'
 
 import { AnimatedIcon, HoverLink, PillButton, type IconMotion } from '@/components/ui'
 import { SERVICE_CATEGORIES } from '@/lib/constants'
@@ -22,22 +22,20 @@ import { cn } from '@/lib/utils'
  * content. Nothing here tints the background.
  *
  * The counts are read from the database. They used to come from
- * SERVICE_CATEGORIES, which carries figures like 24 dealerships and 45
- * accessory shops against a table holding twelve services in total. A category
+ * SERVICE_CATEGORIES, which carries figures like 24 dealerships and 38
+ * service centres against a table holding twelve services in total. A category
  * with nothing in it says so rather than printing a zero.
  */
 
 /**
  * Each glyph's motion, matched to what it depicts rather than picked for
- * variety: the car pulls away, the wrench turns, the shield takes a beat, the
- * ring throws itself. See AnimatedIcon for the set.
+ * variety: the car pulls away, the wrench turns, the house lifts, the ring
+ * throws itself. See AnimatedIcon for the set.
  */
 const CATEGORY_MOTION: Record<string, IconMotion> = {
   dealership: 'travel',
   'service-center': 'spin',
   'home-charger-installer': 'lift',
-  accessories: 'pop',
-  insurance: 'pulse',
   'roadside-assistance': 'swing',
 }
 
@@ -59,14 +57,6 @@ const CATEGORY_COPY: Record<string, { tag: string; body: string }> = {
     tag: 'Charge at home',
     body: 'Professional wall-charger installs, from the site survey to the first plug-in.',
   },
-  accessories: {
-    tag: 'Gear & cables',
-    body: 'Cables, adapters and portable chargers, matched to the connector your car uses.',
-  },
-  insurance: {
-    tag: 'Cover & claims',
-    body: 'Insurers who price the battery properly and know how to handle an EV claim.',
-  },
   'roadside-assistance': {
     tag: 'Help on the road',
     body: 'Round-the-clock support: a mobile charge, a tow, or advice on the phone.',
@@ -78,8 +68,6 @@ const CATEGORY_ICONS: Record<string, IconType> = {
   dealership: Car,
   'service-center': Wrench,
   'home-charger-installer': Home,
-  accessories: Package,
-  insurance: Shield,
   'roadside-assistance': LifeBuoy,
 }
 
@@ -111,13 +99,15 @@ export async function ServicesPreview() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-slate-500">
-            Beyond charging — dealers, workshops, installers and insurers, each one
+            Beyond charging — dealers, workshops, installers and roadside help, each one
             checked before it is listed.
           </p>
         </div>
 
         {/* ── The cards ────────────────────────────────────────── */}
-        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        {/* Four categories: two by two, then one row of four once each card
+            has room — never three and a lone card underneath. */}
+        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:gap-6 xl:grid-cols-4">
           {SERVICE_CATEGORIES.map((category) => {
             const Icon = CATEGORY_ICONS[category.id] ?? Package
             const count = counts[category.id] ?? 0

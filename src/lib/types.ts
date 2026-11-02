@@ -69,8 +69,6 @@ export type ServiceCategory =
   | 'dealership'
   | 'service-center'
   | 'home-charger-installer'
-  | 'accessories'
-  | 'insurance'
   | 'roadside-assistance'
 
 export type BusinessType =

@@ -123,8 +123,6 @@ const SVC_CAT = {
   dealership: ['Dealerships', 'car', 'Authorised EV dealers'],
   'service-center': ['Service centres', 'wrench', 'EV service and repair'],
   'home-charger-installer': ['Home charger install', 'plug', 'Wall boxes, fitted safely'],
-  accessories: ['Accessories', 'package', 'Cables, adapters, kit'],
-  insurance: ['Insurance', 'shield', 'Cover written for EVs'],
   'roadside-assistance': ['Roadside assistance', 'buoy', 'Help when you’re stuck'],
 }
 function serviceCard(s, width) {
@@ -583,7 +581,7 @@ A.meeting = (_, f) => {
 // tapped, a step changed — never loses what was entered.
 
 const LB_TYPES = [['hotel', 'Hotel', 'building'], ['restaurant', 'Restaurant', 'fork'], ['mall', 'Mall', 'bag'], ['office', 'Office', 'building'], ['dealership', 'Dealership', 'car'], ['service-center', 'Service centre', 'wrench'], ['home', 'My home', 'home']]
-const LB_CATEGORIES = [['dealership', 'Dealership', 'car'], ['service-center', 'Service centre', 'wrench'], ['home-charger-installer', 'Charger installer', 'plug'], ['accessories', 'Accessories', 'bag'], ['insurance', 'Insurance', 'shield'], ['roadside-assistance', 'Roadside help', 'nav']]
+const LB_CATEGORIES = [['dealership', 'Dealership', 'car'], ['service-center', 'Service centre', 'wrench'], ['home-charger-installer', 'Charger installer', 'plug'], ['roadside-assistance', 'Roadside help', 'nav']]
 const LB_PLUGS = [['CCS2', 'CCS2'], ['Type2', 'Type 2'], ['CHAdeMO', 'CHAdeMO'], ['GBT', 'GB/T'], ['Type1', 'Type 1']]
 const LB_STEPS = { charger: ['Business', 'Location', 'Chargers', 'Review'], service: ['Service', 'Contact', 'Location', 'Review'] }
 

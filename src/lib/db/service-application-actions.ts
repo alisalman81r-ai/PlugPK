@@ -19,7 +19,7 @@ import { isWebsiteRequest, recordSiteEvent } from './site-events'
 /**
  * Applications to be listed in the EV services directory.
  *
- * Services were admin-created only, so a workshop, installer or insurer had no
+ * Services were admin-created only, so a workshop, installer or dealer had no
  * way to ask to be listed — while a charger host has had a public form and an
  * approval queue all along. This is that same flow for services, deliberately
  * shaped like the Business one so an operator learns one pattern rather than

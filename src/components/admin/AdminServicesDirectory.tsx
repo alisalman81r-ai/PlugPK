@@ -22,8 +22,6 @@ const CATEGORY_ACCENT: Record<string, string> = {
   dealership: 'from-blue-500 to-cyan-400',
   'service-center': 'from-emerald-500 to-teal-400',
   'home-charger-installer': 'from-amber-500 to-orange-400',
-  accessories: 'from-violet-500 to-fuchsia-400',
-  insurance: 'from-slate-700 to-slate-500',
   'roadside-assistance': 'from-rose-500 to-red-400',
 }
 

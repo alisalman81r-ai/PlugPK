@@ -7,7 +7,6 @@ import {
   LayoutGrid,
   LifeBuoy,
   Package,
-  Shield,
   Wrench,
   type IconType,
 } from '@/components/ui/icons'
@@ -28,7 +27,6 @@ export const CATEGORY_ICON: Record<string, IconType> = {
   Wrench,
   Home,
   Package,
-  Shield,
   LifeBuoy,
 }
 

@@ -13,7 +13,7 @@ import { getCurrentProfile } from '@/lib/db/session-actions'
  *
  * The counterpart to /business/signup, and now laid out the same way: a short
  * heading, then the application one step at a time. Services were admin-created
- * only, so a workshop, installer or insurer had no way in at all — this is that
+ * only, so a workshop, installer or dealer had no way in at all — this is that
  * same flow, and it lands in the same admin queue with the same approve-or-
  * reject decision at the end of it.
  *
@@ -30,7 +30,7 @@ const RETURN = encodeURIComponent('/services/list')
 export const metadata: Metadata = {
   title: 'List your EV service',
   description:
-    'Workshops, installers, dealers and insurers — apply to be listed in the Plug.pk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
+    'Workshops, home charger installers, dealers and roadside assistance — apply to be listed in the Plug.pk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
   alternates: { canonical: '/services/list' },
 }
 
@@ -69,7 +69,7 @@ export default async function ListServicePage() {
           <EyebrowBadge color="blue">Service Registration</EyebrowBadge>
           <h1 className="mt-4 text-4xl font-black text-slate-900">List Your Service on Plug.pk</h1>
           <p className="mt-3 text-lg text-slate-500">
-            Workshops, installers, dealers, accessory shops, insurers and roadside assistance
+            Workshops, home charger installers, dealers and roadside assistance
           </p>
           {listed > 0 ? (
             <p className="mt-3 font-mono text-ui-sm text-slate-400">
