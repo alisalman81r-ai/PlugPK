@@ -1240,12 +1240,6 @@ CAR_FEATURES['mg-cyberster-gt-dual'] = CAR_FEATURES['mg-cyberster']!
 // The RS e-tron GT shares the quattro's list, whose RS differences are marked.
 CAR_FEATURES['audi-rs-e-tron-gt'] = CAR_FEATURES['audi-e-tron-gt']!
 
-// Each Alektra's Standard and Long Range packs share the Base's equipment.
-for (const model of ['alektra-mini-x2', 'alektra-mini-x4', 'alektra-solar-mini-x4']) {
-  CAR_FEATURES[`${model}-standard`] = CAR_FEATURES[model]!
-  CAR_FEATURES[`${model}-long-range`] = CAR_FEATURES[model]!
-}
-
 /** The features for one car, in display order, or null when none are recorded. */
 export function getCarFeatures(slug: string): {
   trim?: string

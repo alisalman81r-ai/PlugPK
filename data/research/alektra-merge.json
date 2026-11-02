@@ -1,0 +1,104 @@
+{
+  "alektra-mini-x2": {
+    "corrections": {
+      "variant": {
+        "value": "2-door",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "One listing per model again, with its original trim label; the three battery packs (7.2 / 10.8 / 12.96 kWh) are in the price and range spans and the notes."
+      },
+      "priceMax": {
+        "value": 1195000,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Long Range PKR 1,195,000; the row now spans all three packs."
+      },
+      "priceDisplay": {
+        "value": "PKR 10.95–11.95 Lakh",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Base to Long Range."
+      },
+      "rangeMax": {
+        "value": 180,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Long Range: 180 km CLTC."
+      },
+      "realWorldRangeMax": {
+        "value": 126,
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "PakNEV real-world estimate, Long Range: 126 km."
+      },
+      "notes": {
+        "value": "Alektra MINI X2, the two-door Alektra microcar, sold with a choice of three batteries. Per PakNEV: Base 7.2 kWh, 100 km CLTC (about 70 km real-world), 30 Nm, AC 1.5 kW, 450 kg, 100 L boot, PKR 1,095,000; Standard 10.8 kWh, 140 km (about 98 km), 40 Nm, AC 2 kW, 520 kg, 120 L boot, PKR 1,145,000; Long Range 12.96 kWh, 180 km (about 126 km), 50 Nm, AC 2.2 kW, 580 kg, 120 L boot, PKR 1,195,000. The figures shown above are the Base's, with the range and price spanning all three. Rear-wheel drive, top speed 45 km/h (Base) or 50 km/h, PakNEV gives the Base 2.68 hp against 7 hp for the other two, so no power figure is shown. Charges from a 220V home socket; there is no DC fast charging. 2,450 x 1,250 x 1,650 mm on a 1,700 mm wheelbase, 120 mm ground clearance, 2 seats plus a small fold-down rear bench. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-mini-x2",
+        "note": "Rewritten: one listing for all three battery packs."
+      }
+    }
+  },
+  "alektra-mini-x4": {
+    "corrections": {
+      "variant": {
+        "value": "4-door",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "One listing per model again, with its original trim label; the three battery packs (7.2 / 10.8 / 12.96 kWh) are in the price and range spans and the notes."
+      },
+      "priceMax": {
+        "value": 1395000,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Long Range PKR 1,395,000; the row now spans all three packs."
+      },
+      "priceDisplay": {
+        "value": "PKR 12.95–13.95 Lakh",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Base to Long Range."
+      },
+      "rangeMax": {
+        "value": 180,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Long Range: 180 km CLTC."
+      },
+      "realWorldRangeMax": {
+        "value": 126,
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "PakNEV real-world estimate, Long Range: 126 km."
+      },
+      "notes": {
+        "value": "Alektra MINI X4, the four-door Alektra microcar, sold with a choice of three batteries. Per PakNEV: Base 7.2 kWh, 100 km CLTC (about 70 km real-world), 30 Nm, AC 1.5 kW, 450 kg, 100 L boot, PKR 1,295,000; Standard 10.8 kWh, 140 km (about 98 km), 40 Nm, AC 2 kW, 520 kg, 120 L boot, PKR 1,345,000; Long Range 12.96 kWh, 180 km (about 126 km), 50 Nm, AC 2.2 kW, 580 kg, 120 L boot, PKR 1,395,000. The figures shown above are the Base's, with the range and price spanning all three. Rear-wheel drive, top speed 45 km/h (Base) or 50 km/h, 7 hp. Charges from a 220V home socket; there is no DC fast charging. 2,600 x 1,280 x 1,650 mm on a 1,850 mm wheelbase (PakWheels and Gari.pk four-door variant pages; PakNEV prints the two-door's 2,450 x 1,250 mm for every Alektra), 120 mm ground clearance, 4 seats. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-mini-x4",
+        "note": "Rewritten: one listing for all three battery packs."
+      }
+    }
+  },
+  "alektra-solar-mini-x4": {
+    "corrections": {
+      "variant": {
+        "value": "4-door, solar roof",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "One listing per model again, with its original trim label; the three battery packs (7.2 / 10.8 / 12.96 kWh) are in the price and range spans and the notes."
+      },
+      "priceMax": {
+        "value": 1495000,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Long Range PKR 1,495,000; the row now spans all three packs."
+      },
+      "priceDisplay": {
+        "value": "PKR 13.45–14.95 Lakh",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Base to Long Range."
+      },
+      "rangeMax": {
+        "value": 180,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Long Range: 180 km CLTC."
+      },
+      "realWorldRangeMax": {
+        "value": 126,
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "PakNEV real-world estimate, Long Range: 126 km."
+      },
+      "notes": {
+        "value": "Alektra Solar MINI X4, the four-door Alektra microcar with a roof-mounted solar panel, sold with a choice of three batteries. Per PakNEV: Base 7.2 kWh, 100 km CLTC (about 70 km real-world), 30 Nm, AC 1.5 kW, 450 kg, 100 L boot, PKR 1,345,000; Standard 10.8 kWh, 140 km (about 98 km), 40 Nm, AC 2 kW, 520 kg, 120 L boot, PKR 1,395,000; Long Range 12.96 kWh, 180 km (about 126 km), 50 Nm, AC 2.2 kW, 580 kg, 120 L boot, PKR 1,495,000. The figures shown above are the Base's, with the range and price spanning all three. Rear-wheel drive, top speed 50 km/h, 7 hp, LFP battery. Charges from a 220V home socket; there is no DC fast charging. 2,600 x 1,280 x 1,650 mm on a 1,850 mm wheelbase (PakWheels and Gari.pk four-door variant pages), 120 mm ground clearance, 4 seats. The roof panel trickle-charges the battery; Alektra credits it with up to about 50 km of extra range a day in sunshine, which is not added to the range here. Warranty 2 years on the battery and 2 years on the motor. Locally assembled; showroom at Liberty Parking Plaza, Lahore. Source: PakNEV.",
+        "source": "https://paknev.com/cars/alektra-solar-mini-x4",
+        "note": "Rewritten: one listing for all three battery packs."
+      }
+    }
+  }
+}
