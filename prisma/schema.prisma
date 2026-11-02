@@ -1030,9 +1030,12 @@ model Car {
   consumption    Float?
   consumptionMax Float?
 
-  /// Hours for a full AC charge, and minutes for a 10-80% DC charge.
+  /// Hours for a full AC charge, and minutes for a DC charge to 80%.
   acChargingHours   Float?
   dcChargingMinutes Int?
+  /// Where that DC time starts: 10, 20 or 30. Null means 10. Makers quote
+  /// different windows, and a 30-80% time is not a 10-80% one.
+  dcChargingFromPct Int?
 
   /// Cell chemistry and pack name, e.g. "BYD Blade Battery (LFP)".
   batteryTech String?

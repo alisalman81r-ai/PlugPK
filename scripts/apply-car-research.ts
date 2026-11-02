@@ -53,7 +53,7 @@ const COLUMNS: Record<string, 'int' | 'float' | 'string'> = {
   dcCharging: 'float', acCharging: 'float', connectors: 'string', engineCapacity: 'int',
   bodyType: 'string', driveType: 'string', motorPowerKw: 'int',
   realWorldRange: 'int', realWorldRangeMax: 'int', consumption: 'float', consumptionMax: 'float',
-  acChargingHours: 'float', dcChargingMinutes: 'int', batteryTech: 'string',
+  acChargingHours: 'float', dcChargingMinutes: 'int', dcChargingFromPct: 'int', batteryTech: 'string',
   lengthMm: 'int', widthMm: 'int', heightMm: 'int', wheelbaseMm: 'int',
   groundClearanceMm: 'int', groundClearanceMaxMm: 'int', bootCapacityL: 'int', kerbWeightKg: 'int',
   availability: 'string', distributor: 'string', warranty: 'string', notes: 'string',

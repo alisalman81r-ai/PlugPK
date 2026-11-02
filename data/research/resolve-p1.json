@@ -1,0 +1,336 @@
+{
+  "forthing-friday-reev": {
+    "corrections": {
+      "topSpeed": {
+        "value": 170,
+        "source": "https://www.zhichepai.com/auto/7650/peizhi",
+        "note": "The China spec table for the same car (2025 Forthing Leiting/Friday '230 Deluxe' range-extender: 31.9 kWh LFP, 1.5 L generator, 120 kW motor) gives 最高车速 170 km/h. The Pakistan listings say the same: PakWheels' REEV Exclusive page says 170 km/h, and Gari.pk's REEV brochure section says 'Top Speed (km/hr) 170'. No source gives 180 km/h for the REEV. 180 km/h is the China figure for the 150 kW pure-electric trims."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "acCharging",
+        "value": 6.6,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "The Capital Smart Motors brochure gives an AC (Type-2) 0-100% time of 5.5 h for the 31.94 kWh pack. That needs about 5.8 kW or more, so a 3.3 kW on-board charger is ruled out (3.3 kW would take 10 h or more). The brochure's '3.3 kW' is the portable charger in the box, and the China launch coverage also gives 3.3 kW as the V2L discharge rating. Gari.pk's REEV brochure section lists 'On-board Charger Power: Upto 7kW', which is the usual marketing label for a 6.6 kW unit. Zhichepai also gives 5.5 h slow charging for the China car. 6.6 kW stands. PakWheels' 3.3 kW mixes it up with the portable charger."
+      }
+    ],
+    "conflicts": []
+  },
+  "forthing-friday-bev": {
+    "corrections": {
+      "acCharging": {
+        "value": 11,
+        "source": "https://www.gari.pk/new-cars/forthing/friday/bev-luxury/",
+        "note": "Gari.pk reproduces the BEV brochure's Charging block: 'On-board Charger Power: Upto 11kW' (the same on the BEV Exclusive page). The Capital Smart Motors brochure gives an AC (Type-2) 0-100% time of 7 h for the 64.4 kWh pack. That needs at least about 9.2 kW, so neither 6.6 kW (the DB value, about 10 h or more) nor PakWheels' 3.3 kW (about 20 h) can be right. 3.3 kW is the brochure's portable charger."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "topSpeed",
+        "current": 180,
+        "found": 170,
+        "source": "https://www.gari.pk/new-cars/forthing/friday/bev-luxury/",
+        "note": "Every Pakistan source says 170 km/h: PakWheels BEV Luxury, and Gari.pk's brochure section 'Top Speed (km/hr) 170' for both BEV trims. The CSM brochure PDF itself gives no top speed. 'Maximum Speed 16000' in it is motor rpm. In China the 150 kW Leiting/Friday BEV trims are listed at 180 km/h (zhichepai), and the European Forthing 5 is limited to 180 km/h, but the 64.4 kWh Pakistan pack is not a China trim.",
+        "recommendation": "Change to 170. It is the only figure any Pakistan source gives for this car, and 180 is borrowed from other markets' trims. I left it open only because both Pakistan sources are aggregators and the distributor's PDF is silent. Ask Capital Smart Motors if a firm answer is wanted."
+      },
+      {
+        "column": "dcCharging",
+        "current": 80,
+        "found": 120,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "120 kW is the charging-pile rating in the brochure's test condition ('Charging Pile Power 120 kW', 30-80% in 30 min), not the car's maximum, so it should not replace 80. The 30-80% in 30 min figure averages about 64 kW on 64.4 kWh, which fits a peak near 80 kW but does not prove it. Other markets' listings give 80 kW for the larger 85.9 kWh pack (CarSwitch UAE). No source states the Pakistan 64.4 kWh car's peak DC power.",
+        "recommendation": "Do not write 120. Keep 80 flagged as unconfirmed, or clear it if you want only sourced values. Ask CSM for the peak DC kW."
+      }
+    ]
+  },
+  "dongfeng-box": {
+    "corrections": {
+      "widthMm": {
+        "value": 1810,
+        "source": "https://profit.pakistantoday.com.pk/2025/04/16/dongfeng-launches-all-electric-box-ev-in-pakistan",
+        "note": "Profit's report of the Chawla Green Motors launch gives 4,030 x 1,810 x 1,570 mm. PakWheels' spec page lists 1810 mm width for all three Pakistan trims (Smart 330, Lux 430, Flagship 430), and Wikipedia (Nammi 01) also says 1,810. 1800 appears only as a rounded pre-launch Malaysian figure."
+      },
+      "acCharging": {
+        "value": 3.3,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/box--2/specifications/",
+        "note": "PakWheels' per-trim table: Smart 330 (32.56 kWh) 'AC Onboard Charger 3.3 kW', with 6.6 kW only on the Lux/Flagship 430 (42.3 kWh). Malaysian launch coverage of the same car confirms the split: Motorist.my gives E2 31.45 kWh at 3.3 kW and E3 42.3 kWh at 6.6 kW, and Paul Tan says 'E2 dengan input 3.3 kW ... E3 dengan input 6.6 kW'. The DB row's battery and range are the Smart 330's, so its on-board charger is 3.3 kW."
+      },
+      "acChargingHours": {
+        "value": 10.5,
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/box--2/specifications/",
+        "note": "Follows from the acCharging correction. PakWheels gives the Smart 330 a 0-100% home charge time of 10.5 hours (7 h for the 430 trims). The stored 6 h cannot be done on a 3.3 kW charger with a 32.56 kWh pack (that needs about 10 h)."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "lengthMm",
+        "current": 4020,
+        "found": 4030,
+        "source": "https://profit.pakistantoday.com.pk/2025/04/16/dongfeng-launches-all-electric-box-ev-in-pakistan",
+        "note": "Profit's launch report (Apr 2025, before the Smart 330 existed) and Wikipedia give 4,030 mm. PakWheels gives 4030 for the 430 trims and 4020 only for the Smart 330. Paul Tan (Malaysia, pre-launch) says 4,000. No distributor document was found, and chawlagreenmotors.com returns 404.",
+        "recommendation": "Keep 4020, since it is the only figure given for the Smart 330 trim this row describes. If Chawla publishes a sheet showing 4030 for every trim, switch to that. The 10 mm gap could be a bumper difference or a typo."
+      }
+    ]
+  },
+  "dongfeng-vigo": {
+    "corrections": {
+      "range": {
+        "value": 353,
+        "source": "https://thepakistanconnect.com/dongfeng-officially-launches-vigo-ev-in-pakistan/",
+        "note": "The row stores rangeStandard WLTP, but 430 km is the CLTC figure (as the row's own notes say). Pakistan launch coverage gives 'WLTP driving range of 353 kilometres' with a 45 kWh battery (The Pakistan Connect), and Gari.pk's specs article says '45 kWh battery ... WLTP range of 353 km'. Correcting range to 353 makes it match the stored WLTP label. PakWheels' 415 km has no cycle and matches no other source. ProPakistani's pre-launch '51.5 kWh / 350 km WLTP' describes a different pack."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Battery warranted 8 years / 160,000 km per one source — confirm with the dealer.",
+        "found": "Battery 8 years / 200,000 km",
+        "source": "https://www.pakwheels.com/new-cars/dongfeng/vigo/specifications/",
+        "note": "Only PakWheels' spec table gives a Pakistan term (8 years / 200,000 km, every trim). Gari.pk leaves the field blank, the launch articles don't mention a warranty, and one Pakistan report uses 200,000 km as a durability-test figure, not a warranty. I found no source at all for the stored 160,000 km. The Philippines launch gives 8 years / 170,000 km battery and 5 years / 150,000 km vehicle, which are different market terms.",
+        "recommendation": "Replace the unsourced 160,000 km with 'Battery 8 years / 200,000 km (PakWheels listing) — confirm with the dealer', or clear the field. Neither is settled until Chawla Green Motors publishes terms."
+      }
+    ]
+  },
+  "alektra-mini-x4": {
+    "corrections": {
+      "warranty": {
+        "value": "Battery and motor: 2 years (as reported at launch) — confirm terms with the dealer.",
+        "source": "https://thepakistanconnect.com/alektra-electric-car-pakistan/",
+        "note": "The Pakistan Connect says 'a 2-year battery and motor warranty'. PakWheels' METRO page: 'comes with a 2-year warranty on the battery and motor'. Gari.pk's variant comparison lists '2 Years' for the 4-door variants. The terms are published, so 'Not publicly defined' is wrong. There is no Alektra site (alektra.com is a parked domain)."
+      },
+      "lengthMm": {
+        "value": 2600,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "Gari.pk's per-variant table gives every 4-door at 2600 x 1280 x 1650 mm with an 1850 mm wheelbase, and every 2-door at 2450 x 1250 x 1650 mm with a 1700 mm wheelbase. PakWheels' own 4-Door 12.96 kWh variant page agrees (2600 x 1280 x 1650, 1850 wheelbase). The 2450 figure comes from PakWheels' model-level page, which applies the 2-door's dimensions to every variant."
+      },
+      "widthMm": {
+        "value": 1280,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "Same per-variant evidence: the 4-door is 1280 mm wide (Gari.pk and PakWheels' 4-Door variant page). 1250 is the 2-door's width."
+      },
+      "wheelbaseMm": {
+        "value": 1850,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "4-door wheelbase 1850 mm (Gari.pk per-variant table, and PakWheels' 4-Door 12.96 kWh page). The column is currently empty."
+      },
+      "priceMax": {
+        "value": 1345000,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels' ex-factory list (Gari.pk matches): 4-Door 7.2 kWh PKR 1,245,000, 10.8 kWh 1,295,000, 12.96 kWh 1,345,000. The stored 1,395,000 is the Solar 4-Door 12.96 kWh price, and that car has its own row (alektra-solar-mini-x4)."
+      },
+      "priceDisplay": {
+        "value": "PKR 12.45–13.45 Lakh",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "Matches the corrected span of PKR 1,245,000-1,345,000 for the non-solar 4-Door."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "model",
+        "current": "MINI X4",
+        "found": "METRO 4-Door",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "Every Pakistan source (PakWheels, Gari.pk, The Pakistan Connect, Profit's launch headline 'Alektra Metro EV launched in Pakistan') names the car METRO, sold as 2-Door / 4-Door / Solar 4-Door. I found no source using 'MINI X4'. model, fullName and slug are not writable through apply-car-research.",
+        "recommendation": "Rename by hand to 'Alektra METRO 4-Door' (model 'METRO 4-Door'). Do the same for the 2-door and solar rows ('METRO 2-Door', 'METRO Solar 4-Door'), keeping the old slugs or adding redirects."
+      }
+    ]
+  },
+  "alektra-solar-mini-x4": {
+    "corrections": {
+      "priceMin": {
+        "value": 1295000,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels' ex-factory list: Solar 4-Door 7.2 kWh PKR 1,295,000, 10.8 kWh 1,345,000, 12.96 kWh 1,395,000. Gari.pk's variant comparison lists the same three prices. The DB's 13 Lakh was a placeholder ('PRICE IS UNCONFIRMED — no published figure was found')."
+      },
+      "priceMax": {
+        "value": 1395000,
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "Solar 4-Door 12.96 kWh, PKR 1,395,000 ex-factory (PakWheels and Gari.pk)."
+      },
+      "priceDisplay": {
+        "value": "PKR 12.95–13.95 Lakh (indicative)",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "Matches the PKR 1,295,000-1,395,000 span. '(indicative)' stays because these come from a listing site, not an Alektra price list."
+      },
+      "warranty": {
+        "value": "Battery and motor: 2 years (as reported at launch) — confirm terms with the dealer.",
+        "source": "https://www.pakwheels.com/new-cars/alektra/metro--2/",
+        "note": "PakWheels' METRO page states a 2-year battery and motor warranty for the range, and The Pakistan Connect says the same. Gari.pk's table shows '-' in the Solar rows, so the term is stated for the model rather than this variant specifically."
+      },
+      "lengthMm": {
+        "value": 2600,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "All three Solar 4-Door variants are listed at 2600 x 1280 x 1650 mm with an 1850 mm wheelbase, the 4-door body. 2450 x 1250 is the 2-door."
+      },
+      "widthMm": {
+        "value": 1280,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "Solar 4-Door width is 1280 mm (4-door body) per Gari.pk's per-variant table."
+      },
+      "wheelbaseMm": {
+        "value": 1850,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "Solar 4-Door wheelbase is 1850 mm per Gari.pk's per-variant table. The column is currently empty."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "alektra-mini-x2": {
+    "corrections": {
+      "batteryCapacity": {
+        "value": 7.2,
+        "source": "https://www.gari.pk/new-cars/compare/alektra_metro_variants_comparison/",
+        "note": "The 2-Door comes with 7.2, 10.8 or 12.96 kWh packs at PKR 1,095,000 / 1,145,000 / 1,195,000 (Gari.pk per-variant table, PakWheels, The Pakistan Connect). No source gives 2.68 kWh, which echoes a '2.68 hp' power claim. The row follows the entry trim (priceMin 1,095,000, and the stored range of 80 km fits the 7.2 kWh car's 80-100 km), so the entry pack, 7.2 kWh, is the right figure."
+      },
+      "warranty": {
+        "value": "Battery and motor: 2 years (as reported at launch) — confirm terms with the dealer.",
+        "source": "https://thepakistanconnect.com/alektra-electric-car-pakistan/",
+        "note": "The Pakistan Connect: 'a 2-year battery and motor warranty'. PakWheels' METRO page says the same, and Gari.pk lists '2 Years' for each 2-Door variant."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "dfsk-seres-3": {
+    "corrections": {
+      "range": {
+        "value": 403,
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "Every Pakistan launch report quoting Regal gives 403 km NEDC: ProPakistani ('up to 403 km ... NEDC cycle'), Aaj News (the same wording) and PakWheels' launch article ('403 kilometers range/charge (NEDC)'). The stored 329 km matches no source and has no cycle. The nearest figure is EV Database's 327 km WLTP for the European 53.6 kWh car. Apply together with rangeStandard below."
+      },
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "The 403 km launch figure is stated as NEDC."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "torque",
+        "value": 300,
+        "source": "https://www.pakwheels.com/blog/?p=200918",
+        "note": "PakWheels' report of the local-assembly roll-out gives '300Nm of torque' (and 160.9 hp), and EV Database's maker-level data for the Seres 3 120 kW motor is also 300 Nm. PakWheels' review agrees. 280 Nm appears only in one press-release text that ProPakistani and Aaj both reprinted, which also gives 156 hp, a figure no other source uses. Keep 300."
+      }
+    ],
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 52.56,
+        "found": 54,
+        "source": "https://propakistani.pk/2024/12/02/regal-automobiles-launches-pakistans-first-locally-assembled-seres-3-ev/",
+        "note": "The Pakistan launch reports disagree with each other. ProPakistani and Aaj (the same release text) say 54 kWh. PakWheels' launch article and review say 49.34 / 49.3 kWh. PakWheels' spec table says 54.0. Profit (Oct 2024) says there are two versions, 49 kWh and 54 kWh. The stored 52.56 matches no Pakistan source. The European car is 53.6 kWh gross / 51 usable (EV Database).",
+        "recommendation": "Ask Regal Automobiles which pack it sells now (49.34 or 54 kWh). Until then, 54 is the figure most often quoted from the launch release and the PakWheels spec table. 52.56 has no source and should not stay."
+      },
+      {
+        "column": "kerbWeightKg",
+        "current": 1760,
+        "found": 1650,
+        "source": "https://pakwheels.com/new-cars/seres/3--2/",
+        "note": "Only PakWheels gives a Pakistan figure (1650 kg). EV Database gives 1765 kg unladen (EU) for the European Seres 3. The stored 1760 looks like that European figure, but the Pakistan car's pack may differ.",
+        "recommendation": "Keep 1760 marked as European-spec, or clear it. Don't adopt PakWheels' 1650 alone, since its Seres page contradicts itself elsewhere (49.34 vs 54 kWh)."
+      },
+      {
+        "column": "connectors",
+        "current": "GB/T",
+        "found": "CCS2",
+        "source": "https://pakwheels.com/new-cars/seres/3--2/",
+        "note": "No Regal or press source names the inlet. PakWheels lists CCS Combo 2. The European Seres 3 uses Type 2 + CCS (EV Database). China-market DFSK EVs use GB/T. I found no source for the stored GB/T (the row's notes claim it without a citation).",
+        "recommendation": "Ask Regal, or check a photo of a Pakistan car's charge flap, before telling buyers either one. The GB/T warning in the notes is unsupported and should be softened or removed until then."
+      }
+    ]
+  },
+  "riddara-rd6": {
+    "corrections": {
+      "priceMin": {
+        "value": 14499000,
+        "source": "https://propakistani.pk/?p=1070846",
+        "note": "ProPakistani (26 Aug 2026), quoting a Capital Smart Motors official circular: RD6 Econ raised from Rs 13,399,000 to Rs 14,499,000 and RD6 Pro from Rs 16,999,000 to Rs 17,999,000, citing tariff changes in the Finance Act 2026. Gari.pk reports the same increase and says the Air and Ultra have been discontinued. The 13,299,000 launch price is out of date."
+      },
+      "priceMax": {
+        "value": 17999000,
+        "source": "https://propakistani.pk/?p=1070846",
+        "note": "Pro is now Rs 17,999,000, the top of the current two-variant line-up (Air and Ultra discontinued per Gari.pk). The stored 17,000,000 was the old Pro price, rounded."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.45–1.80 Cr",
+        "source": "https://propakistani.pk/?p=1070846",
+        "note": "Matches the current PKR 14,499,000-17,999,000 span (Econ to Pro)."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "power",
+        "current": 280,
+        "found": 268,
+        "source": "https://www.pakwheels.com/new-cars/riddara/rd6/",
+        "note": "Pakistan listings say 268 hp (PakWheels) and 209 hp (Gari.pk) for the Econ. Abroad, the Econ 4WD is 280 kW / 485 Nm (180 kW rear + 100 kW front, Autoblog Uruguay and Nepal launch), and the flagship 4WD is 315 kW / 595 Nm. 280 kW is about 375 hp. No source gives 280 hp, so the stored figure looks like the kW number under an hp heading. The stored torque of 595 Nm is the flagship's, not the Econ's.",
+        "recommendation": "Don't keep 280 as hp. If CSM confirms the Pakistan Econ is the 280 kW dual-motor car, store motorPowerKw 280, power 375 and torque 485. Otherwise clear power. Note also that the Econ's 424 km range figure matches the flagship spec abroad, so ask CSM which hardware the Econ has."
+      }
+    ]
+  },
+  "hyptec-ht": {
+    "corrections": {},
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "kerbWeightKg",
+        "current": null,
+        "found": 1922,
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "PakWheels and Gari.pk both say 1922 kg, but Gari.pk usually copies PakWheels. China spec data for the same 83.3 kWh LFP single-motor car (Hyptec HT 2024 '670' LFP trims) gives 2,120 kg, and the gull-wing and larger-pack trims are 2,160-2,220 kg (data.carnewschina.com). 1922 kg is lighter than every factory trim.",
+        "recommendation": "Leave it empty, or fill 2120 citing https://data.carnewschina.com/database/hyper/hyper-ht/2024/params as the factory figure for the 83.3 kWh LFP car, with a note that the Pakistan Elite Plus is export spec. Do not use 1922."
+      },
+      {
+        "column": "groundClearanceMm",
+        "current": null,
+        "found": "145 / 165",
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "PakWheels contradicts itself (145 in the spec table, 165 in the pros/cons). Gari.pk says 145, ZigWheels UAE 168, Automoli 158-168, and an Indonesian listing 150. No GAC figure found.",
+        "recommendation": "Leave it empty until GAC Pakistan publishes a figure."
+      },
+      {
+        "column": "acChargingHours",
+        "current": null,
+        "found": 8,
+        "source": "https://www.pakwheels.com/new-cars/hyptec/ht/",
+        "note": "8 h cannot be done on the 6.6 kW on-board charger the row stores (83 kWh needs 12.6 h or more), and PakWheels doesn't say it is an AC time. China spec data gives 13.4 h slow charging for the 83.3 kWh LFP car (data.carnewschina.com).",
+        "recommendation": "Don't use 8. Either leave it empty or fill 13.4 from the China factory data, noting it assumes the same 6.6 kW charger. The Thai spec lists 11 kW, which would make it shorter."
+      }
+    ]
+  },
+  "mercedes-eqa": {
+    "corrections": {},
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "heightMm",
+        "current": 1620,
+        "found": 1612,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqa/250plus-190-hp-4135",
+        "note": "Listings for the H243 facelift disagree by trim and wheel: 1612 (Autotijd, auto-data), 1613 (EVSpecifications), and 1608-1624 by line and wheel package (Vehiclescore). 1620 is the launch-press / Wikipedia figure. I could not reach Mercedes' own technical data, and no Pakistan source gives a height.",
+        "recommendation": "Keep 1620. The 8 mm gap is within the spread from wheels and trim, and no source specific to the Pakistan car breaks the tie."
+      }
+    ]
+  },
+  "mercedes-eqb": {
+    "corrections": {},
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "heightMm",
+        "current": 1667,
+        "found": 1673,
+        "source": "https://autotijd.be/en/dimensions/mercedes/eqb/250plus-190-hp-4138",
+        "note": "Sources disagree: 1673 (Autotijd, facelift 250+), 1667 (the pre-facelift figure, EVSpecifications 2022), and 1654 (vehiclesizes.com, X243 facelift). The figure varies with wheels and roof rails. I found no Mercedes official sheet and no Pakistan source.",
+        "recommendation": "Keep 1667 unless Shahnawaz or a Mercedes facelift spec sheet gives a figure. Neither alternative is more authoritative."
+      }
+    ]
+  }
+}

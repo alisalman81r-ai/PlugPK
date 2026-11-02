@@ -19,8 +19,10 @@ export interface CalculatorCar {
   acKw: number | null
   /** Peak DC rate, in kW. */
   dcKw: number | null
-  /** The maker's quoted 10–80% DC time, when one is published. */
+  /** The maker's quoted DC time to 80%, when one is published. */
   dcQuotedMin: number | null
+  /** Where that quoted time starts: 10, 20 or 30. */
+  dcQuotedFromPct: number
   /**
    * The maker's rated range on a full battery, in km: the whole range for an
    * EV, the electric-only range for a plug-in hybrid. Rated, not real-world.

@@ -8,7 +8,7 @@ import * as React from 'react'
 
 import { Badge, PhotoFrame, type BadgeVariant } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
-import { carDisplayName, formatPkr, formatSpan } from '@/lib/cars'
+import { carDisplayName, dcWindow, formatPkr, formatSpan } from '@/lib/cars'
 
 import { writeComparedIds } from './compare-selection'
 import { cn } from '@/lib/utils'
@@ -178,8 +178,10 @@ const GROUPS: Array<{ title: string; rows: Row[] }> = [
         value: (car) =>
           car.dcChargingMinutes === null || car.dcChargingMinutes === undefined
             ? null
-            : `${car.dcChargingMinutes} min (10–80%)`,
-        number: (car) => car.dcChargingMinutes ?? null,
+            : `${car.dcChargingMinutes} min (${dcWindow(car)})`,
+        // Only 10–80% times are ranked against each other: a 30–80% time is
+        // a shorter charge, and would win against a car that charges faster.
+        number: (car) => ((car.dcChargingFromPct ?? 10) === 10 ? (car.dcChargingMinutes ?? null) : null),
         better: 'lower',
         unit: 'minutes',
       },

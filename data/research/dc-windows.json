@@ -1,0 +1,146 @@
+{
+  "deepal-s05-reev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "The 20 min DC time is a 30–80% charge. 'DC Charging Time 30-80% (minute) 20' — a 30–80% window, not 10–80%."
+      }
+    }
+  },
+  "deepal-l07": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://deepal.com.pk/l7/",
+        "note": "The 35 min DC time is a 30–80% charge. deepal.com.pk: 'DC fast charging 30-80% in 35 minutes' — a 30–80% window, not 10–80%."
+      }
+    }
+  },
+  "deepal-e07": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "The 15 min DC time is a 30–80% charge. 'DC Charging Time 30 - 80% (Minute) 15'; the website says '30% to 80% in just 15 minutes' (3C charging). A 30–80% window."
+      }
+    }
+  },
+  "deepal-s07": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://deepal.com.pk/s7/",
+        "note": "The 35 min DC time is a 30–80% charge. deepal.com.pk: 'DC fast charging: 30-80% in 35 minutes' — a 30–80% window, not 10–80%."
+      }
+    }
+  },
+  "jmev-elight": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://www.gari.pk/news/jmev-elight-sedan-debuts-in-pakistan-price-specs-booking-4636/",
+        "note": "The 30 min DC time is a 30–80% charge. Gari.pk launch report: 'DC fast charging 30–80% in about 30 minutes' — a 30–80% window, not 10–80%. Matches the DB notes."
+      }
+    }
+  },
+  "byd-atto-3-advanced": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://byd-mega.com/vehicles/atto-3",
+        "note": "The 30 min DC time is a 30–80% charge. byd-mega.com (Nov 2026): 'Supports BYD ATTO 3 to charge from 30% to 80% within 30 mins*' — a 30–80% window. The Aug 2026 brochure (byd-mega.com/brochure/new/atto-3-brochure-aug-2026.pdf) gives no charge time. The existing DB notes say 29 minutes; the site now says 30."
+      }
+    }
+  },
+  "chery-tiggo-8-phev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://cache2.pakwheels.com/system/brochures/1463/original/Tiggo_8_MAE_Trainning_Deck_V1.pdf?1768390706",
+        "note": "The 20 min DC time is a 30–80% charge. Deck: '40kW charging pile for fast charging 20min (30%-80%)' and 'Fast charging: 30% to 80% in just 20 minutes'. Window is 30-80%, not 10-80%."
+      }
+    }
+  },
+  "chery-tiggo-7-phev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-7",
+        "note": "The 19 min DC time is a 30–80% charge. PakWheels Tiggo 7 Premium PHEV FWD page: 'DC charging 40 kW, 30-80% in around 19 minutes'. Window is 30-80%. The brochure only states 'DC charging 40 KW'."
+      }
+    }
+  },
+  "icaur-v27": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 20,
+        "source": "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148",
+        "note": "The 15 min DC time is a 20–80% charge. iCAUR Pakistan V27-AWD brochure: '20%~80% Charging Time 15 minutes' (window 20-80%). The DB's 30 min came from PakWheels."
+      }
+    }
+  },
+  "haval-h6-phev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://propakistani.pk/2025/08/19/haval-h6-phev-launched-in-pakistan-with-1000-km-range-and-360-hp/",
+        "note": "The 28 min DC time is a 30–80% charge. 'supports DC fast charging from 30% to 80% in under 28 minutes' (30-80% window). PakWheels labels the same 28 min as 10-80%."
+      }
+    }
+  },
+  "haval-h6-gt-phev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://www.mynrma.com.au/open-road/car-reviews/gwm/2025-gwm-haval-h6gt-phev-review",
+        "note": "The 26 min DC time is a 30–80% charge. Australian review of the same 35.4 kWh / 321 kW car: 'a 30 to 80 per cent charge in 26 minutes' at 48 kW (30-80% window). The GWM AU/NZ pages say charge times assume a 48 kW DC charger. No Pakistani source gives a time."
+      }
+    }
+  },
+  "forthing-friday-reev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "The 30 min DC time is a 30–80% charge. 'DC Fast Charging Time (SOC 30%-80%, 25 C, charging pile power 120 kW) (CCS2) 30 min'. Window is 30-80%, not 10-80%."
+      }
+    }
+  },
+  "forthing-friday-bev": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf?1771246778",
+        "note": "The 30 min DC time is a 30–80% charge. 'DC Fast Charging Time (SOC 30%-80%, 25 C, charging pile power 120 kW) (CCS2) 30 min'. Window is 30-80%, not 10-80%. PakWheels instead lists 38 min for 10-80%."
+      }
+    }
+  },
+  "riddara-rd6": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://www.pakwheels.com/new-cars/riddara/rd6/",
+        "note": "The 32 min DC time is a 30–80% charge. PakWheels RD6 overview: 30% to 80% in about 32 minutes on a 100 kW charger. Window is 30-80%, not 10-80%; not tied to a specific battery, but the Econ uses the 73 kWh pack listed in the same spec table."
+      }
+    }
+  },
+  "mg-binguo": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 30,
+        "source": "https://mgmotors.com.pk/assets/brochure/Binguo-Brochure.pdf",
+        "note": "The 35 min DC time is a 30–80% charge. MG Pakistan brochure: 'DC Charging (30%-80%) 35 minutes' (30-80% window, not 10-80%). Model page: '10-80% in around thirty-five minutes' - the two official texts disagree on the window. AC (20%-100%) 5.5 hours."
+      }
+    }
+  },
+  "icaur-v23": {
+    "fills": {
+      "dcChargingFromPct": {
+        "value": 20,
+        "source": "https://cache1.pakwheels.com/system/brochures/1519/original/iCAUR_%28V23_Leaflet%29_-_Web_compressed.pdf?1789716209",
+        "note": "The stored 36 min DC time is a 20–80% charge, per the same iCAUR Pakistan leaflet. iCAUR Pakistan V23 leaflet spec table, V23 RWD column: 'DC Charge Capacity 85kW' (AWD 104kW). Same table: RWD '20%~80% charging time 36 mins', which matches DB dcChargingMinutes."
+      }
+    }
+  }
+}

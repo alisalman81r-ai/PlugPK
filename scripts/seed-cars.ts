@@ -96,6 +96,7 @@ function toRow(car: (typeof cars)[number]) {
     consumptionMax: car.consumptionMax ?? null,
     acChargingHours: car.acChargingHours ?? null,
     dcChargingMinutes: car.dcChargingMinutes ?? null,
+    dcChargingFromPct: car.dcChargingFromPct ?? null,
     batteryTech: car.batteryTech ?? null,
     lengthMm: car.lengthMm ?? null,
     widthMm: car.widthMm ?? null,

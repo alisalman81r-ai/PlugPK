@@ -181,9 +181,11 @@ export interface Car {
   /** kWh per 100 km. */
   consumption?: number | null
   consumptionMax?: number | null
-  /** Hours for a full AC charge; minutes for 10-80% on DC. */
+  /** Hours for a full AC charge; minutes for a DC charge to 80%. */
   acChargingHours?: number | null
   dcChargingMinutes?: number | null
+  /** Where that DC time starts: 10, 20 or 30. Unset means 10. */
+  dcChargingFromPct?: number | null
   /** Cell chemistry and pack name, e.g. 'BYD Blade Battery (LFP)'. */
   batteryTech?: string | null
 

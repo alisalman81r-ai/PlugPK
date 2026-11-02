@@ -1,0 +1,222 @@
+{
+  "changan-nevo-hunter": {
+    "corrections": {
+      "rangeStandard": {
+        "value": null,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Master Changan's spec sheet labels only the electric range with a cycle ('Electric Driving Range: NEDC (km) 131'); 'Combined Range 900+ km' has no cycle, and changan.com.pk/hunter gives 700–900 km with no cycle either. rangeStandard describes the combined `range` column, so 'NEDC' there is a mislabel. The NEDC label belongs in electricRangeStandard (already filled from the same sheet)."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "torque",
+        "value": 529,
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "The distributor's spec sheet gives 'Maximum Total Torque (N-m) 529', which is front motor 209 + rear motor 320 Nm (both also on the sheet). The 470 N·m on changan.com.pk/hunter is marketing copy that matches the Philippine Hunter K50 figure. The model's own spec sheet beats the page copy."
+      }
+    ],
+    "conflicts": []
+  },
+  "deepal-s05-reev": {
+    "corrections": {
+      "rangeStandard": {
+        "value": null,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Deepal Pakistan's brochure gives the electric range as 'Electric Driving Range: NEDC (km) 170*', with the footnote naming NEDC. The combined '1 full charge + 1 full tank > 1,000+ km' has no cycle. WLTP appears nowhere in Deepal Pakistan material; the old 145 km / 1,012 km WLTP figures came from other markets. range is empty and the electric-range cycle lives in electricRangeStandard (NEDC), so the WLTP label is wrong and is cleared."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "deepal-e07": {
+    "corrections": {
+      "rangeMax": {
+        "value": null,
+        "source": "https://deepal.com.pk/e7/",
+        "note": "Deepal Pakistan sells one version (dual-motor AWD, PKR 19,000,000) and gives one range: '590 km NEDC Range'. 640 km appears in neither deepal.com.pk nor the Pakistan brochure. The maker's Australian spec sheet gives 550 km WLTP (RWD) and 510 km WLTP (AWD), so 640 km belongs to another version or cycle (China CLTC). This is a single version, not a span, so the maximum is cleared."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "batteryTech",
+        "value": "Ternary lithium-ion (NMC)",
+        "source": "https://admin.i-motor.com.au/ssl/CMS/files_cms/109233_deepal_e07_spec_sheet_lr-r.pdf",
+        "note": "Two official spec sheets agree on ternary: Deepal Pakistan's own brochure (https://deepal.com.pk/upload/e07-brochure.pdf) says 'Battery Type: Ternary Lithium', and Deepal Australia's E07 technical spec sheet lists 'Battery Type: Ternary Lithium' for both RWD and AWD Performance with 89.98 kWh. The '89.98 kWh LFP' line on the deepal.com.pk/e7 marketing page is the outlier. Press (The Driven) also describes the 89.98 kWh pack as NMC."
+      }
+    ],
+    "conflicts": [
+      {
+        "column": "topSpeed",
+        "current": 210,
+        "found": null,
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "No official source states a top speed: not Deepal Pakistan's brochure or website, and not Deepal Australia's spec sheet. Only aggregators give one: EVKX and ZigWheels Thailand give 210 km/h for the AWD Performance, the version Pakistan sells, and EVKX gives 201 km/h for the RWD. So the earlier worry that 210 km/h belongs to the RWD is not supported.",
+        "recommendation": "Keep 210 km/h, since it matches the AWD version sold in Pakistan per aggregators, but treat it as unofficial; clear it if only distributor or maker figures are allowed."
+      }
+    ]
+  },
+  "changan-lumin": {
+    "corrections": {},
+    "confirmed": [
+      {
+        "column": "heightMm",
+        "value": 1545,
+        "source": "https://www.changan.ph/vehicles/changan-philippines/lumin/",
+        "note": "Changan Philippines' official Lumin page gives 'Length 3270 mm, Height 1545 mm, Wheelbase 1980 mm'. The China spec data agrees (CarNewsChina database, iTHome), as does Autocosmos. 1,590 mm appears only on dealer and aggregator listings (Autoindustriya, Zigwheels PH, Carmudi) and in the PakWheels PAPS article, which also printed the length wrongly as 3,720. No Master Changan spec sheet exists yet (changan.com.pk/lumin is only an interest form)."
+      }
+    ],
+    "conflicts": []
+  },
+  "gugo-box": {
+    "corrections": {},
+    "confirmed": [
+      {
+        "column": "torque",
+        "value": 160,
+        "source": "https://data.carnewschina.com/dongfeng-nammi/dongfeng-nammi-01",
+        "note": "GUGO publishes no Box specs (gugomotors.com/box has none and there is no brochure). The car is the Dongfeng Nammi 01 / Box. The China spec database gives 'Total power 70 kW, Total torque 160 Nm' for every trim (330 and 430 km). Autoblog Uruguay's test (70 kW, 160 Nm) and PakWheels' own expert review also say 160 Nm. The 180 Nm in the PakWheels pre-launch piece, and EVKX's 175 Nm, are outliers."
+      }
+    ],
+    "conflicts": []
+  },
+  "gugo-gigi": {
+    "corrections": {
+      "seats": {
+        "value": 4,
+        "source": "https://www.pakwheels.com/new-cars/gugo/gigi/specifications",
+        "note": "PakWheels' GIGI spec page: 'Seating capacity: 4 persons', 'Doors: 2 doors'. GUGO's own brochure (https://gugomotors.com/pdf/dfsk-gigi-mini.pdf) gives no seat count, but it lists 'ISOFIX, 2, middle row on both sides', 'Back seats can be folded down' and 'It can be folded down by 5:5'. That is a split-folding rear bench with two child-seat anchors, so the car cannot be a 2-seater. The 2-door / 4-seat layout matches PakWheels' walkaround review."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "gugo-aion-v": {
+    "corrections": {
+      "priceMin": {
+        "value": 11990000,
+        "source": "https://propakistani.pk/2025/11/06/gugo-motors-launches-aion-v5-and-v6-evs-in-pakistan/amp/",
+        "note": "The row's single price (PKR 12,000,000, '1.20 Cr') is the AION V5 (Premium), which GUGO launched at Rs 11,990,000; the V6 (Luxury) is Rs 12,990,000. Gari.pk and PKRevenue give the same prices. The row's specs (64 kWh, 181 hp, 150 kW DC) are also the V5's, so the row is the V5 and is set to its exact price."
+      },
+      "priceMax": {
+        "value": 11990000,
+        "source": "https://propakistani.pk/2025/11/06/gugo-motors-launches-aion-v5-and-v6-evs-in-pakistan/amp/",
+        "note": "See priceMin: AION V5 at Rs 11,990,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.199 Cr",
+        "source": "https://propakistani.pk/2025/11/06/gugo-motors-launches-aion-v5-and-v6-evs-in-pakistan/amp/",
+        "note": "AION V5 at Rs 11,990,000 (ex-factory)."
+      },
+      "range": {
+        "value": 500,
+        "source": "https://www.pakwheels.com/blog/?p=218432",
+        "note": "PakWheels' 'AION V5 vs. V6' table: 'WLTP Range (km)' 500 for the V5, with 64 kWh, 181 HP and 150 kW DC (all matching this row). PKRevenue's V5/V6 comparison says the same: 'WLTP range of 500 km'. The stored 510 km WLTP is the V6 (75 kWh) figure from the Gari.pk and PakWheels launch reports, so it is the wrong trim for this row. rangeStandard stays WLTP."
+      },
+      "notes": {
+        "value": "GUGO AION V5 (Premium), PKR 11,990,000. GUGO also sells the V6 (Luxury) at PKR 12,990,000, which is not in this row. V5 per PakWheels' and PKRevenue's V5-vs-V6 comparisons: 64 kWh LFP (GAC Magazine battery), 181 hp, 500 km WLTP, 150 kW DC. V6 per the GUGO launch reports (Gari.pk, PakWheels): 75 kWh LFP, 201 hp, 240 Nm, 510 km WLTP (PakWheels' comparison says 600 km), 180 kW DC with 30–80% in 20 minutes. GUGO has published no V5 torque or DC charge time, so the stored 240 Nm is the V6/model figure and the 24-minute DC time is unsourced. FWD. AC about 6.6 kW taking about 6 hours; CCS2 and Type 2. 4605×1876×1686 mm, wheelbase 2775 mm, ground clearance about 171 mm, 427 L boot, 5 seats. Warranty (GUGO import): vehicle 2 years / 50,000 km, battery 5 years / 120,000 km. TWO SELLERS, NOT ONE CAR: Lucky Motor Corp's official GAC Aion V Premium (PKR 8,899,000, 64.5 kWh, 435 km WLTP, 7 airbags, 5-star Euro NCAP) is a different specification at a lower price and is not merged into this row. 0–100 km/h and kerb weight are unconfirmed.",
+        "source": "https://www.pakwheels.com/blog/?p=218432",
+        "note": "The old notes said the row stored the 75 kWh / 201 hp GUGO figures, but the stored values (64 kWh, 181 hp, 150 kW DC) are the V5's. The notes are rewritten to describe the V5 the row actually holds and to keep the V6 and LMC figures separate."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "batteryCapacity",
+        "value": 64,
+        "source": "https://www.pakwheels.com/blog/?p=218432",
+        "note": "The row's price is the V5 (Premium, Rs 11,990,000). PakWheels' V5-vs-V6 table and PKRevenue (https://pkrevenue.com/differences-between-aion-v5-and-aion-v6-suv-variants-in-pakistan/) both give the V5 a '64 kWh battery', and Gari.pk's AION V page lists Premium at 64 kWh. The 75 kWh is the V6's."
+      },
+      {
+        "column": "power",
+        "value": 181,
+        "source": "https://www.pakwheels.com/blog/?p=218432",
+        "note": "PakWheels' V5-vs-V6 table: V5 181 HP, V6 201 HP. PKRevenue gives the same ('181 horsepower' for the V5). The 201 hp in the Gari.pk launch table is the V6 (Luxury)."
+      }
+    ],
+    "conflicts": [
+      {
+        "column": "dcChargingMinutes",
+        "current": 24,
+        "found": 20,
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "The 20 min is the V6's (180 kW, 30–80%) and is the wrong trim and window for this row. For the V5, PakWheels and PKRevenue give only '150 kW' DC with no time. No source was found for the stored 24 min, and the catalogue shows this column as 10–80%.",
+        "recommendation": "Clear it (null) unless GUGO confirms a V5 10–80% time. Do not replace it with 20, which is the V6 and a 30–80% figure."
+      }
+    ]
+  },
+  "gugo-aion-ut": {
+    "corrections": {
+      "rangeMax": {
+        "value": 425,
+        "source": "https://www.gari.pk/news/gugo-aion-ut-and-aion-v-evs-officially-launched-details-4760/",
+        "note": "GUGO's launch spec table for the UT5 (Luxury, Rs 8,499,000, the trim that rangeMax and priceMax describe) gives 60 kWh, 201 HP, 210 Nm and 'WLTP Range 425 km'. Gari.pk and PakWheels' launch article (https://www.pakwheels.com/blog/?p=218175) say the same. The 500 km on the PakWheels spec page has no cycle; it is GAC's CLTC figure for the 60 kWh UT (Electrive and German road tests give 60 kWh = about 500 km CLTC, about 420–430 km WLTP). 500 km labelled WLTP is therefore wrong."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "range",
+        "current": 425,
+        "found": null,
+        "source": "https://www.pakwheels.com/new-cars/gugo/aion-ut/specifications",
+        "note": "Follows from the rangeMax fix. The UT4 (Premium, 49 kWh, 134 hp) range of 425 km comes from the PakWheels spec page, which names no cycle. GUGO's launch material gives no UT4 range. Once the 60 kWh UT5 is 425 km WLTP, a 49 kWh UT4 cannot also be 425 km WLTP; by comparison, LMC's 44.12 kWh GAC UT is 335 km WLTP. The 425 km is likely a CLTC-style figure.",
+        "recommendation": "Ask GUGO for the UT4's WLTP range. Until then, clear range (null) or note that the UT4 figure is not WLTP. Keeping 425 km under a WLTP label overstates the base trim."
+      }
+    ]
+  },
+  "jmev-ev3": {
+    "corrections": {},
+    "confirmed": [
+      {
+        "column": "range",
+        "value": 271,
+        "source": "https://www.gari.pk/news/jmev-ev3-entry-level-ev-hatchback-unveiled-in-pakistan-4782/",
+        "note": "Not a contradiction: 271 km WLTP and 330 km CLTC describe the same 30.24 kWh car on two cycles (Wikipedia and the CarNewsChina database give 330 km CLTC for the 30.24 kWh Gotion LFP pack). Gari.pk's Pakistan unveiling and its follow-up give 'Up to 271 km (WLTP)'; PKRevenue gives the 330 km CLTC figure from the 'listed specifications'. The DB pairs range 271 with rangeStandard WLTP, which is internally consistent. WLTP is the more realistic cycle, so the pair is kept. CSM's own site could not be reached."
+      }
+    ],
+    "conflicts": []
+  },
+  "jmev-elight": {
+    "corrections": {
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://www.pakwheels.com/blog/?p=214445",
+        "note": "PakWheels' launch report: 'According to the official brochure, the Elight offers a 500 km NEDC range, powered by a 56.3 kWh battery and a 221 HP motor.' Gari.pk also says '500 km, NEDC standard'. No published source calls it WLTP, and the maker's own data rules it out: the CarNewsChina database lists the 56.3 kWh / 165 kW JMEV 05 (Elight) at 550 km CLTC, which would be roughly 440 km on WLTP. 500 km fits NEDC."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "byd-sealion-6": {
+    "corrections": {},
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "electricRange",
+        "current": 92,
+        "found": 70,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "BYD Pakistan (byd-mega.com) has no Sealion 6 page or brochure, and Pakistani coverage says the battery specs and electric-only range are still awaited. BYD's international figures for the 18.3 kWh Sealion 6 are 92 km NEDC for the Dynamic FWD and 81 km NEDC for the Premium AWD (CarExpert, Zecar, Carsguide). The '70 km' in ProPakistani matches neither.",
+        "recommendation": "Leave as is until BYD-MMC publishes the Pakistan spec. 92 km is the correct NEDC figure if Pakistan gets the FWD (Dynamic); use 81 km if it gets the AWD. 70 km has no maker backing."
+      },
+      {
+        "column": "power",
+        "current": 215,
+        "found": 319,
+        "source": "https://propakistani.pk/2026/09/18/byd-unveils-1100km-range-car-which-will-kick-off-local-assembly-in-pakistan/",
+        "note": "Internationally, the Dynamic FWD is 160 kW (about 215 hp) / 300 Nm and the Premium AWD is 238 kW (about 319 hp) / 550 Nm (CarExpert, Carsguide). The DB's 215 hp and 92 km are the FWD's, but its torque of 550 Nm is the AWD's, so the row mixes two versions. The Pakistan variant is unannounced.",
+        "recommendation": "When BYD-MMC confirms the variant, set power, torque and electricRange together. FWD: 215 hp / 300 Nm / 92 km. AWD: 319 hp / 550 Nm / 81 km. If the row stays as FWD for now, torque 550 should become 300 (BYD international Dynamic spec)."
+      }
+    ]
+  },
+  "byd-atto-2": {
+    "corrections": {
+      "dcChargingMinutes": {
+        "value": 37,
+        "source": "https://www.electrive.net/2025/03/11/byd-ruft-fuer-atto-2-in-deutschland-ab-31-990-euro-auf/",
+        "note": "The catalogue shows this column as '(10–80%)'. BYD Pakistan's Aug 2026 brochure and byd-mega.com/vehicles/atto-2 give only '30% to 80% within 30 mins', which is a different window and cannot go in this column. BYD's own 10–80% figure for the 45.1 kWh Atto 2 (the 130 kW / 290 Nm Boost, the same pack and motor as the Pakistani Premium) is 37 min, reported by electrive from BYD's launch data ('DC-Ladezeit (10 – 80% SoC) 37 min'). L'argus and ev-database also give it as BYD's claim (65 kW peak). The stored 38 min came from launch coverage with no maker source."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  }
+}

@@ -34,6 +34,8 @@ export interface ChargeResultProps {
   carName: string | null
   /** The maker's own 10–80% DC time, when the catalogue has one. */
   makerDcMinutes: number | null
+  /** Where that time starts: 10, 20 or 30, always to 80%. */
+  makerDcFromPct?: number
   /** Rated km this charge adds, already rounded. Null without a car's range. */
   rangeAddedKm: number | null
   /** The cycle that range was rated on, for the footnote. */
@@ -61,6 +63,7 @@ export function ChargeResult({
   chargerKw,
   carName,
   makerDcMinutes,
+  makerDcFromPct = 10,
   rangeAddedKm,
   rangeCycle,
   readyText,
@@ -178,7 +181,7 @@ export function ChargeResult({
 
             {dc && makerDcMinutes && carName ? (
               <p className="mt-3 text-ui-sm text-white/55">
-                For reference, the maker quotes 10–80% in {makerDcMinutes} min on a charger fast enough to
+                For reference, the maker quotes {makerDcFromPct}–80% in {makerDcMinutes} min on a charger fast enough to
                 reach the car&rsquo;s peak.
               </p>
             ) : null}

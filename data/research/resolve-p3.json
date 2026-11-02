@@ -1,0 +1,209 @@
+{
+  "xpeng-g6": {
+    "corrections": {
+      "batteryCapacity": {
+        "value": 68.5,
+        "source": "https://www.gari.pk/new-cars/xpeng/g6/standard-range-rwd/",
+        "note": "The row represents the Standard Range RWD, the trim its priceMin (PKR 14,500,000) and power (248 hp / 185 kW) describe. gari.pk's Standard Range RWD page and PakWheels (https://www.pakwheels.com/new-cars/xpeng/g6/specifications/) both give 68.5 kWh, and XPeng's Malaysian launch of the same trim also quotes 68.5 kWh LFP (https://autobuzz.my/2026/01/14/2026-xpeng-g6-standard-launched-as-new-entry-level-variant-smaller-68-5-kwh-battery-252-hp-from-rm160k/). 68 was a rounding."
+      },
+      "range": {
+        "value": 480,
+        "source": "https://www.gari.pk/new-cars/xpeng/g6/standard-range-rwd/",
+        "note": "Standard Range RWD: 480 km on gari.pk's trim page and PakWheels' spec table. 535 km is the Long Range RWD's figure, so the row was mixing trims. XPeng's Malaysian launch of the identical 68.5 kWh trim gives 480 km WLTP (autobuzz.my, above)."
+      },
+      "rangeStandard": {
+        "value": "WLTP",
+        "source": "https://autobuzz.my/2026/01/14/2026-xpeng-g6-standard-launched-as-new-entry-level-variant-smaller-68-5-kwh-battery-252-hp-from-rm160k/",
+        "note": "Pakistan sources give 480 km with no cycle. The same 480 km figure for the same 68.5 kWh Standard Range trim is labelled WLTP at the Malaysian launch, alongside 525 km WLTP for the Long Range."
+      },
+      "acceleration": {
+        "value": 6.9,
+        "source": "https://autobuzz.my/2026/01/14/2026-xpeng-g6-standard-launched-as-new-entry-level-variant-smaller-68-5-kwh-battery-252-hp-from-rm160k/",
+        "note": "4.1 s is the Performance AWD's time. The Standard Range RWD does 0-100 in 6.94 s per its Malaysian launch, and 6.9 s in European spec listings (m3.se, fiches-auto.fr). gari.pk's Standard Range page shows 6.6 s, but that is the figure it also uses for the Long Range RWD, so it looks copied across trims. No Pakistan source gives a trim-specific time."
+      },
+      "torque": {
+        "value": 440,
+        "source": "https://www.electrive.net/2025/12/02/xpeng-g6-wieder-mit-standard-range-akku-bestellbar/",
+        "note": "Standard Range: 185 kW rear motor, 440 Nm (electrive, citing XPeng Germany's press material; Malaysian launch also says 440 Nm). The row's 480 Nm is not this trim's figure. No Pakistan source lists torque."
+      },
+      "dcCharging": {
+        "value": 382,
+        "source": "https://www.electrive.net/2025/12/02/xpeng-g6-wieder-mit-standard-range-akku-bestellbar/",
+        "note": "The 68.5 kWh Standard Range pack charges at up to 382 kW DC; 451 kW is the 80.8 kWh Long Range pack's peak (Malaysian launch, autobuzz.my, gives the same pair). Both still do 10-80% in 12 min, as PakWheels lists for all trims."
+      },
+      "priceMax": {
+        "value": 14500000,
+        "source": "https://www.gari.pk/news/xpeng-g6-official-price-booking-and-delivery-timeline-4937/",
+        "note": "With the row fixed to the Standard Range RWD (Rs 14,500,000), the Performance AWD's Rs 18,500,000 no longer belongs in priceMax. Prices per gari.pk: Standard Range RWD 14.5M, Long Range RWD 15.5M, Performance AWD 18.5M."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.45 Cr",
+        "source": "https://www.gari.pk/news/xpeng-g6-official-price-booking-and-delivery-timeline-4937/",
+        "note": "Standard Range RWD only, Rs 14,500,000 ex-factory. The old 'PKR 1.45–1.85 Cr' spanned all three trims."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "power",
+        "value": 248,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "Standard Range RWD 248 hp on PakWheels; gari.pk gives 185 kW (which is 248 hp; it also shows '255 hp'). Matches the chosen trim."
+      },
+      {
+        "column": "topSpeed",
+        "value": 202,
+        "source": "https://www.gari.pk/new-cars/xpeng/g6/standard-range-rwd/",
+        "note": "202 km/h for the Standard Range RWD (all trims share it per PakWheels)."
+      },
+      {
+        "column": "acCharging",
+        "value": 11,
+        "source": "https://www.pakwheels.com/new-cars/xpeng/g6/specifications/",
+        "note": "11 kW AC onboard charger on all trims."
+      }
+    ],
+    "conflicts": []
+  },
+  "xpeng-l03-reev": {
+    "corrections": {
+      "availability": {
+        "value": "Launched in Pakistan on 12 October 2026 at PKR 11,500,000 ex-factory, alongside the L03 BEV Long Range (PKR 12,200,000); pre-bookings had opened on 6 July 2026.",
+        "source": "https://propakistani.pk/2026/10/12/xpeng-launches-pakistans-1st-ultra-fast-charging-reev-with-1100-km-range/",
+        "note": "'XPeng has officially launched the LO3 in Pakistan in two variants: REEV and BEV Long Range' (ProPakistani, 12 Oct 2026); gari.pk's launch report (https://www.gari.pk/news/xpeng-l03-launched-in-pakistan-price-range-and-features-5645/) gives the same prices the same day. The stored text still described the July pre-booking stage."
+      }
+    },
+    "confirmed": [],
+    "conflicts": [
+      {
+        "column": "acCharging",
+        "current": 11,
+        "found": 6.6,
+        "source": "https://www.gari.pk/news/xpeng-l03-launched-in-pakistan-price-range-and-features-5645/",
+        "note": "Two Pakistan spec tables (gari.pk launch report: 'Maximum AC Charging Power 6.6 kW' for the REEV vs 11 kW for the BEV LR; PakWheels REEV page: 'AC Onboard Charger 6.6 kW', home 0-100% 8.5 h) say 6.6 kW. The only company-attributed text (ProPakistani, 6 July 2026, https://propakistani.pk/2026/07/06/xpeng-announces-prices-for-l03-lineup-in-pakistan/) says 'supports 7 kW and 11 kW AC charging' without saying which variant. XPeng's European press release (https://xpengswitzerland.pr.co/268278-alternative-entry-level-model-in-the-xpeng-product-family-suv-coupe-xpeng-l03-launches-in-switzerland-from-chf-35-600/) and paultan give no REEV AC figure. No official spec sheet found.",
+        "recommendation": "Lean to 6.6 kW: both Pakistan spec tables agree, they separate it from the BEV's 11 kW, and an 8.5 h full charge of a 37.25 kWh pack fits 6.6 kW better than 11 kW. Confirm with XPeng Pakistan before changing, or clear the field to null if you would rather show nothing than an unconfirmed value."
+      }
+    ]
+  },
+  "mg-hs-phev": {
+    "corrections": {
+      "priceMin": {
+        "value": 10199000,
+        "source": "https://mgmotors.com.pk/",
+        "note": "MG Pakistan's own homepage card: 'MG HS Super Hybrid — Ex-Factory Price, PKR: 10,199,000/-'. Same as the April 2026 launch (The News, ProPakistani) and PakWheels (updated 15 Sep 2026). 9,899,000 has no current source; the row's own notes already say 10,199,000."
+      },
+      "priceMax": {
+        "value": 10199000,
+        "source": "https://mgmotors.com.pk/",
+        "note": "Single Super Hybrid trim at PKR 10,199,000 ex-factory per MG Pakistan's homepage."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.02 Cr",
+        "source": "https://mgmotors.com.pk/",
+        "note": "PKR 10,199,000 ex-factory per MG Pakistan, matching the 'PKR 1.02 Cr' the row's notes describe."
+      },
+      "motorPowerKw": {
+        "value": 220,
+        "source": "https://mgmotors.com.pk/assets/brochure/Super-Hybrid-Updated.pdf",
+        "note": "MG Pakistan spec sheet (text layer is shifted one row; reading it in order): engine 105 kW / 230 Nm, traction motor 154 kW / 340 Nm, 'Maximum Combined Power (kW) - Nominal 220', combined torque 350 Nm. 220 kW = 295 hp, which matches the row's power, and the catalogue stores system output in motorPowerKw for PHEVs (e.g. Tiggo 7 PHEV 255 kW = 342 hp). The model page's 'Maximum Combined power 154 kW' is the traction motor's figure under the wrong label, so the brochure's itemised table is the better reading."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "jaecoo-j7-phev": {
+    "corrections": {
+      "widthMm": {
+        "value": 1865,
+        "source": "https://www.omodajaecoo.com.au/sites/default/files/2026-09/153_24_Jaecoo_J7_Spec_Sheet_AU_SHS_v1.3_compressed%20%281%29.pdf",
+        "note": "Jaecoo's own J7 SHS spec sheet (Omoda Jaecoo Australia): 'Width (mm) 1,865'. PakWheels and gari.pk give the same for Pakistan. 1862 is the Tiggo 7 PHEV's width."
+      },
+      "heightMm": {
+        "value": 1670,
+        "source": "https://www.omodajaecoo.com.au/sites/default/files/2026-09/153_24_Jaecoo_J7_Spec_Sheet_AU_SHS_v1.3_compressed%20%281%29.pdf",
+        "note": "Jaecoo J7 SHS spec sheet: 'Height (mm) 1,670' (length 4,500, width 1,865). PakWheels and gari.pk give 4500 x 1865 x 1670 mm for Pakistan. 1696 is the Tiggo 7 PHEV's height."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "kerbWeightKg",
+        "value": null,
+        "source": "https://www.omodajaecoo.com.au/sites/default/files/2026-09/153_24_Jaecoo_J7_Spec_Sheet_AU_SHS_v1.3_compressed%20%281%29.pdf",
+        "note": "Leave empty. PakWheels' 'Kerb weight 2210 KG' is the Gross Vehicle Mass on Jaecoo's spec sheet (2WD: tare 1,794 kg, GVM 2,210 kg). No Pakistan kerb weight is published, and tare mass is not the same measure, so nothing is stored."
+      }
+    ],
+    "conflicts": []
+  },
+  "jaecoo-j6": {
+    "corrections": {
+      "range": {
+        "value": 329,
+        "source": "https://propakistani.pk/2025/08/01/jaecoo-j6-electric-suv-officially-launched-in-pakistan-as-the-bad-boys-ride/",
+        "note": "The row represents the Comfort RWD (PKR 8,799,000, 49.9 kWh, 137 kW), and the launch report gives that trim 329.6 km NEDC (Luxury RWD 65.6 kWh 462 km, Premium AWD 69.7 kWh 418 km). PakWheels and gari.pk's Comfort RWD page list it as 329 km, which is stored. 426 km belongs to the Luxury, so it was the wrong trim. rangeStandard NEDC already matches. Leave rangeMax empty, since the row is a single trim."
+      },
+      "groundClearanceMm": {
+        "value": 195,
+        "source": "https://propakistani.pk/2025/08/01/jaecoo-j6-electric-suv-officially-launched-in-pakistan-as-the-bad-boys-ride/",
+        "note": "The Pakistan launch coverage gives '195 mm of ground clearance' with the 4,406 x 1,910 x 1,715 mm body and 2,715 mm wheelbase. So do Aaj News (https://english.aaj.tv/news/amp/330427491), PakWheels and gari.pk. No source found for 175 mm."
+      }
+    },
+    "confirmed": [],
+    "conflicts": []
+  },
+  "omoda-e5": {
+    "corrections": {},
+    "confirmed": [
+      {
+        "column": "heightMm",
+        "value": 1588,
+        "source": "https://media.adtorqueedge.com/new-cars/omoda-jaecoo-nz/omoda-e5/omoda-e5-brochure.pdf",
+        "note": "Omoda E5 specification sheet (Omoda Jaecoo NZ, MY2024): length 4,424, width 1,830, height 1,588 mm. PakWheels' 1558 is a digit swap; the rest of its dimensions match."
+      },
+      {
+        "column": "kerbWeightKg",
+        "value": 1710,
+        "source": "https://media.adtorqueedge.com/new-cars/omoda-jaecoo-nz/omoda-e5/omoda-e5-brochure.pdf",
+        "note": "The Omoda E5 spec sheet gives 'Tare Mass (kg) 1,710'; for an EV with no fuel, tare is the kerb weight. CarExpert, EVKX and Gari.pk also list 1,710 kg. PakWheels' 1735 kg comes from the same table that has the 1558 mm height typo, and no other source has it. (Some 2025 AU/NZ listings give 1,776 kg for a later model year, which is not the Pakistan figure either.)"
+      }
+    ],
+    "conflicts": []
+  },
+  "chery-tiggo-9-phev": {
+    "corrections": {
+      "electricRangeStandard": {
+        "value": "NEDC",
+        "source": "https://www.pakwheels.com/new-cars/chery/tiggo-9",
+        "note": "The stored 170 km is the distributor's own figure, so it stays. But it is not WLTP, which is how the row's rangeStandard reads it: PakWheels' spec page labels it '170 km (NEDC)', and the WLTP figure for the same 34.46 kWh pack is 145 km (PakWheels launch report, https://www.pakwheels.com/blog/chery-unveils-tiggo-9-phev-in-pakistan/). Setting electricRangeStandard to NEDC labels the stored number correctly."
+      }
+    },
+    "confirmed": [
+      {
+        "column": "electricRange",
+        "value": 170,
+        "source": "https://www.brecorder.com/news/amp/40420805",
+        "note": "Master Auto Engineering's delivery announcement (sponsored content in Business Recorder): 'up to 170 km electric driving range'. ProPakistani gives the same (https://propakistani.pk/2026/04/03/chery-tiggo-9-phev-pakistans-most-efficient-phev-up-to-1400-km-combined-range-170-km-pure-electric/). It is the NEDC figure; see the electricRangeStandard correction."
+      }
+    ],
+    "conflicts": [
+      {
+        "column": "range",
+        "current": null,
+        "found": 1400,
+        "source": "https://www.brecorder.com/news/amp/40420805",
+        "note": "The distributor's material gives 'up to 1,400 km total driving range' with no test cycle. PakWheels' spec page labels it NEDC, while a TechJuice report says Chery quotes it 'under WLTC conditions'. The DB notes cite about 1,190 km WLTP. The row's rangeStandard is 'WLTP', so storing 1,400 under it would be wrong.",
+        "recommendation": "Store range 1400 only together with rangeStandard 'NEDC' (the PakWheels label, consistent with the NEDC 170 km electric figure), or leave range empty until Chery Master publishes a cycle. Do not store 1,400 under the current WLTP label."
+      }
+    ]
+  },
+  "icaur-v27": {
+    "corrections": {},
+    "confirmed": [
+      {
+        "column": "kerbWeightKg",
+        "value": 2284,
+        "source": "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148",
+        "note": "iCAUR Pakistan's V27-AWD brochure spec table explicitly labels 2284 kg as 'Curb Weight'. The model page (https://icaurpk.com/model/v27/) shows an unlabelled 'Weight (kg) 2580', which is about 300 kg heavier and is most likely a laden or gross figure. The explicitly labelled distributor figure wins."
+      }
+    ],
+    "conflicts": []
+  }
+}

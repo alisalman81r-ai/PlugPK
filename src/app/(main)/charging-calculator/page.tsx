@@ -44,6 +44,7 @@ export default async function ChargingCalculatorPage() {
       acKw: c.acCharging,
       dcKw: c.dcCharging,
       dcQuotedMin: c.dcChargingMinutes ?? null,
+      dcQuotedFromPct: c.dcChargingFromPct ?? 10,
       // A plug-in hybrid's `range` is petrol and battery together; only its
       // electric range says what a charge adds. And a PHEV's `rangeStandard`
       // describes the combined figure, so it is not borrowed for this one.

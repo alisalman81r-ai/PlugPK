@@ -693,6 +693,17 @@ const CATEGORY_FULL: Record<CarCategory, string> = {
   Hybrid: 'HEV (Hybrid)',
 }
 
+/**
+ * The window a car's quoted DC charge time covers, e.g. "10–80%".
+ *
+ * Makers quote from different starting points — most from 10%, Deepal and
+ * Chery from 30%, iCaur from 20% — and a 30–80% time printed as 10–80% reads
+ * as a car that charges faster than it does. Unset means 10.
+ */
+export function dcWindow(car: Pick<Car, 'dcChargingFromPct'>): string {
+  return `${car.dcChargingFromPct ?? 10}–80%`
+}
+
 export function specGroups(car: Car): SpecGroup[] {
   const span = formatSpan
 
@@ -769,7 +780,7 @@ export function specGroups(car: Car): SpecGroup[] {
       title: 'Charging',
       rows: [
         ['DC fast charging', car.dcCharging ? `${car.dcCharging} ${car.dcChargingUnit}` : null],
-        ['DC charging time', q(car.dcChargingMinutes, 'min (10–80%)')],
+        ['DC charging time', q(car.dcChargingMinutes, `min (${dcWindow(car)})`)],
         ['AC charging', car.acCharging ? `${car.acCharging} ${car.acChargingUnit}` : null],
         ['AC charging time', q(car.acChargingHours, 'h (0–100%)')],
         ['Connector', car.connector?.length ? car.connector.join(', ') : null],

@@ -392,6 +392,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             chargerKw={chargerKw}
             carName={car?.name ?? null}
             makerDcMinutes={car?.dcQuotedMin ?? null}
+            makerDcFromPct={car?.dcQuotedFromPct ?? 10}
             rangeAddedKm={rangeAddedKm(car?.rangeKm ?? null, from, to)}
             rangeCycle={car?.rangeCycle ?? null}
             readyText={result.ok && now ? readyAt(now, result.minutes) : null}

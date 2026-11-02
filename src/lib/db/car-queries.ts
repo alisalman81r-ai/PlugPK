@@ -69,6 +69,7 @@ type CarRow = {
   consumptionMax: number | null
   acChargingHours: number | null
   dcChargingMinutes: number | null
+  dcChargingFromPct: number | null
   batteryTech: string | null
   lengthMm: number | null
   widthMm: number | null
@@ -149,6 +150,7 @@ export function rowToCar(row: CarRow): Car {
     consumptionMax: row.consumptionMax,
     acChargingHours: row.acChargingHours,
     dcChargingMinutes: row.dcChargingMinutes,
+    dcChargingFromPct: row.dcChargingFromPct,
     batteryTech: row.batteryTech,
     lengthMm: row.lengthMm,
     widthMm: row.widthMm,
