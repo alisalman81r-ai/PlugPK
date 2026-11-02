@@ -57,13 +57,16 @@ export interface OwnerPortal {
   user: { id: string; name: string; email: string }
   listings: OwnerListing[]
   listing: OwnerListing
+  /** The account also lists services, so the portal offers the switch. */
+  hasServices: boolean
 }
 
 /**
- * Gate and loader for every page under /business except sign-up.
+ * Gate and loader for every charger page under /business except sign-up.
  *
- * Signed out goes to sign-in and back; an account with no listing is sent to
- * list one, because the portal has nothing to show it.
+ * Signed out goes to sign-in and back. An account with no charger listing goes
+ * to the portal's front door, which sends a service provider to their side of
+ * the portal and offers anyone else both ways to list.
  */
 export async function requireOwnerPortal(
   path: string,
@@ -72,14 +75,17 @@ export async function requireOwnerPortal(
   const user = await getCurrentUser()
   if (!user) redirect(`/login?redirect=${encodeURIComponent(path)}`)
 
-  const listings = await getOwnerListings(user.id)
+  const [listings, services] = await Promise.all([
+    getOwnerListings(user.id),
+    prisma.eVService.count({ where: { userId: user.id } }),
+  ])
   const first = listings[0]
-  if (!first) redirect('/business/signup')
+  if (!first) redirect('/business')
 
   const wanted = Array.isArray(requested) ? requested[0] : requested
   const listing = listings.find((item) => item.id === wanted) ?? first
 
-  return { user, listings, listing }
+  return { user, listings, listing, hasServices: services > 0 }
 }
 
 /** The shape the portal layout and sidebar take. */
@@ -97,5 +103,7 @@ export function portalListings(portal: OwnerPortal) {
       name: item.businessName,
       status: item.status,
     })),
+    mode: 'chargers' as const,
+    canSwitch: portal.hasServices,
   }
 }

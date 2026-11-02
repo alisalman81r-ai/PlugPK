@@ -37,7 +37,11 @@ export async function GET() {
   // Only partners are offered the business portal in the account menu.
   const [hasBusiness, car] = profile
     ? await Promise.all([
-        prisma.business.count({ where: { userId: profile.id } }).then((count) => count > 0),
+        // A charger listing or a service listing: either opens the business portal.
+        Promise.all([
+          prisma.business.count({ where: { userId: profile.id } }),
+          prisma.eVService.count({ where: { userId: profile.id } }),
+        ]).then(([chargers, services]) => chargers + services > 0),
         // The primary car from the garage: every car tool on the site starts
         // with it, so a driver picks their car once, on their dashboard.
         getPrimaryCatalogueCar(profile.id).catch(() => null),

@@ -5,8 +5,7 @@ import { randomUUID } from 'node:crypto'
 
 import { revalidatePath } from 'next/cache'
 
-import { SERVICE_CATEGORY_KEYS } from '@/lib/constants'
-import { checkEmail, checkPhone, checkText, checkWebsite, isInPakistan } from '@/lib/validate'
+import { isInPakistan } from '@/lib/validate'
 
 import { getAdminActor } from './admin-access'
 import { logAdminAction } from './audit'
@@ -14,6 +13,7 @@ import { prisma } from './client'
 import { checkLimits, clientFingerprint, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
 import { readServiceDetails } from './service-details'
+import { readServiceCore } from './service-form'
 import { isWebsiteRequest, recordSiteEvent } from './site-events'
 
 /**
@@ -92,52 +92,9 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
   const userId = await getSessionUserId()
   if (!userId) return { ok: false, field: 'signin', message: 'Sign in to apply. Create a free account first — your application is tied to it.' }
 
-  const name = checkText(form.get('name'), 'the business name', { max: 120, min: 2, required: true })
-  if (!name.ok) return { ok: false, field: 'name', message: name.message }
-
-  const category = text(form, 'category')
-  if (!SERVICE_CATEGORY_KEYS.includes(category as (typeof SERVICE_CATEGORY_KEYS)[number])) {
-    return { ok: false, field: 'category', message: 'Choose the kind of service you offer.' }
-  }
-
-  const city = checkText(form.get('city'), 'your city', { max: 80, min: 2, required: true })
-  if (!city.ok) return { ok: false, field: 'city', message: city.message }
-  const area = checkText(form.get('area'), 'the area', { max: 120 })
-  if (!area.ok) return { ok: false, field: 'area', message: area.message }
-  const street = checkText(form.get('street'), 'the street address', { max: 200 })
-  if (!street.ok) return { ok: false, field: 'street', message: street.message }
-
-  const description = checkText(form.get('description'), 'a description', { max: 1000, required: true })
-  if (!description.ok) return { ok: false, field: 'description', message: description.message }
-  if (description.value.length < 20) {
-    return {
-      ok: false,
-      field: 'description',
-      message: 'A sentence or two about what you do — at least 20 characters.',
-    }
-  }
-
-  const phone = checkPhone(form.get('phone'))
-  if (!phone.ok) return { ok: false, field: 'phone', message: phone.message }
-  const rawEmail = text(form, 'email')
-  const email = rawEmail ? checkEmail(rawEmail) : null
-  if (email && !email.ok) return { ok: false, field: 'email', message: email.message }
-  if (!phone.value && !email) {
-    return { ok: false, field: 'phone', message: 'Leave a phone number or an email so we can reach you.' }
-  }
-
-  const website = checkWebsite(form.get('website'))
-  if (!website.ok) return { ok: false, field: 'website', message: website.message }
-
-  const lat = Number(text(form, 'lat'))
-  const lng = Number(text(form, 'lng'))
-  if (!text(form, 'lat') || !text(form, 'lng') || !isInPakistan(lat, lng)) {
-    return {
-      ok: false,
-      field: 'location',
-      message: 'Set your location on the map — it has to be inside Pakistan.',
-    }
-  }
+  const core = readServiceCore(form)
+  if (!core.ok) return core
+  const { name, city } = core.value
 
   // The website's form asks for a contact person and a confirmation; the
   // app's shorter form does not, so those are required only from the website.
@@ -160,8 +117,8 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
   // the queue costs the reviewer time rather than the applicant anything.
   const existing = await prisma.eVService.findFirst({
     where: {
-      name: { equals: name.value, mode: 'insensitive' },
-      city: { equals: city.value, mode: 'insensitive' },
+      name: { equals: name, mode: 'insensitive' },
+      city: { equals: city, mode: 'insensitive' },
       status: 'pending',
     },
     select: { id: true },
@@ -175,21 +132,10 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     data: {
       id: serviceId,
       userId,
-      slug: await uniqueSlug(name.value),
-      name: name.value,
-      category,
-      description: description.value,
-      street: street.value,
-      area: area.value,
-      city: city.value,
+      slug: await uniqueSlug(name),
+      ...core.value,
       province: '',
       country: 'Pakistan',
-      lat,
-      lng,
-      // The column is required; an email-only applicant has no phone to store.
-      phone: phone.value ?? '',
-      email: email && email.ok ? email.value : null,
-      website: website.value,
       ...details.value,
       status: 'pending',
       submittedAt: new Date(),
@@ -205,7 +151,7 @@ export async function applyToListService(form: FormData): Promise<ApplyResult> {
     type: 'service.apply',
     targetType: 'service',
     targetId: serviceId,
-    summary: (who) => `${who} applied to list ${name.value} (${city.value})`,
+    summary: (who) => `${who} applied to list ${name} (${city})`,
   })
   return { ok: true, serviceId }
 }

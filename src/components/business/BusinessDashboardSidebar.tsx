@@ -10,6 +10,7 @@ import {
   Plus,
   ShieldCheck,
   Star,
+  Wrench,
   Zap,
   type IconType,
 } from '@/components/ui/icons'
@@ -20,6 +21,9 @@ import { cn } from '@/lib/utils'
 
 // Three states (under review / live / not approved) and the ?listing= links.
 import { listingHref, listingState } from './listing-state'
+import { PORTAL_COOKIE, type PortalMode } from './portal-mode'
+
+export type { PortalMode }
 
 export interface PortalListingSummary {
   id: string
@@ -49,6 +53,46 @@ export interface BusinessDashboardSidebarProps {
    * between pages — the portal used to manage only the newest listing.
    */
   listings?: PortalListingSummary[]
+  /** Which side of the portal is showing: charger listings or service listings. */
+  mode?: PortalMode
+  /** The account lists both, so the Chargers | Services switch is shown. */
+  canSwitch?: boolean
+}
+
+export function rememberPortal(mode: PortalMode): void {
+  document.cookie = `${PORTAL_COOKIE}=${mode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
+}
+
+/** The Chargers | Services switch, for an account that lists both. */
+export function PortalSwitch({ mode, className }: { mode: PortalMode; className?: string }) {
+  return (
+    <div role="tablist" aria-label="Portal" className={cn('grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1', className)}>
+      {(
+        [
+          { value: 'chargers', label: 'Chargers', href: '/business/dashboard', icon: Zap },
+          { value: 'services', label: 'Services', href: '/business/services', icon: Wrench },
+        ] as const
+      ).map((side) => {
+        const on = side.value === mode
+        return (
+          <Link
+            key={side.value}
+            href={side.href}
+            role="tab"
+            aria-selected={on}
+            onClick={() => rememberPortal(side.value)}
+            className={cn(
+              'flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-colors',
+              on ? 'bg-white text-plug-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-800',
+            )}
+          >
+            <side.icon size={15} aria-hidden="true" />
+            {side.label}
+          </Link>
+        )
+      })}
+    </div>
+  )
 }
 
 interface BusinessNavItem {
@@ -68,6 +112,16 @@ export const BUSINESS_NAV: BusinessNavItem[] = [
   { label: 'Reviews', href: '/business/reviews', icon: Star },
   { label: 'Analytics', href: '/business/analytics', icon: BarChart2 },
 ]
+
+/** The services side: where an application stands, and the listing itself. */
+export const SERVICE_NAV: BusinessNavItem[] = [
+  { label: 'Overview', href: '/business/services', icon: LayoutDashboard, exact: true },
+  { label: 'Profile', href: '/business/services/profile', icon: Building2 },
+]
+
+export function navFor(mode: PortalMode): BusinessNavItem[] {
+  return mode === 'services' ? SERVICE_NAV : BUSINESS_NAV
+}
 
 export function isBusinessItemActive(
   pathname: string,
@@ -116,7 +170,7 @@ export function ListingSwitcher({
   )
 }
 
-export function BusinessDashboardSidebar({ listing, listings = [] }: BusinessDashboardSidebarProps) {
+export function BusinessDashboardSidebar({ listing, listings = [], mode = 'chargers', canSwitch = false }: BusinessDashboardSidebarProps) {
   const pathname = usePathname()
 
   const name = listing?.name ?? 'No listing yet'
@@ -126,6 +180,8 @@ export function BusinessDashboardSidebar({ listing, listings = [] }: BusinessDas
 
   return (
     <div className="scrollbar-hide sticky top-[64px] flex h-[calc(100vh-64px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
+      {canSwitch ? <PortalSwitch mode={mode} className="mb-4" /> : null}
+
       <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
         <p className="truncate font-bold text-slate-900">{name}</p>
         <p className="mt-0.5 text-xs capitalize text-slate-400">
@@ -151,10 +207,10 @@ export function BusinessDashboardSidebar({ listing, listings = [] }: BusinessDas
 
       <nav className="flex flex-1 flex-col gap-1">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-          Business Portal
+          {mode === 'services' ? 'Service portal' : 'Business Portal'}
         </p>
 
-        {BUSINESS_NAV.map((item) => {
+        {navFor(mode).map((item) => {
           const active = isBusinessItemActive(pathname, item)
           const Icon = item.icon
 
@@ -189,11 +245,11 @@ export function BusinessDashboardSidebar({ listing, listings = [] }: BusinessDas
       </nav>
 
       <Link
-        href="/business/signup"
+        href={mode === 'services' ? '/services/list' : '/business/signup'}
         className="mt-4 flex h-[42px] items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
       >
         <Plus size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
-        List another location
+        {mode === 'services' ? 'List another service' : 'List another location'}
       </Link>
 
       {/* The "Go Premium — get priority listing and analytics" card is gone.

@@ -48,7 +48,7 @@ function linksFor(isAdmin: boolean, hasBusiness: boolean) {
     isAdmin
       ? { href: '/admin', label: 'Admin dashboard', icon: LayoutDashboard }
       : { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    ...(hasBusiness ? [{ href: '/business/dashboard', label: 'Business portal', icon: Building2 }] : []),
+    ...(hasBusiness ? [{ href: '/business', label: 'Business portal', icon: Building2 }] : []),
     { href: '/dashboard/settings', label: 'Settings', icon: Settings },
   ]
 }
