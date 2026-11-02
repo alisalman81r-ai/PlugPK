@@ -2166,6 +2166,235 @@ export const CAR_FEATURES: Record<string, CarFeatures> = {
     sources: ['https://www.gari.pk/new-cars/seres/3/', 'https://www.pakwheels.com/new-cars/seres/3--2/specifications/'],
     checked: '2026-11-02',
   },
+
+  // Dongfeng, from PakNEV's per-trim lists (base trim first, then what the top
+  // trim adds), and Forthing from Capital Smart Motors' Friday brochure.
+  'dongfeng-007': {
+    trim: 'Essence (Prestige and Excellence additions marked)',
+    groups: {
+      'Safety': [
+        'Electronic stability control',
+        'Tyre pressure monitoring (TPMS)',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Forward collision warning and automatic emergency braking',
+        'Lane keep assist and traffic sign recognition',
+        'Cruise control (adaptive on upper trims)',
+        'Upper trims: Level 2+ suite with blind spot monitoring, rear cross traffic alert and door open warning',
+      ],
+      'Parking': [
+        'Reversing camera and rear parking sensors',
+        'Upper trims: 360° camera and remote parking assistant',
+      ],
+      'Infotainment & Connectivity': [
+        '15.6-inch touchscreen and 8-inch driver display',
+        'Android Auto (wireless Apple CarPlay on upper trims)',
+        'Six speakers (19-speaker Wanos system with headrest speakers on upper trims)',
+      ],
+      'Seats & Interior': [
+        'Synthetic leather seats',
+        'Upper trims: power, heated and ventilated front seats with memory',
+        'Upper trims: multi-colour interactive ambient lighting and heated steering wheel',
+      ],
+      'Comfort & Convenience': [
+        'Keyless entry and push-button start',
+        'Wireless phone charging',
+        'Upper trims: dual-zone automatic climate control',
+      ],
+      'Exterior & Lighting': [
+        'Fixed panoramic glass roof',
+        'Frameless doors and pop-out door handles',
+        'LED daytime running lights and LED rear light bar',
+        '18-inch alloy wheels (19-inch on upper trims)',
+        'Excellence: electric scissor front doors and active rear wing',
+      ],
+    },
+    sources: ['https://paknev.com/cars/dongfeng-007'],
+    checked: '2026-11-02',
+  },
+  'dongfeng-box': {
+    trim: 'Base trims (Flagship additions marked)',
+    groups: {
+      'Safety': [
+        'Dual front airbags',
+        'ABS, stability and traction control',
+        'Tyre pressure monitoring (TPMS)',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Cruise control',
+        'Flagship: Level 2 ADAS with adaptive cruise, AEB, lane departure warning and lane keep assist',
+      ],
+      'Parking': [
+        'Flagship: 540° camera with transparent-chassis view and auto parking',
+        'Flagship: front and rear parking sensors',
+      ],
+      'Powertrain & Charging': [
+        'Comfort, Eco and Sport drive modes',
+        'CCS2 DC fast charging (430 trims)',
+      ],
+      'Infotainment & Connectivity': [
+        '12.8-inch touchscreen and 5-inch driver display',
+        'Four speakers (six on the Flagship)',
+      ],
+      'Seats & Interior': [
+        'Faux-leather upholstery',
+        '32-colour ambient lighting',
+        'Upper trims: electric, heated and ventilated driver seat; flat-reclining front seats',
+      ],
+      'Comfort & Convenience': [
+        'Keyless entry and push-button start',
+        'Wireless phone charging',
+        'Electronic parking brake with auto hold',
+      ],
+      'Exterior & Lighting': [
+        'LED headlights (follow-me-home on upper trims)',
+        'Frameless doors and hidden door handles',
+        'Heated, folding door mirrors',
+        '16-inch wheels (17-inch alloys on the Flagship) and two-tone paint',
+      ],
+    },
+    sources: ['https://paknev.com/cars/dongfeng-box'],
+    checked: '2026-11-02',
+  },
+  'dongfeng-vigo': {
+    trim: 'E1 Dynamic (E2 additions marked)',
+    groups: {
+      'Safety': [
+        'Four airbags (six on E2 trims)',
+        'ABS, EBD, stability and traction control',
+        'Hill start assist',
+      ],
+      'Driver Assistance (ADAS)': [
+        'E2 trims: Level 2 ADAS suite',
+      ],
+      'Parking': [
+        'Reversing camera',
+        'E2 trims: 540° camera and front parking sensors',
+      ],
+      'Powertrain & Charging': [
+        'CCS2 DC fast charging, 60 kW',
+        'E2 trims: vehicle-to-load (V2L)',
+      ],
+      'Infotainment & Connectivity': [
+        '12.8-inch touchscreen and 8.8-inch digital cluster',
+        'Bluetooth',
+        'Four speakers (six on E2 trims)',
+      ],
+      'Seats & Interior': [
+        'Fabric seats on the E1',
+        'E2 trims: 6-way power, heated and ventilated front seats with memory and welcome function',
+        'E2 trims: multi-colour ambient lighting and rear armrest',
+      ],
+      'Comfort & Convenience': [
+        'Keyless entry and push-button start',
+        'E2 trims: 50 W wireless charger',
+      ],
+      'Exterior & Lighting': [
+        'Roof rails and black roof spoiler',
+        'E2 trims: panoramic sunroof, LED headlights with follow-me-home and hidden power door handles',
+        '17-inch wheels (two-tone alloys on E2 trims)',
+      ],
+    },
+    sources: ['https://paknev.com/cars/dongfeng-vigo'],
+    checked: '2026-11-02',
+  },
+  'forthing-friday-bev': {
+    trim: 'Luxury and Exclusive (Exclusive adds the driver aids)',
+    groups: {
+      'Safety': [
+        'Six airbags: front, front side and front and rear curtain',
+        'ABS, EBD, brake assist, stability and traction control, hill start assist',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+        'Automatic unlocking after a collision',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Exclusive: adaptive cruise control and traffic jam assist',
+        'Exclusive: forward collision warning and automatic emergency braking',
+        'Exclusive: lane departure warning, lane keep assist and lane change assist',
+        'Exclusive: blind spot monitoring, rear cross traffic alert and door open warning',
+        'Intelligent high beam control',
+      ],
+      'Parking': [
+        'Automatic parking assist',
+        'Exclusive: 360° camera and front parking radar',
+      ],
+      'Powertrain & Charging': [
+        'CCS2 DC fast charging: 30–80% in 30 minutes',
+        '3.3 kW portable AC charger and camping mode',
+        'Eco, Standard and Sport drive modes',
+      ],
+      'Infotainment & Connectivity': [
+        'Dual HD screens: touchscreen and digital cluster',
+        'Surround sound system',
+      ],
+      'Seats & Interior': [
+        'Leather seats with ventilation (premium materials on the Exclusive)',
+        'Split-folding rear seats',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control with rear vents',
+        'Wireless charging and multiple USB ports',
+        'Smart key with keyless entry and push-button start',
+      ],
+      'Exterior & Lighting': [
+        'Electric panoramic sunroof',
+        'LED matrix headlights and tail lamps',
+        '19-inch alloy wheels with a full-size spare',
+      ],
+    },
+    sources: ['https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf', 'https://paknev.com/cars/forthing-friday-bev'],
+    checked: '2026-11-02',
+  },
+  'forthing-friday-reev': {
+    trim: 'Exclusive',
+    groups: {
+      'Safety': [
+        'Six airbags: front, front side and front and rear curtain',
+        'ABS, EBD, brake assist, stability and traction control, hill start assist',
+        'Tyre pressure monitoring (TPMS)',
+        'ISOFIX child-seat anchors',
+        'Automatic unlocking after a collision',
+      ],
+      'Driver Assistance (ADAS)': [
+        'Adaptive cruise control and traffic jam assist',
+        'Forward collision warning and automatic emergency braking',
+        'Lane departure warning, lane keep assist and lane change assist',
+        'Blind spot monitoring, rear cross traffic alert and door open warning',
+        'Intelligent high beam control',
+      ],
+      'Parking': [
+        '360° camera',
+        'Automatic parking assist and front and rear parking radar',
+      ],
+      'Powertrain & Charging': [
+        'Range extender: 1.5-litre engine generates power, 1,150 km combined (CLTC)',
+        'CCS2 DC fast charging: 30–80% in 30 minutes',
+        '3.3 kW portable AC charger and camping mode',
+        'Eco, Standard and Sport drive modes',
+      ],
+      'Infotainment & Connectivity': [
+        'Dual HD screens: touchscreen and digital cluster',
+        'Surround sound system',
+      ],
+      'Seats & Interior': [
+        'Leather seats with ventilation',
+        'Split-folding rear seats',
+      ],
+      'Comfort & Convenience': [
+        'Dual-zone automatic climate control with rear vents',
+        'Wireless charging and multiple USB ports',
+        'Smart key with keyless entry and push-button start',
+      ],
+      'Exterior & Lighting': [
+        'Electric panoramic sunroof',
+        'LED matrix headlights and tail lamps',
+        '19-inch alloy wheels with a full-size spare',
+      ],
+    },
+    sources: ['https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf', 'https://paknev.com/cars/forthing-friday-reev'],
+    checked: '2026-11-02',
+  },
 }
 
 // The two Cyberster trims share one equipment list; only the drivetrain

@@ -1,0 +1,282 @@
+{
+  "dongfeng-007": {
+    "corrections": {
+      "variant": {
+        "value": "Essence / Prestige / Excellence",
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV lists three Pakistan trims; the row's headline figures are the Essence's."
+      },
+      "priceMax": {
+        "value": 13900000,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV: Essence PKR 11,900,000, Prestige 12,990,000, Excellence 13,900,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.19–1.39 Cr",
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "Essence to Excellence."
+      },
+      "range": {
+        "value": 550,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV, Essence: 550 km CLTC. The 650 km previously stored was the Prestige's, paired with the Essence's 58.4 kWh battery."
+      },
+      "rangeMax": {
+        "value": 650,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "Prestige (73.5 kWh, RWD): 650 km CLTC, the longest-range trim."
+      },
+      "acceleration": {
+        "value": 6.8,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV, Essence: 0–100 km/h 6.8 s. The 3.5 s previously stored was the AWD Excellence's."
+      },
+      "driveType": {
+        "value": "RWD (AWD on the Excellence)",
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "Essence and Prestige RWD; Excellence AWD."
+      },
+      "dcCharging": {
+        "value": 100,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV, Essence: Max DC 100 kW (Prestige and Excellence 120 kW). The 200 kW previously stored had no source."
+      },
+      "dcChargingMinutes": {
+        "value": 26,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV: DC 10–80% in 26 min."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "Cleared: the 7 h previously stored had no source; PakNEV gives only a 10–80% AC time (4 h 15 min on 11 kW)."
+      },
+      "bootCapacityL": {
+        "value": 452,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV: 452 L."
+      },
+      "realWorldRange": {
+        "value": 386,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV real-world estimate, Essence: 386 km."
+      },
+      "consumption": {
+        "value": 11.8,
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV, Essence: 11.8 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "On sale through Chawla Green Motors, Dongfeng's sole distributor in Pakistan, in Essence, Prestige and Excellence trims.",
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "PakNEV variant list; Profit on Chawla Green Motors as sole partner."
+      },
+      "notes": {
+        "value": "Dongfeng 007, an electric fastback sedan, sold by Chawla Green Motors in three trims (PakNEV). Essence, the headline here: 58.4 kWh battery, 160 kW (215 hp) rear motor, 310 Nm, rear-wheel drive, 0–100 km/h 6.8 s, 550 km CLTC, DC 100 kW, PKR 11,900,000. Prestige: 73.5 kWh, 268 hp, 320 Nm, RWD, 5.8 s, 650 km CLTC, DC 120 kW, PKR 12,990,000. Excellence: 73.5 kWh, dual motors with 536 hp and 640 Nm, AWD, 3.5 s, 565 km CLTC, DC 120 kW, PKR 13,900,000. All: 180 km/h, AC 11 kW, DC 10–80% in about 26 min, CCS2 and Type 2. 4,880 × 1,895 × 1,460 mm on a 2,915 mm wheelbase, 163 mm ground clearance, 452 L boot, 1,767–1,970 kg, 5 seats. PakNEV estimates 386–456 km in real-world use. Warranty: vehicle 5 years / 150,000 km and battery 8 years / 200,000 km per the PakWheels launch report (PakNEV lists the battery at 6 years / 150,000 km), so confirm with the dealer. Sources: PakNEV, PakWheels.",
+        "source": "https://paknev.com/cars/dongfeng-007",
+        "note": "Rewritten per trim; the old note left 0–100, DC and boot unstated."
+      }
+    }
+  },
+  "dongfeng-box": {
+    "corrections": {
+      "variant": {
+        "value": "Smart 330 / Lux 430 / Flagship 430",
+        "source": "https://www.gari.pk/news/dongfeng-box-introduces-new-low-cost-version-5120/",
+        "note": "Smart 330 (April 2026) plus the 430 trims PakNEV lists; headline figures are the Smart 330's."
+      },
+      "priceMax": {
+        "value": 6875000,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV: Lux Basic 430 PKR 6,400,000, Lux Limited 6,488,000, Flagship 6,800,000, Flagship Premium 6,875,000. The Smart 330 is PKR 5,500,000 (Gari.pk, Pakistan Truth)."
+      },
+      "priceDisplay": {
+        "value": "PKR 55–68.75 Lakh",
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "Smart 330 to Flagship Premium 430."
+      },
+      "rangeStandard": {
+        "value": "CLTC",
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV labels the Box's range CLTC."
+      },
+      "groundClearanceMm": {
+        "value": 160,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV: 160 mm."
+      },
+      "bootCapacityL": {
+        "value": 326,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV: 326 L."
+      },
+      "realWorldRange": {
+        "value": 302,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV real-world estimate for the 430 trims: 302 km (the Smart 330 will do less)."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "Cleared: one figure."
+      },
+      "consumption": {
+        "value": 15.4,
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "PakNEV: 15.4 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "On sale through Chawla Green Motors in Smart 330 (from April 2026), Lux 430 and Flagship 430 trims; booking PKR 1,500,000.",
+        "source": "https://www.gari.pk/news/dongfeng-box-introduces-new-low-cost-version-5120/",
+        "note": "Gari.pk and PakNEV."
+      },
+      "notes": {
+        "value": "Dongfeng Box, a compact electric hatchback, sold by Chawla Green Motors. Smart 330, the headline here: 32.56 kWh LFP battery, 330 km CLTC, 3.3 kW AC (about 10.5 hours), PKR 5,500,000. The 430 trims have a 42.3 kWh battery, 430 km CLTC (about 302 km real-world per PakNEV), 6.6 kW AC and 60 kW DC (10–80% in about 30 minutes): Lux Basic PKR 6,400,000, Lux Limited 6,488,000, Flagship 6,800,000, Flagship Premium 6,875,000. All: 70 kW (94 hp) front motor, 160 Nm, 0–100 km/h 12.5 s, 140 km/h, CCS2 and Type 2. 4,020–4,030 × 1,810 × 1,570 mm on a 2,660 mm wheelbase, 160 mm ground clearance, 326 L boot, 5 seats. Equipment ranges from dual airbags, ESC, a 12.8-inch screen and keyless start on the base car to a Level 2 ADAS suite, 540° camera, auto parking, heated and ventilated driver's seat and 17-inch alloys on the Flagship. Warranty: vehicle 4 years / 150,000 km, battery 8 years / 200,000 km. Sources: PakNEV, Gari.pk, Profit.",
+        "source": "https://paknev.com/cars/dongfeng-box",
+        "note": "Rewritten per trim; the old note left top speed, ground clearance and boot unconfirmed."
+      }
+    }
+  },
+  "dongfeng-vigo": {
+    "corrections": {
+      "variant": {
+        "value": "E1 Dynamic / E2 / E2 Premium / E2 Plus",
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV lists four Pakistan trims; headline figures are the E1 Dynamic's."
+      },
+      "priceMax": {
+        "value": 8800000,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV: E1 Dynamic PKR 6,999,000, E2 7,499,000, E2 Premium 7,850,000, E2 Plus (51.87 kWh) 8,800,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 69.99–88 Lakh",
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "E1 Dynamic to E2 Plus."
+      },
+      "acceleration": {
+        "value": 8.2,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV: 0–100 km/h 8.2 s (the 7.8 s previously stored had no source)."
+      },
+      "groundClearanceMm": {
+        "value": 190,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV: 190 mm (the old 175 mm was marked approximate)."
+      },
+      "kerbWeightKg": {
+        "value": 1450,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV, 44.94 kWh trims: 1,450 kg."
+      },
+      "realWorldRange": {
+        "value": 302,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV real-world estimate, 44.94 kWh trims: 302 km."
+      },
+      "realWorldRangeMax": {
+        "value": 331,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV, E2 Plus (51.87 kWh): 331 km."
+      },
+      "consumption": {
+        "value": 12.8,
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV, E1 Dynamic: 12.8 kWh/100 km (estimate)."
+      },
+      "warranty": {
+        "value": "Vehicle 5 years / 150,000 km; battery 8 years / 200,000 km.",
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV warranty section, matching PakWheels' 8 years / 200,000 km battery term; replaces the single-source 160,000 km."
+      },
+      "availability": {
+        "value": "On sale through Chawla Green Motors in four trims since January 2026 (deliveries from February 2026).",
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "PakNEV."
+      },
+      "notes": {
+        "value": "Dongfeng Vigo (sold globally as the Nammi 06), a compact electric SUV, by Chawla Green Motors in four trims (PakNEV): E1 Dynamic PKR 6,999,000, E2 7,499,000 and E2 Premium 7,850,000 with a 44.94 kWh LFP battery, and E2 Plus PKR 8,800,000 with 51.87 kWh. 120 kW (161 hp) front motor, 230 Nm, 0–100 km/h 8.2 s, 150 km/h. Range 353 km WLTP for the 44.94 kWh car (430 km on the looser CLTC cycle; the E2 Plus 471 km CLTC); PakNEV estimates 302–331 km in real-world use. AC 6.6 kW, DC 60 kW (10–80% in about 30 minutes on the 44.94 kWh car), CCS2. 4,306 × 1,868 × 1,654 mm on a 2,715 mm wheelbase, 190 mm ground clearance, 500 L boot, 1,450–1,490 kg, 5 seats. The E1 Dynamic has 4 airbags, a reversing camera, 12.8-inch screen and keyless start; the E2 trims add 6 airbags, Level 2 ADAS, a 540° camera, V2L, heated and ventilated powered front seats, a panoramic sunroof and LED headlights. Warranty: vehicle 5 years / 150,000 km, battery 8 years / 200,000 km. Sources: PakNEV, PakWheels, Gari.pk.",
+        "source": "https://paknev.com/cars/dongfeng-vigo",
+        "note": "Rewritten per trim; the old note called 0–100 and kerb weight unpublished."
+      }
+    }
+  },
+  "forthing-friday-bev": {
+    "corrections": {
+      "variant": {
+        "value": "Luxury / Exclusive",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf",
+        "note": "Capital Smart Motors brochure: BEV Luxury and BEV Exclusive. 'BEV' is already in the model name."
+      },
+      "priceMax": {
+        "value": 10499000,
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "PakNEV: BEV Luxury PKR 8,999,000, BEV Exclusive PKR 10,499,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 89.99 Lakh–1.05 Cr",
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "Luxury to Exclusive."
+      },
+      "topSpeed": {
+        "value": 170,
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "PakNEV: 170 km/h, as PakWheels and Gari.pk also give (the 180 km/h previously stored had no source)."
+      },
+      "realWorldRange": {
+        "value": 351,
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "PakNEV real-world estimate 351 km."
+      },
+      "consumption": {
+        "value": 15.5,
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "PakNEV: 15.5 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "On sale through Capital Smart Motors in BEV Luxury (PKR 8,999,000) and BEV Exclusive (PKR 10,499,000) trims.",
+        "source": "https://paknev.com/cars/forthing-friday-bev",
+        "note": "PakNEV."
+      },
+      "notes": {
+        "value": "Forthing Friday BEV, the all-electric version of Dongfeng Forthing's Friday SUV, sold by Capital Smart Motors. Per the Capital Smart Motors brochure: 64.4 kWh LFP battery, front permanent-magnet motor with 150 kW and 340 Nm, front-wheel drive, 500 km CLTC; AC Type 2 in about 7 hours (0–100%) and DC CCS2 30–80% in 30 minutes, with a 3.3 kW portable charger and a camping mode. 0–100 km/h about 8 s and 170 km/h per PakNEV, which estimates about 351 km in real-world use. 4,600 × 1,860 × 1,680 mm on a 2,715 mm wheelbase, 180 mm ground clearance, 480 L boot, 1,820 kg, 19-inch wheels on 235/55 R19 with a full-size spare, 500 mm wading depth, McPherson front and multi-link rear suspension. Two trims: BEV Luxury PKR 8,999,000 and BEV Exclusive PKR 10,499,000; the Exclusive adds the driver-assistance suite, 360° camera and premium materials. Warranty: vehicle 5 years / 150,000 km, battery 8 years / 160,000 km (PakWheels; PakNEV lists 5 years / 100,000 km and 8 years / 120,000 km, so confirm with the dealer). Sources: Capital Smart Motors brochure, PakNEV, PakWheels.",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf",
+        "note": "Added: the row had no notes."
+      }
+    }
+  },
+  "forthing-friday-reev": {
+    "corrections": {
+      "variant": {
+        "value": "Exclusive",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf",
+        "note": "Brochure grade REEV Exclusive; 'REEV' is already in the model name."
+      },
+      "dcCharging": {
+        "value": 40,
+        "source": "https://paknev.com/cars/forthing-friday-reev",
+        "note": "PakNEV: Max DC 40 kW. The 120 kW previously stored was the charging pile used in the brochure's test condition, not the car's own rate."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://paknev.com/cars/forthing-friday-reev",
+        "note": "PakNEV: Max AC 7 kW."
+      },
+      "realWorldRange": {
+        "value": 154,
+        "source": "https://paknev.com/cars/forthing-friday-reev",
+        "note": "PakNEV real-world electric estimate 154 km."
+      },
+      "consumption": {
+        "value": 14.5,
+        "source": "https://paknev.com/cars/forthing-friday-reev",
+        "note": "PakNEV: 14.5 kWh/100 km in electric mode (estimate)."
+      },
+      "notes": {
+        "value": "Forthing Friday REEV, the range-extended version of Dongfeng Forthing's Friday SUV, sold by Capital Smart Motors: a 1.5-litre (1,498 cc) petrol engine only generates electricity, and the wheels are driven by the electric motor. Per the Capital Smart Motors brochure: 31.94 kWh LFP battery, rear permanent-magnet motor with 120 kW and 240 Nm, rear-wheel drive, about 220 km electric and about 1,150 km combined (CLTC) from a 43 L tank; AC Type 2 in about 5.5 hours and DC CCS2 30–80% in 30 minutes (40 kW per PakNEV), 3.3 kW portable charger, camping mode. 0–100 km/h 10.9 s, 170 km/h. 4,600 × 1,860 × 1,680 mm on a 2,715 mm wheelbase, 180 mm ground clearance, 480 L boot, 1,820 kg, 19-inch wheels on 235/55 R19 with a full-size spare. Equipment includes 6 airbags, a 360° camera, adaptive cruise control, AEB, lane keeping, LED matrix headlights, dual HD screens, dual-zone climate control, wireless charging and an electric panoramic sunroof. PKR 9,999,000 (REEV Exclusive). Warranty: vehicle 5 years / 150,000 km, battery 8 years / 160,000 km (PakWheels; PakNEV lists the battery at 8 years / 120,000 km). PakNEV lists this car as front-wheel drive with 204 hp, which are the BEV's figures; the brochure is followed here. Sources: Capital Smart Motors brochure, PakNEV, PakWheels.",
+        "source": "https://cache4.pakwheels.com/system/brochures/1476/original/Forthing_Friday_REEV-Brochure_compressed.pdf",
+        "note": "Added: the row had no notes."
+      }
+    }
+  }
+}
