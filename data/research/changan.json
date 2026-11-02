@@ -1,0 +1,316 @@
+{
+  "deepal-l07": {
+    "corrections": {
+      "variant": {
+        "value": "Standard",
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "Single version sold in Pakistan."
+      },
+      "priceMin": {
+        "value": 13999000,
+        "source": "https://deepal.com.pk/l7",
+        "note": "deepal.com.pk: 'PKR. 13,999,000/- Freight & CVT incl.'"
+      },
+      "priceMax": {
+        "value": 13999000,
+        "source": "https://deepal.com.pk/l7",
+        "note": "Single version."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.40 Cr",
+        "source": "https://deepal.com.pk/l7",
+        "note": "PKR 13,999,000 including freight."
+      },
+      "motorPowerKw": {
+        "value": 190,
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure spec table: Maximum Power 190 kW / 258 PS (was 188)."
+      },
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure: 'Electric driving range: NEDC 540 km'."
+      },
+      "dcCharging": {
+        "value": 87,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "PakNEV: Max DC 87 kW. The 66.8 previously stored was the battery size written as a charging rate."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "Cleared: the 8 h previously stored had no source; PakNEV gives only a 10-80% AC time (7 h 30 min on 7 kW)."
+      },
+      "lengthMm": {
+        "value": 4820,
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure: 4,820 × 1,890 × 1,480 mm."
+      },
+      "widthMm": {
+        "value": 1890,
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure."
+      },
+      "heightMm": {
+        "value": 1480,
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure."
+      },
+      "bootCapacityL": {
+        "value": 473,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "PakNEV: 473 L (the brochure lists a front trunk too, without a volume)."
+      },
+      "realWorldRange": {
+        "value": 390,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "PakNEV real-world estimate 390 km."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "Cleared: one figure."
+      },
+      "consumption": {
+        "value": 12.3,
+        "source": "https://paknev.com/cars/deepal-l07",
+        "note": "PakNEV: 12.3 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "On sale through Master Changan (Deepal Pakistan); delivery in about 3 months. Launch package includes a free 7 kW wall-mounted charger.",
+        "source": "https://deepal.com.pk/l7",
+        "note": "deepal.com.pk 'Exclusive Launch Package: Free 7kW Wall Mounted Charger'."
+      },
+      "warranty": {
+        "value": "Battery 8 years / 240,000 km (Deepal brochure); vehicle 3 years / 100,000 km (PakNEV).",
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Brochure states the battery warranty; PakNEV the vehicle warranty."
+      },
+      "notes": {
+        "value": "Deepal L07, a four-door fastback sedan, per the Deepal Pakistan brochure: rear permanent-magnet motor with 190 kW (258 PS; deepal.com.pk quotes 255 hp) and 320 Nm, rear-wheel drive, 66.8 kWh ternary lithium (NMC) battery, 540 km NEDC. DC fast charging 30–80% in 35 minutes (87 kW peak per PakNEV); AC 7 kW; vehicle-to-load and smart regenerative braking. 0–100 km/h 5.9 s and 180 km/h per PakNEV, which estimates about 390 km in real-world use at 12.3 kWh/100 km. 4,820 × 1,890 × 1,480 mm on a 2,900 mm wheelbase, 150 mm ground clearance, 19-inch alloys on 245/45 R19, 473 L boot plus a front trunk, 1,760 kg, 5 seats. Equipment includes 6 airbags, a 360° camera with transparent chassis, a full ADAS suite (adaptive cruise with stop & go, AEB, lane keeping, blind-spot detection), a 14.6-inch touchscreen, AR head-up display, 14 speakers, a heat-resistant panoramic glass roof and ventilated, powered front seats. PKR 13,999,000 including freight, with a free 7 kW wall charger at launch. Warranty: battery 8 years / 240,000 km; vehicle 3 years / 100,000 km (PakNEV). Sold by Master Changan. Sources: Deepal Pakistan brochure and website, PakNEV.",
+        "source": "https://deepal.com.pk/upload/L7-Brochure.pdf",
+        "note": "Rewritten from the official brochure; the old note said dimensions and the range cycle were unconfirmed."
+      }
+    }
+  },
+  "deepal-s07": {
+    "corrections": {
+      "variant": {
+        "value": "Standard",
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "Single version sold in Pakistan."
+      },
+      "priceMin": {
+        "value": 14999000,
+        "source": "https://deepal.com.pk/s7",
+        "note": "deepal.com.pk: 'PKR. 14,999,000/- Freight & CVT incl.'"
+      },
+      "priceMax": {
+        "value": 14999000,
+        "source": "https://deepal.com.pk/s7",
+        "note": "Single version."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.50 Cr",
+        "source": "https://deepal.com.pk/s7",
+        "note": "PKR 14,999,000 including freight."
+      },
+      "rangeStandard": {
+        "value": "NEDC",
+        "source": "https://deepal.com.pk/upload/s7-Brochure.pdf",
+        "note": "Brochure: 'Electric driving range: NEDC 485 km'."
+      },
+      "batteryTech": {
+        "value": "Ternary lithium (NMC)",
+        "source": "https://deepal.com.pk/upload/s7-Brochure.pdf",
+        "note": "Brochure: Battery Type Ternary Lithium (NMC)."
+      },
+      "dcCharging": {
+        "value": 87,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV: Max DC 87 kW (the 93 kW previously stored had no source)."
+      },
+      "acCharging": {
+        "value": 7,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV: Max AC 7 kW, matching the 7 kW wall charger Deepal supplies."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "Cleared: the 8 h previously stored had no source."
+      },
+      "acceleration": {
+        "value": 6.7,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV: 0–100 km/h 6.7 s (the old note said only 'under 7 seconds')."
+      },
+      "kerbWeightKg": {
+        "value": 1900,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV: 1,900 kg. The 1,760 kg previously stored was borrowed from the L07."
+      },
+      "realWorldRange": {
+        "value": 360,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV real-world estimate 360 km."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "Cleared: one figure."
+      },
+      "consumption": {
+        "value": 13.8,
+        "source": "https://paknev.com/cars/deepal-s07",
+        "note": "PakNEV: 13.8 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "On sale through Master Changan (Deepal Pakistan) since August 2024. Launch package includes a free 7 kW wall-mounted charger.",
+        "source": "https://deepal.com.pk/s7",
+        "note": "deepal.com.pk."
+      },
+      "warranty": {
+        "value": "Battery 8 years / 240,000 km (Deepal brochure).",
+        "source": "https://deepal.com.pk/upload/s7-Brochure.pdf",
+        "note": "Brochure: '8 YEARS/240,000 KM BATTERY WARRANTY'."
+      },
+      "notes": {
+        "value": "Deepal S07, a crossover SUV, per the Deepal Pakistan brochure: rear permanent-magnet motor with 190 kW (258 PS; deepal.com.pk quotes 255 hp) and 320 Nm, rear-wheel drive, 66.8 kWh ternary lithium (NMC) battery, 485 km NEDC. DC fast charging 30–80% in 35 minutes (87 kW peak per PakNEV); AC 7 kW; vehicle-to-load and smart regenerative braking. 0–100 km/h 6.7 s, 180 km/h and 1,900 kg per PakNEV, which estimates about 360 km in real-world use at 13.8 kWh/100 km. 4,750 × 1,930 × 1,625 mm on a 2,900 mm wheelbase, 165 mm ground clearance, 20-inch alloys on 255/45 R20, 445 L boot plus a front trunk, 5 seats. Equipment includes 6 airbags, a 360° camera with transparent chassis, a full ADAS suite with driver fatigue monitoring, a 15.6-inch touchscreen, AR head-up display, 14 speakers, a panoramic glass roof with electric sunshade, ventilated powered front seats and an ion air purifier. PKR 14,999,000 including freight, with a free 7 kW wall charger at launch. Battery warranty 8 years / 240,000 km. Sold by Master Changan. Sources: Deepal Pakistan brochure and website, PakNEV.",
+        "source": "https://deepal.com.pk/upload/s7-Brochure.pdf",
+        "note": "Rewritten from the official brochure; the old note called the battery chemistry and torque unconfirmed."
+      }
+    }
+  },
+  "deepal-e07": {
+    "corrections": {
+      "variant": {
+        "value": "Performance AWD",
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "PakNEV names the single Pakistan version Performance AWD."
+      },
+      "kerbWeightKg": {
+        "value": 2440,
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "PakNEV: 2,440 kg."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "Cleared: 8 h is not possible for 89.98 kWh at 6.6 kW; PakNEV gives 10 h 30 min for 10-80% alone."
+      },
+      "realWorldRange": {
+        "value": 429,
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "PakNEV real-world estimate 429 km."
+      },
+      "consumption": {
+        "value": 17.6,
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "PakNEV: 17.6 kWh/100 km (estimate)."
+      },
+      "warranty": {
+        "value": "Battery 8 years / 240,000 km.",
+        "source": "https://paknev.com/cars/deepal-e07",
+        "note": "PakNEV warranty section; the row said 'not confirmed'."
+      },
+      "notes": {
+        "value": "Deepal E07, the 'transformer' SUV with a convertible rear cargo section, as sold in Pakistan (single dual-motor AWD version), per the Deepal Pakistan brochure: 440 kW / 590 hp and 645 Nm (front asynchronous motor 188 kW / 280 Nm, rear permanent-magnet motor 252 kW / 365 Nm), 0–100 km/h in 3.96 s, 89.98 kWh ternary lithium battery, 590 km NEDC. DC up to 240 kW with 30–80% in 15 minutes; AC 6.6 kW; V2L 6.6 kW. Air suspension with continuous damping control, 5,045 × 1,996 × 1,695 mm on a 3,120 mm wheelbase, 183 mm ground clearance, 600 mm wading depth, 21-inch wheels on 265/45 R21, 524 L boot plus a 131 L front trunk. 210 km/h, 2,440 kg and about 429 km in real-world use per PakNEV. Equipment includes an electric partition glass and opening trunk-glass roof, zero-gravity ventilated front seats, ventilated rear seats, an 18-speaker system, 15.4-inch swivelling touchscreen, AR head-up display, automatic and remote parking, and a full ADAS suite with lane-centring. PKR 19,000,000. Battery warranty 8 years / 240,000 km (PakNEV). Sold by Master Changan. Sources: Deepal Pakistan brochure and website, PakNEV.",
+        "source": "https://deepal.com.pk/upload/e07-brochure.pdf",
+        "note": "Rewritten with weight, warranty and equipment."
+      }
+    }
+  },
+  "deepal-s05-reev": {
+    "corrections": {
+      "variant": {
+        "value": null,
+        "source": "https://deepal.com.pk/s5",
+        "note": "Single grade; the model name already says REEV."
+      },
+      "range": {
+        "value": 1000,
+        "source": "https://deepal.com.pk/upload/s05-brochure.pdf",
+        "note": "Brochure: combined range '1,000+ km' (one charge plus one tank). No test cycle is given, and the row's range standard is empty, so it is not labelled with one."
+      },
+      "acceleration": {
+        "value": 7.5,
+        "source": "https://paknev.com/cars/deepal-s05",
+        "note": "PakNEV: 0–100 km/h 7.5 s (the 7.9 s previously stored had no source)."
+      },
+      "kerbWeightKg": {
+        "value": 1940,
+        "source": "https://paknev.com/cars/deepal-s05",
+        "note": "PakNEV: 1,940 kg."
+      }
+    }
+  },
+  "changan-nevo-hunter": {
+    "corrections": {
+      "variant": {
+        "value": "PLUS 4X4",
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Brochure grade REEV PLUS 4X4; REEV is already in the model name."
+      },
+      "topSpeed": {
+        "value": 180,
+        "source": "https://paknev.com/cars/changan-nevo-hunter",
+        "note": "PakNEV: 180 km/h."
+      },
+      "kerbWeightKg": {
+        "value": 2710,
+        "source": "https://paknev.com/cars/changan-nevo-hunter",
+        "note": "PakNEV: 2,710 kg."
+      },
+      "engineCapacity": {
+        "value": 1998,
+        "source": "https://paknev.com/cars/changan-nevo-hunter",
+        "note": "PakNEV: 1,998 cc (the brochure says 'Range-Extender 2.0 Turbo')."
+      },
+      "notes": {
+        "value": "Changan Nevo Hunter REEV PLUS 4X4, a range-extended double-cab pickup: a 2.0-litre turbo petrol engine (1,998 cc) works only as a generator, and two motors drive all four wheels. Per Master Changan's brochure: 240 kW (322 hp) and 529 Nm combined (front motor 110 kW / 209 Nm, rear 130 kW / 320 Nm), 31.18 kWh LFP battery, 131 km electric range (NEDC) and 900+ km combined with the 70 L tank. AC 6.6 kW, DC 41 kW with 30–80% in 30 minutes, 3.3 kW vehicle-to-load. 5,380 × 1,980 × 1,920 mm on a 3,180 mm wheelbase, 220 mm ground clearance, 18-inch wheels on 265/60 R18, cargo bed 1,590 × 1,580 × 490 mm, 1,010 kg payload, 2,500 kg towing, double-wishbone front and multi-link rear suspension. 0–100 km/h 7.9 s; 180 km/h and 2,710 kg per PakNEV. Equipment includes 6 airbags, a 3D around-view camera with recorder, cruise control, a 12.3-inch touchscreen with wireless CarPlay and Android Auto, ventilated front seats, a 40 W wireless charger and a power-boost mode. PKR 10,990,000; launched 20 August 2026, deliveries from October 2026 (full payment). Sold by Master Changan. Sources: Master Changan brochure and website, ProPakistani, PakNEV.",
+        "source": "https://changan.com.pk/upload/Hunter-REEV-Brochure.pdf",
+        "note": "Rewritten from the official brochure; the old note discussed a 1,875 mm height that has since been corrected."
+      }
+    }
+  },
+  "changan-lumin": {
+    "corrections": {
+      "variant": {
+        "value": "L / L DC",
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV lists two expected versions: L (Standard, PKR 29.99 lakh) and L DC (Long Range with DC charging, PKR 32 lakh)."
+      },
+      "acceleration": {
+        "value": 12,
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV: 0–100 km/h 12 s."
+      },
+      "bootCapacityL": {
+        "value": 104,
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV: 104 L."
+      },
+      "kerbWeightKg": {
+        "value": 925,
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV: 925 kg (L; the L DC is 945 kg)."
+      },
+      "realWorldRange": {
+        "value": 211,
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV real-world estimate 211 km."
+      },
+      "consumption": {
+        "value": 9.3,
+        "source": "https://paknev.com/cars/changan-lumin",
+        "note": "PakNEV: 9.3 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "Not launched yet (November 2026). Shown at the Pakistan Auto Show in 2024; Master Changan's website takes registrations of interest, and no official price has been announced.",
+        "source": "https://changan.com.pk/lumin",
+        "note": "changan.com.pk/lumin is a registration form only; no launch has been announced."
+      }
+    }
+  }
+}
