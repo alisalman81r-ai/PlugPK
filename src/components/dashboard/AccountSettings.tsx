@@ -38,12 +38,14 @@ export interface AccountSettingsProps {
    * first thing on the page until it is changed.
    */
   mustChangePassword?: boolean
+  /** The driver's car row, which links to the garage. Off in the admin portal. */
+  showVehicle?: boolean
 }
 
 const FIELD =
   'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500'
 
-export function AccountSettings({ user, mustChangePassword = false }: AccountSettingsProps) {
+export function AccountSettings({ user, mustChangePassword = false, showVehicle = true }: AccountSettingsProps) {
   const router = useRouter()
   const [mustChange, setMustChange] = React.useState(mustChangePassword)
   const passwordSection = React.useRef<HTMLElement>(null)
@@ -294,6 +296,7 @@ export function AccountSettings({ user, mustChangePassword = false }: AccountSet
 
           {/* Cars are managed on their own page now — several per account,
               one primary — so this only shows the primary and links there. */}
+          {showVehicle ? (
           <div>
             <p className="mb-2 block text-sm font-semibold text-slate-700">Vehicle</p>
             <div className="flex h-12 items-center justify-between gap-3 rounded-xl bg-slate-50 px-4">
@@ -303,6 +306,7 @@ export function AccountSettings({ user, mustChangePassword = false }: AccountSet
               </Link>
             </div>
           </div>
+          ) : null}
         </div>
 
         {/* Read-only: this is the address the account signs in with, and the

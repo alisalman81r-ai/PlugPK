@@ -1,7 +1,7 @@
 // src/components/admin/AdminTopbar.tsx
 'use client'
 
-import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, User } from '@/components/ui/icons'
+import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Settings, User } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -63,7 +63,7 @@ function defaultSection(pathname: string): string {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /** Segments whose page title is not their URL word. */
-const SEGMENT_LABEL: Record<string, string> = { app: 'Mobile app', releases: 'App updates' }
+const SEGMENT_LABEL: Record<string, string> = { app: 'Mobile app', releases: 'App updates', settings: 'Account settings' }
 
 function useCrumbs() {
   const pathname = usePathname()
@@ -328,7 +328,18 @@ export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
               </p>
             </div>
 
-            <form action="/api/admin/signout" method="post">
+            {/* The operator's own account, without leaving the portal. */}
+            <Link
+              href="/admin/settings"
+              role="menuitem"
+              onClick={() => setOpenPanel(null)}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-ui-sm text-slate-700 transition-colors hover:bg-slate-50"
+            >
+              <Settings size={15} aria-hidden="true" className="text-slate-400" />
+              Account settings
+            </Link>
+
+            <form action="/api/admin/signout" method="post" className="border-t border-slate-100">
               <button
                 type="submit"
                 role="menuitem"
