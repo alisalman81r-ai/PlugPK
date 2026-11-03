@@ -1510,10 +1510,10 @@ export const cars: Car[] = [
   {
     id: 'xpeng-g6',
     slug: 'xpeng-g6',
-    brand: 'XPENG',
+    brand: 'XPeng',
     model: 'G6',
     variant: null,
-    fullName: 'XPENG G6',
+    fullName: 'XPeng G6',
     category: 'EV',
     price: { min: crore(1.45), max: crore(1.85), display: 'PKR 1.45–1.85 Cr' },
     batteryCapacity: 68,
@@ -8154,10 +8154,10 @@ export const cars: Car[] = [
   {
     id: 'xpeng-x9',
     slug: 'xpeng-x9',
-    brand: 'XPENG',
+    brand: 'XPeng',
     model: 'X9',
     variant: null,
-    fullName: 'XPENG X9',
+    fullName: 'XPeng X9',
     category: 'EV',
     price: { min: crore(3.15), max: crore(3.15), display: 'PKR 3.15 Cr' },
     // X9 Long Range 2WD Pro+, the headline trim. Other trims are in `notes`.
@@ -8225,10 +8225,10 @@ export const cars: Car[] = [
   {
     id: 'xpeng-l03-reev',
     slug: 'xpeng-l03-reev',
-    brand: 'XPENG',
+    brand: 'XPeng',
     model: 'L03 REEV',
     variant: null,
-    fullName: 'XPENG L03 REEV',
+    fullName: 'XPeng L03 REEV',
     category: 'REEV',
     price: { min: crore(1.15), max: crore(1.15), display: 'PKR 1.15 Cr' },
     // L03 REEV RWD, the headline trim. Other trims are in `notes`.

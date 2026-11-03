@@ -1,0 +1,8 @@
+{
+  "xpeng-g6": {
+    "corrections": {
+      "brand": { "value": "XPeng", "source": "https://www.xpengpakistan.com/", "note": "One spelling for the brand across all three XPeng rows (the G6 was XPENG, the X9 and L03 XPeng), so the brand filter shows one XPeng with every model." },
+      "fullName": { "value": "XPeng G6", "source": "https://www.xpengpakistan.com/", "note": "Matches the unified brand spelling." }
+    }
+  }
+}
