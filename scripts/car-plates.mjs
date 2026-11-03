@@ -14,6 +14,11 @@
 //   node scripts/car-plates.mjs scripts/car-plate-corners.json /tmp/orig/public/images/cars public/images/cars
 // then copy the same files into data/catalogue-images and bump
 // CAR_PHOTO_EDITION in src/lib/db/car-queries.ts.
+//
+// The .webp photos are the admin uploads of 51 cars (some on transparent
+// backgrounds, some not 811x608), plated from their upload originals with the
+// corners in scripts/car-plate-corners-uploads.json and pointed at by
+// data/research/plugpk-plates-uploads.json. A .webp output keeps its alpha.
 import sharp from 'sharp'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -100,7 +105,8 @@ export async function apply(srcFile, outFile, quad) {
     data[o + 1] = data[o + 1] * (1 - cov) + (g / (N * N)) * shade
     data[o + 2] = data[o + 2] * (1 - cov) + (bl / (N * N)) * shade
   }
-  await sharp(data, { raw: info }).jpeg({ quality: 90, mozjpeg: true }).toFile(outFile)
+  const out = sharp(data, { raw: info })
+  await (outFile.endsWith('.webp') ? out.webp({ quality: 90, alphaQuality: 100 }) : out.jpeg({ quality: 90, mozjpeg: true })).toFile(outFile)
 }
 
 if (process.argv[1]?.endsWith('car-plates.mjs')) {
