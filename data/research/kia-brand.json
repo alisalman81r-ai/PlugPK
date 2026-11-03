@@ -1,0 +1,14 @@
+{
+  "kia-ev5": {
+    "corrections": {
+      "brand": { "value": "Kia", "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/", "note": "One spelling for the brand across all five Kia rows (the EV5 and EV9 were 'KIA', the rest 'Kia'), so the brand filter shows one Kia with every model." },
+      "fullName": { "value": "Kia EV5", "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/", "note": "Matches the unified brand spelling." }
+    }
+  },
+  "kia-ev9-gt-line": {
+    "corrections": {
+      "brand": { "value": "Kia", "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/", "note": "One spelling for the brand across all five Kia rows." },
+      "fullName": { "value": "Kia EV9 GT-Line", "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/", "note": "Matches the unified brand spelling." }
+    }
+  }
+}

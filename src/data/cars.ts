@@ -1873,10 +1873,10 @@ export const cars: Car[] = [
   {
     id: 'kia-ev5',
     slug: 'kia-ev5',
-    brand: 'KIA',
+    brand: 'Kia',
     model: 'EV5',
     variant: null,
-    fullName: 'KIA EV5',
+    fullName: 'Kia EV5',
     category: 'EV',
     price: { min: crore(1.85), max: crore(2.35), display: 'PKR 1.85–2.35 Cr' },
     /*
@@ -2089,10 +2089,10 @@ export const cars: Car[] = [
     */
     id: 'kia-ev9-gt-line',
     slug: 'kia-ev9-gt-line',
-    brand: 'KIA',
+    brand: 'Kia',
     model: 'EV9',
     variant: 'GT-Line',
-    fullName: 'KIA EV9',
+    fullName: 'Kia EV9',
     category: 'EV',
     price: { min: crore(4.32), max: crore(4.32), display: 'PKR 4.32 Cr' },
     batteryCapacity: 99.8,
@@ -6750,10 +6750,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sorento-phev',
     slug: 'kia-sorento-phev',
-    brand: 'KIA',
+    brand: 'Kia',
     model: 'Sorento PHEV',
     variant: null,
-    fullName: 'KIA Sorento PHEV',
+    fullName: 'Kia Sorento PHEV',
     category: 'PHEV',
     price: { min: crore(1.8999), max: crore(1.8999), display: 'PKR 1.9 Cr' },
     // Sorento 1.6T AWD PHEV, the headline trim. Other trims are in `notes`.
@@ -6822,10 +6822,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sorento-hev',
     slug: 'kia-sorento-hev',
-    brand: 'KIA',
+    brand: 'Kia',
     model: 'Sorento HEV',
     variant: null,
-    fullName: 'KIA Sorento Hybrid (HEV)',
+    fullName: 'Kia Sorento Hybrid (HEV)',
     category: 'Hybrid',
     price: { min: crore(1.6299), max: crore(1.7899), display: 'PKR 1.63–1.79 Cr' },
     // Sorento 1.6T HEV FWD, the headline trim. Other trims are in `notes`.
@@ -6888,10 +6888,10 @@ export const cars: Car[] = [
   {
     id: 'kia-sportage-l-hybrid',
     slug: 'kia-sportage-l-hybrid',
-    brand: 'KIA',
+    brand: 'Kia',
     model: 'Sportage L Hybrid',
     variant: null,
-    fullName: 'KIA Sportage L Hybrid (HEV)',
+    fullName: 'Kia Sportage L Hybrid (HEV)',
     category: 'Hybrid',
     price: { min: crore(1.2199), max: crore(1.3299), display: 'PKR 1.22–1.33 Cr' },
     // Sportage L 1.6T FWD HEV (facelift), the headline trim. Other trims are in `notes`.
