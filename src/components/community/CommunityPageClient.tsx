@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { HelpCircle } from '@/components/ui/icons'
 import { Faq, Hl, SectionHead, WRAP } from '@/components/v2/ui'
@@ -69,6 +69,30 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
     window.history.replaceState(null, '', `${window.location.pathname}${rest ? `?${rest}` : ''}`)
   }, [])
 
+  /* .cm-toast: one line at the foot of the screen, gone after 3.2s. */
+  const [toast, setToast] = useState<{ text: string; on: boolean }>({ text: '', on: false })
+  const toastTimer = useRef<number>()
+  const showToast = useCallback((text: string) => {
+    setToast({ text, on: true })
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast((current) => ({ ...current, on: false })), 3200)
+  }, [])
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+  // A like the board could not keep (signed out, or refused) is said there too.
+  useEffect(() => {
+    if (likeMessage) showToast(likeMessage)
+  }, [likeMessage, showToast])
+
+  /*
+    The design reveals each FAQ question as it scrolls in ([data-reveal] on
+    every <details>). The shared Faq does not emit it, so it is added here,
+    before MotionProvider's effect wires the page's reveals.
+  */
+  const faqRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    faqRef.current?.querySelectorAll('details').forEach((d) => d.setAttribute('data-reveal', ''))
+  }, [])
+
   return (
     <>
       <div className="bg-chalk">
@@ -108,14 +132,6 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
             )}
           >
             <div className="min-w-0">
-              {likeMessage ? (
-                <p
-                  role="status"
-                  className="mb-4 rounded-2xl border border-[#FFE0A3] bg-[#FFF6E3] px-4 py-3 text-sm text-[#8A5300]"
-                >
-                  {likeMessage}
-                </p>
-              ) : null}
               <PostFeed
                 posts={posts}
                 isLoading={isLoading}
@@ -133,10 +149,11 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
                 onLoadMore={loadMore}
                 remaining={Math.max(0, resultCount - posts.length)}
                 error={loadError}
+                onToast={showToast}
               />
             </div>
             <aside aria-label="About the board" className="lg:sticky lg:top-[104px]">
-              <CommunitySidebar clubs={clubs.slice(0, 4)} topPosts={topPosts} stats={stats} />
+              <CommunitySidebar clubs={clubs} topPosts={topPosts} stats={stats} />
             </aside>
           </div>
         </section>
@@ -162,10 +179,24 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
               </span>
             }
           />
-          <Faq items={COMMUNITY_FAQS.map((item) => ({ q: item.question, a: item.answer }))} />
+          <div ref={faqRef}>
+            <Faq items={COMMUNITY_FAQS.map((item) => ({ q: item.question, a: item.answer }))} />
+          </div>
         </div>
       </section>
       <CreatePostForm isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+
+      <div
+        role="status"
+        aria-live="polite"
+        className={cn(
+          'pointer-events-none fixed bottom-6 left-1/2 z-[60] max-w-[calc(100%-32px)] rounded-2xl bg-ink px-[18px] py-3 text-sm text-white shadow-e2',
+          '[transition:opacity_.3s,translate_.45s_cubic-bezier(.16,1,.3,1)]',
+          toast.on ? 'opacity-100 [translate:-50%_0]' : 'opacity-0 [translate:-50%_20px]',
+        )}
+      >
+        {toast.text}
+      </div>
     </>
   )
 }

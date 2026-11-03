@@ -5,9 +5,11 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { MovingBar, TweenNumber, useIsoLayoutEffect } from '@/components/tools/motion'
 import { useMyCar } from '@/hooks/useMyCar'
 import { AlertCircle, ArrowUpRight, Check, ChevronDown, Gauge, Info, Link2 } from '@/components/ui/icons'
 import { FLABEL, Lift, SEG, Section, Wrap, btnClass, segButtonClass } from '@/components/v2/ui'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { MIN_RANGE_KM, convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
 
@@ -37,6 +39,11 @@ import type { RangeCar } from './types'
  * The figure, standard and car live in the address too (?km=510&std=CLTC),
  * so "what does this listing actually mean" can be sent to someone as a link
  * and opens showing the same answer.
+ *
+ * Motion (landing-v2 page-range-converter.js): the four rows slide in from
+ * the right as the sheet lifts in, and their lanes grow from the left; after
+ * that every figure rolls to its new value (0.8s) and every band and marker
+ * glides to its new place on the scale (0.9s), all on expo.out.
  */
 
 
@@ -126,6 +133,8 @@ export function RangeConverter({ cars }: RangeConverterProps) {
   }, [hydrated, slug, kmText, standard])
 
   const [copied, setCopied] = React.useState<'idle' | 'done' | 'failed'>('idle')
+  const copyRef = React.useRef<HTMLButtonElement>(null)
+  const copyTimer = React.useRef<number>()
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
@@ -133,8 +142,25 @@ export function RangeConverter({ cars }: RangeConverterProps) {
     } catch {
       setCopied('failed')
     }
-    window.setTimeout(() => setCopied('idle'), 2500)
+    // the button answers with a small spring, and settles back after 2.2s
+    if (copyRef.current && !prefersReduced()) {
+      gsap.fromTo(copyRef.current, { scale: 0.94 }, { scale: 1, duration: 0.5, ease: 'back.out(3)' })
+    }
+    window.clearTimeout(copyTimer.current)
+    copyTimer.current = window.setTimeout(() => setCopied('idle'), 2200)
   }
+  React.useEffect(() => () => window.clearTimeout(copyTimer.current), [])
+
+  /* entrances: rows from the right, then their lanes grow from the left */
+  const outRef = React.useRef<HTMLElement>(null)
+  useIsoLayoutEffect(() => {
+    if (!outRef.current || prefersReduced()) return
+    const ctx = gsap.context(() => {
+      gsap.from('[data-rc-row]', { x: 24, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.07, delay: 0.75 })
+      gsap.from('[data-rc-lane] > i', { scaleX: 0, transformOrigin: '0 50%', duration: 1.1, ease: 'expo.out', stagger: 0.05, delay: 0.95 })
+    }, outRef)
+    return () => ctx.revert()
+  }, [])
 
   const pickerCars: PickerCar[] = React.useMemo(
     () =>
@@ -301,7 +327,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                     type="button"
                     onClick={() => nudge(10)}
                     aria-label="Add 10 km"
-                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink transition-[background-color,transform] duration-300 ease-spring hover:bg-volt active:scale-90 sm:h-[34px]"
+                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink [transition:background-color_.2s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] hover:bg-volt active:scale-[.92] sm:h-[34px]"
                   >
                     <ChevronDown size={18} className="rotate-180" aria-hidden="true" />
                   </button>
@@ -309,7 +335,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                     type="button"
                     onClick={() => nudge(-10)}
                     aria-label="Subtract 10 km"
-                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink transition-[background-color,transform] duration-300 ease-spring hover:bg-volt active:scale-90 sm:h-[34px]"
+                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink [transition:background-color_.2s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] hover:bg-volt active:scale-[.92] sm:h-[34px]"
                   >
                     <ChevronDown size={18} aria-hidden="true" />
                   </button>
@@ -323,6 +349,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
 
           {/* ── The answer ───────────────────────────────────────────── */}
           <section
+            ref={outRef}
             aria-live="polite"
             aria-label="Your range on each standard"
             data-theme="dark"
@@ -357,8 +384,9 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                     return (
                       <li
                         key={row.standard}
+                        data-rc-row=""
                         className={cn(
-                          'relative -mx-2.5 grid grid-cols-1 gap-x-5 gap-y-2.5 rounded-[18px] border px-2.5 pb-3.5 pt-4 transition-colors duration-300 sm:-mx-4 sm:grid-cols-[132px_minmax(0,1fr)] sm:gap-y-3.5 sm:px-4 sm:pb-4 sm:pt-[18px]',
+                          'relative -mx-2.5 grid grid-cols-1 gap-x-5 gap-y-2.5 rounded-[18px] border px-2.5 pb-3.5 pt-4 [transition:background-color_.35s,border-color_.35s] sm:-mx-4 sm:grid-cols-[132px_minmax(0,1fr)] sm:gap-y-3.5 sm:px-4 sm:pb-4 sm:pt-[18px]',
                           row.quoted ? 'border-volt/30 bg-volt/[0.06]' : 'border-transparent',
                           i > 0 &&
                             !row.quoted &&
@@ -374,7 +402,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                             )}
                           >
                             {row.quoted ? null : <span className="mr-0.5 font-normal text-fog">≈</span>}
-                            {row.typical.toLocaleString('en-PK')}
+                            <TweenNumber value={row.typical} />
                           </b>
                           <span
                             className={cn(
@@ -382,7 +410,13 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                               row.quoted ? 'text-volt/85' : 'text-fog',
                             )}
                           >
-                            {row.quoted ? 'km · entered' : `${row.low}–${row.high} km`}
+                            {row.quoted ? (
+                              'km · entered'
+                            ) : (
+                              <>
+                                <TweenNumber value={row.low} format={String} />–<TweenNumber value={row.high} format={String} /> km
+                              </>
+                            )}
                           </span>
                         </div>
                         <div className="min-w-0">
@@ -396,20 +430,22 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                         {/* Where this standard sits on the shared km scale. */}
                         <div
                           aria-hidden="true"
+                          data-rc-lane=""
                           className="relative col-span-full h-3.5 rounded-[7px] bg-white/[0.03] bg-[repeating-linear-gradient(90deg,rgba(255,255,255,.07)_0_1px,transparent_1px_10%)]"
                         >
-                          <i
-                            className={cn('absolute bottom-[3px] top-[3px] rounded transition-[left,width] duration-700 ease-out', r.band)}
-                            style={{ left: `${at(row.low)}%`, width: `${Math.max(0, at(row.high) - at(row.low))}%` }}
+                          <MovingBar
+                            className={cn('absolute bottom-[3px] left-0 top-[3px] w-0 rounded', r.band)}
+                            left={at(row.low)}
+                            width={Math.max(0, at(row.high) - at(row.low))}
                           />
-                          <i
+                          <MovingBar
                             className={cn(
-                              'absolute top-1/2 -ml-0.5 -mt-[11px] h-[22px] w-1 rounded-sm transition-[left] duration-700 ease-out',
+                              'absolute left-0 top-1/2 -ml-0.5 -mt-[11px] h-[22px] w-1 rounded-sm',
                               row.quoted
                                 ? 'bg-volt shadow-[0_0_0_3px_#0B0C0E,0_0_14px_rgba(212,255,58,.9)]'
                                 : 'bg-white shadow-[0_0_0_3px_#0B0C0E]',
                             )}
-                            style={{ left: `${at(row.typical)}%` }}
+                            left={at(row.typical)}
                           />
                         </div>
                       </li>
@@ -424,6 +460,7 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                     Estimates, not exact conversions — the small range under each figure is the likely spread.
                   </p>
                   <button
+                    ref={copyRef}
                     type="button"
                     onClick={copyLink}
                     className={btnClass(

@@ -7,7 +7,16 @@ import { BusinessSignUpForm } from '@/components/business/BusinessSignUpForm'
 import { getListingFee, getPaymentAccounts } from '@/lib/db/listing-fee'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 import { formatPkr } from '@/lib/listing-application'
-import { SHELL_BAR_LINK, SHELL_LEAD, SHELL_TITLE, ShellChip, StandaloneShell } from '@/components/auth/StandaloneShell'
+import {
+  SHELL_ACTIONS_RISE,
+  SHELL_BACK_ICON,
+  SHELL_BAR_LINK,
+  SHELL_LEAD,
+  SHELL_TITLE,
+  ShellChip,
+  StandaloneShell,
+  shellCardRise,
+} from '@/components/auth/StandaloneShell'
 import { BtnArrow, Hl, btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 
@@ -70,7 +79,7 @@ function barLink(signedIn: boolean) {
     </Link>
   ) : (
     <Link href="/" className={SHELL_BAR_LINK}>
-      <ArrowLeft size={16} aria-hidden="true" />
+      <ArrowLeft size={16} aria-hidden="true" className={SHELL_BACK_ICON} />
       Back to home
     </Link>
   )
@@ -108,7 +117,8 @@ export default async function BusinessSignUpPage() {
               <li
                 key={item.title}
                 className={cn(
-                  'relative rounded-[28px] border p-7 transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2',
+                  'relative rounded-[28px] border p-7 transition-[translate,box-shadow] duration-[450ms] ease-out hover:shadow-e2 hover:[translate:0_-4px]',
+                  shellCardRise(i),
                   ink ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink shadow-e1',
                 )}
               >
@@ -123,7 +133,7 @@ export default async function BusinessSignUpPage() {
           })}
         </ul>
 
-        <div className="mt-11 flex flex-col justify-center gap-3.5 sm:flex-row">
+        <div className={cn('mt-11 flex flex-col justify-center gap-3.5 sm:flex-row', SHELL_ACTIONS_RISE)}>
           <Link href={`/signup?redirect=${RETURN}`} className={btnClass('ink', 'lg')}>
             Create a free account
             <BtnArrow />

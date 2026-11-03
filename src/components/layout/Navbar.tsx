@@ -167,7 +167,7 @@ export function Navbar() {
     const update = () => {
       frame = 0
       const y = window.scrollY
-      setIsScrolled(y > 20)
+      setIsScrolled(y > 60)
       const under = document.elementsFromPoint(window.innerWidth / 2, 46).find((el) => !el.closest('header'))
       setIsLight(under?.closest('[data-theme]')?.getAttribute('data-theme') === 'light')
       const max = document.documentElement.scrollHeight - window.innerHeight
@@ -199,6 +199,20 @@ export function Navbar() {
     setPill({ left: item.offsetLeft, width: item.offsetWidth })
   }
 
+  /* When the pointer is elsewhere the pill rests on the current page's link
+     (pages.js movePill(current)), re-seated after the bar changes width. */
+  const restPill = React.useCallback(() => {
+    const box = linksRef.current
+    const current = box?.querySelector<HTMLElement>('[aria-current="page"]')
+    const item = (current?.closest('[data-nav-item]') as HTMLElement | null) ?? current ?? null
+    setPill(item ? { left: item.offsetLeft, width: item.offsetWidth } : null)
+  }, [])
+  React.useEffect(() => {
+    restPill()
+    window.addEventListener('resize', restPill)
+    return () => window.removeEventListener('resize', restPill)
+  }, [pathname, isScrolled, restPill])
+
   const light = isLight && !isMobileMenuOpen
 
   return (
@@ -223,7 +237,7 @@ export function Navbar() {
           <div
             ref={linksRef}
             onPointerOver={onLinksPointerOver}
-            onPointerLeave={() => setPill(null)}
+            onPointerLeave={restPill}
             className={cn(
               'relative flex items-center gap-0.5 rounded-full border p-1 transition-colors duration-500',
               light ? 'border-ink/[0.06] bg-ink/[0.035]' : 'border-white/[0.06] bg-white/[0.04]',
@@ -272,6 +286,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
+              data-magnetic=""
               className="inline-flex h-[42px] items-center gap-2.5 rounded-full bg-volt px-[18px] text-sm font-semibold text-ink shadow-volt transition-colors duration-300 hover:bg-white"
             >
               <UserCircle size={18} aria-hidden="true" />

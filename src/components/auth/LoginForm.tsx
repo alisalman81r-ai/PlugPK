@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import { authHref } from './auth-links'
@@ -38,16 +37,21 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
   const [fieldError, setFieldError] = React.useState<string | null>(null)
   const [attempts, setAttempts] = React.useState(0)
   const [unverified, setUnverified] = React.useState<{ sent: boolean; notice?: string } | null>(null)
+  const emailField = React.useRef<HTMLInputElement>(null)
+  const passwordField = React.useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
     if (!EMAIL_PATTERN.test(email.trim())) {
       setFieldError('Enter a valid email address.')
+      // page-auth.js: a refused submit puts the cursor in the first bad field.
+      emailField.current?.focus()
       return
     }
     if (password.length === 0) {
       setFieldError('Enter your password.')
+      passwordField.current?.focus()
       return
     }
 
@@ -122,6 +126,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         <div className="relative">
           <Mail size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
+            ref={emailField}
             id="login-email"
             type="email"
             value={email}
@@ -141,6 +146,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         <div className="relative">
           <Lock size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
+            ref={passwordField}
             id="login-password"
             type={showPassword ? 'text' : 'password'}
             value={password}
@@ -157,7 +163,7 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             aria-pressed={showPassword}
             className={FIELD_EYE}
           >
-            <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={20} />
+            {showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
           </button>
         </div>
         <FieldError message={fieldError ?? undefined} />

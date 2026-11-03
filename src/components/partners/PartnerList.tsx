@@ -7,6 +7,7 @@ import * as React from 'react'
 
 import { Btn, BtnArrow, SEG, Tag, btnClass, segButtonClass } from '@/components/v2/ui'
 import type { PartnerRow } from '@/lib/db/queries'
+import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 /**
@@ -19,6 +20,11 @@ import { cn } from '@/lib/utils'
  * The records are the same ones the map draws, so every card leads to a real
  * station page; an "invitation" tile closes the grid rather than padding it out
  * with invented logos.
+ *
+ * Motion is page-partner.js's: the cards (and the invitation) rise in
+ * together the first time the grid is 90% down the viewport; after that, every
+ * filter, sort or search (160ms after the last keystroke) re-lays them and they
+ * rise in again, or the empty state does.
  */
 
 export interface PartnerListProps {
@@ -34,6 +40,8 @@ const TYPE_LABEL: Record<string, string> = {
   'service-center': 'Service centre',
   home: 'Home charger',
 }
+
+const useIsoLayoutEffect = typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect
 
 type SortKey = 'newest' | 'power' | 'rating'
 
@@ -51,7 +59,15 @@ export function PartnerList({ partners }: PartnerListProps) {
   const [city, setCity] = React.useState('all')
   const [type, setType] = React.useState('all')
   const [sortBy, setSortBy] = React.useState<SortKey>('newest')
+  // The search applies 160ms after the last keystroke, as the design debounces it.
+  const [term, setTerm] = React.useState('')
   const searchRef = React.useRef<HTMLInputElement>(null)
+  const resultsRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setTerm(query), 160)
+    return () => window.clearTimeout(t)
+  }, [query])
 
   // Only the cities and types actually represented. A dropdown offering
   // filters that return nothing is worse than a shorter dropdown.
@@ -62,7 +78,7 @@ export function PartnerList({ partners }: PartnerListProps) {
   const types = React.useMemo(() => [...new Set(partners.map((partner) => partner.type))], [partners])
 
   const visible = React.useMemo(() => {
-    const needle = query.trim().toLowerCase()
+    const needle = term.trim().toLowerCase()
 
     let rows = partners
     if (needle) {
@@ -84,10 +100,11 @@ export function PartnerList({ partners }: PartnerListProps) {
       }
       return b.joinedAt.localeCompare(a.joinedAt)
     })
-  }, [partners, query, city, type, sortBy])
+  }, [partners, term, city, type, sortBy])
 
   const reset = () => {
     setQuery('')
+    setTerm('')
     setCity('all')
     setType('all')
     searchRef.current?.focus()
@@ -95,9 +112,54 @@ export function PartnerList({ partners }: PartnerListProps) {
 
   const total = partners.length
 
+  /* First sight: the cards wait below, then rise in together (1s, expo.out, 0.07s apart). */
+  const ctxRef = React.useRef<gsap.Context | null>(null)
+  useIsoLayoutEffect(() => {
+    const root = resultsRef.current
+    if (!root) return
+    const ctx = gsap.context(() => {}, root)
+    ctxRef.current = ctx
+    if (!prefersReduced()) {
+      ctx.add(() => {
+        gsap.set(root.querySelectorAll('[data-dir-grid] > li'), { y: 32, autoAlpha: 0 })
+        ScrollTrigger.create({
+          trigger: root,
+          start: 'top 90%',
+          once: true,
+          onEnter: () =>
+            ctx.add(() => {
+              const cards = root.querySelectorAll('[data-dir-grid] > li')
+              gsap.to(cards, { y: 0, autoAlpha: 1, duration: 1, ease: 'expo.out', stagger: 0.07 })
+            }),
+        })
+      })
+    }
+    return () => {
+      ctx.revert()
+      ctxRef.current = null
+    }
+  }, [])
+
+  /* Every re-render of the results after that: they rise in again (0.7s, expo.out, 0.06s apart). */
+  const shown = React.useRef(visible)
+  useIsoLayoutEffect(() => {
+    if (shown.current === visible) return
+    shown.current = visible
+    const root = resultsRef.current
+    const ctx = ctxRef.current
+    if (root && ctx && !prefersReduced()) {
+      ctx.add(() => {
+        const grid = root.querySelector('[data-dir-grid]')
+        const els = grid ? grid.children : root.querySelectorAll('[data-dir-empty]')
+        gsap.fromTo(els, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'expo.out', stagger: 0.06 })
+      })
+    }
+    ScrollTrigger.refresh()
+  }, [visible])
+
   return (
     <div>
-      <div className="mb-[18px] flex flex-wrap items-center gap-2.5">
+      <div data-reveal="" className="mb-[18px] flex flex-wrap items-center gap-2.5">
         <label className="relative min-w-0 flex-[1_1_320px]">
           <span className="sr-only">Search partners</span>
           <Search
@@ -159,55 +221,63 @@ export function PartnerList({ partners }: PartnerListProps) {
         <b className="font-mono font-semibold text-ink">{visible.length}</b> of {total} listing{total === 1 ? '' : 's'} shown
       </p>
 
-      {visible.length === 0 ? (
-        <div className="grid justify-items-center gap-2 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper px-6 py-14 text-center">
-          <span aria-hidden="true" className="mb-1.5 grid h-14 w-14 place-items-center rounded-full bg-stone text-ink">
-            <Search size={22} />
-          </span>
-          <h3 className="font-display text-[26px] font-normal leading-[1.1] text-ink pg-medium">No places match that search</h3>
-          <p className="max-w-[30rem] text-muted">
-            There {total === 1 ? 'is 1 listing' : `are ${total} listings`} so far. Clear the filters to see{' '}
-            {total === 1 ? 'it' : 'them'}, or list your own charger.
-          </p>
-          <div className="mt-3 flex flex-wrap justify-center gap-2.5">
-            <Btn variant="ink" size="sm" onClick={reset}>
-              Clear filters
-            </Btn>
-            <Btn href="/business/signup" variant="ghost" size="sm">
-              List your charger
-            </Btn>
-          </div>
-        </div>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {visible.map((partner) => (
-            <li key={partner.id}>
-              <PartnerCard partner={partner} />
-            </li>
-          ))}
-
-          {/* The invitation beside real listings. */}
-          <li>
-            <Link
-              href="/business/signup"
-              className="group grid h-full content-center justify-items-start gap-2.5 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] p-7 transition-[border-color,translate] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink focus-visible:outline-none focus-visible:shadow-focus"
-            >
-              <span aria-hidden="true" className="mb-2 grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
-                <Plug size={24} />
-              </span>
-              <h3 className="font-display text-2xl font-normal leading-[1.1] text-ink pg-medium">Your charger here</h3>
-              <p className="text-[14.5px] leading-[1.55] text-muted">
-                Applying takes a few minutes and costs nothing. Every listing is checked by a person before it goes
-                live.
-              </p>
-              <span className={btnClass('ink', 'sm', 'mt-2')}>
+      <div ref={resultsRef}>
+        {visible.length === 0 ? (
+          <div data-dir-empty="" className="grid justify-items-center gap-2 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper px-6 py-14 text-center">
+            <span aria-hidden="true" className="mb-1.5 grid h-14 w-14 place-items-center rounded-full bg-stone text-ink">
+              <Search size={22} />
+            </span>
+            <h3 className="font-display text-[26px] font-normal leading-[1.1] text-ink pg-medium">No places match that search</h3>
+            <p className="max-w-[30rem] text-muted">
+              There {total === 1 ? 'is 1 listing' : `are ${total} listings`} so far. Clear the filters to see{' '}
+              {total === 1 ? 'it' : 'them'}, or list your own charger.
+            </p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2.5">
+              <Btn variant="ink" size="sm" onClick={reset} magnetic={false}>
+                Clear filters
+              </Btn>
+              <Btn
+                href="/business/signup"
+                variant="ghost"
+                size="sm"
+                magnetic={false}
+                className="border-ink/20 bg-transparent hover:border-ink hover:bg-volt"
+              >
                 List your charger
-                <BtnArrow />
-              </span>
-            </Link>
-          </li>
-        </ul>
-      )}
+              </Btn>
+            </div>
+          </div>
+        ) : (
+          <ul data-dir-grid="" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {visible.map((partner) => (
+              <li key={partner.id}>
+                <PartnerCard partner={partner} />
+              </li>
+            ))}
+
+            {/* The invitation beside real listings. */}
+            <li>
+              <Link
+                href="/business/signup"
+                className="group grid h-full content-center justify-items-start gap-2.5 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] p-7 [transition:border-color_.3s,translate_.45s_cubic-bezier(.16,1,.3,1)] hover:border-ink hover:[translate:0_-4px] focus-visible:outline-none focus-visible:shadow-focus"
+              >
+                <span aria-hidden="true" className="mb-2 grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
+                  <Plug size={24} />
+                </span>
+                <h3 className="font-display text-2xl font-normal leading-[1.1] text-ink pg-medium">Your charger here</h3>
+                <p className="text-[14.5px] leading-[1.55] text-muted">
+                  Applying takes a few minutes and costs nothing. Every listing is checked by a person before it goes
+                  live.
+                </p>
+                <span className={btnClass('ink', 'sm', 'mt-2')}>
+                  List your charger
+                  <BtnArrow />
+                </span>
+              </Link>
+            </li>
+          </ul>
+        )}
+      </div>
     </div>
   )
 }
@@ -218,7 +288,7 @@ function PartnerCard({ partner }: { partner: PartnerRow }) {
   return (
     <Link
       href={`/station/${partner.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1 transition-[translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus"
+      className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1 [transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:border-ink/20 hover:shadow-e2 hover:[translate:0_-4px] focus-visible:outline-none focus-visible:shadow-focus"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-stone">
         {/* A plain img rather than next/image — user uploads of unknown
@@ -229,7 +299,7 @@ function PartnerCard({ partner }: { partner: PartnerRow }) {
             src={partner.photo}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover transition-[scale] duration-[800ms] ease-out group-hover:scale-105"
+            className="h-full w-full object-cover [transition:scale_.8s_cubic-bezier(.16,1,.3,1)] group-hover:[scale:1.05]"
           />
         ) : (
           // No photo: a plain stone panel, not a stock image standing in for

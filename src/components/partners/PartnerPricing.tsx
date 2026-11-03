@@ -1,7 +1,7 @@
 // src/components/partners/PartnerPricing.tsx
 import { Check, ShieldCheck } from '@/components/ui/icons'
 
-import { Reveal, RevealGroup, RevealItem } from '@/components/v2/Reveal'
+import { CountUp, Reveal, RevealGroup, RevealItem } from '@/components/v2/Reveal'
 import { Btn, BtnArrow, Hl, Section, SectionHead, WRAP } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 
@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils'
 interface Plan {
   name: string
   /** Mono figure; absent for "Let's talk". */
-  amount?: string
+  amount?: number
   cadence?: string
   talk?: string
   tagline: string
@@ -40,7 +40,7 @@ interface Plan {
 const PLANS: Plan[] = [
   {
     name: 'Standard',
-    amount: '4,999',
+    amount: 4999,
     cadence: 'per month',
     tagline: 'Everything you need to be found.',
     features: [
@@ -89,7 +89,7 @@ export function PartnerPricing() {
               <article
                 data-theme={plan.featured ? 'dark' : undefined}
                 className={cn(
-                  'relative isolate flex h-full flex-col rounded-[26px] px-[22px] pb-6 pt-[34px] transition-[translate,box-shadow] duration-500 ease-out hover:-translate-y-1.5 sm:rounded-[32px] sm:px-9 sm:pb-[34px] sm:pt-[38px]',
+                  'relative isolate flex h-full flex-col rounded-[26px] px-[22px] pb-6 pt-[34px] [transition:translate_.5s_cubic-bezier(.16,1,.3,1),box-shadow_.5s_cubic-bezier(.16,1,.3,1)] hover:[translate:0_-6px] sm:rounded-[32px] sm:px-9 sm:pb-[34px] sm:pt-[38px]',
                   plan.featured ? FEATURED : 'border border-ink/10 bg-white text-ink shadow-e1 hover:shadow-e2',
                 )}
               >
@@ -118,7 +118,7 @@ export function PartnerPricing() {
                     <>
                       <b className="inline-flex items-baseline gap-2.5 whitespace-nowrap font-mono text-[clamp(44px,5vw,60px)] font-semibold leading-none tracking-[-0.03em] tabular-nums">
                         <small className="mt-[0.25em] self-start text-[0.36em] tracking-[0.06em] opacity-70">PKR</small>
-                        {plan.amount}
+                        <CountUp value={plan.amount} />
                       </b>
                       <span
                         className={cn(
@@ -154,7 +154,7 @@ export function PartnerPricing() {
                   ))}
                 </ul>
 
-                <Btn href={plan.cta.href} variant={plan.featured ? 'volt' : 'ink'} size="lg" className="w-full">
+                <Btn href={plan.cta.href} variant={plan.featured ? 'volt' : 'ink'} size="lg" className="w-full" magnetic={false}>
                   {plan.cta.label}
                   <BtnArrow />
                 </Btn>

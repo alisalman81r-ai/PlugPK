@@ -9,6 +9,7 @@ import * as React from 'react'
 import { Tag } from '@/components/v2/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
 import type { CommunityPost, PostCategory } from '@/lib/types'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn, formatRelativeTime } from '@/lib/utils'
 
 import { CATEGORY_AVATAR, CATEGORY_TAG } from './category-tone'
@@ -19,6 +20,8 @@ export interface PostCardProps {
   isLiked?: boolean
   likeCount?: number
   onLike?: (postId: string) => void
+  /** A short message for the page's toast (share copied, or could not). */
+  onToast?: (message: string) => void
   animationDelay?: number
   className?: string
 }
@@ -68,7 +71,7 @@ export function CategoryTag({ category, className }: { category: PostCategory; c
 
 /** The like / comments / share cluster (.post__acts). Each target is 44px. */
 const ACT =
-  'relative inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2 text-[13px] text-muted transition-colors duration-200 sm:px-2.5 [&_svg]:h-[19px] [&_svg]:w-[19px]'
+  'relative inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2 text-[13px] text-muted transition-colors duration-[250ms] sm:px-2.5 [&_svg]:h-[19px] [&_svg]:w-[19px]'
 
 export function PostCard({
   post,
@@ -76,6 +79,7 @@ export function PostCard({
   isLiked = false,
   likeCount,
   onLike,
+  onToast,
   animationDelay,
   className,
 }: PostCardProps) {
@@ -88,21 +92,34 @@ export function PostCard({
   const photoCount = post.photos?.length ?? 0
   const [copied, setCopied] = React.useState(false)
 
-  const handleLike = (event: React.MouseEvent) => {
+  const handleLike = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     event.stopPropagation()
+    // page-community.js: a heart that fills pops from a third of its size.
+    const heart = event.currentTarget.querySelector('svg')
+    if (!isLiked && heart && !prefersReduced()) {
+      gsap.fromTo(heart, { scale: 0.3 }, { scale: 1, duration: 0.6, ease: 'back.out(3)' })
+    }
     onLike?.(post.id)
   }
 
   const handleShare = async (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
+    const url = `${window.location.origin}${href}`
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}${href}`)
+      // The share sheet on a touch device, the clipboard everywhere else.
+      if (typeof navigator.share === 'function' && window.matchMedia('(pointer: coarse)').matches) {
+        await navigator.share({ title: post.title, url })
+        return
+      }
+      await navigator.clipboard.writeText(url)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Clipboard can be blocked; nothing else to fall back to.
+      onToast?.('Link to this post copied.')
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return
+      onToast?.("Couldn't copy automatically. Open the post and copy the link from the address bar.")
     }
   }
 
@@ -113,7 +130,7 @@ export function PostCard({
         href={href}
         style={style}
         className={cn(
-          'group/rel flex items-start gap-3 rounded-[14px] px-1.5 py-3 transition-colors duration-200 hover:bg-chalk',
+          'group/rel flex items-start gap-3 rounded-[14px] px-1.5 py-3 transition-colors duration-[250ms] hover:bg-chalk',
           className,
         )}
       >
@@ -204,7 +221,7 @@ export function PostCard({
       style={style}
       className={cn(
         'group/post grid rounded-[22px] border border-ink/10 bg-white px-4 pb-2.5 pt-[18px] shadow-e1 sm:rounded-[26px] sm:px-[26px] sm:pb-[18px] sm:pt-6',
-        'transition-[transform,translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-[3px] hover:border-ink/[0.16] hover:shadow-e2',
+        '[transition:transform_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:-translate-y-[3px] hover:border-ink/[0.16] hover:shadow-e2',
         'focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none motion-reduce:hover:translate-y-0',
         featured && 'gap-4 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6 sm:pl-[18px] xl:grid-cols-[220px_minmax(0,1fr)]',
         className,

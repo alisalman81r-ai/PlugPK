@@ -13,7 +13,12 @@ import { CATEGORY_ICON } from './ServiceCategoryTabs'
 export interface ServiceCardProps {
   service: EVService
   variant?: 'default' | 'horizontal'
-  animationDelay?: number
+  /**
+   * Filtered out of the directory. The card stays in the DOM, hidden, as
+   * page-services.js keeps it: that is what lets Flip fade it out where it
+   * stood and bring it back from there.
+   */
+  hidden?: boolean
   className?: string
 }
 
@@ -47,22 +52,25 @@ const NO_REVIEWS = 'No reviews yet'
 export function ServiceCard({
   service,
   variant = 'default',
-  animationDelay,
+  hidden = false,
   className,
 }: ServiceCardProps) {
   const meta = SERVICE_CATEGORY_META[service.category]
   const Icon = CATEGORY_ICON[meta.icon] ?? Package
   const detailHref = `/services/${service.category}/${service.slug}`
-  const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
   const location = [service.address.area, service.address.city].filter((part) => part && part.trim()).join(', ')
   const list = variant === 'horizontal'
 
   return (
     <article
-      style={style}
+      hidden={hidden}
+      data-svc=""
+      data-flip-id={service.id}
       className={cn(
-        'group relative flex overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1',
-        'transition-[translate,box-shadow,border-color] duration-500 ease-out hover:-translate-y-1.5 hover:border-ink/20 hover:shadow-e2 focus-within:-translate-y-1.5 focus-within:shadow-e2 motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+        'group relative flex overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1 [&[hidden]]:hidden',
+        // .svc: the CSS `translate` property, not transform, so the lift on
+        // hover never fights the transforms GSAP sets while the cards move.
+        '[transition:translate_.5s_cubic-bezier(.16,1,.3,1),box-shadow_.5s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:border-ink/20 hover:shadow-e2 hover:[translate:0_-6px] focus-within:border-ink/20 focus-within:shadow-e2 focus-within:[translate:0_-6px] motion-reduce:transition-none',
         list ? 'flex-row rounded-[22px] sm:rounded-[28px]' : 'flex-col',
         className,
       )}
@@ -79,7 +87,7 @@ export function ServiceCard({
             src={service.coverPhoto}
             alt={`${service.name} — ${meta.label}`}
             sizes={list ? '(max-width: 640px) 116px, 300px' : '(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 420px'}
-            imageClassName="transition-transform duration-[900ms] ease-out group-hover:scale-[1.07] motion-reduce:transition-none"
+            imageClassName="[transition:scale_.9s_cubic-bezier(.16,1,.3,1)] group-hover:[scale:1.07] motion-reduce:transition-none"
           />
         ) : (
           // The category's own mark, so a service without a photograph still
@@ -189,7 +197,7 @@ export function ServiceCard({
             aria-label={`Contact ${service.name}, call ${service.phone}`}
             // z-[3] lifts it above the heading's stretched anchor; without
             // this the card link would swallow every tap on the phone number.
-            className="relative z-[3] inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-ink/10 pl-3.5 pr-[18px] text-sm font-semibold text-ink transition-[background-color,border-color,color,transform] duration-300 hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:shadow-focus active:scale-[0.97] max-sm:text-[13px]"
+            className="relative z-[3] inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border-[1.5px] border-ink/10 pl-3.5 pr-[18px] text-sm font-semibold text-ink [transition:background-color_.25s,border-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:shadow-focus active:scale-[0.97] max-sm:text-[13px]"
           >
             <Phone size={17} aria-hidden="true" />
             Contact
@@ -200,10 +208,10 @@ export function ServiceCard({
               from screen readers to avoid announcing a duplicate. */}
           <span
             aria-hidden="true"
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap pl-3 pr-1.5 text-sm font-semibold text-ink transition-colors duration-200 group-hover:text-volt-ink max-sm:text-[13px]"
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap pl-3 pr-1.5 text-sm font-semibold text-ink transition-colors duration-[250ms] group-hover:text-volt-ink max-sm:text-[13px]"
           >
             Details
-            <ArrowRight size={17} className="shrink-0 transition-transform duration-300 ease-spring group-hover:translate-x-1" />
+            <ArrowRight size={17} className="shrink-0 [transition:translate_.35s_cubic-bezier(.34,1.56,.64,1)] group-hover:[translate:4px_0]" />
           </span>
         </div>
       </div>

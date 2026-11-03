@@ -1,7 +1,11 @@
 // src/components/calculator/ChargerComparison.tsx
 'use client'
 
+import * as React from 'react'
+
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { estimateCharge, formatDuration, formatKw, formatRupees, type ChargeMode } from '@/lib/charging-time'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 import type { CalculatorCar } from './types'
@@ -21,6 +25,10 @@ import type { CalculatorCar } from './types'
  *
  * Bars are proportional to time against the slowest row, so a two-hour gap
  * looks like one. The fastest DC rows get a sliver rather than nothing.
+ *
+ * The bars grow out with GSAP (landing-v2 renderCompare): when the list first
+ * appears each grows from nothing over 1.1s, 0.06s after the one above; after
+ * that they move to new lengths over 0.6s, all on expo.out.
  */
 
 const OPTIONS: { mode: ChargeMode; kw: number; label: string }[] = [
@@ -69,6 +77,25 @@ export function ChargerComparison({
 
   const slowest = Math.max(...rows.map((r) => (r.result.ok ? r.result.minutes : 0)))
   const ready = slowest > 0
+  const shares = rows.map((r) => (r.result.ok ? Math.max(3, (r.result.minutes / slowest) * 100) : null))
+  const sharesKey = shares.join('|')
+
+  const listRef = React.useRef<HTMLUListElement>(null)
+  const wasShown = React.useRef(false)
+  useIsoLayoutEffect(() => {
+    const list = listRef.current
+    if (!list) {
+      wasShown.current = false
+      return
+    }
+    const isNew = !wasShown.current
+    wasShown.current = true
+    list.querySelectorAll<HTMLElement>('[data-cbar]').forEach((bar, i) => {
+      const w = `${bar.dataset.cbar}%`
+      if (prefersReduced()) bar.style.width = w
+      else gsap.to(bar, { width: w, duration: isNew ? 1.1 : 0.6, delay: isNew ? i * 0.06 : 0, ease: 'expo.out' })
+    })
+  }, [sharesKey])
 
   return (
     <section aria-labelledby="compare-heading" className="min-w-0">
@@ -82,13 +109,13 @@ export function ChargerComparison({
       </div>
 
       {ready ? (
-        <ul className="grid gap-1.5">
-          {rows.map((row) => {
+        <ul ref={listRef} className="grid gap-1.5">
+          {rows.map((row, idx) => {
             if (!row.result.ok) return null
             const r = row.result
             const on = selectedMode === row.mode && selectedKw === row.kw
             const capped = r.limitedBy === 'car'
-            const share = Math.max(3, (r.minutes / slowest) * 100)
+            const share = shares[idx]
 
             return (
               <li key={`${row.mode}-${row.kw}`}>
@@ -119,11 +146,11 @@ export function ChargerComparison({
                     className={cn('relative h-3 overflow-hidden rounded-full', on ? 'bg-white/[0.12]' : 'bg-stone')}
                   >
                     <span
+                      data-cbar={share ?? 0}
                       className={cn(
-                        'absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none',
+                        'absolute inset-y-0 left-0 w-0 rounded-full',
                         on ? 'bg-volt shadow-[0_0_10px_rgba(212,255,58,.6)]' : 'bg-ink',
                       )}
-                      style={{ width: `${share}%` }}
                     />
                   </span>
 

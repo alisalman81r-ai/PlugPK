@@ -29,6 +29,8 @@ export function ListYourServiceBand({ category, className }: { category?: string
       className={cn('pb-[clamp(56px,6vw,88px)] pt-[clamp(24px,3vw,40px)]', className)}
     >
       <div className={WRAP}>
+        {/* .sv-cta carries data-reveal: the band rises in as it scrolls into view. */}
+        <div data-reveal="">
         <CtaBand className="grid items-end gap-x-14 gap-y-10 max-sm:px-[22px] max-sm:py-8 xl:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <p className="mb-[18px] inline-flex items-center gap-2.5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-volt">
@@ -63,6 +65,7 @@ export function ListYourServiceBand({ category, className }: { category?: string
             </small>
           </div>
         </CtaBand>
+        </div>
       </div>
     </section>
   )

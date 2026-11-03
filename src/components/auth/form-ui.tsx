@@ -94,7 +94,7 @@ export const ActionButton = React.forwardRef<HTMLButtonElement, ActionButtonProp
 /** The arrow that nudges right when its button is hovered. */
 export function ArrowEnd() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="transition-transform duration-300 ease-spring group-hover/btn:translate-x-1">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="transition-transform duration-[350ms] ease-spring group-hover/btn:translate-x-1">
       <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )

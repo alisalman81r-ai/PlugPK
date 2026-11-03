@@ -55,7 +55,7 @@ export function CarFilters({ filters, onChange, brands, brandCounts, connectors,
             <button
               type="button"
               onClick={onClearAll}
-              className="min-h-11 px-1 text-sm font-medium text-muted underline underline-offset-[3px] transition-colors hover:text-ink"
+              className="min-h-11 px-1 text-sm font-medium text-muted underline underline-offset-[3px] hover:text-ink"
             >
               Clear all filters
             </button>

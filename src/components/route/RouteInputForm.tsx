@@ -9,6 +9,7 @@ import { btnClass, Eyebrow, INPUT } from '@/components/v2/ui'
 import { useListKeyboard } from '@/hooks/useListKeyboard'
 import { useMyCar } from '@/hooks/useMyCar'
 import { PAKISTAN_CITIES } from '@/lib/constants'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import type { RouteVehicle } from '@/lib/route-plan'
 import { cn } from '@/lib/utils'
 import { BatterySlider } from './BatterySlider'
@@ -37,6 +38,9 @@ const LBL =
 
 const DOT_A = 'bg-[#35D07F] shadow-[0_0_0_3px_rgba(53,208,127,.2)]'
 const DOT_B = 'bg-ember shadow-[0_0_0_3px_rgba(255,90,31,.18)]'
+
+/** The EV picker's trigger: a tapped popular route focuses and flashes it. */
+export const VEHICLE_TRIGGER_ID = 'route-ev'
 
 interface CityFieldProps {
   id: string
@@ -72,6 +76,15 @@ function CityField({ id, label, dotClass, placeholder, value, onChange }: CityFi
 
   const showSuggestions = isFocused && suggestions.length > 0 && !suggestions.includes(value)
   const isKnown = PAKISTAN_CITIES.includes(value)
+
+  // The list drops in each time it opens (page-routes.js combo open():
+  // y -6 → 0 and fades up, .35s expo.out) — on opening only, not as it filters.
+  const listRef = React.useRef<HTMLDivElement>(null)
+  React.useLayoutEffect(() => {
+    if (!showSuggestions || !listRef.current || prefersReduced()) return
+    const tween = gsap.fromTo(listRef.current, { y: -6, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.35, ease: 'expo.out' })
+    return () => void tween.kill()
+  }, [showSuggestions])
 
   const pick = (city: string) => {
     onChange(city)
@@ -145,6 +158,7 @@ function CityField({ id, label, dotClass, placeholder, value, onChange }: CityFi
 
         {showSuggestions ? (
           <div
+            ref={listRef}
             id={keys.listId}
             role="listbox"
             aria-label="Cities"
@@ -162,7 +176,7 @@ function CityField({ id, label, dotClass, placeholder, value, onChange }: CityFi
                 // does not close before the pick lands.
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => pick(city)}
-                className="flex min-h-[46px] w-full items-center gap-3 rounded-xl px-3 text-left text-[15px] text-ink transition-colors duration-150 hover:bg-chalk data-[active]:bg-chalk"
+                className="flex min-h-[46px] w-full items-center gap-3 rounded-xl px-3 text-left text-[15px] text-ink hover:bg-chalk data-[active]:bg-chalk"
               >
                 <MapPin size={17} className="shrink-0 text-fog" aria-hidden="true" />
                 <span>{marked(city)}</span>
@@ -210,7 +224,8 @@ export function RouteInputForm({
   if (attempted && !selectedVehicle) hints.push('Select your EV')
 
   return (
-    <div className="mx-auto w-full max-w-[880px] rounded-[26px] border border-ink/10 bg-white px-4 pb-6 pt-[22px] shadow-e2 sm:rounded-[32px] sm:p-[clamp(24px,4vw,44px)]">
+    // data-reveal: the card rises in on scroll, as form.planner does.
+    <div data-reveal="" className="mx-auto w-full max-w-[880px] rounded-[26px] border border-ink/10 bg-white px-4 pb-6 pt-[22px] shadow-e2 sm:rounded-[32px] sm:p-[clamp(24px,4vw,44px)]">
       <Eyebrow className="mb-3">
         <Route size={15} aria-hidden="true" />
         Or plan your own
@@ -246,10 +261,12 @@ export function RouteInputForm({
           }}
           aria-label="Swap origin and destination"
           className={cn(
-            'absolute right-2 top-1/2 z-[4] grid h-11 w-11 -translate-y-0.5 place-items-center rounded-[14px] border-[1.5px] border-ink/10 bg-white text-ink shadow-e1 sm:right-3',
-            'transition-[background-color,border-color,color,rotate] duration-500 ease-spring hover:border-ink hover:bg-ink hover:text-volt',
+            // .rt-swap: the translate and rotate properties, so the half turn
+            // (.is-spun) eases on its own spring without the offset moving.
+            'absolute right-2 top-1/2 z-[4] grid h-11 w-11 place-items-center rounded-[14px] border-[1.5px] border-ink/10 bg-white text-ink shadow-e1 [translate:0_-2px] sm:right-3',
+            '[transition:background-color_.25s,border-color_.25s,rotate_.5s_cubic-bezier(.34,1.56,.64,1)] hover:border-ink hover:bg-ink hover:text-volt',
             'focus-visible:outline-none focus-visible:shadow-focus',
-            swapSpin && 'rotate-180',
+            swapSpin && '[rotate:180deg]',
           )}
         >
           <ArrowUpDown size={20} aria-hidden="true" />
@@ -271,7 +288,12 @@ export function RouteInputForm({
             <Car aria-hidden="true" />
             Your EV
           </span>
-          <VehicleSelector vehicles={vehicles} selectedVehicle={selectedVehicle} onSelect={onVehicleSelect} />
+          <VehicleSelector
+            triggerId={VEHICLE_TRIGGER_ID}
+            vehicles={vehicles}
+            selectedVehicle={selectedVehicle}
+            onSelect={onVehicleSelect}
+          />
           {myCar && vehicles.some((v) => v.id === myCar.slug) ? (
             <div className="mt-1">
               <MyCarHint

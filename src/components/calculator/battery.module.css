@@ -1,73 +1,73 @@
 /*
-  The battery control's moving parts (landing-v2 .batt): the two range inputs'
-  handles, and the volt fill's slow waves. Local to the calculator, so the
-  global .soc-range styles stay untouched for anything else that uses them.
+  The battery control (landing-v2 css/page-charging-calculator.css, .batt),
+  ported rule for rule. The fill widths and the two handles read --now and
+  --to, which SocBattery writes straight onto .batt — so the script can
+  breathe the battery in on load and drag it without a React render per frame.
 
-  The battery sets --bh, its outer height. Each input spans the shell's inner
-  width plus one handle (so a handle's centre lands exactly on the fill's
-  edge) and its height plus 12px over and under, so the handles stand proud.
+  The battery sets --bh (its outer height) from the component's breakpoints.
 */
 
-.range {
-  position: absolute;
-  top: -12px;
-  left: calc(var(--pad) - 15px);
-  width: calc(100% - var(--pad) * 2 + 30px);
-  height: calc(100% + 24px);
-  margin: 0;
-  background: transparent;
-  pointer-events: none;
-  -webkit-appearance: none;
-  appearance: none;
+.batt {
+  --now: 20;
+  --to: 80;
+  --pad: 7px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
-.range:focus { outline: none; }
-.range::-webkit-slider-runnable-track { height: calc(var(--bh) + 18px); background: transparent; border: 0; }
-.range::-moz-range-track { height: calc(var(--bh) + 18px); background: transparent; border: 0; }
 
-.range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  pointer-events: auto;
-  width: 30px;
-  height: calc(var(--bh) + 18px);
-  border-radius: 12px;
-  border: 2.5px solid #0B0C0E;
-  background:
-    linear-gradient(#0B0C0E, #0B0C0E) calc(50% - 3.5px) 50% / 2.5px 30px no-repeat,
-    linear-gradient(#0B0C0E, #0B0C0E) calc(50% + 3.5px) 50% / 2.5px 30px no-repeat,
-    #fff;
-  box-shadow: 0 10px 24px -8px rgba(11, 12, 14, 0.55);
-  cursor: grab;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+.shell {
+  position: relative;
+  flex: 1;
+  height: var(--bh);
+  border-radius: 28px;
+  border: 3px solid #0B0C0E;
+  background: #E6E3DA;
+  cursor: pointer;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6), 0 18px 40px -24px rgba(11, 12, 14, 0.5);
 }
-.range::-moz-range-thumb {
-  pointer-events: auto;
-  box-sizing: border-box;
-  width: 30px;
-  height: calc(var(--bh) + 18px);
-  border-radius: 12px;
-  border: 2.5px solid #0B0C0E;
-  background:
-    linear-gradient(#0B0C0E, #0B0C0E) calc(50% - 3.5px) 50% / 2.5px 30px no-repeat,
-    linear-gradient(#0B0C0E, #0B0C0E) calc(50% + 3.5px) 50% / 2.5px 30px no-repeat,
-    #fff;
-  box-shadow: 0 10px 24px -8px rgba(11, 12, 14, 0.55);
-  cursor: grab;
+
+.inner {
+  position: absolute;
+  inset: var(--pad);
+  overflow: hidden;
+  border-radius: 20px;
+  background: radial-gradient(rgba(11, 12, 14, 0.08) 1px, transparent 1.5px) 0 0 / 14px 14px;
 }
-.range::-webkit-slider-thumb:hover { transform: scale(1.06); }
-.range:active::-webkit-slider-thumb {
-  cursor: grabbing;
-  transform: scale(1.1);
-  box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.55), 0 14px 30px -8px rgba(11, 12, 14, 0.6);
+
+.cells {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(11, 12, 14, 0.07) calc(10% - 1px) 10%);
 }
-.range:active::-moz-range-thumb {
-  cursor: grabbing;
-  box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.55), 0 14px 30px -8px rgba(11, 12, 14, 0.6);
+
+.have {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--now) * 1%);
+  background: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(255, 255, 255, 0.05) 10px 11px), linear-gradient(180deg, #2C3037, #1C1F24);
 }
-.range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.75), 0 10px 24px -8px rgba(11, 12, 14, 0.55); }
-.range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.75), 0 10px 24px -8px rgba(11, 12, 14, 0.55); }
+.low .have { background: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(255, 255, 255, 0.08) 10px 11px), linear-gradient(180deg, #FF7A45, #FF5A1F); }
+.mid .have { background: repeating-linear-gradient(-45deg, transparent 0 10px, rgba(255, 255, 255, 0.12) 10px 11px), linear-gradient(180deg, #FFC24D, #FFB020); }
+
+.add {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--now) * 1%);
+  width: calc((var(--to) - var(--now)) * 1%);
+  background: radial-gradient(120% 90% at 20% 10%, #F3FFC2, #D4FF3A 55%, #B9E61F);
+}
 
 /* The volt fill: two slow waves and a rippling leading edge. */
+.waves { position: absolute; inset: 0; overflow: hidden; }
 .wave {
   position: absolute;
   left: 0;
@@ -75,20 +75,74 @@
   width: 300%;
   min-width: 480px;
   height: 100%;
-  animation: wave 6s linear infinite;
+  animation: batt-wave 6s linear infinite;
 }
+.waveA path { fill: rgba(255, 255, 255, 0.28); }
 .waveB { animation-duration: 9s; animation-direction: reverse; }
-@keyframes wave { to { translate: -50% 0; } }
+.waveB path { fill: rgba(169, 216, 26, 0.45); }
+@keyframes batt-wave { to { translate: -50% 0; } }
 
-.edge {
-  display: block;
-  width: 12px;
-  height: 200%;
-  animation: edge 2.4s linear infinite;
+.edge { position: absolute; top: 0; bottom: 0; right: -11px; width: 12px; overflow: hidden; }
+.edge svg { display: block; width: 12px; height: 200%; animation: batt-edge 2.4s linear infinite; }
+.edge path { fill: #C6F02A; }
+@keyframes batt-edge { to { translate: 0 -50%; } }
+
+.bolt {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #0B0C0E;
+  color: #D4FF3A;
+  box-shadow: 0 6px 18px -6px rgba(11, 12, 14, 0.6);
+  transition: opacity 0.3s, scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-@keyframes edge { to { translate: 0 -50%; } }
+.narrow .bolt { opacity: 0; scale: 0.5; }
+
+.nub { flex: none; width: 12px; height: 42px; margin-left: 4px; border-radius: 0 8px 8px 0; background: #0B0C0E; }
+
+/* The handles: ARIA sliders, dragged through the shell's pointer events. */
+.h {
+  position: absolute;
+  z-index: 2;
+  top: -12px;
+  bottom: -12px;
+  left: calc(var(--pad) + (100% - var(--pad) * 2) * var(--p) / 100);
+  width: 30px;
+  margin-left: -15px;
+  border-radius: 12px;
+  background: #fff;
+  border: 2.5px solid #0B0C0E;
+  box-shadow: 0 10px 24px -8px rgba(11, 12, 14, 0.55);
+  cursor: grab;
+  display: grid;
+  place-items: center;
+  transition: scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+  outline-offset: 4px;
+}
+.hNow { --p: var(--now); }
+.hTo { --p: var(--to); }
+.h::before { content: ""; position: absolute; inset: -6px -10px; }
+.h i, .h i::before, .h i::after { display: block; width: 2.5px; height: 30px; border-radius: 2px; background: #0B0C0E; }
+.h i { position: relative; background: transparent; }
+.h i::before, .h i::after { content: ""; position: absolute; top: 0; }
+.h i::before { left: -3.5px; }
+.h i::after { left: 3.5px; }
+.h:hover { scale: 1.06; }
+.h.drag { cursor: grabbing; scale: 1.1; box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.55), 0 14px 30px -8px rgba(11, 12, 14, 0.6); }
+.h:focus-visible { outline: 2px solid #0B0C0E; box-shadow: 0 0 0 6px rgba(212, 255, 58, 0.7); }
+
+@media (max-width: 640px) {
+  .shell { border-radius: 22px; }
+  .inner { border-radius: 15px; }
+  .bolt { width: 32px; height: 32px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .wave, .edge { animation: none; }
-  .range::-webkit-slider-thumb { transition: none; }
+  .wave, .edge svg { animation: none; }
 }

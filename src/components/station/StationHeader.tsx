@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 
 import { CONNECTOR_LABEL } from '@/components/map/filter-options'
+import { CountUp } from '@/components/v2/Reveal'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { cn, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
@@ -29,13 +30,27 @@ export function StationHeader({ station }: StationHeaderProps) {
   const example = isSampleListing(station.id)
   const where = [station.address.area, station.address.city].filter(Boolean).join(', ')
 
+  // The figures count up as the strip arrives, like the map hero's (.pstats [data-count]).
   const stats: { value: ReactNode; label: string }[] = []
-  if (maxPower > 0) stats.push({ value: <>{maxPower}<small className="ml-1 text-[0.55em] text-white/50">kW</small></>, label: 'max power' })
-  if (ports > 0) stats.push({ value: ports, label: ports === 1 ? 'port installed' : 'ports installed' })
-  if (types.length > 0) stats.push({ value: types.length, label: types.length === 1 ? 'connector type' : 'connector types' })
+  if (maxPower > 0) {
+    stats.push({
+      value: (
+        <>
+          <CountUp value={maxPower} decimals={Number.isInteger(maxPower) ? 0 : 1} />
+          <small className="ml-1 text-[0.55em] text-white/50">kW</small>
+        </>
+      ),
+      label: 'max power',
+    })
+  }
+  if (ports > 0) stats.push({ value: <CountUp value={ports} />, label: ports === 1 ? 'port installed' : 'ports installed' })
+  if (types.length > 0) stats.push({ value: <CountUp value={types.length} />, label: types.length === 1 ? 'connector type' : 'connector types' })
   stats.push(
     station.reviewCount > 0
-      ? { value: formatRating(station.rating), label: `${station.reviewCount} ${station.reviewCount === 1 ? 'review' : 'reviews'}` }
+      ? {
+          value: <CountUp value={Number(formatRating(station.rating))} decimals={1} />,
+          label: `${station.reviewCount} ${station.reviewCount === 1 ? 'review' : 'reviews'}`,
+        }
       : { value: '—', label: 'no reviews yet' },
   )
 
@@ -54,7 +69,9 @@ export function StationHeader({ station }: StationHeaderProps) {
       />
 
       <div className="mx-auto grid w-[min(1080px,calc(100%-2*clamp(16px,4vw,64px)))] justify-items-center">
-        <nav aria-label="Breadcrumb" className="mb-7 flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-sm">
+        {/* The landing-v2 hero entrance (MotionProvider): the title's
+            characters rise, the rest follow in order, then the listing lifts. */}
+        <nav data-hero-item="" aria-label="Breadcrumb" className="mb-7 flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-1.5 pl-2 pr-4 text-sm">
           <Link
             href="/map"
             className="group/back inline-flex h-8 items-center gap-1 rounded-full bg-white/[0.08] px-3 font-medium text-white transition-colors duration-200 hover:bg-volt hover:text-ink"
@@ -66,14 +83,14 @@ export function StationHeader({ station }: StationHeaderProps) {
           <span aria-current="page" className="truncate text-white/55">{station.name}</span>
         </nav>
 
-        <p className="mb-[18px] inline-flex items-center gap-2.5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-volt">
+        <p data-hero-item="" className="mb-[18px] inline-flex items-center gap-2.5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-volt">
           <Zap size={14} className="fill-current" aria-hidden="true" />
           EV charging{station.address.city ? ` · ${station.address.city}` : ''}
         </p>
 
-        <h1 className="m-0 text-balance font-display text-[clamp(38px,5vw,76px)] leading-none">{station.name}</h1>
+        <h1 data-hero-title="" className="m-0 text-balance font-display text-[clamp(38px,5vw,76px)] leading-none">{station.name}</h1>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[15px] text-white/70">
+        <div data-hero-item="" className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[15px] text-white/70">
           {station.reviewCount > 0 ? (
             <span className="inline-flex items-center gap-1.5">
               <Star size={15} className="fill-[#F5A524] text-[#F5A524]" aria-hidden="true" />
@@ -94,7 +111,7 @@ export function StationHeader({ station }: StationHeaderProps) {
           {station.network ? <span className="text-white/55">{station.network}</span> : null}
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <div data-hero-item="" className="mt-5 flex flex-wrap items-center justify-center gap-2">
           {example ? (
             <span className="inline-flex h-[26px] items-center gap-[5px] rounded-full border border-[#FFE0A3] bg-[#FFF6E3] px-2.5 text-xs font-semibold text-[#8A5300]">
               <Info size={13} aria-hidden="true" />
@@ -117,7 +134,7 @@ export function StationHeader({ station }: StationHeaderProps) {
           ) : null}
         </div>
 
-        <dl className="mt-9 grid w-full grid-cols-2 rounded-[22px] border border-white/[0.09] bg-white/[0.03] sm:flex sm:w-auto sm:justify-center">
+        <dl data-hero-item="" className="mt-9 grid w-full grid-cols-2 rounded-[22px] border border-white/[0.09] bg-white/[0.03] sm:flex sm:w-auto sm:justify-center">
           {stats.map((item, index) => (
             <div
               key={item.label}

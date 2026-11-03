@@ -4,7 +4,9 @@
 import { ChevronLeft, ChevronRight, Images, X, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { cn } from '@/lib/utils'
 import { reportBusinessPhoto } from '@/lib/db/actions'
 
@@ -89,10 +91,14 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
 
     document.addEventListener('keydown', handleKey)
     document.body.style.overflow = 'hidden'
+    // The page's smooth scroll holds still too, or the wheel scrolls it from
+    // under the lightbox.
+    getLenis()?.stop()
 
     return () => {
       document.removeEventListener('keydown', handleKey)
       document.body.style.overflow = ''
+      getLenis()?.start()
     }
   }, [isLightboxOpen, goPrev, goNext])
 
@@ -192,7 +198,10 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
 
       {reportMessage ? <p role="status" className="px-2 pb-1 pt-3 text-sm text-muted">{reportMessage}</p> : null}
 
-      {isLightboxOpen && currentPhoto ? (
+      {/* Portalled to <body>: the listing it opens from rises in on a GSAP
+          transform, and a transformed ancestor would trap a fixed overlay
+          inside its own box. */}
+      {isLightboxOpen && currentPhoto ? createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -267,7 +276,8 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
               </button>
             ))}
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   )

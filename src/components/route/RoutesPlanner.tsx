@@ -9,12 +9,14 @@ import { MorphIcon } from '@/components/ui'
 import { PopularRoutes } from '@/components/route/PopularRoutes'
 import { RouteHero } from '@/components/route/RouteHero'
 import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
-import { RouteInputForm } from '@/components/route/RouteInputForm'
+import { RouteInputForm, VEHICLE_TRIGGER_ID } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
+import { getLenis } from '@/components/motion/MotionProvider'
 import { Btn, Faq, Hl, PageHero, SectionHead, WRAP } from '@/components/v2/ui'
 import { useMyCar } from '@/hooks/useMyCar'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { saveMyRoute } from '@/lib/db/route-actions'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { ROUTES_FAQS } from '@/lib/faqs'
 import type { PopularRoute } from '@/lib/route-distances'
 import { vehicleName, withArticle, type RouteVehicle } from '@/lib/route-plan'
@@ -74,7 +76,7 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
     return () => abort.abort()
   }, [])
   const [saveError, setSaveError] = React.useState<string | null>(null)
-  const [copied, setCopied] = React.useState(false)
+  const [copied, setCopied] = React.useState<'done' | 'failed' | null>(null)
   /** This page with the plan in its query, for the sign-in link's way back. */
   const [returnTo, setReturnTo] = React.useState('/routes')
 
@@ -168,16 +170,21 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
       setSaveError(result?.message ?? 'Could not save this route. Try again.')
     }
   }, [planner])
-  const formRef = React.useRef<HTMLDivElement>(null)
+  const planRef = React.useRef<HTMLElement>(null)
 
+  /** The copy button's label for 2.4s after a press, as page-routes.js does. */
+  const copiedTimer = React.useRef<number>()
+  React.useEffect(() => () => window.clearTimeout(copiedTimer.current), [])
   const handleShare = React.useCallback(async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setCopied('done')
     } catch {
-      // Clipboard permission denied — nothing further to fall back to.
+      // Clipboard permission denied: point at the address bar instead.
+      setCopied('failed')
     }
+    window.clearTimeout(copiedTimer.current)
+    copiedTimer.current = window.setTimeout(() => setCopied(null), 2400)
   }, [])
 
   /**
@@ -190,20 +197,57 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
   )
 
   /**
-   * A tapped route fills the form in and takes the reader to it.
-   *
-   * Aligned to the top rather than the centre, with scroll-mt clearing the
-   * fixed navbar: centring a form this tall on a laptop puts its first field
-   * under the header, so the one thing the tap just filled in is the one thing
-   * you cannot see.
+   * A tapped route fills the form in and takes the reader to it
+   * (page-routes.js, popular routes → planner): Lenis glides to the planner
+   * section, 80px clear of the navbar, over 1.1s. With a car already picked
+   * the plan runs 0.7s later; without one, at 0.9s the EV picker takes focus
+   * and flashes a volt ring four times so the next step is obvious.
    */
+  const popularTimer = React.useRef<number>()
+  React.useEffect(() => () => window.clearTimeout(popularTimer.current), [])
   const applyPopularRoute = React.useCallback(
     (route: PopularRoute) => {
       setOrigin(route.from)
       setDestination(route.to)
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const reduce = prefersReduced()
+      const section = planRef.current
+      const lenis = getLenis()
+      if (section) {
+        if (lenis) lenis.scrollTo(section, { offset: -80, duration: 1.1 })
+        else section.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+      }
+      window.clearTimeout(popularTimer.current)
+      if (selectedVehicle) {
+        popularTimer.current = window.setTimeout(() => setAutoRun(true), reduce ? 0 : 700)
+        return
+      }
+      popularTimer.current = window.setTimeout(
+        () => {
+          const trigger = document.getElementById(VEHICLE_TRIGGER_ID)
+          if (!trigger) return
+          trigger.focus({ preventScroll: true })
+          if (!reduce) {
+            gsap.fromTo(
+              trigger,
+              { boxShadow: '0 0 0 0 rgba(212,255,58,0)' },
+              {
+                boxShadow: '0 0 0 8px rgba(212,255,58,.75)',
+                duration: 0.35,
+                yoyo: true,
+                repeat: 3,
+                ease: 'power2.inOut',
+                clearProps: 'boxShadow',
+                // A yoyo ends on its start value, where GSAP skips clearProps;
+                // clear it here so the picker's own focus halo comes back.
+                onComplete: () => void gsap.set(trigger, { clearProps: 'boxShadow' }),
+              },
+            )
+          }
+        },
+        reduce ? 0 : 900,
+      )
     },
-    [setOrigin, setDestination],
+    [setOrigin, setDestination, selectedVehicle],
   )
 
   const showResults = planner.hasCalculated && planner.plannedRoute !== null
@@ -216,6 +260,7 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
   */
   const saveControl = viewer ? (
     <Btn
+      magnetic={false}
       onClick={() => void handleSave()}
       variant={planner.isSaved ? 'ink' : 'volt'}
       size="sm"
@@ -226,7 +271,7 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
       {planner.isSaved ? 'Saved' : 'Save route'}
     </Btn>
   ) : viewer === null ? (
-    <Btn href={`/login?redirect=${encodeURIComponent(returnTo)}`} variant="volt" size="sm">
+    <Btn href={`/login?redirect=${encodeURIComponent(returnTo)}`} variant="volt" size="sm" magnetic={false}>
       <Bookmark aria-hidden="true" />
       Sign in to save this route
     </Btn>
@@ -250,7 +295,7 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
               </>
             }
             actions={
-              <Btn onClick={planner.resetRoute} variant="ghostDark" size="sm">
+              <Btn onClick={planner.resetRoute} variant="ghostDark" size="sm" magnetic={false}>
                 <ChevronLeft aria-hidden="true" />
                 Plan another route
               </Btn>
@@ -268,9 +313,13 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
                 actions={
                   <>
                     {saveControl}
-                    <Btn onClick={handleShare} variant="ink" size="sm">
-                      {copied ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}
-                      {copied ? 'Link copied' : 'Copy link to this plan'}
+                    <Btn onClick={handleShare} variant="ink" size="sm" magnetic={false}>
+                      {copied === 'done' ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}
+                      {copied === 'done'
+                        ? 'Link copied'
+                        : copied === 'failed'
+                          ? 'Copy the address bar to share'
+                          : 'Copy link to this plan'}
                     </Btn>
                   </>
                 }
@@ -301,10 +350,11 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
           {/* ── The planner ──────────────────────────────────────── */}
           <section
             data-theme="light"
+            ref={planRef}
             aria-label="Plan your route"
             className="bg-chalk pb-[clamp(56px,6vw,88px)] pt-[clamp(64px,7vw,104px)]"
           >
-            <div id="route-planner" ref={formRef} className={cn(WRAP, 'scroll-mt-24')}>
+            <div id="route-planner" className={cn(WRAP, 'scroll-mt-24')}>
               <RouteInputForm
                 origin={planner.origin}
                 destination={planner.destination}

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Car, MapPin, Zap } from '@/components/ui/icons'
 
+import { CountUp } from '@/components/v2/Reveal'
 import { Hl, HeroStats, PageHero } from '@/components/v2/ui'
 
 /**
@@ -27,7 +28,8 @@ function StatValue({ icon, value }: { icon: ReactNode; value: number }) {
   return (
     <span className="inline-flex items-center gap-2 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-volt">
       {icon}
-      {value.toLocaleString('en-PK')}
+      {/* Counts up from 0 as the hero comes in (.pstats em[data-count]). */}
+      <CountUp value={value} />
     </span>
   )
 }

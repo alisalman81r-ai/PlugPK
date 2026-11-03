@@ -48,6 +48,8 @@ type BtnProps = {
   variant?: BtnVariant
   size?: BtnSize
   className?: string
+  /** Leans toward the pointer and springs back (the design's .magnetic). On by default. */
+  magnetic?: boolean
   children: React.ReactNode
 } & (
   | ({ href: string } & Omit<React.ComponentProps<typeof Link>, 'href' | 'className' | 'children'>)
@@ -55,19 +57,20 @@ type BtnProps = {
 )
 
 /** A pill button, or a link styled as one when given an href. */
-export function Btn({ variant = 'ink', size = 'md', className, children, ...rest }: BtnProps) {
+export function Btn({ variant = 'ink', size = 'md', className, magnetic = true, children, ...rest }: BtnProps) {
   const cls = btnClass(variant, size, className)
+  const mag = magnetic ? { 'data-magnetic': '' } : {}
   if ('href' in rest && rest.href !== undefined) {
     const { href, ...link } = rest
     return (
-      <Link href={href} className={cls} {...link}>
+      <Link href={href} className={cls} {...mag} {...link}>
         {children}
       </Link>
     )
   }
   const { type = 'button', ...button } = rest as React.ButtonHTMLAttributes<HTMLButtonElement>
   return (
-    <button type={type} className={cls} {...button}>
+    <button type={type} className={cls} {...mag} {...button}>
       {children}
     </button>
   )
@@ -76,7 +79,7 @@ export function Btn({ variant = 'ink', size = 'md', className, children, ...rest
 /** The arrow that nudges right on hover, for use inside a Btn. */
 export function BtnArrow() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="transition-transform duration-300 ease-spring group-hover/btn:translate-x-1">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="transition-transform duration-[350ms] ease-spring group-hover/btn:translate-x-1">
       <path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
@@ -151,15 +154,26 @@ export function SectionHead({
 }) {
   return (
     <header
+      data-shead=""
       className={cn(
         'mb-[clamp(48px,7vw,88px)] grid',
         align === 'center' ? 'justify-items-center text-center' : 'justify-items-start text-left',
         className,
       )}
     >
-      {eyebrow ? <Eyebrow tone={dark ? 'dark' : 'light'}>{eyebrow}</Eyebrow> : null}
-      <h2 className={cn(H2_CLASS, dark ? 'text-white' : 'text-ink')}>{title}</h2>
-      {lead ? <p className={cn(LEAD_CLASS, dark ? 'text-white/70' : 'text-muted')}>{lead}</p> : null}
+      {eyebrow ? (
+        <div data-shead-eyebrow="">
+          <Eyebrow tone={dark ? 'dark' : 'light'}>{eyebrow}</Eyebrow>
+        </div>
+      ) : null}
+      <h2 data-split="" className={cn(H2_CLASS, dark ? 'text-white' : 'text-ink')}>
+        {title}
+      </h2>
+      {lead ? (
+        <p data-shead-lead="" className={cn(LEAD_CLASS, dark ? 'text-white/70' : 'text-muted')}>
+          {lead}
+        </p>
+      ) : null}
     </header>
   )
 }
@@ -252,14 +266,34 @@ export function PageHero({
         className="pointer-events-none absolute -top-[260px] left-1/2 -z-[1] h-[700px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.14),transparent_70%)] blur-[10px]"
       />
       <div className="mx-auto grid w-[min(980px,calc(100%-2*clamp(16px,4vw,64px)))] justify-items-center">
-        {eyebrow ? <Eyebrow tone="volt">{eyebrow}</Eyebrow> : null}
-        <h1 className="m-0 text-balance font-display text-[clamp(42px,5.6vw,88px)] leading-none">{title}</h1>
-        {sub ? (
-          <p className="mt-6 max-w-[44rem] text-pretty text-[clamp(16px,1.25vw,18px)] leading-[1.65] text-white/70">{sub}</p>
+        {eyebrow ? (
+          <div data-hero-item="">
+            <Eyebrow tone="volt">{eyebrow}</Eyebrow>
+          </div>
         ) : null}
-        {actions ? <div className="mt-[34px] flex flex-wrap justify-center gap-3">{actions}</div> : null}
-        {note ? <p className="mt-3 text-[13px] text-white/45">{note}</p> : null}
-        {children}
+        <h1 data-hero-title="" className="m-0 text-balance font-display text-[clamp(42px,5.6vw,88px)] leading-none">
+          {title}
+        </h1>
+        {sub ? (
+          <p data-hero-item="" className="mt-6 max-w-[44rem] text-pretty text-[clamp(16px,1.25vw,18px)] leading-[1.65] text-white/70">
+            {sub}
+          </p>
+        ) : null}
+        {actions ? (
+          <div data-hero-item="" className="mt-[34px] flex flex-wrap justify-center gap-3">
+            {actions}
+          </div>
+        ) : null}
+        {note ? (
+          <p data-hero-item="" className="mt-3 text-[13px] text-white/45">
+            {note}
+          </p>
+        ) : null}
+        {children ? (
+          <div data-hero-items="" className="grid w-full justify-items-center">
+            {children}
+          </div>
+        ) : null}
       </div>
     </section>
   )
@@ -271,6 +305,7 @@ export function Lift({ children, className, id }: { children: React.ReactNode; c
     <div
       id={id}
       data-theme="light"
+      data-lift=""
       className={cn(
         'relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:-mt-28 sm:rounded-[32px]',
         className,
@@ -338,14 +373,19 @@ export function HeroStats({ items }: { items: { value: React.ReactNode; label: s
 
 /** .card: white, hairline, soft shadow, lifts on hover when interactive. */
 export const CARD = 'relative rounded-[28px] border border-ink/10 bg-white shadow-e1'
+/* translate (the property), not transform: Tailwind's -translate-y-1 moves
+   transform, which this transition does not name, so the lift snapped. A card
+   that is itself data-reveal must lift on an inner element: GSAP leaves
+   translate: none inline on what it animates. */
 export const CARD_HOVER =
-  'transition-[translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2'
+  'transition-[translate,box-shadow,border-color] duration-[450ms] ease-out hover:[translate:0_-4px] hover:border-ink/20 hover:shadow-e2'
 export const CARD_INK = 'relative rounded-[28px] border border-white/[0.09] bg-[#14161A] text-white'
 
 /** .chip — a filter pill; pressed chips go ink with a volt count. */
 export function chipClass(on: boolean, className?: string) {
   return cn(
-    'inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-sm font-medium transition-[background-color,border-color,color,transform] duration-200 active:scale-[0.96] [&_svg]:h-[15px] [&_svg]:w-[15px]',
+    // .chip: colours over .25s, the press on a .3s spring (pages.css)
+    'inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-sm font-medium [transition:background-color_.25s,border-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] active:scale-[0.96] [&_svg]:h-[15px] [&_svg]:w-[15px]',
     on ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink hover:border-ink/30',
     className,
   )
@@ -433,10 +473,8 @@ export function Steps({
   return (
     <ol className={cn('grid gap-4 lg:grid-cols-3', className)}>
       {steps.map((step, i) => (
-        <li
-          key={i}
-          className="group/step relative overflow-hidden rounded-[28px] border border-ink/10 bg-white px-[30px] pb-8 pt-[30px] transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2"
-        >
+        <li key={i} data-reveal="">
+          <div className="group/step relative h-full overflow-hidden rounded-[28px] border border-ink/10 bg-white px-[30px] pb-8 pt-[30px] transition-[translate,box-shadow] duration-[450ms] ease-out hover:[translate:0_-4px] hover:shadow-e2">
           <span
             aria-hidden="true"
             className="absolute right-[26px] top-[18px] font-display text-[88px] leading-none text-transparent transition-colors duration-[400ms] [-webkit-text-stroke:1.5px_rgba(11,12,14,.22)] group-hover/step:text-volt group-hover/step:[-webkit-text-stroke-color:#0B0C0E]"
@@ -446,6 +484,7 @@ export function Steps({
           {step.icon ? <span className="block h-[30px] w-[30px] text-ink [&_svg]:h-full [&_svg]:w-full">{step.icon}</span> : null}
           <h3 className={cn('font-display text-[26px] leading-[1.1] text-ink', step.icon ? 'mt-[70px]' : 'mt-[100px]')}>{step.title}</h3>
           <p className="mt-2.5 text-[15px] leading-[1.6] text-muted">{step.body}</p>
+          </div>
         </li>
       ))}
     </ol>
@@ -485,6 +524,8 @@ export function Faq({ items, className }: { items: { q: React.ReactNode; a: Reac
       {items.map((item, i) => (
         <details
           key={i}
+          data-faq=""
+          data-reveal=""
           className="group/faq rounded-[22px] border border-ink/10 bg-white transition-[box-shadow,border-color] duration-300 open:border-ink/20 open:shadow-e1"
         >
           <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-5 py-5 text-[17px] font-semibold leading-[1.4] text-ink sm:px-[26px] sm:py-[22px] [&::-webkit-details-marker]:hidden">
@@ -494,7 +535,9 @@ export function Faq({ items, className }: { items: { q: React.ReactNode; a: Reac
               className="relative h-[34px] w-[34px] flex-none rounded-full bg-chalk transition-[background-color,rotate] duration-[400ms] ease-out before:absolute before:left-1/2 before:top-1/2 before:-ml-1.5 before:-mt-px before:h-0.5 before:w-3 before:rounded-sm before:bg-ink after:absolute after:left-1/2 after:top-1/2 after:-ml-1.5 after:-mt-px after:h-0.5 after:w-3 after:rotate-90 after:rounded-sm after:bg-ink after:transition-[rotate] after:duration-[400ms] group-open/faq:rotate-180 group-open/faq:bg-volt group-open/faq:after:rotate-0"
             />
           </summary>
-          <div className="max-w-[46rem] px-5 pb-6 text-base leading-[1.7] text-muted sm:px-[26px]">{item.a}</div>
+          <div data-faq-a="" className="max-w-[46rem] overflow-hidden px-5 pb-6 text-base leading-[1.7] text-muted sm:px-[26px]">
+            {item.a}
+          </div>
         </details>
       ))}
     </div>
@@ -511,7 +554,7 @@ export const INPUT =
 export const SEG = 'inline-flex gap-0.5 rounded-2xl bg-stone p-1'
 export function segButtonClass(on: boolean, className?: string) {
   return cn(
-    'grid justify-items-center gap-0.5 rounded-xl px-4 py-[9px] text-sm font-semibold transition-[background-color,color,box-shadow] duration-200',
+    'grid justify-items-center gap-0.5 rounded-xl px-4 py-[9px] text-sm font-semibold transition-[background-color,color,box-shadow] duration-[250ms]',
     on ? 'bg-white text-ink shadow-e1' : 'text-muted hover:text-ink',
     className,
   )

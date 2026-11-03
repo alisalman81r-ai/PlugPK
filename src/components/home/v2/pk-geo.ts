@@ -22,3 +22,22 @@ export const PK_CITIES: Record<string, [number, number]> = {"Gilgit":[702.5,80.5
 export function pkProject(lng: number, lat: number): { x: number; y: number } {
   return { x: 333.3 + (lng - 67.01) * 50.6, y: 725.5 - (lat - 24.86) * 58.39 }
 }
+
+/** Catmull-Rom through the points, as cubic Béziers (main.js smooth()). */
+export function smoothPath(pts: [number, number][]): string {
+  let d = `M${pts[0]![0]} ${pts[0]![1]}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i]!
+    const p1 = pts[i]!
+    const p2 = pts[i + 1]!
+    const p3 = pts[i + 2] ?? p2
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6]
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6]
+    d += `C${c1[0]!.toFixed(1)} ${c1[1]!.toFixed(1)} ${c2[0]!.toFixed(1)} ${c2[1]!.toFixed(1)} ${p2[0]} ${p2[1]}`
+  }
+  return d
+}
+
+/** The M-2, Islamabad to Lahore, through the motorway towns. */
+export const M2_POINTS = ['Islamabad', 'Chakri', 'Kallar Kahar', 'Bhera', 'Sial Mor', 'Pindi Bhattian', 'Lahore'].map((k) => PK_CITIES[k]!)
+export const M2_PATH = smoothPath(M2_POINTS)

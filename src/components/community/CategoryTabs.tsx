@@ -13,9 +13,13 @@ import {
   type IconType,
 } from '@/components/ui/icons'
 
+import * as React from 'react'
+
+import { getLenis } from '@/components/motion/MotionProvider'
 import { ChipCount, Lift, LiftBody, LiftHead, SEG, chipClass, segButtonClass } from '@/components/v2/ui'
 import { POST_CATEGORIES } from '@/lib/constants'
 import type { PostCategory } from '@/lib/types'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 /**
@@ -73,9 +77,56 @@ export function CategoryTabs({
   totalCount,
   className,
 }: CategoryTabsProps) {
+  const rootRef = React.useRef<HTMLElement>(null)
+  const shownRef = React.useRef<HTMLElement>(null)
+  const shownBefore = React.useRef(resultCount)
+
+  /* Entrance (page-community.js): the chips bounce up after the sheet has lifted. */
+  React.useLayoutEffect(() => {
+    if (prefersReduced()) return
+    const ctx = gsap.context(() => {
+      gsap.from('[data-cat-chip]', {
+        y: 16,
+        autoAlpha: 0,
+        duration: 0.7,
+        ease: 'back.out(1.7)',
+        stagger: 0.05,
+        delay: 0.9,
+        clearProps: 'all',
+      })
+    }, rootRef)
+    return () => ctx.revert()
+  }, [])
+
+  /* #shownN: a new count drops into place. */
+  React.useLayoutEffect(() => {
+    if (shownBefore.current === resultCount) return
+    shownBefore.current = resultCount
+    if (prefersReduced() || !shownRef.current) return
+    gsap.fromTo(shownRef.current, { yPercent: 60, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.5, ease: 'back.out(2)' })
+  }, [resultCount])
+
+  const pickCategory = (category: PostCategory | 'all', chip: HTMLElement) => {
+    if (category === selectedCategory) return
+    if (!prefersReduced()) {
+      gsap.fromTo(chip, { scale: 0.94 }, { scale: 1, duration: 0.5, ease: 'back.out(3)', clearProps: 'transform' })
+    }
+    chip.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    onCategoryChange(category)
+    // scrollToFeed: from further down the page, glide back up to the sheet.
+    const lift = chip.closest<HTMLElement>('[data-lift]')
+    if (!lift) return
+    const top = lift.getBoundingClientRect().top + window.scrollY
+    if (window.scrollY > top + 40) {
+      const lenis = getLenis()
+      if (lenis) lenis.scrollTo(lift, { offset: -90, duration: 1 })
+      else lift.scrollIntoView()
+    }
+  }
+
   return (
     <Lift className={className}>
-      <section aria-label="Browse discussions">
+      <section ref={rootRef} aria-label="Browse discussions">
         <LiftHead
           className="items-start lg:items-end [&>div:last-child]:w-full sm:[&>div:last-child]:w-auto"
           eyebrow={
@@ -87,7 +138,11 @@ export function CategoryTabs({
           title="Discussions"
           meta={
             <span aria-live="polite">
-              Showing <b className="font-mono font-semibold">{resultCount}</b> of {totalCount}{' '}
+              Showing{' '}
+              <b ref={shownRef} className="inline-block min-w-[1.3ch] text-center font-mono font-semibold">
+                {resultCount}
+              </b>{' '}
+              of {totalCount}{' '}
               {totalCount === 1 ? 'post' : 'posts'}
             </span>
           }
@@ -102,7 +157,9 @@ export function CategoryTabs({
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    onClick={() => onSortChange(sort.key)}
+                    onClick={() => {
+                      if (sort.key !== sortBy) onSortChange(sort.key)
+                    }}
                     className={segButtonClass(
                       selected,
                       'min-h-12 min-w-0 flex-1 px-1.5 focus-visible:outline-none focus-visible:shadow-focus sm:min-w-[112px] sm:flex-none sm:px-4',
@@ -134,7 +191,7 @@ export function CategoryTabs({
                 label="All posts"
                 count={categoryCount.all ?? 0}
                 selected={selectedCategory === 'all'}
-                onClick={() => onCategoryChange('all')}
+                onPick={(chip) => pickCategory('all', chip)}
               />
               {POST_CATEGORIES.map((category) => (
                 <Chip
@@ -143,7 +200,7 @@ export function CategoryTabs({
                   label={category.label}
                   count={categoryCount[category.id] ?? 0}
                   selected={selectedCategory === category.id}
-                  onClick={() => onCategoryChange(category.id)}
+                  onPick={(chip) => pickCategory(category.id, chip)}
                 />
               ))}
             </div>
@@ -164,23 +221,24 @@ function Chip({
   label,
   count,
   selected,
-  onClick,
+  onPick,
 }: {
   icon: IconType
   label: string
   count: number
   selected: boolean
-  onClick: () => void
+  onPick: (chip: HTMLElement) => void
 }) {
   return (
     <button
       type="button"
       role="radio"
       aria-checked={selected}
-      onClick={onClick}
+      data-cat-chip=""
+      onClick={(event) => onPick(event.currentTarget)}
       className={chipClass(selected, 'h-11 focus-visible:outline-none focus-visible:shadow-focus')}
     >
-      <Icon aria-hidden="true" className={cn('transition-colors duration-200', selected ? 'text-volt' : 'text-muted')} />
+      <Icon aria-hidden="true" className={cn('transition-colors duration-[250ms]', selected ? 'text-volt' : 'text-muted')} />
       {label}
       <ChipCount on={selected}>{count}</ChipCount>
     </button>

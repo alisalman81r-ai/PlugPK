@@ -1,5 +1,5 @@
 // src/components/calculator/ChargingExplainer.tsx
-import { Btn, BtnArrow, CARD, CARD_HOVER, H2_CLASS, Hl, LEAD_CLASS, Section, Wrap } from '@/components/v2/ui'
+import { Btn, BtnArrow, CARD, H2_CLASS, Hl, LEAD_CLASS, Section, Wrap } from '@/components/v2/ui'
 import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
 import { cn } from '@/lib/utils'
 
@@ -80,17 +80,23 @@ export function ChargingExplainer() {
   return (
     <Section tone="chalk" className="pt-[clamp(72px,8vw,112px)]">
       <Wrap>
-        <header className="mb-11 grid justify-items-start">
-          <h2 id="explainer-heading" className={cn(H2_CLASS, 'text-ink')}>
+        <header data-shead="" className="mb-11 grid justify-items-start">
+          <h2 id="explainer-heading" data-split="" className={cn(H2_CLASS, 'text-ink')}>
             The short <Hl>version</Hl>
           </h2>
-          <p className={cn(LEAD_CLASS, 'mt-3.5 text-muted')}>What the numbers above mean, and when to trust them.</p>
+          <p data-shead-lead="" className={cn(LEAD_CLASS, 'mt-3.5 text-muted')}>What the numbers above mean, and when to trust them.</p>
         </header>
 
         <RevealGroup className="grid gap-4 md:grid-cols-2" aria-labelledby="explainer-heading">
           {BLOCKS.map(({ icon: Icon, title, body }) => (
             <RevealItem key={title} className="h-full">
-              <article className={cn(CARD, CARD_HOVER, 'group/ex h-full p-6 sm:p-[30px]')}>
+              {/* .ex.card:hover: up 4px and the deeper shadow, on the card's own .45s out-curve */}
+              <article
+                className={cn(
+                  CARD,
+                  'group/ex h-full p-6 [transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:shadow-e2 hover:[translate:0_-4px] sm:p-[30px]',
+                )}
+              >
                 <span className="grid size-12 place-items-center rounded-[14px] bg-chalk text-ink transition-colors duration-300 group-hover/ex:bg-ink group-hover/ex:text-volt">
                   <Icon size={24} aria-hidden="true" />
                 </span>
@@ -103,7 +109,7 @@ export function ChargingExplainer() {
 
         {/* The calculator's natural next step, since the answer is "go and
             charge": the map of where. */}
-        <Btn href="/map" variant="ink" size="lg" className="mt-9 w-full sm:w-auto">
+        <Btn href="/map" variant="ink" size="lg" magnetic={false} data-reveal="" className="mt-9 w-full sm:w-auto">
           <MapPin aria-hidden="true" />
           <span>Find a charger near you</span>
           <BtnArrow />

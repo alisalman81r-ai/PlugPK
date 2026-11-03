@@ -6,6 +6,8 @@ import { notFound } from 'next/navigation'
 
 import { ListYourServiceBand } from '@/components/services/ListYourServiceBand'
 import { ServiceCard } from '@/components/services/ServiceCard'
+import { ServiceCardsIntro } from '@/components/services/ServiceCardsIntro'
+import { CountUp } from '@/components/v2/Reveal'
 import { Btn, HeroStats, Hl, Lift, LiftBody, LiftHead, PageHero, chipClass } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import { getServicesByCategory } from '@/lib/db/service-queries'
@@ -73,8 +75,8 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
       >
         <HeroStats
           items={[
-            { value: services.length, label: services.length === 1 ? 'Service' : 'Services' },
-            { value: cities.size, label: cities.size === 1 ? 'City' : 'Cities' },
+            { value: <CountUp value={services.length} />, label: services.length === 1 ? 'Service' : 'Services' },
+            { value: <CountUp value={cities.size} />, label: cities.size === 1 ? 'City' : 'Cities' },
           ]}
         />
       </PageHero>
@@ -111,21 +113,16 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
               </span>
               <p className="font-display text-[26px] leading-[1.1] text-ink">No providers listed here yet.</p>
               <p className="mb-3.5 text-[15px] text-muted">Run one? Apply below and our team will check it.</p>
-              <Btn href="/services" variant="ink" size="sm">
+              <Btn href="/services" variant="ink" size="sm" magnetic={false}>
                 Browse all services
               </Btn>
             </div>
           ) : (
-            <div className="grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3">
-              {services.map((service, index) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  animationDelay={index * 80}
-                  className="animate-fade-up opacity-0"
-                />
+            <ServiceCardsIntro className="grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3">
+              {services.map((service) => (
+                <ServiceCard key={service.id} service={service} />
               ))}
-            </div>
+            </ServiceCardsIntro>
           )}
         </LiftBody>
       </Lift>

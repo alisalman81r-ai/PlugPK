@@ -6,7 +6,9 @@ import * as React from 'react'
 
 import { usePathname, useRouter } from 'next/navigation'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { Btn, BtnArrow, FLABEL, INPUT, chipClass } from '@/components/v2/ui'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { createPost } from '@/lib/db/community-actions'
 import { COMMUNITY_LIMITS, POST_CATEGORIES } from '@/lib/constants'
@@ -124,6 +126,28 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
     }
   }, [isOpen, onClose])
 
+  /*
+    page-community.js openAuth: the page stops scrolling under the dialog, the
+    card rises in, and closing hands focus back to whatever opened it.
+  */
+  const panelRef = React.useRef<HTMLDivElement>(null)
+  React.useLayoutEffect(() => {
+    if (!isOpen) return
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const lenis = getLenis()
+    lenis?.stop()
+    const panel = panelRef.current
+    const tween =
+      panel && !prefersReduced()
+        ? gsap.fromTo(panel, { y: 30, autoAlpha: 0, scale: 0.97 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.6, ease: 'expo.out' })
+        : null
+    return () => {
+      tween?.kill()
+      lenis?.start()
+      opener?.focus()
+    }
+  }, [isOpen])
+
   // Clear the form each time the modal closes. The draft in sessionStorage is
   // what survives a close, not the component's state.
   React.useEffect(() => {
@@ -195,6 +219,8 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
       className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/55 p-4 backdrop-blur-[6px]"
     >
       <div
+        ref={panelRef}
+        data-lenis-prevent=""
         onClick={(event) => event.stopPropagation()}
         className="relative max-h-modal w-full max-w-[600px] overflow-y-auto rounded-[28px] bg-paper px-5 pb-6 pt-7 text-ink shadow-e4 sm:px-8 sm:pb-7 sm:pt-8"
       >
@@ -202,7 +228,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-3.5 top-3.5 grid h-11 w-11 place-items-center rounded-full text-ink transition-colors duration-200 hover:bg-stone focus-visible:outline-none focus-visible:shadow-focus"
+          className="absolute right-3.5 top-3.5 grid h-11 w-11 place-items-center rounded-full text-ink transition-colors duration-[250ms] hover:bg-stone focus-visible:outline-none focus-visible:shadow-focus"
         >
           <X size={18} />
         </button>
@@ -217,11 +243,11 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             </p>
             <p className="mt-2.5 text-[15px] leading-[1.6] text-muted">Your post is now live.</p>
             <div className="mt-[22px] flex flex-wrap gap-2.5">
-              <Btn href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
+              <Btn magnetic={false} href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
                 View post
                 <BtnArrow />
               </Btn>
-              <Btn variant="ghost" onClick={onClose}>
+              <Btn magnetic={false} variant="ghost" onClick={onClose}>
                 Close
               </Btn>
             </div>
@@ -242,11 +268,11 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             </p>
 
             <div className="mt-[22px] flex flex-wrap gap-2.5">
-              <Btn href={signInHref(`${pathname}?compose=1`)}>Sign in</Btn>
-              <Btn href={signUpHref(`${pathname}?compose=1`)} variant="ghost">
+              <Btn magnetic={false} href={signInHref(`${pathname}?compose=1`)}>Sign in</Btn>
+              <Btn magnetic={false} href={signUpHref(`${pathname}?compose=1`)} variant="ghost">
                 Create account
               </Btn>
-              <Btn variant="ghost" onClick={onClose} className="border-transparent bg-transparent hover:border-ink/10">
+              <Btn magnetic={false} variant="ghost" onClick={onClose} className="border-transparent bg-transparent hover:border-ink/10">
                 Keep reading
               </Btn>
             </div>
@@ -343,10 +369,10 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
               <p className="text-xs text-muted">Fields marked * are required</p>
               <div className="flex gap-2.5">
-                <Btn variant="ghost" onClick={onClose}>
+                <Btn magnetic={false} variant="ghost" onClick={onClose}>
                   Cancel
                 </Btn>
-                <Btn type="submit" disabled={!canSubmit} aria-busy={isSubmitting}>
+                <Btn magnetic={false} type="submit" disabled={!canSubmit} aria-busy={isSubmitting}>
                   {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
                   {isSubmitting ? 'Posting…' : 'Post discussion'}
                 </Btn>

@@ -46,7 +46,7 @@ export default async function Page() {
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
           {clubs.map((club) => (
-            <li key={club.id} className="flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-[0_1px_2px_rgba(11,12,14,.04),0_18px_40px_-30px_rgba(11,12,14,.3)] transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2">
+            <li key={club.id} className="flex flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-[0_1px_2px_rgba(11,12,14,.04),0_18px_40px_-30px_rgba(11,12,14,.3)] transition-[translate,box-shadow] duration-[450ms] ease-out hover:shadow-e2 hover:[translate:0_-4px]">
               <Link
                 href={`/community/clubs/${club.id}`}
                 className={cn('relative flex h-20 items-end overflow-hidden bg-gradient-to-b', citySky(club.city))}

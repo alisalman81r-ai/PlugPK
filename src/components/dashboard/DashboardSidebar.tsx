@@ -106,7 +106,7 @@ export function ProfileCard({ user }: { user: DashboardSidebarProps['user'] }) {
       <Link
         href="/dashboard/settings"
         aria-label="Edit your profile"
-        className="relative z-[1] grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full border border-white/[0.18] text-white transition-colors hover:bg-volt hover:text-ink focus-visible:outline-none focus-visible:shadow-focus"
+        className="relative z-[1] grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full border border-white/[0.18] text-white transition-colors duration-200 hover:bg-volt hover:text-ink focus-visible:outline-none focus-visible:shadow-focus"
       >
         <Pencil size={16} aria-hidden="true" />
       </Link>

@@ -123,7 +123,9 @@ function Block({
   className?: string
 }) {
   return (
-    <section id={id} className={cn(CARD, 'scroll-mt-28 p-5 sm:p-8', className)}>
+    // data-reveal: each section rises in as it scrolls into view, as the map
+    // page's cards do.
+    <section id={id} data-reveal="" className={cn(CARD, 'scroll-mt-28 p-5 sm:p-8', className)}>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <Eyebrow className="mb-2.5">{eyebrow}</Eyebrow>
@@ -234,8 +236,10 @@ export default async function StationDetailPage({ params }: PageProps) {
 
       {/* The listing, lifted into the header like the design's .lift sheets.
           Extra bottom room on phones: the sticky bar carries the actions. */}
+      {/* data-lift: rises in after the header, as the map's filter sheet does. */}
       <div
         data-theme="light"
+        data-lift=""
         className={`relative z-[3] -mt-[84px] grid items-start gap-6 pb-48 sm:-mt-28 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:pb-[clamp(80px,9vw,128px)] ${WRAP}`}
       >
         <div className="grid min-w-0 gap-6">
@@ -249,7 +253,7 @@ export default async function StationDetailPage({ params }: PageProps) {
           </div>
 
           {isExample ? (
-            <p className="rounded-[22px] border border-[#FFE0A3] bg-[#FFF6E3] px-5 py-4 text-sm leading-relaxed text-[#8A5300]">
+            <p data-reveal="" className="rounded-[22px] border border-[#FFE0A3] bg-[#FFF6E3] px-5 py-4 text-sm leading-relaxed text-[#8A5300]">
               <strong className="font-semibold">{SAMPLE_LISTING_LABEL}.</strong> This station is
               sample data that shows how a listing works. Its photos, hours and reviews are
               examples, not a real site — do not plan a trip around it.
@@ -321,7 +325,7 @@ export default async function StationDetailPage({ params }: PageProps) {
             <AmenitiesGrid amenities={station.amenities} />
           </Block>
 
-          <div className={cn(CARD, 'p-5 sm:p-8')}>
+          <div data-reveal="" className={cn(CARD, 'p-5 sm:p-8')}>
             <ReviewsSection
               reviews={reviews}
               rating={station.rating}

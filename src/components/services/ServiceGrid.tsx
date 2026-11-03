@@ -1,13 +1,13 @@
 // src/components/services/ServiceGrid.tsx
 'use client'
 
+import * as React from 'react'
+
 import { Package } from '@/components/ui/icons'
 
 import { Skeleton } from '@/components/ui'
-import { Btn } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
-import { STAGGER } from '@/lib/motion'
-import type { EVService, ServiceCategory } from '@/lib/types'
+import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ServiceCard } from './ServiceCard'
 import { CATEGORY_ICON } from './ServiceCategoryTabs'
@@ -19,17 +19,22 @@ import { CATEGORY_ICON } from './ServiceCategoryTabs'
  * fill one row leaves a visible hole beside it, and six such groups leave a
  * column-wide gap running the length of the page.
  */
-const GROUP_MIN = 3
+export const GROUP_MIN = 3
 
 /** landing-v2's .sv-grid: three across from 1200px, two from 640px, one below. */
-const GRID = 'grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3'
+export const SERVICE_GRID = 'grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3'
+/** .sv-grid.is-list: one column, tighter. */
+const SERVICE_LIST = 'grid grid-cols-1 gap-3 sm:gap-3.5'
 
 export interface ServiceGridProps {
+  /** Every service, in the chosen order — the filtered-out ones too. */
   services: EVService[]
+  /** The ids that pass the filters; the rest render hidden. */
+  visible: ReadonlySet<string>
   isLoading: boolean
   viewMode: 'grid' | 'list'
-  selectedCategory: ServiceCategory | 'all'
-  onClearFilters?: () => void
+  /** Headed sections per category, when browsing everything and a category can fill a row. */
+  grouped: boolean
 }
 
 function ServiceCardSkeleton() {
@@ -54,16 +59,23 @@ function ServiceCardSkeleton() {
   )
 }
 
-export function ServiceGrid({
-  services,
-  isLoading,
-  viewMode,
-  selectedCategory,
-  onClearFilters,
-}: ServiceGridProps) {
+/**
+ * The directory's cards (landing-v2 #svGrid).
+ *
+ * Every service is rendered, in order, and the ones the filters exclude are
+ * hidden rather than dropped — as page-services.js does it. Keeping the
+ * elements is what lets the directory Flip them: a filtered-out card fades
+ * and shrinks where it stood, a returning one springs back in, and the rest
+ * glide to their new places. The ref is the grid itself, whose height the
+ * directory eases between the before and after.
+ */
+export const ServiceGrid = React.forwardRef<HTMLDivElement, ServiceGridProps>(function ServiceGrid(
+  { services, visible, isLoading, viewMode, grouped },
+  ref,
+) {
   if (isLoading) {
     return (
-      <div className={GRID}>
+      <div className={SERVICE_GRID}>
         {Array.from({ length: 6 }, (_, index) => index).map((index) => (
           <ServiceCardSkeleton key={index} />
         ))}
@@ -71,118 +83,47 @@ export function ServiceGrid({
     )
   }
 
-  if (services.length === 0) {
-    const EmptyIcon =
-      selectedCategory === 'all'
-        ? Package
-        : (CATEGORY_ICON[SERVICE_CATEGORY_META[selectedCategory].icon] ?? Package)
+  const list = viewMode === 'list'
 
-    return (
-      <div className="grid justify-items-center gap-1.5 rounded-[28px] border-[1.5px] border-dashed border-ink/15 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] px-6 py-16 text-center">
-        <span className="mb-2.5 grid h-16 w-16 place-items-center rounded-full bg-ink text-volt">
-          <EmptyIcon size={26} aria-hidden="true" />
-        </span>
-        <p className="font-display text-[26px] leading-[1.1] text-ink">No services match.</p>
-        <p className="mb-3.5 text-[15px] text-muted">Try another category, city or search term.</p>
-        {onClearFilters ? (
-          <Btn variant="ink" size="sm" onClick={onClearFilters}>
-            Clear filters
-          </Btn>
-        ) : null}
-      </div>
-    )
-  }
-
-  if (viewMode === 'list') {
-    return (
-      <div className="flex flex-col gap-3 sm:gap-3.5">
-        {services.map((service, index) => (
-          <ServiceCard
-            key={service.id}
-            service={service}
-            variant="horizontal"
-            animationDelay={index * STAGGER.TIGHT}
-            className="animate-fade-up opacity-0"
-          />
-        ))}
-      </div>
-    )
-  }
-
-  // Grouped by category when browsing everything, flat otherwise.
-  if (selectedCategory === 'all') {
+  if (grouped) {
     /*
      * Grouped only while the groups are big enough to be worth the space.
      *
-     * The catalogue holds twelve services across six categories, so grouping
-     * produced six rows of two cards in a three-column track and left the
-     * right-hand third of the page empty for its entire length. That reads as
-     * an unfinished layout rather than as a small directory.
-     *
-     * Below the threshold the same cards run as one continuous grid, which
-     * fills every row. Nothing is lost by it: each card already carries its
-     * category on the cover, and the tabs above filter by category. Once any
-     * category can fill a row on its own, the headed sections come back on
-     * their own — this is a threshold, not a deletion.
+     * With a dozen services over six categories, grouping produced six rows of
+     * two cards in a three-column track and left the right-hand third of the
+     * page empty for its entire length. Below the threshold the same cards run
+     * as one continuous grid, which fills every row; once any category can
+     * fill a row on its own, the headed sections come back — this is a
+     * threshold, not a deletion.
      */
-    const groups = SERVICE_CATEGORY_KEYS.map((key) => ({
-      key,
-      meta: SERVICE_CATEGORY_META[key],
-      items: services.filter((service) => service.category === key),
-    })).filter((group) => group.items.length > 0)
-
-    const worthGrouping = groups.some((group) => group.items.length >= GROUP_MIN)
-
-    if (!worthGrouping) {
-      return (
-        <div className={GRID}>
-          {services.map((service, index) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              animationDelay={index * STAGGER.TIGHT}
-              className="animate-fade-up opacity-0"
-            />
-          ))}
-        </div>
-      )
-    }
+    const groups = SERVICE_CATEGORY_KEYS.map((key) => {
+      const items = services.filter((service) => service.category === key)
+      return { key, meta: SERVICE_CATEGORY_META[key], items, shown: items.filter((s) => visible.has(s.id)).length }
+    }).filter((group) => group.shown > 0)
 
     return (
-      <div>
+      <div ref={ref} data-services-grid="" className="relative">
         {groups.map((group, groupIndex) => {
           const Icon = CATEGORY_ICON[group.meta.icon] ?? Package
 
           return (
             <section key={group.key}>
-              <div
-                className={cn(
-                  'mb-6 flex items-center gap-3',
-                  groupIndex === 0 ? 'mt-0' : 'mt-14',
-                )}
-              >
+              <div className={cn('mb-6 flex items-center gap-3', groupIndex === 0 ? 'mt-0' : 'mt-14')}>
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-volt">
                   <Icon size={19} aria-hidden="true" />
                 </span>
-                <h2 className="font-display text-[26px] leading-[1.1] text-ink">
-                  {group.meta.label}
-                </h2>
+                <h2 className="font-display text-[26px] leading-[1.1] text-ink">{group.meta.label}</h2>
                 <span className="rounded-full bg-white px-2.5 py-0.5 font-mono text-xs font-semibold tabular-nums text-muted ring-1 ring-ink/10">
-                  {group.items.length}
+                  {group.shown}
                 </span>
                 {/* Carries the heading across the full width so each group
                     reads as its own band rather than a floating label. */}
                 <span aria-hidden="true" className="h-px flex-1 bg-ink/10" />
               </div>
 
-              <div className={GRID}>
-                {group.items.map((service, index) => (
-                  <ServiceCard
-                    key={service.id}
-                    service={service}
-                    animationDelay={index * STAGGER.TIGHT}
-                    className="animate-fade-up opacity-0"
-                  />
+              <div className={SERVICE_GRID}>
+                {group.items.map((service) => (
+                  <ServiceCard key={service.id} service={service} hidden={!visible.has(service.id)} />
                 ))}
               </div>
             </section>
@@ -193,15 +134,15 @@ export function ServiceGrid({
   }
 
   return (
-    <div className={GRID}>
-      {services.map((service, index) => (
+    <div ref={ref} data-services-grid="" className={cn('relative', list ? SERVICE_LIST : SERVICE_GRID)}>
+      {services.map((service) => (
         <ServiceCard
           key={service.id}
           service={service}
-          animationDelay={index * STAGGER.TIGHT}
-          className="animate-fade-up opacity-0"
+          variant={list ? 'horizontal' : 'default'}
+          hidden={!visible.has(service.id)}
         />
       ))}
     </div>
   )
-}
+})

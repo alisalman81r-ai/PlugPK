@@ -4,9 +4,11 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { WRAP } from '@/components/v2/ui'
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import { useFavouriteCars } from '@/hooks/useFavouriteCars'
+import { prefersReduced } from '@/lib/gsap'
 import { filtersToParams, paramsToFilters, type CarFilterState, type CarSort } from '@/lib/cars'
 
 import { BrandMarquee } from './BrandMarquee'
@@ -50,7 +52,24 @@ export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplo
     [],
   )
 
-  const [query, setQuery] = React.useState(initial.query)
+  /* Two queries, as in the design (page-cars.js): what is in the search box,
+     and what the grid is showing. Typing reaches the grid 220ms after the last
+     keystroke, so a burst of typing redraws the cards once rather than per
+     letter; a submit, a removed tag or "clear" applies at once. */
+  const [typed, setTyped] = React.useState(initial.query)
+  const [query, setAppliedQuery] = React.useState(initial.query.trim())
+  const typing = React.useRef<number>()
+  const typeQuery = (next: string) => {
+    setTyped(next)
+    window.clearTimeout(typing.current)
+    typing.current = window.setTimeout(() => setAppliedQuery(next.trim()), 220)
+  }
+  const setQuery = (next: string) => {
+    window.clearTimeout(typing.current)
+    setTyped(next)
+    setAppliedQuery(next.trim())
+  }
+  React.useEffect(() => () => window.clearTimeout(typing.current), [])
   const [filters, setFilters] = React.useState<CarFilterState>(initial.filters)
   const [sort, setSort] = React.useState<CarSort>(initial.sort)
   const [savedOnly, setSavedOnly] = React.useState(false)
@@ -72,23 +91,34 @@ export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplo
   const setBrand = (brand: string | null) =>
     setFilters((current) => ({ ...current, brands: brand ? [brand] : [] }))
 
-  /* Down to the catalogue, unless it is already comfortably in view. */
-  const scrollToResults = () => {
+  /* Down to the catalogue, unless it is already comfortably in view
+     (scrollToCat): a 1.1s Lenis glide while smooth scroll runs. */
+  const scrollToResults = React.useCallback(() => {
     const node = resultsRef.current
     if (!node) return
     const top = node.getBoundingClientRect().top
-    if (top > 80 && top < window.innerHeight * 0.5) return
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
-  }
+    if (top > 120 && top < window.innerHeight * 0.5) return
+    const lenis = getLenis()
+    if (lenis) lenis.scrollTo(node, { offset: -80, duration: 1.1 })
+    else node.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth', block: 'start' })
+  }, [])
+
+  /* A link that arrives filtered (/cars?brand=BYD) lands on the cars, as the
+     design's boot does. A frame late, so the smooth scroll exists and has made
+     its own top-of-page reset first. */
+  React.useEffect(() => {
+    if (!window.location.search) return
+    const frame = window.requestAnimationFrame(() => scrollToResults())
+    return () => window.cancelAnimationFrame(frame)
+  }, [scrollToResults])
 
   /* The hero's figures describe the catalogue as a whole, not the filtered
      grid: the grid has its own live count right above it. */
   const stats = React.useMemo(
     () => [
-      { value: String(cars.length), label: 'Cars' },
-      { value: String(brands.length), label: 'Brands' },
-      { value: String(cars.filter((car) => car.category === 'EV').length), label: 'Full EV' },
+      { value: cars.length, label: 'Cars' },
+      { value: brands.length, label: 'Brands' },
+      { value: cars.filter((car) => car.category === 'EV').length, label: 'Full EV' },
     ],
     [cars, brands],
   )
@@ -96,13 +126,16 @@ export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplo
   return (
     <>
       <CarHero
-        query={query}
-        onQueryChange={setQuery}
+        query={typed}
+        onQueryChange={typeQuery}
         brand={heroBrand}
         onBrandChange={setBrand}
         brands={brands}
         stats={stats}
-        onSubmit={scrollToResults}
+        onSubmit={() => {
+          setQuery(typed)
+          scrollToResults()
+        }}
       />
 
       <BrandMarquee

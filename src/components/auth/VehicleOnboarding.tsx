@@ -147,7 +147,7 @@ export function VehicleOnboarding({ cars, onComplete, onSkip }: VehicleOnboardin
             key={group.make}
             type="button"
             onClick={() => setSelectedMake(group.make)}
-            className="group/make rounded-[22px] border-[1.5px] border-ink/10 bg-white p-4 text-center transition-[border-color,translate,box-shadow] duration-300 ease-out hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-e1 focus-visible:outline-none focus-visible:shadow-focus"
+            className="group/make rounded-[22px] border-[1.5px] border-ink/10 bg-white p-4 text-center transition-[border-color,translate,box-shadow] duration-300 ease-out hover:[translate:0_-2px] hover:border-ink/30 hover:shadow-e1 focus-visible:outline-none focus-visible:shadow-focus"
           >
             <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-[14px] bg-chalk transition-colors group-hover/make:bg-ink">
               <CarIcon size={24} className="text-ink transition-colors group-hover/make:text-volt" aria-hidden="true" />

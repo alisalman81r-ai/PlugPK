@@ -14,6 +14,8 @@ export interface VehicleSelectorProps {
   selectedVehicle: RouteVehicle | null
   onSelect: (vehicle: RouteVehicle | null) => void
   className?: string
+  /** The trigger button's id, so the planner can focus and flash it. */
+  triggerId?: string
 }
 
 /**
@@ -43,7 +45,7 @@ const POPULAR_SLUGS = [
 
 const POPULAR_LABEL = 'Popular picks'
 
-export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className }: VehicleSelectorProps) {
+export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className, triggerId }: VehicleSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -139,6 +141,7 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
     <div ref={containerRef} className={cn('relative', className)}>
       <button
         ref={triggerRef}
+        id={triggerId}
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         // Typing on the closed picker opens it with that letter already in

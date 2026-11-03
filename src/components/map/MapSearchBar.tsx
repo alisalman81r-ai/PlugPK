@@ -15,6 +15,8 @@ export interface MapSearchBarProps {
   resultCount: number
   className?: string
   onSelectStation?: (station: Station) => void
+  /** Enter with no suggestion highlighted: the search is done (page-map.js form submit). */
+  onSubmit?: () => void
   /**
    * The list the suggestions are drawn from — the same one the map shows.
    *
@@ -49,6 +51,7 @@ export function MapSearchBar({
   resultCount,
   className,
   onSelectStation,
+  onSubmit,
   stations,
   idPrefix = 'map-search',
 }: MapSearchBarProps) {
@@ -114,6 +117,13 @@ export function MapSearchBar({
       return
     }
 
+    if (event.key === 'Enter' && activeIndex < 0 && onSubmit) {
+      event.preventDefault()
+      setIsFocused(false)
+      onSubmit()
+      return
+    }
+
     if (!showDropdown || suggestions.length === 0) return
 
     if (event.key === 'ArrowDown') {
@@ -174,7 +184,7 @@ export function MapSearchBar({
               type="button"
               onClick={onClear}
               aria-label="Clear search"
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition-colors duration-200 hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted [transition:background-color_.25s,color_.25s] hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               <X size={18} />
             </button>

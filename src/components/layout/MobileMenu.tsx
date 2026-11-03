@@ -6,7 +6,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { Avatar } from '@/components/ui/Avatar'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { NAV_LINKS, NAV_TOOLS } from '@/lib/constants'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
@@ -44,8 +46,19 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
     }
   }
 
+  const sheetRef = React.useRef<HTMLDivElement>(null)
+
+  /* The page holds still under the sheet, and the sheet's rows rise in one
+     after another as the circle opens (pages.js: .mnav > * from y 30). */
   React.useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
+    const lenis = getLenis()
+    if (isOpen) lenis?.stop()
+    else lenis?.start()
+    if (isOpen && !prefersReduced() && sheetRef.current) {
+      const rows = sheetRef.current.querySelectorAll('[data-mnav-row]')
+      gsap.from(rows, { y: 30, autoAlpha: 0, stagger: 0.04, duration: 0.6, ease: 'expo.out', delay: 0.15 })
+    }
     return () => {
       document.body.style.overflow = ''
     }
@@ -71,6 +84,7 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
         href={href}
         onClick={onClose}
         tabIndex={tab}
+        data-mnav-row=""
         aria-current={active ? 'page' : undefined}
         className={cn(
           'flex min-h-11 items-center gap-3 transition-colors duration-150',
@@ -97,17 +111,17 @@ export function MobileMenu({ isOpen, onClose, user = null }: MobileMenuProps) {
           : 'pointer-events-none [clip-path:circle(0_at_calc(100%-50px)_46px)]',
       )}
     >
-      <div className="flex h-full flex-col overflow-y-auto px-[clamp(16px,4vw,64px)] pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[100px]">
+      <div ref={sheetRef} data-lenis-prevent="" className="flex h-full flex-col overflow-y-auto px-[clamp(16px,4vw,64px)] pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[100px]">
         <nav aria-label="Menu" className="flex flex-col gap-1">
           {NAV_LINKS.map((link) => row(link.href, link.label))}
 
-          <p className="mb-1 mt-5 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-white/45">Tools</p>
+          <p data-mnav-row="" className="mb-1 mt-5 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-white/45">Tools</p>
           {NAV_TOOLS.map((tool) => row(tool.href, tool.label, true))}
         </nav>
 
         <div className="flex-1" />
 
-        <div className="mt-8 flex flex-col gap-3">
+        <div data-mnav-row="" className="mt-8 flex flex-col gap-3">
           {user ? (
             <>
               <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-3">

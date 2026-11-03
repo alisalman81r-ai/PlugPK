@@ -85,7 +85,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr]">
           <nav aria-label="Footer" className="contents">
             {FOOTER_COLUMNS.map((column) => (
-              <div key={column.heading}>
+              <div key={column.heading} data-foot-col="">
                 <h3 className="mb-[22px] text-[15px] font-semibold text-white">{column.heading}</h3>
                 <ul>
                   {column.links.map((link) => (
@@ -100,13 +100,14 @@ export function Footer() {
             ))}
           </nav>
 
-          <div>
+          <div data-foot-col="">
             <h3 className="mb-[22px] text-[15px] font-semibold text-white">Contact</h3>
             <p className="-mt-2.5 mb-[18px] max-w-[26rem] text-[15px] text-white/55">
               Questions, a wrong pin, a listing to report or a business to add — write to us.
             </p>
             <a
               href={`mailto:${SITE_CONFIG.email}`}
+              data-magnetic=""
               className="mb-10 inline-flex h-12 items-center gap-2.5 rounded-full border border-white/20 px-[22px] text-[15px] font-semibold text-white transition-colors duration-300 hover:border-volt hover:text-volt"
             >
               <Mail size={18} aria-hidden="true" />
@@ -138,9 +139,20 @@ export function Footer() {
         {/* The wordmark, edge to edge. Decorative: the brand is named above. */}
         <div
           aria-hidden="true"
+          data-foot-word=""
           className="pg-bold mt-6 flex select-none items-end justify-center overflow-hidden pb-[0.02em] font-display text-[clamp(84px,19vw,300px)] leading-[0.9] tracking-[-0.01em]"
         >
-          plug<span className="text-volt">pk</span>
+          {/* One span per letter: they rise one after another as the page ends. */}
+          {['p', 'l', 'u', 'g'].map((ch, i) => (
+            <span key={i} className="inline-block">
+              {ch}
+            </span>
+          ))}
+          {['p', 'k'].map((ch, i) => (
+            <span key={`pk${i}`} className="inline-block text-volt">
+              {ch}
+            </span>
+          ))}
         </div>
       </div>
     </footer>

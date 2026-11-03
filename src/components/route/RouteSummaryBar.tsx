@@ -35,7 +35,7 @@ export function RouteSummaryBar({ trip }: RouteSummaryBarProps) {
     <div className="mt-[22px]">
       <dl className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
         {tiles.map((tile) => (
-          <div key={tile.label} className="flex flex-col-reverse rounded-[18px] border border-ink/10 bg-paper p-4">
+          <div key={tile.label} data-rt-sum="" className="flex flex-col-reverse rounded-[18px] border border-ink/10 bg-paper p-4">
             <dt className="mt-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-muted">
               {tile.label}
             </dt>
@@ -46,7 +46,7 @@ export function RouteSummaryBar({ trip }: RouteSummaryBarProps) {
         ))}
       </dl>
 
-      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[18px] bg-ink px-[18px] py-3.5 text-white">
+      <div data-rt-sum="" className="mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[18px] bg-ink px-[18px] py-3.5 text-white">
         <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/60">
           Total trip time
         </span>

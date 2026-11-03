@@ -10,3 +10,11 @@ export const MAP_HEIGHT =
 
 /** How far the filter sheet is pulled up into the hero above it. */
 export const RAIL_LIFT = '-mt-24 sm:-mt-[132px]'
+
+/**
+ * .scard2 / .card--hover: the card rises 4px on the `translate` property, so
+ * it never fights the GSAP `y` (transform) its entrance leaves behind.
+ * transition: translate .45s e-out, box-shadow .45s e-out, border-color .3s.
+ */
+export const SCARD_HOVER =
+  '[transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:[translate:0_-4px] hover:border-ink/[.18] hover:shadow-e2'

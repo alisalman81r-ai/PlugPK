@@ -1,10 +1,15 @@
 // src/components/range/RoadEstimates.tsx
-import Link from 'next/link'
+'use client'
 
+import Link from 'next/link'
+import * as React from 'react'
+
+import { MovingBar, TweenNumber, useIsoLayoutEffect } from '@/components/tools/motion'
 import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
-import { CARD, CARD_HOVER, Eyebrow, H2_CLASS, Hl, LEAD_CLASS } from '@/components/v2/ui'
+import { CARD, Eyebrow, H2_CLASS, Hl, LEAD_CLASS } from '@/components/v2/ui'
 import { ArrowUpRight, Gauge, Info, Route, Sun, Users } from '@/components/ui/icons'
 import type { IconType } from '@/components/ui/icons'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import type { RangeStandard, RoadEstimate, ScenarioId } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +26,11 @@ import type { RangeCar } from './types'
  *
  * Each card's bar is the quoted figure end to end: the ink segment is the
  * likely band, the volt tick the most likely figure.
+ *
+ * Motion (landing-v2): the heading block rises in whole — it holds a live
+ * figure, so its words are not split — and each card's band and tick grow
+ * from the left as the card comes into view (1.2s expo.out). The figures
+ * roll and the band glides whenever the quoted range changes.
  */
 
 const ICONS: Record<ScenarioId, IconType> = {
@@ -42,9 +52,26 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
   const owner = car && car.ownerLowKm ? car : null
   const share = (v: number) => Math.min(100, (v / km) * 100)
 
+  const rootRef = React.useRef<HTMLElement>(null)
+  useIsoLayoutEffect(() => {
+    if (!rootRef.current || prefersReduced()) return
+    const ctx = gsap.context((self) => {
+      self.selector!('[data-rw-card]').forEach((card: Element) =>
+        gsap.from(card.querySelectorAll('[data-rw-mark]'), {
+          scaleX: 0,
+          transformOrigin: '0 50%',
+          duration: 1.2,
+          ease: 'expo.out',
+          scrollTrigger: { trigger: card, start: 'top 85%' },
+        }),
+      )
+    }, rootRef)
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <section aria-labelledby="road-heading">
-      <header className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
+    <section ref={rootRef} aria-labelledby="road-heading">
+      <header data-reveal="" className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
         <Eyebrow>Real-world estimate</Eyebrow>
         <h2 id="road-heading" className={cn(H2_CLASS, 'text-ink')}>
           <span className="whitespace-nowrap">
@@ -64,7 +91,14 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
           const Icon = ICONS[e.scenario.id]
           return (
             <RevealItem key={e.scenario.id} className="h-full">
-              <article className={cn(CARD, CARD_HOVER, 'group/rw flex h-full flex-col px-5 pb-6 pt-[22px] sm:px-[26px] sm:pt-[26px]')}>
+              <article
+                data-rw-card=""
+                className={cn(
+                  CARD,
+                  // .rw__card:hover — up 4px and the deeper shadow, on the card's .45s out-curve
+                  'group/rw flex h-full flex-col px-5 pb-6 pt-[22px] [transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:shadow-e2 hover:[translate:0_-4px] sm:px-[26px] sm:pt-[26px]',
+                )}
+              >
                 <div className="flex items-start gap-3.5">
                   <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-chalk text-ink transition-colors duration-300 group-hover/rw:bg-ink group-hover/rw:text-volt">
                     <Icon size={22} aria-hidden="true" />
@@ -76,21 +110,27 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
                 </div>
 
                 <p className="mt-[26px] whitespace-nowrap font-mono text-[clamp(38px,3.6vw,52px)] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">
-                  {e.low}–{e.high}
+                  <TweenNumber value={e.low} format={String} />–<TweenNumber value={e.high} format={String} />
                   <small className="ml-2 text-base font-medium tracking-normal text-muted">km</small>
                 </p>
                 <p className="mt-2.5 text-[14.5px] text-muted">
-                  Most likely around <b className="font-mono font-semibold text-ink">{e.typical} km</b>
+                  Most likely around{' '}
+                  <b className="font-mono font-semibold text-ink">
+                    <TweenNumber value={e.typical} format={String} /> km
+                  </b>
                 </p>
 
                 <div aria-hidden="true" className="relative mt-7 h-2.5 rounded-[5px] bg-stone after:absolute after:-bottom-1 after:-top-1 after:right-0 after:w-0.5 after:rounded-[1px] after:bg-ink after:content-['']">
-                  <i
-                    className="absolute inset-y-0 rounded-[5px] bg-ink transition-[left,width] duration-700 ease-out"
-                    style={{ left: `${share(e.low)}%`, width: `${Math.max(0, share(e.high) - share(e.low))}%` }}
+                  <MovingBar
+                    data-rw-mark=""
+                    className="absolute inset-y-0 left-0 w-0 rounded-[5px] bg-ink"
+                    left={share(e.low)}
+                    width={Math.max(0, share(e.high) - share(e.low))}
                   />
-                  <i
-                    className="absolute -top-[5px] -ml-0.5 h-5 w-1 rounded-sm bg-volt shadow-[0_0_0_2px_#0B0C0E] transition-[left] duration-700 ease-out"
-                    style={{ left: `${share(e.typical)}%` }}
+                  <MovingBar
+                    data-rw-mark=""
+                    className="absolute -top-[5px] left-0 -ml-0.5 h-5 w-1 rounded-sm bg-volt shadow-[0_0_0_2px_#0B0C0E]"
+                    left={share(e.typical)}
                   />
                   <span className="absolute -top-[22px] right-0 font-mono text-[10.5px] font-medium text-muted">{standard}</span>
                 </div>
@@ -110,7 +150,7 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
       </RevealGroup>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <p className={NOTE}>
+        <p data-reveal="" className={NOTE}>
           <Info size={20} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
           <span>
             <strong>Motorway in June, car full?</strong> Expect less than the motorway band. Heat, AC and weight each
@@ -120,7 +160,7 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
         </p>
 
         {owner ? (
-          <div className={cn(NOTE, 'border-volt-edge bg-volt-tint')}>
+          <div data-reveal="" className={cn(NOTE, 'border-volt-edge bg-volt-tint')}>
             <Users size={20} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
             <p>
               <strong>
@@ -139,7 +179,7 @@ export function RoadEstimates({ estimates, km, standard, car }: RoadEstimatesPro
             </p>
           </div>
         ) : (
-          <p className={NOTE}>
+          <p data-reveal="" className={NOTE}>
             <Route size={20} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
             <span>
               <strong>City traffic is kinder to an EV</strong> than to a petrol car. Crawling and stopping cost little,

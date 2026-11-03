@@ -9,9 +9,17 @@ import * as React from 'react'
 import { btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 
-/** .apanel — a white card, 24px corners, a soft drop. */
-export const PANEL =
-  'rounded-3xl border border-ink/10 bg-white p-[clamp(20px,3vw,32px)] shadow-[0_1px_2px_rgba(11,12,14,.04),0_18px_40px_-30px_rgba(11,12,14,.3)]'
+import motion from './acct-motion.module.css'
+
+/**
+ * .apanel — a white card, 24px corners, a soft drop. It rises in with the
+ * page (page-account.css: 16px over 0.8s, the first of its kind at .1s).
+ */
+export const PANEL = `rounded-3xl border border-ink/10 bg-white p-[clamp(20px,3vw,32px)] shadow-[0_1px_2px_rgba(11,12,14,.04),0_18px_40px_-30px_rgba(11,12,14,.3)] ${motion.panel}`
+
+/** The rest of the account entrance: the side panel, the header (.05s), and the settings page's later panels. */
+export const ACCT_RISE = motion.rise
+export const ACCT_DELAY = { head: motion.d05, password: motion.d16, devices: motion.d22 }
 
 /** .apanel h2 — Power Grotesk Regular, 26px. */
 export const PANEL_H2 = 'm-0 font-display text-[26px] leading-[1.1] text-ink'
@@ -22,7 +30,7 @@ export const PANEL_SUB = 'mt-2 max-w-[720px] text-[15px] leading-[1.55] text-mut
 /** A row inside a panel: a list item that lifts a little on hover when it links. */
 export const ROW = 'rounded-[18px] border border-ink/10 bg-white p-4'
 export const ROW_LINK =
-  'block rounded-[18px] border border-ink/10 bg-white p-4 transition-[border-color,box-shadow,translate] duration-300 ease-out hover:-translate-y-0.5 hover:border-ink/20 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus'
+  'block rounded-[18px] border border-ink/10 bg-white p-4 transition-[border-color,box-shadow,translate] duration-300 ease-out hover:[translate:0_-2px] hover:border-ink/20 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus'
 
 /** .ain — the 54px account field. */
 export const AIN =

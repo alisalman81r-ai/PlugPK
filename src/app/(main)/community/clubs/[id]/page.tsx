@@ -76,7 +76,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
               value: (
                 <span className="inline-flex items-center gap-2">
                   <Users size={16} className="text-volt" aria-hidden="true" />
-                  {club.memberCount.toLocaleString('en-PK')}
+                  <span data-count={club.memberCount}>{club.memberCount.toLocaleString('en-PK')}</span>
                 </span>
               ),
               label: club.memberCount === 1 ? 'member' : 'members',
@@ -139,7 +139,7 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
             ) : (
               <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {club.members.map((member) => (
-                  <li key={member.id} className="flex items-center gap-3 rounded-[18px] border border-ink/10 bg-white p-3">
+                  <li key={member.id} data-reveal="" className="flex items-center gap-3 rounded-[18px] border border-ink/10 bg-white p-3">
                     <Avatar name={member.displayName} src={member.avatar ?? undefined} size={40} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-ink">
@@ -161,7 +161,9 @@ export default async function ClubPage({ params }: { params: { id: string } }) {
           <aside aria-label="Membership" className="rounded-[22px] border border-ink/10 bg-white p-5 shadow-e1 order-1 md:order-2">
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted">Membership</p>
             <p className="mt-2 flex items-baseline gap-2">
-              <b className="font-mono text-[34px] font-semibold leading-none tabular-nums text-ink">{club.memberCount}</b>
+              <b data-count={club.memberCount} className="font-mono text-[34px] font-semibold leading-none tabular-nums text-ink">
+                {club.memberCount}
+              </b>
               <span className="text-sm text-muted">{club.memberCount === 1 ? 'member' : 'members'} · free to join</span>
             </p>
             <ClubJoinButton

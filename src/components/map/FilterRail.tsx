@@ -5,10 +5,16 @@ import { Check, ChevronDown, RotateCcw, SlidersHorizontal, Star } from '@/compon
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'
+import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
 import type { AmenityType, ConnectorType, StationFilters } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { FLABEL, btnClass, chipClass } from '@/components/v2/ui'
 import { AMENITY_OPTIONS, CONNECTOR_LABEL, SPEED_OPTIONS } from './filter-options'
+import { useIsoLayoutEffect } from './motion'
+
+/** pages.css .chip: background, border-color and color .25s; transform .3s spring (the :active press). */
+const CHIP_TRANSITION =
+  '![transition:background-color_.25s,border-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)]'
 
 /**
  * The filter rail: every filter, laid out horizontally above the map.
@@ -65,6 +71,26 @@ export function FilterRail({
   React.useEffect(() => {
     if (hasFoldedFilter) setIsExpanded(true)
   }, [hasFoldedFilter])
+
+  /**
+   * page-map.js setMore: opening "More filters" brings its groups in one
+   * after another (from y 12, opacity 0, 0.5s, expo.out, 0.05s apart), and
+   * the page's scroll triggers are re-measured either way.
+   */
+  const moreRef = React.useRef<HTMLDivElement>(null)
+  useIsoLayoutEffect(() => {
+    const panel = moreRef.current
+    let tween: gsap.core.Tween | undefined
+    if (isExpanded && panel && !prefersReduced()) {
+      tween = gsap.from(panel.children, { y: 12, opacity: 0, duration: 0.5, ease: 'expo.out', stagger: 0.05 })
+    }
+    ScrollTrigger.refresh()
+    return () => {
+      if (!tween) return
+      tween.kill()
+      if (panel) gsap.set(panel.children, { clearProps: 'transform,opacity' })
+    }
+  }, [isExpanded])
 
   const toggleConnector = (type: ConnectorType) => {
     onUpdateFilter(
@@ -125,7 +151,7 @@ export function FilterRail({
             <button
               type="button"
               onClick={onResetFilters}
-              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-muted transition-colors duration-200 hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink sm:h-[42px]"
+              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-muted hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink sm:h-[42px]"
             >
               <RotateCcw size={14} aria-hidden="true" />
               Clear
@@ -189,7 +215,8 @@ export function FilterRail({
                   aria-checked={selected}
                   onClick={() => onUpdateFilter('chargingSpeed', option.value)}
                   className={cn(
-                    'grid min-w-0 flex-1 justify-items-center gap-0.5 rounded-xl px-0.5 py-2 text-[13px] font-semibold transition-[background-color,color,box-shadow] duration-200 sm:px-3 sm:text-sm xl:min-w-[84px]',
+                    // .seg button: background, color and box-shadow .25s.
+                    'grid min-w-0 flex-1 justify-items-center gap-0.5 rounded-xl px-0.5 py-2 text-[13px] font-semibold [transition:background-color_.25s,color_.25s,box-shadow_.25s] sm:px-3 sm:text-sm xl:min-w-[84px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink',
                     selected ? 'bg-white text-ink shadow-e1' : 'text-muted hover:text-ink',
                   )}
@@ -234,8 +261,9 @@ export function FilterRail({
       {/* ── The folded pair ──────────────────────────────────────── */}
       {isExpanded ? (
         <div
+          ref={moreRef}
           id="filter-rail-more"
-          className="grid animate-fade-in border-t border-ink/10 bg-white md:grid-cols-[1fr_auto]"
+          className="grid border-t border-ink/10 bg-white md:grid-cols-[1fr_auto]"
         >
           <Group label="Nearby amenities">
             <div className="flex flex-wrap gap-2">
@@ -334,14 +362,15 @@ function Chip({
       aria-pressed={active}
       className={chipClass(
         active,
-        'h-11 sm:h-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2',
+        cn('h-11 sm:h-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2', CHIP_TRANSITION),
       )}
     >
       {check ? (
         <Check
           aria-hidden="true"
           className={cn(
-            'shrink-0 text-volt transition-[width,opacity,margin] duration-300 ease-spring',
+            // .chip__ck: width .3s spring, opacity .2s, margin .3s spring.
+            'shrink-0 text-volt [transition:width_.3s_cubic-bezier(.34,1.56,.64,1),opacity_.2s,margin_.3s_cubic-bezier(.34,1.56,.64,1)]',
             active ? '!w-3.5 opacity-100' : '-mr-2 !w-0 opacity-0',
           )}
         />

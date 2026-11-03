@@ -1,9 +1,14 @@
 // src/components/map/StationPin.tsx
 'use client'
 
+import * as React from 'react'
+
 import { Zap } from '@/components/ui/icons'
 
 import { FAST_CHARGER_KW } from '@/lib/charging'
+import { gsap, prefersReduced } from '@/lib/gsap'
+
+import { useIsoLayoutEffect } from './motion'
 import type { Station } from '@/lib/types'
 import { cn, getMaxPower } from '@/lib/utils'
 
@@ -50,9 +55,42 @@ export function pinTitle(station: Station): string {
   return maxPower > 0 ? `${station.name} — up to ${maxPower} kW` : station.name
 }
 
+/**
+ * page-map.js renderPins: every marker that appears pops its body in —
+ * from { scale: 0.2, opacity: 0 }, 0.55s, back.out(2.2) — after a random
+ * 0–0.15s when the pins were re-rendered for new data (load, a filter), at
+ * once when a camera move regrouped them.
+ */
+function usePinEntrance(ref: React.RefObject<HTMLElement>, force: boolean) {
+  useIsoLayoutEffect(() => {
+    const el = ref.current
+    if (!el || prefersReduced()) return
+    const tween = gsap.from(el, {
+      scale: 0.2,
+      opacity: 0,
+      duration: 0.55,
+      ease: 'back.out(2.2)',
+      delay: force ? Math.random() * 0.15 : 0,
+      clearProps: 'transform,opacity,scale',
+    })
+    return () => {
+      tween.kill()
+      gsap.set(el, { clearProps: 'transform,opacity,scale' })
+    }
+    // On mount only: a marker that stays is not popped again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+}
+
+/** .mpin__body: transform .35s spring, background .25s, color .25s, box-shadow .3s. */
+const PIN_BODY_TRANSITION =
+  '[transition:transform_.35s_cubic-bezier(.34,1.56,.64,1),background-color_.25s,color_.25s,box-shadow_.3s,border-color_.25s]'
+
 export interface StationPinProps {
   station: Station
   isSelected: boolean
+  /** Whether this pin arrived with new data (random delay) rather than a camera move. */
+  force?: boolean
 }
 
 /**
@@ -64,7 +102,9 @@ export interface StationPinProps {
  * anything having to be opened. Ink for 60 kW+, white for slower, volt for the
  * one that is selected — the design's one volt moment on the map.
  */
-export function StationPin({ station, isSelected }: StationPinProps) {
+export function StationPin({ station, isSelected, force = true }: StationPinProps) {
+  const bodyRef = React.useRef<HTMLSpanElement>(null)
+  usePinEntrance(bodyRef, force)
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
   const fast = pinKind(station) === 'fast'
 
@@ -80,7 +120,7 @@ export function StationPin({ station, isSelected }: StationPinProps) {
         'group relative flex cursor-pointer flex-col items-center pb-2',
         // Shadows rather than filter: drop-shadow — a filter on every pin is
         // repainted on every frame of a pan; a box-shadow is not.
-        'origin-bottom transition-transform duration-300 ease-spring motion-reduce:transition-none',
+        'origin-bottom transition-transform duration-[350ms] ease-spring motion-reduce:transition-none',
         isSelected ? '-translate-y-[3px] scale-[1.12]' : 'hover:-translate-y-[3px] hover:scale-[1.06]',
       )}
     >
@@ -97,8 +137,10 @@ export function StationPin({ station, isSelected }: StationPinProps) {
       </span>
 
       <span
+        ref={bodyRef}
         className={cn(
-          'relative flex h-8 items-center gap-[5px] rounded-full border-[1.5px] pl-[4px] pr-[11px] transition-colors duration-200',
+          'relative flex h-8 items-center gap-[5px] rounded-full border-[1.5px] pl-[4px] pr-[11px]',
+          PIN_BODY_TRANSITION,
           body,
         )}
       >
@@ -130,13 +172,18 @@ export function StationPin({ station, isSelected }: StationPinProps) {
 }
 
 /** Pins that would overlap, merged into one bubble with a count; a click zooms in. */
-export function ClusterPin({ count }: { count: number }) {
+export function ClusterPin({ count, force = true }: { count: number; force?: boolean }) {
+  const bodyRef = React.useRef<HTMLSpanElement>(null)
+  usePinEntrance(bodyRef, force)
   return (
     <span
+      ref={bodyRef}
       className={cn(
         'flex h-9 cursor-pointer items-center gap-[7px] rounded-full bg-ink pl-[6px] pr-[14px] text-white',
         'shadow-[0_0_0_5px_rgba(11,12,14,.12),0_10px_22px_-8px_rgba(11,12,14,.6)]',
-        'transition-transform duration-300 ease-spring hover:-translate-y-[3px] hover:scale-105 motion-reduce:transition-none',
+        // .mpin:hover .mpin__body: translateY(-3px) scale(1.06), on the body's own transition.
+        'origin-bottom hover:-translate-y-[3px] hover:scale-[1.06] motion-reduce:transition-none',
+        PIN_BODY_TRANSITION,
       )}
     >
       <span className="grid h-[25px] w-[25px] place-items-center rounded-full bg-volt text-ink">
@@ -148,13 +195,17 @@ export function ClusterPin({ count }: { count: number }) {
   )
 }
 
+/** page-map.css .mme::before: a ring that grows (scale .3 → 1.6) and fades, 2.2s e-out, forever. */
+const MME_KEYFRAMES = '@keyframes mme{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}'
+
 /** The pulsing dot marking the visitor's own position. */
 export function UserLocationPin() {
   return (
     <span className="relative flex h-[22px] w-[22px] items-center justify-center">
+      <style>{MME_KEYFRAMES}</style>
       <span
         aria-hidden="true"
-        className="absolute -inset-2.5 animate-ping rounded-full border border-ink/25 bg-volt/50 motion-reduce:animate-none"
+        className="absolute -inset-2.5 animate-[mme_2.2s_cubic-bezier(.16,1,.3,1)_infinite] rounded-full border border-ink/25 bg-volt/50 motion-reduce:animate-none"
       />
       <span className="relative h-3.5 w-3.5 rounded-full border-[3px] border-white bg-ink shadow-[0_0_0_1.5px_#0B0C0E]" />
     </span>

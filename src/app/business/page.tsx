@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { PORTAL_COOKIE } from '@/components/business/portal-mode'
-import { SHELL_BAR_LINK, SHELL_LEAD, SHELL_TITLE, ShellChip, StandaloneShell } from '@/components/auth/StandaloneShell'
+import { SHELL_BAR_LINK, SHELL_LEAD, SHELL_TITLE, ShellChip, StandaloneShell, shellCardRise } from '@/components/auth/StandaloneShell'
 import { BtnArrow, Hl, btnClass } from '@/components/v2/ui'
 import { countPortalSides } from '@/lib/db/service-owner-queries'
 import { getCurrentUser } from '@/lib/db/session-actions'
@@ -80,11 +80,11 @@ export default async function BusinessPortalPage() {
           const Icon = side.icon
           const ink = i === 0
           return (
-            <li key={side.title}>
+            <li key={side.title} className={shellCardRise(i)}>
               <Link
                 href={side.href}
                 className={cn(
-                  'group/side relative flex h-full flex-col rounded-[28px] border p-7 transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus',
+                  'group/side relative flex h-full flex-col rounded-[28px] border p-7 transition-[translate,box-shadow] duration-[450ms] ease-out hover:shadow-e2 hover:[translate:0_-4px] focus-visible:outline-none focus-visible:shadow-focus',
                   ink ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink shadow-e1',
                 )}
               >

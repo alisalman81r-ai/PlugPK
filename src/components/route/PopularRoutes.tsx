@@ -88,10 +88,15 @@ function RouteCard({
       aria-label={`Plan ${route.from} to ${route.to}, about ${route.distanceKm} kilometres`}
       aria-pressed={active}
       className={cn(
-        'group grid h-full w-full gap-[18px] rounded-[22px] border-[1.5px] bg-white px-4 pb-3.5 pt-[18px] text-left shadow-e1 sm:px-5 sm:pb-4 sm:pt-5',
-        'transition-[translate,box-shadow,border-color,scale] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2 active:scale-[0.985]',
+        'group grid h-full w-full gap-[18px] rounded-[22px] border-[1.5px] bg-white px-4 pb-3.5 pt-[18px] text-left sm:px-5 sm:pb-4 sm:pt-5',
+        // .rt-route: lifts 4px on hover (the translate property, eased), and
+        // presses to .985 on :active with no transition, as the design does.
+        '[transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:[translate:0_-4px] active:[scale:.985]',
         'focus-visible:outline-none focus-visible:shadow-focus',
-        active ? 'border-ink shadow-[0_0_0_4px_rgba(212,255,58,.55)]' : 'border-ink/10',
+        // .is-on outranks :hover in the design, so a loaded card keeps its ring.
+        active
+          ? 'border-ink [box-shadow:0_0_0_4px_rgba(212,255,58,.55),var(--shadow-e1)]'
+          : 'border-ink/10 shadow-e1 hover:border-ink/20 hover:shadow-e2',
       )}
     >
       <span className="flex items-start justify-between gap-3">
@@ -127,7 +132,7 @@ function RouteCard({
         <span
           aria-hidden="true"
           className={cn(
-            'grid h-9 w-9 shrink-0 place-items-center rounded-full transition-[background-color,color,transform] duration-[400ms] ease-spring',
+            'grid h-9 w-9 shrink-0 place-items-center rounded-full [transition:background-color_.3s,color_.3s,transform_.4s_cubic-bezier(.34,1.56,.64,1)]',
             active ? '-rotate-45 bg-ink text-volt' : 'bg-chalk text-ink group-hover:-rotate-45 group-hover:bg-ink group-hover:text-volt',
           )}
         >

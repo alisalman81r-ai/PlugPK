@@ -1,0 +1,74 @@
+/*
+  landing-v2 page-auth.css, the motion half — ported as written.
+
+  The account screens (sign in, sign up, password help) and the single
+  centred page (.lyb: the business portal's front door, listing a charger)
+  enter in CSS, not script: the card, the line under it, the brand-side title,
+  perks and figures rise 22px out of nothing, the photo settles from 1.04,
+  and the volt route draws itself along the foot of the brand panel.
+
+  The delay classes come after .rise so they win over its shorthand.
+*/
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: auth-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .fade {
+    animation: auth-fade 1.2s 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .d06 { animation-delay: 0.06s; }
+  .d10 { animation-delay: 0.1s; }
+  .d12 { animation-delay: 0.12s; }
+  .d15 { animation-delay: 0.15s; }
+  .d20 { animation-delay: 0.2s; }
+  .d26 { animation-delay: 0.26s; }
+  .d27 { animation-delay: 0.27s; }
+  .d32 { animation-delay: 0.32s; }
+  .d34 { animation-delay: 0.34s; }
+  .d38 { animation-delay: 0.38s; }
+  .d42 { animation-delay: 0.42s; }
+  .d46 { animation-delay: 0.46s; }
+}
+
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+}
+
+@keyframes auth-fade {
+  from {
+    opacity: 0;
+    scale: 1.04;
+  }
+}
+
+/* .auth__route path */
+.route {
+  fill: none;
+  stroke: #d4ff3a;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 8px rgba(212, 255, 58, 0.7));
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: auth-draw 2.4s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  vector-effect: non-scaling-stroke;
+}
+
+@keyframes auth-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

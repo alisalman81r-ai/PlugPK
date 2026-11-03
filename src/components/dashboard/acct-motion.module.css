@@ -1,0 +1,31 @@
+/*
+  landing-v2 page-account.css, the entrance — ported as written.
+
+  The side panel, the page header and every panel rise 16px out of nothing
+  over 0.8s: the side first, the header at .05s, the first panel at .1s, and
+  on the settings page the password panel at .16s and the devices panel at
+  .22s. Nothing moves under reduced motion.
+*/
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise,
+  .panel {
+    animation: acc-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  /* .apanel:nth-of-type(1) */
+  .panel:nth-of-type(1) {
+    animation-delay: 0.1s;
+  }
+
+  .d05 { animation-delay: 0.05s; }
+  /* #password, #devices */
+  .d16 { animation-delay: 0.16s; }
+  .d22 { animation-delay: 0.22s; }
+}
+
+@keyframes acc-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}

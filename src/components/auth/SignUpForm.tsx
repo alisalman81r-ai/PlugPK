@@ -5,7 +5,6 @@ import { AlertCircle, Eye, EyeOff, Lock, Mail, User } from '@/components/ui/icon
 import Link from 'next/link'
 import * as React from 'react'
 
-import { MorphIcon } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { registerUser } from '@/lib/db/auth-actions'
 
@@ -45,7 +44,7 @@ export const FIELD_ICON = 'pointer-events-none absolute left-4 top-1/2 -translat
 
 /** The show/hide password button at the end of a field (.afield__eye). */
 export const FIELD_EYE =
-  'absolute right-1.5 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-xl text-fog transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:shadow-focus'
+  'absolute right-1.5 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-xl text-fog hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:shadow-focus'
 
 export type StrengthLevel = 0 | 1 | 2 | 3 | 4
 
@@ -102,19 +101,18 @@ export function FieldError({ message }: { message?: string }) {
 }
 
 /** The agree box (.acheck): a 22px tile that fills volt with an ink tick. */
-export function Checkbox({
-  checked,
-  onChange,
-  id,
-  invalid = false,
-}: {
-  checked: boolean
-  onChange: (checked: boolean) => void
-  id: string
-  invalid?: boolean
-}) {
+export const Checkbox = React.forwardRef<
+  HTMLButtonElement,
+  {
+    checked: boolean
+    onChange: (checked: boolean) => void
+    id: string
+    invalid?: boolean
+  }
+>(function Checkbox({ checked, onChange, id, invalid = false }, ref) {
   return (
     <button
+      ref={ref}
       type="button"
       id={id}
       role="checkbox"
@@ -135,7 +133,7 @@ export function Checkbox({
       />
     </button>
   )
-}
+})
 
 interface Errors {
   fullName?: string
@@ -155,6 +153,12 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
   const [agreed, setAgreed] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [errors, setErrors] = React.useState<Errors>({})
+  const fields = {
+    fullName: React.useRef<HTMLInputElement>(null),
+    email: React.useRef<HTMLInputElement>(null),
+    password: React.useRef<HTMLInputElement>(null),
+    terms: React.useRef<HTMLButtonElement>(null),
+  }
   const [touched, setTouched] = React.useState({
     fullName: false,
     email: false,
@@ -197,7 +201,12 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
     if (!agreed) found.terms = 'Tick the box to agree to the Terms and Privacy Policy.'
     setErrors(found)
     setTouched({ fullName: true, email: true, password: true })
-    if (Object.keys(found).length > 0) return
+    if (Object.keys(found).length > 0) {
+      // page-auth.js: a refused submit puts the cursor in the first bad field.
+      const first = (['fullName', 'email', 'password', 'terms'] as const).find((key) => found[key])
+      if (first) fields[first].current?.focus()
+      return
+    }
 
     setIsLoading(true)
     setSubmitError(null)
@@ -255,6 +264,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
         <div className="relative">
           <User size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
+            ref={fields.fullName}
             id="fullName"
             type="text"
             value={fullName}
@@ -276,6 +286,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
         <div className="relative">
           <Mail size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
+            ref={fields.email}
             id="email"
             type="email"
             value={email}
@@ -297,6 +308,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
         <div className="relative">
           <Lock size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
+            ref={fields.password}
             id="password"
             type={showPassword ? 'text' : 'password'}
             value={password}
@@ -314,7 +326,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
             aria-pressed={showPassword}
             className={FIELD_EYE}
           >
-            <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={20} />
+            {showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
           </button>
         </div>
         <PasswordStrength password={password} />
@@ -324,6 +336,7 @@ export function SignUpForm({ onSuccess, redirectTo }: SignUpFormProps) {
       <div className="mb-[22px] mt-5">
         <div className="flex min-h-11 items-start gap-3 pt-0.5">
           <Checkbox
+            ref={fields.terms}
             id="terms"
             checked={agreed}
             invalid={Boolean(errors.terms)}

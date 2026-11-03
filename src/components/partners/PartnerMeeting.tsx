@@ -58,7 +58,7 @@ export function PartnerMeeting() {
                 <b className="text-ink">Already know what you need?</b> You can{' '}
                 <Link
                   href="/business/signup"
-                  className="font-semibold text-ink underline decoration-volt-2 decoration-2 underline-offset-[3px] hover:decoration-ink"
+                  className="font-semibold text-ink underline decoration-volt-2 decoration-2 underline-offset-[3px]"
                 >
                   list your charger directly
                 </Link>{' '}

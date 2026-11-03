@@ -4,7 +4,6 @@ import Link from 'next/link'
 
 import { Lift, LiftBody, LiftHead, Tag } from '@/components/v2/ui'
 import { cityPhoto } from '@/lib/city-photos'
-import { STAGGER } from '@/lib/motion'
 import type { EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { ClubCard } from './ClubCard'
@@ -60,16 +59,17 @@ export function ClubsDirectory({ clubs, signedIn = false, className }: ClubsDire
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {clubs.map((club, index) => (
-                <ClubCard
-                  key={club.id}
-                  club={club}
-                  /* The club's own photograph wins over its city's skyline. */
-                  photo={club.coverPhoto ?? cityPhoto(club.city)}
-                  signedIn={signedIn}
-                  animationDelay={index * STAGGER.TIGHT}
-                  className="animate-fade-up opacity-0 [animation-fill-mode:both]"
-                />
+              {/* Each card rises in as it scrolls into view ([data-reveal]); the
+                  wrapper carries it so the card's own hover lift keeps its transform. */}
+              {clubs.map((club) => (
+                <div key={club.id} data-reveal="" className="h-full">
+                  <ClubCard
+                    club={club}
+                    /* The club's own photograph wins over its city's skyline. */
+                    photo={club.coverPhoto ?? cityPhoto(club.city)}
+                    signedIn={signedIn}
+                  />
+                </div>
               ))}
             </div>
           )}

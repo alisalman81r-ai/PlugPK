@@ -21,7 +21,7 @@ import {
 import Link from 'next/link'
 import * as React from 'react'
 
-import { PhotoFrame } from '@/components/ui'
+import { CountUp } from '@/components/v2/Reveal'
 import { Btn, BtnArrow, CARD, Eyebrow, ExampleBadge, H2_CLASS, Hl, PageHero, WRAP, btnClass } from '@/components/v2/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { getCarFeatures } from '@/data/car-features'
@@ -42,8 +42,9 @@ import { RATES_CHECKED, RATES_FISCAL_YEAR, onRoadEstimates, onRoadProvinces } fr
 import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
+import { CarGrid, CarPhoto } from './car-motion'
 import { OnRoadPrice } from './OnRoadPrice'
-import { STAGE, priceQualifier } from './car-ui'
+import { CAR_ENTRANCE_ITEM, STAGE, priceQualifier } from './car-ui'
 
 /**
  * One car, in full, in the catalogue's language (landing-v2 cars.html): the
@@ -146,8 +147,10 @@ function panelPrice(car: Car): { label: string; amount: string } {
 function SectionTitle({ title, lead, className }: { title: React.ReactNode; lead?: React.ReactNode; className?: string }) {
   return (
     <header className={cn('mb-7', className)}>
-      <h2 className="font-display text-[clamp(30px,3.4vw,48px)] leading-[1.04] text-ink text-balance">{title}</h2>
-      {lead ? <p className="mt-3 max-w-[46rem] text-[15px] leading-[1.6] text-muted">{lead}</p> : null}
+      <h2 data-split="" className="font-display text-[clamp(30px,3.4vw,48px)] leading-[1.04] text-ink text-balance">
+        {title}
+      </h2>
+      {lead ? <p data-reveal="" className="mt-3 max-w-[46rem] text-[15px] leading-[1.6] text-muted">{lead}</p> : null}
     </header>
   )
 }
@@ -223,6 +226,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
       {/* ── The sheet: the car, the price, the figures ──────────── */}
       <div
         data-theme="light"
+        data-lift=""
         className="relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:-mt-28 sm:rounded-[32px]"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-[linear-gradient(90deg,#F4F3EE,#fff)] px-[18px] py-4 sm:px-7">
@@ -257,16 +261,13 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           {/* The stage. The cut-out is multiplied into the light. */}
           <div className={cn(STAGE, 'aspect-[16/11] rounded-[22px] lg:aspect-auto lg:min-h-[30rem]')}>
             {car.image ? (
-              <div className="absolute inset-x-[6%] bottom-[6%] top-[8%]">
-                <PhotoFrame
-                  src={car.image}
-                  alt={name}
-                  sizes="(max-width: 1024px) 100vw, 760px"
-                  priority
-                  className="bg-transparent"
-                  imageClassName="object-contain mix-blend-multiply"
-                />
-              </div>
+              <CarPhoto
+                src={car.image}
+                alt={name}
+                sizes="(max-width: 1024px) 100vw, 760px"
+                priority
+                className="inset-x-[6%] bottom-[6%] top-[8%]"
+              />
             ) : (
               <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                 <span aria-hidden="true" className="font-display text-5xl text-ink/20">
@@ -317,7 +318,13 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                               long ? 'text-[clamp(20px,1.8vw,26px)]' : 'text-[clamp(26px,2.4vw,34px)]',
                             )}
                           >
-                            {stat.value}
+                            {/* Counted up like the hero figures (data-count),
+                                when the figure is a single number. */}
+                            {/^\d+(\.\d+)?$/.test(stat.value) ? (
+                              <CountUp value={Number(stat.value)} decimals={stat.value.split('.')[1]?.length ?? 0} />
+                            ) : (
+                              stat.value
+                            )}
                           </span>
                           {stat.unit ? <span className="text-[13px] font-semibold text-muted">{stat.unit}</span> : null}
                         </span>
@@ -397,7 +404,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               {groups.map((group) => {
                 const Icon = GROUP_ICON[group.title] ?? CarIcon
                 return (
-                  <div key={group.title} className={cn(CARD, 'px-5 py-5 sm:px-7 sm:py-6')}>
+                  <div key={group.title} data-reveal="" className={cn(CARD, 'px-5 py-5 sm:px-7 sm:py-6')}>
                     <h3 className="flex items-center gap-3 font-display text-[22px] leading-tight text-ink">
                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-chalk">
                         <Icon size={18} aria-hidden="true" className="text-ink" />
@@ -435,7 +442,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 with a reviewed list in src/data/car-features.ts. Columns rather
                 than a grid, so the groups pack by height. */}
             {features ? (
-              <div className={cn(CARD, 'mt-3 px-5 py-5 sm:px-7 sm:py-7')}>
+              <div data-reveal="" className={cn(CARD, 'mt-3 px-5 py-5 sm:px-7 sm:py-7')}>
                 <h3 className="flex flex-wrap items-center gap-3 font-display text-[22px] leading-tight text-ink">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-volt-tint">
                     <BadgeCheck size={18} aria-hidden="true" className="text-volt-ink" />
@@ -484,7 +491,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             {/* The research trail — which source said what, where two
                 disagreed. Behind a disclosure: it is not what a buyer came for. */}
             {car.notes ? (
-              <details className="group/notes mt-3 rounded-[22px] border border-ink/10 bg-white transition-shadow open:shadow-e1">
+              <details data-reveal="" className="group/notes mt-3 rounded-[22px] border border-ink/10 bg-white transition-shadow open:shadow-e1">
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-[16px] font-semibold text-ink sm:px-7 [&::-webkit-details-marker]:hidden">
                   Data notes
                   <span className="text-sm font-medium text-muted">
@@ -508,7 +515,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <Eyebrow>Keep looking</Eyebrow>
-                <h2 className={cn(H2_CLASS, 'text-ink')}>
+                <h2 data-split="" className={cn(H2_CLASS, 'text-ink')}>
                   Similar <Hl>cars</Hl>
                 </h2>
               </div>
@@ -517,13 +524,14 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 <BtnArrow />
               </Btn>
             </div>
-            <ul className="grid grid-cols-1 gap-3 min-[421px]:grid-cols-2 sm:gap-[clamp(14px,1.6vw,22px)] min-[1101px]:grid-cols-3">
+            {/* The cards come in as the catalogue's do. */}
+            <CarGrid className="grid grid-cols-1 gap-3 min-[421px]:grid-cols-2 sm:gap-[clamp(14px,1.6vw,22px)] min-[1101px]:grid-cols-3">
               {similar.map((other) => (
-                <li key={other.id} className="min-w-0">
+                <li key={other.id} className={cn('min-w-0', CAR_ENTRANCE_ITEM)}>
                   <CarCard car={other} />
                 </li>
               ))}
-            </ul>
+            </CarGrid>
           </div>
         </section>
       ) : null}

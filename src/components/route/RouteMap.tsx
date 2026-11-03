@@ -62,6 +62,7 @@ export function RouteMap({ trip, stations = [], className }: RouteMapProps) {
 
   return (
     <aside
+      data-rt-in=""
       aria-label="Route map"
       className={cn(
         'relative isolate overflow-hidden rounded-3xl bg-ink p-4 text-white sm:rounded-[32px] sm:p-[22px]',
@@ -126,6 +127,7 @@ export function RouteMap({ trip, stations = [], className }: RouteMapProps) {
             vectorEffect="non-scaling-stroke"
           />
           <polyline
+            data-rt-route=""
             points={[geo.A, ...geo.stops.map((s) => s.p), ...(unreachable ? [] : [geo.B])]
               .map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`)
               .join(' ')}
@@ -145,7 +147,7 @@ export function RouteMap({ trip, stations = [], className }: RouteMapProps) {
           <circle cx={geo.A.x} cy={geo.A.y} r={11 * geo.r} fill="#35D07F" stroke="#0B0C0E" strokeWidth={4 * geo.r} />
           <circle cx={geo.B.x} cy={geo.B.y} r={11 * geo.r} fill="#FF5A1F" stroke="#0B0C0E" strokeWidth={4 * geo.r} />
           {unreachable ? (
-            <g stroke="#0B0C0E" strokeWidth={3 * geo.r} strokeLinecap="round">
+            <g data-rt-x="" stroke="#0B0C0E" strokeWidth={3 * geo.r} strokeLinecap="round">
               <path
                 d={`M${geo.B.x - 4.5 * geo.r} ${geo.B.y - 4.5 * geo.r}l${9 * geo.r} ${9 * geo.r}M${geo.B.x + 4.5 * geo.r} ${geo.B.y - 4.5 * geo.r}l${-9 * geo.r} ${9 * geo.r}`}
               />
@@ -153,7 +155,7 @@ export function RouteMap({ trip, stations = [], className }: RouteMapProps) {
           ) : null}
 
           {geo.stops.map(({ p, order }) => (
-            <g key={order}>
+            <g key={order} data-rt-stop="">
               <circle cx={p.x} cy={p.y} r={22 * geo.r} fill="rgba(212,255,58,.18)" />
               <circle cx={p.x} cy={p.y} r={14 * geo.r} fill="#0B0C0E" stroke="#D4FF3A" strokeWidth={4 * geo.r} />
               <path

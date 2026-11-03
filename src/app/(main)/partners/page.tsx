@@ -113,14 +113,14 @@ export default async function PartnersPage() {
               <p className="max-w-[30rem] text-muted">
                 Be the first. Early listings are the ones drivers see when they open the map.
               </p>
-              <Btn href="/business/signup" variant="ink" size="sm" className="mt-3">
+              <Btn href="/business/signup" variant="ink" size="sm" className="mt-3" magnetic={false}>
                 List your charger
               </Btn>
             </div>
           ) : (
-            <Reveal>
-              <PartnerList partners={partners} />
-            </Reveal>
+            // No reveal around the whole directory: its toolbar reveals, and
+            // its cards rise in on their own (page-partner.js).
+            <PartnerList partners={partners} />
           )}
         </div>
       </Section>
@@ -144,7 +144,7 @@ export default async function PartnersPage() {
                 <circle cx="300" cy="300" r="280" />
               </svg>
               <Eyebrow tone="volt">Partner up</Eyebrow>
-              <h2 className={cn(H2_CLASS, 'text-white')}>
+              <h2 data-split="" className={cn(H2_CLASS, 'text-white')}>
                 Have a charger <Hl dark>sitting idle?</Hl>
               </h2>
               <p className={cn(LEAD_CLASS, 'mx-auto text-white/70')}>
@@ -157,7 +157,7 @@ export default async function PartnersPage() {
                   List your charger
                   <BtnEnd />
                 </Btn>
-                <Btn href="#meeting" variant="ghostDark" size="lg" className="w-full sm:w-auto">
+                <Btn href="#meeting" variant="ghostDark" size="lg" className="w-full sm:w-auto" magnetic={false}>
                   Ask a question first
                   <ArrowUpRight aria-hidden="true" />
                 </Btn>

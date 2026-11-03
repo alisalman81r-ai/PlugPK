@@ -1,5 +1,11 @@
 // src/components/calculator/ChargeResult.tsx
+'use client'
+
+import * as React from 'react'
+
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { AlertCircle, Info, Zap } from '@/components/ui/icons'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import {
   formatDuration,
   formatKw,
@@ -24,6 +30,13 @@ import { cn } from '@/lib/utils'
  * The card keeps its shape when the inputs are invalid. The time becomes a
  * dash and the reason sits where the details were, so fixing a field never
  * makes the layout jump.
+ *
+ * Motion (landing-v2 page-charging-calculator.js): the figures roll to each
+ * new answer — from zero over 1.1s the first time there is one, then 0.6s,
+ * power3.out — and the details rise in one after another when the answer
+ * first appears. Because the figures change every frame while they roll, the
+ * card itself is not a live region; a hidden line says the settled answer
+ * 0.7s after the last change, as the design's #r-sr does.
  */
 
 export interface ChargeResultProps {
@@ -91,9 +104,38 @@ export function ChargeResult({
 }: ChargeResultProps) {
   const dc = mode === 'dc'
 
+  /* animated numbers: everything rolls from where it was to the new answer */
+  const target = result.ok
+    ? { min: result.minutes, kwh: result.energyKwh, grid: result.gridKwh, cost: result.cost ?? 0, km: rangeAddedKm ?? 0 }
+    : null
+  const tw = useRolled(target)
+
+  /* the details rise in when an answer first appears */
+  const rowsRef = React.useRef<HTMLDListElement>(null)
+  const wasReady = React.useRef(false)
+  useIsoLayoutEffect(() => {
+    if (result.ok && !wasReady.current && rowsRef.current && !prefersReduced()) {
+      gsap.from(rowsRef.current.children, { y: 16, autoAlpha: 0, duration: 0.6, stagger: 0.06, ease: 'expo.out' })
+    }
+    wasReady.current = result.ok
+  }, [result.ok])
+
+  /* what a screen reader hears, once the figures have settled */
+  const said = result.ok
+    ? `${formatDuration(result.minutes)} from ${from}% to ${to}%.${readyText ? ` Ready around ${readyText}.` : ''}${
+        result.cost != null ? ` About ${formatRupees(result.cost)}.` : ''
+      }`
+    : waiting
+      ? ''
+      : result.message
+  const [spoken, setSpoken] = React.useState('')
+  React.useEffect(() => {
+    const id = window.setTimeout(() => setSpoken(said), 700)
+    return () => window.clearTimeout(id)
+  }, [said])
+
   return (
     <section
-      aria-live="polite"
       aria-label="Estimated charging time"
       data-theme="dark"
       className="relative isolate overflow-hidden rounded-[28px] bg-ink px-5 pb-6 pt-6 text-white shadow-[0_40px_80px_-40px_rgba(11,12,14,.7)] sm:px-7 sm:pb-7 sm:pt-[30px]"
@@ -107,6 +149,10 @@ export function ChargeResult({
         className="pointer-events-none absolute inset-0 -z-[2] bg-[repeating-linear-gradient(-45deg,transparent_0_22px,rgba(255,255,255,.03)_22px_23px)]"
       />
 
+      <p className="sr-only" aria-live="polite">
+        {spoken}
+      </p>
+
       <p className="mb-5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-volt">
         Estimated charging time
       </p>
@@ -115,7 +161,7 @@ export function ChargeResult({
         {result.ok ? (
           <>
             {dc ? <span className="text-white/45">~</span> : null}
-            <Duration text={formatDuration(result.minutes)} />
+            <Duration text={formatDuration(tw.min)} />
           </>
         ) : (
           '—'
@@ -164,20 +210,20 @@ export function ChargeResult({
 
       {result.ok ? (
         <>
-          <dl className="m-0 grid grid-cols-2 gap-px overflow-hidden rounded-[18px] border border-white/[0.09] bg-white/[0.09]">
+          <dl ref={rowsRef} className="m-0 grid grid-cols-2 gap-px overflow-hidden rounded-[18px] border border-white/[0.09] bg-white/[0.09]">
             {readyText ? (
               <Figure wide label={`Plug in now, ${dc ? 'done' : 'ready'} around`} value={readyText} />
             ) : null}
-            <Figure label="Energy added" value={formatKwh(result.energyKwh)} />
+            <Figure label="Energy added" value={formatKwh(tw.kwh)} />
             <Figure
               label="Range added"
-              value={rangeAddedKm != null ? `+${rangeAddedKm.toLocaleString('en-PK')} km` : carName ? 'Not listed' : 'Pick a car'}
+              value={rangeAddedKm != null ? `+${Math.round(tw.km).toLocaleString('en-PK')} km` : carName ? 'Not listed' : 'Pick a car'}
               muted={rangeAddedKm == null}
             />
-            <Figure label="Drawn from supply" value={formatKwh(result.gridKwh)} />
+            <Figure label="Drawn from supply" value={formatKwh(tw.grid)} />
             <Figure
               label="Estimated cost"
-              value={result.cost != null ? formatRupees(result.cost) : 'Add a rate'}
+              value={result.cost != null ? formatRupees(tw.cost) : 'Add a rate'}
               muted={result.cost == null}
             />
           </dl>
@@ -231,6 +277,52 @@ export function ChargeResult({
       )}
     </section>
   )
+}
+
+type Rolled = { min: number; kwh: number; grid: number; cost: number; km: number }
+const ZERO: Rolled = { min: 0, kwh: 0, grid: 0, cost: 0, km: 0 }
+
+/**
+ * animateTo(): the figures on screen, rolling toward `target`. The first
+ * answer rolls up from zero over 1.1s, later ones over 0.6s (power3.out,
+ * overwriting). With no answer the roll resets to zero; reduced motion jumps.
+ */
+function useRolled(target: Rolled | null): Rolled {
+  const tw = React.useRef<Rolled>({ ...ZERO })
+  const first = React.useRef(true)
+  const [shown, setShown] = React.useState<Rolled>(ZERO)
+  const key = target ? `${target.min}|${target.kwh}|${target.grid}|${target.cost}|${target.km}` : ''
+
+  useIsoLayoutEffect(() => {
+    if (!target) {
+      gsap.killTweensOf(tw.current)
+      Object.assign(tw.current, ZERO)
+      first.current = true
+      return
+    }
+    if (prefersReduced()) {
+      Object.assign(tw.current, target)
+      setShown({ ...target })
+      return
+    }
+    gsap.to(tw.current, {
+      ...target,
+      duration: first.current ? 1.1 : 0.6,
+      ease: 'power3.out',
+      overwrite: true,
+      onUpdate: () => setShown({ ...tw.current }),
+    })
+    first.current = false
+    // key stands for target's values
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  React.useEffect(() => {
+    const o = tw.current
+    return () => void gsap.killTweensOf(o)
+  }, [])
+
+  return shown
 }
 
 function Figure({ label, value, muted, wide }: { label: string; value: string; muted?: boolean; wide?: boolean }) {

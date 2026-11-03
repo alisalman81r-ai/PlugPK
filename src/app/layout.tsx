@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 
+import { MotionProvider } from '@/components/motion/MotionProvider'
 import { SITE_CONFIG } from '@/lib/constants'
 
 /**
@@ -139,8 +140,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${powerGrotesk.variable} ${jetbrainsMono.variable} ${plainZero.variable}`}>
-      <body className="bg-chalk font-sans text-ink antialiased [font-synthesis:none] selection:bg-volt selection:text-ink">{children}</body>
+    <html
+      lang="en"
+      // The `js` class (set below before first paint) and Lenis's classes are
+      // added in the browser, not by React.
+      suppressHydrationWarning
+      className={`${poppins.variable} ${powerGrotesk.variable} ${jetbrainsMono.variable} ${plainZero.variable}`}
+    >
+      <head>
+        {/* Marks script as running before first paint, so content waiting for a
+            scroll reveal is hidden from the start rather than flashing. Without
+            script nothing is hidden. See [data-reveal] in globals.css. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
+      <body className="bg-chalk font-sans text-ink antialiased [font-synthesis:none] selection:bg-volt selection:text-ink">
+        <MotionProvider>{children}</MotionProvider>
+      </body>
     </html>
   )
 }

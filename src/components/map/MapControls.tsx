@@ -57,7 +57,7 @@ export function MapControls({
         type="button"
         onClick={onLocateMe}
         aria-label="Find my location"
-        className="group/loc grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-paper/95 text-ink shadow-e1 backdrop-blur-[10px] transition-[background-color,color,transform] duration-300 ease-spring hover:bg-ink hover:text-white active:scale-[0.92] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+        className="group/loc grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-paper/95 text-ink shadow-e1 backdrop-blur-[10px] [transition:background-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] hover:bg-ink hover:text-white active:scale-[0.92] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
       >
         <LocateFixed
           size={19}

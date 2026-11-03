@@ -6,19 +6,27 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { PhotoFrame, Skeleton } from '@/components/ui'
-import { CARD, CARD_HOVER, ExampleBadge, Tag, btnClass } from '@/components/v2/ui'
+import { CARD, ExampleBadge, Tag, btnClass } from '@/components/v2/ui'
 import { FAST_CHARGER_KW } from '@/lib/charging'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
 import { CONNECTOR_LABEL } from './filter-options'
+import { SCARD_HOVER, useIsoLayoutEffect } from './motion'
 
 export interface StationListItemProps {
   station: Station
   isSelected: boolean
   onClick: (station: Station) => void
   distanceKm?: number
+  /**
+   * Bumped when this station's pin is picked on the map: the card answers
+   * with a small spring (page-map.js select from a pin — scale 0.97 → 1,
+   * 0.6s, back.out(3)).
+   */
+  pulse?: number
 }
 
 /**
@@ -61,7 +69,15 @@ export function StationListItem({
   isSelected,
   onClick,
   distanceKm,
+  pulse,
 }: StationListItemProps) {
+  const cardRef = React.useRef<HTMLDivElement>(null)
+  useIsoLayoutEffect(() => {
+    const el = cardRef.current
+    if (!pulse || !el || prefersReduced()) return
+    gsap.fromTo(el, { scale: 0.97 }, { scale: 1, duration: 0.6, ease: 'back.out(3)', clearProps: 'transform' })
+  }, [pulse])
+
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
   const { total: ports } = getPortAvailability(station)
   const example = isSampleListing(station.id)
@@ -83,6 +99,8 @@ export function StationListItem({
      * (Navigate) is an outlined pill that goes ink on hover.
      */
     <div
+      ref={cardRef}
+      data-station-card={station.id}
       role="button"
       tabIndex={0}
       aria-pressed={isSelected}
@@ -99,7 +117,7 @@ export function StationListItem({
       }}
       className={cn(
         CARD,
-        CARD_HOVER,
+        SCARD_HOVER,
         'grid cursor-pointer gap-3.5 rounded-[24px] p-4 sm:p-[18px]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-[3px]',
         isSelected && 'border-ink shadow-[0_0_0_1.5px_#0B0C0E,0_18px_40px_-18px_rgba(11,12,14,.35)] hover:border-ink',

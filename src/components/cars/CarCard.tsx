@@ -5,12 +5,12 @@ import { ArrowRight, Check, GitCompareArrows, Heart, Zap } from '@/components/ui
 import Link from 'next/link'
 import * as React from 'react'
 
-import { PhotoFrame } from '@/components/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { bodyStyle, carDisplayName, electricDistance, electricDistanceMax, formatPkr, formatSpan } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
-import { STAGE, STAGE_CHIP, STAGE_CHIP_TONE, type StageChipTone } from './car-ui'
+import { CarPhoto } from './car-motion'
+import { CAR_HOVER, PHOTO_HOVER, STAGE, STAGE_CHIP, STAGE_CHIP_TONE, STAGE_HOVER, type StageChipTone } from './car-ui'
 
 /**
  * One card, every car (landing-v2's .car): the car on a lit stage, then its
@@ -108,9 +108,9 @@ export function CarCard({
     <article
       className={cn(
         'group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1',
-        'transition-[translate,box-shadow,border-color] duration-500 ease-out',
-        'hover:-translate-y-1 hover:border-ink/[0.16] hover:shadow-e2',
-        'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+        // .car:hover — the CSS translate property, so it never fights the
+        // transform the grid's entrance tween writes on the list item.
+        CAR_HOVER,
         isCompared && 'border-ink ring-2 ring-volt',
       )}
     >
@@ -118,18 +118,16 @@ export function CarCard({
           A fixed ratio, so every image in a row lines up whatever loads first.
           Contained rather than cropped: a card that cuts off a bumper is
           showing less of the one thing it is for. */}
-      <div className={cn(STAGE, 'mx-2 mt-2 aspect-[16/11] rounded-[22px] group-hover:after:translate-x-[3%] group-hover:after:scale-x-[1.06]')}>
+      <div className={cn(STAGE, 'mx-2 mt-2 aspect-[16/11] rounded-[22px]', STAGE_HOVER)}>
         {car.image ? (
-          <div className="absolute inset-x-[6%] bottom-[2%] top-[4%]">
-            <PhotoFrame
-              src={car.image}
-              alt=""
-              sizes="(max-width: 420px) 92vw, (max-width: 1100px) 46vw, 420px"
-              priority={priority}
-              className="overflow-visible bg-transparent"
-              imageClassName="object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:translate-x-[3%] group-hover:scale-[1.045] motion-reduce:transition-none"
-            />
-          </div>
+          <CarPhoto
+            src={car.image}
+            alt=""
+            sizes="(max-width: 420px) 92vw, (max-width: 1100px) 46vw, 420px"
+            priority={priority}
+            className="inset-x-[6%] bottom-[2%] top-[4%]"
+            imageClassName={PHOTO_HOVER}
+          />
         ) : (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <span aria-hidden="true" className="font-display text-[2rem] leading-none text-ink/20">
@@ -183,11 +181,11 @@ export function CarCard({
 
             <span
               aria-hidden="true"
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white transition-[background-color,color] duration-300 group-hover:bg-volt group-hover:text-ink"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white [transition:background-color_.3s,color_.3s,transform_.45s_cubic-bezier(.34,1.56,.64,1)] group-hover:bg-volt group-hover:text-ink"
             >
               <ArrowRight
                 size={18}
-                className="transition-transform duration-[450ms] ease-spring group-hover:-rotate-45 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+                className="[transition:transform_.45s_cubic-bezier(.34,1.56,.64,1)] group-hover:-rotate-45"
               />
             </span>
           </div>

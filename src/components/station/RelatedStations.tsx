@@ -5,7 +5,8 @@ import type { ReactNode } from 'react'
 
 import { ConnectorTags, KwTag } from '@/components/map/StationList'
 import { PhotoFrame, StationCardSkeleton } from '@/components/ui'
-import { CARD, CARD_HOVER, Hl, SectionHead, WRAP } from '@/components/v2/ui'
+import { SCARD_HOVER } from '@/components/map/layout'
+import { CARD, Hl, SectionHead, WRAP } from '@/components/v2/ui'
 import { getRelatedStations } from '@/lib/db/queries'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
@@ -85,7 +86,11 @@ export async function RelatedStations({ currentStationId, city }: RelatedStation
 
       <div className={GRID}>
         {related.map((station, index) => (
-          <RelatedCard key={station.id} station={station} className={cn(THIRD(index))} />
+          // The reveal rides a wrapper: GSAP leaves an inline 'translate: none'
+          // on what it moves, which would cancel the card's own hover lift.
+          <div key={station.id} data-reveal="" className={cn(THIRD(index))}>
+            <RelatedCard station={station} className="h-full" />
+          </div>
         ))}
       </div>
     </Band>
@@ -98,11 +103,12 @@ function RelatedCard({ station, className }: { station: Station; className?: str
   const example = isSampleListing(station.id)
 
   return (
+    // The map page's card language: lifts 4px on hover (.scard2).
     <Link
       href={`/station/${station.slug}`}
       className={cn(
         CARD,
-        CARD_HOVER,
+        SCARD_HOVER,
         'group block overflow-hidden p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2',
         className,
       )}

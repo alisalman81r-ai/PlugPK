@@ -1,9 +1,9 @@
 // src/components/partners/PartnerSteps.tsx
-import { Banknote, BarChart3, Home, ShieldCheck, Users, type IconType } from '@/components/ui/icons'
+import { Home, ShieldCheck, Users } from '@/components/ui/icons'
 
-import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
-import { CARD, CARD_HOVER, Hl, Section, SectionHead, Steps, WRAP } from '@/components/v2/ui'
-import { cn } from '@/lib/utils'
+import { Hl, Section, SectionHead, WRAP } from '@/components/v2/ui'
+
+import { PartnerBenefits } from './PartnerBenefits'
 
 /**
  * How hosting works (.pt-how), and what a host is actually promised (.pt-get).
@@ -14,41 +14,26 @@ import { cn } from '@/lib/utils'
  * figures named are the ones BusinessDailyStat actually counts. If a claim on
  * this page ever stops being true, the code that made it true is the thing to
  * look at.
+ *
+ * The steps are v2's .steps cards written out here rather than <Steps>, because
+ * in partner.html each step rises in on its own (data-reveal on every li).
  */
 
 const STEPS = [
   {
-    icon: <Home aria-hidden="true" />,
+    icon: Home,
     title: 'List what you have',
     body: 'A hotel forecourt, an office car park, or the single charger on your driveway. Same form, same few minutes.',
   },
   {
-    icon: <ShieldCheck aria-hidden="true" />,
+    icon: ShieldCheck,
     title: 'We check the details',
     body: 'We confirm the address, the pin and the charger specs before publishing, so drivers who set off actually arrive.',
   },
   {
-    icon: <Users aria-hidden="true" />,
+    icon: Users,
     title: 'Drivers find you',
     body: 'Your listing appears on the map and in search, filterable by connector and speed, with directions one tap away.',
-  },
-]
-
-const BENEFITS: { icon: IconType; title: string; body: string }[] = [
-  {
-    icon: Banknote,
-    title: 'You set the price, you keep it',
-    body: 'plugpk does not set your rates, process the payment or take a percentage. Whatever you charge is between you and the driver.',
-  },
-  {
-    icon: BarChart3,
-    title: 'See what your listing does',
-    body: 'Views, directions taken, reviews and rating — counted from real visits to your page, not estimated.',
-  },
-  {
-    icon: Users,
-    title: 'Reach drivers already looking',
-    body: 'People open the map because they need a charge now, and an approved listing can appear as a charging stop when it is on a planned route.',
   },
 ]
 
@@ -66,7 +51,27 @@ export function PartnerSteps() {
             }
             lead="Applying is free, there is no commission, and there is nothing to install on your side."
           />
-          <Steps steps={STEPS} />
+          <ol className="grid gap-4 lg:grid-cols-3">
+            {STEPS.map((step, i) => (
+              // The reveal moves the li, the hover lifts the card inside it: GSAP
+              // leaves translate inline on what it animates.
+              <li key={step.title} data-reveal="">
+                <div className="group/step h-full relative overflow-hidden rounded-[28px] border border-ink/10 bg-white px-[30px] pb-8 pt-[30px] [transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s] hover:shadow-e2 hover:[translate:0_-4px]">
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-[26px] top-[18px] font-display text-[88px] leading-none text-transparent [-webkit-text-stroke:1.5px_rgba(11,12,14,.22)] [transition:color_.4s,-webkit-text-stroke-color_.4s] group-hover/step:text-volt group-hover/step:[-webkit-text-stroke-color:#0B0C0E]"
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="block h-[30px] w-[30px] text-ink [&_svg]:h-full [&_svg]:w-full">
+                    <step.icon aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-[70px] font-display text-[26px] leading-[1.1] text-ink">{step.title}</h3>
+                  <p className="mt-2.5 text-[15px] leading-[1.6] text-muted">{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </Section>
 
@@ -81,30 +86,7 @@ export function PartnerSteps() {
             }
             lead="Every line below maps to something the product actually does."
           />
-
-          <RevealGroup className="grid gap-4 lg:grid-cols-3">
-            {BENEFITS.map((benefit) => (
-              <RevealItem key={benefit.title} className="h-full">
-                <article
-                  className={cn(
-                    CARD,
-                    CARD_HOVER,
-                    'group isolate h-full overflow-hidden p-[30px]',
-                    // A volt glow that rises in the corner on hover.
-                    'before:absolute before:-right-[140px] before:-top-[140px] before:-z-[1] before:h-[280px] before:w-[280px] before:rounded-full before:bg-[radial-gradient(closest-side,rgba(212,255,58,.35),transparent)] before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100',
-                  )}
-                >
-                  <span aria-hidden="true" className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
-                    <benefit.icon size={24} />
-                  </span>
-                  <h3 className="mb-2.5 mt-8 font-display text-[26px] font-normal leading-[1.1] text-ink pg-medium lg:mt-14">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-[15px] leading-[1.6] text-muted">{benefit.body}</p>
-                </article>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+          <PartnerBenefits />
         </div>
       </Section>
     </>

@@ -9,6 +9,8 @@ import { getServiceCategoryCounts } from '@/lib/db/queries'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
+import styles from './list.module.css'
+
 /**
  * Apply to be listed in the services directory.
  *
@@ -71,17 +73,17 @@ export default async function ListServicePage() {
       />
       <div className="mx-auto w-full max-w-[920px] px-4 pb-[72px] pt-[clamp(48px,8vw,96px)] sm:px-8">
         <header className="text-center">
-          <p className="inline-flex h-9 items-center gap-2.5 rounded-full bg-ink px-4 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-white before:h-2 before:w-2 before:rounded-[3px] before:bg-volt before:content-['']">
+          <p className={cn(styles.rise, "inline-flex h-9 items-center gap-2.5 rounded-full bg-ink px-4 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-white before:h-2 before:w-2 before:rounded-[3px] before:bg-volt before:content-['']")}>
             List your service
           </p>
-          <h1 className="mx-auto mt-[26px] max-w-[820px] text-balance font-display text-[clamp(40px,6vw,76px)] leading-[1.02] text-ink">
+          <h1 className={cn(styles.rise, styles.d06, "mx-auto mt-[26px] max-w-[820px] text-balance font-display text-[clamp(40px,6vw,76px)] leading-[1.02] text-ink")}>
             Put your EV service in the <Hl>plugpk directory.</Hl>
           </h1>
-          <p className="mx-auto mt-[26px] max-w-[700px] text-pretty text-[clamp(16px,1.5vw,19px)] leading-[1.6] text-muted">
+          <p className={cn(styles.rise, styles.d12, "mx-auto mt-[26px] max-w-[700px] text-pretty text-[clamp(16px,1.5vw,19px)] leading-[1.6] text-muted")}>
             Workshops, home charger installers, dealers and roadside assistance
           </p>
           {listed > 0 ? (
-            <p className="mt-3 font-mono text-[13px] font-medium text-muted">
+            <p className={cn(styles.rise, styles.d12, "mt-3 font-mono text-[13px] font-medium text-muted")}>
               {listed} {listed === 1 ? 'service' : 'services'} listed so far
             </p>
           ) : null}
@@ -104,7 +106,9 @@ export default async function ListServicePage() {
                   <li
                     key={item.title}
                     className={cn(
-                      'relative rounded-[28px] border p-7 shadow-e1 transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2',
+                      styles.rise,
+                      styles.card,
+                      'relative rounded-[28px] border p-7 shadow-e1 hover:shadow-e2',
                       last ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink',
                     )}
                   >
@@ -124,18 +128,19 @@ export default async function ListServicePage() {
               })}
             </ol>
 
-            <div className="mt-11 text-center">
+            <div className={cn(styles.rise, styles.d46, 'mt-11 text-center')}>
               <h2 className="font-display text-[clamp(24px,2.6vw,30px)] leading-[1.15] text-ink">Create a free account to apply</h2>
               <p className="mx-auto mt-2.5 max-w-md text-[15px] leading-relaxed text-muted">
                 Your application belongs to your plugpk account, so our team knows who sent it. It takes a minute, and
                 you come straight back here afterwards.
               </p>
               <div className="mt-7 flex flex-col justify-center gap-3.5 sm:flex-row">
-                <Btn href={`/signup?redirect=${RETURN}`} variant="ink" size="lg">
+                {/* Not magnetic: list-your-business.html's buttons are plain. */}
+                <Btn href={`/signup?redirect=${RETURN}`} variant="ink" size="lg" magnetic={false}>
                   Create a free account
                   <BtnArrow />
                 </Btn>
-                <Btn href={`/login?redirect=${RETURN}`} variant="light" size="lg" className="border-[1.5px] border-ink/20">
+                <Btn href={`/login?redirect=${RETURN}`} variant="light" size="lg" magnetic={false} className="border-[1.5px] border-ink/20">
                   I already have an account
                 </Btn>
               </div>

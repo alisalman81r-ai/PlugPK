@@ -5,8 +5,10 @@ import { AlertTriangle, Map as MapIcon, X, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { Btn, Tag } from '@/components/v2/ui'
 import type { PlannedTrip } from '@/hooks/useRoutePlanner'
+import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
 import { estimateDriveMinutes } from '@/lib/route-distances'
 import { RESERVE_PERCENT, RANGE_DERATE, TARGET_PERCENT, vehicleName, withArticle, type PlanLeg } from '@/lib/route-plan'
 import type { Station } from '@/lib/types'
@@ -37,9 +39,79 @@ export function RouteResultsView({ trip, stations, actions }: RouteResultsViewPr
   const n = plan.stops.length
   const finalLeg: PlanLeg | undefined = plan.legs[n]
 
+  /*
+    page-routes.js animateIn() and run(), each time a plan is shown:
+    the plan and the map rise in, the figures pop up after them, the timeline
+    slides in from the left, the legs' charge bars draw from the right, the
+    route line draws itself across the map and the stops pop onto it. Then
+    the page glides to the result, 90px clear of the navbar.
+    Reduced motion: everything is in place at once, and the jump is instant.
+  */
+  const rootRef = React.useRef<HTMLDivElement>(null)
+  React.useLayoutEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    ScrollTrigger.refresh()
+    let ctx: gsap.Context | null = null
+    if (!prefersReduced()) {
+      ctx = gsap.context(() => {
+        const all = (selector: string) => [...root.querySelectorAll(selector)]
+        const from = (targets: Element[], vars: gsap.TweenVars) => targets.length > 0 && gsap.from(targets, vars)
+        from(all('[data-rt-in]'), { y: 40, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08 })
+        from(all('[data-rt-sum]'), { y: 16, autoAlpha: 0, duration: 0.6, ease: 'back.out(1.6)', stagger: 0.05, delay: 0.15 })
+        from(all('[data-rt-tl]'), { x: -16, autoAlpha: 0, duration: 0.6, ease: 'expo.out', stagger: 0.06, delay: 0.3 })
+        from(all('[data-rt-bar]'), {
+          scaleX: 0,
+          transformOrigin: 'right center',
+          duration: 0.9,
+          ease: 'expo.out',
+          stagger: 0.08,
+          delay: 0.5,
+        })
+        const route = root.querySelector<SVGGeometryElement>('[data-rt-route]')
+        if (route) {
+          // The line has a non-scaling stroke, so its dashes are measured on
+          // screen: scale the path's length by the map's zoom, or the dash
+          // runs short and a second one shows at the far end mid-draw.
+          const L = route.getTotalLength() * (route.getScreenCTM()?.a ?? 1)
+          gsap.fromTo(
+            route,
+            { strokeDasharray: L, strokeDashoffset: L },
+            {
+              strokeDashoffset: 0,
+              duration: 1.4,
+              ease: 'power3.inOut',
+              delay: 0.35,
+              clearProps: 'strokeDasharray,strokeDashoffset',
+            },
+          )
+        }
+        // .pkmap__stop then .pkmap__x, in that order
+        from([...all('[data-rt-stop]'), ...all('[data-rt-x]')], {
+          scale: 0,
+          transformOrigin: 'center',
+          transformBox: 'fill-box',
+          duration: 0.6,
+          ease: 'back.out(2.4)',
+          stagger: 0.12,
+          delay: 0.9,
+        })
+      }, root)
+    }
+    const raf = requestAnimationFrame(() => {
+      const lenis = getLenis()
+      if (lenis) lenis.scrollTo(root, { offset: -90, duration: 1.1 })
+      else root.scrollIntoView({ behavior: prefersReduced() ? 'auto' : 'smooth' })
+    })
+    return () => {
+      cancelAnimationFrame(raf)
+      ctx?.revert()
+    }
+  }, [trip])
+
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-      <article className="rounded-3xl border border-ink/10 bg-white p-[clamp(18px,3vw,36px)] shadow-e1 sm:rounded-[32px]">
+    <div ref={rootRef} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <article data-rt-in="" className="rounded-3xl border border-ink/10 bg-white p-[clamp(18px,3vw,36px)] shadow-e1 sm:rounded-[32px]">
         <div className="flex flex-wrap items-center justify-between gap-2.5">
           <span className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-volt-ink">Your plan</span>
           {unreachable ? (
@@ -165,7 +237,7 @@ export function RouteResultsView({ trip, stations, actions }: RouteResultsViewPr
 
         <div className="mt-6 flex flex-wrap gap-2.5">
           {actions}
-          <Btn href="/map" variant="ghost" size="sm">
+          <Btn href="/map" variant="ghost" size="sm" magnetic={false}>
             <MapIcon aria-hidden="true" />
             See chargers on the map
           </Btn>
@@ -198,7 +270,7 @@ function TlNode({
   children: React.ReactNode
 }) {
   return (
-    <li className="grid grid-cols-[36px_1fr] gap-x-3 sm:grid-cols-[40px_1fr] sm:gap-x-3.5">
+    <li data-rt-tl="" className="grid grid-cols-[36px_1fr] gap-x-3 sm:grid-cols-[40px_1fr] sm:gap-x-3.5">
       <div className="relative grid justify-items-center">
         <span
           aria-hidden="true"
@@ -218,7 +290,7 @@ function TlNode({
 /** The drive between two places (.tl__leg): distance, time, charge used, as a bar. */
 function TlLeg({ leg, bad = false }: { leg?: PlanLeg; bad?: boolean }) {
   return (
-    <li aria-hidden={leg ? undefined : true} className="grid grid-cols-[36px_1fr] gap-x-3 sm:grid-cols-[40px_1fr] sm:gap-x-3.5">
+    <li data-rt-tl="" aria-hidden={leg ? undefined : true} className="grid grid-cols-[36px_1fr] gap-x-3 sm:grid-cols-[40px_1fr] sm:gap-x-3.5">
       <div className="relative">
         <span
           className={cn(
@@ -241,6 +313,7 @@ function TlLeg({ leg, bad = false }: { leg?: PlanLeg; bad?: boolean }) {
             </div>
             <div aria-hidden="true" className="relative mt-2.5 h-2 max-w-[360px] overflow-hidden rounded-lg bg-stone">
               <i
+                data-rt-bar=""
                 className={cn(
                   'absolute bottom-0 top-0 rounded-lg',
                   leg.endPercent < RESERVE_PERCENT

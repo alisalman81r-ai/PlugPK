@@ -62,7 +62,7 @@ const VENUE_TYPES: VenueType[] = [
 ]
 
 const CARD =
-  'group relative flex h-full items-start gap-3.5 rounded-[22px] border p-4 transition-[translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus sm:min-h-[112px] sm:p-5'
+  'group relative flex h-full items-start gap-3.5 rounded-[22px] border p-4 [transition:translate_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:shadow-e2 hover:[translate:0_-4px] focus-visible:outline-none focus-visible:shadow-focus sm:min-h-[112px] sm:p-5'
 
 const NAME = 'm-0 mb-1.5 mt-0.5 flex flex-wrap items-center gap-2 font-display text-[21px] font-normal leading-[1.1] pg-medium'
 
@@ -75,11 +75,11 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
         <div className="mb-[clamp(36px,5vw,56px)] grid items-end gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
           <div>
             <Eyebrow>Who lists here</Eyebrow>
-            <h2 className={cn(H2_CLASS, 'text-ink')}>
+            <h2 data-split="" className={cn(H2_CLASS, 'text-ink')}>
               If it has a parking space, <Hl>it can have a charger.</Hl>
             </h2>
           </div>
-          <p className={cn(LEAD_CLASS, 'mb-1.5 mt-0 text-muted')}>
+          <p data-reveal="" className={cn(LEAD_CLASS, 'mb-1.5 mt-0 text-muted')}>
             {listed > 0
               ? `Seven kinds of place can list on plugpk, and ${listed} of them already ${listed === 1 ? 'has' : 'have'}.`
               : 'Seven kinds of place can list on plugpk. Pick the one that sounds like yours.'}
@@ -105,7 +105,7 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
                 >
                   <span
                     aria-hidden="true"
-                    className="grid h-11 w-11 flex-none place-items-center rounded-[14px] bg-chalk text-ink transition-colors duration-300 group-hover:bg-ink group-hover:text-volt"
+                    className="grid h-11 w-11 flex-none place-items-center rounded-[14px] bg-chalk text-ink [transition:background-color_.3s,color_.3s] group-hover:bg-ink group-hover:text-volt"
                   >
                     <Icon size={22} />
                   </span>
@@ -136,7 +136,7 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
             >
               <span
                 aria-hidden="true"
-                className="grid h-11 w-11 flex-none place-items-center rounded-[14px] bg-volt text-ink transition-colors duration-300 group-hover:bg-white"
+                className="grid h-11 w-11 flex-none place-items-center rounded-[14px] bg-volt text-ink [transition:background-color_.3s,color_.3s] group-hover:bg-white"
               >
                 <Plug size={22} />
               </span>
@@ -149,7 +149,7 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
               <ArrowUpRight
                 size={18}
                 aria-hidden="true"
-                className="absolute right-[18px] top-[18px] text-volt transition-transform duration-300 ease-spring group-hover:-translate-y-[3px] group-hover:translate-x-[3px]"
+                className="absolute right-[18px] top-[18px] text-volt transition-transform duration-[350ms] ease-spring group-hover:-translate-y-[3px] group-hover:translate-x-[3px]"
               />
             </Link>
           </RevealItem>

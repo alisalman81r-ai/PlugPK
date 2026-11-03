@@ -9,7 +9,6 @@ import Link from 'next/link'
 
 import { LogoMark } from '@/components/ui/Logo'
 import { btnClass, BtnEnd, Eyebrow, H2_CLASS, Hl, LEAD_CLASS, SectionHead, WRAP } from '@/components/v2/ui'
-import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
 import { POST_CATEGORY_META, SERVICE_CATEGORIES } from '@/lib/constants'
 import type { CommunityFigures } from '@/lib/db/community-queries'
 import type { CommunityPost, EVClub } from '@/lib/types'
@@ -25,10 +24,10 @@ const SERVICE_COPY: Record<string, { tag: string; body: string; icon: React.Reac
     body: 'Authorised EV dealers across Pakistan, for test drives, prices and delivery dates.',
     icon: (
       <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M7 30v-6l4-9a4 4 0 0 1 3.7-2.5h18.6A4 4 0 0 1 37 15l4 9v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" />
-        <path d="M7 24h34M11 32v4M37 32v4" />
-        <circle cx="14" cy="27.5" r="1.5" />
-        <circle cx="34" cy="27.5" r="1.5" />
+        <path className="draw" d="M7 30v-6l4-9a4 4 0 0 1 3.7-2.5h18.6A4 4 0 0 1 37 15l4 9v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z" />
+        <path className="draw" d="M7 24h34M11 32v4M37 32v4" />
+        <circle className="draw" cx="14" cy="27.5" r="1.5" />
+        <circle className="draw" cx="34" cy="27.5" r="1.5" />
       </g>
     ),
   },
@@ -37,6 +36,7 @@ const SERVICE_COPY: Record<string, { tag: string; body: string; icon: React.Reac
     body: 'Certified workshops that know battery, motor and software, not only the brakes.',
     icon: (
       <path
+        className="draw"
         d="M29.5 9.5a9 9 0 0 0-11 11.4L8.6 30.8a3.5 3.5 0 0 0 0 5l3.6 3.6a3.5 3.5 0 0 0 5 0l9.9-9.9a9 9 0 0 0 11.4-11l-5.6 5.6-5.6-1.6-1.6-5.6z"
         fill="none"
         stroke="currentColor"
@@ -50,8 +50,8 @@ const SERVICE_COPY: Record<string, { tag: string; body: string; icon: React.Reac
     body: 'Professional wall-charger installs, from the site survey to the first plug-in.',
     icon: (
       <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
-        <path d="M8 21 24 8l16 13v19H8z" />
-        <path d="m25.5 23-4.5 7h6l-4.5 7" />
+        <path className="draw" d="M8 21 24 8l16 13v19H8z" />
+        <path className="draw" d="m25.5 23-4.5 7h6l-4.5 7" />
       </g>
     ),
   },
@@ -60,9 +60,9 @@ const SERVICE_COPY: Record<string, { tag: string; body: string; icon: React.Reac
     body: 'Round-the-clock support: a mobile charge, a tow, or advice on the phone.',
     icon: (
       <g fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="24" cy="24" r="16" />
-        <circle cx="24" cy="24" r="7" />
-        <path d="M12.7 12.7 19 19M29 29l6.3 6.3M35.3 12.7 29 19M19 29l-6.3 6.3" />
+        <circle className="draw" cx="24" cy="24" r="16" />
+        <circle className="draw" cx="24" cy="24" r="7" />
+        <path className="draw" d="M12.7 12.7 19 19M29 29l6.3 6.3M35.3 12.7 29 19M19 29l-6.3 6.3" />
       </g>
     ),
   },
@@ -71,7 +71,7 @@ const SERVICE_COPY: Record<string, { tag: string; body: string; icon: React.Reac
 export function ServicesBand({ counts }: { counts: Record<string, number> }) {
   const total = Object.values(counts).reduce((sum, n) => sum + n, 0)
   return (
-    <section data-theme="light" className="bg-paper py-[clamp(96px,12vw,160px)]">
+    <section data-theme="light" className="services bg-paper py-[clamp(96px,12vw,160px)]">
       <div className={WRAP}>
         <SectionHead
           eyebrow="EV ecosystem"
@@ -83,21 +83,21 @@ export function ServicesBand({ counts }: { counts: Record<string, number> }) {
           }
           lead="Beyond charging — dealers, workshops, installers and roadside help, each one checked before it is listed."
         />
-        <RevealGroup className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="sgrid grid gap-4 [perspective:1400px] sm:grid-cols-2 xl:grid-cols-4">
           {SERVICE_CATEGORIES.map((category, i) => {
             const copy = SERVICE_COPY[category.id]
             const count = counts[category.id] ?? 0
             return (
-              <RevealItem key={category.id}>
-                <Link
+              <Link
+                  key={category.id}
                   href={`/services/${category.id}`}
-                  className="group/sc relative isolate flex h-full min-h-[300px] flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white px-7 pb-[22px] pt-[26px] transition-[color,border-color,box-shadow] duration-[450ms] ease-out before:absolute before:inset-0 before:-z-[1] before:bg-ink before:transition-[clip-path] before:duration-700 before:ease-out before:[clip-path:circle(0%_at_50%_100%)] hover:border-ink hover:text-white hover:shadow-e2 hover:before:[clip-path:circle(150%_at_50%_100%)] sm:min-h-[360px]"
+                  className="scard group/sc relative isolate flex h-full min-h-[300px] flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white px-7 pb-[22px] pt-[26px] transition-[color,border-color,box-shadow] duration-[450ms] ease-out before:absolute before:inset-0 before:-z-[1] before:bg-ink before:transition-[clip-path] before:duration-700 before:ease-out before:content-[''] before:[clip-path:circle(0%_at_var(--mx,50%)_var(--my,100%))] after:pointer-events-none after:absolute after:-z-[1] after:h-[280px] after:w-[280px] after:rounded-full after:bg-[radial-gradient(closest-side,rgba(212,255,58,.35),transparent)] after:opacity-0 after:transition-opacity after:duration-[400ms] after:content-[''] after:[left:calc(var(--mx,50%)-140px)] after:[top:calc(var(--my,50%)-140px)] hover:border-ink hover:text-white hover:shadow-e2 hover:before:[clip-path:circle(150%_at_var(--mx,50%)_var(--my,100%))] hover:after:opacity-100 sm:min-h-[360px]"
                 >
                   <span className="font-mono text-[13px] text-fog">{String(i + 1).padStart(2, '0')}</span>
                   <span className="absolute right-7 top-[26px] font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted transition-colors duration-[450ms] group-hover/sc:text-white/60">
                     {copy?.tag}
                   </span>
-                  <svg viewBox="0 0 48 48" aria-hidden="true" className="mb-auto mt-10 h-[52px] w-[52px] text-ink transition-colors duration-[450ms] group-hover/sc:text-volt">
+                  <svg viewBox="0 0 48 48" aria-hidden="true" className="scard__ic mb-auto mt-10 h-[52px] w-[52px] text-ink transition-colors duration-[450ms] group-hover/sc:text-volt">
                     {copy?.icon}
                   </svg>
                   <h3 className="pg-medium mb-2.5 mt-7 font-display text-[clamp(24px,2.2vw,30px)] font-normal leading-[1.05]">{category.label}</h3>
@@ -119,12 +119,11 @@ export function ServicesBand({ counts }: { counts: Record<string, number> }) {
                     </svg>
                   </footer>
                 </Link>
-              </RevealItem>
             )
           })}
-        </RevealGroup>
-        <div className="mt-14 flex justify-center">
-          <Link href="/services" className={btnClass('ink', 'lg')}>
+        </div>
+        <div className="services-center mt-14 flex justify-center">
+          <Link href="/services" data-magnetic="" className={btnClass('ink', 'lg')}>
             {total > 0 ? `Explore all ${total} services` : 'Explore EV services'}
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 17 17 7M8 7h9v9" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -171,7 +170,7 @@ export function CommunityBand({
     { label: 'Cities with a club', value: figures.cities, d: 'M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z' },
   ]
   return (
-    <section data-theme="light" className="bg-chalk py-[clamp(96px,12vw,160px)]">
+    <section data-theme="light" className="community bg-chalk py-[clamp(96px,12vw,160px)]">
       <div className={WRAP}>
         <SectionHead
           eyebrow="Drivers talking to drivers"
@@ -182,14 +181,13 @@ export function CommunityBand({
           }
           lead="Ask about charging, range and routes, share how a trip went, and read what other EV drivers in Pakistan have found — no account needed to read."
         />
-        <RevealGroup className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <RevealItem>
-            <Link href="/community" className={cn(CCARD, 'block')}>
-              <div className={CCARD_UI}>
+        <div className="cgrid grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <Link href="/community" className={cn(CCARD, 'ccard block')}>
+              <div className={cn(CCARD_UI, 'ui-feed')}>
                 {posts.slice(0, 2).map((post, i) => {
                   const cat = POST_CATEGORY_META[post.category]
                   return (
-                    <div key={post.id} className={cn('relative rounded-[18px] bg-white px-4 py-3.5 shadow-e1', i === 1 && 'mx-4 mt-3 opacity-70')}>
+                    <div key={post.id} className={cn('relative rounded-[18px] bg-white px-4 py-3.5 shadow-e1', i === 0 ? 'post--1' : 'post--2 mx-4 mt-3 opacity-70')}>
                       <div className="flex items-center gap-2.5">
                         <span
                           className={cn(
@@ -211,8 +209,13 @@ export function CommunityBand({
                       </div>
                       <p className="mt-3 truncate text-[14.5px] font-semibold text-ink">{post.title}</p>
                       {i === 0 ? (
-                        <p className="mt-2.5 flex gap-3.5 text-xs text-muted">
-                          <span>♡ {post.likeCount}</span>
+                        <p className="post__m mt-2.5 flex gap-3.5 text-xs text-muted">
+                          <span className="inline-flex items-center gap-1">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[13px] w-[13px]">
+                              <path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                            </svg>
+                            {post.likeCount}
+                          </span>
                           <span>
                             {post.commentCount} {post.commentCount === 1 ? 'reply' : 'replies'}
                           </span>
@@ -233,13 +236,11 @@ export function CommunityBand({
                 The newest posts on the board: charging, range and routes, asked and answered by people who drive one.
               </p>
             </Link>
-          </RevealItem>
 
-          <RevealItem>
-            <Link href="/community/clubs" className={cn(CCARD, 'block')}>
-              <div className={cn(CCARD_UI, 'grid content-start gap-2.5')}>
+          <Link href="/community/clubs" className={cn(CCARD, 'ccard block')}>
+              <div className={cn(CCARD_UI, 'ui-clubs grid content-start gap-2.5')}>
                 {clubs.slice(0, 3).map((club) => (
-                  <div key={club.id} className="relative flex items-center justify-between gap-2.5 rounded-2xl bg-white px-[18px] py-4 shadow-e1">
+                  <div key={club.id} className="club relative flex items-center justify-between gap-2.5 rounded-2xl bg-white px-[18px] py-4 shadow-e1">
                     <b className="truncate text-sm text-ink">{club.name}</b>
                     <span className="inline-flex shrink-0 items-center gap-1 text-[12.5px] text-muted">
                       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 text-volt-ink">
@@ -259,17 +260,15 @@ export function CommunityBand({
                 Owner groups listed by city, for meetups, drives and swapping notes on the cars you drive.
               </p>
             </Link>
-          </RevealItem>
 
-          <RevealItem>
-            <div className={CCARD}>
-              <div className={cn(CCARD_UI, 'grid content-start')}>
+          <div className={cn(CCARD, 'ccard')}>
+              <div className={cn(CCARD_UI, 'ui-stats grid content-start')}>
                 <p className="relative mb-1.5 text-[15px] font-bold text-ink">On plugpk so far</p>
                 {rows.map((row, i) => (
                   <div
                     key={row.label}
                     className={cn(
-                      'relative grid grid-cols-[20px_1fr_auto] items-center gap-2.5 px-1 py-[13px] text-[14.5px] text-ink',
+                      'srow relative grid grid-cols-[20px_1fr_auto] items-center gap-2.5 px-1 py-[13px] text-[14.5px] text-ink',
                       i < rows.length - 1 ? 'border-b border-ink/10' : 'opacity-55',
                     )}
                   >
@@ -277,7 +276,9 @@ export function CommunityBand({
                       <path d={row.d} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <span>{row.label}</span>
-                    <b className="font-mono text-lg font-semibold">{row.value.toLocaleString('en-PK')}</b>
+                    <b className="font-mono text-lg font-semibold" data-home-count={row.value}>
+                      {row.value.toLocaleString('en-PK')}
+                    </b>
                   </div>
                 ))}
               </div>
@@ -287,10 +288,9 @@ export function CommunityBand({
               </h3>
               <p className="mx-4 text-[15px] text-muted">Every discussion is public. Read what drivers have found before you decide to join.</p>
             </div>
-          </RevealItem>
-        </RevealGroup>
+        </div>
         <div className="mt-14 flex justify-center">
-          <Link href="/community" className={btnClass('ink', 'lg')}>
+          <Link href="/community" data-magnetic="" className={btnClass('ink', 'lg')}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <g fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
                 <circle cx="9" cy="8.5" r="3.5" />
@@ -309,26 +309,26 @@ export function CommunityBand({
 
 export function PartnerBand() {
   return (
-    <section data-theme="light" className="bg-chalk px-[clamp(16px,4vw,64px)] pb-[clamp(96px,10vw,140px)]">
+    <section data-theme="light" className="partner bg-chalk px-[clamp(16px,4vw,64px)] pb-[clamp(96px,10vw,140px)]">
       <div
         data-theme="dark"
-        className="relative isolate mx-auto grid min-h-[560px] w-full max-w-wrap place-items-center overflow-hidden rounded-[28px_96px_28px_28px] bg-ink px-5 py-[72px] text-center text-white sm:min-h-[640px] sm:rounded-[40px_220px_40px_40px] sm:px-6 sm:py-24"
+        className="partner__panel relative isolate mx-auto grid min-h-[560px] w-full max-w-wrap place-items-center overflow-hidden rounded-[28px_96px_28px_28px] bg-ink px-5 py-[72px] text-center text-white sm:min-h-[640px] sm:rounded-[40px_220px_40px_40px] sm:px-6 sm:py-24"
       >
         <Image
           src="/images/home/v2/plug-in-car.jpg"
           alt=""
           fill
           sizes="(min-width: 1320px) 1320px, 100vw"
-          className="-z-[2] object-cover brightness-[.55] contrast-[1.1] grayscale"
+          className="partner__img -z-[2] !h-[120%] object-cover brightness-[.55] contrast-[1.1] grayscale"
         />
         <div aria-hidden="true" className="absolute inset-0 -z-[1] bg-[radial-gradient(70%_70%_at_50%_45%,rgba(11,12,14,.55),rgba(11,12,14,.94))]" />
-        <svg viewBox="0 0 800 800" aria-hidden="true" className="absolute left-1/2 top-1/2 -z-[1] h-[900px] w-[900px] -translate-x-1/2 -translate-y-1/2">
+        <svg viewBox="0 0 800 800" aria-hidden="true" className="partner__rings absolute left-1/2 top-1/2 -z-[1] h-[900px] w-[900px] [translate:-50%_-50%]">
           <g fill="none" stroke="rgba(212,255,58,.14)">
             <circle cx="400" cy="400" r="160" />
             <circle cx="400" cy="400" r="250" />
             <circle cx="400" cy="400" r="340" />
           </g>
-          <g fill="#D4FF3A" className="origin-center animate-[spin_40s_linear_infinite] motion-reduce:animate-none">
+          <g fill="#D4FF3A" className="origin-[400px_400px] animate-[spin_40s_linear_infinite] motion-reduce:animate-none">
             <circle cx="400" cy="150" r="5" />
             <circle cx="650" cy="400" r="4" />
             <circle cx="400" cy="740" r="5" />
@@ -336,28 +336,30 @@ export function PartnerBand() {
           </g>
         </svg>
         <div className="grid max-w-[980px] justify-items-center">
-          <Eyebrow tone="volt">Partner up</Eyebrow>
-          <h2 className="m-0 text-balance font-display text-[clamp(36px,5vw,80px)] leading-[1.02]">
+          <div className="partner__eyebrow">
+            <Eyebrow tone="volt">Partner up</Eyebrow>
+          </div>
+          <h2 className="partner__title m-0 text-balance font-display text-[clamp(36px,5vw,80px)] leading-[1.02]">
             Own a{' '}
             {['hotel,', 'restaurant'].map((w, i) => (
               <span key={w}>
                 {i > 0 ? ' ' : null}
-                <span className="pg-bold relative inline-block after:absolute after:bottom-[.06em] after:left-0 after:right-[.1em] after:h-[.09em] after:rounded-full after:bg-volt">
+                <span className="pw pg-bold relative inline-block after:absolute after:bottom-[.06em] after:left-0 after:right-[.1em] after:h-[.09em] after:origin-left after:scale-x-0 after:rounded-full after:bg-volt after:content-[''] [&.is-lit]:after:scale-x-100 [&.is-lit]:after:transition-transform [&.is-lit]:after:duration-700 [&.is-lit]:after:ease-out motion-reduce:after:scale-x-100">
                   {w}
                 </span>
               </span>
             ))}{' '}
             <br />
             or{' '}
-            <span className="pg-bold relative inline-block after:absolute after:bottom-[.06em] after:left-0 after:right-[.1em] after:h-[.09em] after:rounded-full after:bg-volt">
+            <span className="pw pg-bold relative inline-block after:absolute after:bottom-[.06em] after:left-0 after:right-[.1em] after:h-[.09em] after:origin-left after:scale-x-0 after:rounded-full after:bg-volt after:content-[''] [&.is-lit]:after:scale-x-100 [&.is-lit]:after:transition-transform [&.is-lit]:after:duration-700 [&.is-lit]:after:ease-out motion-reduce:after:scale-x-100">
               shopping mall?
             </span>
           </h2>
-          <p className={cn(LEAD_CLASS, 'mx-auto text-center text-white/70')}>
+          <p className={cn(LEAD_CLASS, 'partner__lead mx-auto text-center text-white/70')}>
             Host a charger and give EV drivers a reason to stop at yours. Listing on plugpk is PKR 4,999 a month, and every
             listing is checked before it goes live.
           </p>
-          <Link href="/partners" className={btnClass('volt', 'xl', 'mt-10')}>
+          <Link href="/partners" data-magnetic="" className={btnClass('volt', 'xl', 'partner__btn mt-10')}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <g fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0zM12 17v5" />
@@ -376,7 +378,7 @@ export function PartnerBand() {
 
 function Feat({ children, art }: { children: React.ReactNode; art: React.ReactNode }) {
   return (
-    <div className="flex min-h-[220px] flex-col items-center justify-end gap-3 rounded-3xl bg-chalk px-3.5 pb-[22px] pt-[18px] text-center transition-[background-color,translate] duration-500 ease-out hover:-translate-y-1.5 hover:bg-volt-tint sm:min-h-[260px]">
+    <div className="feat flex min-h-[220px] flex-col items-center justify-end gap-3 rounded-3xl bg-chalk px-3.5 pb-[22px] pt-[18px] text-center transition-[background-color,translate] duration-500 ease-out hover:-translate-y-1.5 hover:bg-volt-tint sm:min-h-[260px]">
       <svg viewBox="0 0 120 100" aria-hidden="true" className="h-auto w-full max-w-[130px] overflow-visible">
         {art}
       </svg>
@@ -389,11 +391,11 @@ const STROKE = { fill: 'none', stroke: '#0B0C0E', strokeWidth: 2.5, strokeLineca
 
 export function AppBand() {
   return (
-    <section data-theme="light" className="relative z-[2] rounded-b-[32px] bg-paper pb-[clamp(110px,12vw,170px)] pt-[clamp(96px,10vw,140px)] sm:rounded-b-[48px]">
+    <section data-theme="light" className="app relative z-[2] rounded-b-[32px] bg-paper pb-[clamp(110px,12vw,170px)] pt-[clamp(96px,10vw,140px)] sm:rounded-b-[48px]">
       <div className={cn(WRAP, 'grid items-center gap-[clamp(40px,6vw,96px)] lg:grid-cols-[.9fr_1.1fr]')}>
-        <div aria-hidden="true" className="relative h-[600px] lg:h-[680px]">
-          <div className="absolute inset-[60px_0_0_0] overflow-hidden rounded-[40px] bg-ink before:absolute before:-bottom-[200px] before:-left-[100px] before:h-[500px] before:w-[500px] before:rounded-full before:bg-[radial-gradient(closest-side,rgba(212,255,58,.4),transparent)] after:absolute after:inset-0 after:bg-[repeating-linear-gradient(-45deg,transparent_0_22px,rgba(255,255,255,.035)_22px_23px)] lg:right-[10%]" />
-          <Phone light className="left-1/2 top-0 origin-top -translate-x-1/2 rotate-6 scale-[0.8] sm:-translate-x-[45%] sm:rotate-12 sm:scale-100">
+        <div aria-hidden="true" className="app__visual relative h-[600px] lg:h-[680px]">
+          <div className="app__plate absolute inset-[60px_0_0_0] overflow-hidden rounded-[40px] bg-ink before:absolute before:-bottom-[200px] before:-left-[100px] before:h-[500px] before:w-[500px] before:rounded-full before:bg-[radial-gradient(closest-side,rgba(212,255,58,.4),transparent)] after:absolute after:inset-0 after:bg-[repeating-linear-gradient(-45deg,transparent_0_22px,rgba(255,255,255,.035)_22px_23px)] lg:right-[10%]" />
+          <Phone light className="phone--app left-1/2 top-0 [rotate:12deg] [translate:-45%_0] max-sm:origin-top max-sm:[rotate:6deg] max-sm:[scale:.8] max-sm:[translate:-50%_0]">
             <StatusBar ink />
             <div className="relative px-1.5 pb-3 pt-1">
               <small className="block text-[11px] text-muted">Assalam-o-Alaikum</small>
@@ -427,7 +429,7 @@ export function AppBand() {
                 </g>
                 <rect x="20" y="70" width="40" height="40" rx="4" fill="#DDEBD0" />
                 <rect x="200" y="160" width="60" height="40" rx="4" fill="#DDEBD0" />
-                <path d="M120 220 C 150 170, 160 140, 210 70" stroke="#0B0C0E" strokeWidth="4" strokeDasharray="2 8" strokeLinecap="round" fill="none" />
+                <path className="ap-route" d="M120 220 C 150 170, 160 140, 210 70" stroke="#0B0C0E" strokeWidth="4" strokeDasharray="2 8" strokeLinecap="round" fill="none" />
               </svg>
               {[
                 ['22%', '30%', false],
@@ -438,15 +440,15 @@ export function AppBand() {
                   key={left as string}
                   style={{ left: left as string, top: top as string }}
                   className={cn(
-                    'absolute grid -rotate-45 place-items-center rounded-[50%_50%_50%_4px]',
-                    hot ? 'h-[34px] w-[34px] bg-volt text-ink shadow-[0_0_0_6px_rgba(212,255,58,.35)]' : 'h-[26px] w-[26px] bg-ink text-white',
+                    'absolute grid place-items-center rounded-[50%_50%_50%_4px] [rotate:-45deg]',
+                    hot ? 'ap-pin--hot h-[34px] w-[34px] bg-volt text-ink shadow-[0_0_0_6px_rgba(212,255,58,.35)]' : 'h-[26px] w-[26px] bg-ink text-white',
                   )}
                 >
                   <BoltFill className="h-3 w-3 rotate-45" />
                 </span>
               ))}
             </div>
-            <div className="absolute inset-x-0 bottom-0 grid grid-cols-[auto_1fr_auto] items-center gap-2.5 rounded-t-3xl bg-white px-4 pb-[22px] pt-[18px] shadow-[0_-16px_30px_rgba(11,12,14,.12)]">
+            <div className="ap-sheet absolute inset-x-0 bottom-0 grid grid-cols-[auto_1fr_auto] items-center gap-2.5 rounded-t-3xl bg-white px-4 pb-[22px] pt-[18px] shadow-[0_-16px_30px_rgba(11,12,14,.12)]">
               <span className="grid h-9 w-9 place-items-center rounded-[10px] bg-volt-tint text-volt-ink">
                 <BoltFill className="h-[18px] w-[18px]" />
               </span>
@@ -463,20 +465,20 @@ export function AppBand() {
           </Phone>
         </div>
 
-        <div>
-          <span className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-volt-edge bg-volt-tint px-4 py-2 text-sm font-medium text-volt-ink">
-            <i className="h-2 w-2 animate-pulse rounded-full bg-volt-ink" />
+        <div className="app__copy">
+          <span className="soon mb-6 inline-flex items-center gap-2.5 rounded-full border border-volt-edge bg-volt-tint px-4 py-2 text-sm font-medium text-volt-ink">
+            <i className="h-2 w-2 animate-[ping-ring_2s_infinite] rounded-full bg-volt-ink" />
             Coming soon to iOS &amp; Android
           </span>
           <h2 className={cn(H2_CLASS, 'text-ink')}>
             Get the <Hl>plugpk</Hl> app
           </h2>
-          <p className={cn(LEAD_CLASS, 'text-muted')}>
+          <p className={cn(LEAD_CLASS, 'lead text-muted')}>
             plugpk is building apps for iOS and Android.
             <br />
             The map, the route planner and the connectors, in your pocket.
           </p>
-          <div className="mt-11 grid grid-cols-2 gap-3 xl:grid-cols-4">
+          <div className="feats mt-11 grid grid-cols-2 gap-3 xl:grid-cols-4">
             <Feat
               art={
                 <>
@@ -484,8 +486,8 @@ export function AppBand() {
                   <rect x="38" y="24" width="24" height="22" rx="4" fill="#D4FF3A" />
                   <path d="m52 27-6 9h5l-2 7 7-10h-5z" fill="#0B0C0E" />
                   <path d="M38 54h24M38 61h16" {...STROKE} />
-                  <path d="M70 40c14 0 16 10 16 18s4 12 10 12" {...STROKE} />
-                  <rect x="90" y="62" width="14" height="16" rx="3" fill="#FF5A1F" />
+                  <path className="a-cable" d="M70 40c14 0 16 10 16 18s4 12 10 12" {...STROKE} />
+                  <rect className="a-plughead" x="90" y="62" width="14" height="16" rx="3" fill="#FF5A1F" />
                   <path d="M24 86h52" {...STROKE} />
                 </>
               }
@@ -496,7 +498,7 @@ export function AppBand() {
               art={
                 <>
                   <path d={PK_PATH} transform="translate(14 6) scale(.11)" fill="#D4FF3A" stroke="#0B0C0E" strokeWidth="2.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-                  <path d="M44 78 C 50 60, 70 56, 80 30" fill="none" stroke="#0B0C0E" strokeWidth="2.5" strokeDasharray="3 5" strokeLinecap="round" />
+                  <path className="a-trip" d="M44 78 C 50 60, 70 56, 80 30" fill="none" stroke="#0B0C0E" strokeWidth="2.5" strokeDasharray="3 5" strokeLinecap="round" />
                   <circle cx="80" cy="30" r="5" fill="#FF5A1F" />
                   <circle cx="44" cy="78" r="4" fill="#0B0C0E" />
                 </>
@@ -509,16 +511,18 @@ export function AppBand() {
                 <>
                   <rect x="22" y="14" width="40" height="72" rx="8" transform="rotate(-8 42 50)" {...STROKE} />
                   <path d="m44 30-8 12h6l-2 9 9-13h-6z" fill="#D4FF3A" stroke="#0B0C0E" strokeWidth="2.5" strokeLinejoin="round" />
-                  <rect x="58" y="34" width="46" height="20" rx="10" fill="#fff" stroke="#0B0C0E" strokeWidth="2.5" />
-                  <circle cx="68" cy="44" r="4" fill="#D4FF3A" />
-                  <path d="M76 41h20M76 47h14" {...STROKE} />
+                  <g className="a-chip">
+                    <rect x="58" y="34" width="46" height="20" rx="10" fill="#fff" stroke="#0B0C0E" strokeWidth="2.5" />
+                    <circle cx="68" cy="44" r="4" fill="#D4FF3A" />
+                    <path d="M76 41h20M76 47h14" {...STROKE} />
+                  </g>
                   <path d="M30 64h22v8H30z" {...STROKE} />
                 </>
               }
             >
               Check the connectors before you go
             </Feat>
-            <div className="flex min-h-[220px] flex-col items-center justify-center gap-3 rounded-3xl border border-ink/10 bg-white px-3.5 pb-[22px] pt-[18px] text-center sm:min-h-[260px]">
+            <div className="feat flex min-h-[220px] flex-col items-center justify-center gap-3 rounded-3xl border border-ink/10 bg-white px-3.5 pb-[22px] pt-[18px] text-center sm:min-h-[260px]">
               <span className="grid h-[84px] w-[84px] content-center justify-items-center gap-1.5 rounded-3xl bg-ink shadow-[0_20px_40px_-16px_rgba(11,12,14,.6)]">
                 <LogoMark className="h-[30px] w-[30px]" />
                 <b className="pg-bold font-display text-[13px] font-normal text-white">plugpk</b>
@@ -528,7 +532,7 @@ export function AppBand() {
                 <small className="mt-1 block text-[13px] font-normal text-muted">Planned for iOS and Android.</small>
               </p>
               <span className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-chalk px-3 py-[7px] text-[12.5px] text-muted">
-                <i className="h-2 w-2 rounded-full bg-[#FFB020]" />
+                <i className="h-2 w-2 animate-[ping-ring_2s_infinite] rounded-full bg-[#FFB020]" />
                 Apps coming soon
               </span>
             </div>

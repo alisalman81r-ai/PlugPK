@@ -40,7 +40,7 @@ export function OnRoadPrice({ title, provinces, estimates, fiscalYear, checked }
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Eyebrow>On-road price</Eyebrow>
-          <h2 className="font-display text-[clamp(30px,3.4vw,48px)] leading-[1.04] text-ink text-balance">
+          <h2 data-split="" className="font-display text-[clamp(30px,3.4vw,48px)] leading-[1.04] text-ink text-balance">
             {title}
           </h2>
           <p className="mt-3 text-[15px] leading-[1.6] text-muted">
@@ -86,7 +86,7 @@ export function OnRoadPrice({ title, provinces, estimates, fiscalYear, checked }
         </div>
       </div>
 
-      <div className={cn(CARD, 'mt-7 p-5 sm:p-7')}>
+      <div data-reveal="" className={cn(CARD, 'mt-7 p-5 sm:p-7')}>
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-ink/10 pb-5">
           <p className="font-display text-[22px] leading-tight text-ink">On-road price estimate</p>
           <div className="text-right">

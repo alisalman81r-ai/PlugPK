@@ -7,6 +7,8 @@ import * as React from 'react'
 import { Hl, btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 
+import { LiveCount } from './motion'
+
 /**
  * The map's opening band (the landing-v2 .phero): a centred Power Grotesk
  * title whose second line is volt, the counted copy, the search pill, the
@@ -71,11 +73,14 @@ export function MapHero({
       </div>
 
       <div className="relative mx-auto grid w-[min(980px,calc(100%-2*clamp(16px,4vw,64px)))] justify-items-center">
-        <h1 className="m-0 text-balance font-display text-[clamp(42px,5.6vw,88px)] leading-none">
+        {/* pages.js hero entrance (MotionProvider): the title's characters
+            rise, then sub, search, actions and stats follow in, then the
+            lifted filter sheet. */}
+        <h1 data-hero-title="" className="m-0 text-balance font-display text-[clamp(42px,5.6vw,88px)] leading-none">
           EV chargers near you <Hl dark className="block">all of Pakistan on one map</Hl>
         </h1>
 
-        <p className="mt-6 max-w-[44rem] text-pretty text-[clamp(16px,1.25vw,18px)] leading-[1.65] text-white/70">
+        <p data-hero-item="" className="mt-6 max-w-[44rem] text-pretty text-[clamp(16px,1.25vw,18px)] leading-[1.65] text-white/70">
           {total === 0 ? (
             <>No stations are listed yet. As operators add chargers they appear here.</>
           ) : (
@@ -100,23 +105,25 @@ export function MapHero({
         </p>
 
         {/* ── Search (the .psearch pill) ─────────────────────── */}
-        <div className="relative z-[5] mt-[34px] w-full max-w-[640px]">{search}</div>
+        <div data-hero-item="" className="relative z-[5] mt-[34px] w-full max-w-[640px]">{search}</div>
 
-        {/* ── Locate ─────────────────────────────────────────── */}
-        <div className="mt-[18px] flex w-full justify-center">
+        {/* ── Locate (.btn--volt.btn--lg.magnetic) ───────────── */}
+        <div data-hero-item="" className="mt-[18px] flex w-full justify-center">
           <button
             type="button"
             onClick={onLocateMe}
             aria-busy={isLocating}
+            data-magnetic=""
             className={btnClass('volt', 'lg', 'w-full sm:w-auto')}
           >
+            {/* .js-locate.is-busy svg: mspin, 1s linear, forever. */}
             <LocateFixed aria-hidden="true" className={isLocating ? 'animate-spin motion-reduce:animate-none' : undefined} />
             {isLocating ? 'Locating…' : 'Find chargers near me'}
           </button>
         </div>
 
         {/* ── Stats (.pstats) ────────────────────────────────── */}
-        <dl className="mt-[30px] grid w-full grid-cols-3 rounded-[22px] sm:flex sm:w-auto sm:justify-center border border-white/[0.09] bg-white/[0.03]">
+        <dl data-hero-item="" className="mt-[30px] grid w-full grid-cols-3 rounded-[22px] sm:flex sm:w-auto sm:justify-center border border-white/[0.09] bg-white/[0.03]">
           <Stat
             icon={<MapPin aria-hidden="true" className="h-[17px] w-[17px] text-volt" />}
             value={shown}
@@ -155,7 +162,8 @@ function Stat({
       <dd className="contents">
         <b className="inline-flex items-center gap-1.5 font-mono text-[22px] font-semibold leading-none tabular-nums text-white sm:text-[30px]">
           {icon}
-          {value}
+          {/* <span data-count>: counts up as the strip arrives. */}
+          <LiveCount value={value} />
           {total !== undefined ? <span className="text-sm font-medium text-white/40">/ {total}</span> : null}
         </b>
         <span aria-hidden="true" className="max-w-[7rem] text-balance font-mono text-[11px] sm:max-w-none sm:whitespace-nowrap font-semibold uppercase leading-snug tracking-[0.16em] text-white/50">

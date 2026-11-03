@@ -1,9 +1,14 @@
 // src/components/range/ListingsGuide.tsx
-import Link from 'next/link'
+'use client'
 
+import Link from 'next/link'
+import * as React from 'react'
+
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { Reveal } from '@/components/v2/Reveal'
 import { CARD, Eyebrow, H2_CLASS, Hl, LEAD_CLASS } from '@/components/v2/ui'
 import { ArrowRight } from '@/components/ui/icons'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 import { REALISM, TONE_PILL } from './realism'
@@ -20,6 +25,12 @@ import type { StandardCounts } from './types'
  *
  * The worked example is one car with two published figures, so it shows the
  * effect without suggesting any car is better than another.
+ *
+ * Motion (landing-v2 page-range-converter.js entrances): as each block comes
+ * into view the two figures count up, their bars grow from the left (1.3s,
+ * 0.12s apart), the catalogue strip grows segment by segment (1s, 0.08s
+ * apart), and the three steps rise in on a soft overshoot (0.9s
+ * back.out(1.4), 0.08s apart).
  */
 
 export interface ListingsGuideProps {
@@ -62,18 +73,46 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
     ] as const
   ).filter(([, n]) => n > 0)
 
+  const rootRef = React.useRef<HTMLElement>(null)
+  useIsoLayoutEffect(() => {
+    const root = rootRef.current
+    if (!root || prefersReduced()) return
+    const ctx = gsap.context((self) => {
+      const one = (sel: string) => self.selector!(sel)[0] as Element | undefined
+      const grow = { scaleX: 0, transformOrigin: '0 50%', ease: 'expo.out' }
+      const byd = one('[data-byd]')
+      if (byd) gsap.from(self.selector!('[data-byd-bar]'), { ...grow, duration: 1.3, stagger: 0.12, scrollTrigger: { trigger: byd, start: 'top 80%' } })
+      const catq = one('[data-catq]')
+      if (catq) gsap.from(self.selector!('[data-catq-s]'), { ...grow, duration: 1, stagger: 0.08, scrollTrigger: { trigger: catq, start: 'top 85%' } })
+      const howto = one('[data-howto]')
+      if (howto)
+        gsap.from(self.selector!('[data-howto-step]'), {
+          y: 24,
+          autoAlpha: 0,
+          duration: 0.9,
+          ease: 'back.out(1.4)',
+          stagger: 0.08,
+          scrollTrigger: { trigger: howto, start: 'top 80%' },
+        })
+    }, root)
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section
+      ref={rootRef}
       aria-labelledby="listings-heading"
       className="grid items-start gap-[clamp(32px,5vw,72px)] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
     >
       <div className="grid gap-4">
-        <header className="mb-4 grid justify-items-start">
-          <Eyebrow>On Pakistani listings</Eyebrow>
-          <h2 id="listings-heading" className={cn(H2_CLASS, 'text-ink')}>
+        <header data-shead="" className="mb-4 grid justify-items-start">
+          <div data-shead-eyebrow="">
+            <Eyebrow>On Pakistani listings</Eyebrow>
+          </div>
+          <h2 id="listings-heading" data-split="" className={cn(H2_CLASS, 'text-ink')}>
             Why two EVs can look <Hl>further apart</Hl> than they are
           </h2>
-          <p className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
+          <p data-shead-lead="" className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
             EVs reach Pakistan from Europe, China and elsewhere, and each brings the figure from its home market. So one
             listing might quote WLTP and the next a Chinese CLTC figure — and the CLTC car can look far ahead when the
             two are much closer on the same test.
@@ -81,7 +120,7 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
         </header>
 
         <Reveal>
-          <article className={cn(CARD, 'p-[18px] sm:p-[26px]')}>
+          <article data-byd="" className={cn(CARD, 'p-[18px] sm:p-[26px]')}>
             <h3 className="font-display text-[22px] leading-[1.15] text-ink">Same car, two official figures</h3>
             <p className="mt-1.5 text-sm text-muted">BYD Atto 3, 60.48 kWh battery, as published by BYD</p>
             <div className="mt-[22px] grid gap-3.5">
@@ -97,10 +136,11 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
                 >
                   <span className={cn(TONE_PILL, 'justify-self-start', REALISM[std].tone)}>{std}</span>
                   <b className="whitespace-nowrap font-mono text-[28px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
-                    {figure} km
+                    <span data-count={figure}>{figure}</span> km
                   </b>
                   <i
                     aria-hidden="true"
+                    data-byd-bar=""
                     className={cn('col-span-full block h-2 rounded sm:col-span-1', std === 'CLTC' ? 'bg-ink' : 'bg-volt-ink')}
                     style={{ width: `${w * 100}%` }}
                   />
@@ -115,12 +155,13 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
 
         {total > 0 ? (
           <Reveal>
-            <div className="rounded-[28px] border border-ink/10 bg-chalk px-5 py-6 sm:px-[26px]">
+            <div data-catq="" className="rounded-[28px] border border-ink/10 bg-chalk px-5 py-6 sm:px-[26px]">
               <p className="text-[15px] font-semibold text-ink">The {total} EVs in our own catalogue quote:</p>
               <div aria-hidden="true" className="mt-4 flex h-3 gap-[3px]">
                 {mix.map(([label, n]) => (
                   <i
                     key={label}
+                    data-catq-s=""
                     className={cn(
                       'rounded-[3px]',
                       label === 'No standard stated'
@@ -154,7 +195,7 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
                 className="group/l mt-2 inline-flex min-h-11 items-center gap-2 text-[15px] font-semibold text-ink"
               >
                 Browse the cars
-                <ArrowRight size={18} className="transition-transform duration-300 ease-spring group-hover/l:translate-x-1" aria-hidden="true" />
+                <ArrowRight size={18} className="transition-transform duration-[350ms] ease-spring group-hover/l:translate-x-1" aria-hidden="true" />
               </Link>
             </div>
           </Reveal>
@@ -164,6 +205,8 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
       <aside aria-labelledby="listing-steps" className="lg:sticky lg:top-[calc(var(--nav-h)+1.5rem)]">
         <div
           data-theme="dark"
+          data-reveal=""
+          data-howto=""
           className="relative isolate overflow-hidden rounded-[28px] bg-ink px-5 py-6 text-white sm:p-[30px]"
         >
           <span
@@ -177,11 +220,12 @@ export function ListingsGuide({ counts }: ListingsGuideProps) {
             {STEPS.map((step, i) => (
               <li
                 key={step.title}
+                data-howto-step=""
                 className="group/step grid grid-cols-[44px_1fr] gap-3 border-t border-white/[0.09] py-4 sm:grid-cols-[56px_1fr] sm:gap-4"
               >
                 <span
                   aria-hidden="true"
-                  className="font-display text-[44px] leading-[0.9] text-transparent transition-colors duration-300 [-webkit-text-stroke:1.4px_rgba(255,255,255,.4)] group-hover/step:text-volt group-hover/step:[-webkit-text-stroke-color:#D4FF3A] sm:text-[54px]"
+                  className="font-display text-[44px] leading-[0.9] text-transparent [-webkit-text-stroke:1.4px_rgba(255,255,255,.4)] [transition:color_.35s,-webkit-text-stroke-color_.35s] group-hover/step:text-volt group-hover/step:[-webkit-text-stroke-color:#D4FF3A] sm:text-[54px]"
                 >
                   {i + 1}
                 </span>

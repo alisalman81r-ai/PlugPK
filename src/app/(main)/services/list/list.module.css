@@ -1,0 +1,39 @@
+/*
+  landing-v2 list-your-business.html (css/page-auth.css .lyb): the page
+  settles in on load — the chip, the title, the lead, each card of what you
+  need, then the actions — each rising 22px out of transparent over .9s on the
+  expo-out curve, a few hundredths of a second apart. Plain CSS, as the design
+  does it; reduced motion shows it all in place.
+*/
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 22px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .d06 { animation-delay: 0.06s; }
+  .d12 { animation-delay: 0.12s; }
+  .d46 { animation-delay: 0.46s; }
+  .card:nth-child(1) { animation-delay: 0.2s; }
+  .card:nth-child(2) { animation-delay: 0.26s; }
+  .card:nth-child(3) { animation-delay: 0.32s; }
+  .card:nth-child(4) { animation-delay: 0.38s; }
+}
+
+/* .lyb__card: lifts 4px on hover, its shadow deepening with it. */
+.card {
+  transition:
+    translate 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card:hover {
+  translate: 0 -4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card { transition-duration: 0.01ms; }
+}

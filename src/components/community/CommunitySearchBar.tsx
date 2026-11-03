@@ -4,6 +4,7 @@
 import { Search } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { getLenis } from '@/components/motion/MotionProvider'
 import { btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 
@@ -33,16 +34,35 @@ export function CommunitySearchBar({
   className,
 }: CommunitySearchBarProps) {
   const hasQuery = value.trim().length > 0
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  /* page-community.js #searchForm submit: Enter glides down to the feed. */
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    const feed = document.getElementById('feed')
+    if (!feed) return
+    const lenis = getLenis()
+    if (lenis) lenis.scrollTo(feed, { offset: -110, duration: 1.1 })
+    else feed.scrollIntoView()
+  }
+
+  // #qClear: empties the field and puts the cursor back in it.
+  const handleClear = () => {
+    onClear()
+    inputRef.current?.focus()
+  }
 
   return (
     <div className={cn('relative w-full', className)}>
-      <div
+      <form
         role="search"
+        onSubmit={handleSubmit}
         className="relative flex h-16 w-full items-center gap-2 rounded-full bg-white py-[7px] pl-[52px] pr-2 shadow-[0_24px_60px_-24px_rgba(212,255,58,.35)] transition-shadow duration-300 focus-within:shadow-[0_0_0_4px_rgba(212,255,58,.45),0_24px_60px_-24px_rgba(212,255,58,.35)]"
       >
         <Search size={20} className="absolute left-5 text-[#8a8e95]" aria-hidden="true" />
 
         <input
+          ref={inputRef}
           type="search"
           value={value}
           onChange={(event) => onChange(event.target.value)}
@@ -67,7 +87,7 @@ export function CommunitySearchBar({
             </span>
             <button
               type="button"
-              onClick={onClear}
+              onClick={handleClear}
               aria-label="Clear search"
               className={btnClass('ink', 'md', 'shrink-0 px-[18px]')}
             >
@@ -75,7 +95,7 @@ export function CommunitySearchBar({
             </button>
           </>
         ) : null}
-      </div>
+      </form>
 
       {/* The badge is visual; this is what a screen reader hears. */}
       <span aria-live="polite" className="sr-only">

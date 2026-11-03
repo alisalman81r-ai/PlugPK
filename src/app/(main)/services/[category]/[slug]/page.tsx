@@ -199,9 +199,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             ) : null}
           </div>
 
-          <h1 className="mt-6 text-balance font-display text-[clamp(38px,5.2vw,80px)] leading-none">{service.name}</h1>
+          <h1 data-hero-title="" className="mt-6 text-balance font-display text-[clamp(38px,5.2vw,80px)] leading-none">{service.name}</h1>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/65">
+          <div data-hero-item="" className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/65">
             {/* No star rating. The rating and review count on a service row
                 were seeded figures with no reviews behind them — services
                 cannot be reviewed on plugpk — so showing them would be
@@ -222,7 +222,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </span>
           </div>
 
-          <div className="mt-[34px] flex flex-wrap justify-center gap-3">
+          <div data-hero-item="" className="mt-[34px] flex flex-wrap justify-center gap-3">
             {directionsHref ? (
               <a href={directionsHref} target="_blank" rel="noopener noreferrer" className={btnClass('volt', 'lg')}>
                 <Navigation2 aria-hidden="true" />

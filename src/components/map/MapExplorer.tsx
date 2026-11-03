@@ -3,7 +3,7 @@
 
 import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FilterRail } from '@/components/map/FilterRail'
 import { MapControls } from '@/components/map/MapControls'
@@ -16,7 +16,9 @@ import { StationResults } from '@/components/map/StationResults'
 import { Zap } from '@/components/ui/icons'
 import { WRAP } from '@/components/v2/ui'
 import { MAP_HEIGHT, RAIL_LIFT } from '@/components/map/layout'
+import { scrollToEl, useIsoLayoutEffect, usePopIn } from '@/components/map/motion'
 import { useStations } from '@/hooks/useStations'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { getPortAvailability } from '@/lib/utils'
@@ -44,6 +46,20 @@ const MapView = dynamic(() => import('@/components/map/MapView').then((mod) => m
 const LEGEND_SWATCH: Record<(typeof PIN_LEGEND)[number]['key'], string> = {
   fast: 'bg-ink text-volt',
   standard: 'bg-white text-ink shadow-[inset_0_0_0_1.5px_rgba(11,12,14,.35)]',
+}
+
+/**
+ * The selected station's card rises in like the design's map popup
+ * (page-map.js openPopup). Keyed by station, so each new pick replays it.
+ */
+function PopIn({ className, children }: { className?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  usePopIn(ref)
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  )
 }
 
 export interface MapExplorerProps {
@@ -124,24 +140,97 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
     )
   }, [])
 
+  /**
+   * page-map.js: asked from the hero, a position that arrives also glides the
+   * page down to the map. The geolocation timeout is 8s, so a position landing
+   * within 12s of the request is this request's answer.
+   */
+  const heroLocateAt = useRef(0)
+
   /** Asks for a position and sorts by it; the spinner stops either way. */
   const handleLocateMe = useCallback(() => {
     setIsLocating(true)
     locate(() => setIsLocating(false))
   }, [locate])
 
+  const handleLocateFromHero = useCallback(() => {
+    heroLocateAt.current = Date.now()
+    handleLocateMe()
+  }, [handleLocateMe])
+
+  useEffect(() => {
+    if (!userLocation || !heroLocateAt.current) return
+    const recent = Date.now() - heroLocateAt.current < 12_000
+    heroLocateAt.current = 0
+    if (recent) scrollToEl(mapRef.current)
+  }, [userLocation])
+
   /**
-   * Selecting from the grid brings the map back into view. With the results
-   * below the map rather than beside it, a click down the page used to move a
-   * pin the reader could not see.
+   * Selecting from the grid brings the map back into view (page-map.js
+   * select from a card): only when the frame is not already on screen, with
+   * the same Lenis glide.
    */
   const handleSelectFromResults = useCallback(
     (station: Station) => {
       setSelectedStation(station)
-      mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      const frame = mapRef.current
+      if (!frame) return
+      const r = frame.getBoundingClientRect()
+      if (r.top < 60 || r.bottom > window.innerHeight + 40) scrollToEl(frame)
     },
     [setSelectedStation],
   )
+
+  /**
+   * A pin picked on the map nudges its card in the grid (page-map.js select
+   * from a pin): the card springs from 97% back to full size.
+   */
+  const [pinPick, setPinPick] = useState<{ id: string; n: number } | null>(null)
+  const handleSelectFromMap = useCallback(
+    (station: Station) => {
+      setSelectedStation(station)
+      setPinPick((prev) => ({ id: station.id, n: (prev?.n ?? 0) + 1 }))
+    },
+    [setSelectedStation],
+  )
+
+  // page-map.js: Escape puts the selection down.
+  useEffect(() => {
+    if (!selectedStation) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedStation(null)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [selectedStation, setSelectedStation])
+
+  /**
+   * The map frame rises into place as it scrolls in (page-map.js:
+   * from y 40, opacity 0, 1.2s, expo.out, at "top 95%").
+   */
+  useIsoLayoutEffect(() => {
+    const frame = mapRef.current
+    if (!frame || prefersReduced()) return
+    const ctx = gsap.context(() => {
+      gsap.from(frame, {
+        y: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'expo.out',
+        scrollTrigger: { trigger: frame, start: 'top 95%' },
+      })
+    })
+    return () => ctx.revert()
+  }, [])
+
+  /** A shared ?q= link opens the map on what it matches, not the whole country. */
+  const [fitOnLoad] = useState(() => Boolean(searchParams.get('q')?.trim()))
+
+  /** Enter in the search field: the field lets go and the page glides to the map. */
+  const handleSearchSubmit = useCallback(() => {
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    scrollToEl(mapRef.current)
+  }, [])
 
   const selectedWithDistance = selectedStation
     ? stationsWithDistance.find((item) => item.id === selectedStation.id)
@@ -180,6 +269,7 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
     onClear: () => setSearchQuery(''),
     resultCount: filteredStations.length,
     onSelectStation: setSelectedStation,
+    onSubmit: handleSearchSubmit,
     stations,
   }
 
@@ -196,7 +286,7 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
         cities={cities}
         portsInstalled={portsInstalled}
         exampleCount={exampleCount}
-        onLocateMe={handleLocateMe}
+        onLocateMe={handleLocateFromHero}
         isLocating={isLocating}
         search={<MapSearchBar {...searchProps} idPrefix="map-search" />}
       />
@@ -204,8 +294,8 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
       {/* ── Refine ─────────────────────────────────────────────
           Lifted out of the hero's lower edge: it carries on from the search
           field above it, and a filter that changes what the map shows has to
-          be visible while the map is. */}
-      <div className={`relative z-10 ${RAIL_LIFT} ${WRAP}`}>
+          be visible while the map is. data-lift: it rises in after the hero. */}
+      <div data-lift="" className={`relative z-10 ${RAIL_LIFT} ${WRAP}`}>
         <FilterRail
           filters={filters}
           onUpdateFilter={updateFilter}
@@ -231,9 +321,10 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
               <MapView
                 stations={filteredStations}
                 selectedStation={selectedStation}
-                onStationSelect={setSelectedStation}
+                onStationSelect={handleSelectFromMap}
                 onMapClick={() => setSelectedStation(null)}
                 userLocation={userLocation}
+                fitOnLoad={fitOnLoad}
               />
             ) : (
               <div aria-hidden="true" className="absolute inset-0">
@@ -275,14 +366,14 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
             {/* Desktop preview card floats over the map it belongs to. */}
             {selectedStation ? (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 hidden justify-center p-5 lg:flex">
-                <div className="pointer-events-auto w-full max-w-[440px] animate-fade-in">
+                <PopIn key={selectedStation.id} className="pointer-events-auto w-full max-w-[440px]">
                   <StationPreviewCard
                     station={selectedStation}
                     distanceKm={selectedWithDistance?.distanceKm}
                     onClose={() => setSelectedStation(null)}
                     onNavigate={handleNavigate}
                   />
-                </div>
+                </PopIn>
               </div>
             ) : null}
           </div>
@@ -299,6 +390,7 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
           stations={stationsWithDistance}
           selectedStation={selectedStation}
           onStationSelect={handleSelectFromResults}
+          pinPick={pinPick}
           isLoading={isLoading}
           onResetFilters={resetFilters}
           hasUserLocation={userLocation !== null}
@@ -308,13 +400,15 @@ export function MapExplorer({ stations: allStations }: MapExplorerProps) {
       {/* Phone: the selected station docks above the tab bar, where a thumb
           already is, instead of over the middle of the map. */}
       {selectedStation ? (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 animate-slide-up px-3 pb-3 lg:hidden">
-          <StationPreviewCard
-            station={selectedStation}
-            distanceKm={selectedWithDistance?.distanceKm}
-            onClose={() => setSelectedStation(null)}
-            onNavigate={handleNavigate}
-          />
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 px-3 pb-3 lg:hidden">
+          <PopIn key={selectedStation.id}>
+            <StationPreviewCard
+              station={selectedStation}
+              distanceKm={selectedWithDistance?.distanceKm}
+              onClose={() => setSelectedStation(null)}
+              onNavigate={handleNavigate}
+            />
+          </PopIn>
         </div>
       ) : null}
     </div>

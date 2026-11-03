@@ -81,7 +81,7 @@ export default async function RangeConverterPage() {
 
       <Section tone="chalk" tight id="method">
         <Wrap>
-          <div className="grid gap-[clamp(28px,4vw,56px)] rounded-[28px] border border-ink/10 bg-white p-[clamp(22px,3.5vw,44px)] sm:rounded-[40px] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div data-reveal="" className="grid gap-[clamp(28px,4vw,56px)] rounded-[28px] border border-ink/10 bg-white p-[clamp(22px,3.5vw,44px)] sm:rounded-[40px] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
             <div>
               <h2 id="sources-heading" className="font-display text-[clamp(26px,2.6vw,34px)] leading-[1.1] text-ink">
                 How we worked this out
@@ -101,7 +101,7 @@ export default async function RangeConverterPage() {
                 </span>
                 <ArrowRight
                   size={18}
-                  className="shrink-0 transition-transform duration-300 ease-spring group-hover/cta:translate-x-1"
+                  className="shrink-0 transition-transform duration-[350ms] ease-spring group-hover/cta:translate-x-1"
                   aria-hidden="true"
                 />
               </Link>
@@ -114,13 +114,13 @@ export default async function RangeConverterPage() {
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group/src grid min-h-[52px] grid-cols-[28px_1fr_16px] items-center gap-2.5 px-1 py-2.5 text-sm leading-[1.45] text-ink transition-[padding,color] duration-300 ease-out hover:pl-2.5 sm:grid-cols-[34px_1fr_18px]"
+                    className="group/src grid min-h-[52px] grid-cols-[28px_1fr_16px] items-center gap-2.5 px-1 py-2.5 text-sm leading-[1.45] text-ink [transition:color_.25s,padding_.35s_cubic-bezier(.16,1,.3,1)] hover:pl-2.5 sm:grid-cols-[34px_1fr_18px]"
                   >
                     <span className="font-mono text-[11.5px] font-semibold text-muted">{String(i + 1).padStart(2, '0')}</span>
                     <span>{s.label}</span>
                     <ArrowUpRight
                       size={16}
-                      className="text-muted transition-[transform,color] duration-300 ease-spring group-hover/src:-translate-y-0.5 group-hover/src:translate-x-0.5 group-hover/src:text-volt-ink"
+                      className="text-muted [transition:transform_.35s_cubic-bezier(.34,1.56,.64,1),color_.25s] group-hover/src:-translate-y-0.5 group-hover/src:translate-x-0.5 group-hover/src:text-volt-ink"
                       aria-hidden="true"
                     />
                   </a>

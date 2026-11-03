@@ -1,13 +1,11 @@
 // src/components/community/ClubCard.tsx
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowRight, MapPin, Users } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { hoverTrigger } from '@/components/ui'
 import type { EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { CityLandmark, CityScene, cityLandmarkLabel, citySky } from './CityLandmark'
@@ -60,8 +58,7 @@ export function ClubCard({
   /* ── Compact ──────────────────────────────────────────────────── */
   if (variant === 'compact') {
     return (
-      <motion.div
-        {...hoverTrigger}
+      <div
         style={style}
         className={cn('flex items-center gap-3 rounded-[18px] border border-ink/10 bg-white p-3', className)}
       >
@@ -77,18 +74,17 @@ export function ClubCard({
             {club.city} · <span className="font-mono">{memberCount}</span> {memberCount === 1 ? 'member' : 'members'}
           </span>
         </span>
-      </motion.div>
+      </div>
     )
   }
 
   /* ── Default ──────────────────────────────────────────────────── */
   return (
-    <motion.article
-      {...hoverTrigger}
+    <article
       style={style}
       className={cn(
         'group/club flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1',
-        'transition-[transform,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2',
+        '[transition:transform_.45s_cubic-bezier(.16,1,.3,1),box-shadow_.45s_cubic-bezier(.16,1,.3,1),border-color_.3s] hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2',
         'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
         className,
       )}
@@ -162,6 +158,6 @@ export function ClubCard({
           className="mt-2"
         />
       </div>
-    </motion.article>
+    </article>
   )
 }

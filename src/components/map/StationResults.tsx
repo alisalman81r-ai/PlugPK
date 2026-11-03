@@ -4,11 +4,17 @@
 import { ChevronDown, List } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
 import type { Station } from '@/lib/types'
 import { Eyebrow, btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
 import { SORT_OPTIONS, type SortKey } from './filter-options'
+import { refreshSoon, useIsoLayoutEffect } from './motion'
 import { NoResults, StationListItem, StationListSkeleton } from './StationList'
+
+const cardsIn = (grid: HTMLElement | null) =>
+  grid ? [...grid.querySelectorAll<HTMLElement>('[data-station-card]')] : []
+const idOf = (card: HTMLElement) => card.dataset.stationCard ?? ''
 
 /**
  * The results, as a grid under the map.
@@ -33,6 +39,8 @@ export interface StationResultsProps {
   onResetFilters?: () => void
   /** True once geolocation has landed — "nearest first" is a lie without it. */
   hasUserLocation?: boolean
+  /** The station last picked by its pin on the map, and a counter that changes per pick. */
+  pinPick?: { id: string; n: number } | null
   className?: string
 }
 
@@ -43,6 +51,7 @@ export function StationResults({
   isLoading = false,
   onResetFilters,
   hasUserLocation = false,
+  pinPick = null,
   className,
 }: StationResultsProps) {
   const [sortBy, setSortBy] = React.useState<SortKey>('nearest')
@@ -67,6 +76,85 @@ export function StationResults({
 
   const visible = sorted.slice(0, visibleCount)
   const remaining = sorted.length - visible.length
+
+  /*
+    ── Motion (page-map.js) ──────────────────────────────────────────
+
+    First paint: the cards wait below the fold and rise as they scroll in —
+    from y 32, opacity 0; 1s, expo.out, 0.07s apart, at "top 92%", once.
+    After that, every change to the list (a filter, a search, "show more")
+    brings in only the cards that were not already showing — from y 18,
+    opacity 0; 0.6s, expo.out, 0.05s apart — and a new sort or a located
+    position replays it for the whole list.
+  */
+  const gridRef = React.useRef<HTMLDivElement>(null)
+  /** Ids on show after the last pass; null until the first reveal is set up. */
+  const shown = React.useRef<Set<string> | null>(null)
+  /** Ids whose first scroll reveal has run (the rest are still waiting below). */
+  const revealed = React.useRef(new Set<string>())
+  const replayAll = React.useRef(false)
+  const lastLocated = React.useRef(hasUserLocation)
+  const visibleKey = visible.map((station) => station.id).join(',')
+
+  useIsoLayoutEffect(() => {
+    const cards = cardsIn(gridRef.current)
+    shown.current = new Set(cards.map(idOf))
+    if (prefersReduced() || cards.length === 0) {
+      cards.forEach((card) => revealed.current.add(idOf(card)))
+      return
+    }
+    gsap.set(cards, { opacity: 0, y: 32 })
+    const triggers = ScrollTrigger.batch(cards, {
+      start: 'top 92%',
+      once: true,
+      onEnter: (batch) => {
+        batch.forEach((card) => revealed.current.add(idOf(card as HTMLElement)))
+        gsap.to(batch, { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.07, overwrite: true, clearProps: 'transform' })
+      },
+    })
+    return () => {
+      triggers.forEach((trigger) => trigger.kill())
+      gsap.set(cards, { clearProps: 'opacity,transform' })
+      shown.current = null
+      revealed.current.clear()
+    }
+    // The first cards only; later changes are the effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useIsoLayoutEffect(() => {
+    if (shown.current === null) return
+    const cards = cardsIn(gridRef.current)
+    if (lastLocated.current !== hasUserLocation) {
+      lastLocated.current = hasUserLocation
+      if (hasUserLocation) replayAll.current = true
+    }
+    const all = replayAll.current
+    replayAll.current = false
+    const before = shown.current
+    // Cards still waiting for their first scroll reveal keep waiting.
+    const entering = cards.filter((card) => {
+      const id = idOf(card)
+      return !before.has(id) || (all && revealed.current.has(id))
+    })
+    entering.forEach((card) => revealed.current.add(idOf(card)))
+    shown.current = new Set(cards.map(idOf))
+    if (entering.length && !prefersReduced()) {
+      gsap.fromTo(
+        entering,
+        { opacity: 0, y: 18 },
+        // clearProps: GSAP leaves an inline 'translate: none' that would
+        // cancel the card's hover lift (which rides the translate property).
+        { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out', stagger: 0.05, overwrite: true, clearProps: 'transform' },
+      )
+    }
+    refreshSoon()
+  }, [visibleKey, sortBy, hasUserLocation])
+
+  const changeSort = (next: SortKey) => {
+    replayAll.current = true
+    setSortBy(next)
+  }
 
   return (
     <section aria-label="Station results" className={cn('min-w-0', className)}>
@@ -96,7 +184,7 @@ export function StationResults({
           <span className="sr-only">Sort stations</span>
           <select
             value={sortBy}
-            onChange={(event) => setSortBy(event.target.value as SortKey)}
+            onChange={(event) => changeSort(event.target.value as SortKey)}
             className="h-11 cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-[18px] pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus"
           >
             {SORT_OPTIONS.map((option) => (
@@ -124,7 +212,7 @@ export function StationResults({
         </div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div ref={gridRef} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((station) => (
               <StationListItem
                 key={station.id}
@@ -132,6 +220,7 @@ export function StationResults({
                 isSelected={selectedStation?.id === station.id}
                 onClick={onStationSelect}
                 distanceKm={station.distanceKm}
+                pulse={pinPick?.id === station.id ? pinPick.n : undefined}
               />
             ))}
           </div>

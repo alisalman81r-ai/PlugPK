@@ -5,11 +5,13 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { useMyCar } from '@/hooks/useMyCar'
 import { ArrowUpRight, Check, Link2 } from '@/components/ui/icons'
 import { ToolField } from '@/components/tools/ToolField'
 import { Lift, SEG, btnClass, segButtonClass } from '@/components/v2/ui'
 import { MAX_CHARGER_KW, estimateCharge, rangeAddedKm, readyAt, type ChargeMode } from '@/lib/charging-time'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 import { ChargeResult } from './ChargeResult'
@@ -118,6 +120,30 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
     if (picked) setBatteryText(String(picked.batteryKwh))
   }
 
+  /* A car picked by hand flashes the battery field it just filled (pickCar). */
+  const batteryRef = React.useRef<HTMLInputElement>(null)
+  const pickByHand = (next: string) => {
+    chooseCar(next)
+    const input = batteryRef.current
+    if (next && input && !prefersReduced()) {
+      gsap.fromTo(input, { backgroundColor: '#F1FFD0' }, { backgroundColor: '#fff', duration: 1.2, ease: 'power2.out' })
+    }
+  }
+
+  /* While a charge preset glides into place, the card shows the levels it passes. */
+  const [preview, setPreview] = React.useState<{ from: number; to: number } | null>(null)
+
+  /* AC ↔ DC deals the new chargers in (renderTiles(animate)); loading a link does not. */
+  const tilesRef = React.useRef<HTMLDivElement>(null)
+  const dealTiles = React.useRef(false)
+  useIsoLayoutEffect(() => {
+    if (!dealTiles.current) return
+    dealTiles.current = false
+    if (tilesRef.current && !prefersReduced()) {
+      gsap.from(tilesRef.current.children, { y: 14, autoAlpha: 0, duration: 0.5, stagger: 0.05, ease: 'back.out(1.6)' })
+    }
+  }, [mode])
+
   /*
     After mount only: the page is static, so the server never sees the query.
     A shared link's settings apply; otherwise no car is picked until you pick one.
@@ -193,6 +219,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
 
   const chooseMode = (next: ChargeMode) => {
     if (next === mode) return
+    dealTiles.current = true
     setMode(next)
     setPresetKw(DEFAULT_KW[next])
     setCustomText('')
@@ -227,6 +254,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
   })
 
   const choosePreset = (nextMode: ChargeMode, kw: number) => {
+    if (nextMode !== mode) dealTiles.current = true
     setMode(nextMode)
     setPresetKw(kw)
     setCustomText('')
@@ -253,12 +281,13 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
                 label="Model"
                 cars={pickerCars}
                 value={slug}
-                onChange={chooseCar}
+                onChange={pickByHand}
                 placeholder="Select your EV"
                 noneLabel="Not in the list — I’ll enter the battery"
               />
 
               <ToolField
+                ref={batteryRef}
                 label="Battery size"
                 inputMode="decimal"
                 type="number"
@@ -302,6 +331,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
                 setFrom(f)
                 setTo(t)
               }}
+              onPreview={setPreview}
             />
           </Step>
 
@@ -320,6 +350,7 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
             </p>
 
             <div
+              ref={tilesRef}
               role="radiogroup"
               aria-label="Charger power"
               className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4"
@@ -337,11 +368,12 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
                       setCustomText('')
                     }}
                     className={cn(
-                      'relative grid min-h-[84px] content-start justify-items-start gap-0.5 rounded-[18px] border-[1.5px] px-4 py-3.5 text-left transition-[background-color,border-color,color,translate,box-shadow] duration-300 ease-out xl:min-h-[96px]',
+                      // .tile: colours over .3s, the lift over .4s on the out-curve
+                      'relative grid min-h-[84px] content-start justify-items-start gap-0.5 rounded-[18px] border-[1.5px] px-4 py-3.5 text-left [transition:background-color_.3s,border-color_.3s,color_.3s,translate_.4s_cubic-bezier(.16,1,.3,1),box-shadow_.4s] xl:min-h-[96px] hover:shadow-e1 hover:[translate:0_-3px]',
                       'focus-visible:shadow-focus focus-visible:outline-none',
                       on
                         ? 'border-ink bg-ink text-white'
-                        : 'border-ink/10 bg-white text-ink hover:-translate-y-[3px] hover:border-ink/25 hover:shadow-e1',
+                        : 'border-ink/10 bg-white text-ink hover:border-ink/25',
                     )}
                   >
                     {on ? (
@@ -395,8 +427,8 @@ export function ChargingCalculator({ cars }: ChargingCalculatorProps) {
           <ChargeResult
             result={result}
             mode={mode}
-            from={from}
-            to={to}
+            from={preview?.from ?? from}
+            to={preview?.to ?? to}
             chargerKw={chargerKw}
             carName={car?.name ?? null}
             makerDcMinutes={car?.dcQuotedMin ?? null}

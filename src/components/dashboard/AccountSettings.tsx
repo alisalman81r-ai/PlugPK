@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { MorphIcon } from '@/components/ui'
 import { ActionButton, ALINK } from '@/components/auth/form-ui'
 import { FIELD_EYE, PasswordStrength } from '@/components/auth/SignUpForm'
 import { PAKISTAN_CITIES } from '@/lib/constants'
@@ -15,7 +14,7 @@ import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
 import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
 import { cn } from '@/lib/utils'
 
-import { AIN, ALABEL, PANEL, PANEL_H2, PANEL_SUB } from './dash-ui'
+import { ACCT_DELAY, AIN, ALABEL, PANEL, PANEL_H2, PANEL_SUB } from './dash-ui'
 import { DashAvatar } from './DashboardSidebar'
 
 /**
@@ -134,7 +133,8 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
       return
     }
     setProfileSaved(true)
-    setTimeout(() => setProfileSaved(false), 3000)
+    // page-account.js clears the saved note after 4 seconds.
+    setTimeout(() => setProfileSaved(false), 4000)
   }
 
   const handlePassword = async () => {
@@ -358,7 +358,7 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
       <section
         ref={passwordSection}
         id="password"
-        className={cn(PANEL, 'scroll-mt-28', mustChange && 'border-[#FFB020] ring-4 ring-[#FFE0A3]')}
+        className={cn(PANEL, ACCT_DELAY.password, 'scroll-mt-28', mustChange && 'border-[#FFB020] ring-4 ring-[#FFE0A3]')}
       >
         <h2 className={PANEL_H2}>Password</h2>
         <p className={PANEL_SUB}>
@@ -388,7 +388,7 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
                 aria-pressed={showCurrent}
                 className={FIELD_EYE}
               >
-                <MorphIcon active={showCurrent} on={EyeOff} off={Eye} size={20} />
+                {showCurrent ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
               </button>
             </div>
           </div>
@@ -414,7 +414,7 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
                 aria-pressed={showNew}
                 className={FIELD_EYE}
               >
-                <MorphIcon active={showNew} on={EyeOff} off={Eye} size={20} />
+                {showNew ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
               </button>
             </div>
             {newPassword ? (
@@ -454,7 +454,7 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
       </section>
 
       {/* ── Sessions ─────────────────────────────────────────── */}
-      <section className={PANEL}>
+      <section className={cn(PANEL, ACCT_DELAY.devices)}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-[18px]">
           <Monitor size={32} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
           <div>

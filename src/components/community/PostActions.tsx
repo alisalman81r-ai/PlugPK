@@ -8,6 +8,7 @@ import * as React from 'react'
 
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { getMyLikedPostIds, togglePostLike } from '@/lib/db/community-actions'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 import { signInHref } from './auth-links'
@@ -54,8 +55,13 @@ export function PostActions({ postId, title, likeCount }: PostActionsProps) {
     }
   }, [user, postId])
 
-  const handleLike = async () => {
+  const handleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (busy) return
+    // The community feed's heart pop: filling, it springs up from a third of its size.
+    const heart = event.currentTarget.querySelector('svg')
+    if (user && !liked && heart && !prefersReduced()) {
+      gsap.fromTo(heart, { scale: 0.3 }, { scale: 1, duration: 0.6, ease: 'back.out(3)' })
+    }
     if (!user) {
       setMessage('signin')
       return

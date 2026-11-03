@@ -11,10 +11,32 @@ import {
   type IconType,
 } from '@/components/ui/icons'
 
-import { ChipCount, Lift, chipClass } from '@/components/v2/ui'
+import { Lift, chipClass } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
+import { prefersReduced } from '@/lib/gsap'
 import type { ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
+
+import { useCountBounce } from './services-motion'
+
+/**
+ * A chip's count (.sv-chips .chip .count): eases between the chalk and volt
+ * faces over .25s, and bounces whenever the number changes.
+ */
+function ChipCountBounce({ on, value }: { on: boolean; value: number }) {
+  const ref = useCountBounce<HTMLSpanElement>(value)
+  return (
+    <span
+      ref={ref}
+      className={cn(
+        'min-w-[26px] rounded-full px-[7px] py-0.5 text-center font-mono text-[11px] font-semibold tabular-nums [transition:background-color_.25s,color_.25s]',
+        on ? 'bg-volt text-ink' : 'bg-chalk text-muted',
+      )}
+    >
+      {value}
+    </span>
+  )
+}
 
 export interface ServiceCategoryTabsProps {
   selectedCategory: ServiceCategory | 'all'
@@ -72,18 +94,27 @@ export function ServiceCategoryTabs({
                 key={tab.key}
                 type="button"
                 aria-pressed={on}
-                onClick={() => onCategoryChange(tab.key)}
+                onClick={(event) => {
+                  if (on) return
+                  onCategoryChange(tab.key)
+                  // page-services.js: the pressed chip glides to the middle of the strip.
+                  event.currentTarget.scrollIntoView({
+                    behavior: prefersReduced() ? 'auto' : 'smooth',
+                    block: 'nearest',
+                    inline: 'center',
+                  })
+                }}
                 className={cn(
                   chipClass(on, 'h-[46px] shrink-0 gap-[9px] px-3.5 focus-visible:outline-none focus-visible:shadow-focus'),
+                  // .chip: colours over .25s, the press springs back over .3s.
+                  '![transition:background-color_.25s,border-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)]',
                   !on && count === 0 && 'opacity-45',
                   '[&_svg]:h-[18px] [&_svg]:w-[18px]',
                 )}
               >
                 <Icon size={18} aria-hidden="true" />
                 {tab.label}
-                <ChipCount on={on}>
-                  <span className="inline-block min-w-[14px] text-center tabular-nums">{count}</span>
-                </ChipCount>
+                <ChipCountBounce on={on} value={count} />
               </button>
             )
           })}

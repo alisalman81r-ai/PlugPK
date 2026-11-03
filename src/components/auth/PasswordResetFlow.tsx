@@ -4,7 +4,6 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { MorphIcon } from '@/components/ui'
 import { Eye, EyeOff, Lock, Mail, RefreshCw } from '@/components/ui/icons'
 import { requestPasswordReset, resetPasswordWithCode } from '@/lib/db/auth-actions'
 import { cn } from '@/lib/utils'
@@ -178,7 +177,7 @@ export function PasswordResetFlow({ initialEmail = '', startAtCode = false }: { 
           aria-pressed={show}
           className={FIELD_EYE}
         >
-          <MorphIcon active={show} on={EyeOff} off={Eye} size={20} />
+          {show ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
         </button>
       </div>
       <PasswordStrength password={password} />

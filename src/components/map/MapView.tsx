@@ -6,12 +6,16 @@ import dynamic from 'next/dynamic'
 import type { Coordinates, Station } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
+import { MapLoadingMark } from './MapLoadingMark'
+
 export interface MapViewProps {
   stations: Station[]
   selectedStation: Station | null
   onStationSelect: (station: Station) => void
   onMapClick: () => void
   userLocation: Coordinates | null
+  /** Open on the stations shown (the page arrived filtered); MapLibre only. */
+  fitOnLoad?: boolean
   className?: string
 }
 
@@ -24,10 +28,11 @@ const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
  */
 const USE_GOOGLE = process.env.NEXT_PUBLIC_MAP_ENGINE === 'google' && Boolean(API_KEY)
 
+/** While the engine's chunk lands: the design's one loading state, not a spinner. */
 function EngineLoading() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#ECEAE3]">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-ink border-t-transparent motion-reduce:animate-none" />
+    <div className="relative h-full w-full bg-[#ECEAE3]">
+      <MapLoadingMark />
     </div>
   )
 }
@@ -61,13 +66,18 @@ export function MapView({
   onStationSelect,
   onMapClick,
   userLocation,
+  fitOnLoad = false,
   className,
 }: MapViewProps) {
   const shared = { stations, selectedStation, onStationSelect, onMapClick, userLocation }
 
   return (
     <div className={cn('h-full w-full', className)}>
-      {USE_GOOGLE && API_KEY ? <GoogleEngine {...shared} apiKey={API_KEY} /> : <LibreEngine {...shared} />}
+      {USE_GOOGLE && API_KEY ? (
+        <GoogleEngine {...shared} apiKey={API_KEY} />
+      ) : (
+        <LibreEngine {...shared} fitOnLoad={fitOnLoad} />
+      )}
     </div>
   )
 }

@@ -105,7 +105,7 @@ function Figure({ icon: Icon, value }: { icon: IconType; value: number }) {
   return (
     <span className="inline-flex items-center gap-2">
       <Icon size={16} className="text-volt" aria-hidden="true" />
-      {value.toLocaleString('en-PK')}
+      <span data-count={value}>{value.toLocaleString('en-PK')}</span>
     </span>
   )
 }

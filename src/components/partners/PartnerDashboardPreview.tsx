@@ -32,10 +32,14 @@ const METRICS: { label: string; hint: string; icon: IconType }[] = [
   { label: 'Average rating', hint: 'out of five', icon: Star },
 ]
 
+/** page-partner.css @keyframes pt-ping, for the ring around the Live dot (.pt-live i::after). Reduced motion is stopped by globals.css. */
+const PT_PING = '@keyframes pt-ping{from{opacity:.8;scale:.5}to{opacity:0;scale:1.6}}'
+
 export function PartnerDashboardPreview() {
   return (
     <Lift>
       <section aria-labelledby="dashboard-preview-heading">
+        <style>{PT_PING}</style>
         <LiftHead
           className="items-start max-sm:flex-col max-sm:gap-2.5"
           eyebrow="Your dashboard"
@@ -65,7 +69,7 @@ export function PartnerDashboardPreview() {
               </div>
               <span className="inline-flex h-7 flex-none items-center gap-[7px] rounded-full border border-[#BFEBD1] bg-[#E9F8EF] px-[11px] font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#157A45]">
                 <span aria-hidden="true" className="relative flex h-[7px] w-[7px]">
-                  <span className="absolute -inset-1 rounded-full border-[1.5px] border-[#1FA35B] motion-safe:animate-ping" />
+                  <span className="absolute -inset-1 rounded-full border-[1.5px] border-[#1FA35B] [animation:pt-ping_2s_cubic-bezier(.16,1,.3,1)_infinite]" />
                   <span className="relative h-[7px] w-[7px] rounded-full bg-[#1FA35B]" />
                 </span>
                 Live
@@ -78,7 +82,7 @@ export function PartnerDashboardPreview() {
               {METRICS.map((metric) => (
                 <div
                   key={metric.label}
-                  className="relative grid gap-0.5 rounded-[20px] border border-ink/10 bg-white p-3.5 transition-[translate,box-shadow] duration-[400ms] ease-out hover:-translate-y-[3px] hover:shadow-e1 sm:p-[18px]"
+                  className="relative grid gap-0.5 rounded-[20px] border border-ink/10 bg-white p-3.5 [transition:translate_.4s_cubic-bezier(.16,1,.3,1),box-shadow_.4s] hover:shadow-e1 hover:[translate:0_-3px] sm:p-[18px]"
                 >
                   <metric.icon size={18} aria-hidden="true" className="absolute right-4 top-4 text-fog" />
                   <dd aria-hidden="true" className="mb-3 font-mono text-[26px] font-semibold leading-none text-fog sm:text-[32px]">

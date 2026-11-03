@@ -2,6 +2,8 @@
 import type { Metadata } from 'next'
 
 import { CityTicker, HomeHero } from '@/components/home/v2/HomeHero'
+import { HomeMotion } from '@/components/home/v2/HomeMotion'
+import { Loader } from '@/components/home/v2/Loader'
 import { AppBand, CommunityBand, PartnerBand, ServicesBand } from '@/components/home/v2/HomeSections'
 import { HowItWorks, RouteBand, Statement } from '@/components/home/v2/HomeStory'
 import { POPULAR_CITIES } from '@/lib/constants'
@@ -74,6 +76,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <Loader />
       <HomeHero pins={heroStats.pins} />
       <CityTicker cities={POPULAR_CITIES} />
       <Statement />
@@ -83,6 +86,7 @@ export default async function HomePage() {
       <CommunityBand posts={latestPosts} clubs={clubs.slice(0, 3)} figures={figures} />
       <PartnerBand />
       <AppBand />
+      <HomeMotion />
     </>
   )
 }

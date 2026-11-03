@@ -2,12 +2,12 @@
 'use client'
 
 import { ChevronDown, GitCompareArrows, X } from '@/components/ui/icons'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { Btn, ChipCount, btnClass, chipClass } from '@/components/v2/ui'
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import {
   EMPTY_FILTERS,
   SORT_LABELS,
@@ -21,6 +21,8 @@ import {
 import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
+import { TweenCount, useCarEntrance, useIsoLayoutEffect } from './car-motion'
+import { CAR_ENTRANCE_ITEM } from './car-ui'
 import { CarFilters } from './CarFilters'
 import { MAX_COMPARE, useComparedCars } from './compare-selection'
 
@@ -95,8 +97,14 @@ export function CarsBrowser({
   savedOnly,
   onSavedOnlyChange,
 }: CarsBrowserProps) {
-  const reduce = useReducedMotion()
+  /* The panel: open is the button's state (aria-expanded); shown is whether
+     the panel is in the page (its hidden attribute), which on closing stays
+     true until the panel has finished folding away. */
   const [panelOpen, setPanelOpen] = React.useState(false)
+  const [panelShown, setPanelShown] = React.useState(false)
+  const panelRef = React.useRef<HTMLDivElement>(null)
+  const panelMoved = React.useRef(false)
+  const gridRef = React.useRef<HTMLUListElement>(null)
   // Remembered across pages and refreshes — see compare-selection.ts.
   const comparison = useComparedCars()
   const compared = comparison.ids
@@ -142,6 +150,54 @@ export function CarsBrowser({
 
   const page = results.slice(0, visible)
   const remaining = results.length - page.length
+
+  // Cards rise in as they scroll into view; a new result set brings them all
+  // in again, "Show more" only the new ones (page-cars.js animateIn).
+  useCarEntrance(gridRef)
+
+  /*
+    The filter panel (page-cars.js): opening unfolds it from no height over
+    0.55s on expo.out while its chips pop up 12px one after another on
+    back.out(1.6); closing folds it away in 0.3s on power2.in, then hides it.
+    Reduced motion shows and hides it outright.
+  */
+  useIsoLayoutEffect(() => {
+    if (!panelMoved.current) return
+    const panel = panelRef.current
+    if (!panel) return
+    gsap.killTweensOf(panel)
+    if (panelOpen) {
+      if (prefersReduced()) return
+      gsap.fromTo(panel, { height: 0, autoAlpha: 0 }, { height: 'auto', autoAlpha: 1, duration: 0.55, ease: 'expo.out', clearProps: 'height' })
+      gsap.from(panel.querySelectorAll('button[aria-pressed]'), {
+        y: 12,
+        autoAlpha: 0,
+        duration: 0.5,
+        ease: 'back.out(1.6)',
+        stagger: 0.012,
+        delay: 0.05,
+      })
+    } else if (prefersReduced()) {
+      setPanelShown(false)
+    } else {
+      gsap.to(panel, {
+        height: 0,
+        autoAlpha: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => {
+          setPanelShown(false)
+          gsap.set(panel, { clearProps: 'all' })
+        },
+      })
+    }
+  }, [panelOpen])
+
+  const togglePanel = () => {
+    panelMoved.current = true
+    if (!panelOpen) setPanelShown(true)
+    setPanelOpen(!panelOpen)
+  }
 
   const reset = () => {
     onQueryChange('')
@@ -200,12 +256,12 @@ export function CarsBrowser({
 
         <button
           type="button"
-          onClick={() => setPanelOpen((open) => !open)}
+          onClick={togglePanel}
           aria-expanded={panelOpen}
           aria-controls="car-filter-panel"
           aria-label={panelCount > 0 ? `Filters, ${panelCount} on` : 'Filters'}
           className={cn(
-            'relative grid h-12 w-12 shrink-0 place-items-center rounded-full border-[1.5px] transition-[background-color,border-color,color,transform] duration-300 ease-spring active:scale-95',
+            'relative grid h-12 w-12 shrink-0 place-items-center rounded-full border-[1.5px] [transition:background-color_.25s,border-color_.25s,color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] active:scale-95',
             panelOpen ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink hover:border-ink/30',
           )}
         >
@@ -226,36 +282,29 @@ export function CarsBrowser({
       </div>
 
       {/* ── The filter panel (.fpanel), inline under the bar ─────── */}
-      <AnimatePresence initial={false}>
-        {panelOpen ? (
-          <motion.div
-            id="car-filter-panel"
-            key="panel"
-            initial={reduce ? false : { height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={{ duration: reduce ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="mt-4 rounded-3xl border border-ink/10 bg-white p-4 shadow-e1 sm:px-[22px] sm:pb-[22px] sm:pt-5">
-              <CarFilters
-                filters={filters}
-                onChange={onFiltersChange}
-                brands={brands}
-                brandCounts={brandCounts}
-                connectors={connectors}
-                onClearAll={reset}
-                canClear={isFiltered}
-              />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <div
+        ref={panelRef}
+        id="car-filter-panel"
+        hidden={!panelShown}
+        className="mt-4 overflow-hidden rounded-3xl border border-ink/10 bg-white p-4 shadow-e1 sm:px-[22px] sm:pb-[22px] sm:pt-5"
+      >
+        <CarFilters
+          filters={filters}
+          onChange={onFiltersChange}
+          brands={brands}
+          brandCounts={brandCounts}
+          connectors={connectors}
+          onClearAll={reset}
+          canClear={isFiltered}
+        />
+      </div>
 
       {/* ── Count, active filters, sort (.toolbar) ──────────────── */}
       <div className="mb-6 mt-[26px] grid grid-cols-[1fr_auto] items-center gap-3.5 md:flex md:flex-wrap md:justify-between">
         <p aria-live="polite" className="text-[15px] text-muted">
-          <b className="font-mono font-semibold tabular-nums text-ink">{results.length}</b>{' '}
+          <b className="font-mono font-semibold tabular-nums text-ink">
+            <TweenCount value={results.length} />
+          </b>{' '}
           {results.length === 1 ? 'car' : 'cars'}
           {results.length !== cars.length ? (
             <>
@@ -320,12 +369,16 @@ export function CarsBrowser({
       {/* ── Grid ───────────────────────────────────────────────── */}
       {results.length > 0 ? (
         <>
+          {/* Keyed by the result set: a new search, filter or sort is a new
+              grid, as the design redraws it, and its cards come in afresh. */}
           <ul
+            key={resultsKey}
+            ref={gridRef}
             aria-label="Cars"
             className="grid grid-cols-1 gap-3 min-[421px]:grid-cols-2 sm:gap-[clamp(14px,1.6vw,22px)] min-[1101px]:grid-cols-3"
           >
             {page.map((car, index) => (
-              <li key={car.id} className="min-w-0">
+              <li key={car.id} className={cn('min-w-0', CAR_ENTRANCE_ITEM)}>
                 <CarCard
                   car={car}
                   isCompared={compared.includes(car.id)}
@@ -341,7 +394,7 @@ export function CarsBrowser({
 
           {remaining > 0 ? (
             <div className="mt-10 grid justify-items-center gap-2.5">
-              <Btn variant="ink" size="lg" onClick={() => setVisible((count) => count + PAGE_SIZE)}>
+              <Btn variant="ink" size="lg" magnetic={false} onClick={() => setVisible((count) => count + PAGE_SIZE)}>
                 Show {Math.min(remaining, PAGE_SIZE)} more
               </Btn>
               <small className="font-mono text-[12.5px] tracking-[0.02em] text-muted" aria-live="polite">
@@ -360,7 +413,7 @@ export function CarsBrowser({
               ? 'Tap the heart on a car to keep it here while you browse.'
               : 'Try a different brand, or loosen one of the filters.'}
           </p>
-          <Btn variant="ink" size="sm" onClick={reset}>
+          <Btn variant="ink" size="sm" magnetic={false} onClick={reset}>
             Clear all filters
           </Btn>
         </div>
@@ -434,7 +487,9 @@ function TypeChip({
       className={chipClass(on, cn('h-11 shrink-0 px-3.5 sm:px-[18px]', count === 0 && !on && 'opacity-45'))}
     >
       {children}
-      <ChipCount on={on}>{count}</ChipCount>
+      <ChipCount on={on}>
+        <TweenCount value={count} />
+      </ChipCount>
     </button>
   )
 }
@@ -445,7 +500,7 @@ function ActiveTag({ onRemove, children }: { onRemove: () => void; children: Rea
     <button
       type="button"
       onClick={onRemove}
-      className="inline-flex h-[34px] max-w-full items-center gap-1.5 rounded-full bg-ink pl-3.5 pr-2 text-[13px] font-medium text-white transition-colors hover:bg-volt hover:text-ink"
+      className="inline-flex h-[34px] max-w-full items-center gap-1.5 rounded-full bg-ink pl-3.5 pr-2 text-[13px] font-medium text-white [transition:background-color_.25s,color_.25s] hover:bg-volt hover:text-ink"
     >
       <span className="truncate">{children}</span>
       <X size={14} aria-hidden="true" className="shrink-0" />

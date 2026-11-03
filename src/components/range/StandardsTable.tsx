@@ -1,5 +1,11 @@
 // src/components/range/StandardsTable.tsx
+'use client'
+
+import * as React from 'react'
+
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { CARD, H2_CLASS, Eyebrow, Hl, LEAD_CLASS } from '@/components/v2/ui'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { STANDARDS } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +21,9 @@ import { REALISM, REALISM_ORDER, TONE_PILL } from './realism'
  * against 125% of WLTP, with a tick where WLTP itself sits.
  *
  * On a phone the table folds into one card per standard, each cell labelled.
+ *
+ * The ratio bars grow from the left as the table comes into view (landing-v2:
+ * 1.2s expo.out, 0.06s apart).
  */
 
 function vsWltp(ratio: number): string {
@@ -25,20 +34,39 @@ const CELL_LABEL =
   'max-md:grid max-md:grid-cols-[92px_1fr] max-md:gap-3 max-md:before:font-mono max-md:before:text-[10.5px] max-md:before:font-semibold max-md:before:uppercase max-md:before:leading-[1.9] max-md:before:tracking-[0.12em] max-md:before:text-muted max-md:before:content-[attr(data-label)]'
 
 export function StandardsTable() {
+  const cardRef = React.useRef<HTMLDivElement>(null)
+  useIsoLayoutEffect(() => {
+    const card = cardRef.current
+    if (!card || prefersReduced()) return
+    const ctx = gsap.context(() => {
+      gsap.from('[data-ratio-bar]', {
+        scaleX: 0,
+        transformOrigin: '0 50%',
+        duration: 1.2,
+        ease: 'expo.out',
+        stagger: 0.06,
+        scrollTrigger: { trigger: card, start: 'top 80%' },
+      })
+    }, card)
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section aria-labelledby="standards-table-heading">
-      <header className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
-        <Eyebrow>At a glance</Eyebrow>
-        <h2 id="standards-table-heading" className={cn(H2_CLASS, 'text-ink')}>
+      <header data-shead="" className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
+        <div data-shead-eyebrow="">
+          <Eyebrow>At a glance</Eyebrow>
+        </div>
+        <h2 id="standards-table-heading" data-split="" className={cn(H2_CLASS, 'text-ink')}>
           The four <Hl>standards</Hl>
         </h2>
-        <p className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
+        <p data-shead-lead="" className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
           Listings in Pakistan mix all four freely, so two cars on the same page may not be comparable until they are
           on the same test.
         </p>
       </header>
 
-      <div className={cn(CARD, 'overflow-hidden')}>
+      <div ref={cardRef} data-reveal="" className={cn(CARD, 'overflow-hidden')}>
         <table className="w-full border-collapse text-left max-md:block">
           <thead className="max-md:hidden">
             <tr>
@@ -61,7 +89,7 @@ export function StandardsTable() {
                 <tr
                   key={s}
                   className={cn(
-                    'transition-colors duration-200 hover:bg-[#FCFBF8] max-md:grid max-md:grid-cols-[1fr_auto] max-md:gap-x-3.5 max-md:gap-y-2.5 max-md:px-[18px] max-md:pb-4 max-md:pt-[18px]',
+                    'transition-colors duration-[250ms] hover:bg-[#FCFBF8] max-md:grid max-md:grid-cols-[1fr_auto] max-md:gap-x-3.5 max-md:gap-y-2.5 max-md:px-[18px] max-md:pb-4 max-md:pt-[18px]',
                     i > 0 && 'border-t border-ink/10',
                   )}
                 >
@@ -77,6 +105,7 @@ export function StandardsTable() {
                       <span className="font-mono text-sm font-medium tabular-nums text-ink">{vsWltp(ratio)}</span>
                       <i
                         aria-hidden="true"
+                        data-ratio-bar=""
                         className="relative block h-1.5 rounded-[3px] bg-ink"
                         style={{ width: `${(ratio / 1.25) * 100}%` }}
                       >
@@ -97,7 +126,7 @@ export function StandardsTable() {
         </table>
       </div>
 
-      <p className="mt-[22px] max-w-[58rem] text-[15px] leading-[1.65] text-muted">
+      <p data-reveal="" className="mt-[22px] max-w-[58rem] text-[15px] leading-[1.65] text-muted">
         EPA is the strictest: its cycles include higher speeds, harder acceleration and cold starts, and the result is
         adjusted down on top. CLTC is the most generous: it is mostly slow city running, where an EV is at its most
         efficient. Ratios are typical, not fixed, and individual cars land either side of them.

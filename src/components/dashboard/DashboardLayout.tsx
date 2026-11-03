@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { ACCT_DELAY, ACCT_RISE } from './dash-ui'
 import {
   DASHBOARD_NAV,
   DashboardSidebar,
@@ -55,7 +56,8 @@ function HeadBack() {
       }}
       aria-label="Back"
       title="Back"
-      className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-white text-ink transition-[border-color,translate] duration-300 ease-spring hover:-translate-x-0.5 hover:border-ink focus-visible:outline-none focus-visible:shadow-focus"
+      // .ahead__back: the border darkens over .2s while the button springs 2px left over .3s.
+      className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-white text-ink [transition:border-color_.2s,translate_.3s_cubic-bezier(.34,1.56,.64,1)] hover:border-ink hover:[translate:-2px_0] focus-visible:outline-none focus-visible:shadow-focus"
     >
       <ArrowLeft size={20} aria-hidden="true" />
     </button>
@@ -79,13 +81,14 @@ export function DashboardLayout({ children, title, subtitle, action, user, stats
       className="min-h-below-nav bg-chalk px-[clamp(16px,3vw,48px)] pb-28 pt-6 sm:pt-8 lg:pb-24"
     >
       <div className="mx-auto grid max-w-[1320px] items-start gap-[clamp(20px,3vw,40px)] lg:grid-cols-[290px_minmax(0,1fr)]">
-        <div className="sticky top-[calc(var(--nav-h)+16px)] hidden lg:block">
+        {/* .acct__side, .ahead and each .apanel rise in (page-account.css). */}
+        <div className={cn('sticky top-[calc(var(--nav-h)+16px)] hidden lg:block', ACCT_RISE)}>
           <DashboardSidebar user={user} stats={stats} />
         </div>
 
         <div className="min-w-0">
           {/* Phones and tablets: who is signed in, and every section a tap away. */}
-          <div className="mb-5 grid gap-3 lg:hidden">
+          <div className={cn('mb-5 grid gap-3 lg:hidden', ACCT_RISE)}>
             <ProfileCard user={user} />
             <nav aria-label="Dashboard sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <ul className="flex w-max gap-2">
@@ -112,7 +115,7 @@ export function DashboardLayout({ children, title, subtitle, action, user, stats
             </nav>
           </div>
 
-          <header className="mb-[22px] flex flex-wrap items-center justify-between gap-4">
+          <header className={cn('mb-[22px] flex flex-wrap items-center justify-between gap-4', ACCT_RISE, ACCT_DELAY.head)}>
             <div className="flex min-w-0 items-center gap-[18px]">
               {pathname !== '/dashboard' ? <HeadBack /> : null}
               <div className="min-w-0">

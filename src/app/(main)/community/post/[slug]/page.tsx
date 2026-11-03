@@ -110,8 +110,10 @@ export default async function CommunityPostPage({ params }: PageProps) {
         </div>
       </PageHero>
 
+      {/* Lifted into the hero like the other pages' sheets: it rises in after the title (data-lift). */}
       <div
         data-theme="light"
+        data-lift=""
         className={cn(
           WRAP,
           'relative z-[3] -mt-[84px] grid items-start gap-5 sm:-mt-28 lg:grid-cols-[minmax(0,1fr)_340px] xl:gap-7',

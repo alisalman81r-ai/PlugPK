@@ -182,6 +182,7 @@ export function CommentSection({ comments, postId, postTitle, totalComments }: C
                     {newComment.length}/{COMMUNITY_LIMITS.comment}
                   </span>
                   <Btn
+                    magnetic={false}
                     variant="ghost"
                     size="sm"
                     onClick={() => {
@@ -192,6 +193,7 @@ export function CommentSection({ comments, postId, postTitle, totalComments }: C
                     Cancel
                   </Btn>
                   <Btn
+                    magnetic={false}
                     size="sm"
                     disabled={newComment.trim().length === 0 || isSubmitting}
                     aria-busy={isSubmitting}
@@ -211,10 +213,10 @@ export function CommentSection({ comments, postId, postTitle, totalComments }: C
             <div className="flex min-h-[96px] flex-wrap items-center gap-x-3 gap-y-3 rounded-[18px] border-[1.5px] border-dashed border-ink/15 bg-chalk p-4 text-[15px] text-muted">
               <span className="mr-auto">Sign in to join the conversation.</span>
               <span className="flex flex-wrap gap-2">
-                <Btn href={signInHref(pathname)} size="sm">
+                <Btn magnetic={false} href={signInHref(pathname)} size="sm">
                   Sign in
                 </Btn>
-                <Btn href={signUpHref(pathname)} variant="ghost" size="sm">
+                <Btn magnetic={false} href={signUpHref(pathname)} variant="ghost" size="sm">
                   Create account
                 </Btn>
               </span>
@@ -236,7 +238,7 @@ export function CommentSection({ comments, postId, postTitle, totalComments }: C
           */}
           <ol className="m-0 mt-7 grid list-none gap-0 p-0">
             {visible.map((comment) => (
-              <li key={comment.id} className="flex gap-3 border-t border-ink/10 py-5 sm:gap-4">
+              <li key={comment.id} data-reveal="" className="flex gap-3 border-t border-ink/10 py-5 sm:gap-4">
                 <Avatar name={comment.userName} size={40} />
 
                 <div className="min-w-0 flex-1">

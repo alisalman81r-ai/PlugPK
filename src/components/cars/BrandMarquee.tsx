@@ -40,6 +40,9 @@ export function BrandMarquee({ brands, active, onSelect }: BrandMarqueeProps) {
     <nav
       aria-label="Filter by brand"
       data-theme="light"
+      // The sheet lifted into the hero (.lift): it rises 80px into place with
+      // the hero's entrance (MotionProvider).
+      data-lift=""
       onTouchStart={() => {
         window.clearTimeout(resume.current)
         setPaused(true)
@@ -79,9 +82,9 @@ export function BrandMarquee({ brands, active, onSelect }: BrandMarqueeProps) {
                   aria-pressed={copy === 0 ? on : undefined}
                   onClick={() => onSelect(on ? null : brand)}
                   className={cn(
-                    'inline-flex h-[46px] items-center whitespace-nowrap rounded-full px-3.5 font-display text-[19px] leading-none transition-[color,background-color,transform] duration-300 ease-spring sm:h-[52px] sm:px-[clamp(14px,1.7vw,26px)] sm:text-[clamp(20px,1.7vw,26px)]',
+                    'inline-flex h-[46px] items-center whitespace-nowrap rounded-full px-3.5 font-display text-[19px] leading-none [transition:color_.3s,background-color_.3s,transform_.4s_cubic-bezier(.34,1.56,.64,1)] hover:-translate-y-0.5 sm:h-[52px] sm:px-[clamp(14px,1.7vw,26px)] sm:text-[clamp(20px,1.7vw,26px)]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink',
-                    on ? 'bg-ink text-white' : 'text-ink/55 hover:-translate-y-0.5 hover:text-ink',
+                    on ? 'bg-ink text-white' : 'text-ink/55 hover:text-ink',
                   )}
                 >
                   {brand}

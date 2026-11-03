@@ -7,11 +7,12 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { PhotoFrame } from '@/components/ui'
-import { CARD, CARD_HOVER, Tag, type TagTone, btnClass } from '@/components/v2/ui'
+import { CARD, Tag, type TagTone, btnClass } from '@/components/v2/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { carDisplayName, dcWindow, formatPkr, formatSpan } from '@/lib/cars'
 
-import { STAGE } from './car-ui'
+import { CarPhoto, useCarEntrance } from './car-motion'
+import { CAR_ENTRANCE_ITEM, CAR_HOVER, PHOTO_HOVER, STAGE, STAGE_HOVER } from './car-ui'
 import { writeComparedIds } from './compare-selection'
 import { cn } from '@/lib/utils'
 
@@ -376,6 +377,10 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
 
   const canAdd = cars.length < max && available.length > 0
 
+  // The cars come in as the catalogue's cards do, and a car added later too.
+  const cardsRef = React.useRef<HTMLDivElement>(null)
+  useCarEntrance(cardsRef)
+
   return (
     <div>
       {/* ── The answer, before the table ─────────────────────────── */}
@@ -387,6 +392,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         and gets the table on screen far sooner.
       */}
       <div
+        ref={cardsRef}
         className={cn(
           'grid grid-cols-2 gap-3 sm:gap-4',
           cars.length === 3 && 'lg:grid-cols-3',
@@ -398,91 +404,97 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
           const premium = car.price.min - cheapest
 
           return (
-            <div
-              key={car.id}
-              className={cn(CARD, CARD_HOVER, 'flex flex-col overflow-hidden rounded-[22px] sm:rounded-[28px]')}
-            >
-              <button
-                type="button"
-                onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
-                aria-label={`Remove ${carDisplayName(car)} from comparison`}
-                className="absolute right-2.5 top-2.5 z-10 grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink shadow-e1 transition-colors hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
-
-              <Link
-                href={`/cars/${car.slug}`}
-                className="group/car flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink"
-              >
-                <span className={cn(STAGE, 'mx-1.5 mt-1.5 block aspect-[16/10] rounded-[18px] lg:aspect-[2/1] sm:mx-2 sm:mt-2 sm:rounded-[22px]')}>
-                  <span className="absolute inset-x-[6%] bottom-[2%] top-[6%] block">
-                    <PhotoFrame
-                      src={car.image ?? undefined}
-                      alt={carDisplayName(car)}
-                      sizes="(max-width: 640px) 50vw, 320px"
-                      className="overflow-visible bg-transparent"
-                      imageClassName="object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover/car:scale-[1.04] motion-reduce:transition-none"
-                    />
-                  </span>
-                </span>
-
-                <span className="block p-3 sm:px-5 sm:pb-5 sm:pt-4">
-                  {/* Same treatment as the catalogue card, so a car looks like
-                      itself in both places. */}
-                  <span className="flex items-start justify-between gap-2">
-                    <span className="min-w-0 leading-snug">
-                      <span className="block font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted">{car.brand}</span>
-                      <span className="mt-1 block font-display text-[19px] leading-[1.08] text-ink sm:text-[24px]">
-                        {car.model}
-                      </span>
-                      {/* The trim beneath, not appended: a comparison column is
-                          narrow, and this is the one screen where two rows of the
-                          same model may sit side by side — so the trim is the only
-                          thing telling them apart and it must not be truncated
-                          into the model name. */}
-                      {car.variant ? (
-                        <span className="mt-1 block text-[12.5px] leading-snug text-muted">
-                          {car.variant}
-                        </span>
-                      ) : null}
-                    </span>
-                    <Tag tone={CATEGORY_TONE[car.category]} mono className="hidden shrink-0 sm:inline-flex">
-                      {car.category}
-                    </Tag>
-                  </span>
-
-                  <span className="mt-3 block border-t border-ink/10 pt-3 font-mono text-[14px] font-semibold leading-snug tracking-[-0.01em] text-ink sm:text-[17px]">
-                    {car.price.display}
-                  </span>
-
-                  {/* The gap from the cheapest car in the comparison, which is
-                      the number a buyer is actually weighing. Absent on the
-                      cheapest one rather than printed as zero. */}
-                  <span className="mt-1 block text-xs text-muted">
-                    {premium === 0 ? (
-                      <span className="font-semibold text-[#157A45]">Lowest price here</span>
+            /* The grid item takes the entrance (GSAP writes its transform);
+               the card inside takes the hover lift (the translate property),
+               so neither overwrites the other. */
+            <div key={car.id} className={CAR_ENTRANCE_ITEM}>
+              <div className={cn(CARD, CAR_HOVER, 'group flex h-full flex-col overflow-hidden rounded-[22px] sm:rounded-[28px]')}>
+                <button
+                  type="button"
+                  onClick={() => go(cars.filter((entry) => entry.id !== car.id).map((entry) => entry.id))}
+                  aria-label={`Remove ${carDisplayName(car)} from comparison`}
+                  className="absolute right-2.5 top-2.5 z-10 grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-white text-ink shadow-e1 transition-colors hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+                >
+                  <X size={16} aria-hidden="true" />
+                </button>
+  
+                <Link
+                  href={`/cars/${car.slug}`}
+                  className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink"
+                >
+                  <span className={cn(STAGE, STAGE_HOVER, 'mx-1.5 mt-1.5 block aspect-[16/10] rounded-[18px] lg:aspect-[2/1] sm:mx-2 sm:mt-2 sm:rounded-[22px]')}>
+                    {car.image ? (
+                      <CarPhoto
+                        src={car.image}
+                        alt={carDisplayName(car)}
+                        sizes="(max-width: 640px) 50vw, 320px"
+                        className="inset-x-[6%] bottom-[2%] top-[6%]"
+                        imageClassName={PHOTO_HOVER}
+                      />
                     ) : (
-                      <>+{formatPkr(premium).replace('PKR ', '')} vs cheapest</>
+                      <span className="absolute inset-x-[6%] bottom-[2%] top-[6%] block">
+                        <PhotoFrame src={undefined} alt={carDisplayName(car)} sizes="(max-width: 640px) 50vw, 320px" className="bg-transparent" />
+                      </span>
                     )}
                   </span>
-                </span>
-              </Link>
-
-              {/* Wins are stated with their denominator. "4" alone is a boast;
-                  "4 of 7 measured" is a fact the reader can check. */}
-              {analysis.measured > 0 ? (
-                <p className="mt-auto flex items-center gap-2 border-t border-ink/10 bg-chalk/60 px-3 py-2.5 text-xs sm:px-5">
-                  <Trophy
-                    size={12}
-                    aria-hidden="true"
-                    className={won > 0 ? 'text-volt-ink' : 'text-fog'}
-                  />
-                  <span className={won > 0 ? 'font-semibold text-ink' : 'text-muted'}>
-                    Leads {won} of {analysis.measured} measured {analysis.measured === 1 ? 'row' : 'rows'}
+  
+                  <span className="block p-3 sm:px-5 sm:pb-5 sm:pt-4">
+                    {/* Same treatment as the catalogue card, so a car looks like
+                        itself in both places. */}
+                    <span className="flex items-start justify-between gap-2">
+                      <span className="min-w-0 leading-snug">
+                        <span className="block font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted">{car.brand}</span>
+                        <span className="mt-1 block font-display text-[19px] leading-[1.08] text-ink sm:text-[24px]">
+                          {car.model}
+                        </span>
+                        {/* The trim beneath, not appended: a comparison column is
+                            narrow, and this is the one screen where two rows of the
+                            same model may sit side by side — so the trim is the only
+                            thing telling them apart and it must not be truncated
+                            into the model name. */}
+                        {car.variant ? (
+                          <span className="mt-1 block text-[12.5px] leading-snug text-muted">
+                            {car.variant}
+                          </span>
+                        ) : null}
+                      </span>
+                      <Tag tone={CATEGORY_TONE[car.category]} mono className="hidden shrink-0 sm:inline-flex">
+                        {car.category}
+                      </Tag>
+                    </span>
+  
+                    <span className="mt-3 block border-t border-ink/10 pt-3 font-mono text-[14px] font-semibold leading-snug tracking-[-0.01em] text-ink sm:text-[17px]">
+                      {car.price.display}
+                    </span>
+  
+                    {/* The gap from the cheapest car in the comparison, which is
+                        the number a buyer is actually weighing. Absent on the
+                        cheapest one rather than printed as zero. */}
+                    <span className="mt-1 block text-xs text-muted">
+                      {premium === 0 ? (
+                        <span className="font-semibold text-[#157A45]">Lowest price here</span>
+                      ) : (
+                        <>+{formatPkr(premium).replace('PKR ', '')} vs cheapest</>
+                      )}
+                    </span>
                   </span>
-                </p>
-              ) : null}
+                </Link>
+  
+                {/* Wins are stated with their denominator. "4" alone is a boast;
+                    "4 of 7 measured" is a fact the reader can check. */}
+                {analysis.measured > 0 ? (
+                  <p className="mt-auto flex items-center gap-2 border-t border-ink/10 bg-chalk/60 px-3 py-2.5 text-xs sm:px-5">
+                    <Trophy
+                      size={12}
+                      aria-hidden="true"
+                      className={won > 0 ? 'text-volt-ink' : 'text-fog'}
+                    />
+                    <span className={won > 0 ? 'font-semibold text-ink' : 'text-muted'}>
+                      Leads {won} of {analysis.measured} measured {analysis.measured === 1 ? 'row' : 'rows'}
+                    </span>
+                  </p>
+                ) : null}
+              </div>
             </div>
           )
         })}
@@ -582,7 +594,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         the top and the label column at the left, and a reader thirty rows down
         still knows which column is which car.
       */}
-      <div className="mt-4 max-h-[calc(100dvh-var(--nav-h)-2rem)] overflow-auto overscroll-contain rounded-[22px] border border-ink/10 bg-white shadow-e1">
+      <div data-reveal="" className="mt-4 max-h-[calc(100dvh-var(--nav-h)-2rem)] overflow-auto overscroll-contain rounded-[22px] border border-ink/10 bg-white shadow-e1">
         <table className="w-full min-w-[42rem] border-collapse text-left">
           <caption className="sr-only">
             Specification comparison of {cars.map((car) => carDisplayName(car)).join(', ')}
@@ -730,7 +742,7 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         </table>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 text-xs leading-relaxed text-muted">
+      <div data-reveal="" className="mt-5 flex flex-col gap-2 text-xs leading-relaxed text-muted">
         <p>
           A dash means the figure was not published for that car, not that it is zero.
           Bars are scaled to the largest value in their own row, so they compare these

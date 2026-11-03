@@ -3,8 +3,10 @@
 
 import * as React from 'react'
 
+import { useIsoLayoutEffect } from '@/components/tools/motion'
 import { chipClass } from '@/components/v2/ui'
 import { Minus, Plus, Zap } from '@/components/ui/icons'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 import styles from './battery.module.css'
@@ -20,22 +22,19 @@ import styles from './battery.module.css'
  * this charge adds, and what stays empty. So the battery is drawn at full width
  * and its two edges are dragged directly, the way the charge itself moves.
  *
- * ── How two thumbs share one track ────────────────────────────────────
+ * ── How it works (landing-v2 page-charging-calculator.js, ported) ──────
  *
- * Two native range inputs, laid over each other and over the battery. The
- * inputs ignore the pointer; only their thumbs take it. Native inputs are the
- * point: keyboard arrows, screen-reader values and touch dragging all work
- * with nothing reimplemented. Each handle is 30px wide and taller than the
- * battery, so it clears the minimum touch target with room to spare.
+ * The two handles are ARIA sliders: arrows step one percent, Page Up / Down
+ * ten, Home and End go to the ends. A press anywhere on the battery grabs the
+ * handle you pressed, or the one nearest the press, and drags it — so a tap
+ * moves the closer edge straight there. The handles cannot cross: the current
+ * level stops one percent short of the target and the target one past the
+ * current, so the calculator never receives a charge that runs backwards.
  *
- * The thumbs cannot cross. The current level stops one percent short of the
- * target and the target one percent past the current, so the calculator never
- * receives a charge that runs backwards. When the two meet at the right-hand
- * end the current thumb is raised on top, or it could never be dragged back.
- *
- * Styled as landing-v2's .batt: the charge already in the pack (ember when
- * low, amber when middling), the volt charge being added with its waves, and
- * the handles in battery.module.css.
+ * The fills and handles read --now and --to off the battery, written here
+ * rather than rendered, so on load the battery breathes in from empty (1.6s
+ * expo.out after 0.7s) while the handles pop in, and a preset glides there
+ * (0.7s expo.out) before the result updates.
  */
 
 export interface SocBatteryProps {
@@ -44,6 +43,8 @@ export interface SocBatteryProps {
   onChange: (from: number, to: number) => void
   /** Pack size, for the kWh figure on the added segment. Omitted if unknown. */
   batteryKwh: number | null
+  /** The levels on screen while a preset glides there; null when it lands. */
+  onPreview?: (view: { from: number; to: number } | null) => void
 }
 
 const PRESETS = [
@@ -52,33 +53,192 @@ const PRESETS = [
   { label: 'Quick stop', from: 10, to: 80 },
 ] as const
 
-/** The inner fill sits 7px inside the shell's border (.batt --pad). */
+/** The pointer maths' inset from the shell's edge (the design's pctAt pad). */
 const PAD = 7
 
-export function SocBattery({ from, to, onChange, batteryKwh }: SocBatteryProps) {
-  // Which thumb was touched last. It stays on top so a pair that has met can
-  // always be pulled apart again.
-  const [active, setActive] = React.useState<'from' | 'to'>('to')
+const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
 
-  const setFrom = (value: number) => onChange(Math.min(value, to - 1), to)
-  const setTo = (value: number) => onChange(from, Math.max(value, from + 1))
+type Key = 'now' | 'to'
 
-  const added = to - from
+export function SocBattery({ from, to, onChange, batteryKwh, onPreview }: SocBatteryProps) {
+  // Where a preset is on its way to; null when the battery shows the real levels.
+  const [view, setView] = React.useState<{ from: number; to: number } | null>(null)
+  const [drag, setDrag] = React.useState<Key | null>(null)
+  const f = view?.from ?? from
+  const t = view?.to ?? to
+
+  const battRef = React.useRef<HTMLDivElement>(null)
+  const shellRef = React.useRef<HTMLDivElement>(null)
+  const nowRef = React.useRef<HTMLDivElement>(null)
+  const toRef = React.useRef<HTMLDivElement>(null)
+
+  const latest = React.useRef({ from, to })
+  latest.current = { from, to }
+  const shown = React.useRef({ f, t })
+  shown.current = { f, t }
+
+  const intro = React.useRef<gsap.core.Tween | null>(null)
+  const introRunning = React.useRef(false)
+  const preset = React.useRef<gsap.core.Tween | null>(null)
+  const dragKey = React.useRef<Key | null>(null)
+
+  /* paintBattery: the CSS the fills and handles read */
+  const paint = React.useCallback(() => {
+    const batt = battRef.current
+    if (!batt || introRunning.current) return
+    batt.style.setProperty('--now', String(shown.current.f))
+    batt.style.setProperty('--to', String(shown.current.t))
+  }, [])
+
+  useIsoLayoutEffect(paint, [f, t, paint])
+
+  /* the battery breathes in once on load */
+  useIsoLayoutEffect(() => {
+    const batt = battRef.current
+    if (!batt || prefersReduced()) return
+    const ctx = gsap.context(() => {
+      const o = { p: 0 }
+      const done = () => {
+        introRunning.current = false
+        paint()
+      }
+      introRunning.current = true
+      // From empty to the levels on screen, which the address may set a moment after mount.
+      intro.current = gsap.to(o, {
+        p: 1,
+        duration: 1.6,
+        delay: 0.7,
+        ease: 'expo.out',
+        onUpdate: () => {
+          const now = shown.current.f * o.p
+          batt.style.setProperty('--now', String(now))
+          batt.style.setProperty('--to', String(Math.max(now + 0.5, shown.current.t * o.p)))
+        },
+        onComplete: done,
+        onInterrupt: done,
+      })
+      batt.style.setProperty('--now', '0')
+      batt.style.setProperty('--to', '0.5')
+      gsap.from('[data-batt-h]', { scale: 0, duration: 0.6, delay: 1.2, stagger: 0.08, ease: 'back.out(2)', clearProps: 'scale' })
+    }, battRef)
+    return () => {
+      ctx.revert()
+      introRunning.current = false
+    }
+  }, [paint])
+
+  React.useEffect(() => () => void preset.current?.kill(), [])
+
+  /** Any hand on the battery ends the intro and a preset's glide where they are. */
+  const takeOver = () => {
+    if (introRunning.current) {
+      intro.current?.kill()
+      introRunning.current = false
+      paint()
+    }
+    if (preset.current) {
+      preset.current.kill()
+      preset.current = null
+      setView(null)
+      onPreview?.(null)
+    }
+  }
+
+  const setSoc = (key: Key, v: number) => {
+    takeOver()
+    v = Math.round(v)
+    const { from: a, to: z } = latest.current
+    if (key === 'now') onChange(clamp(v, 0, z - 1), z)
+    else onChange(a, clamp(v, a + 1, 100))
+  }
+
+  // pointer: grab the handle you pressed, or the nearest one to where you tapped
+  const pctAt = (x: number) => {
+    const r = shellRef.current!.getBoundingClientRect()
+    return ((x - r.left - PAD) / (r.width - PAD * 2)) * 100
+  }
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const p = pctAt(e.clientX)
+    const target = e.target as HTMLElement
+    const { from: a, to: z } = latest.current
+    const key: Key = nowRef.current?.contains(target)
+      ? 'now'
+      : toRef.current?.contains(target)
+        ? 'to'
+        : Math.abs(p - a) < Math.abs(p - z) || p < a
+          ? 'now'
+          : 'to'
+    dragKey.current = key
+    setDrag(key)
+    ;(key === 'now' ? nowRef : toRef).current?.focus({ preventScroll: true })
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setSoc(key, p)
+    e.preventDefault()
+  }
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (dragKey.current) setSoc(dragKey.current, pctAt(e.clientX))
+  }
+  const endDrag = () => {
+    if (!dragKey.current) return
+    dragKey.current = null
+    setDrag(null)
+  }
+
+  // keyboard (ARIA slider)
+  const onKey = (key: Key) => (e: React.KeyboardEvent) => {
+    const cur = key === 'now' ? latest.current.from : latest.current.to
+    const step = ({ ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1, PageUp: 10, PageDown: -10 } as Record<string, number>)[e.key]
+    if (step) setSoc(key, cur + step)
+    else if (e.key === 'Home') setSoc(key, 0)
+    else if (e.key === 'End') setSoc(key, 100)
+    else return
+    e.preventDefault()
+  }
+
+  const runPreset = (a: number, z: number) => {
+    takeOver()
+    if (prefersReduced()) {
+      onChange(a, z)
+      return
+    }
+    const o = { now: from, to }
+    preset.current = gsap.to(o, {
+      now: a,
+      to: z,
+      duration: 0.7,
+      ease: 'expo.out',
+      onUpdate: () => {
+        const n = Math.round(o.now)
+        const next = { from: n, to: Math.max(n + 1, Math.round(o.to)) }
+        setView(next)
+        onPreview?.(next)
+      },
+      onComplete: () => {
+        preset.current = null
+        setView(null)
+        onPreview?.(null)
+        onChange(a, z)
+      },
+    })
+  }
+
+  const stepFrom = (value: number) => {
+    takeOver()
+    onChange(Math.min(value, to - 1), to)
+  }
+  const stepTo = (value: number) => {
+    takeOver()
+    onChange(from, Math.max(value, from + 1))
+  }
+
+  const added = t - f
   const addedKwh = batteryKwh ? (batteryKwh * added) / 100 : null
-  const fromOnTop = active === 'from' || from > 95
-
-  const have =
-    from <= 15
-      ? 'repeating-linear-gradient(-45deg,transparent 0 10px,rgba(255,255,255,.08) 10px 11px),linear-gradient(180deg,#FF7A45,#FF5A1F)'
-      : from < 40
-        ? 'repeating-linear-gradient(-45deg,transparent 0 10px,rgba(255,255,255,.12) 10px 11px),linear-gradient(180deg,#FFC24D,#FFB020)'
-        : 'repeating-linear-gradient(-45deg,transparent 0 10px,rgba(255,255,255,.05) 10px 11px),linear-gradient(180deg,#2C3037,#1C1F24)'
 
   return (
     <div className="mt-1.5 grid gap-3.5">
       {/* The two figures, over the handles they belong to. */}
       <div className="flex items-end justify-between gap-3">
-        <Readout label="Now" value={from} />
+        <Readout label="Now" value={f} />
         <span className="mb-[-6px] inline-flex h-8 items-center gap-1.5 self-center whitespace-nowrap rounded-full bg-ink px-3.5 font-mono text-sm font-semibold tabular-nums text-volt">
           +{added}%
           {addedKwh ? (
@@ -87,90 +247,95 @@ export function SocBattery({ from, to, onChange, batteryKwh }: SocBatteryProps) 
             </span>
           ) : null}
         </span>
-        <Readout label="Target" value={to} align="right" />
+        <Readout label="Target" value={t} align="right" />
       </div>
 
       <div
-        className="relative mt-2 flex select-none items-center pr-0 [--bh:96px] sm:[--bh:120px] lg:[--bh:132px]"
-        style={{ ['--pad' as string]: `${PAD}px` }}
+        ref={battRef}
+        className={cn(
+          styles.batt,
+          '[--bh:96px] sm:[--bh:120px] lg:[--bh:132px]',
+          f <= 15 && styles.low,
+          f > 15 && f < 40 && styles.mid,
+          t - f < 14 && styles.narrow,
+        )}
       >
-        <div className="relative h-[var(--bh)] flex-1 rounded-[22px] border-[3px] border-ink bg-stone shadow-[inset_0_2px_0_rgba(255,255,255,.6),0_18px_40px_-24px_rgba(11,12,14,.5)] sm:rounded-[28px]">
-          {/* The pack. */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-[7px] overflow-hidden rounded-[15px] bg-[radial-gradient(rgba(11,12,14,.08)_1px,transparent_1.5px)] bg-[length:14px_14px] sm:rounded-[20px]"
-          >
+        <div
+          ref={shellRef}
+          className={styles.shell}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+        >
+          <div className={styles.inner} aria-hidden="true">
             {/* Already in the pack. */}
-            <span className="absolute inset-y-0 left-0" style={{ width: `${from}%`, background: have }} />
+            <div className={styles.have} />
             {/* What this charge adds. */}
-            <span
-              className="absolute inset-y-0 bg-[radial-gradient(120%_90%_at_20%_10%,#F3FFC2,#D4FF3A_55%,#B9E61F)]"
-              style={{ left: `${from}%`, width: `${added}%` }}
-            >
-              <span className="absolute inset-0 overflow-hidden">
-                <svg className={styles.wave} viewBox="0 0 240 120" preserveAspectRatio="none">
-                  <path d="M0 52 Q30 40 60 52 T120 52 T180 52 T240 52 V120 H0Z" fill="rgba(255,255,255,.28)" />
+            <div className={styles.add}>
+              <span className={styles.waves}>
+                <svg className={cn(styles.wave, styles.waveA)} viewBox="0 0 240 120" preserveAspectRatio="none">
+                  <path d="M0 52 Q30 40 60 52 T120 52 T180 52 T240 52 V120 H0Z" />
                 </svg>
                 <svg className={cn(styles.wave, styles.waveB)} viewBox="0 0 240 120" preserveAspectRatio="none">
-                  <path d="M0 66 Q30 78 60 66 T120 66 T180 66 T240 66 V120 H0Z" fill="rgba(169,216,26,.45)" />
+                  <path d="M0 66 Q30 78 60 66 T120 66 T180 66 T240 66 V120 H0Z" />
                 </svg>
               </span>
-              {to < 100 ? (
-                <span className="absolute -right-[11px] bottom-0 top-0 w-3 overflow-hidden">
-                  <svg className={styles.edge} viewBox="0 0 12 120" preserveAspectRatio="none">
-                    <path d="M0 0H6Q12 7.5 6 15T6 30T6 45T6 60T6 75T6 90T6 105T6 120H0Z" fill="#C6F02A" />
+              {t < 100 ? (
+                <span className={styles.edge}>
+                  <svg viewBox="0 0 12 120" preserveAspectRatio="none">
+                    <path d="M0 0H6Q12 7.5 6 15T6 30T6 45T6 60T6 75T6 90T6 105T6 120H0Z" />
                   </svg>
                 </span>
               ) : null}
-              <span
-                className={cn(
-                  'absolute left-1/2 top-1/2 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-ink text-volt shadow-[0_6px_18px_-6px_rgba(11,12,14,.6)] transition-[opacity,scale] duration-300 ease-spring sm:size-10',
-                  added < 14 ? 'scale-50 opacity-0' : 'scale-100 opacity-100',
-                )}
-              >
+              <span className={styles.bolt}>
                 <Zap size={18} fill="currentColor" aria-hidden="true" />
               </span>
-            </span>
+            </div>
             {/* Tenths, so a level can be read without the ticks. */}
-            <span className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(90deg,transparent_0_calc(10%-1px),rgba(11,12,14,.07)_calc(10%-1px)_10%)]" />
+            <div className={styles.cells} />
           </div>
 
-          <input
-            type="range"
-            min={0}
-            max={99}
-            step={1}
-            value={from}
-            onChange={(e) => setFrom(Number(e.target.value))}
-            onPointerDown={() => setActive('from')}
-            onFocus={() => setActive('from')}
+          <div
+            ref={nowRef}
+            data-batt-h=""
+            role="slider"
+            tabIndex={0}
             aria-label="Current charge"
-            aria-valuetext={`${from} percent`}
-            className={cn(styles.range, fromOnTop ? 'z-20' : 'z-10')}
-          />
-          <input
-            type="range"
-            min={1}
-            max={100}
-            step={1}
-            value={to}
-            onChange={(e) => setTo(Number(e.target.value))}
-            onPointerDown={() => setActive('to')}
-            onFocus={() => setActive('to')}
+            aria-valuemin={0}
+            aria-valuemax={t - 1}
+            aria-valuenow={f}
+            aria-valuetext={`${f} percent`}
+            onKeyDown={onKey('now')}
+            className={cn(styles.h, styles.hNow, drag === 'now' && styles.drag)}
+          >
+            <i />
+          </div>
+          <div
+            ref={toRef}
+            data-batt-h=""
+            role="slider"
+            tabIndex={0}
             aria-label="Target charge"
-            aria-valuetext={`${to} percent`}
-            className={cn(styles.range, fromOnTop ? 'z-10' : 'z-20')}
-          />
+            aria-valuemin={f + 1}
+            aria-valuemax={100}
+            aria-valuenow={t}
+            aria-valuetext={`${t} percent`}
+            onKeyDown={onKey('to')}
+            className={cn(styles.h, styles.hTo, drag === 'to' && styles.drag)}
+          >
+            <i />
+          </div>
         </div>
 
         {/* The terminal nub, so the shape reads as a battery at a glance. */}
-        <span aria-hidden="true" className="ml-1 h-[42px] w-3 shrink-0 rounded-r-lg bg-ink" />
+        <span aria-hidden="true" className={styles.nub} />
       </div>
 
       <div aria-hidden="true" className="-mt-1 flex justify-between pl-[10px] pr-[26px] font-mono text-[11.5px] font-medium text-muted">
-        {[0, 20, 40, 60, 80, 100].map((t) => (
-          <span key={t} className="flex w-0 justify-center">
-            {t}
+        {[0, 20, 40, 60, 80, 100].map((tick) => (
+          <span key={tick} className="flex w-0 justify-center">
+            {tick}
           </span>
         ))}
       </div>
@@ -183,16 +348,16 @@ export function SocBattery({ from, to, onChange, batteryKwh }: SocBatteryProps) 
       <div className="mt-1 flex items-center justify-between gap-3">
         <Stepper
           label="current charge"
-          onDown={() => setFrom(Math.max(0, stepDown(from)))}
-          onUp={() => setFrom(stepUp(from))}
+          onDown={() => stepFrom(Math.max(0, stepDown(from)))}
+          onUp={() => stepFrom(stepUp(from))}
           canDown={from > 0}
           canUp={from < to - 1}
         />
         <span className="text-center text-xs text-muted sm:text-[13px]">Drag the handles, or tap − and +</span>
         <Stepper
           label="target charge"
-          onDown={() => setTo(stepDown(to))}
-          onUp={() => setTo(Math.min(100, stepUp(to)))}
+          onDown={() => stepTo(stepDown(to))}
+          onUp={() => stepTo(Math.min(100, stepUp(to)))}
           canDown={to > from + 1}
           canUp={to < 100}
         />
@@ -200,19 +365,19 @@ export function SocBattery({ from, to, onChange, batteryKwh }: SocBatteryProps) 
 
       {/* Common charges, one tap each. */}
       <div className="flex flex-wrap gap-2">
-        {PRESETS.map((preset) => {
-          const on = preset.from === from && preset.to === to
+        {PRESETS.map((p) => {
+          const on = p.from === f && p.to === t
           return (
             <button
-              key={preset.label}
+              key={p.label}
               type="button"
-              onClick={() => onChange(preset.from, preset.to)}
+              onClick={() => runPreset(p.from, p.to)}
               aria-pressed={on}
               className={chipClass(on, 'h-11 focus-visible:shadow-focus focus-visible:outline-none')}
             >
-              {preset.label}
+              {p.label}
               <span className={cn('font-mono text-[12.5px] tabular-nums', on ? 'text-volt' : 'text-muted')}>
-                {preset.from}→{preset.to}
+                {p.from}→{p.to}
               </span>
             </button>
           )
@@ -238,8 +403,9 @@ function Stepper({
   canDown: boolean
   canUp: boolean
 }) {
+  // .pm: colours over .25s, the press springs over .3s
   const button =
-    'grid size-11 place-items-center rounded-full border-[1.5px] border-ink/10 bg-white text-ink transition-[background-color,color,border-color,transform] duration-300 ease-spring hover:border-ink hover:bg-ink hover:text-white active:scale-90 disabled:pointer-events-none disabled:opacity-35 focus-visible:shadow-focus focus-visible:outline-none'
+    'grid size-11 place-items-center rounded-full border-[1.5px] border-ink/10 bg-white text-ink [transition:background-color_.25s,color_.25s,border-color_.25s,transform_.3s_cubic-bezier(.34,1.56,.64,1)] hover:border-ink hover:bg-ink hover:text-white active:scale-90 disabled:pointer-events-none disabled:opacity-35 focus-visible:shadow-focus focus-visible:outline-none'
   return (
     <div className="flex shrink-0 gap-1.5">
       <button type="button" onClick={onDown} disabled={!canDown} aria-label={`Lower ${label} by 5%`} className={button}>
