@@ -1,0 +1,101 @@
+{
+  "byd-seal": {
+    "trim": "Dynamic, with Premium additions marked (the row now covers both Pakistan trims)",
+    "groups": {
+      "Safety": [
+        "Front, side (front and rear), curtain and driver far-side airbags",
+        "Dual-stage front seat-belt pretensioners",
+        "Rear seat-belt pretensioners",
+        "Front and rear seat-belt reminders",
+        "Traction control (TCS)",
+        "Electronic brake-force distribution (EBD)",
+        "Hill hold control",
+        "Electric parking brake with auto-hold",
+        "Intelligent power brake system",
+        "ISOFIX child-seat anchors",
+        "Cell-to-Body (CTB) battery structure"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control (ACC)",
+        "Automatic emergency braking (AEB)",
+        "Predictive collision warning (PCW)",
+        "Lane departure warning and prevention (LDW/LDP)",
+        "Emergency lane keeping assist (ELKA)",
+        "Blind spot detection (BSD)",
+        "Door open warning (DOW)",
+        "Front cross-traffic alert and brake (FCTA/FCTB)",
+        "Rear cross-traffic alert and brake (RCTA/RCTB)",
+        "Traffic sign recognition (TSR)",
+        "Intelligent speed limit information and control (ISLI/ISLC)",
+        "High beam assist (HMA)",
+        "Driver attention warning (DAW)",
+        "Premium: windscreen head-up display (W-HUD)"
+      ],
+      "Parking": [
+        "360° camera",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Rear-wheel drive on both trims",
+        "Dynamic: 61.44 kWh Blade battery, 150 kW / 310 Nm motor",
+        "Premium: 82.56 kWh Blade battery, 230 kW / 360 Nm motor",
+        "CCS2 DC fast charging: 110 kW (Dynamic), 150 kW (Premium)",
+        "Type 2 AC charging at 7 kW",
+        "Portable Mode 2 charging cable",
+        "Vehicle-to-load (V2L)",
+        "Double-wishbone front / multi-link rear suspension",
+        "Ventilated disc brakes with floating calipers",
+        "Premium: ventilated and drilled discs with fixed front calipers",
+        "Premium: frequency-selective (FSD) dampers"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch rotating touchscreen",
+        "10.25-inch digital instrument cluster",
+        "12-speaker sound system",
+        "Voice assistant",
+        "Bluetooth phone and audio streaming",
+        "USB-C and USB-A ports front and rear"
+      ],
+      "Seats & Interior": [
+        "Faux-leather seats",
+        "Premium: leather seats",
+        "8-way power driver seat",
+        "Premium: 4-way power lumbar for the driver",
+        "Premium: driver-seat memory with easy-entry function",
+        "6-way power passenger seat",
+        "Heated and ventilated front seats",
+        "60/40 split-folding rear seat",
+        "Ambient lighting",
+        "Crystal gear selector"
+      ],
+      "Comfort & Convenience": [
+        "Digital key and NFC card key",
+        "Dual wireless phone chargers",
+        "Dual-zone climate control with rear vents",
+        "Air ioniser with CN95 PM2.5 filter",
+        "Rain-sensing frameless wipers",
+        "Silver-plated panoramic glass roof",
+        "Acoustic glass",
+        "Power tailgate",
+        "50 L front trunk and 400 L rear boot",
+        "Tyre repair kit and toolkit"
+      ],
+      "Exterior & Lighting": [
+        "LED headlights and tail lights",
+        "Sequential rear indicators",
+        "Flush door handles",
+        "Heated, power-adjustable, power-folding mirrors",
+        "Premium: mirrors with memory and reverse auto-tilt",
+        "18-inch alloys (225/50 R18) on the Dynamic",
+        "Premium: 19-inch alloys (235/45 R19)",
+        "Premium: Atlantis Grey paint option"
+      ]
+    },
+    "sources": [
+      "https://byd-mega.com/api/v1/image/spec-sheets/BYD-Seal-Spec-Sheet.pdf",
+      "https://byd-mega.com/vehicles/seal",
+      "https://cache3.pakwheels.com/system/brochures/280/original/SEAL-BROCHURE.pdf?1746435676"
+    ],
+    "checked": "2026-11-02"
+  }
+}

@@ -1,0 +1,508 @@
+{
+  "jaecoo-j5-shs": {
+    "trim": "Comfort; Premium additions marked",
+    "groups": {
+      "Safety": [
+        "Dual front airbags",
+        "Premium: front side and side-curtain airbags",
+        "ABS with EBD, brake assist and brake override",
+        "Tyre pressure monitoring",
+        "ISOFIX child-seat mounts",
+        "Immobiliser and anti-theft alarm"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Cruise control",
+        "Premium: adaptive cruise control"
+      ],
+      "Parking": [
+        "Premium: 540-degree HD camera view"
+      ],
+      "Powertrain & Charging": [
+        "Self-charging 1.5 turbo hybrid, 221 hp and 295 Nm",
+        "Dedicated hybrid transmission, front-wheel drive",
+        "Fuel economy readout in km/L"
+      ],
+      "Infotainment & Connectivity": [
+        "8-inch digital instrument cluster",
+        "9-inch touchscreen with 2 speakers",
+        "Premium: 13.2-inch touchscreen and 8 speakers",
+        "Wireless Apple CarPlay and Android Auto",
+        "Bluetooth hands-free and USB-C ports"
+      ],
+      "Seats & Interior": [
+        "Fabric seats, 6-way manual driver seat",
+        "Premium: faux-leather seats, 6-way power driver seat",
+        "Premium: ventilated front seats",
+        "Premium: front ambient lighting and rear armrest",
+        "60/40 split-folding rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone automatic climate control with rear vents",
+        "Keyless entry and remote boot release",
+        "One-touch power windows",
+        "Premium: 50 W wireless phone charger",
+        "Premium: acoustic glass and 12 V socket in the boot"
+      ],
+      "Exterior & Lighting": [
+        "18-inch alloy wheels",
+        "Automatic halogen headlamps with LED daytime lights",
+        "Premium: LED automatic headlamps",
+        "Premium: panoramic glass roof",
+        "Frameless wipers, rear fog lamp and sport spoiler"
+      ]
+    },
+    "sources": [
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2025/12/Jaecoo-J5-Specifications-A4.pdf",
+      "https://omodajaecoo.pk/jaecoo-j5-shs-h"
+    ],
+    "checked": "2026-11-02"
+  },
+  "jaecoo-j6": {
+    "trim": "All three versions; Premium additions marked",
+    "groups": {
+      "Safety": [
+        "Electronic stability and traction control",
+        "Hill start assist"
+      ],
+      "Driver Assistance (ADAS)": [
+        "ADAS suite including adaptive cruise control, blind-spot detection and lane-departure prevention",
+        "Rear cross-traffic braking"
+      ],
+      "Parking": [
+        "360-degree camera",
+        "Parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Rear-motor drive on Comfort and Luxury (49.9 / 65.6 kWh)",
+        "Premium: dual-motor AWD, 279 hp, 69.7 kWh",
+        "Eco, Normal, Sport and Custom drive modes",
+        "Premium: extra terrain modes (All-road, Slippery, Beach, Muddy, Bumpy)",
+        "3.3 kW vehicle-to-load power outlet",
+        "Column-mounted electronic gear selector"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch central touchscreen and 9.2-inch driver display",
+        "Apple CarPlay and Android Auto",
+        "Voice commands",
+        "Pioneer 8-speaker audio",
+        "Premium: Infinity 12-speaker audio",
+        "USB ports front and rear"
+      ],
+      "Seats & Interior": [
+        "Ventilated front and rear seats",
+        "6-way power driver seat, 4-way power passenger seat",
+        "Premium: electric leg rest for the front passenger",
+        "64-colour ambient lighting",
+        "60/40 split-folding rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with remote operation",
+        "50 W wireless charger with phone-left-behind reminder",
+        "Keyless entry and NFC card key",
+        "Side-opening power tailgate",
+        "Auto-dimming rear-view mirror and acoustic front glass"
+      ],
+      "Exterior & Lighting": [
+        "Panoramic sunroof",
+        "LED headlights, daytime lights and taillights",
+        "Rain-sensing wipers and roof rails",
+        "18-inch alloy wheels; Premium: 19-inch"
+      ]
+    },
+    "sources": [
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2025/02/Jaecoo-Specifications-A4.pdf",
+      "https://omodajaecoo.pk/jaecoo-j6"
+    ],
+    "checked": "2026-11-02"
+  },
+  "jaecoo-j7-phev": {
+    "trim": "Premium (only version)",
+    "groups": {
+      "Safety": [
+        "Seven airbags including a driver's knee airbag",
+        "Stability control, ABS with EBD, brake assist and brake override",
+        "Direct tyre pressure monitoring",
+        "ISOFIX child-seat mounts"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control",
+        "Forward collision warning with automatic emergency braking",
+        "Blind-spot detection and emergency lane keeping",
+        "Lane departure prevention",
+        "Driver monitoring camera"
+      ],
+      "Parking": [
+        "540-degree HD camera view",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.5 turbo plug-in hybrid, 341 hp and 525 Nm",
+        "18.3 kWh battery, 90+ km electric range",
+        "3.3 kW vehicle-to-load outlet"
+      ],
+      "Infotainment & Connectivity": [
+        "14.8-inch touchscreen and 10.25-inch driver display",
+        "Head-up display",
+        "Sony 8-speaker audio",
+        "Wireless Apple CarPlay and Android Auto",
+        "Built-in dash camera and smartphone app connectivity"
+      ],
+      "Seats & Interior": [
+        "Heated and ventilated front seats",
+        "Power driver seat with memory and electric lumbar",
+        "4-way power passenger seat with rear-seat control button",
+        "Ambient lighting",
+        "Fold-flat 60/40 rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with N95 filter and air-quality system",
+        "Cooled centre armrest box",
+        "50 W wireless charger",
+        "Passive keyless entry and remote pre-cooling from the key",
+        "Hands-free power tailgate"
+      ],
+      "Exterior & Lighting": [
+        "Panoramic sunroof",
+        "LED headlights with automatic and height adjustment",
+        "Flush door handles",
+        "Heated power mirrors with memory",
+        "19-inch alloy wheels and roof rails"
+      ]
+    },
+    "sources": [
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2025/09/Jaecoo-J7-Specifications-A4-2-1.pdf",
+      "https://omodajaecoo.pk/jaecoo-j7-shs-p"
+    ],
+    "checked": "2026-11-02"
+  },
+  "omoda-7": {
+    "trim": "Premium (only version sold)",
+    "groups": {
+      "Safety": [
+        "Eight airbags including a front-centre and driver's knee airbag",
+        "Stability control, multi-collision braking and hill descent control",
+        "Direct tyre pressure monitoring",
+        "Driver fatigue monitoring and event data recorder"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control with traffic jam and integrated cruise assist",
+        "Automatic emergency braking and forward collision warning",
+        "Lane departure prevention and emergency lane keeping",
+        "Blind-spot detection, lane change assist and door-open warning",
+        "Rear cross-traffic alert and braking",
+        "Intelligent high-beam control"
+      ],
+      "Parking": [
+        "540-degree HD camera view",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.5 turbo plug-in hybrid, 341 hp and 525 Nm",
+        "18.4 kWh battery, 90+ km electric range (WLTP)",
+        "Normal, Eco and Sport modes",
+        "3.3 kW vehicle-to-load outlet"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch sliding touchscreen with Snapdragon 8155 chip",
+        "8.8-inch driver display and head-up display",
+        "Sony 12-speaker audio",
+        "Wireless Apple CarPlay and Android Auto",
+        "Four-zone voice control and app connectivity",
+        "Built-in dash camera"
+      ],
+      "Seats & Interior": [
+        "Leatherette seats, ventilated in front",
+        "6-way power driver seat with memory and lumbar",
+        "Zero-gravity passenger seat with massage and leg support",
+        "Ambient lighting that pulses with music",
+        "Fold-flat 60/40 rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with N95 filter",
+        "Built-in cabin fragrance",
+        "50 W wireless charger",
+        "Keyless entry and power tailgate",
+        "Qibla compass"
+      ],
+      "Exterior & Lighting": [
+        "Panoramic sunroof with sunshade",
+        "Adaptive LED headlights and sequential indicators",
+        "Illuminated front bumper lights",
+        "Auto-folding heated mirrors with memory",
+        "20-inch wheels with red brake calipers"
+      ]
+    },
+    "sources": [
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2026/06/OMODA-7-SHS-P-Brochure.pdf",
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2026/06/Omoda-7-Specifications-A4.pdf"
+    ],
+    "checked": "2026-11-02"
+  },
+  "omoda-e5": {
+    "groups": {
+      "Safety": [
+        "Electronic stability and traction control",
+        "Hill start assist",
+        "Driver monitoring system",
+        "Automatic child locks"
+      ],
+      "Driver Assistance (ADAS)": [
+        "ADAS driver-assistance package"
+      ],
+      "Parking": [
+        "360-degree camera",
+        "Parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "150 kW front motor, 61 kWh LFP battery",
+        "DC 30-80% in 28 minutes; 11 kW AC",
+        "Eco, Normal and Sport modes",
+        "Column-mounted electronic gear selector"
+      ],
+      "Infotainment & Connectivity": [
+        "Twin 12.3-inch screens for driver display and infotainment",
+        "Sony 8-speaker audio",
+        "Apple CarPlay and Android Auto",
+        "Voice commands"
+      ],
+      "Seats & Interior": [
+        "Faux-leather seats, ventilated in front",
+        "6-way power driver seat, 4-way power passenger seat",
+        "Multi-colour ambient lighting",
+        "Soft-touch dashboard with contrast stitching",
+        "60/40 split-folding rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with PM2.5 filter and rear vents",
+        "50 W wireless charger",
+        "Keyless entry",
+        "Power tailgate"
+      ],
+      "Exterior & Lighting": [
+        "Power sunroof",
+        "LED headlights, fog lights with cornering function and sequential rear indicators",
+        "Rain-sensing wipers, puddle lamps and roof rails",
+        "18-inch alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://headless-cms.omodajaecoo.pk/wp-content/uploads/2025/02/Omoda-Specifications-A4.pdf",
+      "https://omodajaecoo.pk/omoda-e5"
+    ],
+    "checked": "2026-11-02"
+  },
+  "jetour-t1-i-dm": {
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "Stability and traction control, ABS with EBD and brake assist",
+        "Hill hold and hill descent control",
+        "Tyre pressure monitoring"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Level 2 ADAS with adaptive cruise control",
+        "Automatic emergency braking and forward collision warning",
+        "Lane departure warning and lane keeping assist",
+        "Blind-spot detection, door-open warning and rear cross-traffic alert",
+        "Automatic high beam"
+      ],
+      "Parking": [
+        "540-degree camera view",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.5 turbo plug-in hybrid, 340 hp and 530 Nm",
+        "CATL 18.4 kWh LFP battery, 100 km NEDC electric range",
+        "Fast charge in about half an hour",
+        "3.3 kW vehicle-to-load",
+        "Sport, Economy, Standard, Snow, EV and HEV modes"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch touchscreen with Snapdragon 8155 chip",
+        "10.25-inch digital driver display",
+        "Wireless Apple CarPlay and Android Auto",
+        "Voice commands",
+        "9-speaker Sony audio"
+      ],
+      "Seats & Interior": [
+        "Leather seats",
+        "Power driver and passenger seats with ventilation and memory",
+        "Driver seat with 4-way lumbar support"
+      ],
+      "Comfort & Convenience": [
+        "50 W wireless charger",
+        "Dual-layer sun-protection glass"
+      ],
+      "Exterior & Lighting": [
+        "19-inch wheels (235/60 R19)",
+        "600 mm wading depth, 28-degree approach and departure angles"
+      ]
+    },
+    "sources": [
+      "https://cache4.pakwheels.com/system/brochures/1511/original/T1_Folded_Flyer-Low.pdf?1788291679"
+    ],
+    "checked": "2026-11-02"
+  },
+  "jetour-t2-i-dm": {
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "Stability and traction control, ABS with EBD and emergency brake assist",
+        "Hill hold and hill descent control",
+        "Tyre pressure monitoring"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Level 2 ADAS with adaptive cruise control",
+        "Automatic emergency braking and forward collision warning",
+        "Lane departure warning and lane keeping assist",
+        "Blind-spot detection, door-open warning and rear cross-traffic alert",
+        "Automatic high beam"
+      ],
+      "Parking": [
+        "540-degree camera view",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.5 turbo plug-in hybrid with 3-speed DHT, 360 hp and 610 Nm",
+        "CATL 18.4 kWh LFP battery, 90 km NEDC electric range",
+        "DC 30-80% in about half an hour",
+        "3.3 kW vehicle-to-load",
+        "Normal, Sport, Economy, Snow, EV and HEV modes"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch touchscreen with Snapdragon 8155 chip",
+        "10.25-inch driver display",
+        "Wireless Apple CarPlay and Android Auto",
+        "Voice commands",
+        "12-speaker Sony audio"
+      ],
+      "Seats & Interior": [
+        "Black suede-leather seats",
+        "6-way power driver seat with 4-way lumbar, 4-way power passenger seat",
+        "Ventilated front seats with memory"
+      ],
+      "Exterior & Lighting": [
+        "20-inch wheels (255/60 R20)",
+        "220 mm ground clearance and 700 mm wading depth",
+        "Multi-link independent rear suspension"
+      ]
+    },
+    "sources": [
+      "https://cache1.pakwheels.com/system/brochures/1504/original/T2_Folded_Flyer.pdf?1783347759"
+    ],
+    "checked": "2026-11-02"
+  },
+  "icaur-v23": {
+    "trim": "RWD; AWD differences marked",
+    "groups": {
+      "Safety": [
+        "Dual front, front-side and curtain airbags",
+        "Stability control, traction control and hill descent control",
+        "Direct tyre pressure monitoring",
+        "Child presence detection",
+        "ASEAN NCAP 5 stars"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise with integrated cruise and traffic jam assist",
+        "Automatic emergency braking, forward and rear collision warning",
+        "Lane departure warning and prevention, lane change assist",
+        "Blind-spot detection, rear cross-traffic alert and door-open warning",
+        "Adaptive matrix headlamp control"
+      ],
+      "Parking": [
+        "540-degree HD camera view",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Rear motor 100 kW, CATL 59.93 kWh, 360 km NEDC",
+        "AWD: dual motors 155 kW, 81.8 kWh, 430 km NEDC, 0-100 in 7.5 s",
+        "DC 85 kW (AWD 104 kW), 7 kW AC, CCS2",
+        "3.3 kW vehicle-to-load",
+        "AWD: extra drive modes including Slippery and Offroad"
+      ],
+      "Infotainment & Connectivity": [
+        "15.4-inch touchscreen",
+        "Apple CarPlay, Android Auto and screen mirroring",
+        "Offline voice control",
+        "7 speakers",
+        "Over-the-air updates and app connectivity"
+      ],
+      "Seats & Interior": [
+        "Faux-leather seats, ventilated in front",
+        "6-way power driver seat, 4-way power passenger seat",
+        "Fold-flat split rear seats"
+      ],
+      "Comfort & Convenience": [
+        "Automatic climate control with PM2.5 filter and remote operation",
+        "Keyless entry with NFC card key",
+        "Acoustic glass"
+      ],
+      "Exterior & Lighting": [
+        "Automatic LED headlights and LED taillights",
+        "Illuminated door handles and heated mirrors",
+        "19-inch wheels; AWD: 21-inch"
+      ]
+    },
+    "sources": [
+      "https://cache1.pakwheels.com/system/brochures/1519/original/iCAUR_%28V23_Leaflet%29_-_Web_compressed.pdf?1789716209"
+    ],
+    "checked": "2026-11-02"
+  },
+  "icaur-v27": {
+    "trim": "AWD (only version)",
+    "groups": {
+      "Safety": [
+        "Driver, passenger, front-side, curtain and front-centre airbags",
+        "Stability control and roll stability control",
+        "Hill descent control and direct tyre pressure monitoring",
+        "Driver monitoring system"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise with integrated cruise and traffic jam assist",
+        "Automatic emergency braking, forward and rear collision warning",
+        "Lane keeping, lane departure prevention and emergency lane keeping",
+        "Blind-spot detection, rear cross-traffic alert and braking",
+        "Adaptive matrix headlamp control"
+      ],
+      "Parking": [
+        "Fully automatic parking",
+        "540-degree HD camera view"
+      ],
+      "Powertrain & Charging": [
+        "Range extender with dual motors, 449 hp and 505 Nm, AWD",
+        "34.31 kWh LFP battery, 150 km NEDC electric range",
+        "DC 100 kW, 20-80% in 15 minutes; 7 kW wall charger and portable charger",
+        "6.6 kW vehicle-to-load"
+      ],
+      "Infotainment & Connectivity": [
+        "15.4-inch 3K touchscreen with Snapdragon 8155",
+        "8.88-inch driver display",
+        "Wireless Apple CarPlay and Android Auto",
+        "Offline voice control",
+        "15 Pioneer speakers with subwoofer"
+      ],
+      "Seats & Interior": [
+        "Faux-leather seats with front ventilation",
+        "6-way power front seats, driver memory",
+        "Multi-colour ambient lighting",
+        "Cooled front armrest box"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with CN95 filter",
+        "50 W wireless charger",
+        "Keyless entry and start, side-opening tailgate",
+        "Double-glazed sunroof"
+      ],
+      "Exterior & Lighting": [
+        "Automatic LED headlights with projector puddle lights",
+        "21-inch wheels and full-size spare",
+        "220 mm ground clearance, underbody guard and 1.6 t towing",
+        "Load-bearing roof rails"
+      ]
+    },
+    "sources": [
+      "https://cache1.pakwheels.com/system/brochures/1517/original/iCAUR_%28V27_Brochure%29-01_Web_compressed.pdf?1789716148"
+    ],
+    "checked": "2026-11-02"
+  }
+}

@@ -1,0 +1,464 @@
+{
+  "xpeng-g6": {
+    "trim": "Standard Range RWD (the only trim this row covers)",
+    "groups": {
+      "Safety": [
+        "Seven airbags",
+        "Front and rear integrated cast-aluminium body with a steel-aluminium safety cage",
+        "Battery pack integrated into the body with a three-layer crash structure"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Forward collision warning and automatic emergency braking (fit depends on market for this trim)",
+        "Blind spot detection, door opening warning and lane departure warning",
+        "Lane keep assist and emergency lane keeping",
+        "Rear collision warning and rear cross traffic alert",
+        "No adaptive cruise or lane centring on this trim (Long Range and Performance only)"
+      ],
+      "Parking": [
+        "Surround-view camera",
+        "Automatic parking assist, including auto exit",
+        "Remote parking and summon from phone or key"
+      ],
+      "Powertrain & Charging": [
+        "Single rear motor: 185 kW and 440 Nm, 0–100 km/h in 6.94 s",
+        "68.5 kWh battery, 480 km WLTP on 18-inch wheels",
+        "800V platform: DC 10–80% in about 12 minutes",
+        "11 kW AC charging and vehicle-to-load"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch central touchscreen and 10.25-inch driver display",
+        "18-speaker XOPERA sound system",
+        "Multi-zone voice assistant with English support",
+        "Over-the-air updates"
+      ],
+      "Seats & Interior": [
+        "Heated and ventilated front seats with lumbar support",
+        "Ambient lighting",
+        "571 L boot, 1,374 L with rear seats folded"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control",
+        "Wireless phone charging"
+      ],
+      "Exterior & Lighting": [
+        "Full-width front light bar",
+        "2.12 m² panoramic glass roof with UV protection",
+        "18-inch low-drag alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://cdn.shopify.com/s/files/1/0626/4612/4749/files/XPENG-Pakistan-G6-Brochure.pdf",
+      "https://paknev.com/cars/xpeng-g6"
+    ],
+    "checked": "2026-11-03"
+  },
+  "xpeng-l03-reev": {
+    "trim": "REEV Std (single Pakistan REEV trim)",
+    "groups": {
+      "Safety": [
+        "Seven airbags, including a front centre airbag",
+        "Tyre-blowout stability control and integrated IPB braking",
+        "Tyre pressure monitoring",
+        "Doors unlock automatically after a collision"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control and lane centring",
+        "Automatic emergency braking and forward collision warning",
+        "Lane departure warning, lane keep assist and emergency lane keeping",
+        "Blind spot warning, door opening warning, rear cross traffic and rear collision warning",
+        "Traffic sign recognition, intelligent speed assist and auto high beam",
+        "Driver monitoring and child-presence detection"
+      ],
+      "Parking": [
+        "360° camera with transparent-underbody view",
+        "Automated parking assist, including unmarked spaces",
+        "12 ultrasonic sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.5-litre petrol range extender that only charges the battery",
+        "Rear motor 183 kW and 280 Nm, 0–100 km/h in 6.8 s",
+        "37.2 kWh LFP battery: 240 km electric, 1,100 km combined (WLTP)",
+        "DC up to 123 kW (10–80% in 15 min), AC 6.6 kW",
+        "6 kW vehicle-to-load",
+        "Eco, Comfort and Sport modes, plus Snow and Wet modes"
+      ],
+      "Infotainment & Connectivity": [
+        "15.6-inch 2.5K central screen and 8.8-inch driver display",
+        "26.8-inch windscreen head-up display",
+        "\"Hey XPENG\" multilingual voice assistant",
+        "Apple CarPlay and Android Auto",
+        "Bluetooth phone key and smartphone keyless entry"
+      ],
+      "Seats & Interior": [
+        "Leather seats; heated and ventilated front seats with memory",
+        "14-point front-seat massage and 4-way power lumbar",
+        "Heated steering wheel",
+        "40/20/40 split-folding rear seats",
+        "256-colour ambient lighting"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone automatic climate with PM2.5 filter and rear vents",
+        "50 W cooled wireless phone charging and 60 W USB-C ports",
+        "Power tailgate; 539 L boot plus underfloor drawer",
+        "1,500 kg braked towing"
+      ],
+      "Exterior & Lighting": [
+        "1.31 m² heat-insulating panoramic glass roof",
+        "Frameless doors and flush door handles",
+        "Full-width rear light bar",
+        "18-inch low-drag alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://cdn.shopify.com/s/files/1/0626/4612/4749/files/PK_L03_Xpeng_-_1002-c_RE61026.pdf?v=1792356912",
+      "https://www.xpengpakistan.com/l03",
+      "https://paknev.com/cars/xpeng-l03-reev"
+    ],
+    "checked": "2026-11-03"
+  },
+  "xpeng-x9": {
+    "trim": "Long Range 2WD Pro+ (single Pakistan trim)",
+    "groups": {
+      "Safety": [
+        "Six airbags, with curtain airbags covering all three rows",
+        "Front and rear die-cast aluminium body with a 2,000 MPa safety cage",
+        "Stability control, auto hold and tyre pressure monitoring",
+        "Rear ISOFIX and electronic child locks on the sliding doors"
+      ],
+      "Driver Assistance (ADAS)": [
+        "XPILOT driver assistance on an NVIDIA Orin-X chip with 12 cameras and 3 radars",
+        "Adaptive cruise, lane centring and cornering cruise",
+        "Automatic emergency braking and forward collision warning",
+        "Blind spot detection, door opening warning, lane keep and emergency lane keeping",
+        "Rear collision warning and rear cross traffic alert",
+        "Driver monitoring and auto high beam"
+      ],
+      "Parking": [
+        "360° camera with transparent-chassis view",
+        "Automatic parking and auto exit",
+        "Remote parking and remote summon"
+      ],
+      "Powertrain & Charging": [
+        "Front motor 235 kW (315 hp) and 450 Nm",
+        "101.5 kWh NMC battery, 590 km WLTP",
+        "DC up to 317 kW (10–80% in 20 min), 11 kW AC",
+        "Dual-chamber air suspension and active rear-wheel steering",
+        "3.3 kW vehicle-to-load"
+      ],
+      "Infotainment & Connectivity": [
+        "17.3-inch central screen and digital driver display",
+        "21.4-inch fold-down rear entertainment screen",
+        "23-speaker XOPERA sound system (2,180 W)",
+        "Snapdragon 8295P cockpit chip and \"Hey XPENG\" voice assistant",
+        "Apple CarPlay and Android Auto; app remote control and OTA updates"
+      ],
+      "Seats & Interior": [
+        "Nappa leather seats for seven",
+        "12-way power front seats with heating, ventilation, massage and memory",
+        "Second-row 18-way zero-gravity captain's chairs with heating, ventilation and massage",
+        "Power-folding third row with adjustable backrests and headrests"
+      ],
+      "Comfort & Convenience": [
+        "Five-zone climate with air purification",
+        "Hot-and-cold refrigerator",
+        "Power sliding doors on both sides and power tailgate",
+        "Second-row tray tables and window sunshades",
+        "50 W cooled wireless charging in front and rear"
+      ],
+      "Exterior & Lighting": [
+        "Automatic LED headlights with auto high beam",
+        "Panoramic glass roof with sunshade",
+        "Flush power door handles",
+        "20-inch alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://cdn.shopify.com/s/files/1/0626/4612/4749/files/XPENG-Pakistan-X9-Brochure.pdf",
+      "https://paknev.com/cars/xpeng-x9"
+    ],
+    "checked": "2026-11-03"
+  },
+  "zeekr-009": {
+    "trim": "Luxury 7-seater; Ultra Luxury additions marked",
+    "groups": {
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise with lane centring",
+        "Automatic lane change",
+        "Blind spot monitoring"
+      ],
+      "Parking": [
+        "360° camera with transparent-chassis view",
+        "Automated parking assist"
+      ],
+      "Powertrain & Charging": [
+        "Two motors and all-wheel drive: 450 kW and 693 Nm, 0–100 km/h in 4.5 s",
+        "116 kWh battery, 582 km WLTP",
+        "DC charging 10–80% in about 30 minutes, 11 kW AC",
+        "Dual-chamber air suspension"
+      ],
+      "Infotainment & Connectivity": [
+        "15.05-inch OLED centre screen and 17-inch rear roof screen",
+        "AR head-up display",
+        "Dual Snapdragon 8295 chips",
+        "30-speaker Yamaha sound system",
+        "Wireless Apple CarPlay"
+      ],
+      "Seats & Interior": [
+        "Nappa leather; 12-way power front seats with ventilation, massage and driver memory",
+        "Independent second-row seats with ventilation and massage",
+        "Ultra Luxury: six seats with powered leg-rest lounge chairs in row two",
+        "Ultra Luxury: reclining third row and headrest speakers"
+      ],
+      "Comfort & Convenience": [
+        "Three-zone climate control",
+        "Hot-and-cold refrigerator",
+        "Ultra Luxury: hidden Nappa tray tables"
+      ],
+      "Exterior & Lighting": [
+        "Panoramic glass roof"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/zeekr-009",
+      "https://capitalsmartmotors.pk/vehicles/zeekr-009/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "zeekr-x": {
+    "trim": "Premium RWD; Flagship AWD differences marked",
+    "groups": {
+      "Safety": [
+        "Seven airbags",
+        "Five-star ANCAP rating"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise, lane centring and lane keep assist",
+        "Automatic lane change",
+        "Front collision mitigation and rear collision warning",
+        "Blind spot monitoring and front/rear cross traffic alert",
+        "Face recognition and driver monitoring"
+      ],
+      "Parking": [
+        "360° camera",
+        "Automated parking assist"
+      ],
+      "Powertrain & Charging": [
+        "Rear motor 200 kW and 343 Nm, 0–100 km/h in 5.6 s",
+        "Flagship AWD: two motors, 315 kW, 0–100 km/h in 3.8 s",
+        "66 kWh battery, 440 km WLTP (420 km AWD)",
+        "DC charging 10–80% in about 30 minutes",
+        "Heat pump"
+      ],
+      "Infotainment & Connectivity": [
+        "14.6-inch touchscreen and 8.8-inch driver display",
+        "AR head-up display",
+        "13-speaker Yamaha sound system",
+        "Wireless Apple CarPlay and Android Auto",
+        "5G, Wi-Fi hotspot and over-the-air updates"
+      ],
+      "Seats & Interior": [
+        "Vegan leather seats",
+        "Ventilated front seats and driver memory"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone automatic climate control",
+        "Wireless phone charging",
+        "NFC card and phone key; app remote control",
+        "Built-in dash camera recording"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/zeekr-x",
+      "https://capitalsmartmotors.pk/vehicles/zeekr-x/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "riddara-rd6": {
+    "trim": "Econ 4WD; Pro additions marked",
+    "groups": {
+      "Safety": [
+        "Four airbags (Pro: six)",
+        "ABS, stability control, traction control, hill start and hill descent",
+        "Disc brakes on all four wheels"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Automatic emergency braking and forward collision warning",
+        "Pro: adaptive cruise and lane keep assist",
+        "Pro: blind spot detection and rear cross traffic alert"
+      ],
+      "Parking": [
+        "540° camera and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Two motors and four-wheel drive: 73 kWh battery, 424 km",
+        "Six drive modes (Pro: seven)",
+        "Pro: 6 kW vehicle-to-load with power sockets in the bed",
+        "3,000 kg towing and 815 mm wading depth"
+      ],
+      "Infotainment & Connectivity": [
+        "14.6-inch touchscreen and 10.25-inch driver display",
+        "Voice control"
+      ],
+      "Seats & Interior": [
+        "Leatherette seats for five (Pro: leather with power adjustment)",
+        "Multi-function steering wheel"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone automatic climate with rear vents",
+        "70 L lockable front trunk",
+        "Keyless entry and push-button start",
+        "Pro: wireless phone charging and lockable bed storage"
+      ],
+      "Exterior & Lighting": [
+        "Halogen headlights and 17-inch steel wheels with covers; bed liner",
+        "Pro: matrix LED headlights with adaptive high beam and LED light bar",
+        "Pro: sliding glass sunroof, roof rails, side steps and 18-inch alloys"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/riddara-rd6",
+      "https://capitalsmartmotors.pk/vehicles/riddara-rd6/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "hyptec-ht": {
+    "trim": "Elite Plus and Ultra Gullwing Door Plus (sources do not separate the trims, apart from the gull-wing doors)",
+    "groups": {
+      "Driver Assistance (ADAS)": [
+        "Full driver-assistance suite"
+      ],
+      "Parking": [
+        "360° camera"
+      ],
+      "Powertrain & Charging": [
+        "Rear motor 250 kW (335 hp), 0–100 km/h in 5.8 s",
+        "83 kWh LFP battery, 520 km WLTP",
+        "DC up to 280 kW, 6.6 kW AC"
+      ],
+      "Infotainment & Connectivity": [
+        "14.6-inch touchscreen",
+        "22-speaker Dolby Atmos sound",
+        "Apple CarPlay and Android Auto"
+      ],
+      "Seats & Interior": [
+        "Nappa leather seats; ventilated and massaging front seats",
+        "Reclining rear seats with footrests",
+        "Ambient lighting"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control",
+        "Wireless phone charging",
+        "Power tailgate; 670 L boot"
+      ],
+      "Exterior & Lighting": [
+        "Panoramic sunroof",
+        "Ultra Gullwing Door Plus: gull-wing rear doors"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/gac-hyptec-ht",
+      "https://www.pakwheels.com/blog/hyptec-elite-vs-ultra-gullwing/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "jmev-elight": {
+    "trim": "Comfort; Premium differences marked",
+    "groups": {
+      "Safety": [
+        "Front and side airbags",
+        "Stability control, hill start and hill descent assist",
+        "Tyre pressure monitoring"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Blind spot monitoring and lane change assist",
+        "Rear cross traffic alert and door opening warning",
+        "Emergency brake assist",
+        "Cruise control"
+      ],
+      "Parking": [
+        "360° camera",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Front motor 221 hp (165 kW)",
+        "56.3 kWh LFP battery, 500 km NEDC",
+        "DC 30–80% in about 30 minutes; full AC charge in about 10 hours",
+        "Eco, Normal and Sport modes"
+      ],
+      "Infotainment & Connectivity": [
+        "7-inch screen and 2 speakers (Premium: 12.4-inch screen and 6 speakers)",
+        "Wireless Apple CarPlay and Android Auto",
+        "Over-the-air updates"
+      ],
+      "Seats & Interior": [
+        "Leather seats, manually adjusted (Premium: 6-way power driver and passenger seats)"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate with PM2.5 filter",
+        "Keyless entry",
+        "Electronic parking brake",
+        "Wireless phone charging"
+      ],
+      "Exterior & Lighting": [
+        "Automatic LED headlights and rain-sensing wipers",
+        "Heated, power-folding mirrors",
+        "Concealed door handles",
+        "Steel wheels with full-size spare (Premium: alloy wheels)",
+        "Premium: panoramic glass roof"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/jmev-elight",
+      "https://capitalsmartmotors.pk/vehicles/jmev-elight/",
+      "https://www.pakwheels.com/new-cars/jmev/elight/specifications"
+    ],
+    "checked": "2026-11-03"
+  },
+  "jmev-ev3": {
+    "trim": "Comfort; Premium additions marked",
+    "groups": {
+      "Safety": [
+        "Driver and front passenger airbags",
+        "ISOFIX child-seat anchors",
+        "Tyre pressure monitoring"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Blind spot monitoring",
+        "Premium: automatic emergency braking and forward collision warning",
+        "Premium: adaptive cruise, traffic jam and highway assist",
+        "Premium: lane departure warning and lane keep assist; auto high beam"
+      ],
+      "Parking": [
+        "360° camera and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Front motor 67 hp and 125 Nm",
+        "30.24 kWh LFP battery, 271 km WLTP",
+        "DC 10–80% in about 42 minutes; full AC charge in about 7 hours"
+      ],
+      "Infotainment & Connectivity": [
+        "10.1-inch touchscreen and 5-inch driver display",
+        "Apple CarPlay and Android Auto"
+      ],
+      "Seats & Interior": [
+        "Sport seats and leather-trimmed multi-function steering wheel"
+      ],
+      "Comfort & Convenience": [
+        "Automatic air conditioning",
+        "Keyless start with push button",
+        "Power windows",
+        "Wireless phone charging"
+      ],
+      "Exterior & Lighting": [
+        "Automatic headlights with LED daytime running lights and LED tail lights",
+        "Power mirrors with integrated indicators",
+        "Alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/jmev-ev3",
+      "https://capitalsmartmotors.pk/vehicles/jmev-ev3/"
+    ],
+    "checked": "2026-11-03"
+  }
+}

@@ -1,0 +1,362 @@
+{
+  "hyundai-elantra-hybrid": {
+    "corrections": {
+      "variant": {
+        "value": "Blue",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-ELANTRA-Hybrid-HNMPL.pdf",
+        "note": "Single trim 'Hyundai ELANTRA Hybrid Blue'. fullName already says 'Hyundai Elantra Hybrid', so only 'Blue' is kept."
+      },
+      "notes": {
+        "value": "Seventh-generation Elantra (CN7) facelift, sold in one trim, the Elantra Hybrid Blue, at PKR 10,761,000 ex-factory Faisalabad. That was the 'discounted' price on Hyundai Nishat's 12 August 2026 list (against PKR 11,400,000) and became the standing price after hybrid sales tax fell from 25% to 18% on 13 September 2026. Hyundai Nishat spec: Smartstream 1.6 GDi Atkinson engine 77.2 kW (104 hp) / 147 Nm, PMSM motor 32 kW (43 hp) / 170 Nm, system 102 kW (139 hp) / 264 Nm, 6-speed dual-clutch, 1.32 kWh lithium-ion polymer battery (240 V), 42 L tank, 402 L boot, kerb 1,385 kg, ground clearance 150 mm. Equipment includes 2 airbags only, 10.25-inch cluster, 8-inch screen with wireless Android Auto/Apple CarPlay, heated and ventilated seats and a sunroof. Hyundai Nishat's spec page says '4 persons'; PakNEV and Hyundai's global spec give 5, used here. No manufacturer 0-100 or top-speed figures. Warranty: vehicle 4 years / 100,000 km, hybrid system 8 years / 160,000 km. Sources: https://hyundai-nishat.com/elantra-hybrid-specification/, https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-ELANTRA-Hybrid-HNMPL.pdf, https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut (checked 2026-11-02).",
+        "source": "https://hyundai-nishat.com/elantra-hybrid/",
+        "note": "Notes rewritten: removed the stale 'warranty not stated' line, added the price basis after the September 2026 tax cut. Price unchanged (site header still 'From PKR 10,761,000' on 2026-11-02)."
+      }
+    },
+    "conflicts": []
+  },
+  "hyundai-tucson-hybrid": {
+    "corrections": {
+      "variant": {
+        "value": "Smart FWD / Signature AWD",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-TUCSON-Hybrid-HNMPL.pdf",
+        "note": "Two trims: 'TUCSON Hybrid Smart (FWD)' and 'TUCSON Hybrid Signature (AWD)'."
+      },
+      "notes": {
+        "value": "Fourth-generation Tucson (NX4) facelift in the long-wheelbase body (4,640 mm) sold in Pakistan, assembled by Hyundai Nishat in Faisalabad. Two trims: Smart FWD PKR 12,202,000 and Signature AWD PKR 13,300,000 ex-factory, the prices in force since the hybrid sales-tax cut from 25% to 18% on 13 September 2026 (previously PKR 12,926,000 and 14,101,000). Headline figures (Smart FWD, Hyundai Nishat spec page): Smartstream G1.6 T-GDi HEV, engine 178 hp / 265 Nm, PMSM motor 47.7 kW / 264 Nm, system 173 kW (232 hp) / 367 Nm, 6-speed automatic, 1.49 kWh lithium-ion battery (270 V), 52 L tank, 582-1,903 L boot, kerb 1,683-1,801 kg (lower figure used). Both trims get 12.3-inch twin curved screens, surround-view camera and Level-2 driver assistance; the Signature AWD adds HTRAC AWD with terrain modes, 19-inch wheels, head-up display, fingerprint start and a powered tailgate. No manufacturer 0-100 or top speed (PakNEV's 8.19 s / 220 km/h not used). Warranty: vehicle 4 years / 100,000 km (price list); hybrid battery 8 years / 160,000 km per PakNEV. Sources: https://hyundai-nishat.com/tucson-hybrid-specification/, https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-TUCSON-Hybrid-HNMPL.pdf, https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut (checked 2026-11-02).",
+        "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut",
+        "note": "Notes rewritten with both trims, the pre- and post-tax-cut prices and trim differences. Prices unchanged (site 'From PKR 12,202,000' on 2026-11-02)."
+      }
+    },
+    "conflicts": []
+  },
+  "hyundai-santa-fe-hybrid": {
+    "corrections": {
+      "variant": {
+        "value": "Smart FWD / Signature AWD",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-SANTA-FE-Hybrid-HNMPL.pdf",
+        "note": "Two trims: 'SANTA FE Smart' (1.6L Turbo Hybrid FWD) and 'SANTA FE Signature' (AWD)."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.33–1.47 Cr",
+        "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut",
+        "note": "'(promo)' dropped: PKR 13,258,000 / 14,720,000 were the 'discounted' prices on the August list and are now the standing prices after the 13 September 2026 tax cut (PakNEV table: 14,574,000 -> 13,258,000 and 16,123,000 -> 14,720,000); hyundai-nishat.com shows 'From PKR 13,258,000' on 2026-11-02."
+      },
+      "notes": {
+        "value": "The Santa Fe Hyundai Nishat sells is the Santa Fe Hybrid, the fourth-generation (TM) facelift assembled in Faisalabad, not the boxy fifth-generation MX5 sold abroad since 2023. Two trims: Smart FWD PKR 13,258,000 and Signature AWD PKR 14,720,000 ex-factory, in force since the hybrid sales-tax cut to 18% on 13 September 2026 (list prices before were PKR 14,574,000 and 16,123,000). Headline Smart FWD (Hyundai Nishat spec page): Smartstream 1.6 T-GDi HEV, 169 kW (227 hp) / 350 Nm combined, 6-speed automatic, 4,785 x 1,900 x 1,710 mm, wheelbase 2,765 mm, ground clearance 176 mm, kerb 1,780-1,918 kg, luggage 782 L (max), 7 seats, full-size alloy spare. Signature AWD adds HTRAC with terrain modes, head-up display, surround-view camera, blind-spot warnings, Harman Kardon audio, ventilated seats and 3rd-row A/C; kerb 1,845-1,983 kg. Battery 1.49 kWh is from PakNEV (Hyundai Nishat does not state it). No manufacturer 0-100 or top speed (PakNEV's 8.9 s / 190 km/h not used). Warranty: vehicle 4 years / 100,000 km (price list); hybrid battery 8 years / 160,000 km per PakNEV. Sources: https://hyundai-nishat.com/santa-fe-specification/, https://hyundai-nishat.com/wp-content/uploads/2026/08/Price-List-SANTA-FE-Hybrid-HNMPL.pdf, https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut (checked 2026-11-02).",
+        "source": "https://paknev.com/news/hybrid-car-prices-pakistan-18-percent-tax-cut",
+        "note": "Notes rewritten: price basis is now the standing post-tax-cut price, not a promo."
+      }
+    },
+    "conflicts": []
+  },
+  "hyundai-palisade-hybrid": {
+    "corrections": {
+      "variant": {
+        "value": "Smart / Calligraphy",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2026/09/Price-List-PALISADE-Hybrid-Launch.pdf",
+        "note": "Launch list: 'Palisade Hybrid Smart 8 Seater' PKR 22,625,000/- and 'Palisade Hybrid Calligraphy 7 Seater' PKR 24,075,000/-, both 2.5 Turbo Hybrid AWD."
+      }
+    },
+    "conflicts": []
+  },
+  "hyundai-ioniq-5": {
+    "corrections": {
+      "variant": {
+        "value": "Smart / Signature",
+        "source": "https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf",
+        "note": "IONIQ 5 trims: Smart PKR 22,500,000, Signature PKR 24,999,000 (still 'From PKR 22,500,000' on hyundai-nishat.com, 2026-11-02)."
+      },
+      "bootCapacityL": {
+        "value": 770,
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Luggage Compartment Capacity (Ltr.): '770'. No seats-up/down basis stated."
+      },
+      "realWorldRange": {
+        "value": 368,
+        "source": "https://paknev.com/cars/hyundai-ioniq-5",
+        "note": "PakNEV real-world estimate 368 km (estimate)."
+      },
+      "consumption": {
+        "value": 19,
+        "source": "https://paknev.com/cars/hyundai-ioniq-5",
+        "note": "PakNEV: 19 kWh/100 km (estimate)."
+      },
+      "notes": {
+        "value": "Hyundai Ioniq 5 sold by Hyundai Nishat Motor in two trims: Smart PKR 22,500,000 and Signature PKR 24,999,000 ex-factory. Hyundai Nishat publishes one specification for the Pakistan car: dual-motor AWD, 239 kW (305 PS) / 605 Nm, 84 kWh lithium-ion battery at 653 V, range 'up to 500 km' (no test cycle named), 4,635 x 1,890 x 1,605 mm, wheelbase 3,000 mm, ground clearance 170 mm, kerb 2,020-2,100 kg, 770 L luggage, 20-inch wheels, panoramic sunroof, Bose audio, surround-view camera, vehicle-to-load and a 180 W outlet. Its 800-volt system accepts up to 232 kW DC, far more than any public charger in Pakistan currently supplies. PakNEV lists the Smart with a 72.6 kWh battery and the Signature with 84 kWh, which the distributor's spec page does not show; the distributor's 84 kWh is used. Acceleration and top speed are not published by Hyundai Nishat (PakNEV 5.2 s / 185 km/h). Real-world range 368 km and 19 kWh/100 km are PakNEV estimates. Warranty: vehicle 4 years / 100,000 km, battery 4 years (price list). Sources: https://hyundai-nishat.com/ioniq-5-specification/, https://hyundai-nishat.com/wp-content/uploads/2025/11/IONIQ-5-and-6-Price-List.pdf, https://paknev.com/cars/hyundai-ioniq-5 (checked 2026-11-02).",
+        "source": "https://hyundai-nishat.com/ioniq-5-specification/",
+        "note": "Notes were a single line; rewritten with trims, prices and specs."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 84,
+        "found": "72.6 (Smart) / 84 (Signature)",
+        "source": "https://paknev.com/cars/hyundai-ioniq-5",
+        "note": "PakNEV splits the battery by trim; Hyundai Nishat's spec page shows one 84 kWh AWD spec with no trim split. Kept 84; owner may want to confirm with Hyundai Nishat whether the Smart is the 84 kWh AWD car."
+      },
+      {
+        "column": "acceleration / topSpeed",
+        "current": "7.4 / 180",
+        "found": "5.2 / 185",
+        "source": "https://paknev.com/cars/hyundai-ioniq-5",
+        "note": "Neither figure is published by Hyundai Nishat; the DB values have no source. Owner may want to clear them or take PakNEV's."
+      }
+    ]
+  },
+  "kia-ev5": {
+    "corrections": {
+      "variant": {
+        "value": "Air / Earth",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Spec sheet columns 'Air' and 'Earth'; price list 'EV5 Air (Short Range-FWD)' / 'EV5 Earth (Long Range-AWD)'."
+      },
+      "priceMin": {
+        "value": 16850000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Kia Lucky Motor live price list (getKiaLivePrice, read 2026-11-02): 'EV5 Air (Short Range-FWD)' 16,850,000. Gari.pk (7 Sep 2026, https://www.gari.pk/news/kia-ev9-and-ev5-get-huge-price-cuts-in-pakistan-5521/) reports it as a limited-time cut from 18,500,000."
+      },
+      "priceMax": {
+        "value": 21850000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "'EV5 Earth (Long Range-AWD)' 21,850,000 (was 23,500,000)."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.69–2.19 Cr (limited time)",
+        "source": "https://www.gari.pk/news/kia-ev9-and-ev5-get-huge-price-cuts-in-pakistan-5521/",
+        "note": "Kia calls the Rs 1.65 million cut a 'limited-time price reduction'; no end date given; still on Kia's price list on 2026-11-02."
+      },
+      "range": {
+        "value": 400,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Spec sheet: All Electric Range WLTP Air 400 km / Earth 500 km (NEDC 490 / 620). WLTP used instead of NEDC as the more realistic cycle the distributor also prints."
+      },
+      "rangeMax": {
+        "value": 500,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Earth WLTP 500 km."
+      },
+      "rangeStandard": {
+        "value": "WLTP",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Range figures now WLTP."
+      },
+      "realWorldRange": {
+        "value": 344,
+        "source": "https://paknev.com/cars/kia-ev5",
+        "note": "PakNEV real-world estimate, Air: 344 km."
+      },
+      "realWorldRangeMax": {
+        "value": 435,
+        "source": "https://paknev.com/cars/kia-ev5",
+        "note": "PakNEV real-world estimate, Earth: 435 km."
+      },
+      "consumption": {
+        "value": 16.1,
+        "source": "https://paknev.com/cars/kia-ev5",
+        "note": "PakNEV, Air: 16.1 kWh/100 km (estimate)."
+      },
+      "availability": {
+        "value": "Sold new in Pakistan by Lucky Motor Corporation (Kia) in Air (FWD) and Earth (AWD) trims; limited-time price cut since September 2026.",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Replaces the unsourced 'reported as CKD local assembly' line."
+      },
+      "notes": {
+        "value": "Kia EV5 sold by Lucky Motor Corporation in two trims, both on lithium iron phosphate batteries. Air: 64.2 kWh, front motor 160 kW (215 hp) / 310 Nm, FWD, 0-100 km/h 8.5 s, WLTP 400 km (NEDC 490), 18-inch wheels, PKR 16,850,000. Earth: 88.1 kWh, front + rear motors 230 kW / 480 Nm, AWD, 0-100 km/h 6.1 s, WLTP 500 km (NEDC 620), 19-inch wheels, PKR 21,850,000. Both prices are a limited-time cut of Rs 1.65 million announced in September 2026 (from PKR 18,500,000 and 23,500,000), still listed by Kia on 2 November 2026. Headline battery, power, range and price are the Air's; rangeMax is the Earth's. Common: top speed 185 km/h, 4,615 x 1,875 x 1,715 mm, wheelbase 2,750 mm, 513 L boot (1,714 L seats down) plus a 67 L frunk, panoramic sunroof, six airbags, vehicle-to-load. Only the Earth gets the ADAS suite (smart cruise, lane keeping, blind-spot avoidance, surround view), head-up display and massaging power seats. DC about 102 kW on the Air (PakNEV, 10-80% about 36 min); AC on-board charger power is not printed on Kia's sheet. Real-world range 344 km (Air) / 435 km (Earth) and 16.1 kWh/100 km are PakNEV estimates. Warranty 4 years / 100,000 km (spec sheet; no separate battery term printed). Sources: https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf, https://kia-luckymotorcorp.com/shopping-tools/price-list/, https://www.gari.pk/news/kia-ev9-and-ev5-get-huge-price-cuts-in-pakistan-5521/, https://paknev.com/cars/kia-ev5 (checked 2026-11-02).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Notes rewritten: new prices, WLTP ranges, settled torque/warranty, trim differences."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "acCharging",
+        "current": 7,
+        "found": 11,
+        "source": "https://paknev.com/cars/kia-ev5",
+        "note": "PakNEV says 11 kW AC for the Air; Kia's sheet does not print OBC power. DB 7 kW (and acChargingHours 10) left as is, unsourced; owner to decide."
+      },
+      {
+        "column": "kerbWeightKg",
+        "current": 1870,
+        "found": null,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV5-Specification-sheet_Final.pdf",
+        "note": "Kia's sheet does not print kerb weight; DB 1,870 kg is unsourced."
+      }
+    ]
+  },
+  "kia-ev9-gt-line": {
+    "corrections": {
+      "variant": {
+        "value": null,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Only one trim, 'EV9 GT LINE', and fullName already reads 'KIA EV9 GT-Line'; variant cleared so the site does not print GT-Line twice."
+      },
+      "priceMin": {
+        "value": 38650000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Kia Lucky Motor live price list (read 2026-11-02): 'EV9 GT LINE' 38,650,000. Gari.pk (7 Sep 2026) reports a limited-time cut of Rs 4.55 million from 43,200,000."
+      },
+      "priceMax": {
+        "value": 38650000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Single trim."
+      },
+      "priceDisplay": {
+        "value": "PKR 3.87 Cr (limited time)",
+        "source": "https://www.gari.pk/news/kia-ev9-and-ev5-get-huge-price-cuts-in-pakistan-5521/",
+        "note": "'Limited-time price reduction', no end date; still listed 2026-11-02."
+      },
+      "range": {
+        "value": 505,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "Kia Lucky Motor EV9-GT Line spec sheet: All Electric Range (AER in km) - WLTP 505. DB 561 had no named cycle but was labelled WLTP."
+      },
+      "realWorldRange": {
+        "value": 432,
+        "source": "https://paknev.com/cars/kia-ev9",
+        "note": "PakNEV real-world estimate 432 km."
+      },
+      "notes": {
+        "value": "Kia EV9 GT-Line, the only EV9 Lucky Motor Corporation sells, at PKR 38,650,000 ex-factory: a limited-time cut of Rs 4.55 million announced in September 2026 (from PKR 43,200,000), still listed on 2 November 2026. Kia Lucky Motor spec sheet: 99.8 kWh lithium-ion battery, dual-motor AWD 282.6 kW (141.3 kW front + rear) and 700 Nm, 0-100 km/h 5.3 s, top speed 200 km/h, 505 km WLTP, six seats with swivelling 2nd-row chairs, 21-inch wheels, 7 airbags. Charging: DC 10-80% in 24 min on a 350 kW charger (83 min on 50 kW); AC 10-100% in 9 h 45 min on 11 kW. CCS2 for DC and Type 2 for AC. 5,015 x 1,980 x 1,780 mm, wheelbase 3,100 mm, ground clearance 177 mm, 52 L front boot (no rear boot volume printed); kerb about 2,670 kg (not on the Kia sheet). Real-world range about 432 km is a PakNEV estimate. Kia's sheet prints power only in kW; the 398 hp shown has no Kia source (PakNEV says 426 hp). Warranty 4 years / 100,000 km. Sources: https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf, https://kia-luckymotorcorp.com/shopping-tools/price-list/, https://www.gari.pk/news/kia-ev9-and-ev5-get-huge-price-cuts-in-pakistan-5521/, https://paknev.com/cars/kia-ev9 (checked 2026-11-02).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "Notes rewritten with the new price and settled WLTP range."
+      },
+      "seats": {
+        "value": 6,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "Spec sheet: No. of Seats 6 (2nd-row swivel captain seats). PakNEV also says 6."
+      },
+      "bootCapacityL": {
+        "value": null,
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "The 52 L in the DB is the front boot: the sheet lists 'Frunk (Capacity in L) 52'. No rear boot volume is printed, so cleared."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km (Kia Lucky Motor EV9 spec sheet).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "Cover badge: 4 YEARS WARRANTY 100,000* KM. No separate battery term printed. Replaces 'Not publicly confirmed'."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "power",
+        "current": 398,
+        "found": 426,
+        "source": "https://paknev.com/cars/kia-ev9",
+        "note": "PakNEV 426 hp vs DB 398 hp. Kia's spec sheet gives 282.6 kW only (no hp/PS), so neither hp figure is from Kia; owner may want to keep 398 or clear power."
+      },
+      {
+        "column": "consumption",
+        "current": 20.2,
+        "found": 22.8,
+        "source": "https://paknev.com/cars/kia-ev9",
+        "note": "PakNEV estimate 22.8 kWh/100 km; DB 20.2 is an unsourced official-style figure. Left."
+      },
+      {
+        "column": "dcCharging",
+        "current": 210,
+        "found": "350 kW charger / 318 kW battery power",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/11/EV9-Specification-sheet_Final.pdf",
+        "note": "Kia sheet quotes 24 min 10-80% with a 350 kW EVSE (max 310 A) and battery power 318 kW, not a 210 kW peak. DB 210 kW left; unsourced."
+      }
+    ]
+  },
+  "kia-sorento-hev": {
+    "corrections": {
+      "variant": {
+        "value": "FWD / AWD",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "'Sorento 1.6L Turbo Hybrid FWD' and 'Sorento 1.6L Turbo Hybrid AWD'."
+      },
+      "priceMin": {
+        "value": 15499000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Kia live price list (read 2026-11-02), Ex-Factory Price (Cash): HEV FWD 15,499,000. Limited-time offer from 7 Oct 2026 (was 16,299,000): https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/"
+      },
+      "priceMax": {
+        "value": 15499000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "HEV AWD cash price also 15,499,000 on Kia's list (was 17,899,000); Gari.pk and other outlets report the same, so both HEV trims now cost the same."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.55 Cr (limited time)",
+        "source": "https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/",
+        "note": "Limited-time offer effective 7 October 2026, no end date; V6 excluded."
+      },
+      "notes": {
+        "value": "Fourth-generation Sorento (MQ4), 4,815 mm body, sold by Lucky Motor Corporation as a 1.6 turbo hybrid in FWD and AWD trims (alongside a 3.5 V6 petrol and the PHEV). Under a limited-time offer from 7 October 2026 both hybrid trims cost PKR 15,499,000 ex-factory (cash), down from PKR 16,299,000 (FWD) and PKR 17,899,000 (AWD); the offer was still on Kia's price list on 2 November 2026. Kia Pakistan: SmartStream 1.6L Turbo Hybrid, 238 hp / 367 Nm, 6-speed automatic, 7 seats, 174 mm ground clearance, up to 1,996 L cargo. PakWheels (FWD): 4,815 x 1,900 x 1,700 mm, wheelbase 2,815 mm, kerb 1,909 kg, 67 L tank, 179 L boot with the third row up. Battery 1.49 kWh from PakNEV (Kia Pakistan does not state it). No manufacturer 0-100 or top speed (PakWheels/PakNEV 8.7 s / 180 km/h not used). Warranty: vehicle 4 years / 100,000 km, high-voltage battery 8 years / 160,000 km (Kia spec sheet). Sources: https://kia-luckymotorcorp.com/shopping-tools/price-list/, https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/, https://kia-luckymotorcorp.com/app/uploads/2025/05/Sorento-Brochure-Updated.pdf (checked 2026-11-02).",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Notes rewritten with the October 2026 offer prices."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km. High-voltage battery: 8 years / 160,000 km (Kia Lucky Motor spec sheet).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/05/Sorento-Brochure-Updated.pdf",
+        "note": "Spec sheet footer badges: 4 YEARS WARRANTY 100,000 KM and 8 YEARS HIGH VOLTAGE BATTERY WARRANTY 160,000 KM. Replaces the PakWheels/PakNEV citations."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMax",
+        "current": 17899000,
+        "found": "15,499,000 cash (Kia list) vs 16,699,000 'EMI price' field for the AWD",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Kia's price API gives the AWD HEV a cash price equal to the FWD (15,499,000) but an EMI price of 16,699,000 (FWD EMI 15,299,000). Press reports match the cash figure, which is what the page shows and is used; owner may want a dealer to confirm the AWD."
+      }
+    ]
+  },
+  "kia-sorento-phev": {
+    "corrections": {
+      "priceMin": {
+        "value": 16499000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Kia live price list (read 2026-11-02): 'Sorento 1.6L Turbo PHEV AWD' 16,499,000 cash. Limited-time offer from 7 Oct 2026, down from 18,999,000 (https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/)."
+      },
+      "priceMax": {
+        "value": 16499000,
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Single trim."
+      },
+      "priceDisplay": {
+        "value": "PKR 1.65 Cr (limited time)",
+        "source": "https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/",
+        "note": "Limited-time offer effective 7 October 2026, no end date."
+      },
+      "realWorldRange": {
+        "value": 57,
+        "source": "https://paknev.com/cars/kia-sorento-phev",
+        "note": "PakNEV real-world electric estimate 57 km."
+      },
+      "consumption": {
+        "value": 16.1,
+        "source": "https://paknev.com/cars/kia-sorento-phev",
+        "note": "PakNEV: 16.1 kWh/100 km in electric mode (estimate)."
+      },
+      "notes": {
+        "value": "Fourth-generation Sorento (MQ4) facelift, the first Korean plug-in hybrid sold in Pakistan (Lucky Motor Corporation, bookings from 31 July 2026), one trim: 1.6T AWD PHEV. Under a limited-time offer from 7 October 2026 it costs PKR 16,499,000 ex-factory (cash), down from PKR 18,999,000; still on Kia's list on 2 November 2026. Kia Lucky Motor spec sheet: 1.6L turbo PHEV, 249 hp / 367 Nm combined, 13.8 kWh lithium-ion battery (360 V), 3.3 kW on-board charger, 15-95% in 3 h 25 min, all-electric range 66 km (test standard not named; PakNEV calls it WLTP), 4,815 x 1,900 x 1,700 mm, wheelbase 2,815 mm, 176 mm ground clearance, 47 L tank, 7 seats, up to 1,996 L cargo. PakWheels: engine 177 hp / 261 Nm, kerb 2,210 kg (PakNEV 2,105 kg), 179 L boot with third row up. There is no DC fast charging (PakWheels' CCS2 entry is a template error); the AC inlet type is not stated by the distributor, so connector is not listed. Real-world electric range 57 km and 16.1 kWh/100 km are PakNEV estimates. Warranty: vehicle 4 years / 100,000 km, high-voltage battery 8 years / 160,000 km (Kia spec sheet). Sources: https://kia-luckymotorcorp.com/app/uploads/2025/05/Sorento-Brochure-Updated.pdf, https://kia-luckymotorcorp.com/shopping-tools/price-list/, https://www.gari.pk/news/kia-sorento-2026-gets-massive-price-cut-in-pakistan-5634/, https://paknev.com/cars/kia-sorento-phev (checked 2026-11-02).",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "Notes rewritten with the October 2026 offer price."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km. High-voltage battery: 8 years / 160,000 km (Kia Lucky Motor spec sheet).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2025/05/Sorento-Brochure-Updated.pdf",
+        "note": "Same Sorento MY26 spec sheet badges (4 years/100,000 km; 8 years/160,000 km high-voltage battery)."
+      }
+    },
+    "conflicts": []
+  },
+  "kia-sportage-l-hybrid": {
+    "corrections": {
+      "variant": {
+        "value": "FWD / AWD",
+        "source": "https://kia-luckymotorcorp.com/shopping-tools/price-list/",
+        "note": "'SPORTAGE L 1.6L Turbo Hybrid FWD' 12,199,000 and 'SPORTAGE L 1.6L Turbo Hybrid AWD' 13,299,000 on Kia's live price list (2026-11-02); prices unchanged since August 2026."
+      },
+      "warranty": {
+        "value": "Vehicle: 4 years / 100,000 km. High-voltage battery: 8 years / 160,000 km (Kia Lucky Motor Sportage L brochure).",
+        "source": "https://kia-luckymotorcorp.com/app/uploads/2026/07/The-All-New-Sportage-L-Brochure.pdf",
+        "note": "Brochure spec-sheet badges: 4 YEARS WARRANTY 100,000 KM and 8 YEARS HIGH VOLTAGE BATTERY WARRANTY 160,000 KM. Replaces the per-PakNEV text."
+      }
+    },
+    "conflicts": []
+  }
+}

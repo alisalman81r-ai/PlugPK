@@ -1,0 +1,198 @@
+{
+  "honda-hr-v-ehev": {
+    "trim": "e:HEV (single trim)",
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "ABS with EBD, stability control and traction control",
+        "Hill start assist and hill descent control",
+        "Rear seat reminder and seatbelt reminders for all seats"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Honda Sensing: collision mitigation braking",
+        "Adaptive cruise control with low-speed follow",
+        "Lane keep assist and road departure mitigation",
+        "Auto high beam and lead car departure notification"
+      ],
+      "Parking": [
+        "Multi-angle reversing camera with fixed guidelines",
+        "No 360° camera"
+      ],
+      "Powertrain & Charging": [
+        "Two-motor e:HEV self-charging hybrid, 96 kW / 253 Nm drive motor",
+        "Electronic parking brake with auto hold"
+      ],
+      "Infotainment & Connectivity": [
+        "9-inch touchscreen with Apple CarPlay and Android Auto",
+        "7-inch digital driver display",
+        "6-speaker audio"
+      ],
+      "Seats & Interior": [
+        "Perforated leather upholstery, manually adjusted front seats",
+        "Leather-wrapped steering wheel and gear knob",
+        "60:40 split rear seat that folds flat"
+      ],
+      "Comfort & Convenience": [
+        "Single-zone automatic climate control with rear vents",
+        "Wireless phone charger",
+        "Two USB-C ports for rear passengers",
+        "Power tailgate with kick sensor",
+        "Smart keyless entry, push-button start and walk-away lock"
+      ],
+      "Exterior & Lighting": [
+        "LED headlights with LED daytime running lights",
+        "Full-width rear LED light strip",
+        "18-inch machined alloy wheels",
+        "No sunroof",
+        "Puncture repair kit instead of a spare wheel (battery sits under the floor)"
+      ]
+    },
+    "sources": [
+      "https://www.pakwheels.com/blog/?p=211989",
+      "https://paknev.com/cars/honda-hr-v-e-hev"
+    ],
+    "checked": "2026-11-03"
+  },
+  "toyota-corolla-cross-hev": {
+    "trim": "HEV, with HEV X additions marked",
+    "groups": {
+      "Safety": [
+        "Seven airbags including a driver knee airbag",
+        "ABS, EBD and brake assist",
+        "Stability control, traction control and hill start assist",
+        "ISOFIX child seat anchors",
+        "Immobiliser with alarm"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Cruise control",
+        "HEV X: blind spot monitor",
+        "HEV X: rear cross-traffic alert"
+      ],
+      "Parking": [
+        "Reversing camera",
+        "Front (2) and rear (4) parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "1.8-litre self-charging hybrid with e-CVT",
+        "EV, Eco and Power drive modes",
+        "Regenerative braking"
+      ],
+      "Infotainment & Connectivity": [
+        "7-inch touchscreen (HEV X: 9-inch floating display)",
+        "Wireless Apple CarPlay and Android Auto, energy monitor",
+        "6 speakers",
+        "Colour driver display, 4.2-inch (HEV X: 7-inch)",
+        "Two fast USB-C ports for rear passengers"
+      ],
+      "Seats & Interior": [
+        "Fabric seats with manual adjustment",
+        "HEV X: leather seats with 6-way powered driver seat",
+        "Leather steering wheel with audio, phone and cruise switches",
+        "Rear armrest with cupholders"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone automatic climate control with rear vents",
+        "Smart entry and push-button start",
+        "HEV X: power tailgate with kick sensor",
+        "HEV X: auto-dimming rear-view mirror",
+        "HEV X: rain-sensing wipers"
+      ],
+      "Exterior & Lighting": [
+        "Bi-beam LED headlights with daytime running lights and automatic lights",
+        "LED fog lamps and LED rear lamps",
+        "Power-folding mirrors with indicators",
+        "17-inch alloy wheels",
+        "HEV X: moonroof",
+        "HEV X: black roof rails"
+      ]
+    },
+    "sources": [
+      "https://toyota-indus.com/wp-content/uploads/2024/03/Specs-Sheet-Final-4-Variants-CP-YQ.pdf",
+      "https://toyota-indus.com/corolla-cross/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "honri-ve-2": {
+    "groups": {
+      "Safety": [
+        "Driver and passenger airbags",
+        "ABS with EBD",
+        "Tyre pressure monitoring",
+        "ISOFIX child seat anchors",
+        "Pedestrian warning sound"
+      ],
+      "Parking": [
+        "Reversing camera",
+        "Rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "18.5 kWh battery, 3.3 kW AC charging through a Type 2 inlet",
+        "Regenerative braking",
+        "Eco and Sport drive modes",
+        "Rotary gear selector"
+      ],
+      "Infotainment & Connectivity": [
+        "10.25-inch floating Android touchscreen with Bluetooth and USB",
+        "5-inch colour instrument display"
+      ],
+      "Seats & Interior": [
+        "Two-tone interior",
+        "Manually adjusted front seats"
+      ],
+      "Comfort & Convenience": [
+        "Manual air conditioning",
+        "Power windows with auto-down",
+        "Remote central locking"
+      ],
+      "Exterior & Lighting": [
+        "LED daytime running lights",
+        "Halogen projector headlights with height adjustment",
+        "Two-tone mirrors with built-in indicators",
+        "15-inch alloy wheels"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/honri-ve-2-0",
+      "https://www.pakwheels.com/new-cars/honri/ve/2-0--8/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "nora-ev": {
+    "trim": "All E-30 versions (same equipment)",
+    "groups": {
+      "Safety": [
+        "Anti-theft alarm and electronic lock"
+      ],
+      "Parking": [
+        "Reversing camera"
+      ],
+      "Powertrain & Charging": [
+        "LFP battery, 9.1 kWh (Eco) or 15.1 kWh (Eco+)",
+        "REEV versions: small petrol range extender with a 3-litre tank",
+        "2.2 kW AC charging, 6–8 hours to full"
+      ],
+      "Infotainment & Connectivity": [
+        "Android touchscreen with Bluetooth",
+        "USB port"
+      ],
+      "Seats & Interior": [
+        "Four seats"
+      ],
+      "Comfort & Convenience": [
+        "Air conditioner and heater",
+        "Power windows",
+        "Remote keyless entry with central locking"
+      ],
+      "Exterior & Lighting": [
+        "Roof rails",
+        "Alloy wheels",
+        "Spare wheel mounted on the tailgate"
+      ]
+    },
+    "sources": [
+      "https://paknev.com/cars/nora-ev-e-30",
+      "https://www.pakwheels.com/blog/nora-ev-price-out/"
+    ],
+    "checked": "2026-11-03"
+  }
+}

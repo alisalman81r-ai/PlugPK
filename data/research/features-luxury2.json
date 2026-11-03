@@ -1,0 +1,324 @@
+{
+  "mercedes-glc-eq": {
+    "trim": "GLC 300 4MATIC (the only version sold)",
+    "groups": {
+      "Safety": [
+        "Airbags with advanced (adaptive) airbag system",
+        "Autonomous emergency braking with collision detection",
+        "Driver attention warning and door-opening warning",
+        "ISOFIX child-seat anchors"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control with speed limiter",
+        "Lane keep assist and lane departure warning",
+        "Blind-spot detection",
+        "Rear cross-traffic alert with automatic braking"
+      ],
+      "Parking": [
+        "360-degree camera with front and rear cameras",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Dual-motor all-wheel drive, 310 kW (421 hp) and 800 Nm",
+        "800-volt battery with DC fast charging, CCS2",
+        "AIRMATIC air suspension and rear-axle steering",
+        "Selectable driving modes and auto brake hold"
+      ],
+      "Infotainment & Connectivity": [
+        "Fourth-generation MBUX on the MB.OS software platform, with over-the-air updates",
+        "15.6-inch central touchscreen and digital driver display",
+        "Head-up display",
+        "Wireless Apple CarPlay and Android Auto, navigation and voice control",
+        "12-speaker audio"
+      ],
+      "Seats & Interior": [
+        "Leather upholstery",
+        "Electrically adjustable front seats with driver memory and lumbar support",
+        "Heated and ventilated front seats"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with rear vents and an air purifier",
+        "Wireless phone charger",
+        "Keyless entry with NFC card key and push-button start",
+        "Power tailgate and a 128-litre front trunk"
+      ],
+      "Exterior & Lighting": [
+        "Illuminated grille with LED headlights and daytime running lights",
+        "Panoramic glass roof",
+        "Rain-sensing wipers and automatic headlights",
+        "Heated, power-folding mirrors"
+      ]
+    },
+    "sources": [
+      "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+      "https://pkrevenue.com/mercedes-pakistan-launches-electric-glc-300-4matic-suv-price-revealed/",
+      "https://shahnawazltd-mercedesbenz.com/glc-electric/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mercedes-g580-eq": {
+    "groups": {
+      "Powertrain & Charging": [
+        "Four electric motors, one per wheel, 432 kW (587 hp) and 1,164 Nm",
+        "Torque vectoring",
+        "Switchable low range that retunes damping, throttle and steering",
+        "Adaptive damping as standard",
+        "Battery shielded by a carbon-fibre-reinforced underbody guard"
+      ],
+      "Driver Assistance (ADAS)": [
+        "G-TURN: the car can rotate on the spot on loose ground",
+        "G-STEERING: tighter turning circle off-road",
+        "Off-road crawl function with three speed levels",
+        "Wading depth up to 850 mm"
+      ],
+      "Exterior & Lighting": [
+        "Ladder-frame body with EQ-specific rigid rear axle",
+        "Raised bonnet and air curtains in the rear wheel-arch flares"
+      ]
+    },
+    "sources": [
+      "https://shahnawazltd-mercedesbenz.com/electric-g-class/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mercedes-eqs": {
+    "trim": "EQS 450+ (the only version Shahnawaz lists)",
+    "groups": {
+      "Infotainment & Connectivity": [
+        "MBUX Hyperscreen: driver display, OLED central screen and OLED passenger screen under one glass panel",
+        "MBUX multimedia system"
+      ],
+      "Seats & Interior": [
+        "Floating centre console between the front seats",
+        "Ambient lighting linked to the driver-assistance systems",
+        "Illuminated door panels",
+        "Touch-sensitive seat controls in the doors and on the steering wheel"
+      ],
+      "Powertrain & Charging": [
+        "Rear motor, 300 kW (408 hp) and 505 Nm",
+        "800-volt battery, CCS2 DC fast charging"
+      ]
+    },
+    "sources": [
+      "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-eqs-sedan/",
+      "https://shahnawazltd-mercedesbenz.com/eqs-sedan/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mercedes-eqs-suv": {
+    "trim": "EQS 450 4MATIC SUV as shown by Shahnawaz; optional items marked",
+    "groups": {
+      "Powertrain & Charging": [
+        "AIRMATIC air suspension, can be raised by up to 25 mm",
+        "Towing up to 1,800 kg with trailer stability control (750 kg for the 450+)"
+      ],
+      "Infotainment & Connectivity": [
+        "Optional: MBUX Hyperscreen with OLED central and passenger screens"
+      ],
+      "Seats & Interior": [
+        "Floating centre console",
+        "Active ambient lighting",
+        "Touch-sensitive steering-wheel and seat controls",
+        "Optional: AMG Line interior with AMG sports seats and nappa steering wheel"
+      ],
+      "Exterior & Lighting": [
+        "DIGITAL LIGHT headlights with over 1.3 million pixels each",
+        "20-inch alloy wheels (21-inch AMG wheels optional)",
+        "Optional: illuminated running boards, AMG Line and Night packages"
+      ]
+    },
+    "sources": [
+      "https://shahnawazltd-mercedesbenz.com/eqs-suv-3/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mercedes-eqa": {
+    "trim": "EQA 250+ Progressive Line",
+    "groups": {
+      "Parking": [
+        "Reversing camera hidden behind the Mercedes star"
+      ],
+      "Infotainment & Connectivity": [
+        "MBUX multimedia system with a high-resolution central screen"
+      ],
+      "Seats & Interior": [
+        "Man-made leather and fabric upholstery",
+        "Comfort seats with wide adjustment",
+        "Ambient lighting with 64 colours",
+        "Leather sports steering wheel"
+      ],
+      "Exterior & Lighting": [
+        "LED High Performance headlights",
+        "18-inch aerodynamic alloy wheels",
+        "Integrated roof rails and aluminium window trim"
+      ]
+    },
+    "sources": [
+      "https://shahnawazltd-mercedesbenz.com/eqa/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mercedes-eqb": {
+    "trim": "EQB 250+ Progressive Line",
+    "groups": {
+      "Infotainment & Connectivity": [
+        "MBUX multimedia system with a high-resolution central screen"
+      ],
+      "Seats & Interior": [
+        "Man-made leather and fabric upholstery",
+        "Comfort seats with wide adjustment",
+        "Ambient lighting with 64 colours",
+        "Leather sports steering wheel",
+        "Optional third seat row (up to seven seats)"
+      ],
+      "Exterior & Lighting": [
+        "LED headlights with front and rear light strips",
+        "18-inch alloy wheels",
+        "Roof rails"
+      ]
+    },
+    "sources": [
+      "https://shahnawazltd-mercedesbenz.com/eqb/"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mini-cooper-electric": {
+    "trim": "E and SE, both with the Premium package",
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "Autonomous emergency braking"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control",
+        "Lane keep assist and lane departure warning",
+        "Blind-spot detection"
+      ],
+      "Parking": [
+        "360-degree camera",
+        "Front and rear parking sensors"
+      ],
+      "Infotainment & Connectivity": [
+        "Round OLED central touchscreen running MINI Operating System 9",
+        "Head-up display",
+        "Apple CarPlay and Android Auto, navigation and voice control",
+        "Harman Kardon sound system"
+      ],
+      "Seats & Interior": [
+        "Synthetic leather upholstery",
+        "Heated front seats",
+        "Ambient lighting projected on the dashboard"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control",
+        "Keyless entry and push-button start",
+        "Selectable driving modes"
+      ],
+      "Exterior & Lighting": [
+        "Round LED headlights with three selectable light signatures",
+        "18-inch John Cooper Works alloy wheels",
+        "Panoramic glass roof"
+      ]
+    },
+    "sources": [
+      "https://www.pakwheels.com/new-cars/mini/cooper/e--14/",
+      "https://www.pakwheels.com/blog/first-look-review-minis-new-cooper-aceman-and-countryman-in-pakistan/",
+      "https://paknev.com/cars/mini-cooper-electric"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mini-aceman": {
+    "trim": "E and SE, both with the Premium package",
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "Autonomous emergency braking"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Lane keep assist and lane departure warning",
+        "Cruise control with speed limiter"
+      ],
+      "Parking": [
+        "360-degree camera",
+        "Front and rear parking sensors"
+      ],
+      "Infotainment & Connectivity": [
+        "Round OLED central touchscreen running MINI Operating System 9",
+        "Wireless Apple CarPlay and Android Auto, navigation and voice assistant"
+      ],
+      "Seats & Interior": [
+        "Synthetic leather upholstery",
+        "Heated front seats",
+        "Ambient lighting"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with rear vents",
+        "Keyless entry and push-button start",
+        "Power tailgate"
+      ],
+      "Exterior & Lighting": [
+        "LED headlights and daytime running lights",
+        "Panoramic glass roof",
+        "Roof rails"
+      ]
+    },
+    "sources": [
+      "https://www.pakwheels.com/new-cars/mini/aceman/e--13/",
+      "https://www.pakwheels.com/blog/first-look-review-minis-new-cooper-aceman-and-countryman-in-pakistan/",
+      "https://paknev.com/cars/mini-aceman"
+    ],
+    "checked": "2026-11-03"
+  },
+  "mini-countryman-electric": {
+    "trim": "E; SE ALL4 additions marked",
+    "groups": {
+      "Safety": [
+        "Six airbags",
+        "Autonomous emergency braking"
+      ],
+      "Driver Assistance (ADAS)": [
+        "Adaptive cruise control",
+        "Lane keep assist and lane departure warning",
+        "Blind-spot detection"
+      ],
+      "Parking": [
+        "360-degree camera",
+        "Front and rear parking sensors"
+      ],
+      "Powertrain & Charging": [
+        "Single front motor, 150 kW (204 hp)",
+        "SE ALL4: dual-motor all-wheel drive, 494 Nm",
+        "130 kW DC fast charging",
+        "Complimentary 11 kW home charger with installation"
+      ],
+      "Infotainment & Connectivity": [
+        "Round OLED central touchscreen running MINI Operating System 9",
+        "Head-up display",
+        "Wireless Apple CarPlay and Android Auto, navigation and voice control",
+        "12-speaker audio"
+      ],
+      "Seats & Interior": [
+        "Electrically adjustable, heated front seats with lumbar support",
+        "Knitted recycled-fabric dashboard"
+      ],
+      "Comfort & Convenience": [
+        "Dual-zone climate control with rear vents",
+        "Wireless phone charger",
+        "Hands-free power tailgate",
+        "Keyless entry and push-button start"
+      ],
+      "Exterior & Lighting": [
+        "LED headlights with signature daytime running lights",
+        "Panoramic glass roof",
+        "Roof rails"
+      ]
+    },
+    "sources": [
+      "https://www.pakwheels.com/new-cars/mini/countryman/e--12/",
+      "https://www.pakwheels.com/new-cars/mini/countryman/se/",
+      "https://www.pakwheels.com/blog/mini-countryman-se-specs-features-pakistan/",
+      "https://paknev.com/cars/mini-countryman-electric"
+    ],
+    "checked": "2026-11-03"
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "honda-hr-v-ehev": {
+    "corrections": {
+      "priceDisplay": {
+        "value": "PKR 92.99 Lakh (limited time)",
+        "source": "https://propakistani.pk/2026/09/25/honda-reduces-prices-of-2-hr-v-variants/",
+        "note": "Honda Atlas cut the HR-V e:HEV from PKR 10,369,000 to PKR 9,299,000 after SRO 1525(I)/2026, for orders invoiced from 25 Sept 2026; Honda says the price applies 'for a limited time and limited stocks' (also TechJuice, PakNEV). '(promo)' is not an allowed suffix."
+      },
+      "acceleration": {
+        "value": 10.7,
+        "source": "https://paknev.com/cars/honda-hr-v-e-hev",
+        "note": "PakNEV: 0–100 km/h 10.7 s (Honda Atlas does not publish one)."
+      },
+      "topSpeed": {
+        "value": 170,
+        "source": "https://paknev.com/cars/honda-hr-v-e-hev",
+        "note": "PakNEV: 170 km/h."
+      },
+      "bootCapacityL": {
+        "value": 319,
+        "source": "https://paknev.com/cars/honda-hr-v-e-hev",
+        "note": "PakNEV: 319 L (PakWheels catalogue also 319 L)."
+      },
+      "kerbWeightKg": {
+        "value": 1380,
+        "source": "https://paknev.com/cars/honda-hr-v-e-hev",
+        "note": "PakNEV: 1,380 kg (PakWheels catalogue also 1,380 kg)."
+      },
+      "notes": {
+        "value": "Third-generation HR-V with Honda's two-motor e:HEV hybrid, assembled and sold by Honda Atlas as the top HR-V version (single trim). Honda Atlas brochure: 1,498 cc DOHC i-VTEC engine 78 kW (105 hp) / 127 Nm, drive motor 96 kW (131 PS) / 253 Nm, e-CVT, lithium-ion battery, 4,361 × 1,790 × 1,591 mm, 2,610 mm wheelbase, 196 mm ground clearance, 5 seats, 40 L tank, 18-inch wheels; power 129 is the motor's output. PakNEV gives 0–100 km/h 10.7 s, 170 km/h, 319 L boot and 1,380 kg (not published by Honda Atlas; PakNEV lists the length as 4,385 mm). Equipment: 6 airbags, Honda Sensing (collision mitigation braking, lane keep assist, road departure mitigation, adaptive cruise, auto high beam, lead car departure notification), 9-inch touchscreen with Apple CarPlay/Android Auto, 7-inch digital cluster, perforated leather seats, wireless charger, power tailgate with kick sensor; no sunroof and no 360° camera (PakWheels first look). Price: launched at PKR 8,999,000 (July 2025), raised to PKR 10,369,000 on 1 July 2026 when the hybrid sales-tax concession lapsed, cut to PKR 9,299,000 from 25 Sept 2026 after SRO 1525(I)/2026, offered by Honda for a limited time and on limited stock. Sources: Honda Atlas brochure, ProPakistani (25 Sept 2026), TechJuice, PakNEV, PakWheels.",
+        "source": "https://propakistani.pk/2026/09/25/honda-reduces-prices-of-2-hr-v-variants/",
+        "note": "Rewritten with the current price history, PakNEV performance figures and the equipment summary."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "warranty",
+        "current": "Vehicle: 3 years / 70,000 km (per PakNEV); Honda Atlas sells extended battery-pack warranty to the 7th and 8th year.",
+        "found": "PakWheels catalogue: battery 6 years / 150,000 km, no vehicle warranty listed",
+        "source": "https://www.pakwheels.com/new-cars/honda/hr-v/e-hev",
+        "note": "No Honda Atlas warranty document reachable (honda.com.pk returns 403). The PakWheels catalogue is template-heavy, so the current value was left; owner may want to confirm the hybrid battery term with Honda Atlas."
+      }
+    ]
+  },
+  "toyota-corolla-cross-hev": {
+    "corrections": {
+      "variant": {
+        "value": "HEV / HEV X",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Toyota Indus lists two hybrid grades, 'Corolla Cross HEV' and 'Corolla Cross HEV X' (spec sheet: 1.8 HEV, 1.8 HEV X)."
+      },
+      "priceMin": {
+        "value": 9299000,
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Toyota Indus price data: Corolla Cross HEV ('SmartHybrid' key) Rs 9,299,000 ex-factory Karachi incl. sales tax. Cut from 9,849,000 after SRO 1525(I)/2026 (13 Sept 2026; PakNEV, PakWheels)."
+      },
+      "priceMax": {
+        "value": 9729000,
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Toyota Indus: Corolla Cross HEV X ('PremiumHybrid' key) Rs 9,729,000, down from 10,299,000."
+      },
+      "priceDisplay": {
+        "value": "PKR 92.99–97.29 Lakh",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Official list prices, so '(indicative)' removed."
+      },
+      "batteryCapacity": {
+        "value": 1.3,
+        "source": "https://paknev.com/cars/toyota-corolla-cross-hybrid",
+        "note": "PakNEV: hybrid battery 1.3 kWh (Toyota Indus does not publish capacity)."
+      },
+      "bootCapacityL": {
+        "value": 436,
+        "source": "https://paknev.com/cars/toyota-corolla-cross-hybrid",
+        "note": "PakNEV: 436 L."
+      },
+      "kerbWeightKg": {
+        "value": 1385,
+        "source": "https://paknev.com/cars/toyota-corolla-cross-hybrid",
+        "note": "PakNEV: 1,385 kg (PakWheels gives 1,325–1,385 kg across all versions)."
+      },
+      "availability": {
+        "value": "On sale; locally assembled and sold new by Indus Motor Company in two hybrid grades (HEV and HEV X), alongside 1.8 petrol versions. Toyota Indus also sells the imported Camry Hybrid.",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Old text said it was Toyota's only hybrid in Pakistan; Toyota Indus also lists the Camry Hybrid (Rs 43,800,000)."
+      },
+      "notes": {
+        "value": "A self-charging full hybrid (no plug), assembled in Pakistan by Indus Motor Company. Toyota Indus spec sheet: 1,798 cc 2ZR-FXE engine 72 kW / 142 Nm plus a 53 kW / 163 Nm electric motor, e-CVT, EV/Eco/Power modes, 4,460 × 1,825 × 1,620 mm, 2,640 mm wheelbase, 161 mm ground clearance, 36 L tank, 17-inch alloys, 7 airbags. Toyota Indus does not publish system output; PakNEV lists 97 hp (the engine alone), a 1.3 kWh battery, 436 L boot, 1,385 kg and 180 km/h. Two grades: HEV PKR 9,299,000 (7-inch screen, fabric seats, manual seats) and HEV X PKR 9,729,000 (adds 9-inch screen, leather seats, powered driver seat, moonroof, blind spot monitor, rear cross-traffic alert, power tailgate with kick sensor, auto-dimming mirror, rain-sensing wipers). Prices were 9,849,000 and 10,299,000 from 1 July 2026 and fell after SRO 1525(I)/2026 (13 Sept 2026). Warranty: Toyota Indus quotes 6 years / 160,000 km on the hybrid battery (PakNEV says 8 years). Sources: Toyota Indus Corolla Cross page and spec sheet, PakNEV, PakWheels.",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Rewritten with both grades, current prices and the official spec sheet."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "power",
+        "current": 122,
+        "found": "Toyota Indus: engine 72 kW + motor 53 kW, no system output; PakNEV/PakWheels: 97 hp (engine only)",
+        "source": "https://toyota-indus.com/wp-content/uploads/2024/03/Specs-Sheet-Final-4-Variants-CP-YQ.pdf",
+        "note": "No Pakistani source states 122 hp (it is Toyota's global system output). Owner to decide: keep 122 as system output, or use 97 (engine only, PakNEV). torque left empty for the same reason (engine 142 Nm, motor 163 Nm)."
+      },
+      {
+        "column": "warranty",
+        "current": "Hybrid battery 6 years / 160,000 km",
+        "found": "PakNEV: hybrid battery 8 years / 160,000 km",
+        "source": "https://toyota-indus.com/corolla-cross/",
+        "note": "Toyota Indus page and brochure say 6 years / 160,000 km; kept."
+      },
+      {
+        "column": "acceleration",
+        "current": null,
+        "found": "PakNEV: 11 s (HEV) and 10.5 s (HEV X)",
+        "source": "https://paknev.com/cars/toyota-corolla-cross-hybrid",
+        "note": "Same powertrain with different times looks unreliable; not filled."
+      }
+    ]
+  },
+  "honri-ve-2": {
+    "corrections": {
+      "priceDisplay": {
+        "value": "PKR 35.99 Lakh",
+        "source": "https://www.pakwheels.com/new-cars/honri/ve/2-0--8/",
+        "note": "PKR 3,599,000 ex-factory, still listed by PakWheels and PakNEV in Nov 2026. It began as a limited-time year-end offer (cut from 4,199,000, Bol News 21 Dec 2025) but has stayed the listed price; '(promo)' is not an allowed suffix."
+      },
+      "driveType": {
+        "value": "FWD",
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV: FWD."
+      },
+      "bootCapacityL": {
+        "value": 150,
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV: 150 L."
+      },
+      "kerbWeightKg": {
+        "value": 950,
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV: 950 kg."
+      },
+      "realWorldRange": {
+        "value": 146,
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV real-world estimate 146 km."
+      },
+      "consumption": {
+        "value": 9.3,
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV: 9.3 kWh/100 km (estimate)."
+      },
+      "warranty": {
+        "value": "Vehicle: 3 years / 100,000 km (PakNEV). Battery: 8 years / 120,000 km (PakWheels, PakNEV).",
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakNEV adds the vehicle warranty; battery term matches PakWheels."
+      },
+      "notes": {
+        "value": "Small Chinese-designed electric hatchback sold by Eco-Green Motors (Yousuf Dewan Companies) and assembled by Dewan Farooque Motors at Sujawal; deliveries since late 2024. VE 2.0 is the 200 km version: 18.5 kWh ternary lithium battery, 200 km CLTC (PakNEV estimates 146 km real-world), 30 kW (40 hp) / 84 Nm, 100 km/h, 3.3 kW on-board charger (Type 2), about 7 h to full; 3,517 × 1,495 × 1,660 mm, 2,495 mm wheelbase, 130 mm ground clearance, 15-inch alloys; PakNEV lists 150 L boot and 950 kg. Equipment: two airbags, ABS/EBD, TPMS, ISOFIX, reversing camera and rear sensors, 10.25-inch Android touchscreen, 5-inch cluster, Eco/Sport modes. Seats: PakWheels says 5, PakNEV 4. The VE 3.0 (29.9 kWh LFP, 300 km CLTC, 35 kW) costs PKR 4,399,000. Price: launched at PKR 3,999,000 (2024), later 4,199,000, cut to PKR 3,599,000 in Dec 2025 as a limited-time offer that is still the listed price in Nov 2026. Sources: PakWheels, PakNEV, ProPakistani, Bol News.",
+        "source": "https://www.pakwheels.com/new-cars/honri/ve/2-0--8/",
+        "note": "Rewritten with current price status, warranty and PakNEV figures."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "seats",
+        "current": 5,
+        "found": 4,
+        "source": "https://paknev.com/cars/honri-ve-2-0",
+        "note": "PakWheels says 5 seats, PakNEV 4. Kept at 5."
+      }
+    ]
+  },
+  "nissan-sakura": {
+    "corrections": {
+      "realWorldRange": {
+        "value": 154,
+        "source": "https://paknev.com/cars/nissan-sakura",
+        "note": "PakNEV real-world estimate 154 km."
+      }
+    },
+    "conflicts": []
+  },
+  "nora-ev": {
+    "corrections": {
+      "fullName": {
+        "value": "Nora E-30",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "Nora now sells this car as the E-30 (alongside the new NEO and METRO); 'Nora EV' is the brand name."
+      },
+      "variant": {
+        "value": "Eco / Eco REEV / Eco+ / Eco+ REEV",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "October 2026 line-up: ECO, ECO REEV, ECO+, ECO+ REEV. The earlier EcoX is no longer listed."
+      },
+      "priceMin": {
+        "value": 1899999,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "E-30 ECO Rs 1,899,999, prices effective 20 Oct 2026 (Gari.pk: provisional, excluding GST)."
+      },
+      "priceMax": {
+        "value": 2249999,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "E-30 ECO+ REEV Rs 2,249,999 (Gari.pk agrees; PakNEV shows 2,499,999, apparently a typo)."
+      },
+      "priceDisplay": {
+        "value": "PKR 19–22.5 Lakh",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "Rs 1,899,999–2,249,999 from 20 Oct 2026."
+      },
+      "batteryCapacity": {
+        "value": 9.1,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "ECO: 9.1 kWh LFP (the 9.36 kWh stored came from a Nov 2025 catalogue)."
+      },
+      "rangeMax": {
+        "value": 180,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "ECO+ (15.1 kWh): 180 km on battery alone, the largest battery-only range. The REEV versions claim up to 300 km with the petrol range extender, which is in the notes; an EV row does not count generator range."
+      },
+      "motorPowerKw": {
+        "value": 4,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "ProPakistani's Oct 2026 table: 4000 W motor for all E-30 versions (the March 2026 sources said 3000 W)."
+      },
+      "power": {
+        "value": 5,
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "PakNEV: 5 hp."
+      },
+      "acCharging": {
+        "value": 2.2,
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "PakNEV: max AC 2.2 kW."
+      },
+      "driveType": {
+        "value": "RWD",
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "PakNEV: RWD."
+      },
+      "warranty": {
+        "value": "Vehicle: 1 year / 40,000 km (PakNEV). Battery: 5 years (PakNEV; ProPakistani says battery and motor 5 years; PakWheels catalogue says 5 years / 120,000 km).",
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "Adds the vehicle warranty from PakNEV."
+      },
+      "availability": {
+        "value": "On sale in Pakistan since 2026: debuted Nov 2025, bookings from March 2026, first deliveries from 15 Sept 2026; prices revised from 20 Oct 2026 (ProPakistani, Gari.pk).",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "Updated with the Oct 2026 price revision."
+      },
+      "notes": {
+        "value": "Nora's E-30 is a small four-seat electric city car (quadricycle class) imported from China; Nora also sells the larger NEO (Rs 2,499,999) and METRO (Rs 2,899,999). E-30 versions (Oct 2026, prices effective 20 Oct 2026, ex-warehouse Karachi, provisional and excluding GST per Gari.pk): ECO 9.1 kWh LFP, 120 km, Rs 1,899,999; ECO REEV 9.1 kWh with a petrol range extender, 250 km, Rs 2,049,999; ECO+ 15.1 kWh, 180 km, Rs 2,099,999; ECO+ REEV 15.1 kWh with range extender, 300 km, Rs 2,249,999 (no test standard given). 4 kW motor (5 hp per PakNEV), RWD, 65 km/h top speed (PakWheels; PakNEV says 60), 2.2 kW AC charging, 6–8 h to full; 2,900 × 1,450 × 1,600 mm, 1,900 mm wheelbase, 150 mm ground clearance; 580 kg is from the Nov 2025 catalogue. The range extender is a small petrol generator with a 3 L tank (PakWheels said 70 cc in March 2026, PakNEV says 250 cc). Equipment: Android touchscreen with Bluetooth, reversing camera, AC/heater, remote central locking, power windows, roof rails, alloy wheels. Earlier prices (March 2026): Eco 1,889,000, Eco+ 2,099,000, EcoX 2,299,000. Sources: ProPakistani (21 Oct 2026), Gari.pk, PakNEV, PakWheels.",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "Rewritten for the October 2026 E-30 line-up."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceDisplay",
+        "current": "PKR 18.89–22.99 Lakh",
+        "found": "Rs 1,899,999–2,249,999, excluding GST",
+        "source": "https://www.gari.pk/news/nora-e30-neo-and-metro-price-list-announced-in-pakistan-5672/",
+        "note": "Gari.pk says the circular's prices are provisional and exclude GST, so the on-road total will be higher than the calculator shows. Owner to decide whether to add a suffix (none of the allowed ones fits)."
+      },
+      {
+        "column": "priceMax",
+        "current": 2299000,
+        "found": "2,249,999 (ProPakistani, Gari.pk) vs 2,499,999 (PakNEV)",
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "Used 2,249,999 from two news sources quoting the dealer circular."
+      },
+      {
+        "column": "topSpeed",
+        "current": 65,
+        "found": 60,
+        "source": "https://paknev.com/cars/nora-ev-e-30",
+        "note": "PakWheels (March 2026) says 65 km/h, PakNEV 60. Kept at 65."
+      },
+      {
+        "column": "rangeMax",
+        "current": null,
+        "found": 300,
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "Set to the top trim's 300 km per the brief, but that figure depends on the petrol range extender. Owner may prefer 180 km (ECO+, battery only) or leaving it empty."
+      },
+      {
+        "column": "category",
+        "current": "EV",
+        "found": "two of four versions are range-extender (REEV)",
+        "source": "https://propakistani.pk/2026/10/21/nora-ev-announces-official-prices-in-pakistan/",
+        "note": "The cheapest trim (headline) is battery-only, so kept as EV; category is not a correctable column."
+      }
+    ]
+  }
+}

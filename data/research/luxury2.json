@@ -1,0 +1,365 @@
+{
+  "mercedes-c-class-electric": {
+    "corrections": {
+      "variant": {
+        "value": "C 300 4MATIC",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz's electric C-Class page lists one version only, the C 300 4MATIC. The row previously carried the C 400 4MATIC's figures."
+      },
+      "priceMin": {
+        "value": 36000000,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/c-class/c300/",
+        "note": "PakWheels lists the 'C Class C 300 4MATIC EQ' at PKR 36,000,000 ex-factory; a Mercedes Pakistan price list effective 1 July 2026 (pkrevenue.com) also gives the C 300 EQ at Rs36 million. PakNEV's 36,080,000 is not used."
+      },
+      "priceMax": {
+        "value": 36000000,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/c-class/c300/",
+        "note": "Single version sold."
+      },
+      "priceDisplay": {
+        "value": "PKR 3.6 Cr",
+        "source": "https://pkrevenue.com/mercedes-pakistan-announces-revised-prices-for-petrol-electric-lineup-from-july-2026/",
+        "note": "Listed price (Mercedes Pakistan list effective 1 July 2026: C 300 EQ Rs36 million; PakWheels PKR 36,000,000). No longer indicative."
+      },
+      "power": {
+        "value": 421,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: 'E-Drive power 310 [421] kW [hp]'. The 489 hp stored is the C 400's."
+      },
+      "motorPowerKw": {
+        "value": 310,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: 310 kW."
+      },
+      "torque": {
+        "value": 800,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: 'E-Drive 800 Nm' (unchanged)."
+      },
+      "acceleration": {
+        "value": 4.5,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: 0-100 km/h 4.5 s (the 4.0 s stored is the C 400's)."
+      },
+      "batteryCapacity": {
+        "value": 85,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: HV battery usable energy 85 kWh (94 kWh is the C 400's)."
+      },
+      "range": {
+        "value": 690,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz: electric range (WLTP) 549-690 km; best-case figure stored, as on other rows."
+      },
+      "batteryTech": {
+        "value": "Lithium-ion (800V)",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cell chemistry for the 85 kWh pack not stated by Shahnawaz; 800V architecture is common to the electric C-Class. Removed the NMC claim that came with the C 400 data."
+      },
+      "dcCharging": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared: 330 kW was the C 400 (94 kWh) figure. Shahnawaz prints no charging data for the C 300; earlier notes cite EV Database at 320 kW but I could not confirm it for this trim in this pass."
+      },
+      "dcChargingMinutes": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared: 22 min was the C 400's figure; no C 300 figure from a Pakistan source."
+      },
+      "acChargingHours": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared: 10h15m was for the C 400's 94 kWh pack."
+      },
+      "realWorldRange": {
+        "value": null,
+        "source": "https://paknev.com/cars/mercedes-benz-electric-c-class-cla",
+        "note": "Cleared: 465-640 km was an EV Database estimate for the C 400. PakNEV's page mixes the C-Class and CLA, so not used."
+      },
+      "realWorldRangeMax": {
+        "value": null,
+        "source": "https://paknev.com/cars/mercedes-benz-electric-c-class-cla",
+        "note": "Cleared with realWorldRange (C 400 figure)."
+      },
+      "consumption": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared: 14.1-18.5 kWh/100 km was the C 400's rating."
+      },
+      "consumptionMax": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared with consumption."
+      },
+      "kerbWeightKg": {
+        "value": null,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Cleared: 2,460 kg was the C 400's; no C 300 weight in a Pakistan source."
+      },
+      "availability": {
+        "value": "Sold new by Shahnawaz (Pvt.) Ltd, the Mercedes-Benz distributor in Pakistan, as the C 300 4MATIC ('The All-New Electric C-Class' on its site, Nov 2026); listed at PKR 36 million ex-factory in the July 2026 price list.",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Shahnawaz lists the C 300 4MATIC only; the price comes from PakWheels / the July 2026 list."
+      },
+      "notes": {
+        "value": "The new-generation electric C-Class (W520, revealed April 2026), sold in Pakistan by Shahnawaz as the C 300 4MATIC only, at PKR 36,000,000 ex-factory (Mercedes Pakistan list effective 1 July 2026; PakWheels). Shahnawaz figures: dual-motor 4MATIC, 310 kW (421 hp), 800 Nm, 0-100 km/h 4.5 s, 210 km/h, 85 kWh usable battery, 549-690 km WLTP. Dimensions 4,883 x 1,892 x 1,503 mm on a 2,962 mm wheelbase, 470 L boot plus a front trunk. The more powerful C 400 4MATIC (94 kWh, 360 kW / 489 hp, 0-100 4.0 s, up to 762 km WLTP, 330 kW DC) exists abroad but is not listed by Shahnawaz. DC/AC charging times, weight and real-world range for the C 300 are not published by a Pakistani source and are left empty. Sources: Shahnawaz Mercedes-Benz, PakWheels, pkrevenue.com (July 2026 price list).",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-c-class/",
+        "note": "Rewritten around the C 300 4MATIC that Shahnawaz actually sells."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 36080000,
+        "found": 36000000,
+        "source": "https://paknev.com/cars/mercedes-benz-electric-c-class-cla",
+        "note": "PakNEV shows 36,080,000; PakWheels and the July 2026 list show 36,000,000. Used 36,000,000."
+      }
+    ]
+  },
+  "mercedes-glc-eq": {
+    "corrections": {
+      "variant": {
+        "value": "300 4MATIC",
+        "source": "https://shahnawazltd-mercedesbenz.com/glc-electric/",
+        "note": "Shahnawaz's GLC Electric page lists only the GLC 300 4MATIC. The GLC 400 4MATIC has only been teased (pkrevenue.com), with no price confirmed."
+      },
+      "priceMin": {
+        "value": 39990000,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "PakWheels: 'Mercedes Benz GLC 300 4MATIC EQ ... PKR 39,990,000', ex-factory, last updated 17-07-2026; the July 2026 Mercedes Pakistan list gives Rs39.9 million."
+      },
+      "priceMax": {
+        "value": 39990000,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "Only the 300 4MATIC is sold; PakNEV's PKR 45,000,000 for a GLC 400 has no official backing (the 400 has only been teased)."
+      },
+      "priceDisplay": {
+        "value": "PKR 3.99 Cr",
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "Listed ex-factory price, PKR 39,990,000."
+      },
+      "availability": {
+        "value": "Sold new by Shahnawaz (Pvt.) Ltd as 'GLC Electric' (GLC 300 4MATIC), listed at PKR 39,990,000 ex-factory (PakWheels, July 2026). A GLC 400 4MATIC has been teased by Mercedes-Benz Pakistan but has no confirmed price.",
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "Price now listed; 400 status settled as teaser only."
+      },
+      "notes": {
+        "value": "The new electric GLC (revealed IAA 2025), sold in Pakistan by Shahnawaz as the GLC 300 4MATIC at PKR 39,990,000 ex-factory (PakWheels, updated 17 July 2026; Mercedes Pakistan list effective 1 July 2026 gives Rs39.9 million). Shahnawaz figures: 310 kW (421 hp), 800 Nm, 0-100 km/h 4.7 s, 210 km/h. 85 kWh usable / 90 kWh gross, 800V; WLTP 613 km (EV Database; Mercedes Pakistan's launch material quotes up to 715 km, which is the GLC 400's best figure); 320 kW DC with 10-80% in about 23 min per EV Database (PakNEV/PakWheels say 200 kW, 22 min); 11 kW AC (PakWheels lists a 22 kW on-board charger). Boot 570 L plus a 128 L front trunk. Pakistan-spec equipment per PakWheels includes a 15.6-inch central screen, head-up display, 360-degree camera, air purifier, ventilated seats and a panoramic roof. The GLC 400 4MATIC (94 kWh, 360 kW, up to 715 km) has been teased for Pakistan without a price. Sources: Shahnawaz Mercedes-Benz, PakWheels, EV Database, pkrevenue.com.",
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "Rewritten with the listed price and the 300-only line-up."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "dcCharging",
+        "current": 320,
+        "found": 200,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "PakNEV/PakWheels: 200 kW, 10-80% 22 min; EV Database: 320 kW, 23 min. Owner to decide; left at 320 kW."
+      },
+      {
+        "column": "acCharging",
+        "current": 11,
+        "found": 22,
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/glc/300-4matic-eq/",
+        "note": "PakWheels lists a 22 kW AC on-board charger for the Pakistan car; 22 kW is optional in Europe. Not applied."
+      }
+    ]
+  },
+  "mercedes-g580-eq": {
+    "corrections": {
+      "priceMin": {
+        "value": 122000000,
+        "source": "https://pkrevenue.com/mercedes-pakistan-announces-revised-prices-for-petrol-electric-lineup-from-july-2026/",
+        "note": "Mercedes Pakistan price list effective 1 July 2026 (as reported by pkrevenue.com): 'G 580 EQ Rs122 million'. Replaces PakNEV's PKR 114,500,000."
+      },
+      "priceMax": {
+        "value": 122000000,
+        "source": "https://pkrevenue.com/mercedes-pakistan-announces-revised-prices-for-petrol-electric-lineup-from-july-2026/",
+        "note": "Single trim."
+      },
+      "priceDisplay": {
+        "value": "PKR 12.2 Cr",
+        "source": "https://pkrevenue.com/mercedes-pakistan-announces-revised-prices-for-petrol-electric-lineup-from-july-2026/",
+        "note": "July 2026 Mercedes Pakistan list price. Only one secondary outlet reports this list; see conflicts."
+      },
+      "notes": {
+        "value": "W465 electric G-Class (2024-), sold new by Shahnawaz as 'Electric G-Class' in a single version, priced at Rs122 million in the Mercedes Pakistan list effective 1 July 2026 (reported by pkrevenue.com; PakNEV still shows PKR 114,500,000). Four motors, one per wheel, 432 kW (587 hp), 1,164 Nm, 0-100 km/h 4.7 s, 180 km/h, wading depth 850 mm (Shahnawaz). 116 kWh usable / 124 kWh gross; WLTP 434-473 km; rated 27.7-30.3 kWh/100 km; 200 kW DC (10-80% 34 min); 11 kW AC (12h30m) (EV Database). Dimensions from EV Database (4,624 x 1,931 x 1,986 mm, 3,085 kg); PakWheels/PakNEV give 4,730 x 1,985 x 1,990 mm and 3,218 kg (likely with spare wheel / different basis). Boot 555 L (PakNEV says 620 L). Ground clearance 250 mm (Autotijd). Standard off-road kit per Shahnawaz: low range, G-TURN, G-STEERING, off-road crawl, torque vectoring and adaptive damping. Sources: Shahnawaz Mercedes-Benz, pkrevenue.com, EV Database.",
+        "source": "https://shahnawazltd-mercedesbenz.com/electric-g-class/",
+        "note": "Rewritten with the July 2026 price."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 114500000,
+        "found": 122000000,
+        "source": "https://paknev.com/cars/mercedes-benz-g-580-with-eq",
+        "note": "PakNEV: PKR 114,500,000; July 2026 list via pkrevenue.com: Rs122 million (applied). pkrevenue is the only outlet found carrying that list and names no original source; PakWheels' variant page shows 122,000,000 only as a used-car starting price. Owner may prefer to keep '(indicative)'."
+      }
+    ]
+  },
+  "mercedes-eqs": {
+    "corrections": {
+      "variant": {
+        "value": "450+",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-eqs-sedan/",
+        "note": "Shahnawaz's EQS Sedan pages (both the old and the MY26 'All-New Electric EQS Sedan') list only the EQS 450+."
+      },
+      "priceMax": {
+        "value": 82000000,
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-eqs-sedan/",
+        "note": "The 580 4MATIC (PakNEV PKR 95,000,000) is not offered by Shahnawaz, so the span is dropped."
+      },
+      "priceDisplay": {
+        "value": "PKR 8.2 Cr (indicative)",
+        "source": "https://paknev.com/cars/mercedes-benz-eqs-sedan",
+        "note": "No official/listed price found: Shahnawaz publishes none, the July 2026 list does not include the EQS, and PakWheels shows only used prices (EQS 450 4MATIC from PKR 44.9M used). PakNEV's PKR 82,000,000 for the 450+ kept as indicative."
+      },
+      "availability": {
+        "value": "Sold new by Shahnawaz (Pvt.) Ltd, which lists the EQS 450+ Saloon, including the MY26 'All-New Electric EQS Sedan', on its site (Nov 2026). No price is published and the EQS is not in the July 2026 Mercedes Pakistan price list; the price shown is PakNEV's indicative figure.",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-eqs-sedan/",
+        "note": "Clarified that only the 450+ is offered."
+      },
+      "notes": {
+        "value": "V297 MY26 update (on sale from April 2026), offered in Pakistan by Shahnawaz as the EQS 450+ only. Shahnawaz: 300 kW (408 hp), 505 Nm, 210 km/h (its 0-100 figure is garbled as '5.p s'; EV Database gives 5.9 s). EV Database: 122 kWh usable / 129 kWh gross, 800V; WLTP 745-920 km; rated 15.5-19.3 kWh/100 km; 350 kW DC (10-80% 28 min); 11 kW AC (13h15m). Shahnawaz's older EQS Sedan page shows the pre-update 450+ at 265 kW (360 hp), 568 Nm, 6.2 s; PakNEV's 118 kWh and 560 km real-world figures belong to that older car and are not used. The EQS 580 4MATIC exists abroad but Shahnawaz does not list it. No official Pakistani price: PKR 82,000,000 is PakNEV's indicative figure. Sources: Shahnawaz Mercedes-Benz, EV Database, PakNEV.",
+        "source": "https://shahnawazltd-mercedesbenz.com/the-all-new-electric-eqs-sedan/",
+        "note": "Rewritten: 450+ only, price basis stated."
+      }
+    },
+    "conflicts": []
+  },
+  "mercedes-eqs-suv": {
+    "corrections": {
+      "variant": {
+        "value": "450+ / 450 4MATIC",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqs-suv-3/",
+        "note": "Shahnawaz's EQS SUV page shows the EQS 450 4MATIC SUV spec table and names the 450+ (towing limits for both); PakWheels prices the 450+."
+      },
+      "priceDisplay": {
+        "value": "PKR 8.5–9.5 Cr (indicative)",
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/eqs/450-suv/",
+        "note": "PakWheels' PKR 85,000,000 ex-factory listing for the EQS 450+ SUV carries 'Booking From 9/8/2022' (pay order to Shahnawaz), i.e. a 2022 price, and the EQS SUV is not in the July 2026 list; PakNEV's 95,000,000 for the 450 4MATIC has no official source. Marked indicative."
+      },
+      "availability": {
+        "value": "Sold new through Shahnawaz (Pvt.) Ltd, whose site shows the EQS 450 4MATIC SUV (Nov 2026). No current price is published: PakWheels' PKR 85 million ex-factory listing for the 450+ dates from a 2022 booking, so the price is indicative.",
+        "source": "https://www.pakwheels.com/new-cars/mercedes-benz/eqs/450-suv/",
+        "note": "Removed the claim of a current ex-factory price."
+      },
+      "notes": {
+        "value": "X296 EQS SUV (EV Database 2023-2026 spec). Headline EQS 450+ SUV (the version PakWheels prices at PKR 85,000,000 ex-factory, a listing dating from a 2022 booking): 265 kW (360 PS), 568 Nm, 0-100 6.8 s, 210 km/h; 118 kWh usable / 125 kWh gross; WLTP 605-720 km; rated 18.8-22.5 kWh/100 km; 200 kW DC (10-80% 33 min); 11 kW AC (12h45m); boot 645 L (2,100 L max); up to 7 seats (third row optional). Shahnawaz's page shows the EQS 450 4MATIC SUV: 265 kW (360 hp), 800 Nm, 0-100 6.9 s, 20-inch wheels standard, AIRMATIC air suspension, DIGITAL LIGHT headlamps, towing up to 1,800 kg (750 kg for the 450+); PakNEV prices the 450 4MATIC at PKR 95,000,000 (indicative). EV Database for the 450 4MATIC: 0-100 6.1 s, WLTP 594-673 km, 2,840 kg. Sources: Shahnawaz Mercedes-Benz, PakWheels, PakNEV, EV Database.",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqs-suv-3/",
+        "note": "Rewritten; price basis now honest about the 2022 listing."
+      }
+    },
+    "conflicts": []
+  },
+  "mercedes-eqa": {
+    "corrections": {
+      "variant": {
+        "value": "250+",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqa/",
+        "note": "Shahnawaz lists the EQA 250+ only."
+      },
+      "availability": {
+        "value": "Listed by Shahnawaz (Pvt.) Ltd as the EQA 250+ (Nov 2026), with no public price; it is not in the July 2026 Mercedes Pakistan price list. The EQA is being replaced worldwide by the new electric GLA, so stock may be limited. Also traded on PakWheels.",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqa/",
+        "note": "Updated date; noted it is absent from the July 2026 list."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 17500000,
+        "found": null,
+        "source": "https://paknev.com/cars/mercedes-benz-eqa",
+        "note": "Only PakNEV gives a price (PKR 17,500,000, no source). It is higher than PakNEV's EQB (PKR 15,000,000) although the EQB is the larger car, which suggests both are stale. Kept as indicative."
+      }
+    ]
+  },
+  "mercedes-eqb": {
+    "corrections": {
+      "variant": {
+        "value": "250+",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqb/",
+        "note": "Shahnawaz's spec table is for the EQB 250+; the 300 4MATIC is mentioned only in an equipment note."
+      },
+      "availability": {
+        "value": "Listed by Shahnawaz (Pvt.) Ltd as the EQB 250+ (Nov 2026), with no public price; it is not in the July 2026 Mercedes Pakistan price list. European orders ended in January 2026 (successor: the new electric GLB, which Shahnawaz also lists as 'The New GLB SUV'). Also traded on PakWheels.",
+        "source": "https://shahnawazltd-mercedesbenz.com/eqb/",
+        "note": "Updated date and noted successor."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "priceMin",
+        "current": 15000000,
+        "found": null,
+        "source": "https://paknev.com/cars/mercedes-benz-eqb",
+        "note": "Only PakNEV gives a price (PKR 15,000,000, unsourced and below its EQA price). Kept as indicative."
+      }
+    ]
+  },
+  "mercedes-eqc": {
+    "corrections": {},
+    "conflicts": []
+  },
+  "mini-cooper-electric": {
+    "corrections": {
+      "fullName": {
+        "value": "MINI Cooper Electric",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "The row covers both the Cooper E and Cooper SE, so the trim letter moves out of fullName into variant."
+      },
+      "variant": {
+        "value": "E / SE",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "PakWheels: Cooper E PKR 17,500,000, Cooper SE PKR 19,200,000 (both 'Premium' package per PakWheels launch article)."
+      }
+    },
+    "conflicts": []
+  },
+  "mini-aceman": {
+    "corrections": {
+      "fullName": {
+        "value": "MINI Aceman",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "Row covers both E and SE."
+      },
+      "variant": {
+        "value": "E / SE",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "PakWheels: Aceman E PKR 18,500,000, Aceman SE PKR 20,500,000."
+      }
+    },
+    "conflicts": []
+  },
+  "mini-countryman-electric": {
+    "corrections": {
+      "fullName": {
+        "value": "MINI Countryman Electric",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "Row covers both the Countryman E and SE ALL4."
+      },
+      "variant": {
+        "value": "E / SE ALL4",
+        "source": "https://www.pakwheels.com/new-cars/pricelist/mini",
+        "note": "PakWheels: Countryman E PKR 24,800,000, Countryman SE PKR 26,900,000 (the SE is the dual-motor ALL4)."
+      }
+    },
+    "conflicts": [
+      {
+        "column": "batteryCapacity",
+        "current": 65.2,
+        "found": 64.6,
+        "source": "https://www.pakwheels.com/new-cars/mini/countryman/se/",
+        "note": "PakWheels lists 64.6 kWh and 432 km for the SE (pre-update figures); the PakWheels May 2026 showcase article says 65 kWh. Which model year Dewan delivers is unconfirmed; left as is."
+      }
+    ]
+  },
+  "rolls-royce-spectre": {
+    "corrections": {},
+    "conflicts": []
+  }
+}
