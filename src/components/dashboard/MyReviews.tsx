@@ -6,10 +6,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button, RatingStars } from '@/components/ui'
+import { RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
 import { deleteMyReview } from '@/lib/db/review-actions'
 import { formatRelativeTime } from '@/lib/utils'
+
+import { EmptyPanel, PANEL } from './dash-ui'
 
 /**
  * Reviews this account has written.
@@ -46,42 +48,36 @@ export function MyReviews({ reviews }: MyReviewsProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-        <Star size={26} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-        <p className="text-ui-lg font-semibold text-slate-900">No reviews yet</p>
-        <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-          Reviews you write on a station or a business listing appear here.
-        </p>
-        <Link
-          href="/map"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-        >
-          Find a station
-        </Link>
-      </div>
+      <EmptyPanel
+        icon={<Star aria-hidden="true" />}
+        title="No reviews yet"
+        body="Reviews you write on a station or a business listing appear here."
+        href="/map"
+        cta="Find a station"
+      />
     )
   }
 
   return (
     <div>
       {error ? (
-        <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p>
+        <p role="alert" className="mb-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">{error}</p>
       ) : null}
 
       <ul className="flex flex-col gap-4">
         {reviews.map((review) => (
-          <li key={review.id} className="rounded-2xl border border-slate-200 bg-white p-6">
+          <li key={review.id} className={PANEL}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 {review.listingId ? (
                   <Link
                     href={`/station/${review.listingId}`}
-                    className="font-semibold text-slate-900 hover:text-plug-blue-600 hover:underline"
+                    className="font-display text-[22px] leading-tight text-ink hover:underline hover:decoration-volt hover:decoration-2 hover:underline-offset-4"
                   >
                     {review.listingName}
                   </Link>
                 ) : (
-                  <p className="font-semibold text-slate-900">{review.listingName}</p>
+                  <p className="font-display text-[22px] leading-tight text-ink">{review.listingName}</p>
                 )}
                 <div className="mt-1.5">
                   <RatingStars rating={review.rating} size="sm" />
@@ -89,26 +85,30 @@ export function MyReviews({ reviews }: MyReviewsProps) {
               </div>
 
               <div className="flex shrink-0 items-center gap-3">
-                <span className="text-ui-xs text-slate-500">{formatRelativeTime(review.date)}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <span className="font-mono text-xs text-muted">{formatRelativeTime(review.date)}</span>
+                <button
+                  type="button"
                   onClick={() => handleDelete(review.id)}
-                  isLoading={deleting === review.id}
+                  disabled={deleting === review.id}
+                  aria-busy={deleting === review.id || undefined}
                   aria-label={`Delete your review of ${review.listingName}`}
-                  className="border border-slate-200 text-slate-500 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  className="grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-white text-muted transition-colors hover:border-[#FFCDBC] hover:bg-[#FFECE6] hover:text-[#B42E05] disabled:opacity-60"
                 >
-                  {deleting === review.id ? null : <Trash2 size={15} aria-hidden="true" />}
-                </Button>
+                  {deleting === review.id ? (
+                    <span aria-hidden="true" className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  ) : (
+                    <Trash2 size={16} aria-hidden="true" />
+                  )}
+                </button>
               </div>
             </div>
 
-            <p className="mt-3 whitespace-pre-line text-ui-sm leading-relaxed text-slate-700">
+            <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink/80">
               {review.comment}
             </p>
 
             {review.helpfulCount > 0 ? (
-              <p className="mt-3 text-ui-xs text-slate-400">
+              <p className="mt-3 font-mono text-xs text-muted">
                 {review.helpfulCount} {review.helpfulCount === 1 ? 'person' : 'people'} found this
                 helpful
               </p>

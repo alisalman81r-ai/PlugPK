@@ -7,6 +7,8 @@ import { Check, ChevronDown, Search, X } from '@/components/ui/icons'
 import type { MyCar } from '@/hooks/useMyCar'
 import { cn } from '@/lib/utils'
 
+import { FLABEL } from '@/components/v2/ui'
+
 import { MyCarHint } from './MyCarHint'
 
 /**
@@ -59,6 +61,8 @@ export interface CarPickerProps {
   hint?: React.ReactNode
   /** The driver's own car from their garage, offered and labelled as such. */
   ownCar?: MyCar | null
+  /** A sentence-case label instead of the mono kicker. */
+  plainLabel?: boolean
 }
 
 /** Every word typed must appear somewhere in "brand name". */
@@ -71,7 +75,7 @@ function matches(car: PickerCar, query: string): boolean {
     .every((word) => hay.includes(word))
 }
 
-export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeholder = 'Select your EV', hint, ownCar }: CarPickerProps) {
+export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeholder = 'Select your EV', hint, ownCar, plainLabel = false }: CarPickerProps) {
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState('')
   const [active, setActive] = React.useState(0)
@@ -175,7 +179,7 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
 
   return (
     <div ref={rootRef} className="relative">
-      <span id={labelId} className="mb-1.5 block text-sm font-medium text-slate-700">
+      <span id={labelId} className={cn('mb-2 block', plainLabel ? 'text-sm font-semibold text-ink' : FLABEL)}>
         {label}
       </span>
 
@@ -188,26 +192,26 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
         aria-labelledby={`${labelId} ${id}`}
         onClick={() => (open ? close(false) : openPicker())}
         className={cn(
-          'flex min-h-[3.25rem] w-full items-center gap-3 rounded-xl border-[1.5px] bg-white py-2 pl-4 pr-3 text-left transition-all duration-150',
-          'focus-visible:border-plug-blue-500 focus-visible:shadow-focus focus-visible:outline-none',
-          open ? 'border-plug-blue-500 shadow-focus' : 'border-slate-200 hover:border-slate-300',
+          'flex min-h-[54px] w-full items-center gap-3 rounded-[14px] border-[1.5px] bg-white py-2 pl-4 pr-3.5 text-left transition-[border-color,box-shadow] duration-200',
+          'focus-visible:border-ink focus-visible:shadow-focus focus-visible:outline-none',
+          open ? 'border-ink shadow-focus' : 'border-ink/10 hover:border-ink/25',
         )}
       >
         {selected ? (
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-ui font-semibold text-slate-900">{selected.name}</span>
-            <span className="block truncate text-ui-sm text-slate-500">{selected.meta}</span>
+            <span className="block truncate text-[15px] font-semibold text-ink">{selected.name}</span>
+            <span className="block truncate font-mono text-xs text-muted">{selected.meta}</span>
           </span>
         ) : (
-          <span className="flex min-w-0 flex-1 items-center gap-2 text-ui text-slate-500">
-            <Search size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
+          <span className="flex min-w-0 flex-1 items-center gap-2.5 text-base text-muted">
+            <Search size={18} className="shrink-0 text-muted" aria-hidden="true" />
             <span className="truncate">{placeholder}</span>
           </span>
         )}
         <ChevronDown
           size={18}
           aria-hidden="true"
-          className={cn('shrink-0 text-slate-400 transition-transform duration-200', open && 'rotate-180')}
+          className={cn('shrink-0 text-muted transition-transform duration-300 ease-out', open && 'rotate-180')}
         />
       </button>
 
@@ -221,18 +225,18 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
       {open ? (
         <>
           {/* The phone's sheet needs a scrim; the desktop menu does not. */}
-          <div aria-hidden="true" className="fixed inset-0 z-[65] bg-plug-navy-900/30 sm:hidden" onClick={() => close(false)} />
+          <div aria-hidden="true" className="fixed inset-0 z-[65] bg-ink/40 sm:hidden" onClick={() => close(false)} />
 
           <div
             className={cn(
               'z-[70] flex flex-col overflow-hidden bg-white',
-              'fixed inset-x-0 bottom-0 max-h-[82vh] rounded-t-3xl pb-[env(safe-area-inset-bottom)] shadow-[0_-20px_60px_-20px_rgba(5,36,30,0.45)]',
-              'sm:absolute sm:inset-x-0 sm:bottom-auto sm:top-full sm:mt-2 sm:max-h-[26rem] sm:rounded-2xl sm:border sm:border-slate-200 sm:pb-0 sm:shadow-[0_24px_60px_-24px_rgba(5,36,30,0.4)]',
+              'fixed inset-x-0 bottom-0 max-h-[82vh] rounded-t-[28px] pb-[env(safe-area-inset-bottom)] shadow-e4',
+              'sm:absolute sm:inset-x-0 sm:bottom-auto sm:top-full sm:mt-2 sm:max-h-[26rem] sm:rounded-[18px] sm:border sm:border-ink/10 sm:pb-0 sm:shadow-e2',
             )}
           >
-            <div className="flex items-center gap-2 border-b border-slate-100 p-3">
-              <div className="flex min-h-12 flex-1 items-center gap-2.5 rounded-xl bg-slate-50 px-3.5">
-                <Search size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
+            <div className="flex items-center gap-2 border-b border-ink/10 p-2.5">
+              <div className="flex min-h-12 flex-1 items-center gap-2.5 rounded-xl bg-chalk px-3.5">
+                <Search size={18} className="shrink-0 text-muted" aria-hidden="true" />
                 <input
                   ref={inputRef}
                   type="search"
@@ -246,26 +250,26 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={onKeyDown}
-                  className="h-12 w-full min-w-0 bg-transparent text-ui text-slate-900 outline-none placeholder:text-slate-400 [&::-webkit-search-cancel-button]:hidden"
+                  className="h-12 w-full min-w-0 bg-transparent text-[15px] text-ink outline-none placeholder:text-fog [&::-webkit-search-cancel-button]:hidden"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => close()}
                 aria-label="Close"
-                className="grid size-11 shrink-0 place-items-center rounded-full text-slate-500 hover:bg-slate-100 sm:hidden"
+                className="grid size-11 shrink-0 place-items-center rounded-full text-muted hover:bg-chalk hover:text-ink sm:hidden"
               >
                 <X size={20} aria-hidden="true" />
               </button>
             </div>
 
-            <ul ref={listRef} id={listId} role="listbox" aria-labelledby={labelId} className="flex-1 overflow-y-auto overscroll-contain p-2">
+            <ul ref={listRef} id={listId} role="listbox" aria-labelledby={labelId} className="flex-1 overflow-y-auto overscroll-contain p-1.5">
               {groups.map((group) => (
                 <li key={group.brand ?? 'none'} role="presentation">
                   {group.brand ? (
                     <p
                       role="presentation"
-                      className="px-3 pb-1 pt-3 text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-400"
+                      className="px-3 pb-1 pt-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted"
                     >
                       {group.brand}
                     </p>
@@ -286,29 +290,31 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => pick(car)}
                           className={cn(
-                            'flex min-h-12 cursor-pointer items-center gap-3 rounded-xl px-3 py-2',
-                            isActive ? 'bg-slate-100' : 'bg-transparent',
+                            'flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition-colors duration-150',
+                            isSelected ? 'bg-ink text-white' : isActive ? 'bg-chalk' : 'bg-transparent',
+                            isSelected && isActive && 'ring-2 ring-inset ring-volt',
                           )}
                         >
                           <span className="min-w-0 flex-1">
                             <span
                               className={cn(
-                                'block truncate text-ui',
-                                car ? 'font-medium text-slate-900' : 'font-medium text-plug-blue-600',
+                                'block truncate text-[15px]',
+                                car ? 'font-medium' : 'font-semibold',
+                                isSelected ? 'text-white' : car ? 'text-ink' : 'text-volt-ink',
                               )}
                             >
                               {car ? car.name : noneLabel}
                             </span>
                             {car ? (
-                              <span className="block truncate text-ui-sm text-slate-500">
+                              <span className={cn('block truncate font-mono text-xs', isSelected ? 'text-fog' : 'text-muted')}>
                                 {car.meta}
-                                {car.flag ? <span className="text-amber-700"> · {car.flag}</span> : null}
+                                {car.flag ? (
+                                  <span className={isSelected ? 'text-[#FFB020]' : 'text-[#8A5300]'}> · {car.flag}</span>
+                                ) : null}
                               </span>
                             ) : null}
                           </span>
-                          {isSelected ? (
-                            <Check size={18} className="shrink-0 text-plug-cyan-700" aria-hidden="true" />
-                          ) : null}
+                          {isSelected ? <Check size={18} className="shrink-0 text-volt" aria-hidden="true" /> : null}
                         </li>
                       )
                     })}
@@ -316,7 +322,7 @@ export function CarPicker({ id, label, cars, value, onChange, noneLabel, placeho
                 </li>
               ))}
               {visible.length === 1 ? (
-                <li role="presentation" className="px-3 py-6 text-center text-ui-sm text-slate-500">
+                <li role="presentation" className="px-3 py-6 text-center text-sm text-muted">
                   No car matches &ldquo;{query}&rdquo;. Choose &ldquo;{noneLabel}&rdquo; and enter its figures.
                 </li>
               ) : null}

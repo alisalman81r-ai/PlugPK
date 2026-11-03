@@ -3,42 +3,40 @@
 import { cn } from '@/lib/utils'
 
 /**
- * The plugpk logo: the bolt-and-plug mark, the wordmark, and optionally the
- * line under it.
+ * The plugpk logo: the mark, the wordmark, and optionally the line under it.
  *
  * ── The mark ──────────────────────────────────────────────────────────
  *
- * Traced from the brand artwork: a leaning bolt with soft corners, and beside
- * its lower arm a plug head — a sliver parallel to the bolt's cutting edge with
- * one prong pointing right. The corners are rounded by stroking each polygon
- * in its own fill with round joins, which keeps the geometry to a handful of
- * points while the radius stays constant at every size.
+ * The landing-v2 mark: a volt tile with soft corners and an ink bolt cut
+ * through it. It reads the same on ink and on paper, so it has one colouring.
  *
  * ── Two tones ─────────────────────────────────────────────────────────
  *
- *   dark   for dark grounds: mint mark and ".pk", white "plug" — the artwork
- *   light  for white grounds: mint cannot carry text on white (1.6:1), so the
- *          mark and ".pk" take the deeper teal (#159E89, 3.3:1, enough for a
- *          bold wordmark at this size) and "plug" goes to slate-900
+ *   dark   for dark grounds: white "plug", volt "pk" — the artwork
+ *   light  for light grounds: ink "plug", and "pk" in volt ink, because volt
+ *          itself cannot carry type on paper (1.1:1)
+ *
+ * The wordmark is Power Grotesk drawn at its bold stroke (pg-bold).
  */
 
-const MINT = '#6FE8B6'
-const TEAL = '#159E89'
+const VOLT = '#D4FF3A'
+const VOLT_INK = '#3F5200'
+const INK = '#0B0C0E'
 
 export interface LogoMarkProps {
   className?: string
-  /** Fill colour. Defaults to the brand mint. */
+  /** Tile colour. Defaults to volt. */
   color?: string
+  /** Bolt colour. Defaults to ink. */
+  boltColor?: string
 }
 
-/** The bolt and plug on their own, 1:1. Size it with className (h-/w-). */
-export function LogoMark({ className, color = MINT }: LogoMarkProps) {
+/** The tile and bolt on their own, 1:1. Size it with className (h-/w-). */
+export function LogoMark({ className, color = VOLT, boltColor = INK }: LogoMarkProps) {
   return (
-    <svg viewBox="4 6 160 160" className={className} aria-hidden="true" focusable="false">
-      <g fill={color} stroke={color} strokeLinejoin="round">
-        <path strokeWidth={11} d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z" />
-        <path strokeWidth={5} d="M143.5 75 L140.5 85.5 L154 85.5 L154 88.5 L138.5 88.5 L135.5 99.5 L122 101.5 Z" />
-      </g>
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true" focusable="false">
+      <rect width="32" height="32" rx="9" fill={color} />
+      <path d="M18.6 4.5 8.5 18h6.8l-1.9 9.5L23.5 14h-6.8z" fill={boltColor} />
     </svg>
   )
 }
@@ -53,29 +51,20 @@ export interface LogoProps {
 }
 
 export function Logo({ tone = 'dark', size = 'text-2xl', tagline = false, className }: LogoProps) {
-  const accent = tone === 'dark' ? MINT : TEAL
   return (
     <span className={cn('inline-flex flex-col items-start', size, className)}>
-      <span className="inline-flex items-center gap-[0.22em]">
-        {/* The mark is set a touch taller than the x-height would suggest, as
-            in the artwork, and nudged down so it centres on the lowercase. */}
-        <LogoMark color={accent} className="h-[1.18em] w-[1.18em] shrink-0 translate-y-[0.04em]" />
-        <span className="font-bold leading-none tracking-[-0.035em]">
-          <span className={tone === 'dark' ? 'text-white' : 'text-slate-900'}>plug</span>
-          <span style={{ color: accent }}>pk</span>
+      <span className="inline-flex items-center gap-[0.42em]">
+        <LogoMark className="h-[1.3em] w-[1.3em] shrink-0" />
+        <span className="pg-bold font-display leading-none">
+          <span className={tone === 'dark' ? 'text-white' : 'text-ink'}>plug</span>
+          <span style={{ color: tone === 'dark' ? VOLT : VOLT_INK }}>pk</span>
         </span>
       </span>
-      {/*
-        The line under the wordmark. The artwork sets it at about a fifth of
-        the wordmark's size, which at navbar scale is 5px and unreadable, so
-        it has a floor of 9.5px; the tracking tightens at that floor so the
-        line stays close to the logo's own width, as in the artwork.
-      */}
       {tagline ? (
         <span
           className={cn(
             'mt-[0.42em] whitespace-nowrap pl-[0.08em] text-[max(0.36em,9.5px)] font-medium leading-none tracking-[0.07em]',
-            tone === 'dark' ? 'text-white/70' : 'text-slate-500',
+            tone === 'dark' ? 'text-white/70' : 'text-muted',
           )}
         >
           Powering Pakistan&rsquo;s EV Journey

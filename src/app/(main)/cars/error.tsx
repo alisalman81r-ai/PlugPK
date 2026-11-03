@@ -4,7 +4,7 @@
 import { RotateCcw } from '@/components/ui/icons'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { Btn, Eyebrow } from '@/components/v2/ui'
 
 /**
  * The car section's error boundary.
@@ -34,34 +34,26 @@ export default function CarsError({
   }, [error])
 
   return (
-    <section className="bg-white py-24 lg:py-32">
-      <div className="container-plug">
-        <div className="mx-auto max-w-md text-center">
-          <p className="text-ui-sm font-bold uppercase tracking-[0.18em] text-plug-blue-600">
-            Something went wrong
-          </p>
+    <section data-theme="light" className="bg-chalk py-24 lg:py-32">
+      <div className="mx-auto w-[min(560px,calc(100%-32px))] text-center">
+        <Eyebrow>Something went wrong</Eyebrow>
 
-          <h1 className="mt-4 text-[clamp(1.75rem,4vw,2.5rem)] font-black leading-[1.1] tracking-[-0.03em] text-slate-900">
-            The car database did not load
-          </h1>
+        <h1 className="font-display text-[clamp(32px,4.4vw,52px)] leading-[1.04] text-ink text-balance">
+          The car database did not load
+        </h1>
 
-          <p className="mt-4 text-ui leading-relaxed text-slate-500">
-            This one is on us. Trying again usually clears it.
-          </p>
+        <p className="mt-4 text-base leading-relaxed text-muted">This one is on us. Trying again usually clears it.</p>
 
-          {error.digest ? (
-            <p className="mt-3 font-mono text-ui-xs text-slate-500">Reference: {error.digest}</p>
-          ) : null}
+        {error.digest ? <p className="mt-3 font-mono text-xs text-muted">Reference: {error.digest}</p> : null}
 
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button size="lg" onClick={reset} leftIcon={<RotateCcw size={16} aria-hidden="true" />}>
-              Try again
-            </Button>
-
-            <Button size="lg" variant="secondary" href="/map">
-              Find a charger instead
-            </Button>
-          </div>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Btn variant="ink" size="lg" onClick={reset}>
+            <RotateCcw aria-hidden="true" />
+            Try again
+          </Btn>
+          <Btn variant="ghost" size="lg" href="/map">
+            Find a charger instead
+          </Btn>
         </div>
       </div>
     </section>

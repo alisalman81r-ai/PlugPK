@@ -24,7 +24,7 @@ export default function VerifyEmailPage({ searchParams }: PageProps) {
     <>
       <AuthHeader
         eyebrow="Confirm your email"
-        title="Verify your account"
+        title="Verify your account."
         subtitle="Enter the 6-digit code we emailed you. No code, or it expired? You can send a new one."
       />
       <VerifyEmailStart initialEmail={email} />

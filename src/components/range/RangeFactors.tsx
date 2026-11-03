@@ -1,5 +1,8 @@
 // src/components/range/RangeFactors.tsx
-import { Battery, Car, Flame, Gauge, Route, Snowflake, TrendingDown, Users, Wind } from '@/components/ui/icons'
+import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
+import { H2_CLASS, Hl, LEAD_CLASS } from '@/components/v2/ui'
+import { Battery, Car, Gauge, Route, Snowflake, Sun, TrendingDown, Users, Wind } from '@/components/ui/icons'
+import { cn } from '@/lib/utils'
 
 /**
  * What moves real-world range, as a driver in Pakistan meets it.
@@ -11,7 +14,7 @@ import { Battery, Car, Flame, Gauge, Route, Snowflake, TrendingDown, Users, Wind
 
 const FACTORS = [
   {
-    icon: Flame,
+    icon: Sun,
     title: 'Hot weather',
     body: 'A hot battery has to be cooled while you drive and while it charges. Parking in shade helps before you set off.',
   },
@@ -60,29 +63,30 @@ const FACTORS = [
 export function RangeFactors() {
   return (
     <section aria-labelledby="factors-heading">
-      <div className="max-w-2xl">
-        <h2
-          id="factors-heading"
-          className="text-[clamp(1.25rem,2.4vw,1.5rem)] font-bold leading-tight tracking-tight text-slate-900"
-        >
-          What changes your range here
+      <header className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
+        <h2 id="factors-heading" className={cn(H2_CLASS, 'text-ink')}>
+          What changes your range <Hl>here</Hl>
         </h2>
-        <p className="mt-2 text-ui leading-relaxed text-slate-600">
+        <p className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
           None of these appear in a lab test. Most of them are in every Pakistani summer.
         </p>
-      </div>
+      </header>
 
-      <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+      <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.04}>
         {FACTORS.map(({ icon: Icon, title, body }) => (
-          <li key={title} className="flex gap-3.5">
-            <Icon size={22} className="mt-0.5 shrink-0 text-plug-cyan-700" aria-hidden="true" />
-            <div className="min-w-0">
-              <h3 className="text-ui font-semibold text-slate-900">{title}</h3>
-              <p className="mt-1 text-ui-sm leading-relaxed text-slate-600">{body}</p>
+          <RevealItem key={title} className="h-full">
+            <div className="group/f grid h-full grid-cols-[46px_1fr] gap-x-4 rounded-[22px] border border-ink/10 bg-white px-[18px] py-5 transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2 sm:block sm:p-6">
+              <span className="row-span-2 grid size-[46px] place-items-center rounded-[14px] bg-chalk text-ink transition-[background-color,color,rotate] duration-500 ease-spring group-hover/f:-rotate-[8deg] group-hover/f:bg-ink group-hover/f:text-volt">
+                <Icon size={22} aria-hidden="true" />
+              </span>
+              <h3 className="mb-1.5 mt-0.5 font-display text-[19px] leading-[1.15] text-ink sm:mb-2 sm:mt-[18px] sm:text-[21px]">
+                {title}
+              </h3>
+              <p className="text-[14.5px] leading-[1.6] text-muted">{body}</p>
             </div>
-          </li>
+          </RevealItem>
         ))}
-      </ul>
+      </RevealGroup>
     </section>
   )
 }

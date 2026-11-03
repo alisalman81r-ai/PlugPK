@@ -26,8 +26,8 @@ const USE_GOOGLE = process.env.NEXT_PUBLIC_MAP_ENGINE === 'google' && Boolean(AP
 
 function EngineLoading() {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-[#F2F6F4]">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
+    <div className="flex h-full w-full items-center justify-center bg-[#ECEAE3]">
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-ink border-t-transparent motion-reduce:animate-none" />
     </div>
   )
 }

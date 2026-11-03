@@ -6,12 +6,14 @@ import * as React from 'react'
 
 import { CarPicker, type PickerCar } from '@/components/tools/CarPicker'
 import { useMyCar } from '@/hooks/useMyCar'
-import { AlertCircle, ArrowUpRight, Check, Info, Link2 } from '@/components/ui/icons'
+import { AlertCircle, ArrowUpRight, Check, ChevronDown, Gauge, Info, Link2 } from '@/components/ui/icons'
+import { FLABEL, Lift, SEG, Section, Wrap, btnClass, segButtonClass } from '@/components/v2/ui'
 import { MIN_RANGE_KM, convertRange, roadEstimates, STANDARDS, type RangeStandard } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
 
 import { ListingCompare } from './ListingCompare'
-import { REALISM, REALISM_ORDER } from './realism'
+import { Axis } from './Axis'
+import { REALISM, REALISM_ORDER, TONE_PILL } from './realism'
 import { RoadEstimates } from './RoadEstimates'
 import { StandardsTable } from './StandardsTable'
 import type { RangeCar } from './types'
@@ -37,8 +39,6 @@ import type { RangeCar } from './types'
  * and opens showing the same answer.
  */
 
-/** Same measure as the charging calculator and /community. */
-const STAGE = 'mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10'
 
 /** The tabs and the results both run strictest first. */
 const TAB_ORDER = REALISM_ORDER
@@ -175,16 +175,37 @@ export function RangeConverter({ cars }: RangeConverterProps) {
   const rows = converted ? TAB_ORDER.map((s) => converted.find((r) => r.standard === s)!) : null
   const road = ready ? roadEstimates(km, standard) : null
 
+  /** The nudge buttons on the figure: ±10 km, kept inside the field's limits. */
+  const nudge = (by: number) => {
+    const base = km != null && Number.isFinite(km) ? km : 0
+    setKmText(String(Math.min(MAX_KM, Math.max(1, Math.round(base + by)))))
+  }
+
+  // One shared km scale for the four lanes, padded either side (the design's lane maths).
+  let scale: { a: number; b: number } | null = null
+  if (rows) {
+    const lo = Math.min(...rows.map((r) => r.low))
+    const hi = Math.max(...rows.map((r) => r.high))
+    const pad = Math.max(20, (hi - lo) * 0.18)
+    scale = { a: Math.max(0, Math.floor((lo - pad) / 10) * 10), b: Math.ceil((hi + pad) / 10) * 10 }
+  }
+  const at = (v: number) => (scale ? ((v - scale.a) / (scale.b - scale.a)) * 100 : 0)
+
+  const linkClass =
+    'inline-flex min-h-8 items-center gap-1 font-semibold text-ink underline decoration-volt-ink/40 underline-offset-[3px] transition-colors hover:decoration-ink'
+
   return (
     <>
-      <div className={`relative -mt-20 sm:-mt-24 ${STAGE}`}>
-        {/* ── The card: question on the left, answer on the right ───── */}
-        <div className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(5,36,30,0.05),0_24px_60px_-32px_rgba(5,36,30,0.35)] lg:grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-            <div className="space-y-5 p-5 sm:p-7 lg:p-8">
+      <Lift className="overflow-visible">
+        {/* ── The sheet: question on the left, the instrument on the right ── */}
+        <div className="grid xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div className="grid content-start gap-[26px] rounded-t-3xl bg-paper bg-[linear-gradient(180deg,#FAF9F5_55%,transparent_100%),radial-gradient(rgba(11,12,14,.08)_1px,transparent_1.5px)] bg-[length:auto,14px_14px] px-[18px] py-[22px] sm:rounded-t-[32px] sm:p-8 md:grid-cols-2 md:gap-x-6 xl:grid-cols-1 xl:rounded-l-[32px] xl:rounded-tr-none">
+            <div className="md:col-span-2 xl:col-span-1">
               <CarPicker
                 ownCar={myCar}
                 id="range-car"
                 label="Your EV (optional)"
+                plainLabel
                 cars={pickerCars}
                 value={slug}
                 onChange={chooseCar}
@@ -192,23 +213,17 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                 noneLabel="Not in the list — I’ll type the range"
                 hint={
                   car ? (
-                    <p className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ui-sm leading-relaxed text-slate-500">
+                    <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] leading-[1.5] text-muted">
                       <span>
                         {car.rangeMaxKm && car.rangeMaxKm !== car.rangeKm
                           ? `Listed at ${car.rangeKm}–${car.rangeMaxKm} km across versions; we've used ${car.rangeKm}.`
                           : `Listed at ${car.rangeKm} km${car.standard ? ` ${car.standard}` : ''}.`}
                       </span>
-                      <Link
-                        href={`/cars/${car.slug}`}
-                        className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
-                      >
+                      <Link href={`/cars/${car.slug}`} className={linkClass}>
                         Full specs
                         <ArrowUpRight size={14} aria-hidden="true" />
                       </Link>
-                      <Link
-                        href={`/charging-calculator?car=${car.slug}`}
-                        className="inline-flex items-center gap-0.5 font-medium text-plug-cyan-700 hover:text-plug-cyan-800"
-                      >
+                      <Link href={`/charging-calculator?car=${car.slug}`} className={linkClass}>
                         How long to charge it
                         <ArrowUpRight size={14} aria-hidden="true" />
                       </Link>
@@ -216,181 +231,250 @@ export function RangeConverter({ cars }: RangeConverterProps) {
                   ) : null
                 }
               />
-
-              <fieldset>
-                <legend className="mb-2 text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Convert from
-                </legend>
-                {car && !car.standard && standard == null ? (
-                  <p className="mb-2.5 flex gap-2 rounded-xl bg-amber-50 px-3.5 py-2.5 text-ui-sm text-amber-900">
-                    <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
-                    We don&rsquo;t know which standard this car&rsquo;s figure uses. Check the brochure and pick it here.
-                  </p>
-                ) : null}
-                <div role="radiogroup" aria-label="Range standard" className="grid grid-cols-4 gap-1 rounded-2xl bg-slate-100 p-1">
-                  {TAB_ORDER.map((s) => {
-                    const on = standard === s
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        role="radio"
-                        aria-checked={on}
-                        title={STANDARDS[s].region}
-                        onClick={() => setStandard(s)}
-                        className={cn(
-                          'min-h-11 rounded-xl text-ui-sm font-bold tracking-wide transition-all duration-150 sm:text-ui',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
-                          on
-                            ? 'bg-plug-blue-600 text-white shadow-blue'
-                            : 'text-slate-600 hover:bg-white/70 hover:text-slate-900',
-                        )}
-                      >
-                        {s}
-                      </button>
-                    )
-                  })}
-                </div>
-                {standard ? (
-                  <p className="mt-2 text-ui-sm text-slate-500">
-                    {standard} is used in {STANDARDS[standard].region}.
-                  </p>
-                ) : null}
-              </fieldset>
-
-              <div>
-                <label
-                  htmlFor="range-km"
-                  className="mb-2 block text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500"
-                >
-                  Quoted range
-                </label>
-                <div
-                  className={cn(
-                    'flex items-baseline rounded-2xl border-[1.5px] bg-white px-5 py-3 transition-all duration-150 focus-within:shadow-focus',
-                    showProblem
-                      ? 'border-red-300 focus-within:border-red-400'
-                      : 'border-slate-200 focus-within:border-plug-blue-500',
-                  )}
-                >
-                  <input
-                    id="range-km"
-                    type="number"
-                    inputMode="numeric"
-                    min={1}
-                    max={MAX_KM}
-                    step={1}
-                    value={kmText}
-                    onChange={(e) => setKmText(e.target.value)}
-                    aria-invalid={kmProblem ? true : undefined}
-                    aria-describedby="range-km-help"
-                    className="w-full min-w-0 appearance-none bg-transparent text-[2.25rem] font-bold leading-none tracking-tight tabular-nums text-slate-900 outline-none placeholder:text-slate-300 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    placeholder="420"
-                  />
-                  <span className="ml-2 shrink-0 text-lg font-semibold text-slate-400">km</span>
-                </div>
-                <p id="range-km-help" className={`mt-2 text-ui-sm ${showProblem ? 'text-red-600' : 'text-slate-500'}`}>
-                  {showProblem ? kmProblem : 'The figure on the brochure, listing or spec sheet.'}
-                </p>
-              </div>
             </div>
 
-            {/* ── The answer ───────────────────────────────────────────── */}
-            <section
-              aria-live="polite"
-              aria-label="Your range on each standard"
-              className="border-t border-slate-100 bg-slate-50/70 px-5 pb-5 pt-4 sm:px-7 sm:pb-6 lg:border-l lg:border-t-0 lg:p-8"
-            >
-              {rows && km != null && standard ? (
-                <>
-                  <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-                    {km.toLocaleString('en-PK')} km {standard} is roughly
-                  </p>
-
-                  <ul className="mt-2 divide-y divide-slate-200/70">
-                    {rows.map((row) => {
-                      const r = REALISM[row.standard]
-                      return (
-                        <li
-                          key={row.standard}
-                          className={cn(
-                            'grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-4 py-4 sm:grid-cols-[6.5rem_minmax(0,1fr)]',
-                            row.quoted && '-mx-3 rounded-2xl border-0 bg-white px-3 ring-1 ring-plug-blue-600/15',
-                          )}
-                        >
-                          <div className="leading-tight">
-                            <p className="text-[1.75rem] font-bold tracking-tight tabular-nums text-slate-900">
-                              {row.quoted ? '' : <span className="mr-0.5 text-slate-400">≈</span>}
-                              {row.typical.toLocaleString('en-PK')}
-                            </p>
-                            <p className="mt-1 text-ui-sm tabular-nums text-slate-500">
-                              {row.quoted ? 'km · entered' : `${row.low}–${row.high} km`}
-                            </p>
-                          </div>
-                          <div className="min-w-0">
-                            <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                              <span className="text-ui font-bold text-slate-900">{row.standard}</span>
-                              <span
-                                className={cn(
-                                  'inline-flex items-center rounded-full px-2 py-0.5 text-ui-xs font-bold uppercase tracking-wider ring-1 ring-inset',
-                                  r.tone,
-                                )}
-                              >
-                                {r.badge}
-                              </span>
-                            </p>
-                            <p className="mt-0.5 text-ui-sm font-medium text-slate-600">{STANDARDS[row.standard].name}</p>
-                            <p className="mt-1 text-ui-sm leading-relaxed text-slate-500">{r.note}</p>
-                          </div>
-                        </li>
-                      )
-                    })}
-                  </ul>
-
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/70 pt-4">
-                    <p className="flex max-w-sm gap-2 text-ui-sm leading-relaxed text-slate-500">
-                      <Info size={16} className="mt-0.5 shrink-0 text-plug-cyan-700" aria-hidden="true" />
-                      Estimates, not exact conversions — the small range under each figure is the likely spread.
-                    </p>
+            <fieldset className="m-0 grid min-w-0 gap-2.5 border-0 p-0">
+              <legend className={cn(FLABEL, 'mb-2.5 p-0')}>Convert from</legend>
+              {car && !car.standard && standard == null ? (
+                <p className="flex gap-2.5 rounded-[14px] border border-[#FFE0A3] bg-[#FFF6E3] px-3.5 py-2.5 text-[13.5px] leading-[1.5] text-[#8A5300]">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+                  We don&rsquo;t know which standard this car&rsquo;s figure uses. Check the brochure and pick it here.
+                </p>
+              ) : null}
+              <div role="radiogroup" aria-label="Range standard" className={cn(SEG, 'grid w-full grid-cols-4')}>
+                {TAB_ORDER.map((s) => {
+                  const on = standard === s
+                  return (
                     <button
+                      key={s}
                       type="button"
-                      onClick={copyLink}
-                      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2"
-                    >
-                      {copied === 'done' ? (
-                        <Check size={16} className="text-plug-cyan-700" aria-hidden="true" />
-                      ) : (
-                        <Link2 size={16} aria-hidden="true" />
+                      role="radio"
+                      aria-checked={on}
+                      title={STANDARDS[s].region}
+                      onClick={() => setStandard(s)}
+                      className={cn(
+                        segButtonClass(on, 'min-h-11 content-center px-1.5 font-mono tracking-[0.04em] focus-visible:shadow-focus focus-visible:outline-none sm:px-4'),
+                        on && 'bg-ink text-white shadow-[0_8px_18px_-10px_rgba(11,12,14,.6)]',
                       )}
-                      {copied === 'done' ? 'Link copied' : copied === 'failed' ? 'Copy the address bar instead' : 'Copy link'}
+                    >
+                      {s}
                     </button>
-                  </div>
-                </>
-              ) : (
-                <div className="flex min-h-[10rem] flex-col items-center justify-center py-4 text-center">
-                  <p className="text-ui font-semibold text-slate-900">
-                    {standard == null ? 'Pick the standard to compare' : 'Enter a range to compare'}
-                  </p>
-                  <p className="mt-1.5 max-w-xs text-ui-sm leading-relaxed text-slate-500">
-                    {standard == null
-                      ? 'The same figure means different things on each standard, so we need to know which one it is.'
-                      : kmProblem}
-                  </p>
+                  )
+                })}
+              </div>
+              {standard ? (
+                <p aria-live="polite" className="text-[13px] text-muted">
+                  {standard} is used in {STANDARDS[standard].region}.
+                </p>
+              ) : null}
+            </fieldset>
+
+            <div className="grid gap-2">
+              <label htmlFor="range-km" className={FLABEL}>
+                Quoted range
+              </label>
+              <div
+                className={cn(
+                  'relative flex h-20 items-center rounded-[20px] border-[1.5px] bg-white transition-[border-color,box-shadow] duration-200 focus-within:shadow-focus sm:h-[92px]',
+                  showProblem ? 'border-[#FFB59C] focus-within:border-[#B42E05]' : 'border-ink/10 focus-within:border-ink',
+                )}
+              >
+                <input
+                  id="range-km"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={MAX_KM}
+                  step={1}
+                  value={kmText}
+                  onChange={(e) => setKmText(e.target.value)}
+                  aria-invalid={kmProblem ? true : undefined}
+                  aria-describedby="range-km-help"
+                  className="h-full w-full min-w-0 flex-1 appearance-none bg-transparent pl-[18px] font-mono text-[38px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink outline-none placeholder:text-fog [-moz-appearance:textfield] sm:pl-6 sm:text-[46px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  placeholder="420"
+                />
+                <span aria-hidden="true" className="mr-3.5 font-mono text-lg font-medium text-muted">
+                  km
+                </span>
+                <div className="mr-2.5 grid gap-1">
+                  <button
+                    type="button"
+                    onClick={() => nudge(10)}
+                    aria-label="Add 10 km"
+                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink transition-[background-color,transform] duration-300 ease-spring hover:bg-volt active:scale-90 sm:h-[34px]"
+                  >
+                    <ChevronDown size={18} className="rotate-180" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => nudge(-10)}
+                    aria-label="Subtract 10 km"
+                    className="grid h-[30px] w-11 place-items-center rounded-[10px] bg-chalk text-ink transition-[background-color,transform] duration-300 ease-spring hover:bg-volt active:scale-90 sm:h-[34px]"
+                  >
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </button>
                 </div>
-              )}
-            </section>
+              </div>
+              <p id="range-km-help" className={cn('text-[13px] leading-[1.5]', showProblem ? 'text-[#B42E05]' : 'text-muted')}>
+                {showProblem ? kmProblem : 'The figure on the brochure, listing or spec sheet.'}
+              </p>
+            </div>
+          </div>
+
+          {/* ── The answer ───────────────────────────────────────────── */}
+          <section
+            aria-live="polite"
+            aria-label="Your range on each standard"
+            data-theme="dark"
+            className="relative isolate overflow-hidden rounded-b-3xl bg-ink px-[18px] pb-5 pt-6 text-white sm:rounded-b-[32px] sm:px-8 sm:pb-[26px] sm:pt-[30px] xl:rounded-r-[32px] xl:rounded-bl-none"
+          >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-[1] bg-[linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] bg-[length:40px_40px] [mask-image:linear-gradient(180deg,#000,transparent_85%)]"
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-[180px] -top-[200px] -z-[1] h-[420px] w-[520px] rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.12),transparent_70%)]"
+            />
+
+            {rows && km != null && standard && scale ? (
+              <>
+                <div className="flex items-center justify-between gap-4 border-b border-white/[0.09] pb-4">
+                  <p className="font-mono text-xs font-semibold uppercase leading-[1.3] tracking-[0.16em] text-white/60">
+                    <span className="tracking-[0.04em] text-white">{km.toLocaleString('en-PK')}</span> km {standard} is roughly
+                  </p>
+                  <span aria-hidden="true" className="flex gap-[5px]">
+                    <i className="size-1.5 rounded-full bg-volt shadow-[0_0_10px_rgba(212,255,58,.8)]" />
+                    <i className="size-1.5 rounded-full bg-white/[0.18]" />
+                    <i className="size-1.5 rounded-full bg-white/[0.18]" />
+                  </span>
+                </div>
+
+                <ul className="m-0 list-none p-0">
+                  {rows.map((row, i) => {
+                    const r = REALISM[row.standard]
+                    const prevQuoted = i > 0 && rows[i - 1]?.quoted === true
+                    return (
+                      <li
+                        key={row.standard}
+                        className={cn(
+                          'relative -mx-2.5 grid grid-cols-1 gap-x-5 gap-y-2.5 rounded-[18px] border px-2.5 pb-3.5 pt-4 transition-colors duration-300 sm:-mx-4 sm:grid-cols-[132px_minmax(0,1fr)] sm:gap-y-3.5 sm:px-4 sm:pb-4 sm:pt-[18px]',
+                          row.quoted ? 'border-volt/30 bg-volt/[0.06]' : 'border-transparent',
+                          i > 0 &&
+                            !row.quoted &&
+                            !prevQuoted &&
+                            'before:absolute before:inset-x-2.5 before:-top-px before:h-px before:bg-white/[0.09] before:content-[""] sm:before:inset-x-4',
+                        )}
+                      >
+                        <div className="flex items-baseline gap-3 sm:grid sm:content-start sm:gap-1.5">
+                          <b
+                            className={cn(
+                              'whitespace-nowrap font-mono text-[32px] font-semibold leading-none tracking-[-0.03em] tabular-nums sm:text-[38px]',
+                              row.quoted ? 'text-volt' : 'text-white',
+                            )}
+                          >
+                            {row.quoted ? null : <span className="mr-0.5 font-normal text-fog">≈</span>}
+                            {row.typical.toLocaleString('en-PK')}
+                          </b>
+                          <span
+                            className={cn(
+                              'font-mono text-[12.5px] font-medium leading-[1.2] tabular-nums',
+                              row.quoted ? 'text-volt/85' : 'text-fog',
+                            )}
+                          >
+                            {row.quoted ? 'km · entered' : `${row.low}–${row.high} km`}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="flex flex-wrap items-center gap-2.5">
+                            <b className="font-mono text-base font-semibold leading-none tracking-[0.06em]">{row.standard}</b>
+                            <span className={cn(TONE_PILL, 'h-[22px]', r.toneDark)}>{r.badge}</span>
+                          </p>
+                          <p className="mt-1.5 text-[13px] text-white/60">{STANDARDS[row.standard].name}</p>
+                          <p className="mt-1.5 text-pretty text-sm leading-[1.55] text-white/80">{r.note}</p>
+                        </div>
+                        {/* Where this standard sits on the shared km scale. */}
+                        <div
+                          aria-hidden="true"
+                          className="relative col-span-full h-3.5 rounded-[7px] bg-white/[0.03] bg-[repeating-linear-gradient(90deg,rgba(255,255,255,.07)_0_1px,transparent_1px_10%)]"
+                        >
+                          <i
+                            className={cn('absolute bottom-[3px] top-[3px] rounded transition-[left,width] duration-700 ease-out', r.band)}
+                            style={{ left: `${at(row.low)}%`, width: `${Math.max(0, at(row.high) - at(row.low))}%` }}
+                          />
+                          <i
+                            className={cn(
+                              'absolute top-1/2 -ml-0.5 -mt-[11px] h-[22px] w-1 rounded-sm transition-[left] duration-700 ease-out',
+                              row.quoted
+                                ? 'bg-volt shadow-[0_0_0_3px_#0B0C0E,0_0_14px_rgba(212,255,58,.9)]'
+                                : 'bg-white shadow-[0_0_0_3px_#0B0C0E]',
+                            )}
+                            style={{ left: `${at(row.typical)}%` }}
+                          />
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <Axis a={scale.a} b={scale.b} dark className="mt-2.5" />
+
+                <div className="mt-7 flex flex-col items-stretch justify-between gap-[18px] border-t border-white/[0.09] pt-[18px] sm:flex-row sm:items-center">
+                  <p className="flex max-w-[34rem] gap-2.5 text-[13px] leading-[1.5] text-white/60">
+                    <Info size={18} className="mt-px shrink-0 text-fog" aria-hidden="true" />
+                    Estimates, not exact conversions — the small range under each figure is the likely spread.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    className={btnClass(
+                      'ghostDark',
+                      'sm',
+                      cn('shrink-0 [&_svg]:h-4 [&_svg]:w-4', copied === 'done' && 'border-volt text-volt'),
+                    )}
+                  >
+                    {copied === 'done' ? <Check size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
+                    {copied === 'done' ? 'Link copied' : copied === 'failed' ? 'Copy the address bar instead' : 'Copy link'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex min-h-[16rem] flex-col items-center justify-center py-6 text-center">
+                <span className="grid size-12 place-items-center rounded-full border border-white/[0.12] text-volt">
+                  <Gauge size={22} aria-hidden="true" />
+                </span>
+                <p className="mt-4 text-base font-semibold text-white">
+                  {standard == null ? 'Pick the standard to compare' : 'Enter a range to compare'}
+                </p>
+                <p className="mt-1.5 max-w-xs text-sm leading-[1.55] text-fog">
+                  {standard == null
+                    ? 'The same figure means different things on each standard, so we need to know which one it is.'
+                    : kmProblem}
+                </p>
+              </div>
+            )}
+          </section>
         </div>
-      </div>
+      </Lift>
 
-      <div className={`${STAGE} mt-16 space-y-16 lg:mt-20 lg:space-y-20`}>
-        <StandardsTable />
+      <Section tone="chalk" id="standards">
+        <Wrap>
+          <StandardsTable />
+        </Wrap>
+      </Section>
 
-        {road && km != null && standard ? (
-          <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
-        ) : null}
+      {road && km != null && standard ? (
+        <Section tone="paper" id="real-world">
+          <Wrap>
+            <RoadEstimates estimates={road} km={km} standard={standard} car={car} />
+          </Wrap>
+        </Section>
+      ) : null}
 
-        <ListingCompare initialKm={ready ? km : null} initialStandard={ready ? standard : null} />
-      </div>
+      <Section tone="chalk" id="compare">
+        <Wrap>
+          <ListingCompare initialKm={ready ? km : null} initialStandard={ready ? standard : null} />
+        </Wrap>
+      </Section>
     </>
   )
 }

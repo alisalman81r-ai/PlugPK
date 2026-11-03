@@ -1,5 +1,5 @@
 // src/components/station/ChargerSpecCard.tsx
-import { ConnectorBadge } from '@/components/ui'
+import { CONNECTOR_LABEL } from '@/components/map/filter-options'
 import { CONDITION_LABEL } from '@/lib/charger-host'
 import type { Connector } from '@/lib/types'
 import { cn, formatRelativeTime, getConnectorConfig } from '@/lib/utils'
@@ -40,13 +40,13 @@ const CURRENT_ABBREVIATION: Record<Connector['type'], string> = {
 
 function Spec({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <p className="mb-2 text-ui-xs font-semibold uppercase tracking-widest text-slate-400">
+    <div className="rounded-[18px] border border-ink/10 bg-white px-4 py-3.5">
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
         {label}
       </p>
-      <p className="font-mono text-2xl font-bold text-slate-900">
+      <p className="mt-2 font-mono text-[28px] font-semibold leading-none tabular-nums text-ink">
         {value}
-        {unit ? <span className="ml-1 font-mono text-sm text-slate-400">{unit}</span> : null}
+        {unit ? <span className="ml-1.5 font-mono text-sm font-medium text-muted">{unit}</span> : null}
       </p>
     </div>
   )
@@ -56,26 +56,21 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
   const config = getConnectorConfig(connector.type)
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-6">
-      <span
-        aria-hidden="true"
-        className="absolute bottom-0 left-0 top-0 w-1 rounded-l-2xl bg-gradient-accent"
-      />
-
-      <div className="mb-6 flex items-center justify-between gap-4">
+    <div className="relative overflow-hidden rounded-[22px] border border-ink/10 bg-paper p-4 sm:p-6">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm">
-            <span className="font-mono text-sm font-black text-plug-blue-600">
+          <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-ink">
+            <span className="font-mono text-sm font-bold text-volt">
               {CURRENT_ABBREVIATION[connector.type]}
             </span>
           </span>
 
           <div>
             <div className="flex items-center gap-2">
-              <ConnectorBadge type={connector.type} size="md" />
-              <span className="font-mono text-xs text-slate-400">#{index + 1}</span>
+              <span className="font-display text-[22px] leading-none text-ink">{CONNECTOR_LABEL[connector.type] ?? connector.type}</span>
+              <span className="font-mono text-xs text-muted">#{index + 1}</span>
             </div>
-            <p className="mt-1 text-sm text-slate-500">{config.description}</p>
+            <p className="mt-1.5 text-sm text-muted">{config.description}</p>
           </div>
         </div>
 
@@ -93,7 +88,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
               {CONDITION_LABEL[connector.hostCondition]}
             </span>
             {connector.hostConditionAt ? (
-              <p className="mt-1 text-ui-xs text-slate-400">
+              <p className="mt-1 font-mono text-[11px] text-muted">
                 Host update · {formatRelativeTime(connector.hostConditionAt)}
               </p>
             ) : null}
@@ -101,7 +96,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
         ) : null}
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:max-w-[420px]">
         <Spec label="Max Power" value={String(connector.maxPowerKw)} unit="kW" />
         <Spec
           label="Ports"
@@ -111,7 +106,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
       </div>
 
       <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <p className="mb-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
           Compatible with
         </p>
 
@@ -120,7 +115,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
             {connector.compatibleVehicles.map((vehicle) => (
               <span
                 key={vehicle}
-                className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600"
+                className="inline-flex h-8 items-center rounded-full border border-ink/10 bg-white px-3 text-sm font-medium text-ink"
               >
                 {vehicle}
               </span>
@@ -129,7 +124,7 @@ export function ChargerSpecCard({ connector, index }: ChargerSpecCardProps) {
         ) : (
           // No list was given for this charger. "Most EVs" was a claim; the socket
           // is what decides it, so that is what is said.
-          <p className="text-sm text-slate-500">Any car with a {connector.type} socket</p>
+          <p className="text-sm text-muted">Any car with a {CONNECTOR_LABEL[connector.type] ?? connector.type} socket</p>
         )}
       </div>
     </div>

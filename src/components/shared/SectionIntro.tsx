@@ -14,10 +14,8 @@ import { cn } from '@/lib/utils'
  * clamped display size. Four copies of a heading is four chances for the next
  * edit to land in three of them.
  *
- * The type matches the card header bands on /map, /routes and /community: the
- * same eyebrow, the same display face, the same clamp. A section intro and a
- * card header are doing the same job at different scales, and they should not
- * look like two different systems doing it.
+ * Styled as landing-v2's .shead: a JetBrains Mono eyebrow in volt ink (volt
+ * on dark), a Power Grotesk heading, and a muted lead.
  */
 
 export interface SectionIntroProps {
@@ -51,9 +49,9 @@ export function SectionIntro({
       {eyebrow ? (
         <p
           className={cn(
-            'flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em]',
+            'flex items-center gap-2.5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em]',
             centred && 'justify-center',
-            dark ? 'text-plug-cyan-300' : 'text-plug-blue-600',
+            dark ? 'text-volt' : 'text-volt-ink',
           )}
         >
           {icon}
@@ -63,8 +61,8 @@ export function SectionIntro({
 
       <h2
         className={cn(
-          'mt-3 text-balance font-display text-[clamp(1.75rem,3.2vw,2.5rem)] font-bold leading-[1.12] tracking-tight',
-          dark ? 'text-white' : 'text-slate-900',
+          'mt-[18px] text-balance font-display text-[clamp(30px,3.9vw,56px)] leading-[1.04]',
+          dark ? 'text-white' : 'text-ink',
         )}
       >
         {title}
@@ -73,11 +71,11 @@ export function SectionIntro({
       {lead ? (
         <p
           className={cn(
-            'mt-4 text-pretty text-ui leading-relaxed sm:text-base',
-            centred && 'mx-auto max-w-xl',
+            'mt-5 text-pretty text-[clamp(16px,1.3vw,19px)] leading-[1.6]',
+            centred && 'mx-auto max-w-[40rem]',
             // white/65 rather than the white/60 these sections used: at this
             // size the old value sat under 4.5:1 on the darkest band.
-            dark ? 'text-white/65' : 'text-slate-500',
+            dark ? 'text-white/70' : 'text-muted',
           )}
         >
           {lead}

@@ -75,7 +75,7 @@ export function getStatusConfig(status: StationStatus) {
     },
     unknown: {
       label: 'Unknown',
-      color: '#989FA1',
+      color: '#A3A7AE',
       bgClass: 'bg-slate-50',
       textClass: 'text-slate-600',
       borderClass: 'border-slate-200',

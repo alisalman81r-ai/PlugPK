@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 
 import { MapExplorer } from '@/components/map/MapExplorer'
-import { FaqSection } from '@/components/shared/FaqSection'
+import { Faq, Hl, SectionHead, WRAP } from '@/components/v2/ui'
 import { readOrFallback } from '@/lib/db/availability'
 import { getMapStations } from '@/lib/db/queries'
 import { MAP_FAQS } from '@/lib/faqs'
@@ -60,7 +60,14 @@ export default async function MapPage() {
         <MapExplorer stations={stations} />
       </Suspense>
 
-      <FaqSection items={MAP_FAQS} title="Common questions about the map" />
+      {/* The shared FAQ pieces rather than FaqSection, so the heading can
+          carry the design's highlighted phrase. */}
+      <section data-theme="light" className="bg-chalk pb-[clamp(80px,9vw,128px)] pt-[clamp(56px,6vw,96px)]">
+        <div className={WRAP}>
+          <SectionHead eyebrow="FAQ" title={<>Common questions about <Hl>the map</Hl></>} />
+          <Faq items={MAP_FAQS.map((item) => ({ q: item.question, a: item.answer }))} />
+        </div>
+      </section>
     </>
   )
 }

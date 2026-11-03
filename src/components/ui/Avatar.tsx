@@ -43,7 +43,7 @@ export function Avatar({ name, src, size = 40, className }: AvatarProps) {
       aria-hidden="true"
       style={{ width: size, height: size, fontSize: Math.round(size * 0.42) }}
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-gradient-brand font-bold text-white',
+        'flex shrink-0 items-center justify-center rounded-full bg-volt font-bold text-ink',
         className,
       )}
     >

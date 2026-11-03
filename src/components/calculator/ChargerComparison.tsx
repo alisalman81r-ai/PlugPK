@@ -13,11 +13,11 @@ import type { CalculatorCar } from './types'
  * "which charger should I use" — is a wall box worth it, is it worth driving
  * to a fast charger. One answer at a time cannot show that; six rows can.
  *
- * Each row runs the same estimate as the main panel, with the car's own limits
+ * Each row runs the same estimate as the main card, with the car's own limits
  * applied, so a car that caps at 6.6 kW shows the 7.4, 11 and 22 kW boxes
  * taking the same time — which is itself the most useful thing on the page for
  * someone about to buy the bigger one. Tapping a row selects that charger
- * above.
+ * above; the chosen one is the ink row with the volt bar (landing-v2 .crow).
  *
  * Bars are proportional to time against the slowest row, so a two-hour gap
  * looks like one. The fastest DC rows get a sliver rather than nothing.
@@ -71,18 +71,18 @@ export function ChargerComparison({
   const ready = slowest > 0
 
   return (
-    <section aria-labelledby="compare-heading">
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
-        <h2 id="compare-heading" className="text-ui font-semibold text-slate-900">
+    <section aria-labelledby="compare-heading" className="min-w-0">
+      <div className="mb-[18px] grid gap-1">
+        <h2 id="compare-heading" className="m-0 font-display text-2xl leading-[1.1] text-ink">
           Same charge, every charger
         </h2>
-        <p className="text-ui-sm text-slate-500">
+        <p className="text-sm text-muted">
           {ready ? `${from}% → ${to}%${car ? ` on ${car.name}` : ''}. Tap one to use it above.` : 'Appears once you add your battery.'}
         </p>
       </div>
 
       {ready ? (
-        <ul className="mt-4 grid gap-2 lg:grid-cols-2 lg:gap-x-6">
+        <ul className="grid gap-1.5">
           {rows.map((row) => {
             if (!row.result.ok) return null
             const r = row.result
@@ -97,41 +97,53 @@ export function ChargerComparison({
                   onClick={() => onChoose(row.mode, row.kw)}
                   aria-pressed={on}
                   className={cn(
-                    'group w-full rounded-xl border-[1.5px] px-4 py-3 text-left transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
-                    on ? 'border-plug-blue-600 bg-plug-blue-600/[0.04]' : 'border-slate-200 bg-white hover:border-slate-300',
+                    'grid min-h-[56px] w-full grid-cols-[minmax(0,104px)_minmax(0,1fr)_86px] items-center gap-2.5 rounded-[14px] px-2.5 py-2 text-left transition-colors duration-300 sm:grid-cols-[minmax(0,190px)_minmax(0,1fr)_120px] sm:gap-3.5 sm:px-3.5',
+                    'focus-visible:shadow-focus focus-visible:outline-none',
+                    on ? 'bg-ink text-white' : 'text-ink hover:bg-chalk',
                   )}
                 >
-                  <span className="flex items-baseline justify-between gap-3">
-                    <span className="min-w-0">
-                      <span className="text-ui-sm font-semibold text-slate-900">
-                        {row.label} · {formatKw(row.kw)}
-                      </span>
-                      <span className="mt-0.5 block text-ui-xs text-slate-500">
-                        {capped
-                          ? `Your car takes ${formatKw(r.powerKw)} max`
-                          : row.mode === 'dc'
-                            ? 'Estimate — slows as it fills'
-                            : `Runs at ${formatKw(r.powerKw)}`}
-                        {/* No DC cost: at the home rate it would read as the
-                            cheaper option, and public DC usually bills more. */}
-                        {r.cost != null && row.mode === 'ac' ? ` · ${formatRupees(r.cost)}` : ''}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-lg font-bold tabular-nums text-slate-900">
-                      {row.mode === 'dc' ? '~' : ''}
-                      {formatDuration(r.minutes)}
+                  <span className="grid min-w-0 leading-[1.25]">
+                    <b className="font-mono text-[13.5px] font-semibold sm:text-[15px]">
+                      {formatKw(row.kw)}
+                    </b>
+                    <span className={cn('text-[12px] leading-[1.3] sm:truncate sm:text-[12.5px]', on ? 'text-fog' : 'text-muted')}>
+                      {row.label}
+                      {/* No DC cost: at the home rate it would read as the
+                          cheaper option, and public DC usually bills more. */}
+                      {r.cost != null && row.mode === 'ac' ? ` · ${formatRupees(r.cost)}` : ''}
                     </span>
                   </span>
 
-                  <span aria-hidden="true" className="mt-2.5 block h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <span
+                    aria-hidden="true"
+                    className={cn('relative h-3 overflow-hidden rounded-full', on ? 'bg-white/[0.12]' : 'bg-stone')}
+                  >
                     <span
                       className={cn(
-                        'block h-full rounded-full transition-[width] duration-300 ease-out motion-reduce:transition-none',
-                        row.mode === 'dc' ? 'bg-plug-cyan-500' : 'bg-plug-blue-600',
+                        'absolute inset-y-0 left-0 rounded-full transition-[width] duration-500 ease-out motion-reduce:transition-none',
+                        on ? 'bg-volt shadow-[0_0_10px_rgba(212,255,58,.6)]' : 'bg-ink',
                       )}
                       style={{ width: `${share}%` }}
                     />
+                  </span>
+
+                  <span className="min-w-0 text-right">
+                    <span
+                      className={cn(
+                        'block whitespace-nowrap font-mono text-[13.5px] font-semibold tabular-nums sm:text-[15px]',
+                        on && 'text-volt',
+                      )}
+                    >
+                      {row.mode === 'dc' ? '~' : ''}
+                      {formatDuration(r.minutes)}
+                    </span>
+                    <span className={cn('block font-mono text-[11px] font-medium leading-[1.3] sm:whitespace-nowrap', on ? 'text-fog' : 'text-muted')}>
+                      {capped
+                        ? `car max ${formatKw(r.powerKw)}`
+                        : row.mode === 'dc'
+                          ? 'slows as it fills'
+                          : `at ${formatKw(r.powerKw)}`}
+                    </span>
                   </span>
                 </button>
               </li>

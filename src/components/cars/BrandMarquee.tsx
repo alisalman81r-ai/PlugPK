@@ -1,86 +1,96 @@
 // src/components/cars/BrandMarquee.tsx
+'use client'
+
 import * as React from 'react'
 
+import { cn } from '@/lib/utils'
+
 /**
- * The brands, running continuously beneath the hero.
+ * The brands, running continuously in a paper strip lifted into the hero
+ * (landing-v2's .brands). Each name is a filter: pressing one narrows the
+ * catalogue to that brand, pressing it again lets it go.
  *
- * A strip like this is doing one job: establishing, in the second before
- * anybody reads a word, that this catalogue covers real manufacturers. It is
- * texture and credibility rather than navigation — the brand rail further down
- * is where a brand is actually chosen, and putting two brand controls on one
- * page would only make the reader wonder which one counts.
+ * Built in CSS: the track holds the list twice and translates exactly -50%, so
+ * at the end of the cycle the second copy sits precisely where the first
+ * started and the jump back is invisible. It runs on the compositor and costs
+ * no JavaScript. Hovering, focusing or touching the strip pauses it, since a
+ * button that moves is hard to press.
  *
- * Which is why it is aria-hidden. Every brand here is already announced by that
- * rail; a screen reader meeting fourteen manufacturers twice, once in a
- * duplicated loop, learns nothing and loses patience.
- *
- * Built in CSS rather than with the reference implementation's framer-motion
- * and react-use-measure. Same seamless result, and three advantages that matter
- * for something that animates forever near the top of a page: it runs entirely
- * on the compositor, it costs no JavaScript and no dependency, and it does not
- * re-render on resize because nothing is being measured.
- *
- * How the seam is hidden: the track holds the list twice and translates exactly
- * -50%, so at the end of the cycle the second copy sits precisely where the
- * first started and the jump back is invisible.
+ * Only the first copy is in the accessibility tree and the tab order; the
+ * second exists for the loop alone. With reduced motion the strip stops and
+ * scrolls sideways instead.
  */
 
 export interface BrandMarqueeProps {
   brands: string[]
+  /** The brand the catalogue is narrowed to, if exactly one. */
+  active: string | null
+  onSelect: (brand: string | null) => void
 }
 
-export function BrandMarquee({ brands }: BrandMarqueeProps) {
+export function BrandMarquee({ brands, active, onSelect }: BrandMarqueeProps) {
+  const [paused, setPaused] = React.useState(false)
+  const resume = React.useRef<number>()
+
   // Below about eight the loop is visibly short — the same name comes back
   // around too quickly to read as a stream. Repeating the list evens that out.
   const sequence = brands.length < 8 ? [...brands, ...brands] : brands
 
   return (
-    /*
-      border-slate-200, where this was slate-100.
-
-      This strip used to sit above the "At a glance" panel — white on white —
-      and a slate-100 hairline was the right weight to separate two white
-      bands. That panel is gone, so the strip now meets the catalogue's
-      slate-100 ground directly, and a slate-100 border against a slate-100
-      background is a border that does nothing. slate-200 gives the strip a
-      defined bottom edge again, which is the job the removed panel's own
-      border was doing for the section boundary.
-    */
-    <div
-      aria-hidden="true"
-      className="relative overflow-hidden border-b border-slate-200 bg-white py-5"
+    <nav
+      aria-label="Filter by brand"
+      data-theme="light"
+      onTouchStart={() => {
+        window.clearTimeout(resume.current)
+        setPaused(true)
+      }}
+      onTouchEnd={() => {
+        resume.current = window.setTimeout(() => setPaused(false), 2500)
+      }}
+      className={cn(
+        'group/brands relative z-[3] mx-auto -mt-10 w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-[20px] border border-white/60 bg-paper shadow-e4 sm:-mt-12 sm:rounded-[26px]',
+        'motion-reduce:overflow-x-auto motion-reduce:[scrollbar-width:none]',
+        'before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-[2] before:w-9 before:bg-[linear-gradient(90deg,#F4F3EE,transparent)] sm:before:w-[72px]',
+        'after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:z-[2] after:w-9 after:bg-[linear-gradient(-90deg,#F4F3EE,transparent)] sm:after:w-[72px]',
+      )}
     >
-      {/*
-        Masks at both edges, so names enter and leave rather than being sliced
-        off by the container. A gradient of the page's own white rather than an
-        opacity fade, which would show whatever sits behind it.
-      */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent sm:w-28" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent sm:w-28" />
-
-      {/*
-        w-max keeps the track at its natural width so the two copies sit in one
-        row; without it the flex container would shrink to the viewport and the
-        -50% translation would no longer line up.
-
-        Paused on hover, which is the one interaction a decorative strip owes
-        the reader: something moving continuously is hard to read, and stopping
-        it is cheaper than slowing it down.
-      */}
-      <div className="group flex w-max animate-marquee items-center gap-10 hover:[animation-play-state:paused] motion-reduce:animate-none sm:gap-14">
+      <div
+        className={cn(
+          'flex w-max animate-marquee [animation-duration:70s] group-focus-within/brands:[animation-play-state:paused] group-hover/brands:[animation-play-state:paused] motion-reduce:animate-none',
+          paused && '[animation-play-state:paused]',
+        )}
+      >
         {[0, 1].map((copy) => (
-          <div key={copy} className="flex shrink-0 items-center gap-10 sm:gap-14">
-            {sequence.map((brand, index) => (
-              <span
-                key={`${copy}-${brand}-${index}`}
-                className="whitespace-nowrap font-display text-xl font-bold tracking-tight text-slate-900 transition-colors duration-300 hover:text-plug-blue-700 sm:text-2xl"
-              >
-                {brand}
-              </span>
-            ))}
+          <div
+            key={copy}
+            aria-hidden={copy === 1 ? true : undefined}
+            className={cn(
+              'flex shrink-0 items-center gap-0.5 px-2.5 py-2 sm:gap-1.5 sm:px-[clamp(14px,1.7vw,26px)] sm:py-3.5',
+              copy === 1 && 'motion-reduce:hidden',
+            )}
+          >
+            {sequence.map((brand, index) => {
+              const on = active === brand
+              return (
+                <button
+                  key={`${copy}-${brand}-${index}`}
+                  type="button"
+                  tabIndex={copy === 1 ? -1 : undefined}
+                  aria-pressed={copy === 0 ? on : undefined}
+                  onClick={() => onSelect(on ? null : brand)}
+                  className={cn(
+                    'inline-flex h-[46px] items-center whitespace-nowrap rounded-full px-3.5 font-display text-[19px] leading-none transition-[color,background-color,transform] duration-300 ease-spring sm:h-[52px] sm:px-[clamp(14px,1.7vw,26px)] sm:text-[clamp(20px,1.7vw,26px)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ink',
+                    on ? 'bg-ink text-white' : 'text-ink/55 hover:-translate-y-0.5 hover:text-ink',
+                  )}
+                >
+                  {brand}
+                </button>
+              )
+            })}
           </div>
         ))}
       </div>
-    </div>
+    </nav>
   )
 }

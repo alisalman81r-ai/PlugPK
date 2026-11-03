@@ -65,7 +65,7 @@ export function StationTable({ stations, total, counts, status, venue, onDelete 
 
   return (
     <div>
-      <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(5,36,30,0.04)]">
+      <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(11,12,14,0.04)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <AdminSearch placeholder="Search name, city, area, network or connector" label="Search stations" />
 

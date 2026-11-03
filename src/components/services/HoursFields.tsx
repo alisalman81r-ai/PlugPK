@@ -47,14 +47,14 @@ export function HoursFields({
     { value: 'unknown', label: 'Not sure yet' },
   ]
   const timeClass = cn(
-    'h-10 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 font-mono text-ui-sm text-slate-900 outline-none focus-visible:border-plug-blue-500 disabled:bg-slate-100 disabled:text-slate-400',
+    'h-10 w-full min-w-0 rounded-xl border-[1.5px] border-ink/10 bg-white px-2 font-mono text-ui-sm text-slate-900 outline-none focus-visible:border-ink focus-visible:shadow-focus disabled:bg-slate-100 disabled:text-slate-400',
     inputClassName,
   )
 
   return (
     <div className={cn(invalid && 'rounded-xl ring-2 ring-red-300 ring-offset-4')}>
       <input type="hidden" name="hoursMode" value={mode} />
-      <div role="radiogroup" aria-label="Opening hours" className="inline-flex flex-wrap gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1">
+      <div role="radiogroup" aria-label="Opening hours" className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-stone p-1">
         {options.map((option) => (
           <button
             key={option.value}
@@ -63,8 +63,8 @@ export function HoursFields({
             aria-checked={mode === option.value}
             onClick={() => setMode(option.value)}
             className={cn(
-              'rounded-lg px-3 py-1.5 text-ui-sm font-semibold transition-colors',
-              mode === option.value ? 'bg-white text-plug-blue-700 shadow-sm' : 'text-slate-600 hover:text-slate-900',
+              'min-h-[40px] rounded-xl px-4 py-2 text-ui-sm font-semibold transition-colors',
+              mode === option.value ? 'bg-white text-ink shadow-e1' : 'text-slate-600 hover:text-slate-900',
             )}
           >
             {option.label}
@@ -102,7 +102,7 @@ export function HoursFields({
                       name={`${day}Closed`}
                       checked={isClosed}
                       onChange={(event) => setClosed((prev) => ({ ...prev, [day]: event.target.checked }))}
-                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-plug-blue-600"
+                      className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-ink"
                     />
                     Closed
                   </label>
@@ -113,7 +113,7 @@ export function HoursFields({
           <button
             type="button"
             onClick={copyMonday}
-            className="mt-3 text-ui-sm font-semibold text-plug-blue-600 hover:underline"
+            className="mt-3 text-ui-sm font-semibold text-ink underline decoration-volt decoration-2 underline-offset-4"
           >
             Copy Monday&apos;s times to every open day
           </button>

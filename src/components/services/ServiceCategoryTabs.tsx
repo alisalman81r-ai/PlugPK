@@ -11,6 +11,7 @@ import {
   type IconType,
 } from '@/components/ui/icons'
 
+import { ChipCount, Lift, chipClass } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { ServiceCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -30,6 +31,15 @@ export const CATEGORY_ICON: Record<string, IconType> = {
   LifeBuoy,
 }
 
+/**
+ * The category filter, as landing-v2's lifted chip bar: a paper sheet that
+ * overlaps the bottom of the hero, holding one pill per category with its
+ * count. The pressed chip goes ink with a volt count.
+ *
+ * Wraps where there is room and scrolls sideways where there is not, with a
+ * fade at the edge so it is obvious there is more than fits. A chip you cannot
+ * see is a chip you cannot press.
+ */
 export function ServiceCategoryTabs({
   selectedCategory,
   onCategoryChange,
@@ -45,81 +55,40 @@ export function ServiceCategoryTabs({
   ]
 
   return (
-    // Translucent rather than opaque: the bar sits over the listings as they
-    // scroll under it, and a solid white slab reads as a lid. The blur keeps
-    // the text legible without hiding that there is content beneath.
-    <div className="sticky top-[72px] z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
-      {/*
-        Wraps from lg up, scrolls below it.
+    <Lift id="directory" className="-mt-16 sm:-mt-[72px]">
+      <div className="relative px-3 py-3 sm:px-5 sm:py-4">
+        <div
+          role="group"
+          aria-label="Filter by category"
+          className="scrollbar-hide -mx-3 flex items-center gap-1.5 overflow-x-auto px-3 [mask-image:linear-gradient(90deg,#000_calc(100%-40px),transparent)] sm:-mx-5 sm:px-5 lg:mx-0 lg:flex-wrap lg:justify-center lg:overflow-visible lg:px-0 lg:[mask-image:none]"
+        >
+          {tabs.map((tab) => {
+            const on = selectedCategory === tab.key
+            const count = categoryCount[tab.key] ?? 0
+            const Icon = tab.icon
 
-        Seven tabs on one non-wrapping row meant the last one — Roadside
-        Assistance — sat past the right edge on a typical laptop, showing as a
-        bare icon with its label and count cut off. A tab you cannot see is a
-        tab you cannot click, which reads as the filter being broken rather
-        than as content being off-screen.
-      */}
-      <div
-        role="tablist"
-        aria-label="Service categories"
-        className={cn(
-          'container-plug scrollbar-hide relative flex items-center gap-1.5 overflow-x-auto py-3',
-          'lg:flex-wrap lg:overflow-visible',
-        )}
-      >
-        {tabs.map((tab) => {
-          const isSelected = selectedCategory === tab.key
-          const count = categoryCount[tab.key] ?? 0
-          const Icon = tab.icon
-
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isSelected}
-              onClick={() => onCategoryChange(tab.key)}
-              className={cn(
-                'group/tab flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-ui-sm font-semibold transition-colors duration-150',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-                // Ink rather than saturated blue for the selected state. Seven
-                // tabs in plug-blue-600 put a heavy brand-coloured block at the
-                // top of every listing and left nothing for the actual calls to
-                // action on the cards below to stand out against.
-                isSelected
-                  ? 'bg-plug-navy-900 text-white shadow-e1'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-              )}
-            >
-              <Icon
-                size={16}
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                aria-pressed={on}
+                onClick={() => onCategoryChange(tab.key)}
                 className={cn(
-                  'shrink-0 transition-colors duration-150',
-                  isSelected ? 'text-white' : 'text-slate-400 group-hover/tab:text-slate-600',
-                )}
-                aria-hidden="true"
-              />
-              {tab.label}
-              <span
-                className={cn(
-                  'rounded-full px-1.5 py-0.5 font-mono text-ui-xs font-bold tabular-nums transition-colors duration-150',
-                  isSelected
-                    ? 'bg-white/20 text-white'
-                    : 'bg-slate-100 text-slate-500 group-hover/tab:bg-slate-200',
+                  chipClass(on, 'h-[46px] shrink-0 gap-[9px] px-3.5 focus-visible:outline-none focus-visible:shadow-focus'),
+                  !on && count === 0 && 'opacity-45',
+                  '[&_svg]:h-[18px] [&_svg]:w-[18px]',
                 )}
               >
-                {count}
-              </span>
-            </button>
-          )
-        })}
+                <Icon size={18} aria-hidden="true" />
+                {tab.label}
+                <ChipCount on={on}>
+                  <span className="inline-block min-w-[14px] text-center tabular-nums">{count}</span>
+                </ChipCount>
+              </button>
+            )
+          })}
+        </div>
       </div>
-
-      {/* Only below lg, where the row actually scrolls: a fade at the right
-          edge so it is obvious there is more than fits. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white to-transparent lg:hidden"
-      />
-    </div>
+    </Lift>
   )
 }

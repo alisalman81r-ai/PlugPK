@@ -3,7 +3,7 @@
 /**
  * Shown while the cars route resolves.
  *
- * Shaped like the page it replaces — the dark hero, the toolbar, then a grid of
+ * Shaped like the page it replaces — the ink hero, the brand strip, the toolbar, then a grid of
  * cards — rather than a spinner in the middle of nothing. A skeleton that
  * matches the layout means little jumps when the real content arrives; a
  * centred spinner guarantees everything will.
@@ -27,41 +27,47 @@ export default function CarsLoading() {
     <div aria-busy="true" aria-live="polite">
       <span className="sr-only">Loading cars…</span>
 
-      {/* The hero in silhouette, on the same ground as the real one, so the
-          swap is a content change rather than a background flash. */}
-      <section className="relative isolate overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
-        <div className="container-plug flex flex-col items-center gap-5">
-          <div className="h-12 w-full max-w-2xl animate-pulse rounded-2xl bg-white/10" />
+      {/* The hero in silhouette, on the same ink ground as the real one, so
+          the swap is a content change rather than a background flash. */}
+      <section
+        data-theme="dark"
+        className="rounded-b-[32px] bg-ink pb-[clamp(120px,10vw,128px)] pt-[clamp(44px,7vw,80px)] sm:rounded-b-[48px]"
+      >
+        <div className="mx-auto flex w-[min(980px,calc(100%-32px))] flex-col items-center gap-5">
+          <div className="h-[clamp(84px,10vw,170px)] w-full max-w-2xl animate-pulse rounded-3xl bg-white/10" />
           <div className="h-5 w-full max-w-md animate-pulse rounded-full bg-white/[0.07]" />
-          <div className="mt-5 h-16 w-full max-w-3xl animate-pulse rounded-full bg-white/[0.07]" />
-          <div className="mt-5 h-[5.5rem] w-full max-w-md animate-pulse rounded-2xl bg-white/[0.05]" />
+          <div className="mt-4 h-16 w-full max-w-[660px] animate-pulse rounded-full bg-white/[0.12]" />
+          <div className="mt-6 h-[74px] w-full max-w-xs animate-pulse rounded-[22px] bg-white/[0.05]" />
         </div>
       </section>
 
-      <section className="bg-slate-50 pb-20 pt-8 sm:pt-10">
-        <div className="container-plug">
-          {/* The toolbar: the powertrain pills and the filter button */}
+      {/* The brand strip */}
+      <div className="relative z-[3] mx-auto -mt-10 h-[62px] w-[min(1320px,calc(100%-32px))] rounded-[20px] bg-paper shadow-e4 sm:-mt-12 sm:h-20 sm:rounded-[26px]" />
+
+      <section data-theme="light" className="bg-chalk pb-20 pt-[clamp(48px,5vw,72px)]">
+        <div className="mx-auto w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))]">
+          {/* The powertrain chips and the filter button */}
           <div className="flex items-center gap-3">
             <div className="flex flex-1 gap-2 overflow-hidden">
-              {[90, 84, 100, 92, 104].map((width, index) => (
-                <div key={index} className="h-12 shrink-0 animate-pulse rounded-full bg-white" style={{ width }} />
+              {[86, 72, 90, 84, 96].map((width, index) => (
+                <div key={index} className="h-11 shrink-0 animate-pulse rounded-full bg-white" style={{ width }} />
               ))}
             </div>
             <div className="h-12 w-12 shrink-0 animate-pulse rounded-full bg-white" />
           </div>
 
           {/* The grid, in the cards' own shape */}
-          <div className="mt-[4.25rem] grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+          <div className="mt-[94px] grid grid-cols-1 gap-3 min-[421px]:grid-cols-2 sm:gap-[clamp(14px,1.6vw,22px)] min-[1101px]:grid-cols-3">
             {Array.from({ length: 6 }, (_, index) => (
-              <div key={index} className="overflow-hidden rounded-[1.75rem] bg-slate-100">
-                <div className="aspect-[16/10] animate-pulse bg-slate-200/50" />
-                <div className="px-6 pb-6 pt-4">
-                  <div className="h-7 w-32 animate-pulse rounded-lg bg-slate-200" />
-                  <div className="mt-2 h-4 w-48 animate-pulse rounded-full bg-slate-200/70" />
-                  <div className="mt-4 h-4 w-36 animate-pulse rounded-full bg-slate-200/70" />
-                  <div className="mt-4 flex items-end justify-between border-t border-slate-300/60 pt-4">
-                    <div className="h-9 w-36 animate-pulse rounded-lg bg-slate-200" />
-                    <div className="h-12 w-12 animate-pulse rounded-full bg-slate-200" />
+              <div key={index} className="overflow-hidden rounded-[28px] border border-ink/10 bg-white">
+                <div className="mx-2 mt-2 aspect-[16/11] animate-pulse rounded-[22px] bg-stone" />
+                <div className="px-5 pb-[18px] pt-[18px]">
+                  <div className="h-7 w-32 animate-pulse rounded-lg bg-stone" />
+                  <div className="mt-2 h-4 w-48 animate-pulse rounded-full bg-stone/70" />
+                  <div className="mt-4 h-4 w-36 animate-pulse rounded-full bg-stone/70" />
+                  <div className="mt-4 flex items-end justify-between border-t border-ink/10 pt-4">
+                    <div className="h-9 w-36 animate-pulse rounded-lg bg-stone" />
+                    <div className="h-11 w-11 animate-pulse rounded-full bg-stone" />
                   </div>
                 </div>
               </div>

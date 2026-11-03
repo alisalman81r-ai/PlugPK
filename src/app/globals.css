@@ -4,8 +4,8 @@
 @tailwind utilities;
 
 /*
- * Fonts are self-hosted by next/font/google in src/app/layout.tsx, which defines
- * --font-sans and --font-jetbrains on <html>. Do not redeclare them here:
+ * Fonts are self-hosted by next/font/local in src/app/layout.tsx, which defines
+ * --font-sans, --font-display and --font-jetbrains on <html>. Do not redeclare them here:
  * :root and next/font's generated class have equal specificity, so a declaration
  * in this file would win on source order and shadow the real, hashed family
  * names — and the site would silently render in the fallback stack.
@@ -27,13 +27,13 @@
    * Still literal in DashboardSidebar, which is a different layout with its
    * own sticky column and was left alone rather than swept into this change.
    */
-  --nav-h: 72px;
+  --nav-h: 88px;
 
   /* The palette, for the CSS that cannot reach Tailwind. The scales are in
      tailwind.tokens.ts. */
   --color-primary: rgb(var(--c-brand-600));
-  --color-accent: #26CDB2;
-  --color-dark: #0D1817;
+  --color-accent: #D4FF3A;
+  --color-dark: #0B0C0E;
   --color-text: rgb(var(--c-neutral-900));
   --color-text-muted: rgb(var(--c-neutral-500));
   --color-border: rgb(var(--c-neutral-200));
@@ -44,7 +44,7 @@
   /* --gradient-brand and --gradient-hero are declared with the palette in
      tailwind.tokens.ts. */
 
-  --shadow-blue: 0 8px 24px rgba(11, 51, 44, 0.22);
+  --shadow-blue: 0 8px 24px rgba(11,12,14, 0.22);
 
   --radius-card: 12px;
   --radius-button: 10px;
@@ -77,46 +77,62 @@
     font-family: var(--font-sans);
     color: var(--color-text);
     background: var(--color-bg);
-    line-height: 1.6;
+    line-height: 1.55;
     overflow-x: hidden;
+    /* Power Grotesk ships one weight; a synthetic bold smears it. */
+    font-synthesis: none;
   }
 
   /*
-   * Every heading, in one rule.
+   * Headings, in two tiers.
    *
-   * Now the same family as the body, so this is technically redundant —
-   * inheritance would do it. It stays for two reasons: it is the one place that
-   * states headings are deliberately on the same face rather than accidentally
-   * so, and it keeps the seam where a display face could return without hunting
-   * through a hundred h2s and h3s again.
+   * Page and section titles (h1, h2) are set in Power Grotesk, the landing-v2
+   * display face, at its medium stroke weight. Smaller headings (h3-h6) stay in
+   * Poppins: most of them are dense UI labels — card titles in lists, form
+   * groups, table headers — where a display face at 15px reads as decoration.
+   * A card title that should be display opts in with font-display.
    *
-   * Only the family is set. Weight, size and tracking come from the utilities on
-   * each heading and from the display scale in tailwind.config.ts, which still
-   * win over this.
+   * Only family, stroke and tracking are set. Size comes from the utilities on
+   * each heading and from the display scale in tailwind.config.ts.
    */
   h1,
-  h2,
+  h2 {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-text-stroke: var(--pg-medium) currentColor;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
   h3,
   h4,
   h5,
   h6 {
     font-family: var(--font-sans);
-    /* Figtree's default spacing is set for text. At heading sizes it opens up,
-       so every heading is pulled in a little; the display scale and any
-       tracking-* utility on the element still win over this. */
-    letter-spacing: -0.012em;
+    letter-spacing: -0.005em;
     text-wrap: balance;
   }
 
-  ::selection {
-    background: rgb(var(--c-brand-100));
-    color: rgb(var(--c-brand-600));
+  /* A display-face class anywhere gets the medium stroke too. */
+  .font-display {
+    -webkit-text-stroke: var(--pg-medium) currentColor;
+    font-weight: 400;
   }
 
+  ::selection {
+    background: #D4FF3A;
+    color: #0B0C0E;
+  }
+
+  /* Ink on light grounds, volt on dark ones: volt alone is invisible on paper. */
   :focus-visible {
-    outline: 2px solid #26CDB2;
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 2px solid #0B0C0E;
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  .bg-ink :focus-visible,
+  [data-theme='dark'] :focus-visible {
+    outline-color: #D4FF3A;
   }
 }
 
@@ -331,7 +347,7 @@
   }
 
   .glass-dark {
-    background: rgba(5, 36, 30, 0.85);
+    background: rgba(11,12,14, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
@@ -609,8 +625,8 @@ html::-webkit-scrollbar {
   height: 44px;
   border-radius: 9999px;
   background: #ffffff;
-  border: 3px solid #0B332C;
-  box-shadow: 0 2px 8px rgba(5, 36, 30, 0.28);
+  border: 3px solid #0B0C0E;
+  box-shadow: 0 2px 8px rgba(11,12,14, 0.28);
   cursor: grab;
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
@@ -620,13 +636,13 @@ html::-webkit-scrollbar {
   height: 38px;
   border-radius: 9999px;
   background: #ffffff;
-  border: 3px solid #0B332C;
-  box-shadow: 0 2px 8px rgba(5, 36, 30, 0.28);
+  border: 3px solid #0B0C0E;
+  box-shadow: 0 2px 8px rgba(11,12,14, 0.28);
   cursor: grab;
 }
 .soc-range:active::-webkit-slider-thumb { cursor: grabbing; transform: scaleY(1.06); }
-.soc-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(38, 205, 178, 0.45); }
-.soc-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(38, 205, 178, 0.45); }
+.soc-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(212,255,58, 0.45); }
+.soc-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(212,255,58, 0.45); }
 @media (prefers-reduced-motion: reduce) {
   .soc-range::-webkit-slider-thumb { transition: none; }
 }
@@ -639,7 +655,7 @@ html::-webkit-scrollbar {
   border-radius: 9999px;
   background: #FFFFFF;
   border: 2px solid var(--range-color);
-  box-shadow: 0 1px 3px rgba(5, 36, 30, 0.18);
+  box-shadow: 0 1px 3px rgba(11,12,14, 0.18);
   cursor: pointer;
   transition: transform 150ms ease;
 }
@@ -654,7 +670,7 @@ html::-webkit-scrollbar {
   border-radius: 9999px;
   background: #FFFFFF;
   border: 2px solid var(--range-color);
-  box-shadow: 0 1px 3px rgba(5, 36, 30, 0.18);
+  box-shadow: 0 1px 3px rgba(11,12,14, 0.18);
   cursor: pointer;
   transition: transform 150ms ease;
 }
@@ -664,7 +680,7 @@ html::-webkit-scrollbar {
 }
 
 .plug-range:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 3px rgba(38, 205, 178, 0.4);
+  box-shadow: 0 0 0 3px rgba(212,255,58, 0.4);
 }
 
 /* Stagger animation delays */
@@ -1056,8 +1072,8 @@ html::-webkit-scrollbar {
 */
 .showroom-floor {
   background-image:
-    repeating-linear-gradient(90deg, rgba(111, 232, 182, 0.09) 0 1px, transparent 1px 64px),
-    repeating-linear-gradient(0deg, rgba(111, 232, 182, 0.07) 0 1px, transparent 1px 48px);
+    repeating-linear-gradient(90deg, rgba(212,255,58, 0.09) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(212,255,58, 0.07) 0 1px, transparent 1px 48px);
   transform: perspective(520px) rotateX(62deg);
   transform-origin: 50% 100%;
   mask-image: linear-gradient(to top, black 0%, rgba(0, 0, 0, 0.5) 45%, transparent 90%);
@@ -1126,7 +1142,7 @@ html::-webkit-scrollbar {
 .flow-dashes {
   background-image: repeating-linear-gradient(
     90deg,
-    rgba(38, 205, 178, 0.9) 0 6px,
+    rgba(212,255,58, 0.9) 0 6px,
     transparent 6px 12px
   );
   background-size: 12px 100%;

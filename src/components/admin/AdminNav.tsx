@@ -167,7 +167,7 @@ function NavContent({
         >
           {collapsed ? (
             <>
-              <LogoMark color="#159E89" className="h-5 w-5 shrink-0" />
+              <LogoMark color="#556E00" className="h-5 w-5 shrink-0" />
               <span className="sr-only">plugpk admin</span>
             </>
           ) : (

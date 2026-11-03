@@ -3,7 +3,8 @@
 
 import * as React from 'react'
 
-import { Timer } from '@/components/ui/icons'
+import { chipClass } from '@/components/v2/ui'
+import { Clock } from '@/components/ui/icons'
 import {
   chargeWithin,
   formatKw,
@@ -22,7 +23,7 @@ import { cn } from '@/lib/utils'
  * Runs the calculator's own model backwards (lib/charging-time chargeWithin),
  * from the current level, on the charger chosen above and with the car's
  * limits, so it can never disagree with the main figure: the time the main
- * panel gives for 20→77% is the time this gives 77% for.
+ * card gives for 20→77% is the time this gives 77% for.
  */
 
 const TIMES = [15, 30, 45, 60, 90] as const
@@ -44,16 +45,16 @@ export function ShortOnTime({ batteryKwh, fromPct, mode, chargerKw, carLimitKw, 
   const dc = mode === 'dc'
 
   return (
-    <section aria-labelledby="short-heading">
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-1">
-        <h2 id="short-heading" className="flex items-center gap-2 text-ui font-semibold text-slate-900">
-          <Timer size={18} className="text-plug-cyan-700" aria-hidden="true" />
+    <section aria-labelledby="short-heading" className="min-w-0">
+      <div className="mb-[18px] grid gap-1">
+        <h2 id="short-heading" className="m-0 flex items-center gap-2.5 font-display text-2xl leading-[1.1] text-ink">
+          <Clock size={22} className="shrink-0 text-volt-ink" aria-hidden="true" />
           Short on time?
         </h2>
-        <p className="text-ui-sm text-slate-500">How far a set time gets you, from {fromPct}% on the charger above.</p>
+        <p className="text-sm text-muted">How far a set time gets you, from {fromPct}% on the charger above.</p>
       </div>
 
-      <div className="mt-4 grid gap-4 rounded-2xl bg-slate-50 p-4 sm:p-5 md:grid-cols-[auto_minmax(0,1fr)] md:items-center md:gap-8">
+      <div className="grid gap-[18px] rounded-[22px] border border-ink/10 bg-chalk bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] p-4 sm:p-[18px]">
         <div role="radiogroup" aria-label="Time on the charger" className="flex flex-wrap gap-2">
           {TIMES.map((t) => (
             <button
@@ -62,35 +63,41 @@ export function ShortOnTime({ batteryKwh, fromPct, mode, chargerKw, carLimitKw, 
               role="radio"
               aria-checked={minutes === t}
               onClick={() => setMinutes(t)}
-              className={cn(
-                'min-h-11 min-w-[4.25rem] rounded-xl border-[1.5px] px-3 text-ui font-semibold tabular-nums transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-2',
-                minutes === t
-                  ? 'border-plug-blue-600 bg-plug-blue-600 text-white'
-                  : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300',
-              )}
+              className={chipClass(minutes === t, 'h-11 font-mono font-semibold tabular-nums focus-visible:shadow-focus focus-visible:outline-none')}
             >
               {t < 60 ? `${t} min` : t === 60 ? '1 h' : '1½ h'}
             </button>
           ))}
         </div>
 
-        <div aria-live="polite">
+        <div aria-live="polite" className="grid min-h-[120px] content-center">
           {got && powerKw ? (
             <>
-              <p className="text-2xl font-bold tabular-nums tracking-tight text-slate-900">
-                {fromPct}% → {dc && !got.full ? '~' : ''}
-                {formatPct(got.toPct)}
-                {got.full ? <span className="ml-2 text-ui font-semibold text-plug-cyan-700">Full before time is up</span> : null}
-              </p>
-              <p className="mt-1 text-ui-sm text-slate-600">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <b className="font-mono text-[44px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink sm:text-[48px]">
+                  <span className="text-[0.45em] font-medium tracking-normal text-muted">{fromPct}% → </span>
+                  {dc && !got.full ? <span className="text-fog">~</span> : null}
+                  {formatPct(got.toPct)}
+                </b>
+                <span className="font-mono text-[15px] font-semibold text-volt-ink">
+                  {got.full ? 'Full before time is up' : `+${formatPctAdded(got.toPct - fromPct)}`}
+                </span>
+              </div>
+              <div aria-hidden="true" className="relative mb-2.5 mt-3.5 h-3.5 overflow-hidden rounded-full border border-ink/10 bg-white">
+                <i className="absolute inset-y-0 left-0 rounded-full bg-ink-3" style={{ width: `${fromPct}%` }} />
+                <i
+                  className="absolute inset-y-0 rounded-full bg-volt transition-[width] duration-500 ease-out"
+                  style={{ left: `${fromPct}%`, width: `${Math.max(0, got.toPct - fromPct)}%` }}
+                />
+              </div>
+              <p className="font-mono text-[13px] font-medium leading-[1.5] text-muted">
                 +{formatKwh(got.energyKwh)} ({formatPctAdded(got.toPct - fromPct)})
                 {km != null ? ` · about +${km} km of rated range` : ''} · {dc ? 'DC' : 'AC'} at {formatKw(powerKw)}
                 {dc ? ', slowing as it fills' : ''}
               </p>
             </>
           ) : (
-            <p className="text-ui-sm text-slate-500">Add your battery size and a charger above to see this.</p>
+            <p className={cn('text-sm text-muted')}>Add your battery size and a charger above to see this.</p>
           )}
         </div>
       </div>

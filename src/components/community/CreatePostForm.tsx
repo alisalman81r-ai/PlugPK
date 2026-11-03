@@ -1,12 +1,12 @@
 // src/components/community/CreatePostForm.tsx
 'use client'
 
-import { CheckCircle2, Lock, MessageCircle, X, type IconType } from '@/components/ui/icons'
+import { CheckCircle2, Loader2, Lock, MessageCircle, X, type IconType } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { usePathname, useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui'
+import { Btn, BtnArrow, FLABEL, INPUT, chipClass } from '@/components/v2/ui'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { createPost } from '@/lib/db/community-actions'
 import { COMMUNITY_LIMITS, POST_CATEGORIES } from '@/lib/constants'
@@ -190,74 +190,77 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-post-title"
+      data-theme="light"
       onClick={onClose}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/55 p-4 backdrop-blur-[6px]"
     >
       <div
         onClick={(event) => event.stopPropagation()}
-        className="max-h-modal w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-8 shadow-modal"
+        className="relative max-h-modal w-full max-w-[600px] overflow-y-auto rounded-[28px] bg-paper px-5 pb-6 pt-7 text-ink shadow-e4 sm:px-8 sm:pb-7 sm:pt-8"
       >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3.5 top-3.5 grid h-11 w-11 place-items-center rounded-full text-ink transition-colors duration-200 hover:bg-stone focus-visible:outline-none focus-visible:shadow-focus"
+        >
+          <X size={18} />
+        </button>
+
         {isSuccess ? (
-          <div className="animate-scale-in text-center">
-            <CheckCircle2 size={48} className="mx-auto text-green-500" aria-hidden="true" />
-            <p id="create-post-title" className="mt-4 text-2xl font-bold text-slate-900">
-              Discussion posted!
+          <div className="animate-scale-in">
+            <span aria-hidden="true" className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
+              <CheckCircle2 size={24} />
+            </span>
+            <p id="create-post-title" className="mt-[18px] font-display text-[26px] leading-[1.12] text-ink">
+              Discussion posted
             </p>
-            <p className="mt-2 text-slate-500">Your post is now live.</p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Button href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
-                View Post
-              </Button>
-              <Button variant="ghost" onClick={onClose}>
+            <p className="mt-2.5 text-[15px] leading-[1.6] text-muted">Your post is now live.</p>
+            <div className="mt-[22px] flex flex-wrap gap-2.5">
+              <Btn href={postSlug ? `/community/post/${postSlug}` : '/community'} onClick={onClose}>
+                View post
+                <BtnArrow />
+              </Btn>
+              <Btn variant="ghost" onClick={onClose}>
                 Close
-              </Button>
+              </Btn>
             </div>
           </div>
         ) : showLoginPrompt ? (
-          <div className="text-center">
-            <span className="mb-6 inline-flex rounded-2xl bg-slate-50 p-4">
-              <Lock size={48} className="text-slate-300" aria-hidden="true" />
+          <div>
+            <span aria-hidden="true" className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
+              <Lock size={24} />
             </span>
 
-            <h2 id="create-post-title" className="mb-3 text-2xl font-bold text-slate-900">
-              Join to Start a Discussion
+            <h2 id="create-post-title" className="mt-[18px] text-balance pr-10 font-display text-[26px] leading-[1.12] text-ink">
+              Sign in to start a discussion
             </h2>
 
-            <p className="mb-8 text-slate-500">
-              Create an account to post, comment, and connect with Pakistan&apos;s EV community.
+            <p className="mt-2.5 text-[15px] leading-[1.6] text-muted">
+              Sign in and you can start a discussion, reply to one and like posts; everything you post
+              is saved and shown to everyone. Reading needs no account at all.
             </p>
 
-            <div className="flex flex-col gap-3">
-              <Button href={signUpHref(`${pathname}?compose=1`)} fullWidth>
-                Create Account
-              </Button>
-              <Button href={signInHref(`${pathname}?compose=1`)} variant="secondary" fullWidth>
-                Sign In
-              </Button>
-              <Button variant="ghost" fullWidth onClick={onClose}>
-                Not now
-              </Button>
+            <div className="mt-[22px] flex flex-wrap gap-2.5">
+              <Btn href={signInHref(`${pathname}?compose=1`)}>Sign in</Btn>
+              <Btn href={signUpHref(`${pathname}?compose=1`)} variant="ghost">
+                Create account
+              </Btn>
+              <Btn variant="ghost" onClick={onClose} className="border-transparent bg-transparent hover:border-ink/10">
+                Keep reading
+              </Btn>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="mb-6 flex items-center justify-between">
-              <h2 id="create-post-title" className="text-xl font-bold text-slate-900">
-                New Discussion
-              </h2>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Close"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-              >
-                <X size={18} />
-              </button>
-            </div>
+            <h2 id="create-post-title" className="pr-12 font-display text-[26px] leading-[1.12] text-ink">
+              New discussion
+            </h2>
+            <p className="mt-1.5 text-sm text-muted">Everything you post is saved and shown to everyone.</p>
 
-            <fieldset className="mb-6">
-              <legend className="mb-3 text-sm font-semibold text-slate-700">Category *</legend>
-              <div className="grid grid-cols-2 gap-2">
+            <fieldset className="mt-6">
+              <legend className={cn(FLABEL, 'mb-3')}>Category *</legend>
+              <div className="flex flex-wrap gap-2">
                 {POST_CATEGORIES.map((option) => {
                   const Icon: IconType = POST_ICON[option.icon] ?? MessageCircle
                   const isSelected = category === option.id
@@ -268,21 +271,18 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                       type="button"
                       onClick={() => setCategory(option.id)}
                       aria-pressed={isSelected}
-                      className={cn(
-                        'flex items-center gap-2 rounded-xl border px-4 py-3 text-left transition-all duration-150',
-                        isSelected ? option.badge : 'border-slate-200 bg-white hover:bg-slate-50',
-                      )}
+                      className={chipClass(isSelected, 'h-11 focus-visible:outline-none focus-visible:shadow-focus')}
                     >
-                      <Icon size={16} className="shrink-0" aria-hidden="true" />
-                      <span className="text-sm font-medium">{option.label}</span>
+                      <Icon aria-hidden="true" className={isSelected ? 'text-volt' : 'text-muted'} />
+                      {option.label}
                     </button>
                   )
                 })}
               </div>
             </fieldset>
 
-            <div className="mb-6">
-              <label htmlFor="post-title" className="mb-2 block text-sm font-semibold text-slate-700">
+            <div className="mt-6">
+              <label htmlFor="post-title" className={cn(FLABEL, 'mb-2 block')}>
                 Title *
               </label>
               <input
@@ -292,15 +292,15 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 maxLength={MAX_TITLE}
                 onChange={(event) => setTitle(event.target.value)}
                 placeholder="What's your question or topic?"
-                className="h-12 w-full rounded-xl border-[1.5px] border-slate-200 px-4 text-base font-semibold text-slate-900 outline-none transition-all placeholder:font-normal placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus"
+                className={cn(INPUT, 'font-medium')}
               />
-              <p className="mt-1 text-right text-xs text-slate-400">
+              <p className="mt-1 text-right font-mono text-xs text-muted">
                 {title.length}/{MAX_TITLE}
               </p>
             </div>
 
-            <div className="mb-2">
-              <label htmlFor="post-content" className="mb-2 block text-sm font-semibold text-slate-700">
+            <div className="mt-2">
+              <label htmlFor="post-content" className={cn(FLABEL, 'mb-2 block')}>
                 Content *
               </label>
               <textarea
@@ -309,9 +309,9 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
                 maxLength={MAX_CONTENT}
                 onChange={(event) => setContent(event.target.value)}
                 placeholder="Share your experience, question, or news with the community..."
-                className="min-h-[160px] w-full resize-y rounded-xl border-[1.5px] border-slate-200 p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus"
+                className={cn(INPUT, 'h-auto min-h-[160px] resize-y py-3.5 text-[15px] leading-[1.6]')}
               />
-              <p className="mt-1 text-right text-xs text-slate-400">
+              <p className="mt-1 text-right font-mono text-xs text-muted">
                 {content.length}/{MAX_CONTENT}
               </p>
             </div>
@@ -321,7 +321,7 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
             {error ? (
               <p
                 role="alert"
-                className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700"
+                className="mt-4 rounded-2xl border border-[#FFCDBC] bg-[#FFECE6] px-3.5 py-2.5 text-sm text-[#B42E05]"
               >
                 {error}
                 {/* A session that ended mid-draft: the draft is already in
@@ -340,16 +340,16 @@ export function CreatePostForm({ isOpen, onClose, onSubmit }: CreatePostFormProp
               </p>
             ) : null}
 
-            <div className="mt-6 flex items-center justify-between gap-4">
-              {/* Only the hint here; the error is shown once, above. */}
-              <p className="text-xs text-slate-500">Fields marked * are required</p>
-              <div className="flex gap-3">
-                <Button type="button" variant="ghost" onClick={onClose}>
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+              <p className="text-xs text-muted">Fields marked * are required</p>
+              <div className="flex gap-2.5">
+                <Btn variant="ghost" onClick={onClose}>
                   Cancel
-                </Button>
-                <Button type="submit" isLoading={isSubmitting} disabled={!canSubmit}>
-                  Post Discussion
-                </Button>
+                </Btn>
+                <Btn type="submit" disabled={!canSubmit} aria-busy={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+                  {isSubmitting ? 'Posting…' : 'Post discussion'}
+                </Btn>
               </div>
             </div>
           </form>

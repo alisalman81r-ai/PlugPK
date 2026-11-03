@@ -7,7 +7,8 @@ import { RangeConverter } from '@/components/range/RangeConverter'
 import { RangeFactors } from '@/components/range/RangeFactors'
 import type { RangeCar, StandardCounts } from '@/components/range/types'
 import { FaqSection } from '@/components/shared/FaqSection'
-import { ArrowRight } from '@/components/ui/icons'
+import { ArrowRight, ArrowUpRight } from '@/components/ui/icons'
+import { Hl, PageHero, Section, Wrap } from '@/components/v2/ui'
 import { readOrFallback } from '@/lib/db/availability'
 import { listCars } from '@/lib/db/car-queries'
 import { RANGE_FAQS } from '@/lib/faqs'
@@ -21,9 +22,6 @@ export const metadata: Metadata = {
 
 /** The catalogue changes a few times a month at most. */
 export const revalidate = 3600
-
-/** Same measure as the charging calculator and /community. */
-const STAGE = 'mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-10'
 
 export default async function RangeConverterPage() {
   // Same guard as the calculator: without the database the converter still
@@ -52,83 +50,86 @@ export default async function RangeConverterPage() {
   for (const c of cars) counts[c.standard ?? 'unstated'] += 1
 
   return (
-    <div className="min-h-below-nav bg-slate-50">
-      <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-28 pt-12 sm:rounded-b-[2.5rem] sm:pb-32 lg:pb-36 lg:pt-16">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
-          {/* A road's centre line, running out of the header: the one piece of
-              decoration, and it is the subject. */}
-          <div className="absolute bottom-0 right-[12%] top-0 hidden w-0 border-l-2 border-dashed border-white/[0.07] lg:block" />
-        </div>
+    <>
+      <PageHero
+        title={
+          <>
+            Compare EV range <Hl dark>across every test</Hl>
+          </>
+        }
+        sub="EVs in Pakistan are sold with range figures from four different tests — WLTP, EPA, NEDC and CLTC. Compare a figure across all four, then see what it might come to on the road here."
+        className="lg:pb-[196px]"
+      />
 
-        <div className={`relative ${STAGE}`}>
-          {/* Centred, in two colours, like the Map, Routes and Cars heroes. */}
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mx-auto text-balance font-display text-[clamp(2rem,4.6vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-              <span className="block">Compare EV range</span>
-              <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">across every test</span>
-            </h1>
-
-            <p className="mx-auto mt-4 max-w-xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
-              EVs in Pakistan are sold with range figures from four different tests — WLTP, EPA, NEDC and CLTC.
-              Compare a figure across all four, then see what it might come to on the road here.
-            </p>
-          </div>
-        </div>
-      </header>
-
+      {/* The converter lifted into the hero, then the standards, the road
+          estimates and the two-listing compare — all driven by its state. */}
       <RangeConverter cars={cars} />
 
-      <div className={`${STAGE} mt-16 space-y-20 pb-20 lg:mt-20 lg:space-y-28 lg:pb-28`}>
-        <ListingsGuide counts={counts} />
-        <RangeFactors />
-      </div>
+      <Section tone="paper" id="listings">
+        <Wrap>
+          <ListingsGuide counts={counts} />
+        </Wrap>
+      </Section>
+
+      <Section tone="chalk" id="factors">
+        <Wrap>
+          <RangeFactors />
+        </Wrap>
+      </Section>
 
       <FaqSection items={RANGE_FAQS} title="EV range questions" tone="white" />
 
-      <section aria-labelledby="sources-heading" className="border-t border-slate-100 bg-white">
-        <div className={`${STAGE} py-12 lg:py-16`}>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:gap-16">
+      <Section tone="chalk" tight id="method">
+        <Wrap>
+          <div className="grid gap-[clamp(28px,4vw,56px)] rounded-[28px] border border-ink/10 bg-white p-[clamp(22px,3.5vw,44px)] sm:rounded-[40px] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
             <div>
-              <h2 id="sources-heading" className="text-ui font-semibold text-slate-900">
+              <h2 id="sources-heading" className="font-display text-[clamp(26px,2.6vw,34px)] leading-[1.1] text-ink">
                 How we worked this out
               </h2>
-              <p className="mt-2 text-ui-sm leading-relaxed text-slate-500">
+              <p className="mt-4 text-[15px] leading-[1.65] text-muted">
                 Each standard&rsquo;s typical ratio to WLTP, and each real-world band, comes from cars that have been
-                published or measured on more than one test. That is a handful of cars, not a statistical model —
-                which is why every figure here is a band, and why a car&rsquo;s own published figure always beats
-                this estimate.
+                published or measured on more than one test. That is a handful of cars, not a statistical model — which
+                is why every figure here is a band, and why a car&rsquo;s own published figure always beats this
+                estimate.
               </p>
               <Link
                 href="/charging-calculator"
-                className="mt-4 inline-flex items-center gap-1.5 text-ui-sm font-semibold text-plug-blue-600 hover:text-plug-cyan-700"
+                className="group/cta mt-[22px] inline-flex min-h-11 items-center gap-3 rounded-full bg-ink py-2.5 pl-5 pr-3 text-[14.5px] text-white transition-colors duration-300 hover:bg-volt hover:text-ink"
               >
-                How long will a charge take? Try the charging calculator
-                <ArrowRight size={16} aria-hidden="true" />
+                <span>
+                  How long will a charge take? <b className="font-semibold">Try the charging calculator</b>
+                </span>
+                <ArrowRight
+                  size={18}
+                  className="shrink-0 transition-transform duration-300 ease-spring group-hover/cta:translate-x-1"
+                  aria-hidden="true"
+                />
               </Link>
             </div>
 
-            <ul className="space-y-2.5 text-ui-sm">
-              {SOURCES.map((s) => (
-                <li key={s.href} className="flex gap-2.5">
-                  <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-plug-cyan-500" />
+            <ol aria-labelledby="sources-heading" className="m-0 list-none self-center p-0">
+              {SOURCES.map((s, i) => (
+                <li key={s.href} className="border-t border-ink/10 last:border-b">
                   <a
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-plug-blue-600 hover:decoration-plug-cyan-500"
+                    className="group/src grid min-h-[52px] grid-cols-[28px_1fr_16px] items-center gap-2.5 px-1 py-2.5 text-sm leading-[1.45] text-ink transition-[padding,color] duration-300 ease-out hover:pl-2.5 sm:grid-cols-[34px_1fr_18px]"
                   >
-                    {s.label}
+                    <span className="font-mono text-[11.5px] font-semibold text-muted">{String(i + 1).padStart(2, '0')}</span>
+                    <span>{s.label}</span>
+                    <ArrowUpRight
+                      size={16}
+                      className="text-muted transition-[transform,color] duration-300 ease-spring group-hover/src:-translate-y-0.5 group-hover/src:translate-x-0.5 group-hover/src:text-volt-ink"
+                      aria-hidden="true"
+                    />
                   </a>
                 </li>
               ))}
-            </ul>
+            </ol>
           </div>
-        </div>
-      </section>
-    </div>
+        </Wrap>
+      </Section>
+    </>
   )
 }

@@ -2,12 +2,13 @@
 import { Bookmark, Calendar, Car, MapPin, Star, Users } from '@/components/ui/icons'
 import Link from 'next/link'
 
-import { Avatar, RatingStars } from '@/components/ui'
+import { RatingStars } from '@/components/ui'
 import type { MyReviewRow } from '@/lib/db/queries'
 import type { CommunityPost, EVClub, Station } from '@/lib/types'
 import { formatRelativeTime } from '@/lib/utils'
 
-import type { DashboardStats } from './DashboardSidebar'
+import { EmptyPanel, HEAD_LINK, PANEL, PANEL_H2, ROW, ROW_LINK } from './dash-ui'
+import { DashAvatar, type DashboardStats } from './DashboardSidebar'
 import { ProfileCompletion } from './ProfileCompletion'
 
 /**
@@ -41,28 +42,18 @@ export interface DashboardOverviewProps {
 const PREVIEW = 3
 
 function EmptyHint({ children, href, cta }: { children: React.ReactNode; href: string; cta: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-slate-300 px-5 py-8 text-center">
-      <p className="text-ui-sm text-slate-500">{children}</p>
-      <Link
-        href={href}
-        className="mt-4 inline-flex h-10 items-center rounded-xl border border-slate-200 px-5 text-ui-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-      >
-        {cta}
-      </Link>
-    </div>
-  )
+  return <EmptyPanel compact body={children} href={href} cta={cta} />
 }
 
 export function DashboardOverview({ user, stats, savedStations, reviews, posts, clubs = [] }: DashboardOverviewProps) {
   const cards = [
-    { icon: Bookmark, tone: 'bg-plug-blue-50 text-plug-blue-600', value: stats.totalSaved, label: 'Saved stations' },
-    { icon: Star, tone: 'bg-amber-50 text-amber-600', value: stats.totalReviews, label: 'Reviews written' },
-    { icon: Calendar, tone: 'bg-green-50 text-green-600', value: stats.memberDays, label: 'Days as a member' },
+    { icon: Bookmark, value: stats.totalSaved, label: 'Saved stations' },
+    { icon: Star, value: stats.totalReviews, label: 'Reviews written' },
+    { icon: Calendar, value: stats.memberDays, label: 'Days as a member' },
   ]
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-[18px]">
       <ProfileCompletion
         name={user.name}
         email={user.email}
@@ -72,14 +63,14 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
       />
 
       {/* ── Who you are ──────────────────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
+      <section className={PANEL}>
         <div className="flex flex-wrap items-center gap-4">
-          <Avatar name={user.name} src={user.avatar} size={56} />
+          <DashAvatar name={user.name} src={user.avatar} size={56} />
 
           <div className="min-w-0">
-            <h2 className="text-xl font-bold text-slate-900">{user.name}</h2>
-            <p className="mt-0.5 text-ui-sm text-slate-500">{user.email}</p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-ui-sm text-slate-500">
+            <h2 className={PANEL_H2}>{user.name}</h2>
+            <p className="mt-1 text-sm text-muted">{user.email}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
               {user.city ? (
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
@@ -89,10 +80,7 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
               <span className="inline-flex items-center gap-1.5">
                 <Car size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
                 {user.vehicle ? user.vehicle : 'No vehicle saved'}
-                <Link
-                  href="/dashboard/vehicles"
-                  className="font-semibold text-plug-blue-600 hover:underline"
-                >
+                <Link href="/dashboard/vehicles" className={HEAD_LINK.replace('min-h-11', 'min-h-0')}>
                   {user.vehicle ? 'Change' : 'Add'}
                 </Link>
               </span>
@@ -101,10 +89,10 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">Your clubs</h2>
-          <Link href={clubs.length > 0 ? '/dashboard/clubs' : '/community/clubs'} className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+      <section className={PANEL}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className={PANEL_H2}>Your clubs</h2>
+          <Link href={clubs.length > 0 ? '/dashboard/clubs' : '/community/clubs'} className={HEAD_LINK}>
             {clubs.length > 0 ? 'Manage' : 'Browse clubs'}
           </Link>
         </div>
@@ -116,16 +104,16 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
           <ul className="flex flex-col gap-3">
             {clubs.slice(0, PREVIEW).map((club) => (
               <li key={club.id}>
-                <Link href={`/community/clubs/${club.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50">
+                <Link href={`/community/clubs/${club.id}`} className={`${ROW_LINK} flex items-center justify-between gap-3`}>
                   <span className="min-w-0">
-                    <span className="block truncate font-semibold text-slate-900">{club.name}</span>
-                    <span className="mt-1 flex items-center gap-1 text-ui-sm text-slate-500">
+                    <span className="block truncate font-semibold text-ink">{club.name}</span>
+                    <span className="mt-1 flex items-center gap-1 text-sm text-muted">
                       <MapPin size={12} aria-hidden="true" /> {club.city}
                     </span>
                   </span>
-                  <span className="flex shrink-0 items-center gap-1 text-ui-sm text-slate-500">
+                  <span className="flex shrink-0 items-center gap-1 text-sm text-muted">
                     <Users size={14} aria-hidden="true" />
-                    <span className="font-mono font-bold text-slate-900">{club.memberCount}</span>
+                    <span className="font-mono font-semibold text-ink">{club.memberCount}</span>
                   </span>
                 </Link>
               </li>
@@ -134,10 +122,10 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
         )}
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">Your discussions</h2>
-          <Link href="/community" className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+      <section className={PANEL}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className={PANEL_H2}>Your discussions</h2>
+          <Link href="/community" className={HEAD_LINK}>
             Community
           </Link>
         </div>
@@ -149,9 +137,9 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
           <ul className="flex flex-col gap-3">
             {posts.slice(0, PREVIEW).map((post) => (
               <li key={post.id}>
-                <Link href={`/community/post/${post.slug}`} className="block rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50">
-                  <span className="block font-semibold text-slate-900">{post.title}</span>
-                  <span className="mt-1 block text-ui-sm text-slate-500">{post.commentCount} comments · {formatRelativeTime(post.createdAt)}</span>
+                <Link href={`/community/post/${post.slug}`} className={ROW_LINK}>
+                  <span className="block font-semibold text-ink">{post.title}</span>
+                  <span className="mt-1 block font-mono text-xs text-muted">{post.commentCount} comments · {formatRelativeTime(post.createdAt)}</span>
                 </Link>
               </li>
             ))}
@@ -161,22 +149,20 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {cards.map((card) => (
-          <div key={card.label} className="rounded-2xl border border-slate-200 bg-white p-5">
-            <span className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${card.tone}`}>
-              <card.icon size={20} aria-hidden="true" />
-            </span>
-            <p className="font-mono text-3xl font-black text-slate-900">{card.value}</p>
-            <p className="mt-1 text-sm text-slate-500">{card.label}</p>
+          <div key={card.label} className="rounded-[22px] border border-ink/10 bg-white p-[22px]">
+            <card.icon size={22} className="mb-5 text-ink" aria-hidden="true" />
+            <p className="font-mono text-[34px] font-semibold leading-none tabular-nums text-ink">{card.value}</p>
+            <p className="mt-2 text-sm text-muted">{card.label}</p>
           </div>
         ))}
       </div>
 
       {/* ── Saved ────────────────────────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">Saved stations</h2>
+      <section className={PANEL}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className={PANEL_H2}>Saved stations</h2>
           {savedStations.length > PREVIEW ? (
-            <Link href="/dashboard/saved" className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+            <Link href="/dashboard/saved" className={HEAD_LINK}>
               See all {savedStations.length}
             </Link>
           ) : null}
@@ -192,11 +178,11 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
               <li key={station.id}>
                 <Link
                   href={`/station/${station.slug}`}
-                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 p-4 transition-colors hover:bg-slate-50"
+                  className={`${ROW_LINK} flex items-center justify-between gap-4`}
                 >
                   <span className="min-w-0">
-                    <span className="block truncate font-semibold text-slate-900">{station.name}</span>
-                    <span className="mt-0.5 block truncate text-ui-sm text-slate-500">
+                    <span className="block truncate font-semibold text-ink">{station.name}</span>
+                    <span className="mt-0.5 block truncate text-sm text-muted">
                       {station.address.city} · {station.connectors.length} charger
                       {station.connectors.length === 1 ? '' : 's'}
                     </span>
@@ -210,13 +196,13 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
       </section>
 
       {/* ── Your reviews ─────────────────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">Your reviews</h2>
+      <section className={PANEL}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className={PANEL_H2}>Your reviews</h2>
           {/* The only way in to the reviews page since My Reviews left the
               sidebar, so it shows for any review, not only beyond the preview. */}
           {reviews.length > 0 ? (
-            <Link href="/dashboard/reviews" className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
+            <Link href="/dashboard/reviews" className={HEAD_LINK}>
               {reviews.length > PREVIEW ? `See all ${reviews.length}` : 'Manage reviews'}
             </Link>
           ) : null}
@@ -229,15 +215,15 @@ export function DashboardOverview({ user, stats, savedStations, reviews, posts, 
         ) : (
           <ul className="flex flex-col gap-3">
             {reviews.slice(0, PREVIEW).map((review) => (
-              <li key={review.id} className="rounded-xl border border-slate-200 p-4">
+              <li key={review.id} className={ROW}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-slate-900">{review.listingName}</p>
-                  <span className="text-ui-xs text-slate-400">{formatRelativeTime(review.date)}</span>
+                  <p className="font-semibold text-ink">{review.listingName}</p>
+                  <span className="font-mono text-xs text-muted">{formatRelativeTime(review.date)}</span>
                 </div>
                 <div className="mt-1.5">
                   <RatingStars rating={review.rating} size="sm" />
                 </div>
-                <p className="mt-2 line-clamp-2 text-ui-sm text-slate-600">{review.comment}</p>
+                <p className="mt-2 line-clamp-2 text-sm text-muted">{review.comment}</p>
               </li>
             ))}
           </ul>

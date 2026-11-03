@@ -37,14 +37,14 @@ export default function OpengraphImage() {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: '0 96px',
-          background: 'linear-gradient(135deg, #0D1817 0%, #05241E 55%, #0B332C 100%)',
+          background: 'linear-gradient(135deg, #0B0C0E 0%, #0B0C0E 55%, #0B0C0E 100%)',
           color: '#FFFFFF',
           fontFamily: 'sans-serif',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
           <svg width="150" height="150" viewBox="4 6 160 160">
-            <g fill="#6FE8B6" stroke="#6FE8B6" strokeLinejoin="round">
+            <g fill="#D4FF3A" stroke="#D4FF3A" strokeLinejoin="round">
               <path strokeWidth={11} d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z" />
               <path
                 strokeWidth={5}
@@ -54,7 +54,7 @@ export default function OpengraphImage() {
           </svg>
           <div style={{ display: 'flex', fontSize: 128, fontWeight: 700, letterSpacing: '-0.04em' }}>
             <span>plug</span>
-            <span style={{ color: '#6FE8B6' }}>pk</span>
+            <span style={{ color: '#D4FF3A' }}>pk</span>
           </div>
         </div>
         <div style={{ marginTop: 40, fontSize: 48, fontWeight: 600, color: '#FFFFFF' }}>
@@ -70,7 +70,7 @@ export default function OpengraphImage() {
             right: 0,
             bottom: 0,
             height: 12,
-            background: 'linear-gradient(90deg, #0B332C, #26CDB2)',
+            background: 'linear-gradient(90deg, #0B0C0E, #D4FF3A)',
           }}
         />
       </div>

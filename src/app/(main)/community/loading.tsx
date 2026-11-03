@@ -2,33 +2,38 @@
 import { Skeleton } from '@/components/ui'
 
 /**
- * What /community shows while its first page is fetched: the dark band and
- * card shapes in place, so the page does not jump when the posts arrive.
+ * What /community shows while its first page is fetched: the ink hero, the
+ * lifted browse sheet and the card shapes in place, so the page does not jump
+ * when the posts arrive.
  */
 export default function CommunityLoading() {
   return (
-    <div className="min-h-below-nav bg-slate-50" role="status" aria-label="Loading the community">
-      <div className="rounded-b-[2rem] bg-plug-navy-950 pb-32 pt-10 sm:rounded-b-[2.5rem] sm:pb-36 lg:pb-40 lg:pt-14">
-        <div className="container-plug mx-auto flex max-w-3xl flex-col items-center gap-4">
-          <div className="h-10 w-3/4 rounded-xl bg-white/10" />
+    <div className="bg-chalk" role="status" aria-label="Loading the community">
+      <div
+        data-theme="dark"
+        className="rounded-b-[32px] bg-ink pb-[clamp(132px,13vw,176px)] pt-[clamp(44px,7vw,80px)] sm:rounded-b-[48px]"
+      >
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4">
+          <div className="h-14 w-3/4 rounded-2xl bg-white/10" />
+          <div className="h-14 w-1/2 rounded-2xl bg-white/10" />
           <div className="h-5 w-2/3 rounded-lg bg-white/10" />
-          <div className="mt-4 h-14 w-full max-w-xl rounded-2xl bg-white/10" />
+          <div className="mt-6 h-16 w-full max-w-[660px] rounded-full bg-white/10" />
         </div>
       </div>
 
-      <div className="mx-auto -mt-20 w-full max-w-[1400px] px-4 sm:-mt-24 sm:px-6 lg:-mt-28 lg:px-10">
-        <Skeleton className="h-40 w-full rounded-3xl" />
+      <div className="relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] sm:-mt-28">
+        <Skeleton className="h-40 w-full rounded-3xl sm:rounded-[32px]" />
       </div>
 
-      <div className="mx-auto grid w-full max-w-[1400px] items-start gap-10 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[1fr_340px] lg:px-10 lg:pt-12">
-        <div className="flex flex-col gap-5">
+      <div className="mx-auto grid w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] items-start gap-7 pb-20 pt-[clamp(40px,4.5vw,64px)] lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-4">
           {[0, 1, 2].map((index) => (
-            <Skeleton key={index} className="h-56 w-full rounded-2xl" />
+            <Skeleton key={index} className="h-56 w-full rounded-[26px]" />
           ))}
         </div>
-        <div className="hidden flex-col gap-6 lg:flex">
-          <Skeleton className="h-64 w-full rounded-2xl" />
-          <Skeleton className="h-72 w-full rounded-2xl" />
+        <div className="hidden gap-4 lg:grid">
+          <Skeleton className="h-80 w-full rounded-[26px]" />
+          <Skeleton className="h-72 w-full rounded-[26px]" />
         </div>
       </div>
     </div>

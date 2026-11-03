@@ -1,13 +1,11 @@
 // src/app/(main)/cars/compare/page.tsx
 import { ArrowLeft } from '@/components/ui/icons'
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import * as React from 'react'
 
 import { CarComparison } from '@/components/cars/CarComparison'
 import { CompareSelectionSync } from '@/components/cars/CompareSelectionSync'
 import { MAX_COMPARE } from '@/components/cars/compare-selection'
-import { Button } from '@/components/ui'
+import { Btn, BtnArrow, Hl, Lift, LiftBody, PageHero } from '@/components/v2/ui'
 import { getCarsByIdsFromDb, listCars } from '@/lib/db/car-queries'
 
 /**
@@ -48,110 +46,51 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
   const available = (await listCars()).filter((car) => !chosen.has(car.id))
 
   return (
-    /**
-     * Light, with real colour under the glass.
-     *
-     * This was slate-950, on the reasoning that a translucent surface needs
-     * something behind it to blur and that the flat white page it replaced
-     * rendered the glass as a grey box. The first half of that is right and is
-     * why this is not simply white: what makes a panel read as glass is colour
-     * varying behind it, not darkness. So the ground keeps the pools and loses
-     * the night — a near-white base, a blue wash top-left and a cyan one
-     * bottom-right at the opacity a light ground needs to show them, and a
-     * slate dot grid instead of a white one.
-     *
-     * The panels over it are white-tinted rather than white: bg-white/60 with
-     * a blur still takes its colour from whichever pool is behind it, which is
-     * the effect the dark version was getting and the flat white page was not.
-     */
-    <section className="relative isolate overflow-hidden bg-slate-100 py-14 lg:py-20">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(5,36,30,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
+    <>
+      <PageHero
+        title={
+          <>
+            Compare <Hl dark>cars</Hl>
+          </>
+        }
+        sub="Every published figure, lined up. Rows no car has a figure for are left out rather than filled with dashes."
+        actions={
+          /* The way back to the catalogue. A real link rather than
+             router.back(): adding a car rewrites the query string, and a
+             reader arriving on a shared link has no history to go back to. */
+          <Btn href="/cars" variant="ghostDark" size="sm">
+            <ArrowLeft aria-hidden="true" />
+            All cars
+          </Btn>
+        }
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-56 -z-10 h-[34rem] w-[34rem] rounded-full bg-plug-blue-500/25 blur-[130px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-64 -right-40 -z-10 h-[32rem] w-[32rem] rounded-full bg-plug-cyan-400/25 blur-[130px]"
-      />
-      <span aria-hidden="true" className="grain -z-10" />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,rgba(152,159,161,0.6)_20%,rgba(152,159,161,0.6)_80%,transparent_100%)]"
-      />
+
       <CompareSelectionSync ids={cars.map((car) => car.id)} requested={ids.length > 0} />
-      <div className="container-plug relative z-10">
-        {/*
-          The way back to the catalogue.
 
-          This page is reached by pressing Compare on cards in the grid, and
-          until now the only route back out was the browser's own back button —
-          which is wrong twice over. Adding a car rewrites the query string, so
-          somebody who has assembled a four-car table has four history entries
-          to walk back through before reaching the grid. And the page is
-          shareable by design: the Copy link control exists for that, so a
-          reader arriving on a sent link has no history to go back to at all.
-
-          A real link to /cars rather than router.back(), for that second
-          reason. Left-aligned above the centred masthead, so it reads as
-          navigation out of the page rather than part of the title block.
-        */}
-        <Link
-          href="/cars"
-          className="group/back inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/60 py-1.5 pl-2.5 pr-4 text-ui-sm font-semibold text-slate-600 shadow-[0_2px_10px_-4px_rgba(5,36,30,0.18)] backdrop-blur-md transition-colors hover:border-white hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#E9EEEC]"
-        >
-          <ArrowLeft
-            size={15}
-            aria-hidden="true"
-            className="transition-transform duration-200 group-hover/back:-translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover/back:translate-x-0"
-          />
-          All cars
-        </Link>
-
-        {/* A smaller masthead than the catalogue's: the table is what this page
-            is for, and a 72px title pushed it a full screen down on a phone. */}
-        <div className="mx-auto mt-6 max-w-3xl text-center">
-          <h1 className="text-balance text-[clamp(2rem,5vw,3.25rem)] font-black leading-[1.08] tracking-[-0.04em] text-slate-900">
-            Compare{' '}
-            <span className="text-plug-blue-600">
-              cars
-            </span>
-          </h1>
-          <p className="mx-auto mt-3 max-w-xl text-pretty text-ui leading-relaxed text-slate-600 sm:text-lg">
-            Every published figure, lined up. Rows no car has a figure for are left out
-            rather than filled with dashes.
-          </p>
-        </div>
-
-        <div className="mt-8">
+      <Lift className="mb-[clamp(64px,7vw,104px)]">
+        <LiftBody className="pb-6 sm:pb-8">
           {cars.length >= 2 ? (
             <CarComparison cars={cars} available={available} max={MAX} />
           ) : (
             /* One car is not a comparison — that is the detail page. Rather
                than render a single column, this says what is missing. */
-            <div className="rounded-2xl border border-white/80 bg-white/65 p-10 text-center shadow-[0_18px_50px_-24px_rgba(5,36,30,0.28)] backdrop-blur-xl">
-              <p className="text-ui font-semibold text-slate-900">
+            <div className="grid justify-items-center gap-4 rounded-[28px] border-[1.5px] border-dashed border-ink/15 px-5 py-14 text-center">
+              <p className="font-display text-[26px] leading-[1.1] text-ink">
                 {cars.length === 1 ? 'Pick one more car' : 'Nothing selected yet'}
               </p>
-              <p className="mx-auto mt-2 max-w-sm text-ui-sm leading-relaxed text-slate-600">
+              <p className="-mt-1 max-w-sm text-sm leading-relaxed text-muted">
                 {cars.length === 1
                   ? `Add another car from the catalogue to see them side by side. You can compare up to ${MAX}.`
                   : `Tap the compare button on any car in the catalogue — pick two to ${MAX} — and they will line up here.`}
               </p>
-              <Button
-                href="/cars"
-                className="mt-6"
-                leftIcon={<ArrowLeft size={15} aria-hidden="true" />}
-              >
+              <Btn href="/cars" variant="ink" size="sm">
                 Browse cars
-              </Button>
+                <BtnArrow />
+              </Btn>
             </div>
           )}
-        </div>
-      </div>
-    </section>
+        </LiftBody>
+      </Lift>
+    </>
   )
 }

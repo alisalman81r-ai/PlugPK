@@ -1,38 +1,32 @@
 // src/app/(auth)/layout.tsx
-import { Lock, MapPin, Route, Zap, type IconType } from '@/components/ui/icons'
+import { ArrowLeft, Lock, MapPin, Route, Zap, type IconType } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { getPlatformStats } from '@/lib/db/queries'
+import { AuthRoute } from '@/components/auth/AuthRoute'
 import { Logo } from '@/components/ui/Logo'
+import { CountUp } from '@/components/v2/Reveal'
+import { getPlatformStats } from '@/lib/db/queries'
 
 /**
- * The split shell every auth page renders inside.
+ * The split shell every auth page renders inside — landing-v2's `.auth`:
+ * the form on a dotted chalk ground with a soft volt glow behind its card,
+ * and the brand on ink with a faint grid and a volt route drawing itself
+ * along the foot. Below 1080px the brand side follows the form, so the form
+ * is always the first thing on a phone.
  *
- * Brought onto the shape the rest of the site settled on. The panel was
- * `bg-gradient-hero` — the flat navy-to-teal ramp /map, /routes, /community and
- * Partner Up all dropped, because it puts the heading on one colour and
- * everything under it on a visibly different one, and anything white landing
- * mid-ramp gets the least contrast to work against. It is slate-950 with
- * discrete pools of light now, like every other band.
+ * ── Honest figures ────────────────────────────────────────────────────
  *
- * ── What was removed, and why it had to be ────────────────────────────
+ * The panel once ended on "Join 5,000+ EV owners" over five lettered circles.
+ * Both were invented, on the one screen where somebody is deciding whether to
+ * hand over an email address. What replaces it is counted, and prints nothing
+ * when there is nothing to print.
  *
- * The panel ended on a card reading "Join 5,000+ EV owners" over five gradient
- * circles lettered A F Z H S. Both were invented: the circles are not people,
- * and the figure was not counted from anything. The same claim in the community
- * hero was the thing that made that page untrustworthy, and here it sits on the
- * one screen where somebody is deciding whether to hand over an email address —
- * the worst possible place to be caught exaggerating.
- *
- * What replaces it is counted, and prints nothing when there is nothing to
- * print: a platform with two stations says two, and a platform with none says
- * nothing rather than dressing a zero up.
- *
- * The five feature bullets became three. "Save your favourite stations" and
- * "Get personalised charger recommendations" are the same promise twice, and a
- * five-item list on a sign-in screen is read by nobody.
+ * The three perks are only what a signed-in account genuinely changes. Saved
+ * stations and saved routes are rows on the server and follow the account to
+ * any device; compared cars live in this browser's storage, so they are not
+ * part of the promise.
  */
 
 /*
@@ -45,7 +39,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-/** Only what a signed-in account genuinely changes about using the site. */
 const VALUE: { icon: IconType; title: string; body: string }[] = [
   {
     icon: Zap,
@@ -60,24 +53,17 @@ const VALUE: { icon: IconType; title: string; body: string }[] = [
   {
     icon: MapPin,
     title: 'Your stations, saved',
-    /*
-      Said only of what the account actually stores. Saved stations and saved
-      routes are rows on the server and follow the account to any device; the
-      cars being compared live in this browser's storage and do not, so they
-      are no longer part of the promise.
-    */
     body: 'Keep the chargers you rely on and the routes you plan, on any device you sign in from.',
   },
 ]
 
+const RISE = 'motion-safe:animate-fade-up motion-safe:[animation-fill-mode:both] motion-safe:[animation-duration:.9s] motion-safe:[animation-timing-function:cubic-bezier(.16,1,.3,1)]'
+
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   /*
-    Decoration must never be able to break sign-in.
-
-    These figures are the least important thing on the screen and the only part
-    that touches the database. If that query fails — a migration mid-flight, a
-    dropped connection — the panel should lose its stat line, not take the login
-    form down with it.
+    Decoration must never be able to break sign-in. These figures are the
+    least important thing on the screen and the only part that touches the
+    database: if that query fails the panel loses its stat line, not the form.
   */
   let stats: { stations: number; cities: number } | null = null
   try {
@@ -88,157 +74,143 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   }
 
   const figures = [
-    { value: stats?.stations ?? 0, label: 'charging points' },
-    { value: stats?.cities ?? 0, label: stats?.cities === 1 ? 'city' : 'cities' },
+    { value: stats?.stations ?? 0, label: stats?.stations === 1 ? 'Charging point' : 'Charging points' },
+    { value: stats?.cities ?? 0, label: stats?.cities === 1 ? 'City' : 'Cities' },
   ].filter((figure) => figure.value > 0)
 
   return (
-    <div className="flex min-h-viewport bg-white">
+    <div className="grid min-h-viewport bg-chalk text-ink min-[1080px]:grid-cols-2">
       {/* ── Form side ────────────────────────────────────────────── */}
-      {/*
-        A faintly tinted ground with the form set on a white card, so the form
-        reads as the one object on this side rather than as type loose on a
-        blank page. The ground carries a single soft pool of the logo's mint in
-        the top corner and two thin charge rings in the bottom one — the same
-        family as the gauge on the Cars hero — and nothing else.
-      */}
-      <div className="relative isolate flex min-h-viewport w-full flex-col overflow-hidden bg-[#F4F8F6] lg:w-1/2">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -left-40 -top-40 h-[28rem] w-[28rem] rounded-full bg-[#6FE8B6]/20 blur-[110px]" />
-          <div className="absolute -bottom-40 -left-40 h-[26rem] w-[26rem] rounded-full border border-plug-cyan-500/15" />
-          <div className="absolute -bottom-24 -left-24 h-[18rem] w-[18rem] rounded-full border border-plug-cyan-500/10" />
-        </div>
-        <div className="flex items-center justify-between px-6 py-6 sm:px-8">
+      <section
+        data-theme="light"
+        className="relative isolate flex min-h-viewport flex-col overflow-hidden px-[clamp(16px,4vw,48px)] pb-6 pt-4 [background:radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)_0_0/14px_14px,radial-gradient(90%_60%_at_20%_0%,#FAF9F6,#F4F3EE_70%)] sm:pt-7"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[46%] -z-10 h-[760px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.22),transparent_70%)]"
+        />
+
+        <header className="flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-lg transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
             aria-label="plugpk home"
+            className="inline-flex min-h-11 items-center rounded-full focus-visible:outline-none focus-visible:shadow-focus"
           >
-            <Logo tone="light" size="text-xl" />
+            <Logo tone="light" size="text-[22px] sm:text-[24px]" />
           </Link>
-
-          {/* slate-500, not slate-400: this is the way out of a screen somebody
-              may have arrived at by accident, and it was below 4.5:1. */}
           <Link
             href="/"
-            className="rounded-lg text-ui-sm font-medium text-slate-500 transition-colors duration-150 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+            className="group/back inline-flex min-h-11 items-center gap-2 rounded-full px-2.5 text-[13px] font-medium text-ink transition-colors hover:bg-ink/[0.06] focus-visible:outline-none focus-visible:shadow-focus sm:px-4 sm:text-sm"
           >
-            &larr; Back to home
+            <ArrowLeft
+              size={18}
+              aria-hidden="true"
+              className="transition-transform duration-300 ease-spring group-hover/back:-translate-x-[3px]"
+            />
+            Back to home
           </Link>
-        </div>
+        </header>
 
-        <div className="flex flex-1 flex-col justify-center px-4 py-8 sm:px-8 sm:py-10">
-          <div className="mx-auto w-full max-w-[29rem] rounded-[1.75rem] border border-slate-200/80 bg-white p-6 shadow-[0_1px_2px_rgba(5,36,30,0.05),0_28px_70px_-36px_rgba(5,36,30,0.4)] sm:p-9">
+        <div className="flex flex-1 flex-col items-center justify-center py-8">
+          <div
+            className={`w-full max-w-[500px] rounded-[22px] border border-ink/10 bg-white px-5 py-[26px] shadow-[0_1px_2px_rgba(11,12,14,.05),0_40px_80px_-40px_rgba(11,12,14,.35)] sm:rounded-[28px] sm:p-[clamp(28px,4vw,44px)] ${RISE}`}
+          >
             {children}
           </div>
 
           {/* Said because it is true: the account stores a hash of the
               password, never the password itself. */}
-          <p className="mx-auto mt-5 flex max-w-[29rem] items-center justify-center gap-2 text-center text-ui-sm text-slate-500">
-            <Lock size={14} className="shrink-0 text-plug-cyan-700" aria-hidden="true" />
+          <p className={`mt-[22px] flex items-center gap-2 text-center text-[13px] text-muted ${RISE} [animation-delay:.15s]`}>
+            <Lock size={16} className="shrink-0 text-ink" aria-hidden="true" />
             Your password is never stored in readable form.
           </p>
         </div>
 
-        {/*
-          Links only, not a consent line. "By continuing you agree…" sat under
-          the sign-up form's own terms checkbox, asking for the same agreement
-          twice in two different ways; the checkbox is the one that records
-          it. Signing in to an existing account agrees to nothing new.
-        */}
-        <p className="flex justify-center gap-4 px-6 py-6 text-ui-xs text-slate-500 sm:px-8">
-          <Link href="/terms" className="font-medium text-slate-600 underline-offset-2 hover:underline">
+        {/* Links only, not a consent line: the sign-up checkbox records the
+            agreement, and signing in agrees to nothing new. */}
+        <footer className="flex justify-center gap-[22px]">
+          <Link href="/terms" className="inline-flex min-h-11 items-center text-[13px] text-muted transition-colors hover:text-ink">
             Terms of Service
           </Link>
-          <Link href="/privacy" className="font-medium text-slate-600 underline-offset-2 hover:underline">
+          <Link href="/privacy" className="inline-flex min-h-11 items-center text-[13px] text-muted transition-colors hover:text-ink">
             Privacy Policy
           </Link>
-        </p>
-      </div>
+        </footer>
+      </section>
 
-      {/* ── The panel ────────────────────────────────────────────────
-          Hidden below lg, where it would push the form off the fold. The form
-          side carries the wordmark, so a phone still knows whose sign-in it is. */}
-      <div className="relative hidden w-1/2 overflow-hidden bg-plug-navy-950 lg:flex lg:items-center">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          {/*
-            An EV charging in Islamabad, the Faisal Mosque behind it — the
-            image the site owner chose for this panel (credited in
-            images/CREDITS.md). It is tall and narrow, so it takes the right of
-            the panel at close to its own size rather than being stretched
-            across all of it, and the forest ground runs into it from the left:
-            solid behind the text, thinning over the charger, clear over the
-            car.
-          */}
-          <div className="absolute inset-y-0 right-0 w-[58%]">
-            <Image
-              src="/images/auth/islamabad-charging.jpg"
-              alt=""
-              fill
-              priority
-              sizes="(min-width: 1024px) 30vw, 0px"
-              className="object-cover object-center"
-            />
-          </div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,36,30,1)_0%,rgba(5,36,30,1)_40%,rgba(5,36,30,0.82)_52%,rgba(5,36,30,0.35)_68%,rgba(5,36,30,0)_86%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-plug-navy-950/90 to-transparent" />
-          <div className="absolute inset-x-0 top-0 h-1/5 bg-gradient-to-b from-plug-navy-950/60 to-transparent" />
-          {/* Catches the light along the left edge, so the panel reads as a
-              surface set beside the form rather than a hole in the page. */}
-          <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent" />
+      {/* ── Brand side ───────────────────────────────────────────── */}
+      <aside
+        data-theme="dark"
+        aria-label="What your account gives you"
+        className="relative isolate flex items-center overflow-hidden bg-ink px-[clamp(16px,6vw,56px)] pb-16 pt-14 text-white [background-image:linear-gradient(rgba(255,255,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.045)_1px,transparent_1px)] [background-size:56px_56px] min-[1080px]:p-[clamp(48px,6vw,96px)]"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-[420px] -left-[260px] -z-10 h-[900px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.16),transparent_70%)]"
+        />
+
+        {/*
+          The photo stands on its own on the far side, and only where there is
+          room beside the copy — the copy never sits on it. An EV charging in
+          Islamabad, the Faisal Mosque behind it: the image the site owner chose
+          for this panel (credited in images/CREDITS.md).
+        */}
+        <div
+          aria-hidden="true"
+          className="absolute bottom-6 right-6 top-6 hidden w-[34%] overflow-hidden rounded-[40px] motion-safe:animate-fade-in min-[1640px]:block"
+        >
+          <Image
+            src="/images/auth/islamabad-charging.jpg"
+            alt=""
+            fill
+            sizes="(min-width: 1640px) 34vw, 0px"
+            className="object-cover object-[50%_62%] saturate-[.9]"
+          />
         </div>
 
-        <div className="relative z-10 w-full max-w-[27rem] px-12 xl:max-w-[30rem] xl:px-16">
+        <AuthRoute className="pointer-events-none absolute inset-0 hidden h-full w-full min-[1080px]:block min-[1640px]:w-[62%]" />
 
-          {/*
-            The gradient phrase is kept whole.
-
-            At max-w-md this wrapped as "Pakistan's EV / network, in / one
-            account" — the highlight split across two lines with "in" left
-            dangling at the end of the second, which is the one break a
-            two-colour heading cannot survive. A wider column fixes the
-            common case; `whitespace-nowrap` on the phrase guarantees it,
-            so the heading can only ever break at the comma.
-          */}
-          <h2 className="font-display text-[clamp(1.875rem,2.8vw,2.375rem)] font-bold leading-[1.12] tracking-tight text-white">
-            Pakistan&apos;s EV network,{' '}
-            <span className="whitespace-nowrap text-[#6FE8B6]">in one account</span>
+        <div className="relative z-[1] mx-auto w-full max-w-[620px] min-[1080px]:mx-0 min-[1080px]:max-w-[480px]">
+          <h2 className={`m-0 mb-11 font-display text-[clamp(40px,4.2vw,64px)] leading-none ${RISE} [animation-delay:.1s]`}>
+            Pakistan&apos;s EV network, <span className="pg-bold block text-volt">in one account.</span>
           </h2>
 
-          <ul className="mt-9 flex flex-col gap-6">
-            {VALUE.map((item) => (
-              <li key={item.title} className="flex gap-4">
-                <item.icon size={22} aria-hidden="true" className="mt-0.5 shrink-0 text-[#6FE8B6]" />
-                <span className="min-w-0">
-                  <span className="block font-semibold text-white">{item.title}</span>
-                  {/* white/65 rather than the white/50 the old card used. */}
-                  <span className="mt-1 block text-ui-sm leading-relaxed text-white/65">
-                    {item.body}
-                  </span>
-                </span>
+          <ul className="grid gap-7">
+            {VALUE.map((item, i) => (
+              <li
+                key={item.title}
+                className={`grid grid-cols-[32px_1fr] items-start gap-[18px] ${RISE}`}
+                style={{ animationDelay: `${0.2 + i * 0.07}s` }}
+              >
+                <item.icon
+                  size={32}
+                  aria-hidden="true"
+                  className="-mt-[3px] text-volt drop-shadow-[0_0_10px_rgba(212,255,58,.35)]"
+                />
+                <div>
+                  <b className="block font-display text-[22px] font-normal leading-[1.15]">{item.title}</b>
+                  <p className="mt-2 text-[15px] leading-[1.55] text-fog">{item.body}</p>
+                </div>
               </li>
             ))}
           </ul>
 
           {figures.length > 0 ? (
-            <dl className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/10 pt-6">
+            <dl className={`mt-11 flex flex-wrap gap-x-14 gap-y-6 border-t border-white/[0.09] pt-[30px] ${RISE} [animation-delay:.42s]`}>
               {figures.map((figure) => (
-                <div key={figure.label}>
-                  <dt className="sr-only">{figure.label}</dt>
-                  <dd>
-                    <span className="font-mono text-xl font-bold text-white">
-                      {figure.value.toLocaleString('en-PK')}
-                    </span>
-                    <span className="mt-0.5 block text-ui-xs uppercase tracking-[0.12em] text-white/45">
-                      {figure.label}
-                    </span>
+                <div key={figure.label} className="flex flex-col-reverse">
+                  <dt className="mt-2.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-fog">
+                    {figure.label}
+                  </dt>
+                  <dd className="font-mono text-[40px] font-semibold leading-none tabular-nums">
+                    <CountUp value={figure.value} />
                   </dd>
                 </div>
               ))}
             </dl>
           ) : null}
         </div>
-      </div>
+      </aside>
     </div>
   )
 }

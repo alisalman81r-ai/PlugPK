@@ -1,8 +1,6 @@
 // src/components/route/RouteStopCard.tsx
 import {
   ArrowRight,
-  Battery,
-  BatteryLow,
   Bed,
   Coffee,
   MapPin,
@@ -14,12 +12,13 @@ import {
 } from '@/components/ui/icons'
 import Link from 'next/link'
 
-import { ConnectorBadgeGroup, RatingStars, SpeedBadge } from '@/components/ui'
+import { ConnectorBadgeGroup, RatingStars } from '@/components/ui'
+import { ExampleBadge, Tag } from '@/components/v2/ui'
 import { formatDuration as formatChargeDuration } from '@/lib/charging-time'
 import type { PlanStop } from '@/lib/route-plan'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { AmenityType, Station } from '@/lib/types'
-import { cn, getMaxPower } from '@/lib/utils'
+import { getMaxPower } from '@/lib/utils'
 
 export interface RouteStopCardProps {
   stop: PlanStop<Station>
@@ -50,6 +49,26 @@ const AMENITY_LABEL: Record<AmenityType, string> = {
 
 const MAX_AMENITIES = 4
 
+/** A charge figure as a pill (.tl__soc em): ember when low, volt-tint on departure. */
+export function SocPill({ value, tone = 'plain' }: { value: number; tone?: 'plain' | 'to' }) {
+  const low = value < 15
+  return (
+    <em
+      className={
+        'inline-block rounded-full px-[9px] py-[3px] not-italic ' +
+        (low ? 'bg-[#FFECE6] text-[#B42E05]' : tone === 'to' ? 'bg-[#F1FFD0] text-volt-ink' : 'bg-chalk text-ink')
+      }
+    >
+      {Math.round(value)}%
+    </em>
+  )
+}
+
+/**
+ * One charging stop, as a node on the plan's timeline (landing-v2 .tl__node):
+ * the station, the charge it arrives and leaves on, how long it takes, and
+ * the station's own details below.
+ */
 export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
   const { station } = stop
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
@@ -58,132 +77,84 @@ export function RouteStopCard({ stop, totalStops }: RouteStopCardProps) {
   const shown = available.slice(0, MAX_AMENITIES)
   const extra = available.length - shown.length
 
-  const arrivalIsLow = stop.arrivalBatteryPercent < 20
-  const ArrivalIcon = arrivalIsLow ? BatteryLow : Battery
-
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-shadow duration-200 hover:shadow-card-hover">
-      <span
-        aria-hidden="true"
-        className="absolute bottom-0 left-0 top-0 w-1 bg-gradient-accent"
-      />
-
-      <span
-        aria-label={`Stop ${stop.order} of ${totalStops}`}
-        className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full bg-plug-blue-600 font-mono text-sm font-bold text-white"
-      >
-        {String(stop.order).padStart(2, '0')}
-      </span>
-
-      <div className="mb-5 pr-12">
-        <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-          {station.name}
+    <article aria-label={`Stop ${stop.order} of ${totalStops}: ${station.name}`} className="min-w-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h3 className="text-base font-semibold leading-[1.35] text-ink">
+          Stop {stop.order} · {station.name}
           {/* No "verified" shield: nothing verifies a station. */}
           {isSampleListing(station.id) ? (
-            <span className="shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-              {SAMPLE_LISTING_LABEL}
-            </span>
+            <ExampleBadge className="ml-2 align-middle">{SAMPLE_LISTING_LABEL}</ExampleBadge>
           ) : null}
         </h3>
-
-        <p className="mt-1 flex items-center gap-1.5">
-          <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-          <span className="text-sm text-slate-500">
-            {station.address.area}, {station.address.city}
+        <span className="whitespace-nowrap font-mono text-sm font-semibold tabular-nums">
+          <span className="sr-only">Arrive on {stop.arrivalBatteryPercent}%, leave on {stop.departureBatteryPercent}%</span>
+          <span aria-hidden="true">
+            <SocPill value={stop.arrivalBatteryPercent} /> → <SocPill value={stop.departureBatteryPercent} tone="to" />
           </span>
-        </p>
+        </span>
       </div>
 
-      {/* Battery journey */}
-      <div className="mb-5 flex items-center gap-4 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-        <div className="flex shrink-0 flex-col items-center">
-          <span className="mb-1 text-[10px] uppercase tracking-wider text-slate-400">Arrive at</span>
-          <span className="flex items-center gap-1">
-            <ArrivalIcon
-              size={16}
-              className={arrivalIsLow ? 'text-red-600' : 'text-amber-600'}
-              aria-hidden="true"
-            />
-            <span
-              className={cn(
-                'font-mono text-2xl font-bold',
-                arrivalIsLow ? 'text-red-600' : 'text-amber-600',
-              )}
-            >
-              {stop.arrivalBatteryPercent}%
-            </span>
-          </span>
-        </div>
+      <p className="mt-[3px] flex items-center gap-1.5 text-[13.5px] text-muted">
+        <MapPin size={13} className="shrink-0" aria-hidden="true" />
+        {station.address.area}, {station.address.city}
+        {stop.distanceFromPreviousKm <= 0.5 ? ' · top up before you set off' : ''}
+      </p>
 
-        <div className="relative flex flex-1 flex-col items-center">
-          <span aria-hidden="true" className="w-full border-t-2 border-dashed border-slate-300" />
-          <span className="mt-1 flex items-center gap-1.5 rounded-full border border-plug-blue-200 bg-plug-blue-50 px-2.5 py-1">
-            <Zap size={14} className="text-plug-blue-600" aria-hidden="true" />
-            <span className="font-mono text-xs font-medium text-plug-blue-600">
-              {stop.chargingTimeMinutes !== null
-                ? formatChargeDuration(stop.chargingTimeMinutes)
-                : 'Time unknown'}
-              {' · '}
-              {stop.mode.toUpperCase()} {stop.chargeKw} kW
-            </span>
-          </span>
-        </div>
-
-        <div className="flex shrink-0 flex-col items-center">
-          <span className="mb-1 text-[10px] uppercase tracking-wider text-slate-400">Depart at</span>
-          <span className="flex items-center gap-1">
-            <Battery size={16} className="text-green-600" aria-hidden="true" />
-            <span className="font-mono text-2xl font-bold text-green-600">
-              {stop.departureBatteryPercent}%
-            </span>
-          </span>
-        </div>
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        <Tag className="font-mono text-[11.5px]">
+          {stop.chargingTimeMinutes !== null
+            ? `~${formatChargeDuration(stop.chargingTimeMinutes)} charging`
+            : 'Charge time unknown'}
+        </Tag>
+        <Tag className="font-mono text-[11.5px]">
+          {stop.chargeKw} kW {stop.mode.toUpperCase()}
+        </Tag>
+        {maxPower > 0 && maxPower !== stop.chargeKw ? (
+          <Tag className="font-mono text-[11.5px]">Charger up to {maxPower} kW</Tag>
+        ) : null}
+        <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
       </div>
 
       {/* Why this stop charges the way it does — AC on a car that cannot DC
           charge, or a socket we could not confirm fits. */}
       {stop.note ? (
-        <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+        <p className="mt-2.5 rounded-xl border border-[#FFE0A3] bg-[#FFF6E3] px-3 py-2 text-[13px] leading-[1.5] text-[#8A5300]">
           {stop.note}
         </p>
       ) : null}
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
-        {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
-      </div>
-
       {shown.length > 0 ? (
-        <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
           {shown.map((amenity) => {
             const Icon = AMENITY_ICON[amenity.type]
 
             return (
-              <span key={amenity.type} className="flex items-center gap-1.5 text-slate-500">
-                <Icon size={16} className="shrink-0" aria-hidden="true" />
+              <span key={amenity.type} className="flex items-center gap-1.5 text-muted">
+                <Icon size={15} className="shrink-0" aria-hidden="true" />
                 <span className="text-xs">{AMENITY_LABEL[amenity.type]}</span>
               </span>
             )
           })}
-          {extra > 0 ? <span className="text-xs text-slate-400">+{extra} more</span> : null}
+          {extra > 0 ? <span className="text-xs text-muted">+{extra} more</span> : null}
         </div>
       ) : null}
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         {station.reviewCount > 0 ? (
           <RatingStars rating={station.rating} size="sm" showNumber />
         ) : (
-          <span className="text-xs text-slate-500">No reviews yet</span>
+          <span className="text-xs text-muted">No reviews yet</span>
         )}
 
         <Link
           href={`/station/${station.slug}`}
-          className="group/link flex items-center gap-1 text-sm font-medium text-plug-blue-600 hover:gap-2"
+          className="group/link inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
         >
-          View Station
+          View station
           <ArrowRight
             size={14}
-            className="transition-transform duration-150 group-hover/link:translate-x-0.5"
+            className="transition-transform duration-200 group-hover/link:translate-x-0.5"
             aria-hidden="true"
           />
         </Link>

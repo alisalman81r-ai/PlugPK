@@ -3,11 +3,11 @@
 
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
 import { Mail } from '@/components/ui/icons'
 import { cn } from '@/lib/utils'
 
-import { EMAIL_PATTERN, FIELD_CLASS, FIELD_ERROR, FIELD_OK, FieldError } from './SignUpForm'
+import { ActionButton, ArrowEnd, LABEL } from './form-ui'
+import { EMAIL_PATTERN, FIELD_CLASS, FIELD_ERROR, FIELD_ICON, FIELD_OK, FieldError } from './SignUpForm'
 import { VerifyEmailForm } from './VerifyEmailForm'
 
 /** /verify-email: which address, then the code form for it. */
@@ -29,29 +29,27 @@ export function VerifyEmailStart({ initialEmail }: { initialEmail: string }) {
         setChosen(value)
       }}
     >
-      <label htmlFor="verify-email" className="mb-2 block text-sm font-semibold text-slate-700">
-        Email Address
+      <label htmlFor="verify-email" className={LABEL}>
+        Email address
       </label>
       <div className="relative">
-        <Mail
-          size={18}
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-          aria-hidden="true"
-        />
+        <Mail size={18} className={FIELD_ICON} aria-hidden="true" />
         <input
           id="verify-email"
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="ahmed@example.com"
+          placeholder="you@example.com"
           autoComplete="email"
+          aria-invalid={fieldError ? true : undefined}
           className={cn(FIELD_CLASS, fieldError ? FIELD_ERROR : FIELD_OK)}
         />
       </div>
       <FieldError message={fieldError ?? undefined} />
-      <Button type="submit" size="lg" fullWidth className="mt-6">
+      <ActionButton type="submit" size="lg" fullWidth className="mt-6">
         Continue
-      </Button>
+        <ArrowEnd />
+      </ActionButton>
     </form>
   )
 }

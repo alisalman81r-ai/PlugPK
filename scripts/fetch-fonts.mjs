@@ -38,6 +38,7 @@ const UA =
 
 const FAMILIES = [
   { name: 'Figtree', file: 'figtree', weights: [400, 500, 600, 700] },
+  { name: 'Poppins', file: 'poppins', weights: [400, 500, 600, 700] },
   { name: 'JetBrains Mono', file: 'jetbrains-mono', weights: [400, 500, 600, 700] },
 ]
 

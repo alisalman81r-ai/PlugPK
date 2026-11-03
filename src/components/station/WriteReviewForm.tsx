@@ -29,7 +29,7 @@ const MAX_COMMENT = 1000
 const MAX_VEHICLE = 120
 
 const RATING_LABEL: Record<number, { text: string; className: string }> = {
-  0: { text: 'Select a rating', className: 'text-slate-400' },
+  0: { text: 'Select a rating', className: 'text-muted' },
   1: { text: 'Poor', className: 'text-red-500' },
   2: { text: 'Fair', className: 'text-orange-500' },
   3: { text: 'Good', className: 'text-amber-500' },
@@ -105,10 +105,12 @@ export function WriteReviewForm({
 
   if (isSuccess) {
     return (
-      <div className="flex animate-scale-in flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card">
-        <CheckCircle2 size={48} className="text-green-500" aria-hidden="true" />
-        <p className="mt-4 text-xl font-bold text-slate-900">Review submitted!</p>
-        <p className="mt-1 text-slate-500">Thank you for helping the community.</p>
+      <div className="flex animate-scale-in flex-col items-center rounded-[22px] border border-ink/10 bg-paper p-8 text-center">
+        <span className="grid h-14 w-14 place-items-center rounded-full bg-volt">
+          <CheckCircle2 size={28} className="text-ink" aria-hidden="true" />
+        </span>
+        <p className="mt-4 font-display text-2xl text-ink">Review submitted</p>
+        <p className="mt-1 text-muted">Thank you for helping the community.</p>
       </div>
     )
   }
@@ -118,15 +120,15 @@ export function WriteReviewForm({
       <div className="flex items-center gap-4">
         <span
           aria-hidden="true"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-brand"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-ink"
         >
-          <User size={20} className="text-white" />
+          <User size={20} className="text-volt" />
         </span>
 
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="h-11 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 text-left text-sm text-slate-400 transition-colors duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-50"
+          className="h-12 flex-1 rounded-full border-[1.5px] border-ink/10 bg-white px-5 text-left text-[15px] text-muted transition-colors duration-200 hover:border-ink/30 hover:text-ink"
         >
           Share your experience...
         </button>
@@ -140,12 +142,12 @@ export function WriteReviewForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
+      className="rounded-[22px] border border-ink/10 bg-paper p-5 sm:p-6"
     >
-      <h3 className="mb-6 text-lg font-bold text-slate-900">Write a Review</h3>
+      <h3 className="mb-6 font-display text-[22px] leading-tight text-ink">Write a review</h3>
 
       <fieldset className="mb-6">
-        <legend className="mb-3 text-sm font-semibold text-slate-700">Your Rating *</legend>
+        <legend className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted">Your rating *</legend>
         <div className="flex items-center gap-2" onMouseLeave={() => setHoverRating(null)}>
           {[1, 2, 3, 4, 5].map((value) => (
             <button
@@ -164,7 +166,7 @@ export function WriteReviewForm({
             >
               <Star
                 size={36}
-                className={value <= displayRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}
+                className={value <= displayRating ? 'fill-[#F5A524] text-[#F5A524]' : 'text-ink/15'}
                 aria-hidden="true"
               />
             </button>
@@ -196,8 +198,8 @@ export function WriteReviewForm({
 
       <p
         className={cn(
-          'mb-4 text-right text-xs',
-          comment.length > MAX_COMMENT ? 'text-red-600' : 'text-slate-400',
+          'mb-4 text-right font-mono text-xs',
+          comment.length > MAX_COMMENT ? 'text-red-600' : 'text-muted',
         )}
       >
         {comment.length}/{MAX_COMMENT}
@@ -247,7 +249,7 @@ export function WriteReviewForm({
           isLoading={isSubmitting}
           disabled={rating === 0 || comment.trim().length === 0}
         >
-          Submit Review
+          Submit review
         </Button>
       </div>
 

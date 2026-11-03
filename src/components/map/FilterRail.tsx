@@ -1,12 +1,13 @@
 // src/components/map/FilterRail.tsx
 'use client'
 
-import { ChevronDown, RotateCcw, SlidersHorizontal, Star } from '@/components/ui/icons'
+import { Check, ChevronDown, RotateCcw, SlidersHorizontal, Star } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import type { AmenityType, ConnectorType, StationFilters } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { FLABEL, btnClass, chipClass } from '@/components/v2/ui'
 import { AMENITY_OPTIONS, CONNECTOR_LABEL, SPEED_OPTIONS } from './filter-options'
 
 /**
@@ -26,11 +27,9 @@ import { AMENITY_OPTIONS, CONNECTOR_LABEL, SPEED_OPTIONS } from './filter-option
  * filters", because they are the third question, not the first, and an
  * always-open row of sixteen chips makes the common path look complicated.
  *
- * It renders inside the same white mount as the map card (see the map page), so
- * its own edge is a hairline ring rather than a border-and-shadow of its own.
- *
- * The phone gets the same filters stacked in a sheet (FilterSections); both
- * surfaces read their options from filter-options.ts.
+ * It is the landing-v2 "Refine the map" sheet, lifted into the hero. On a
+ * phone the same groups stack inside it, as the design draws them, so every
+ * filter is one tap away on every screen.
  */
 
 export interface FilterRailProps {
@@ -40,16 +39,6 @@ export interface FilterRailProps {
   activeFilterCount: number
   resultCount: number
   totalCount: number
-  /**
-   * Opens the phone filter sheet.
-   *
-   * Below lg the rail keeps only its header: the same groups stacked would put
-   * 350px of controls between the search field and the map on a screen that
-   * shows one card at a time. The sheet holds them instead (FilterSections),
-   * and both are driven by the same filter state, so the two can only ever
-   * disagree about layout.
-   */
-  onOpenSheet: () => void
   className?: string
 }
 
@@ -60,7 +49,6 @@ export function FilterRail({
   activeFilterCount,
   resultCount,
   totalCount,
-  onOpenSheet,
   className,
 }: FilterRailProps) {
   /**
@@ -100,9 +88,11 @@ export function FilterRail({
 
   return (
     <section
-      aria-label="Filter stations"
+      aria-labelledby="filter-rail-title"
+      data-theme="light"
       className={cn(
-        'overflow-hidden rounded-[1.6rem] bg-white ring-1 ring-slate-900/10',
+        // The landing-v2 .lift: a paper sheet lifted into the ink hero.
+        'relative overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:rounded-[32px]',
         className,
       )}
     >
@@ -111,88 +101,62 @@ export function FilterRail({
         answer to the controls it sits with, and a figure set over a map is a
         figure a pin can slide behind.
       */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-4 py-4 sm:gap-x-4 sm:px-6">
-        {/* Outlined, like every other icon holder on the site. The filter chips
-            below keep their tint, and deliberately — a fill there means "this
-            filter is on", which is state the user needs to see. This glyph
-            labels the panel and carries no state, so a fill only competed with
-            the ones that do. */}
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border-[1.5px] border-slate-300 text-slate-500"
-        >
-          <SlidersHorizontal size={17} />
-        </span>
-
-        <div className="min-w-0 flex-1">
-          <h2 className="font-display text-base font-bold tracking-tight text-slate-900 sm:text-lg">
-            Refine the map
-          </h2>
-          <p aria-live="polite" className="text-ui-sm text-slate-500">
-            Showing <span className="font-semibold text-slate-900">{resultCount}</span> of{' '}
-            {totalCount} {totalCount === 1 ? 'station' : 'stations'}
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-3.5 border-b border-ink/10 bg-[linear-gradient(90deg,#F4F3EE,#fff)] px-[18px] py-[18px] sm:gap-5 sm:px-7 sm:py-[22px]">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <span
+            aria-hidden="true"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-chalk text-ink sm:h-[46px] sm:w-[46px]"
+          >
+            <SlidersHorizontal size={20} />
+          </span>
+          <div className="min-w-0">
+            <h2 id="filter-rail-title" className="font-display text-[22px] leading-[1.1] text-ink sm:text-[26px]">
+              Refine the map
+            </h2>
+            <p aria-live="polite" className="mt-1 text-sm text-muted">
+              Showing <b className="font-mono font-semibold text-ink">{resultCount}</b> of{' '}
+              <span className="font-mono">{totalCount}</span> {totalCount === 1 ? 'station' : 'stations'}
+            </p>
+          </div>
         </div>
 
-        {activeFilterCount > 0 ? (
+        <div className="flex w-full items-center gap-1.5 sm:w-auto">
+          {activeFilterCount > 0 ? (
+            <button
+              type="button"
+              onClick={onResetFilters}
+              className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-muted transition-colors duration-200 hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink sm:h-[42px]"
+            >
+              <RotateCcw size={14} aria-hidden="true" />
+              Clear
+              <ChipCount>{activeFilterCount}</ChipCount>
+            </button>
+          ) : null}
+
           <button
             type="button"
-            onClick={onResetFilters}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 px-3.5 text-ui-sm font-semibold text-slate-600 transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+            onClick={() => setIsExpanded((open) => !open)}
+            aria-expanded={isExpanded}
+            aria-controls="filter-rail-more"
+            className={btnClass('ink', 'sm', 'h-11 flex-1 sm:h-[42px] sm:flex-none')}
           >
-            <RotateCcw size={14} aria-hidden="true" />
-            Clear
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-blue-600 px-1.5 font-mono text-[11px] font-bold text-white">
-              {activeFilterCount}
-            </span>
+            {isExpanded ? 'Fewer filters' : 'More filters'}
+            <ChevronDown
+              aria-hidden="true"
+              className={cn('!h-4 !w-4 transition-transform duration-[400ms] ease-out', isExpanded && 'rotate-180')}
+            />
           </button>
-        ) : null}
-
-        {/* Phone: the whole set, in a sheet. */}
-        <button
-          type="button"
-          onClick={onOpenSheet}
-          className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:hidden"
-        >
-          <SlidersHorizontal size={14} aria-hidden="true" />
-          Filters
-          {activeFilterCount > 0 ? (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-plug-blue-600 px-1.5 font-mono text-[11px] font-bold text-white">
-              {activeFilterCount}
-            </span>
-          ) : null}
-        </button>
-
-        {/* Desktop: the folded pair, in place. */}
-        <button
-          type="button"
-          onClick={() => setIsExpanded((open) => !open)}
-          aria-expanded={isExpanded}
-          aria-controls="filter-rail-more"
-          className="hidden h-9 shrink-0 items-center gap-1.5 rounded-full bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white transition-colors duration-150 hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 lg:inline-flex"
-        >
-          {isExpanded ? 'Fewer filters' : 'More filters'}
-          <ChevronDown
-            size={15}
-            aria-hidden="true"
-            className={cn('transition-transform duration-200', isExpanded && 'rotate-180')}
-          />
-        </button>
+        </div>
       </div>
 
       {/*
         Dividers rather than cards: the three groups are one control surface
-        read across, and three bordered boxes in a row would compete with the
-        map card directly below.
+        read across. Three columns from xl; below that connector and "show
+        only" share a row and the speed control takes the full width under
+        them; on a phone they stack.
       */}
-      {/*
-        Three columns only from xl. At 1024–1279 the speed control's third of
-        the rail was ~300px — five buttons of 55px under kW ranges up to 60px
-        wide, so the ranges ran into one another. There, connector and "show
-        only" share the first row and the speed control takes the full second.
-      */}
-      <div className="hidden divide-y divide-slate-100 lg:grid lg:grid-cols-2 lg:divide-x lg:divide-y-0 xl:grid-cols-[1.3fr_1.4fr_1fr]">
-        <Group label="Connector">
+      <div className="grid md:grid-cols-[1fr_auto] xl:grid-cols-[auto_auto_1fr]">
+        <Group label="Connector" className="md:col-start-1 md:row-start-1">
           <div className="flex flex-wrap gap-2">
             {CONNECTOR_TYPES.map((type) => (
               <Chip
@@ -208,16 +172,12 @@ export function FilterRail({
 
         <Group
           label="Charging speed"
-          className="lg:order-last lg:col-span-2 lg:!border-l-0 lg:border-t lg:border-slate-100 xl:order-none xl:col-span-1 xl:!border-l xl:border-t-0"
+          className="border-t border-ink/10 md:col-span-2 md:row-start-2 xl:col-span-1 xl:col-start-2 xl:row-start-1 xl:border-l xl:border-t-0"
         >
           {/* A segmented control, because the speeds are one ordered choice
               rather than five independent toggles — and the kW range sits under
               each label so nobody has to guess what "Rapid" means. */}
-          <div
-            role="radiogroup"
-            aria-label="Charging speed"
-            className="scrollbar-hide flex gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1"
-          >
+          <div role="radiogroup" aria-label="Charging speed" className="flex w-full gap-0.5 rounded-2xl bg-stone p-1 xl:inline-flex xl:w-auto">
             {SPEED_OPTIONS.map((option) => {
               const selected = filters.chargingSpeed === option.value
 
@@ -229,46 +189,42 @@ export function FilterRail({
                   aria-checked={selected}
                   onClick={() => onUpdateFilter('chargingSpeed', option.value)}
                   className={cn(
-                    'min-w-0 flex-1 rounded-xl px-1.5 py-2 text-center transition-all duration-200',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                    selected ? 'bg-white shadow-e1' : 'hover:bg-white/60',
+                    'grid min-w-0 flex-1 justify-items-center gap-0.5 rounded-xl px-0.5 py-2 text-[13px] font-semibold transition-[background-color,color,box-shadow] duration-200 sm:px-3 sm:text-sm xl:min-w-[84px]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink',
+                    selected ? 'bg-white text-ink shadow-e1' : 'text-muted hover:text-ink',
                   )}
                 >
-                  <span
+                  {option.label}
+                  <small
                     className={cn(
-                      'block whitespace-nowrap text-ui-sm font-bold',
-                      selected ? 'text-plug-blue-700' : 'text-slate-600',
-                    )}
-                  >
-                    {option.label}
-                  </span>
-                  <span
-                    className={cn(
-                      'mt-0.5 block whitespace-nowrap font-mono text-[10px]',
-                      selected ? 'text-plug-cyan-700' : 'text-slate-400',
+                      'whitespace-nowrap font-mono text-[9px] font-medium tracking-[-0.03em] sm:text-[10px] sm:tracking-normal',
+                      selected ? 'text-volt-ink' : 'text-fog',
                     )}
                   >
                     {option.range}
-                  </span>
+                  </small>
                 </button>
               )
             })}
           </div>
         </Group>
 
-        <Group label="Show only">
+        <Group label="Show only" className="border-t border-ink/10 md:col-start-2 md:row-start-1 md:border-l md:border-t-0 xl:col-start-3">
           <div className="flex flex-wrap gap-2">
             {/* No "Available now" chip. It filtered on a status column that only
                 changes when someone edits it — plugpk has no live connection to
-                the hardware — so it hid stations on a guess. */}
-            {/* A rating floor rather than an opening-hours claim: nothing in
-                the data records 24/7 opening, so a "24/7" chip would be a
-                filter that could never be honest. */}
+                the hardware — so it hid stations on a guess. A rating floor
+                rather than an opening-hours claim: nothing in the data records
+                24/7 opening. */}
             <Chip
               active={filters.minRating >= 4}
               onClick={() => onUpdateFilter('minRating', filters.minRating >= 4 ? 0 : 4)}
+              check={false}
             >
-              <Star size={13} aria-hidden="true" />
+              <Star
+                aria-hidden="true"
+                className={filters.minRating >= 4 ? 'fill-[#F5A524] text-[#F5A524]' : undefined}
+              />
               Rated 4+
             </Chip>
           </div>
@@ -279,7 +235,7 @@ export function FilterRail({
       {isExpanded ? (
         <div
           id="filter-rail-more"
-          className="hidden animate-fade-in border-t border-slate-100 bg-slate-50/60 lg:grid lg:grid-cols-[1fr_auto] lg:divide-x lg:divide-slate-100"
+          className="grid animate-fade-in border-t border-ink/10 bg-white md:grid-cols-[1fr_auto]"
         >
           <Group label="Nearby amenities">
             <div className="flex flex-wrap gap-2">
@@ -291,8 +247,9 @@ export function FilterRail({
                     key={amenity.type}
                     active={filters.amenities.includes(amenity.type)}
                     onClick={() => toggleAmenity(amenity.type)}
+                    check={false}
                   >
-                    <Icon size={13} aria-hidden="true" />
+                    <Icon aria-hidden="true" />
                     {amenity.label}
                   </Chip>
                 )
@@ -300,9 +257,9 @@ export function FilterRail({
             </div>
           </Group>
 
-          <Group label="Minimum rating">
+          <Group label="Minimum rating" className="border-t border-ink/10 md:border-l md:border-t-0">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(null)}>
+              <div className="flex items-center gap-0.5" onMouseLeave={() => setHoverRating(null)}>
                 {[1, 2, 3, 4, 5].map((value) => (
                   <button
                     key={value}
@@ -312,19 +269,18 @@ export function FilterRail({
                     }
                     onMouseEnter={() => setHoverRating(value)}
                     aria-label={`Minimum ${value} star${value === 1 ? '' : 's'}`}
-                    className="rounded transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+                    aria-pressed={filters.minRating === value}
+                    className="grid h-10 w-9 place-items-center rounded-lg transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
                   >
                     <Star
                       size={24}
                       aria-hidden="true"
-                      className={
-                        value <= displayRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
-                      }
+                      className={value <= displayRating ? 'fill-[#F5A524] text-[#F5A524]' : 'text-ink/15'}
                     />
                   </button>
                 ))}
               </div>
-              <span className="whitespace-nowrap text-ui-sm text-slate-500">
+              <span className="whitespace-nowrap font-mono text-xs font-semibold text-muted">
                 {filters.minRating > 0 ? `${filters.minRating.toFixed(1)}+ stars` : 'Any rating'}
               </span>
             </div>
@@ -335,32 +291,40 @@ export function FilterRail({
   )
 }
 
-/** One labelled cell of the rail. */
+/** One labelled cell of the sheet (.mfilter__grp). */
 function Group({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={cn('min-w-0 px-5 py-4 sm:px-6', className)}>
-      <p className="mb-3 text-ui-xs font-bold uppercase tracking-[0.14em] text-slate-400">
-        {label}
-      </p>
+    <div
+      role="group"
+      aria-label={label}
+      className={cn('grid min-w-0 content-start gap-3.5 px-[18px] pb-5 pt-[18px] sm:px-7 sm:pb-[26px] sm:pt-[22px]', className)}
+    >
+      <p className={cn(FLABEL, 'text-[11px]')}>{label}</p>
       {children}
     </div>
   )
 }
 
+function ChipCount({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full bg-ink px-[7px] py-0.5 font-mono text-[11px] font-semibold text-volt">{children}</span>
+  )
+}
+
 /**
- * The rail's one control shape.
- *
- * Selected state carries colour, a border and a shadow together rather than
- * colour alone, so it still reads on a phone in daylight and to a reader who
- * cannot separate blue from grey.
+ * The .chip: white with a hairline at rest, ink when pressed — with a volt
+ * tick that springs in, so the state reads by shape as well as by colour.
  */
 function Chip({
   active,
   onClick,
+  check = true,
   children,
 }: {
   active: boolean
   onClick: () => void
+  /** The sliding tick; off for chips that lead with their own icon. */
+  check?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -368,14 +332,20 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={cn(
-        'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-all duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-        active
-          ? 'border-plug-blue-300 bg-plug-blue-50 text-plug-blue-700 shadow-[0_1px_2px_rgba(11,51,44,0.12)]'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900',
+      className={chipClass(
+        active,
+        'h-11 sm:h-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2',
       )}
     >
+      {check ? (
+        <Check
+          aria-hidden="true"
+          className={cn(
+            'shrink-0 text-volt transition-[width,opacity,margin] duration-300 ease-spring',
+            active ? '!w-3.5 opacity-100' : '-mr-2 !w-0 opacity-0',
+          )}
+        />
+      ) : null}
       {children}
     </button>
   )

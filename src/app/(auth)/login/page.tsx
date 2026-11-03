@@ -4,7 +4,9 @@ import Link from 'next/link'
 
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { LoginForm } from '@/components/auth/LoginForm'
-import { ArrowRight, Building2, ChevronLeft } from '@/components/ui/icons'
+import { ArrowLeft, Building2 } from '@/components/ui/icons'
+import { ABACK } from '@/components/auth/form-ui'
+import { BtnArrow, btnClass } from '@/components/v2/ui'
 import { safeRedirect } from '@/lib/safe-redirect'
 
 export const metadata: Metadata = {
@@ -49,33 +51,27 @@ export default function LoginPage({ searchParams }: PageProps) {
       <>
         <AuthHeader
           eyebrow="Business account"
-          title="Sign in to your business"
+          title="Sign in to your business."
           subtitle="For partners who list a charger or an EV service on plugpk."
         />
         <LoginForm redirectTo={redirectTo} />
 
-        <div className="mt-6 rounded-2xl border border-plug-blue-100 bg-plug-blue-50/60 p-4">
-          <p className="flex items-center gap-2 text-ui-sm font-semibold text-slate-900">
-            <Building2 size={16} className="text-plug-blue-600" aria-hidden="true" />
+        <div className="mt-[26px] rounded-[18px] border border-ink/10 bg-chalk p-[22px]">
+          <p className="m-0 flex items-center gap-3 font-display text-[22px] leading-none text-ink">
+            <Building2 size={28} className="shrink-0" aria-hidden="true" />
             New partner?
           </p>
-          <p className="mt-1 text-ui-sm text-slate-600">
+          <p className="mb-4 mt-3 text-sm leading-[1.55] text-muted">
             List your charging station or EV service. We review every listing before it goes live.
           </p>
-          <Link
-            href="/business/signup"
-            className="mt-3 inline-flex items-center gap-1.5 text-ui-sm font-semibold text-plug-blue-700 hover:underline"
-          >
+          <Link href="/business/signup" className={btnClass('ink', 'sm')}>
             List your business
-            <ArrowRight size={14} aria-hidden="true" />
+            <BtnArrow />
           </Link>
         </div>
 
-        <Link
-          href="/login"
-          className="mt-5 inline-flex items-center gap-1 text-ui-sm font-medium text-slate-500 hover:text-slate-800"
-        >
-          <ChevronLeft size={14} aria-hidden="true" />
+        <Link href="/login" className={`${ABACK} mt-3.5`}>
+          <ArrowLeft size={16} aria-hidden="true" />
           Driver sign in
         </Link>
       </>
@@ -84,16 +80,16 @@ export default function LoginPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <AuthHeader eyebrow="Sign in" title="Welcome back" subtitle="Sign in to your plugpk account" />
+      <AuthHeader eyebrow="Sign in" title="Welcome back." subtitle="Sign in to your plugpk account" />
       <LoginForm redirectTo={redirectTo} />
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-        <p className="text-ui-sm text-slate-600">Own a charger or an EV service?</p>
+      <div className="mt-[26px] flex flex-wrap items-center justify-between gap-3.5 rounded-[18px] border border-ink/10 bg-chalk py-3.5 pl-5 pr-3.5 max-[520px]:p-3.5">
+        <span className="text-sm text-muted">Own a charger or an EV service?</span>
         <Link
           href="/login?mode=business"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-ui-sm font-semibold text-plug-blue-700 ring-1 ring-plug-blue-200 transition-colors hover:bg-plug-blue-50"
+          className={btnClass('light', 'sm', 'border border-ink/10 max-[520px]:w-full')}
         >
-          <Building2 size={15} aria-hidden="true" />
+          <Building2 aria-hidden="true" />
           Become a partner
         </Link>
       </div>

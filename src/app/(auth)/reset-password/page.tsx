@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { PasswordResetFlow } from '@/components/auth/PasswordResetFlow'
+import { ABACK } from '@/components/auth/form-ui'
 import { ArrowLeft } from '@/components/ui/icons'
 
 export const metadata: Metadata = {
@@ -27,15 +28,15 @@ export default function ResetPasswordPage({ searchParams }: PageProps) {
     <>
       <AuthHeader
         eyebrow="Password help"
-        title="Choose a new password"
+        title="Choose a new password."
         subtitle="Setting a new password signs you out on every other device."
       />
       <PasswordResetFlow initialEmail={email} startAtCode />
       <Link
         href="/login"
-        className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-ui-sm font-medium text-slate-500 hover:text-slate-800"
+        className={`${ABACK} mt-4`}
       >
-        <ArrowLeft size={14} aria-hidden="true" />
+        <ArrowLeft size={16} aria-hidden="true" />
         Back to sign in
       </Link>
     </>

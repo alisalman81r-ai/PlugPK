@@ -76,7 +76,7 @@ export function AdminToastProvider({ children }: { children: React.ReactNode }) 
             key={toast.id}
             role={toast.tone === 'error' ? 'alert' : 'status'}
             className={cn(
-              'pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-xl border px-4 py-3 text-ui-sm shadow-[0_12px_32px_-12px_rgba(5,36,30,0.3)]',
+              'pointer-events-auto flex w-full max-w-sm items-start gap-2.5 rounded-xl border px-4 py-3 text-ui-sm shadow-[0_12px_32px_-12px_rgba(11,12,14,0.3)]',
               toast.tone === 'success'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
                 : 'border-red-200 bg-red-50 text-red-900',

@@ -28,92 +28,61 @@
  *
  * ── Shaped like the page, not a spinner ───────────────────────────────
  *
- * Dark hero band, the filter rail's white mount, the map frame at its real
- * height, then the results grid. The proportions are the page's own, so the
- * swap is a content change rather than a layout jump.
+ * The ink hero, the paper filter sheet lifted into it, the map frame at its
+ * real height, then the results grid. The proportions are the page's own, so
+ * the swap is a content change rather than a layout jump.
  */
 
-/** Mirrors STAGE in page.tsx — one measure down the whole page. */
-const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
+import { MapLoadingMark } from '@/components/map/MapLoadingMark'
+import { MAP_HEIGHT, RAIL_LIFT } from '@/components/map/layout'
+import { WRAP } from '@/components/v2/ui'
 
-/** Mirrors MAP_HEIGHT in MapExplorer, so the frame does not resize on arrival. */
-const MAP_HEIGHT = 'h-[62svh] min-h-[22rem] md:h-[clamp(28rem,68vh,46rem)] md:min-h-0'
-
-/** The faint grid the real map's own loader uses. */
-const GRID =
-  'pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]'
+const PULSE = 'animate-pulse motion-reduce:animate-none'
 
 export default function MapLoading() {
   return (
-    <div aria-busy="true" aria-live="polite">
+    <div aria-busy="true" aria-live="polite" className="bg-chalk">
       <span className="sr-only">Loading the charging map…</span>
 
-      {/* Phone: the map comes first, edge to edge, as on the real page. */}
-      <div className={`relative ${MAP_HEIGHT} w-full overflow-hidden bg-slate-100 md:hidden`}>
-        <div aria-hidden="true" className={GRID} />
-        <div className="absolute inset-x-3 top-3 h-14 animate-pulse rounded-2xl bg-white/80" />
-      </div>
-
-      {/* The hero band in silhouette: same ground and same glow as the real
-          one, so what changes on arrival is the words, not the background. */}
-      <section className="relative isolate overflow-hidden bg-plug-navy-950 pb-28 pt-16 lg:pb-36 lg:pt-20">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-40 -top-48 -z-10 h-[34rem] w-[34rem] rounded-full bg-plug-blue-600/20 blur-[130px]"
-        />
-        <div className={STAGE}>
-          <div className="h-7 w-44 animate-pulse rounded-full bg-white/10" />
-          <div className="mt-5 h-11 w-full max-w-xl animate-pulse rounded-2xl bg-white/10" />
-          <div className="mt-4 h-5 w-full max-w-lg animate-pulse rounded-full bg-white/[0.07]" />
+      <section
+        data-theme="dark"
+        className="relative overflow-hidden rounded-b-[32px] bg-ink pb-[150px] pt-[clamp(44px,7vw,80px)] sm:rounded-b-[48px] sm:pb-[196px]"
+      >
+        <div className="mx-auto grid w-[min(980px,calc(100%-2*clamp(16px,4vw,64px)))] justify-items-center">
+          <div className={`h-[clamp(42px,5.6vw,88px)] w-full max-w-[640px] rounded-2xl bg-white/10 ${PULSE}`} />
+          <div className={`mt-3 h-[clamp(42px,5.6vw,88px)] w-full max-w-[760px] rounded-2xl bg-volt/15 ${PULSE}`} />
+          <div className={`mt-6 h-5 w-full max-w-[560px] rounded-full bg-white/[0.07] ${PULSE}`} />
+          <div className={`mt-[34px] h-[58px] w-full max-w-[640px] rounded-full bg-white/90 sm:h-16`} />
+          <div className={`mt-[18px] h-[58px] w-full rounded-full bg-volt/30 sm:w-64 ${PULSE}`} />
         </div>
       </section>
 
-      {/* The rail and the map wear the same white mount as the real console,
-          and the map keeps its exact working height. */}
-      <div className={`${STAGE} -mt-16 lg:-mt-24`}>
-        <div className="rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="h-11 flex-1 animate-pulse rounded-full bg-slate-100" />
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-9 w-28 animate-pulse rounded-full bg-slate-100" />
-              ))}
-            </div>
+      <div className={`relative z-10 ${RAIL_LIFT} ${WRAP}`}>
+        <div className="overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:rounded-[32px]">
+          <div className="flex items-center gap-4 border-b border-ink/10 bg-[linear-gradient(90deg,#F4F3EE,#fff)] px-[18px] py-[22px] sm:px-7">
+            <div className="h-[46px] w-[46px] rounded-[14px] bg-chalk" />
+            <div className={`h-7 w-48 rounded-lg bg-stone ${PULSE}`} />
           </div>
-        </div>
-
-        <div className="mt-4 hidden rounded-3xl bg-white p-2 shadow-[0_24px_60px_-28px_rgba(5,36,30,0.35)] md:block">
-          {/* The faint grid the real map's own loader uses, so the two agree
-              rather than handing off between different greys. */}
-          <div className={`relative ${MAP_HEIGHT} w-full overflow-hidden rounded-2xl bg-slate-100`}>
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(5,36,30,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(5,36,30,0.05)_1px,transparent_1px)] [background-size:44px_44px]"
-            />
-          </div>
-        </div>
-
-        {/* Results: six cards is enough to fill the fold without animating a
-            screenful of boxes below it. */}
-        <div className="mt-10 pb-16">
-          <div className="h-7 w-52 animate-pulse rounded-lg bg-slate-100" />
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
+          <div className="flex flex-wrap gap-2 px-[18px] py-6 sm:px-7">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="rounded-xl border border-slate-200/90 bg-white p-5">
-                <div className="flex items-start gap-3">
-                  <div className="h-11 w-11 shrink-0 animate-pulse rounded-lg bg-slate-100" />
-                  <div className="flex-1">
-                    <div className="h-4 w-36 animate-pulse rounded bg-slate-100" />
-                    <div className="mt-2 h-3 w-28 animate-pulse rounded bg-slate-100" />
-                  </div>
-                </div>
-                <div className="mt-4 flex gap-2">
-                  <div className="h-8 w-24 animate-pulse rounded-full bg-slate-100" />
-                  <div className="h-8 w-20 animate-pulse rounded-full bg-slate-100" />
-                </div>
-              </div>
+              <div key={index} className={`h-10 w-24 rounded-full bg-stone ${PULSE}`} />
             ))}
           </div>
+        </div>
+      </div>
+
+      <div className={`${WRAP} pt-5 sm:pt-7`}>
+        <div className={`relative ${MAP_HEIGHT} overflow-hidden rounded-[28px] border border-ink/10 sm:rounded-[36px]`}>
+          <MapLoadingMark />
+        </div>
+      </div>
+
+      <div className={`${WRAP} pb-16 pt-[clamp(64px,7vw,104px)]`}>
+        <div className={`h-10 w-72 rounded-lg bg-stone ${PULSE}`} />
+        <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-[200px] rounded-[24px] border border-ink/10 bg-white shadow-e1" />
+          ))}
         </div>
       </div>
     </div>

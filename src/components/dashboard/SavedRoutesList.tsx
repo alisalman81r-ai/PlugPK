@@ -4,9 +4,12 @@
 import Link from 'next/link'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { ActionButton } from '@/components/auth/form-ui'
+import { btnClass } from '@/components/v2/ui'
 import { ArrowRight, Battery, Car, Clock, Route, Trash2, Zap } from '@/components/ui/icons'
 import { removeMyRoute } from '@/lib/db/route-actions'
+
+import { EmptyPanel, ROW } from './dash-ui'
 
 /**
  * The routes this account has saved, newest first.
@@ -58,36 +61,34 @@ export function SavedRoutesList({ routes: saved }: { routes: SavedRouteRow[] }) 
 
   if (routes.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-        <Route size={26} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-        <p className="text-ui-lg font-semibold text-slate-900">No saved routes yet</p>
-        <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-          Plan a trip, then press <span className="font-semibold">Save route</span> at the top of the result to keep it here.
-        </p>
-        <Link
-          href="/routes"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-        >
-          Plan a route
-        </Link>
-      </div>
+      <EmptyPanel
+        icon={<Route aria-hidden="true" />}
+        title="No saved routes yet"
+        body={
+          <>
+            Plan a trip, then press <span className="font-semibold text-ink">Save route</span> at the top of the result to keep it here.
+          </>
+        }
+        href="/routes"
+        cta="Plan a route"
+      />
     )
   }
 
   return (
     <div>
-      {error ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p> : null}
+      {error ? <p role="alert" className="mb-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">{error}</p> : null}
       <ul className="flex flex-col gap-3">
         {routes.map((route) => (
           <li
             key={route.id}
-            className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:flex-row sm:items-center"
+            className={`${ROW} flex flex-col gap-4 p-5 transition-shadow hover:shadow-e1 sm:flex-row sm:items-center`}
           >
             <div className="min-w-0 flex-1">
-              <p className="truncate text-ui-lg font-semibold text-slate-900">
-                {route.origin} <span className="text-plug-cyan-600">→</span> {route.destination}
+              <p className="truncate font-display text-[22px] leading-tight text-ink">
+                {route.origin} <span className="text-muted">→</span> {route.destination}
               </p>
-              <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-ui-sm text-slate-500">
+              <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs text-muted">
                 <span className="inline-flex items-center gap-1.5">
                   <Car size={14} className="text-slate-400" aria-hidden="true" />
                   {route.carName}
@@ -109,7 +110,7 @@ export function SavedRoutesList({ routes: saved }: { routes: SavedRouteRow[] }) 
                   Start at {route.batteryPercent}%
                 </span>
               </p>
-              <p className="mt-1 text-ui-xs text-slate-400">
+              <p className="mt-1.5 text-[13px] text-muted">
                 Saved {new Date(route.createdAt).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
             </div>
@@ -117,20 +118,21 @@ export function SavedRoutesList({ routes: saved }: { routes: SavedRouteRow[] }) 
             <div className="flex shrink-0 items-center gap-2">
               <Link
                 href={openHref(route)}
-                className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-plug-blue-600 px-4 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-blue-700"
+                className={btnClass('ink', 'sm')}
               >
                 Open
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
-              <Button
-                variant="secondary"
+              <ActionButton
+                tone="line"
+                size="sm"
                 onClick={() => void remove(route)}
                 aria-label={`Remove ${route.origin} to ${route.destination}`}
-                leftIcon={<Trash2 size={15} aria-hidden="true" />}
-                className="border-slate-200 px-3 text-ui-sm text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                leftIcon={<Trash2 aria-hidden="true" />}
+                className="hover:border-[#FFCDBC] hover:bg-[#FFECE6] hover:text-[#B42E05]"
               >
                 Remove
-              </Button>
+              </ActionButton>
             </div>
           </li>
         ))}

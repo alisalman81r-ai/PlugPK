@@ -4,8 +4,8 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
-import { ArrowRight, Mail, RefreshCw } from '@/components/ui/icons'
+import { ALINK, ActionButton, ArrowEnd, LABEL, Notice } from './form-ui'
+import { Mail, RefreshCw } from '@/components/ui/icons'
 import { resendVerification, verifyEmailCode } from '@/lib/db/auth-actions'
 import { cn } from '@/lib/utils'
 
@@ -80,20 +80,19 @@ export function VerifyEmailForm({
 
   return (
     <form onSubmit={verify} noValidate>
-      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-plug-blue-50 text-plug-blue-600">
-        <Mail size={24} aria-hidden="true" />
-      </div>
-      <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">Enter your code</h2>
-      <p className="mt-2 text-ui leading-relaxed text-slate-600">
+      <span className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-ink text-volt">
+        <Mail size={22} aria-hidden="true" />
+      </span>
+      <h2 className="m-0 font-display text-[30px] leading-[1.05] text-ink">Enter your code.</h2>
+      <p className="mt-3 text-[15px] leading-relaxed text-muted">
         {sent ? 'We sent a 6-digit code to ' : 'Your code goes to '}
-        <span className="font-semibold text-slate-900">{email}</span>. Your account stays inactive until you
-        enter it.
+        <span className="font-semibold text-ink">{email}</span>. Your account stays inactive until you enter it.
       </p>
-      <p className="mt-2 text-ui-sm text-slate-500">
+      <p className="mt-2 text-[13px] leading-relaxed text-muted">
         It expires in 10 minutes. Nothing there? Check spam or promotions, then send a new one.
       </p>
 
-      <label htmlFor="verify-code" className="mb-2 mt-6 block text-sm font-semibold text-slate-700">
+      <label htmlFor="verify-code" className={`${LABEL} mt-6`}>
         Verification code
       </label>
       <input
@@ -114,36 +113,35 @@ export function VerifyEmailForm({
       />
 
       {error ? (
-        <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <Notice tone="error" className="mt-4">
           {error}
-        </p>
+        </Notice>
       ) : null}
       {note ? (
-        <p role="status" className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <Notice tone="ok" className="mt-4">
           {note}
-        </p>
+        </Notice>
       ) : null}
 
-      <Button type="submit" size="lg" fullWidth isLoading={busy} className="mt-6">
+      <ActionButton type="submit" size="lg" fullWidth isLoading={busy} className="mt-6">
         Verify email
-        <ArrowRight size={18} aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
+        {busy ? null : <ArrowEnd />}
+      </ActionButton>
+      <ActionButton
+        tone="line"
         size="lg"
         fullWidth
         isLoading={sending}
         onClick={resend}
+        leftIcon={<RefreshCw size={18} aria-hidden="true" />}
         className="mt-3"
       >
-        <RefreshCw size={18} aria-hidden="true" />
         Send a new code
-      </Button>
+      </ActionButton>
 
       {onBack ? (
-        <p className="mt-6 text-center text-sm text-slate-500">
-          <button type="button" onClick={onBack} className="font-semibold text-plug-blue-600 hover:underline">
+        <p className="mt-6 text-center text-[15px] text-muted">
+          <button type="button" onClick={onBack} className={`${ALINK} min-h-11`}>
             Use a different email
           </button>
         </p>

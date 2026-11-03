@@ -1,15 +1,17 @@
 // src/components/community/PostCard.tsx
 'use client'
 
-import { Car, Clock, Heart, Images, MessageSquare, Share2, Zap } from '@/components/ui/icons'
+import { Check, Clock, Heart, Images, MessageSquare, Share2, Zap } from '@/components/ui/icons'
 import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { FACE, FRAME } from '@/components/shared/frame'
+import { Tag } from '@/components/v2/ui'
 import { POST_CATEGORY_META } from '@/lib/constants'
-import type { CommunityPost } from '@/lib/types'
+import type { CommunityPost, PostCategory } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
+
+import { CATEGORY_AVATAR, CATEGORY_TAG } from './category-tone'
 
 export interface PostCardProps {
   post: CommunityPost
@@ -22,27 +24,11 @@ export interface PostCardProps {
 }
 
 /**
- * Five ink tones, not five hues.
- *
- * This was a purple-to-pink, a green-to-emerald, an amber-to-orange and a
- * red-to-rose gradient — five saturated hues that appear nowhere else in a
- * product built on slate and one blue, and the single loudest thing on the
- * community feed. It also contradicted this application's own note on avatars,
- * which says an avatar is an identity marker and should be set in ink, not
- * brand.
- *
- * Depth is what distinguishes them now rather than hue: two neutrals either
- * side of the ink, and two brand-adjacent darks. All five clear 7:1 against
- * white initials, so the letter stays legible at 32px where the rainbow's
- * amber and cyan did not.
+ * Ink tones for an initial, picked from the name so the same author always
+ * looks the same wherever there is no category to colour by (comments, the
+ * club member list, the post page's author card).
  */
-const AVATAR_TONES = [
-  'bg-plug-navy-800',
-  'bg-plug-blue-800',
-  'bg-slate-600',
-  'bg-plug-cyan-800',
-  'bg-plug-navy-900',
-]
+const AVATAR_TONES = ['bg-ink', 'bg-ink-3', 'bg-volt-ink', 'bg-[#5B3FC4]', 'bg-[#157A45]']
 
 /** Stable per-user colour so the same author always looks the same. */
 export function avatarTone(name: string): string {
@@ -53,21 +39,36 @@ export function avatarTone(name: string): string {
   return AVATAR_TONES[hash] ?? AVATAR_TONES[0]!
 }
 
-export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
+/** An author's initial in a disc, set in Power Grotesk (.post__av). */
+export function Avatar({ name, size = 44, className }: { name: string; size?: number; className?: string }) {
   return (
     <span
       aria-hidden="true"
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full font-bold text-white',
-        avatarTone(name),
+        'pg-bold grid shrink-0 place-items-center rounded-full font-display leading-none text-white',
         size >= 48 ? 'text-xl' : size >= 40 ? 'text-lg' : 'text-sm',
+        className ?? avatarTone(name),
       )}
       style={{ width: size, height: size }}
     >
-      {name.charAt(0)}
+      {name.charAt(0).toUpperCase()}
     </span>
   )
 }
+
+/** A category's .tag, in the community's tones. */
+export function CategoryTag({ category, className }: { category: PostCategory; className?: string }) {
+  const tone = CATEGORY_TAG[category]
+  return (
+    <Tag tone={tone.tone} className={cn(tone.className, className)}>
+      {POST_CATEGORY_META[category].label}
+    </Tag>
+  )
+}
+
+/** The like / comments / share cluster (.post__acts). Each target is 44px. */
+const ACT =
+  'relative inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-2 text-[13px] text-muted transition-colors duration-200 sm:px-2.5 [&_svg]:h-[19px] [&_svg]:w-[19px]'
 
 export function PostCard({
   post,
@@ -78,7 +79,6 @@ export function PostCard({
   animationDelay,
   className,
 }: PostCardProps) {
-  const meta = POST_CATEGORY_META[post.category]
   const href = `/community/post/${post.slug}`
   const style = animationDelay !== undefined ? { animationDelay: `${animationDelay}ms` } : undefined
   const likes = likeCount ?? post.likeCount
@@ -86,6 +86,7 @@ export function PostCard({
   // undefined, and narrowing a const carries into the JSX below.
   const coverPhoto = post.photos?.[0]
   const photoCount = post.photos?.length ?? 0
+  const [copied, setCopied] = React.useState(false)
 
   const handleLike = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -98,82 +99,37 @@ export function PostCard({
     event.stopPropagation()
     try {
       await navigator.clipboard.writeText(`${window.location.origin}${href}`)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
     } catch {
       // Clipboard can be blocked; nothing else to fall back to.
     }
   }
 
-  const categoryBadge = (
-    <span
-      className={cn(
-        'shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold',
-        meta.badge,
-      )}
-    >
-      {meta.label}
-    </span>
-  )
-
-  const engagement = (
-    <div className="flex items-center gap-5">
-      <button
-        type="button"
-        onClick={handleLike}
-        aria-pressed={isLiked}
-        aria-label={isLiked ? 'Unlike post' : 'Like post'}
-        className="flex items-center gap-1.5 transition-colors duration-150"
-      >
-        <Heart
-          size={16}
-          className={cn(
-            isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400 hover:text-red-400',
-          )}
-          aria-hidden="true"
-        />
-        <span className={cn('text-sm', isLiked ? 'font-semibold text-red-500' : 'text-slate-400')}>
-          {likes}
-        </span>
-      </button>
-
-      <span className="flex items-center gap-1.5">
-        <MessageSquare size={16} className="text-slate-400" aria-hidden="true" />
-        <span className="text-sm text-slate-400">{post.commentCount}</span>
-      </span>
-
-      <button
-        type="button"
-        onClick={handleShare}
-        aria-label="Copy link to post"
-        // -m-2 p-2: a 32px target around a 16px icon, without moving it.
-        className="-m-2 rounded-lg p-2 text-slate-400 transition-colors duration-150 hover:text-plug-blue-600"
-      >
-        <Share2 size={16} />
-      </button>
-    </div>
-  )
-
-  /* ── Compact ─────────────────────────────────────────────────── */
+  /* ── Compact (related posts) ─────────────────────────────────── */
   if (variant === 'compact') {
     return (
       <Link
         href={href}
         style={style}
         className={cn(
-          'flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 transition-all duration-200 hover:border-plug-blue-200 hover:shadow-card',
+          'group/rel flex items-start gap-3 rounded-[14px] px-1.5 py-3 transition-colors duration-200 hover:bg-chalk',
           className,
         )}
       >
-        <Avatar name={post.userName} size={32} />
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-2 text-sm font-semibold text-slate-900">{post.title}</span>
-          <span className="mt-1 flex items-center gap-3 text-xs text-slate-400">
-            <span className="flex items-center gap-1">
-              <Heart size={11} aria-hidden="true" />
+        <Avatar name={post.userName} size={34} className={CATEGORY_AVATAR[post.category]} />
+        <span className="grid min-w-0 flex-1 gap-1.5">
+          <span className="line-clamp-2 text-sm font-semibold leading-[1.4] text-ink">{post.title}</span>
+          <span className="flex items-center gap-3 font-mono text-xs font-medium text-muted">
+            <span className="inline-flex items-center gap-1">
+              <Heart size={12} aria-hidden="true" />
               {likes}
+              <span className="sr-only"> likes</span>
             </span>
-            <span className="flex items-center gap-1">
-              <MessageSquare size={11} aria-hidden="true" />
+            <span className="inline-flex items-center gap-1">
+              <MessageSquare size={12} aria-hidden="true" />
               {post.commentCount}
+              <span className="sr-only"> comments</span>
             </span>
           </span>
         </span>
@@ -181,136 +137,132 @@ export function PostCard({
     )
   }
 
-  /* ── Featured ────────────────────────────────────────────────── */
-  /*
-   * The graded hairline the rest of the site's cards wear.
-   *
-   * group/post is kept alongside FRAME's own unnamed `group` because the
-   * children below address the named group explicitly, and FRAME only supplies
-   * the unnamed one.
-   *
-   * The comment sits above the `return` rather than inside it: SWC rejects a
-   * block comment between `return (` and the JSX element with "Expected jsx
-   * identifier", even though tsc accepts it happily. That mismatch is worth
-   * knowing about — a type-check pass is not proof the page compiles.
-   */
-  if (variant === 'featured') {
-    return (
-      <Link
-        href={href}
-        style={style}
-        className={cn(FRAME, 'group/post', className)}
-      >
-        <div className={cn(FACE, 'flex flex-col gap-6 p-6 lg:flex-row')}>
-          {coverPhoto ? (
-            <span className="relative block h-40 shrink-0 overflow-hidden rounded-xl bg-plug-blue-50 lg:h-auto lg:w-[200px]">
-              <Image
-                src={coverPhoto}
-                alt=""
-                fill
-                sizes="(max-width: 1024px) 100vw, 200px"
-                className="object-cover"
-              />
-            </span>
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex h-40 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50 lg:h-auto lg:w-[200px]"
-            >
-              <Zap size={48} className="text-plug-blue-200" />
-            </span>
-          )}
+  const featured = variant === 'featured'
 
-          <div className="min-w-0 flex-1">
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <Avatar name={post.userName} />
-                <span>
-                  <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
-                  {post.userVehicle ? (
-                    <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                      <Car size={11} aria-hidden="true" />
-                      {post.userVehicle}
-                    </span>
-                  ) : null}
-                </span>
-              </div>
-              {categoryBadge}
-            </div>
+  const head = (
+    <span className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
+      <Avatar name={post.userName} size={40} className={CATEGORY_AVATAR[post.category]} />
+      <span className="grid min-w-0 leading-[1.25]">
+        <b className="truncate text-[15px] font-semibold text-ink">{post.userName}</b>
+        {post.userVehicle ? (
+          <span className="truncate font-mono text-xs font-medium text-muted">
+            in <span className="text-ink">{post.userVehicle}</span>
+          </span>
+        ) : null}
+      </span>
+      <CategoryTag category={post.category} className="order-3 ml-[52px] sm:order-none sm:ml-auto" />
+    </span>
+  )
 
-            <h3 className="mb-2 line-clamp-2 text-xl font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
-              {post.title}
-            </h3>
+  const foot = (
+    <span className="mt-3.5 flex items-center justify-between gap-3 border-t border-dashed border-ink/10 pt-2.5">
+      <span className="inline-flex items-center gap-[7px] font-mono text-[12.5px] font-medium text-muted" suppressHydrationWarning>
+        <Clock size={15} aria-hidden="true" />
+        <time dateTime={post.createdAt} suppressHydrationWarning>
+          {formatRelativeTime(post.createdAt)}
+        </time>
+      </span>
+      <span className="flex items-center gap-0.5">
+        <button
+          type="button"
+          onClick={handleLike}
+          aria-pressed={isLiked}
+          aria-label={`${isLiked ? 'Unlike' : 'Like'} this post, ${likes} ${likes === 1 ? 'like' : 'likes'}`}
+          className={cn(ACT, 'hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:shadow-focus', isLiked && 'text-ink')}
+        >
+          <Heart aria-hidden="true" className={cn(isLiked && 'fill-ember text-ember')} />
+          <span className="min-w-[1ch] font-mono font-semibold">{likes}</span>
+        </button>
+        <span className={cn(ACT, 'cursor-default')} aria-label={`${post.commentCount} comments`}>
+          <MessageSquare aria-hidden="true" />
+          <span className="min-w-[1ch] font-mono font-semibold">{post.commentCount}</span>
+        </span>
+        <button
+          type="button"
+          onClick={handleShare}
+          aria-label={copied ? 'Link copied' : 'Copy link to post'}
+          className={cn(ACT, 'hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:shadow-focus')}
+        >
+          {copied ? <Check aria-hidden="true" className="text-[#157A45]" /> : <Share2 aria-hidden="true" />}
+        </button>
+      </span>
+    </span>
+  )
 
-            <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
+  const body = (
+    <>
+      <h3 className="mt-3 text-balance font-display text-[clamp(21px,1.7vw,25px)] leading-[1.15] text-ink sm:mt-4">
+        {post.title}
+      </h3>
+      <p className="mt-2.5 line-clamp-3 text-[15px] leading-[1.62] text-muted">{post.content}</p>
+    </>
+  )
 
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs text-slate-400">
-                <Clock size={13} aria-hidden="true" />
-                {formatRelativeTime(post.createdAt)}
-              </span>
-              {engagement}
-            </div>
-          </div>
-        </div>
-      </Link>
-    )
-  }
-
-  /* ── Default ─────────────────────────────────────────────────── */
   return (
-    <Link href={href} style={style} className={cn(FRAME, 'group/post', className)}>
-      <div className={cn(FACE, 'block p-6')}>
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Avatar name={post.userName} />
-            <span>
-              <span className="block text-sm font-bold text-slate-900">{post.userName}</span>
-              {post.userVehicle ? (
-                <span className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                  <Car size={11} aria-hidden="true" />
-                  {post.userVehicle}
-                </span>
-              ) : null}
-            </span>
-          </div>
-          {categoryBadge}
-        </div>
-
-        <h3 className="mb-2 line-clamp-2 text-ui-lg font-bold leading-snug text-slate-900 group-hover/post:text-plug-blue-600">
-          {post.title}
-        </h3>
-
-        <p className="mb-5 line-clamp-3 text-sm leading-relaxed text-slate-500">{post.content}</p>
-
-        {coverPhoto ? (
-          // Empty alt: the heading above already names the post, so announcing
-          // the image again would just repeat it.
-          <span className="relative mb-5 block h-[180px] overflow-hidden rounded-xl bg-plug-blue-50">
+    <Link
+      href={href}
+      style={style}
+      className={cn(
+        'group/post grid rounded-[22px] border border-ink/10 bg-white px-4 pb-2.5 pt-[18px] shadow-e1 sm:rounded-[26px] sm:px-[26px] sm:pb-[18px] sm:pt-6',
+        'transition-[transform,translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-[3px] hover:border-ink/[0.16] hover:shadow-e2',
+        'focus-visible:outline-none focus-visible:shadow-focus motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+        featured && 'gap-4 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6 sm:pl-[18px] xl:grid-cols-[220px_minmax(0,1fr)]',
+        className,
+      )}
+    >
+      {featured ? (
+        coverPhoto ? (
+          <span className="relative block min-h-[160px] overflow-hidden rounded-[18px] bg-stone sm:min-h-[190px]">
             <Image
               src={coverPhoto}
               alt=""
               fill
-              sizes="(max-width: 768px) 100vw, 400px"
-              className="object-cover transition-transform duration-300 group-hover/post:scale-[1.03]"
+              sizes="(max-width: 640px) 100vw, 220px"
+              className="object-cover transition-transform duration-[900ms] ease-out group-hover/post:scale-[1.035]"
+            />
+          </span>
+        ) : (
+          /* .post__ph: an ink tile with a faint grid and a glowing volt bolt. */
+          <span
+            aria-hidden="true"
+            className="relative isolate grid min-h-[120px] place-items-center overflow-hidden rounded-[18px] bg-ink sm:min-h-[190px]"
+          >
+            <span className="absolute inset-0 -z-[1] bg-[linear-gradient(rgba(255,255,255,.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.06)_1px,transparent_1px)] bg-[length:22px_22px] [mask-image:radial-gradient(closest-side,#000,transparent)]" />
+            <span className="absolute -z-[1] h-[180px] w-[180px] rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.3),transparent_70%)]" />
+            <Zap
+              size={54}
+              className="fill-volt text-volt drop-shadow-[0_0_12px_rgba(212,255,58,.7)] transition-transform duration-[600ms] ease-spring group-hover/post:-rotate-6 group-hover/post:scale-[1.12]"
+            />
+          </span>
+        )
+      ) : null}
+
+      <span className="grid min-w-0">
+        {head}
+        {body}
+
+        {!featured && coverPhoto ? (
+          // Empty alt: the heading above already names the post.
+          <span className="relative mt-[18px] block aspect-[4/3] overflow-hidden rounded-[18px] bg-stone sm:aspect-[16/7]">
+            <Image
+              src={coverPhoto}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 860px"
+              className="object-cover transition-transform duration-[900ms] ease-out group-hover/post:scale-[1.035]"
             />
             {photoCount > 1 ? (
-              <span className="absolute bottom-2 right-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-ui-xs font-medium text-white backdrop-blur-md">
-                <Images size={11} aria-hidden="true" />
-                {photoCount}
+              <span className="absolute bottom-3 right-3 inline-flex h-[30px] items-center gap-1.5 rounded-full bg-ink/70 px-[11px] text-xs text-white backdrop-blur-md">
+                <Images size={15} aria-hidden="true" />
+                <span className="font-mono">{photoCount}</span>
+                <span className="sr-only"> photos in this post</span>
               </span>
             ) : null}
           </span>
         ) : null}
 
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-1.5 text-xs text-slate-400">
-            <Clock size={13} aria-hidden="true" />
-            {formatRelativeTime(post.createdAt)}
-          </span>
-          {engagement}
-        </div>
-      </div>
+        {foot}
+      </span>
     </Link>
   )
 }

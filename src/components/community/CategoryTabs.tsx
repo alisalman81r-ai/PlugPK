@@ -3,7 +3,7 @@
 
 import {
   Car,
-  Layers,
+  LayoutGrid,
   ListFilter,
   Map,
   MessageCircle,
@@ -13,26 +13,19 @@ import {
   type IconType,
 } from '@/components/ui/icons'
 
+import { ChipCount, Lift, LiftBody, LiftHead, SEG, chipClass, segButtonClass } from '@/components/v2/ui'
 import { POST_CATEGORIES } from '@/lib/constants'
 import type { PostCategory } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 /**
- * The board's one control surface: what to read, and in what order.
+ * The board's one control surface: what to read, and in what order —
+ * landing-v2's browse sheet (.lift.cm-lift), lifted up into the hero.
  *
- * This was a full-bleed white bar stuck under the navbar, and it had two
- * problems worth the rewrite.
- *
- * The sort buttons lived *inside* the same `overflow-x-auto` element as the
- * seven category tabs. On a phone that put them past the right edge of a
- * horizontal scroller, so changing the order of the feed meant swiping through
- * every category first — and nothing on screen suggested they were there. The
- * tabs scroll now; sort does not.
- *
- * And as a bar it read as chrome. It is the same kind of thing as the map's
- * filter rail and the planner's popular-routes card, so it is built the same
- * way: one card on the page's measure, lifted up into the dark band above, with
- * its heading and the result count in a header band and the controls beneath.
+ * The header holds the heading, the result count (the answer to every control
+ * in the sheet, so it keeps its place) and the sort; the category chips scroll
+ * on their own row underneath, so on a phone the sort is never pushed past the
+ * right edge of a scroller.
  */
 
 export type CommunitySortOption = 'latest' | 'popular' | 'trending'
@@ -61,11 +54,8 @@ export const POST_ICON: Record<string, IconType> = {
 }
 
 /**
- * Each sort says what it orders by.
- *
- * "Popular" and "Trending" are indistinguishable as bare words — both sound
- * like "the good ones" — and they sort by different columns, so the column is
- * part of the label.
+ * Each sort says what it orders by: "Popular" and "Trending" are
+ * indistinguishable as bare words, and they sort by different columns.
  */
 const SORTS: { key: CommunitySortOption; label: string; by: string }[] = [
   { key: 'latest', label: 'Latest', by: 'newest first' },
@@ -84,154 +74,102 @@ export function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   return (
-    <section
-      aria-label="Browse discussions"
-      className={cn(
-        'overflow-hidden rounded-[2rem] border border-white/20 bg-white shadow-e4',
-        className,
-      )}
-    >
-      {/*
-        The count lives in the header rather than beside the tabs: it is the
-        answer to every control in this card, and it has to keep its place when
-        a category with two posts replaces one with nine.
-      */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
-        {/* A floor on the title's width, so the sort control wraps below it
-            when there is no room. At flex-1 alone, a 414px phone fitted the
-            control alongside and crushed the title to a 12px column. */}
-        <div className="min-w-[11rem] flex-1">
-          <p className="mb-1.5 flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em] text-plug-blue-600">
-            <ListFilter size={13} aria-hidden="true" />
-            Browse
-          </p>
-          <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
-            Discussions
-          </h2>
-          <p aria-live="polite" className="mt-1.5 text-ui text-slate-500">
-            Showing <span className="font-semibold text-slate-900">{resultCount}</span> of{' '}
-            {totalCount} {totalCount === 1 ? 'post' : 'posts'}
-          </p>
-        </div>
-
-        {/*
-          A segmented control, because the three sorts are one ordered choice
-          rather than three independent toggles — and the column each one sorts
-          by sits under its label, the way the map's speed filter names its kW
-          ranges instead of leaving "Rapid" to be guessed at.
-        */}
-        <div
-          role="radiogroup"
-          aria-label="Sort discussions"
-          className="scrollbar-hide flex w-full shrink-0 gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1 sm:w-auto"
-        >
-          {SORTS.map((sort) => {
-            const selected = sortBy === sort.key
-
-            return (
-              <button
-                key={sort.key}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                onClick={() => onSortChange(sort.key)}
-                className={cn(
-                  'min-w-0 flex-1 rounded-xl px-2 py-2 text-center transition-all duration-200 sm:flex-none sm:px-3.5',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                  selected ? 'bg-white shadow-e1' : 'hover:bg-white/60',
-                )}
-              >
-                <span
-                  className={cn(
-                    'block whitespace-nowrap text-ui-sm font-bold',
-                    selected ? 'text-plug-blue-700' : 'text-slate-600',
-                  )}
-                >
-                  {sort.label}
-                </span>
-                <span
-                  className={cn(
-                    'mt-0.5 block whitespace-nowrap font-mono text-[10px]',
-                    selected ? 'text-plug-cyan-700' : 'text-slate-400',
-                  )}
-                >
-                  {sort.by}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/*
-        The tabs get the scroller to themselves. Eight of them will not fit a
-        phone at any type size worth reading, and the fade on the right edge is
-        what tells you the row continues — a plain clipped edge reads as the end
-        of the list.
-      */}
-      <div className="relative">
-        <div className="scrollbar-hide overflow-x-auto px-5 py-4 sm:px-6 lg:px-8">
-          <div
-            role="radiogroup"
-            aria-label="Post category"
-            className="flex min-w-max items-center gap-2"
-          >
-            <Tab
-              icon={Layers}
-              label="All posts"
-              count={categoryCount.all ?? 0}
-              selected={selectedCategory === 'all'}
-              onClick={() => onCategoryChange('all')}
-            />
-
-            {POST_CATEGORIES.map((category) => (
-              <Tab
-                key={category.id}
-                icon={POST_ICON[category.icon] ?? MessageCircle}
-                label={category.label}
-                count={categoryCount[category.id] ?? 0}
-                selected={selectedCategory === category.id}
-                activeClass={category.active}
-                onClick={() => onCategoryChange(category.id)}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white to-transparent lg:hidden"
+    <Lift className={className}>
+      <section aria-label="Browse discussions">
+        <LiftHead
+          className="items-start lg:items-end [&>div:last-child]:w-full sm:[&>div:last-child]:w-auto"
+          eyebrow={
+            <span className="inline-flex items-center gap-2">
+              <ListFilter size={12} aria-hidden="true" />
+              Browse
+            </span>
+          }
+          title="Discussions"
+          meta={
+            <span aria-live="polite">
+              Showing <b className="font-mono font-semibold">{resultCount}</b> of {totalCount}{' '}
+              {totalCount === 1 ? 'post' : 'posts'}
+            </span>
+          }
+          actions={
+            /* One ordered choice, so a radiogroup rather than three toggles. */
+            <div role="radiogroup" aria-label="Sort discussions" className={cn(SEG, 'w-full sm:w-auto')}>
+              {SORTS.map((sort) => {
+                const selected = sortBy === sort.key
+                return (
+                  <button
+                    key={sort.key}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => onSortChange(sort.key)}
+                    className={segButtonClass(
+                      selected,
+                      'min-h-12 min-w-0 flex-1 px-1.5 focus-visible:outline-none focus-visible:shadow-focus sm:min-w-[112px] sm:flex-none sm:px-4',
+                    )}
+                  >
+                    <span className="whitespace-nowrap">{sort.label}</span>
+                    <small
+                      className={cn(
+                        'whitespace-nowrap font-mono text-[10px] font-medium',
+                        selected ? 'text-volt-ink' : 'text-fog',
+                      )}
+                    >
+                      {sort.by}
+                    </small>
+                  </button>
+                )
+              })}
+            </div>
+          }
         />
-      </div>
-    </section>
+
+        <LiftBody className="relative pb-5 pt-[18px] sm:pb-5">
+          <div className="scrollbar-hide -mx-[18px] overflow-x-auto px-[18px] py-1.5 sm:-mx-7 sm:px-7">
+            {/* A radio rather than a pressed button: picking a category is one
+                value out of seven, and there is one feed, so not a tablist. */}
+            <div role="radiogroup" aria-label="Post category" className="flex min-w-max items-center gap-2">
+              <Chip
+                icon={LayoutGrid}
+                label="All posts"
+                count={categoryCount.all ?? 0}
+                selected={selectedCategory === 'all'}
+                onClick={() => onCategoryChange('all')}
+              />
+              {POST_CATEGORIES.map((category) => (
+                <Chip
+                  key={category.id}
+                  icon={POST_ICON[category.icon] ?? MessageCircle}
+                  label={category.label}
+                  count={categoryCount[category.id] ?? 0}
+                  selected={selectedCategory === category.id}
+                  onClick={() => onCategoryChange(category.id)}
+                />
+              ))}
+            </div>
+          </div>
+          {/* The fade says the row continues where a clipped edge reads as the end. */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-paper to-transparent xl:hidden"
+          />
+        </LiftBody>
+      </section>
+    </Lift>
   )
 }
 
-/**
- * One category tab.
- *
- * A radio rather than a pressed button: picking a category is choosing one
- * value out of eight, and as eight independent `aria-pressed` toggles — what
- * they were — a screen reader gave no hint that picking one dropped the others.
- * Not a tablist, which would promise a tabpanel per category; there is one feed.
- *
- * The count is inside the tab because it is the reason to pick it or skip it;
- * a category showing 0 is worth knowing before the tap, not after.
- */
-function Tab({
+function Chip({
   icon: Icon,
   label,
   count,
   selected,
-  activeClass,
   onClick,
 }: {
   icon: IconType
   label: string
   count: number
   selected: boolean
-  /** Per-category selected colour from POST_CATEGORIES; slate for "all". */
-  activeClass?: string
   onClick: () => void
 }) {
   return (
@@ -240,24 +178,11 @@ function Tab({
       role="radio"
       aria-checked={selected}
       onClick={onClick}
-      className={cn(
-        'flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-ui-sm font-semibold transition-all duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-        selected
-          ? cn('border-transparent shadow-e1', activeClass ?? 'bg-plug-navy-900 text-white')
-          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900',
-      )}
+      className={chipClass(selected, 'h-11 focus-visible:outline-none focus-visible:shadow-focus')}
     >
-      <Icon size={15} className="shrink-0" aria-hidden="true" />
+      <Icon aria-hidden="true" className={cn('transition-colors duration-200', selected ? 'text-volt' : 'text-muted')} />
       {label}
-      <span
-        className={cn(
-          'rounded-full px-2 py-0.5 font-mono text-[11px] font-bold',
-          selected ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-500',
-        )}
-      >
-        {count}
-      </span>
+      <ChipCount on={selected}>{count}</ChipCount>
     </button>
   )
 }

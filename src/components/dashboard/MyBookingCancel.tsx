@@ -26,11 +26,11 @@ export function MyBookingCancel({ bookingId }: { bookingId: string }) {
           if (!result.ok) setError(result.message ?? 'Could not cancel.')
           else router.refresh()
         }}
-        className="text-ui-sm font-semibold text-red-600 hover:underline disabled:opacity-50"
+        className="inline-flex min-h-11 items-center rounded-full border border-ink/10 bg-white px-[18px] text-sm font-semibold text-[#B42E05] transition-colors hover:border-[#FFCDBC] hover:bg-[#FFECE6] disabled:opacity-50"
       >
         {busy ? 'Cancelling…' : 'Cancel booking'}
       </button>
-      {error ? <p role="alert" className="mt-1 text-ui-sm text-red-600">{error}</p> : null}
+      {error ? <p role="alert" className="mt-2 text-[13px] text-[#c2410c]">{error}</p> : null}
     </>
   )
 }

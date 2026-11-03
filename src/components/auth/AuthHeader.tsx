@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils'
 
 export interface AuthHeaderProps {
-  /** A small-caps line above the title, in the brand teal. */
+  /** The mono kicker above the title, in volt ink. */
   eyebrow?: string
   title: string
   subtitle?: string
@@ -10,25 +10,19 @@ export interface AuthHeaderProps {
 }
 
 /**
- * The heading above an auth form.
- *
- * font-display at a clamped size, matching every other heading on the site.
- * `text-3xl font-black` was the sans face at a weight nothing else uses, so the
- * one screen a new visitor sees first was also the one that looked least like
- * the product they had just come from.
+ * The heading at the top of an auth card (.acard of landing-v2): a mono
+ * eyebrow, Power Grotesk Regular at 38–48px, and a muted line under it.
  */
 export function AuthHeader({ eyebrow, title, subtitle, className }: AuthHeaderProps) {
   return (
-    <div className={cn('mb-7', className)}>
+    <div className={cn('mb-[30px]', className)}>
       {eyebrow ? (
-        <p className="mb-2.5 text-ui-xs font-bold uppercase tracking-[0.18em] text-plug-cyan-700">{eyebrow}</p>
+        <p className="mb-3.5 font-mono text-xs font-semibold uppercase leading-none tracking-[0.16em] text-volt-ink">
+          {eyebrow}
+        </p>
       ) : null}
-      <h1 className="text-balance font-display text-[clamp(1.75rem,2.6vw,2.125rem)] font-bold leading-[1.15] tracking-tight text-slate-900">
-        {title}
-      </h1>
-      {subtitle ? (
-        <p className="mt-2 text-pretty text-ui leading-relaxed text-slate-500">{subtitle}</p>
-      ) : null}
+      <h1 className="m-0 text-balance font-display text-[clamp(34px,4vw,48px)] leading-none text-ink">{title}</h1>
+      {subtitle ? <p className="mt-3 text-pretty text-base leading-relaxed text-muted">{subtitle}</p> : null}
     </div>
   )
 }

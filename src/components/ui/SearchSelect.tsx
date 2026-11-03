@@ -223,7 +223,7 @@ export function SearchSelect({
             <div
               ref={panelRef}
               style={{ top: place.top, left: place.left, width: place.width, maxHeight: place.maxHeight }}
-              className="fixed z-[80] flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_-20px_rgba(5,36,30,0.45)]"
+              className="fixed z-[80] flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_60px_-20px_rgba(11,12,14,0.45)]"
             >
               <div className="border-b border-slate-100 p-2">
                 <div className="flex h-10 items-center gap-2 rounded-xl bg-slate-50 px-3">

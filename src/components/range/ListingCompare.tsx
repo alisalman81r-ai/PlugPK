@@ -3,9 +3,12 @@
 
 import * as React from 'react'
 
+import { CARD, Eyebrow, H2_CLASS, Hl, LEAD_CLASS, SEG, segButtonClass } from '@/components/v2/ui'
 import { Info } from '@/components/ui/icons'
 import { compareListings, STANDARD_ORDER, type RangeStandard } from '@/lib/range-standards'
 import { cn } from '@/lib/utils'
+
+import { Axis } from './Axis'
 
 /**
  * Two listings, put on the same test.
@@ -53,29 +56,36 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
   const kmB = parse(b.km)
   const result = kmA && kmB ? compareListings({ km: kmA, standard: a.standard }, { km: kmB, standard: b.standard }) : null
 
-  const max = result ? Math.max(result.a.high, result.b.high, kmA ?? 0, kmB ?? 0) * 1.05 : 1
-  const pct = (km: number) => `${Math.min(100, (km / max) * 100)}%`
+  // The shared WLTP scale under both bars (the design's compare axis): from a
+  // round figure below the lower band to just past the larger figure.
+  let scale: { a: number; b: number } | null = null
+  if (result && kmA && kmB) {
+    const top = Math.max(result.a.high, result.b.high, kmA, kmB)
+    const lo0 = Math.min(result.a.low, result.b.low)
+    scale = {
+      a: Math.max(0, Math.floor((lo0 - Math.max(30, (top - lo0) * 0.5)) / 50) * 50),
+      b: Math.ceil((top * 1.05) / 50) * 50,
+    }
+  }
+  const at = (v: number) => (scale ? Math.min(100, Math.max(0, ((v - scale.a) / (scale.b - scale.a)) * 100)) : 0)
 
   return (
-    <section aria-labelledby="compare-heading" id="compare">
-      <div className="max-w-2xl">
-        <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-plug-cyan-700">Compare two listings</p>
-        <h2
-          id="compare-heading"
-          className="mt-2 text-[clamp(1.5rem,3vw,2rem)] font-bold leading-tight tracking-tight text-slate-900"
-        >
-          Put both cars on the same test
+    <section aria-labelledby="compare-heading">
+      <header className="mb-[clamp(32px,4vw,48px)] grid justify-items-start">
+        <Eyebrow>Compare two listings</Eyebrow>
+        <h2 id="compare-heading" className={cn(H2_CLASS, 'text-ink')}>
+          Put both cars on the <Hl>same test</Hl>
         </h2>
-        <p className="mt-3 text-ui leading-relaxed text-slate-600">
+        <p className={cn(LEAD_CLASS, 'max-w-[46rem] text-muted')}>
           Two listings on different standards can&rsquo;t be compared as they stand. Enter both — we restate them on
           WLTP and show how far apart they really are likely to be.
         </p>
-      </div>
+      </header>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <ListingInput
-            label="Listing A"
+            name="A"
             side={a}
             onChange={(next) => {
               touchedA.current = true
@@ -83,19 +93,19 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
             }}
             invalid={a.km.trim() !== '' && kmA == null}
           />
-          <ListingInput label="Listing B" side={b} onChange={setB} invalid={b.km.trim() !== '' && kmB == null} />
+          <ListingInput name="B" side={b} onChange={setB} invalid={b.km.trim() !== '' && kmB == null} />
         </div>
 
-        <div aria-live="polite" className="rounded-[1.75rem] border border-slate-200/80 bg-white p-5 sm:p-7">
-          {result && kmA && kmB ? (
+        <div aria-live="polite" className={cn(CARD, 'px-[18px] py-5 sm:px-[30px] sm:py-7')}>
+          {result && kmA && kmB && scale ? (
             <>
-              <p className="text-ui-sm text-slate-500">
+              <p className="mb-[22px] text-[15px] text-muted">
                 {result.listedGap === 0 ? (
                   'Listed at the same figure. '
                 ) : (
                   <>
                     As listed, they are{' '}
-                    <span className="font-semibold text-slate-900">{result.listedGap.toLocaleString('en-PK')} km</span>{' '}
+                    <b className="font-mono font-semibold text-ink">{result.listedGap.toLocaleString('en-PK')} km</b>{' '}
                     apart.{' '}
                   </>
                 )}
@@ -104,57 +114,70 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
                   : 'On the same test (WLTP):'}
               </p>
 
-              <ul className="mt-5 space-y-5">
+              <ul className="m-0 grid list-none gap-[22px] p-0">
                 {(
                   [
                     ['A', result.a, kmA, a.standard],
                     ['B', result.b, kmB, b.standard],
                   ] as const
-                ).map(([name, band, listed, standard]) => (
-                  <li key={name}>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-ui font-semibold text-slate-900">
-                        Listing {name}{' '}
-                        <span className="font-normal text-slate-500">
-                          · {listed} km {standard}
-                        </span>
-                      </span>
-                      <span className="text-right text-ui font-bold tabular-nums text-slate-900">
-                        {result.sameStandard || standard === 'WLTP' ? '' : '~'}
-                        {band.typical} km
-                        {band.low !== band.high ? (
-                          <span className="ml-1.5 text-ui-sm font-normal text-slate-500">
-                            {band.low}–{band.high}
+                ).map(([name, band, listed, standard]) => {
+                  const exact = band.low === band.high
+                  return (
+                    <li key={name}>
+                      <div className="mb-3 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-baseline sm:gap-3">
+                        <span className="inline-flex flex-wrap items-center gap-2.5 text-[15px] font-semibold text-ink">
+                          <Badge>{name}</Badge>
+                          Listing {name}
+                          <span className="font-mono text-[13px] font-medium text-muted">
+                            · {listed} km {standard}
                           </span>
+                        </span>
+                        <span className="whitespace-nowrap font-mono text-[26px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
+                          {result.sameStandard || standard === 'WLTP' ? '' : <span className="font-normal text-fog">~</span>}
+                          {band.typical} km
+                          {!exact ? (
+                            <small className="ml-2 text-[13px] font-medium tracking-normal text-muted">
+                              {band.low}–{band.high}
+                            </small>
+                          ) : null}
+                        </span>
+                      </div>
+                      <div aria-hidden="true" className="relative h-4 rounded-lg bg-stone">
+                        <i
+                          className={cn(
+                            'absolute inset-y-0 min-w-[6px] rounded-lg transition-[left,width] duration-700 ease-out',
+                            name === 'A'
+                              ? 'bg-ink'
+                              : 'bg-[repeating-linear-gradient(-45deg,#0B0C0E_0_5px,#34373D_5px_8px)]',
+                          )}
+                          style={{
+                            left: `${at(band.low)}%`,
+                            width: `${Math.max(0, at(band.high) - at(band.low))}%`,
+                            marginLeft: exact ? '-3px' : undefined,
+                          }}
+                        />
+                        {!exact ? (
+                          <i
+                            className="absolute -top-[5px] -ml-0.5 h-[26px] w-1 rounded-sm bg-volt shadow-[0_0_0_2px_#0B0C0E] transition-[left] duration-700 ease-out"
+                            style={{ left: `${at(band.typical)}%` }}
+                          />
                         ) : null}
-                      </span>
-                    </div>
-                    <div aria-hidden="true" className="relative mt-2 h-3">
-                      <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-slate-200" />
-                      <span
-                        className={cn(
-                          'absolute top-0 h-3 rounded-full transition-[left,width] duration-300 ease-out motion-reduce:transition-none',
-                          name === 'A' ? 'bg-plug-blue-600' : 'bg-plug-cyan-500',
-                        )}
-                        style={{
-                          left: pct(band.low),
-                          width: band.low === band.high ? '6px' : `calc(${pct(band.high)} - ${pct(band.low)})`,
-                        }}
-                      />
-                    </div>
-                  </li>
-                ))}
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
+              <Axis a={scale.a} b={scale.b} className="mt-3.5" />
 
-              <p className="mt-6 rounded-xl bg-slate-50 px-4 py-3.5 text-ui leading-relaxed text-slate-700">
+              <p className="mt-6 rounded-[18px] border border-[#DDF58C] bg-[#F1FFD0] px-5 py-[18px] text-[15px] leading-[1.6] text-[#2B3800] [&_strong]:font-bold [&_strong]:text-ink">
                 {result.relation === 'level' ? (
                   <>
-                    <strong className="font-semibold text-slate-900">Level on range.</strong> Same figure, same
-                    test. If you meant to compare two different cars, enter the other listing&rsquo;s figure.
+                    <strong>Level on range.</strong> Same figure, same test. If you meant to compare two different cars,
+                    enter the other listing&rsquo;s figure.
                   </>
                 ) : result.sameStandard && result.gap ? (
                   <>
-                    <strong className="font-semibold text-slate-900">
+                    <strong>
                       Listing {result.relation === 'a-further' ? 'A' : 'B'} is rated {result.gap.low} km further
                     </strong>{' '}
                     on {a.standard}. No conversion needed — both came from the same test, so this gap is the cars.
@@ -162,30 +185,27 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
                 ) : result.relation === 'overlap' ? (
                   result.listedGap === 0 ? (
                     <>
-                      <strong className="font-semibold text-slate-900">Not as equal as they look.</strong> The same
-                      figure on {a.standard} and {b.standard} means different things: on WLTP they come to about{' '}
-                      {result.a.typical} and {result.b.typical} km, though their likely spreads overlap.
+                      <strong>Not as equal as they look.</strong> The same figure on {a.standard} and {b.standard} means
+                      different things: on WLTP they come to about {result.a.typical} and {result.b.typical} km, though
+                      their likely spreads overlap.
                     </>
                   ) : (
                     <>
-                      <strong className="font-semibold text-slate-900">Closer than they look.</strong> Their likely
-                      spreads overlap, so on the same test these two could be near level — much of the{' '}
-                      {result.listedGap} km gap may be the tests, not the cars.
+                      <strong>Closer than they look.</strong> Their likely spreads overlap, so on the same test these two
+                      could be near level — much of the {result.listedGap} km gap may be the tests, not the cars.
                     </>
                   )
                 ) : result.gap ? (
                   <>
-                    <strong className="font-semibold text-slate-900">
-                      Listing {result.relation === 'a-further' ? 'A' : 'B'} is likely to go further
-                    </strong>{' '}
-                    on the same test — by roughly {result.gap.low}–{result.gap.high} km
+                    <strong>Listing {result.relation === 'a-further' ? 'A' : 'B'} is likely to go further</strong> on the
+                    same test — by roughly {result.gap.low}–{result.gap.high} km
                     {result.listedGap > 0 ? `, against the ${result.listedGap} km the listings suggest` : ''}.
                   </>
                 ) : null}
               </p>
 
-              <p className="mt-3 flex gap-2 text-ui-sm leading-relaxed text-slate-500">
-                <Info size={16} className="mt-0.5 shrink-0 text-plug-cyan-700" aria-hidden="true" />
+              <p className="mt-4 flex gap-2.5 text-[13px] leading-[1.55] text-muted">
+                <Info size={18} className="mt-px shrink-0" aria-hidden="true" />
                 <span>
                   Range only. Battery size, charging speed, price and where you can charge matter too — this says
                   nothing about which car suits you.
@@ -193,8 +213,8 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
               </p>
             </>
           ) : (
-            <div className="grid h-full min-h-[12rem] place-items-center text-center">
-              <p className="max-w-xs text-ui-sm text-slate-500">
+            <div className="grid min-h-[12rem] place-items-center text-center">
+              <p className="max-w-xs text-sm text-muted">
                 Enter both listings&rsquo; ranges — any figure from 1 to 2,000 km — to compare them.
               </p>
             </div>
@@ -205,33 +225,38 @@ export function ListingCompare({ initialKm, initialStandard }: ListingComparePro
   )
 }
 
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-grid size-[26px] place-items-center rounded-lg bg-ink font-mono text-xs font-semibold text-white">
+      {children}
+    </span>
+  )
+}
+
 function ListingInput({
-  label,
+  name,
   side,
   onChange,
   invalid,
 }: {
-  label: string
+  name: 'A' | 'B'
   side: Side
   onChange: (next: Side) => void
   invalid: boolean
 }) {
   const id = React.useId()
+  const label = `Listing ${name}`
   return (
-    <fieldset className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+    <fieldset className={cn(CARD, 'm-0 grid min-w-0 gap-3.5 p-[18px] sm:p-[22px]')}>
       <legend className="sr-only">{label}</legend>
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-ui-sm font-semibold text-slate-900">
+        <label htmlFor={id} className="inline-flex items-center gap-2.5 text-[15px] font-semibold text-ink">
+          <Badge>{name}</Badge>
           {label}
         </label>
-        {invalid ? <span className="text-ui-sm text-red-600">Check the figure</span> : null}
+        {invalid ? <span className="text-[13px] font-medium text-[#B42E05]">Check the figure</span> : null}
       </div>
-      <div
-        className={cn(
-          'mt-2 flex items-center rounded-xl border-[1.5px] bg-white px-4 focus-within:shadow-focus',
-          invalid ? 'border-red-300' : 'border-slate-200 focus-within:border-plug-blue-500',
-        )}
-      >
+      <div className="relative flex items-center">
         <input
           id={id}
           type="number"
@@ -240,27 +265,35 @@ function ListingInput({
           max={2000}
           value={side.km}
           onChange={(e) => onChange({ ...side, km: e.target.value })}
-          className="h-12 w-full min-w-0 bg-transparent text-xl font-bold tabular-nums text-slate-900 outline-none [&::-webkit-inner-spin-button]:appearance-none"
+          aria-invalid={invalid ? true : undefined}
+          className={cn(
+            'h-16 w-full min-w-0 appearance-none rounded-[14px] border-[1.5px] bg-white pl-4 pr-[52px] font-mono text-[28px] font-semibold tracking-[-0.02em] tabular-nums text-ink outline-none transition-[border-color,box-shadow] duration-200 focus:border-ink focus:shadow-focus [-moz-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+            invalid ? 'border-[#FFB59C]' : 'border-ink/10 hover:border-ink/25',
+          )}
         />
-        <span className="text-ui-sm font-medium text-slate-400">km</span>
+        <span aria-hidden="true" className="pointer-events-none absolute right-4 font-mono text-sm font-medium text-muted">
+          km
+        </span>
       </div>
-      <div role="radiogroup" aria-label={`${label} standard`} className="mt-2.5 grid grid-cols-4 gap-1.5">
-        {STANDARD_ORDER.map((s) => (
-          <button
-            key={s}
-            type="button"
-            role="radio"
-            aria-checked={side.standard === s}
-            onClick={() => onChange({ ...side, standard: s })}
-            className={cn(
-              'min-h-10 rounded-lg text-ui-sm font-bold tracking-wide transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-500 focus-visible:ring-offset-1',
-              side.standard === s ? 'bg-plug-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-            )}
-          >
-            {s}
-          </button>
-        ))}
+      <div role="radiogroup" aria-label={`${label} standard`} className={cn(SEG, 'grid w-full grid-cols-4')}>
+        {STANDARD_ORDER.map((s) => {
+          const on = side.standard === s
+          return (
+            <button
+              key={s}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => onChange({ ...side, standard: s })}
+              className={cn(
+                segButtonClass(on, 'min-h-11 content-center px-1 font-mono tracking-[0.04em] focus-visible:shadow-focus focus-visible:outline-none sm:px-2'),
+                on && 'bg-ink text-white',
+              )}
+            >
+              {s}
+            </button>
+          )
+        })}
       </div>
     </fieldset>
   )

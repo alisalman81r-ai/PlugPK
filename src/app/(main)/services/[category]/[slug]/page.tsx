@@ -16,6 +16,7 @@ import {
   Phone,
   Shield,
   ShieldCheck,
+  Star,
   Wrench,
   type IconType,
 } from '@/components/ui/icons'
@@ -23,12 +24,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
+
+import { ExampleBadge, Eyebrow, FLABEL, Lift, Tag, btnClass } from '@/components/v2/ui'
 
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META, SERVICE_OFFERINGS } from '@/lib/constants'
 import { prebuiltParams } from '@/lib/db/build-params'
 import { getServiceBySlug, getServiceParams } from '@/lib/db/queries'
 import type { DayHours, ServiceCategory } from '@/lib/types'
-import { cn } from '@/lib/utils'
 import { isInPakistan, safeHref } from '@/lib/validate'
 
 interface PageProps {
@@ -135,136 +138,125 @@ export default async function ServiceDetailPage({ params }: PageProps) {
     .filter((part) => part && part.trim())
     .join(', ')
 
+  const area = [service.address.area, service.address.city].filter((part) => part && part.trim()).join(', ')
+
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-hero py-16">
+      <section
+        data-theme="dark"
+        className="relative isolate overflow-hidden rounded-b-[32px] bg-ink pb-[clamp(132px,13vw,176px)] pt-[clamp(36px,6vw,64px)] text-center text-white sm:rounded-b-[48px]"
+      >
         {/* The business's own photograph, held well back so the breadcrumb
             and heading keep their contrast against it. */}
         {service.coverPhoto ? (
-          <div aria-hidden="true" className="absolute inset-0">
-            <Image
-              src={service.coverPhoto}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover opacity-20"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/40" />
+          <div aria-hidden="true" className="absolute inset-0 -z-[3]">
+            <Image src={service.coverPhoto} alt="" fill priority sizes="100vw" className="object-cover opacity-25" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,12,14,.72),rgba(11,12,14,.92)_70%,#0B0C0E)]" />
           </div>
         ) : null}
-
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]"
+          className="absolute inset-0 -z-[2] bg-[linear-gradient(rgba(255,255,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.045)_1px,transparent_1px)] bg-[length:56px_56px] bg-top [mask-image:radial-gradient(ellipse_80%_70%_at_50%_30%,#000_30%,transparent_75%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-[260px] left-1/2 -z-[1] h-[700px] w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.12),transparent_70%)] blur-[10px]"
         />
 
-        <div className="container-plug relative z-10">
-          <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm">
+        <div className="mx-auto grid w-[min(980px,calc(100%-2*clamp(16px,4vw,64px)))] justify-items-center">
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-mono text-xs font-semibold uppercase tracking-[0.12em]">
             <Link
               href="/services"
-              className="group/back flex items-center gap-1.5 font-medium text-white/70 transition-colors hover:text-white"
+              className="group/back inline-flex min-h-[44px] items-center gap-1.5 text-white/60 transition-colors hover:text-volt"
             >
-              <ChevronLeft
-                size={16}
-                className="transition-transform duration-150 group-hover/back:-translate-x-0.5"
-                aria-hidden="true"
-              />
-              All Services
+              <ChevronLeft size={14} className="transition-transform duration-150 group-hover/back:-translate-x-0.5" aria-hidden="true" />
+              All services
             </Link>
-            <span aria-hidden="true" className="text-white/30">
-              /
-            </span>
-            <Link
-              href={`/services/${service.category}`}
-              className="font-medium text-white/70 transition-colors hover:text-white"
-            >
+            <span aria-hidden="true" className="text-white/25">/</span>
+            <Link href={`/services/${service.category}`} className="inline-flex min-h-[44px] items-center text-white/60 transition-colors hover:text-volt">
               {meta.label}
             </Link>
-            <span aria-hidden="true" className="text-white/30">
-              /
+            <span aria-hidden="true" className="text-white/25">/</span>
+            <span className="line-clamp-1 max-w-[16rem] text-white/40" aria-current="page">
+              {service.name}
             </span>
-            <span className="line-clamp-1 text-white/50">{service.name}</span>
           </nav>
 
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5">
-            <Icon size={14} className={meta.tone.split(' ')[1]} aria-hidden="true" />
-            <span className="text-xs font-semibold text-slate-700">{meta.label}</span>
-          </span>
-
-          <h1 className="mb-4 flex flex-wrap items-center gap-3 text-3xl font-black text-white lg:text-4xl">
-            {service.name}
+          <div className="mt-5 flex flex-wrap justify-center gap-2">
+            <Tag tone="dark" className="h-[30px] bg-white/[0.06] px-3">
+              <Icon size={14} className="text-volt" aria-hidden="true" />
+              {meta.label}
+            </Tag>
             {/* Shown only when an operator has ticked isVerified on the row.
                 There is no verification procedure in the code beyond the
                 approval every listing gets, so this is the operator's own
                 assertion, never inferred from anything else. */}
             {service.isVerified === true ? (
-              <ShieldCheck
-                size={24}
-                className="shrink-0 text-plug-cyan-400"
-                aria-label="Verified business"
-              />
+              <Tag tone="dark" mono className="h-[30px] border-volt/40 bg-volt/10 px-3 text-volt" >
+                <ShieldCheck size={14} aria-hidden="true" />
+                Verified
+              </Tag>
             ) : null}
-          </h1>
+          </div>
 
-          <div className="mb-6 flex flex-wrap items-center gap-5">
+          <h1 className="mt-6 text-balance font-display text-[clamp(38px,5.2vw,80px)] leading-none">{service.name}</h1>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-white/65">
             {/* No star rating. The rating and review count on a service row
                 were seeded figures with no reviews behind them — services
                 cannot be reviewed on plugpk — so showing them would be
                 presenting an invented score as drivers' opinion. */}
-            <span className="text-sm text-white/60">No reviews yet</span>
-            <span className="flex items-center gap-1.5 text-sm text-white/60">
-              <MapPin size={15} className="shrink-0" aria-hidden="true" />
-              {[service.address.area, service.address.city].filter((part) => part && part.trim()).join(', ')}
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.08em] text-white/50">
+              <Star size={14} aria-hidden="true" />
+              No reviews yet
             </span>
-            <span className="flex items-center gap-1.5 font-mono text-sm text-white/60">
+            {area ? (
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={15} className="shrink-0" aria-hidden="true" />
+                {area}
+              </span>
+            ) : null}
+            <span className="inline-flex items-center gap-1.5 font-mono">
               <Phone size={15} className="shrink-0" aria-hidden="true" />
               {service.phone}
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="mt-[34px] flex flex-wrap justify-center gap-3">
             {directionsHref ? (
-              <a
-                href={directionsHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-12 items-center gap-2 rounded-xl bg-gradient-brand px-6 font-semibold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-110"
-              >
-                <Navigation2 size={18} aria-hidden="true" />
-                Get Directions
+              <a href={directionsHref} target="_blank" rel="noopener noreferrer" className={btnClass('volt', 'lg')}>
+                <Navigation2 aria-hidden="true" />
+                Get directions
               </a>
             ) : null}
-            <a
-              href={telHref}
-              className="flex h-12 items-center gap-2 rounded-xl border border-white bg-transparent px-6 font-semibold text-white transition-colors duration-200 hover:bg-white/10"
-            >
-              <Phone size={18} aria-hidden="true" />
-              Call Now
+            <a href={telHref} className={btnClass(directionsHref ? 'ghostDark' : 'volt', 'lg')}>
+              <Phone aria-hidden="true" />
+              Call now
             </a>
           </div>
         </div>
       </section>
 
-      <div className="container-plug py-16">
-        <div className="grid items-start gap-12 lg:grid-cols-[1fr_320px]">
+      <Lift className="mb-[clamp(64px,7vw,104px)]">
+        <div className="grid grid-cols-1 items-start gap-10 px-[18px] py-7 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12 lg:px-10">
           <div className="min-w-0">
             <section>
-              <h2 className="mb-4 text-2xl font-bold text-slate-900">About {service.name}</h2>
-              <p className="leading-relaxed text-slate-600">{service.description}</p>
+              <Eyebrow>About</Eyebrow>
+              <h2 className="font-display text-[clamp(28px,3vw,40px)] leading-[1.08] text-ink">{service.name}</h2>
+              <p className="mt-4 max-w-[46rem] text-base leading-[1.7] text-muted">{service.description}</p>
 
               {service.yearEstablished || service.brands ? (
-                <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+                <dl className="mt-6 grid gap-3 sm:grid-cols-2">
                   {service.yearEstablished ? (
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">In business since</dt>
-                      <dd className="mt-1 font-semibold text-slate-900">{service.yearEstablished}</dd>
+                    <div className="rounded-[22px] border border-ink/10 bg-white p-[22px]">
+                      <dt className={FLABEL}>In business since</dt>
+                      <dd className="mt-2 font-mono text-[28px] font-semibold leading-none text-ink">{service.yearEstablished}</dd>
                     </div>
                   ) : null}
                   {service.brands ? (
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <dt className="text-xs font-semibold uppercase tracking-wide text-slate-400">EV makes</dt>
-                      <dd className="mt-1 font-semibold text-slate-900">{service.brands}</dd>
+                    <div className="rounded-[22px] border border-ink/10 bg-white p-[22px]">
+                      <dt className={FLABEL}>EV makes</dt>
+                      <dd className="mt-2 font-semibold text-ink">{service.brands}</dd>
                     </div>
                   ) : null}
                 </dl>
@@ -272,218 +264,158 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </section>
 
             {service.pricing ? (
-              <>
-                <hr className="my-10 border-slate-100" />
-                <section>
-                  <h2 className="mb-4 text-2xl font-bold text-slate-900">Prices</h2>
-                  <p className="whitespace-pre-line rounded-2xl border border-slate-200 bg-white p-5 leading-relaxed text-slate-700">
-                    {service.pricing}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-400">As given by the business. Confirm before you book.</p>
-                </section>
-              </>
+              <section className="mt-10 border-t border-ink/10 pt-10">
+                <Eyebrow>Prices</Eyebrow>
+                <p className="whitespace-pre-line rounded-[22px] border border-ink/10 bg-white p-5 leading-relaxed text-ink">
+                  {service.pricing}
+                </p>
+                <p className="mt-3">
+                  <ExampleBadge>As given by the business · confirm before you book</ExampleBadge>
+                </p>
+              </section>
             ) : null}
 
-            <hr className="my-10 border-slate-100" />
-
-            <section>
-              <h2 className="mb-4 text-2xl font-bold text-slate-900">Services Offered</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+            <section className="mt-10 border-t border-ink/10 pt-10">
+              <Eyebrow>Services offered</Eyebrow>
+              <ul className="grid gap-2.5 sm:grid-cols-2">
                 {offerings.map((offering) => (
-                  <span key={offering} className="flex items-center gap-2">
-                    <CheckCircle2
-                      size={16}
-                      className="shrink-0 text-green-500"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm text-slate-700">{offering}</span>
-                  </span>
+                  <li key={offering} className="flex items-center gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-volt-tint text-volt-ink">
+                      <CheckCircle2 size={16} aria-hidden="true" />
+                    </span>
+                    <span className="text-[15px] font-medium text-ink">{offering}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
-
-            <hr className="my-10 border-slate-100" />
 
             {/* The station reviews widget used to sit here with an empty list
                 and the row's seeded rating, and its form posted a "station"
                 review against a service id. Services have no review table, so
                 the honest state is the empty one. */}
-            <section>
-              <h2 className="mb-4 text-2xl font-bold text-slate-900">Reviews</h2>
-              <div className="flex items-start gap-3 rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-                <MessageSquare size={20} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
-                <p className="text-sm leading-relaxed text-slate-600">
-                  <span className="block font-semibold text-slate-900">No reviews yet</span>
+            <section className="mt-10 border-t border-ink/10 pt-10">
+              <Eyebrow>Reviews</Eyebrow>
+              <div className="flex items-start gap-4 rounded-[22px] border-[1.5px] border-dashed border-ink/15 bg-paper p-6">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ink text-volt">
+                  <MessageSquare size={18} aria-hidden="true" />
+                </span>
+                <p className="text-[15px] leading-relaxed text-muted">
+                  <span className="block font-display text-[22px] leading-[1.15] text-ink">No reviews yet</span>
                   plugpk does not collect reviews for services yet, so there is no rating to show.
                 </p>
               </div>
             </section>
           </div>
 
-          <aside className="flex flex-col gap-5">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
-              <h3 className="mb-5 font-bold text-slate-900">Contact &amp; Location</h3>
+          <aside className="flex min-w-0 flex-col gap-4">
+            <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-e1">
+              <h2 className="font-display text-[24px] leading-[1.1] text-ink">Contact &amp; location</h2>
 
-              <div className="mb-4 flex items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
-                  <Phone size={20} className="text-plug-blue-600" aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-xs uppercase text-slate-400">Phone</span>
-                  <span className="block truncate font-semibold text-slate-900">
-                    {service.phone}
-                  </span>
-                </span>
-              </div>
-
-              <a
-                href={telHref}
-                className="mb-5 flex h-10 items-center justify-center gap-2 rounded-xl bg-green-600 text-sm font-semibold text-white transition-colors hover:bg-green-700"
-              >
-                <Phone size={16} aria-hidden="true" />
-                Call Now
-              </a>
-
-              {whatsappHref ? (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="-mt-3 mb-5 flex h-10 items-center justify-center gap-2 rounded-xl border-[1.5px] border-green-600 text-sm font-semibold text-green-700 transition-colors hover:bg-green-50"
-                >
-                  <MessageCircle size={16} aria-hidden="true" />
-                  WhatsApp
-                </a>
-              ) : null}
-
-              {service.email ? (
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
-                    <Mail size={20} className="text-plug-blue-600" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs uppercase text-slate-400">Email</span>
-                    <a
-                      href={`mailto:${service.email}`}
-                      className="block truncate font-semibold text-slate-900 hover:text-plug-blue-600"
-                    >
+              <dl className="mt-5 grid grid-cols-1 gap-4">
+                <ContactRow icon={Phone} label="Phone">
+                  <span className="font-mono">{service.phone}</span>
+                </ContactRow>
+                {service.email ? (
+                  <ContactRow icon={Mail} label="Email">
+                    <a href={`mailto:${service.email}`} className="hover:underline">
                       {service.email}
                     </a>
-                  </span>
-                </div>
-              ) : null}
-
-              {website ? (
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
-                    <Globe size={20} className="text-plug-blue-600" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs uppercase text-slate-400">Website</span>
-                    <a
-                      href={website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block truncate font-semibold text-plug-blue-600 hover:underline"
-                    >
+                  </ContactRow>
+                ) : null}
+                {website ? (
+                  <ContactRow icon={Globe} label="Website">
+                    <a href={website} target="_blank" rel="noopener noreferrer" className="underline decoration-volt decoration-2 underline-offset-4">
                       {website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                     </a>
-                  </span>
-                </div>
-              ) : null}
-
-              {social ? (
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
-                    <Globe size={20} className="text-plug-blue-600" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-xs uppercase text-slate-400">Social page</span>
-                    <a
-                      href={social}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block truncate font-semibold text-plug-blue-600 hover:underline"
-                    >
+                  </ContactRow>
+                ) : null}
+                {social ? (
+                  <ContactRow icon={Globe} label="Social page">
+                    <a href={social} target="_blank" rel="noopener noreferrer" className="underline decoration-volt decoration-2 underline-offset-4">
                       {social.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
                     </a>
-                  </span>
-                </div>
-              ) : null}
+                  </ContactRow>
+                ) : null}
+              </dl>
 
-              <hr className="my-5 border-slate-100" />
-
-              <div className="mb-4 flex items-start gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
-                  <MapPin size={20} className="text-plug-blue-600" aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-xs uppercase text-slate-400">Location</span>
-                  <span className="block text-sm leading-relaxed text-slate-700">
-                    {fullAddress}
-                  </span>
-                </span>
+              <div className="mt-5 grid gap-2">
+                <a href={telHref} className={btnClass('ink', 'md', 'w-full')}>
+                  <Phone aria-hidden="true" />
+                  Call now
+                </a>
+                {whatsappHref ? (
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className={btnClass('ghost', 'md', 'w-full')}>
+                    <MessageCircle aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                ) : null}
               </div>
 
+              <hr className="my-5 border-ink/10" />
+
+              <dl>
+                <ContactRow icon={MapPin} label="Location">
+                  <span className="whitespace-normal font-normal leading-relaxed">{fullAddress}</span>
+                </ContactRow>
+              </dl>
+
               {directionsHref ? (
-                <a
-                  href={directionsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-10 items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-sm font-semibold text-white transition-colors hover:bg-plug-blue-700"
-                >
-                  <Navigation2 size={16} aria-hidden="true" />
-                  Get Directions
+                <a href={directionsHref} target="_blank" rel="noopener noreferrer" className={btnClass('ghost', 'md', 'mt-4 w-full')}>
+                  <Navigation2 aria-hidden="true" />
+                  Get directions
                 </a>
               ) : (
-                <p className="text-sm text-slate-500">
-                  No map pin for this listing yet, so directions are not available.
-                </p>
+                <p className="mt-4 text-sm text-muted">No map pin for this listing yet, so directions are not available.</p>
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-900">
-                <Clock size={18} className="text-plug-blue-600" aria-hidden="true" />
-                Operating Hours
-              </h3>
+            <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-e1">
+              <h2 className="flex items-center gap-2 font-display text-[24px] leading-[1.1] text-ink">
+                <Clock size={20} aria-hidden="true" />
+                Opening hours
+              </h2>
 
               {service.operatingHours.is24Hours ? (
-                <span className="inline-flex rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
-                  Open 24 Hours
-                </span>
+                <Tag tone="green" className="mt-4">Open 24 hours</Tag>
               ) : (
-                <div className="flex flex-col gap-1">
+                <dl className="mt-4 divide-y divide-ink/[0.06]">
                   {DAYS.map((day) => (
-                    <div key={day} className="flex items-center justify-between px-2 py-1">
-                      <span className="text-sm font-medium text-slate-700">{DAY_LABEL[day]}</span>
-                      <span className="font-mono text-sm text-slate-500">
-                        {formatDay(service.operatingHours[day])}
-                      </span>
+                    <div key={day} className="flex items-center justify-between py-2">
+                      <dt className="text-sm font-medium text-ink">{DAY_LABEL[day]}</dt>
+                      <dd className="font-mono text-sm text-muted">{formatDay(service.operatingHours[day])}</dd>
                     </div>
                   ))}
-                </div>
+                </dl>
               )}
             </div>
 
             {service.isVerified === true ? (
-              <div className={cn('flex items-start gap-3 rounded-2xl border border-plug-blue-200 bg-plug-blue-50 p-5')}>
-                <ShieldCheck
-                  size={24}
-                  className="shrink-0 text-plug-blue-600"
-                  aria-hidden="true"
-                />
+              <div className="flex items-start gap-3 rounded-[28px] bg-ink p-6 text-white">
+                <ShieldCheck size={24} className="shrink-0 text-volt" aria-hidden="true" />
                 <span>
-                  <span className="block font-bold text-plug-blue-900">Verified Business</span>
-                  <span className="block text-sm text-plug-blue-700">
-                    Marked as verified by the plugpk team.
-                  </span>
+                  <span className="block font-semibold">Verified business</span>
+                  <span className="block text-sm text-white/60">Marked as verified by the plugpk team.</span>
                 </span>
               </div>
             ) : null}
           </aside>
         </div>
-      </div>
+      </Lift>
     </>
+  )
+}
+
+/** One labelled contact line in the sidebar: an icon disc, a mono label, the value. */
+function ContactRow({ icon: RowIcon, label, children }: { icon: IconType; label: string; children: ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-chalk text-ink">
+        <RowIcon size={19} aria-hidden="true" />
+      </span>
+      <div className="min-w-0 flex-1 pt-0.5">
+        <dt className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{label}</dt>
+        <dd className="mt-0.5 font-semibold text-ink [overflow-wrap:anywhere]">{children}</dd>
+      </div>
+    </div>
   )
 }

@@ -28,8 +28,8 @@ function pinKind(station: Station): PinKind {
 }
 
 const PIN_COLOR: Record<PinKind, string> = {
-  fast: 'bg-plug-blue-600',
-  standard: 'bg-[#626D6B]',
+  fast: 'bg-ink',
+  standard: 'bg-white ring-[1.5px] ring-inset ring-ink/35',
 }
 
 /**
@@ -61,27 +61,34 @@ export interface StationPinProps {
  * surrounding <Marker> wrapper differs between them.
  *
  * The pill carries peak power, so the map answers "how fast" without
- * anything having to be opened.
+ * anything having to be opened. Ink for 60 kW+, white for slower, volt for the
+ * one that is selected — the design's one volt moment on the map.
  */
 export function StationPin({ station, isSelected }: StationPinProps) {
   const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
   const fast = pinKind(station) === 'fast'
 
+  const body = isSelected
+    ? 'bg-volt text-ink border-ink shadow-[0_0_0_4px_rgba(212,255,58,.45),0_0_0_6px_#0B0C0E,0_14px_26px_-10px_rgba(11,12,14,.6)]'
+    : fast
+      ? 'bg-ink text-white border-ink shadow-[0_8px_18px_-8px_rgba(11,12,14,.6)]'
+      : 'bg-white text-ink border-ink/30 shadow-[0_8px_18px_-10px_rgba(11,12,14,.45)]'
+
   return (
     <span
       className={cn(
-        'group relative flex cursor-pointer flex-col items-center',
+        'group relative flex cursor-pointer flex-col items-center pb-2',
         // Shadows rather than filter: drop-shadow — a filter on every pin is
         // repainted on every frame of a pan; a box-shadow is not.
-        'origin-bottom transition-transform duration-200 ease-spring motion-reduce:transition-none',
-        isSelected ? 'scale-[1.14]' : 'hover:-translate-y-0.5',
+        'origin-bottom transition-transform duration-300 ease-spring motion-reduce:transition-none',
+        isSelected ? '-translate-y-[3px] scale-[1.12]' : 'hover:-translate-y-[3px] hover:scale-[1.06]',
       )}
     >
       {/* The station's name, raised above the selected pin. */}
       <span
         className={cn(
-          'pointer-events-none absolute bottom-[calc(100%+8px)] left-1/2 max-w-[220px] -translate-x-1/2 truncate whitespace-nowrap',
-          'rounded-[10px] bg-white px-2.5 py-1.5 text-ui-xs font-bold leading-tight text-slate-900 shadow-e3',
+          'pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 max-w-[220px] -translate-x-1/2 truncate whitespace-nowrap',
+          'rounded-full bg-ink px-3 py-1.5 text-xs font-semibold leading-tight text-white shadow-e2',
           'transition-[opacity,transform] duration-200 motion-reduce:transition-none',
           isSelected ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
         )}
@@ -91,34 +98,33 @@ export function StationPin({ station, isSelected }: StationPinProps) {
 
       <span
         className={cn(
-          'relative flex h-[34px] items-center gap-[3px] rounded-full border-2 border-white pl-[5px] pr-3',
-          fast
-            ? 'bg-[linear-gradient(160deg,#14594D,#0B332C)] text-plug-cyan-300'
-            : 'bg-[linear-gradient(160deg,#7C8784,#626D6B)] text-white',
-          isSelected
-            ? 'shadow-[0_0_0_6px_rgba(38,205,178,0.28),0_12px_20px_-6px_rgba(5,36,30,0.5)]'
-            : 'shadow-[0_8px_16px_-6px_rgba(5,36,30,0.45)]',
+          'relative flex h-8 items-center gap-[5px] rounded-full border-[1.5px] pl-[4px] pr-[11px] transition-colors duration-200',
+          body,
         )}
       >
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/20">
-          <Zap size={13} className="fill-current" aria-hidden="true" />
+        <span
+          className={cn(
+            'grid h-[23px] w-[23px] shrink-0 place-items-center rounded-full',
+            isSelected ? 'bg-ink text-volt' : fast ? 'bg-volt/[0.14] text-volt' : 'bg-chalk text-ink',
+          )}
+        >
+          <Zap size={12} className="fill-current" aria-hidden="true" />
         </span>
         {maxPower > 0 ? (
-          <span className="font-mono text-[13px] font-bold leading-none">
+          <span className="font-mono text-[13px] font-bold leading-none tracking-[-0.01em]">
             {maxPower}
-            <span className="ml-px text-[10px] font-semibold opacity-80">kW</span>
+            <span className="ml-0.5 text-[10.5px] font-semibold opacity-70">kW</span>
           </span>
         ) : null}
+        {/* A turned square under the pill, so the pin points at its coordinate. */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute -bottom-[6px] left-1/2 -ml-[5px] h-2.5 w-2.5 rotate-45 rounded-br-[3px] border-b-[1.5px] border-r-[1.5px]',
+            isSelected ? 'border-ink bg-volt' : fast ? 'border-ink bg-ink' : 'border-ink/30 bg-white',
+          )}
+        />
       </span>
-
-      {/* A turned square under the pill, so the pin points at its coordinate. */}
-      <span
-        aria-hidden="true"
-        className={cn(
-          '-mt-2 h-3 w-3 rotate-45 border-b-2 border-r-2 border-white',
-          fast ? 'bg-[#0B332C]' : 'bg-[#626D6B]',
-        )}
-      />
     </span>
   )
 }
@@ -128,15 +134,16 @@ export function ClusterPin({ count }: { count: number }) {
   return (
     <span
       className={cn(
-        'flex h-[38px] cursor-pointer items-center gap-[5px] rounded-full border-2 border-white pl-[9px] pr-[13px]',
-        'bg-[linear-gradient(160deg,#14594D,#05241E)] text-plug-cyan-300',
-        'shadow-[0_0_0_6px_rgba(38,205,178,0.22),0_10px_22px_-8px_rgba(5,36,30,0.55)]',
-        'transition-transform duration-200 ease-spring hover:scale-105 motion-reduce:transition-none',
+        'flex h-9 cursor-pointer items-center gap-[7px] rounded-full bg-ink pl-[6px] pr-[14px] text-white',
+        'shadow-[0_0_0_5px_rgba(11,12,14,.12),0_10px_22px_-8px_rgba(11,12,14,.6)]',
+        'transition-transform duration-300 ease-spring hover:-translate-y-[3px] hover:scale-105 motion-reduce:transition-none',
       )}
     >
-      <Zap size={13} className="fill-current" aria-hidden="true" />
-      <span className="font-mono text-[15px] font-bold leading-none text-white">{count}</span>
-      <span className="text-[11px] font-semibold leading-none text-white/70">stations</span>
+      <span className="grid h-[25px] w-[25px] place-items-center rounded-full bg-volt text-ink">
+        <Zap size={12} className="fill-current" aria-hidden="true" />
+      </span>
+      <span className="font-mono text-[15px] font-bold leading-none">{count}</span>
+      <span className="font-mono text-[10.5px] font-semibold leading-none text-white/70">stations</span>
     </span>
   )
 }
@@ -144,12 +151,12 @@ export function ClusterPin({ count }: { count: number }) {
 /** The pulsing dot marking the visitor's own position. */
 export function UserLocationPin() {
   return (
-    <span className="relative flex h-6 w-6 items-center justify-center">
+    <span className="relative flex h-[22px] w-[22px] items-center justify-center">
       <span
         aria-hidden="true"
-        className="absolute inset-0 animate-ping rounded-full bg-plug-blue-200 opacity-75 motion-reduce:animate-none"
+        className="absolute -inset-2.5 animate-ping rounded-full border border-ink/25 bg-volt/50 motion-reduce:animate-none"
       />
-      <span className="relative h-3 w-3 rounded-full border-2 border-white bg-plug-blue-600" />
+      <span className="relative h-3.5 w-3.5 rounded-full border-[3px] border-white bg-ink shadow-[0_0_0_1.5px_#0B0C0E]" />
     </span>
   )
 }

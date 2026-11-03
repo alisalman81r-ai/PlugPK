@@ -10,23 +10,18 @@ import type { Car, CarCategory } from '@/data/cars'
 import { bodyStyle, carDisplayName, electricDistance, electricDistanceMax, formatPkr, formatSpan } from '@/lib/cars'
 import { cn } from '@/lib/utils'
 
+import { STAGE, STAGE_CHIP, STAGE_CHIP_TONE, type StageChipTone } from './car-ui'
+
 /**
- * One card, every car: the car large, then its name, one line of context, the
- * one figure that decides most shortlists, and the price.
- *
- * ── The showroom card ─────────────────────────────────────────────────
+ * One card, every car (landing-v2's .car): the car on a lit stage, then its
+ * name, one line of context, the one figure that decides most shortlists, and
+ * the price.
  *
  * The photographs are studio cut-outs on white. Drawn with `mix-blend-multiply`
- * on the card's own grey, the white drops out and the car stands on the card
- * itself rather than in a white box inside it — which is what lets the car be
- * the largest thing on the card without the card looking like a frame around
- * a picture.
+ * on the stage, the white drops out and the car stands in the light rather than
+ * in a white box.
  *
- * ── What it carries, and in what order ────────────────────────────────
- *
- * Model in display weight, then "brand · body · trim", then the electric range
- * (the figure most buyers filter on), a hairline, and the price with a "from"
- * over it. Every card is that sequence at those sizes, so a grid reads as one
+ * Every card is the same sequence at the same sizes, so a grid reads as one
  * card repeated and the prices line up across a row.
  *
  * The whole card is one link. Save and compare are real buttons above it,
@@ -54,11 +49,11 @@ export interface CarCardProps {
  * qualifier, or a full hybrid's lack of a plug, because each changes what the
  * figures below mean.
  */
-function chips(car: Car): string[] {
-  const out: string[] = []
-  if (car.category !== 'EV') out.push(car.category)
-  if (/\(indicative\)/i.test(car.price.display)) out.push('Indicative')
-  else if (car.category === 'Hybrid') out.push('No plug')
+function chips(car: Car): Array<{ label: string; tone: StageChipTone }> {
+  const out: Array<{ label: string; tone: StageChipTone }> = []
+  if (car.category !== 'EV') out.push({ label: car.category, tone: 'powertrain' })
+  if (/\(indicative\)/i.test(car.price.display)) out.push({ label: 'Indicative', tone: 'indicative' })
+  else if (car.category === 'Hybrid') out.push({ label: 'No plug', tone: 'noplug' })
   return out
 }
 
@@ -112,48 +107,43 @@ export function CarCard({
   return (
     <article
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-[1.75rem] bg-slate-100',
-        'transition-[box-shadow,transform] duration-300 ease-out',
-        'hover:-translate-y-1 hover:shadow-[0_24px_48px_-28px_rgba(5,36,30,0.35)]',
+        'group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1',
+        'transition-[translate,box-shadow,border-color] duration-500 ease-out',
+        'hover:-translate-y-1 hover:border-ink/[0.16] hover:shadow-e2',
         'motion-reduce:transition-none motion-reduce:hover:translate-y-0',
-        isCompared && 'ring-2 ring-plug-cyan-500 ring-offset-2 ring-offset-slate-50',
+        isCompared && 'border-ink ring-2 ring-volt',
       )}
     >
-      {/* ── The car ──────────────────────────────────────────────
+      {/* ── The car on its stage ───────────────────────────────────
           A fixed ratio, so every image in a row lines up whatever loads first.
-          The car is contained rather than cropped: a card that cuts off a
-          bumper is showing less of the one thing it is for. */}
-      <div className="relative aspect-[16/10]">
+          Contained rather than cropped: a card that cuts off a bumper is
+          showing less of the one thing it is for. */}
+      <div className={cn(STAGE, 'mx-2 mt-2 aspect-[16/11] rounded-[22px] group-hover:after:translate-x-[3%] group-hover:after:scale-x-[1.06]')}>
         {car.image ? (
-          <div className="absolute inset-x-4 bottom-0 top-5 sm:inset-x-5 sm:top-6">
-            {/* Scaled up a step: the cut-outs carry their own white margin,
-                and at 1:1 the car filled barely half the card. */}
+          <div className="absolute inset-x-[6%] bottom-[2%] top-[4%]">
             <PhotoFrame
               src={car.image}
               alt=""
-              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 440px"
+              sizes="(max-width: 420px) 92vw, (max-width: 1100px) 46vw, 420px"
               priority={priority}
               className="overflow-visible bg-transparent"
-              imageClassName="object-contain mix-blend-multiply scale-[1.12] transition-transform duration-500 ease-out group-hover:scale-[1.17] motion-reduce:transition-none"
+              imageClassName="object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:translate-x-[3%] group-hover:scale-[1.045] motion-reduce:transition-none"
             />
           </div>
         ) : (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <span aria-hidden="true" className="font-display text-[2rem] font-bold leading-none tracking-tight text-slate-300">
+            <span aria-hidden="true" className="font-display text-[2rem] leading-none text-ink/20">
               {car.brand}
             </span>
-            <span className="text-ui-xs font-medium uppercase tracking-[0.14em] text-slate-500">No photograph yet</span>
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.14em] text-muted">No photograph yet</span>
           </span>
         )}
 
         {cardChips.length > 0 ? (
-          <div className="pointer-events-none absolute left-4 top-4 z-20 flex gap-1.5 sm:left-5 sm:top-5">
+          <div className="pointer-events-none absolute left-3 top-3 z-20 flex flex-wrap gap-[5px]">
             {cardChips.map((chip) => (
-              <span
-                key={chip}
-                className="rounded-full bg-white/85 px-2.5 py-1 text-ui-xs font-bold uppercase leading-none tracking-[0.08em] text-slate-700 shadow-[0_1px_2px_rgba(5,36,30,0.06)] backdrop-blur"
-              >
-                {chip}
+              <span key={chip.label} className={cn(STAGE_CHIP, STAGE_CHIP_TONE[chip.tone])}>
+                {chip.label}
               </span>
             ))}
           </div>
@@ -161,19 +151,17 @@ export function CarCard({
       </div>
 
       {/* ── Name, context, the figure ───────────────────────────── */}
-      <div className="flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-        <h3 className="truncate font-display text-[1.375rem] font-extrabold leading-tight tracking-[-0.02em] text-dark-base sm:text-[1.5rem]">
-          {car.model}
-        </h3>
-        <p className="mt-1 truncate text-ui-sm text-slate-600" title={meta}>
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5 sm:px-5 sm:pb-[18px] sm:pt-[18px]">
+        <h3 className="truncate font-display text-[clamp(22px,1.8vw,27px)] leading-[1.06] text-ink">{car.model}</h3>
+        <p className="mt-1.5 truncate text-[13.5px] leading-[1.45] text-muted" title={meta}>
           {meta}
         </p>
 
         {lead ? (
-          <p className="mt-3 flex items-center gap-2 text-ui-sm text-slate-500">
-            <Zap size={16} aria-hidden="true" className="shrink-0 text-plug-cyan-700" />
+          <p className="mt-3 flex items-center gap-[7px] text-[13px] leading-[1.3] text-muted">
+            <Zap aria-hidden="true" className="h-[15px] w-[15px] shrink-0 fill-volt-ink text-volt-ink" />
             <span>
-              <span className="font-bold tabular-nums text-slate-900">{lead.figure}</span> {lead.words}
+              <b className="font-mono text-[13.5px] font-semibold tabular-nums text-ink">{lead.figure}</b> {lead.words}
             </span>
           </p>
         ) : null}
@@ -182,24 +170,25 @@ export function CarCard({
             mt-auto with the hairline, so the price rows of a grid row share a
             baseline however the lines above them came out. */}
         <div className="mt-auto pt-4">
-          <div className="flex items-end justify-between gap-4 border-t border-slate-300/60 pt-4">
+          <div className="flex items-end justify-between gap-3 border-t border-ink/10 pt-4">
             <div className="min-w-0">
-              <p className="text-ui-xs font-bold uppercase leading-none tracking-[0.14em] text-slate-500">
+              <span className="block font-mono text-[10.5px] font-semibold uppercase leading-none tracking-[0.16em] text-muted">
                 {ranged ? 'From' : 'Price'}
-              </p>
-              <p className="mt-2 flex items-baseline gap-1.5 whitespace-nowrap leading-none">
-                <span className="text-ui-sm font-semibold text-slate-400">PKR</span>
-                <span className="font-display text-[1.625rem] font-extrabold tabular-nums tracking-[-0.025em] text-slate-900 sm:text-[1.75rem]">
-                  {priceFigure(car)}
-                </span>
+              </span>
+              <p className="mt-[7px] whitespace-nowrap font-mono text-[clamp(20px,1.7vw,24px)] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink [word-spacing:-0.3em]">
+                <small className="mr-[5px] align-[2px] text-[11px] tracking-[0.06em] text-muted">PKR</small>
+                {priceFigure(car)}
               </p>
             </div>
 
             <span
               aria-hidden="true"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dark-base text-white transition-[background-color,transform] duration-300 ease-out group-hover:bg-plug-blue-600 group-hover:-rotate-45 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink text-white transition-[background-color,color] duration-300 group-hover:bg-volt group-hover:text-ink"
             >
-              <ArrowRight size={20} />
+              <ArrowRight
+                size={18}
+                className="transition-transform duration-[450ms] ease-spring group-hover:-rotate-45 motion-reduce:transition-none motion-reduce:group-hover:rotate-0"
+              />
             </span>
           </div>
         </div>
@@ -211,7 +200,7 @@ export function CarCard({
       <Link
         href={href}
         aria-label={`${name}, ${car.price.display}`}
-        className="absolute inset-0 z-10 rounded-[1.75rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+        className="absolute inset-0 z-10 rounded-[28px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
       />
 
       {/* ── Save and compare ─────────────────────────────────────
@@ -219,7 +208,7 @@ export function CarCard({
           and outside it: a button inside an anchor leaves the browser to decide
           which a tap meant. */}
       {onToggleFavourite || onToggleCompare ? (
-        <div className="absolute right-3 top-3 z-20 flex flex-col gap-1.5 sm:right-4 sm:top-4">
+        <div className="absolute right-4 top-4 z-20 flex flex-col gap-1.5">
           {onToggleFavourite ? (
             <button
               type="button"
@@ -231,7 +220,7 @@ export function CarCard({
               <Heart
                 size={17}
                 aria-hidden="true"
-                className={cn('transition-colors', isFavourite ? 'fill-rose-500 text-rose-500' : 'text-slate-600')}
+                className={cn('transition-colors', isFavourite ? 'fill-ember text-ember' : 'text-ink')}
               />
             </button>
           ) : null}
@@ -250,7 +239,7 @@ export function CarCard({
                     ? 'Comparison is full'
                     : `Add ${name} to comparison`
               }
-              className={cn(ROUND, isCompared ? 'bg-plug-cyan-500 text-plug-navy-950 hover:bg-plug-cyan-400' : REVEAL)}
+              className={cn(ROUND, isCompared ? 'border-ink bg-ink text-volt hover:bg-ink' : REVEAL)}
             >
               {isCompared ? <Check size={17} aria-hidden="true" /> : <GitCompareArrows size={17} aria-hidden="true" />}
             </button>
@@ -261,12 +250,12 @@ export function CarCard({
   )
 }
 
-/** The save and compare buttons: 44px, frosted. */
+/** The save and compare buttons: 44px, white, hairline. */
 const ROUND = cn(
-  'flex h-11 w-11 items-center justify-center rounded-full bg-white/70 text-slate-600 backdrop-blur',
-  'shadow-[0_1px_2px_rgba(5,36,30,0.06)] transition-[background-color,transform,opacity] duration-200',
-  'hover:bg-white hover:text-slate-900 active:scale-95',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
+  'grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-white/85 text-ink backdrop-blur',
+  'shadow-e1 transition-[background-color,transform,opacity] duration-200',
+  'hover:bg-white active:scale-95',
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink',
   'disabled:cursor-not-allowed disabled:opacity-40',
 )
 

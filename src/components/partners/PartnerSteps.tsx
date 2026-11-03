@@ -1,85 +1,52 @@
 // src/components/partners/PartnerSteps.tsx
-import {
-  BadgeCheck,
-  Banknote,
-  BarChart3,
-  Home,
-  MapPinned,
-  Route,
-  Users,
-  type IconType,
-} from '@/components/ui/icons'
+import { Banknote, BarChart3, Home, ShieldCheck, Users, type IconType } from '@/components/ui/icons'
 
-import { CAP_RULE, FACE, FRAME, ICON_FRAME, ICON_GLYPH, NUMERAL } from '@/components/shared/frame'
-import { SectionIntro } from '@/components/shared/SectionIntro'
-import { AnimatedIcon, HoverMotion, type IconMotion } from '@/components/ui'
+import { RevealGroup, RevealItem } from '@/components/v2/Reveal'
+import { CARD, CARD_HOVER, Hl, Section, SectionHead, Steps, WRAP } from '@/components/v2/ui'
+import { cn } from '@/lib/utils'
 
 /**
- * How hosting works, and what a host is actually promised.
+ * How hosting works (.pt-how), and what a host is actually promised (.pt-get).
  *
- * Every claim here maps to something the application does. "Live once we
- * verify" is the admin approval step; "you keep every rupee" is true because
- * there is no payment processing and no commission anywhere in the code; the
- * dashboard figures named are the ones BusinessDailyStat actually counts. If a
- * claim on this page ever stops being true, the code that made it true is the
- * thing to look at.
- *
- * Both sections share the card treatment in ./frame — see that file for why
- * the prominence lives on the edge rather than in a fill.
- *
- * Each card is a HoverMotion so the glyph animates when the card is hovered
- * rather than when the pointer happens to cross the 56px holder — the same
- * trigger the border and shadow already use. This file stays a server
- * component; HoverMotion is the client shim.
+ * Every claim here maps to something the application does. "We check the
+ * details" is the admin approval step; "you keep it" is true because there is
+ * no payment processing and no commission anywhere in the code; the dashboard
+ * figures named are the ones BusinessDailyStat actually counts. If a claim on
+ * this page ever stops being true, the code that made it true is the thing to
+ * look at.
  */
 
-/** One measure, matching the rest of the page and /map, /routes, /community. */
-const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
-
-interface Card {
-  icon: IconType
-  motion: IconMotion
-  title: string
-  body: string
-}
-
-const STEPS: Card[] = [
+const STEPS = [
   {
-    icon: Home,
-    motion: 'lift',
+    icon: <Home aria-hidden="true" />,
     title: 'List what you have',
     body: 'A hotel forecourt, an office car park, or the single charger on your driveway. Same form, same few minutes.',
   },
   {
-    icon: BadgeCheck,
-    motion: 'pop',
+    icon: <ShieldCheck aria-hidden="true" />,
     title: 'We check the details',
     body: 'We confirm the address, the pin and the charger specs before publishing, so drivers who set off actually arrive.',
   },
   {
-    icon: MapPinned,
-    motion: 'scan',
+    icon: <Users aria-hidden="true" />,
     title: 'Drivers find you',
     body: 'Your listing appears on the map and in search, filterable by connector and speed, with directions one tap away.',
   },
 ]
 
-const BENEFITS: Card[] = [
+const BENEFITS: { icon: IconType; title: string; body: string }[] = [
   {
     icon: Banknote,
-    motion: 'lift',
     title: 'You set the price, you keep it',
     body: 'plugpk does not set your rates, process the payment or take a percentage. Whatever you charge is between you and the driver.',
   },
   {
     icon: BarChart3,
-    motion: 'slide',
     title: 'See what your listing does',
     body: 'Views, directions taken, reviews and rating — counted from real visits to your page, not estimated.',
   },
   {
     icon: Users,
-    motion: 'pulse',
     title: 'Reach drivers already looking',
     body: 'People open the map because they need a charge now, and an approved listing can appear as a charging stop when it is on a planned route.',
   },
@@ -88,105 +55,58 @@ const BENEFITS: Card[] = [
 export function PartnerSteps() {
   return (
     <>
-      <section className="bg-white py-20 lg:py-28">
-        <div className={STAGE}>
-          {/* It said "No contract, no listing fee" directly above a PKR 4,999 a
-              month plan. What is true: applying is free and there is no commission. */}
-          <SectionIntro
+      <Section tone="paper">
+        <div className={WRAP}>
+          <SectionHead
             eyebrow="How it works"
-            icon={<Route size={13} aria-hidden="true" />}
-            title="Three steps, then you are on the map"
+            title={
+              <>
+                Three steps, then you are <Hl>on the map</Hl>
+              </>
+            }
             lead="Applying is free, there is no commission, and there is nothing to install on your side."
-            className="mb-16"
           />
-
-          {/*
-            Prominence without fill.
-
-            The brief was to make these read as important while leaving the
-            cards unfilled, so every device here works on the edge or the
-            space rather than the surface: a gradient hairline border that
-            warms to brand colour on hover, a lift with a real shadow, an
-            outlined numeral that is stroke only, a ruled cap above the
-            heading that draws across on hover, and a dashed rail joining the
-            three so they read as a sequence instead of three separate facts.
-            The card face itself stays transparent.
-          */}
-          <ol className="relative mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:gap-8">
-            {STEPS.map((step, index) => (
-              <li key={step.title} className="relative">
-                {/* The rail between cards. Sits at the icon's centre line and
-                    only exists between them, never trailing off the last. */}
-                {index < STEPS.length - 1 ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute left-full top-[64px] z-10 hidden h-px w-8 border-t-2 border-dashed border-slate-300 lg:block"
-                  />
-                ) : null}
-
-                {/* The border is a 1px gradient frame: a wrapper carrying the
-                    gradient with an inset face on top, which is how you get a
-                    graded edge without painting the card. */}
-                <HoverMotion className={FRAME}>
-                  <div className={`${FACE} overflow-hidden p-8`}>
-                    <span aria-hidden="true" className={NUMERAL}>
-                      {index + 1}
-                    </span>
-
-                    <span aria-hidden="true" className={ICON_FRAME}>
-                      <AnimatedIcon motion={step.motion}>
-                        <step.icon size={24} className={ICON_GLYPH} />
-                      </AnimatedIcon>
-                    </span>
-
-                    {/* A cap rule that draws across on hover — motion with a
-                        purpose, marking the card you are reading. */}
-                    <span aria-hidden="true" className={`mt-8 ${CAP_RULE}`} />
-
-                    <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 text-ui leading-relaxed text-slate-500">{step.body}</p>
-                  </div>
-                </HoverMotion>
-              </li>
-            ))}
-          </ol>
+          <Steps steps={STEPS} />
         </div>
-      </section>
+      </Section>
 
-      <section className="bg-slate-50 py-20 lg:py-28">
-        <div className={STAGE}>
-          <SectionIntro
+      <Section tone="chalk">
+        <div className={WRAP}>
+          <SectionHead
             eyebrow="What you get"
-            icon={<Banknote size={13} aria-hidden="true" />}
-            title="Your charger, earning its keep"
+            title={
+              <>
+                Your charger, <Hl>earning its keep</Hl>
+              </>
+            }
             lead="Every line below maps to something the product actually does."
-            className="mb-16"
           />
 
-          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-3 lg:gap-8">
+          <RevealGroup className="grid gap-4 lg:grid-cols-3">
             {BENEFITS.map((benefit) => (
-              <HoverMotion key={benefit.title} className={FRAME}>
-                <div className={`${FACE} p-8`}>
-                  <span aria-hidden="true" className={ICON_FRAME}>
-                    <AnimatedIcon motion={benefit.motion}>
-                      <benefit.icon size={24} className={ICON_GLYPH} />
-                    </AnimatedIcon>
+              <RevealItem key={benefit.title} className="h-full">
+                <article
+                  className={cn(
+                    CARD,
+                    CARD_HOVER,
+                    'group isolate h-full overflow-hidden p-[30px]',
+                    // A volt glow that rises in the corner on hover.
+                    'before:absolute before:-right-[140px] before:-top-[140px] before:-z-[1] before:h-[280px] before:w-[280px] before:rounded-full before:bg-[radial-gradient(closest-side,rgba(212,255,58,.35),transparent)] before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100',
+                  )}
+                >
+                  <span aria-hidden="true" className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
+                    <benefit.icon size={24} />
                   </span>
-
-                  <span aria-hidden="true" className={`mt-8 ${CAP_RULE}`} />
-
-                  <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
+                  <h3 className="mb-2.5 mt-8 font-display text-[26px] font-normal leading-[1.1] text-ink pg-medium lg:mt-14">
                     {benefit.title}
                   </h3>
-                  <p className="mt-3 text-ui leading-relaxed text-slate-500">{benefit.body}</p>
-                </div>
-              </HoverMotion>
+                  <p className="text-[15px] leading-[1.6] text-muted">{benefit.body}</p>
+                </article>
+              </RevealItem>
             ))}
-          </div>
+          </RevealGroup>
         </div>
-      </section>
+      </Section>
     </>
   )
 }

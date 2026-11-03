@@ -4,11 +4,13 @@
 import { Car, Check, Loader2, Plus, Star, Trash2 } from '@/components/ui/icons'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { ActionButton } from '@/components/auth/form-ui'
 import { SearchSelect } from '@/components/ui/SearchSelect'
 import type { GarageCar, GarageCatalogueCar as CatalogueCar } from '@/lib/db/garage'
 import { addMyCar, makePrimaryCar, removeMyCar, replaceMyCar } from '@/lib/db/garage-actions'
 import { cn } from '@/lib/utils'
+
+import { PANEL, PanelHead } from './dash-ui'
 
 /**
  * The cars on the signed-in account.
@@ -95,18 +97,14 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
       : 'Not in our catalogue'
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900">{garage.length > 1 ? 'Your vehicles' : 'Your vehicle'}</h2>
-          <p className="mt-1 text-ui-sm text-slate-500">
-            Used to suggest chargers that fit your connector.
-            {garage.length > 1 ? ' The primary car is the one we use.' : ''}
-          </p>
-        </div>
-        <p aria-live="polite" className="text-ui-sm font-semibold text-green-600 empty:hidden">
+    <section className={PANEL}>
+      <PanelHead
+        title={garage.length > 1 ? 'Your vehicles' : 'Your vehicle'}
+        sub={`Used to suggest chargers that fit your connector.${garage.length > 1 ? ' The primary car is the one we use.' : ''}`}
+        aside={
+        <p aria-live="polite" className="pt-1 text-sm font-semibold text-[#12804a] empty:hidden">
           {busy ? (
-            <span className="inline-flex items-center gap-1.5 text-slate-500">
+            <span className="inline-flex items-center gap-1.5 text-muted">
               <Loader2 size={15} className="animate-spin" aria-hidden="true" />
               Saving…
             </span>
@@ -117,9 +115,10 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
             </span>
           ) : null}
         </p>
-      </div>
+        }
+      />
 
-      {error ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p> : null}
+      {error ? <p role="alert" className="mb-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">{error}</p> : null}
 
       <ul className="flex flex-col gap-3">
         {garage.map((row) => {
@@ -131,26 +130,26 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
             <li
               key={row.id}
               className={cn(
-                'flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center',
-                row.isPrimary ? 'border-plug-blue-200 bg-plug-blue-50/40' : 'border-slate-200',
+                'flex flex-col gap-4 rounded-[18px] border p-4 sm:flex-row sm:items-center',
+                row.isPrimary ? 'border-ink/20 bg-chalk' : 'border-ink/10 bg-white',
               )}
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-plug-blue-50">
+                <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-ink">
                   {isBusy ? (
-                    <Loader2 size={20} className="animate-spin text-plug-blue-600" />
+                    <Loader2 size={20} className="animate-spin text-volt" />
                   ) : (
-                    <Car size={22} className="text-plug-blue-600" />
+                    <Car size={22} className="text-volt" />
                   )}
                 </span>
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2">
-                    <span className="truncate text-ui-lg font-semibold text-slate-900">{row.name}</span>
+                    <span className="truncate font-display text-[20px] leading-tight text-ink">{row.name}</span>
                     {row.isPrimary && garage.length > 1 ? (
-                      <span className="rounded-full bg-plug-blue-600 px-2 py-0.5 text-ui-xs font-semibold text-white">Primary</span>
+                      <span className="rounded-full bg-ink px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-volt">Primary</span>
                     ) : null}
                   </p>
-                  <p className="mt-0.5 truncate text-ui-sm text-slate-500">{specsOf(car)}</p>
+                  <p className="mt-1 truncate font-mono text-xs text-muted">{specsOf(car)}</p>
                   {/* Under the name rather than beside the dropdown, so every
                       row's dropdown sits in the same place. */}
                   {!row.isPrimary ? (
@@ -162,7 +161,7 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
                           [...list.map((r) => ({ ...r, isPrimary: r.id === row.id }))].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)),
                         )
                       }
-                      className="-mx-1 mt-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-ui-sm font-semibold text-plug-blue-600 hover:bg-plug-blue-50 disabled:opacity-50"
+                      className="-mx-2 mt-1 inline-flex min-h-9 items-center gap-1 rounded-full px-2 text-sm font-semibold text-ink hover:bg-volt disabled:opacity-50"
                     >
                       <Star size={13} aria-hidden="true" />
                       Make primary
@@ -199,7 +198,7 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
                       return row.isPrimary && rest[0] ? [{ ...rest[0], isPrimary: true }, ...rest.slice(1)] : rest
                     })
                   }
-                  className="rounded-lg p-2.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-ink/10 bg-white text-muted transition-colors hover:border-[#FFCDBC] hover:bg-[#FFECE6] hover:text-[#B42E05] disabled:opacity-50"
                 >
                   <Trash2 size={17} aria-hidden="true" />
                 </button>
@@ -210,7 +209,7 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
       </ul>
 
       {garage.length === 0 && !adding ? (
-        <p className="rounded-xl border border-dashed border-slate-200 px-4 py-6 text-center text-ui-sm text-slate-500">
+        <p className="rounded-[18px] border-[1.5px] border-dashed border-ink/15 px-4 py-6 text-center text-sm text-muted">
           No car saved yet.
         </p>
       ) : null}
@@ -218,8 +217,8 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
       {/* ── Add a car ───────────────────────────────────────────── */}
       <div className="mt-4">
         {adding ? (
-          <div className="flex flex-col gap-3 rounded-xl border border-dashed border-plug-blue-300 bg-plug-blue-50/30 p-4 sm:flex-row sm:items-center">
-            <p className="flex-1 text-ui-sm font-semibold text-slate-700">
+          <div className="flex flex-col gap-3 rounded-[18px] border-[1.5px] border-dashed border-ink/20 bg-chalk p-4 sm:flex-row sm:items-center">
+            <p className="flex-1 text-sm font-semibold text-ink">
               {garage.length === 0 ? 'Which car do you drive?' : 'Pick the car to add'}
             </p>
             <SearchSelect
@@ -241,16 +240,15 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
               className="w-full sm:w-72"
             />
             {garage.length > 0 ? (
-              <Button size="sm" variant="ghost" onClick={() => setAdding(false)} disabled={busy !== null}>
+              <ActionButton size="sm" tone="line" onClick={() => setAdding(false)} disabled={busy !== null}>
                 Cancel
-              </Button>
+              </ActionButton>
             ) : null}
           </div>
         ) : (
-          <Button variant="secondary" onClick={() => setAdding(true)} disabled={busy !== null}>
-            <Plus size={16} aria-hidden="true" />
+          <ActionButton tone="line" onClick={() => setAdding(true)} disabled={busy !== null} leftIcon={<Plus aria-hidden="true" />}>
             Add a car
-          </Button>
+          </ActionButton>
         )}
       </div>
     </section>

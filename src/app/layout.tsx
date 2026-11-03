@@ -6,55 +6,43 @@ import './globals.css'
 import { SITE_CONFIG } from '@/lib/constants'
 
 /**
- * One face for the whole interface: Figtree, headings included.
- *
- * ── Why Figtree ────────────────────────────────────────────────────────
- *
- * The palette is taken from a fintech reference set in Matter, a commercial
- * geometric grotesque. Figtree is the closest open face to it: low contrast,
- * round but not circular, and narrower than Poppins, which it replaced. Poppins
- * is almost compass-drawn, so at display sizes its counters closed up and
- * headings read heavy; Figtree keeps them open, and its tighter set means a
- * heading holds on fewer lines.
+ * The landing-v2 type system: Poppins for the interface, Power Grotesk for
+ * display, JetBrains Mono for numbers, units and labels.
  *
  * ── Why these are local files and not next/font/google ─────────────────
  *
  * They were fetched from fonts.googleapis.com at compile time until that proved
  * unreliable here: TLS on this machine is intercepted by antivirus, Node's
  * connections are intermittently aborted, and the loader's answer to a failed
- * download is three retries and then silence. One dev session served the
- * entire site in a fallback face — the build succeeds, the page renders, and
- * nothing anywhere says the typeface is missing.
- *
- * scripts/fetch-fonts.mjs pulls the latin-subset files into src/app/fonts/,
- * and next/font/local self-hosts and preloads them exactly as the Google
- * loader did. Run it again to add a weight.
+ * download is three retries and then silence. scripts/fetch-fonts.mjs pulls
+ * the latin-subset files into src/app/fonts/, and next/font/local self-hosts
+ * and preloads them exactly as the Google loader did.
  *
  * ── Weights ────────────────────────────────────────────────────────────
  *
- *   400  body copy
- *   500  font-medium
- *   600  font-semibold   — headings and card titles
- *   700  font-bold
+ *   Poppins 400, 500, 600, 700. font-extrabold and font-black resolve to 700
+ *   — see the fontWeight note in tailwind.config.ts.
  *
- * font-extrabold and font-black both resolve to 700 — see the fontWeight note
- * in tailwind.config.ts — so no heavier file is shipped.
+ *   Power Grotesk 400 only: it is the one weight licensed. Heavier display
+ *   weights are drawn with the pg-medium and pg-bold stroke utilities, and
+ *   font-synthesis is off so the browser never smears a fake bold over it.
  */
-const figtree = localFont({
+const poppins = localFont({
   variable: '--font-sans',
-  /*
-    `swap` rather than `optional`: the fallback stack in tailwind.config.ts is
-    metric-different from Figtree, so a failed swap would leave the site in
-    system-ui permanently on a slow connection. A brief flash of the fallback is
-    the better trade for a face this central.
-  */
   display: 'swap',
   src: [
-    { path: './fonts/figtree-400.woff2', weight: '400', style: 'normal' },
-    { path: './fonts/figtree-500.woff2', weight: '500', style: 'normal' },
-    { path: './fonts/figtree-600.woff2', weight: '600', style: 'normal' },
-    { path: './fonts/figtree-700.woff2', weight: '700', style: 'normal' },
+    { path: './fonts/poppins-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/poppins-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/poppins-600.woff2', weight: '600', style: 'normal' },
+    { path: './fonts/poppins-700.woff2', weight: '700', style: 'normal' },
   ],
+})
+
+/* Power Grotesk Regular (Power Type Foundry), from landing-v2/assets/fonts. */
+const powerGrotesk = localFont({
+  variable: '--font-display',
+  display: 'swap',
+  src: [{ path: './fonts/power-grotesk-400.woff2', weight: '400', style: 'normal' }],
 })
 
 // Supplies --font-jetbrains for the `font-mono` utility. Without it that
@@ -151,8 +139,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${figtree.variable} ${jetbrainsMono.variable} ${plainZero.variable}`}>
-      <body className="bg-slate-50 font-sans text-slate-900 antialiased">{children}</body>
+    <html lang="en" className={`${poppins.variable} ${powerGrotesk.variable} ${jetbrainsMono.variable} ${plainZero.variable}`}>
+      <body className="bg-chalk font-sans text-ink antialiased [font-synthesis:none] selection:bg-volt selection:text-ink">{children}</body>
     </html>
   )
 }

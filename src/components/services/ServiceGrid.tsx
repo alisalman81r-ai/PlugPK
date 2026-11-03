@@ -3,8 +3,8 @@
 
 import { Package } from '@/components/ui/icons'
 
-import { FACE, FRAME } from '@/components/shared/frame'
-import { Button, Skeleton } from '@/components/ui'
+import { Skeleton } from '@/components/ui'
+import { Btn } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import { STAGGER } from '@/lib/motion'
 import type { EVService, ServiceCategory } from '@/lib/types'
@@ -21,6 +21,9 @@ import { CATEGORY_ICON } from './ServiceCategoryTabs'
  */
 const GROUP_MIN = 3
 
+/** landing-v2's .sv-grid: three across from 1200px, two from 640px, one below. */
+const GRID = 'grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3'
+
 export interface ServiceGridProps {
   services: EVService[]
   isLoading: boolean
@@ -33,8 +36,8 @@ function ServiceCardSkeleton() {
   return (
     // The same frame and face the real card wears, so the swap-in changes
     // nothing but the contents.
-    <div role="status" aria-label="Loading service" className={FRAME}>
-      <div className={cn(FACE, 'overflow-hidden')}>
+    <div role="status" aria-label="Loading service" className="overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1">
+      <div>
         {/* A ratio rather than a fixed height, matching ServiceCard's cover —
             a skeleton of a different shape moves the page when data lands. */}
         <Skeleton className="aspect-[16/10] w-full rounded-none" />
@@ -60,7 +63,7 @@ export function ServiceGrid({
 }: ServiceGridProps) {
   if (isLoading) {
     return (
-      <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={GRID}>
         {Array.from({ length: 6 }, (_, index) => index).map((index) => (
           <ServiceCardSkeleton key={index} />
         ))}
@@ -75,16 +78,16 @@ export function ServiceGrid({
         : (CATEGORY_ICON[SERVICE_CATEGORY_META[selectedCategory].icon] ?? Package)
 
     return (
-      <div className="py-20 text-center">
-        <EmptyIcon size={64} className="mx-auto text-slate-200" aria-hidden="true" />
-        <p className="mb-3 mt-6 text-2xl font-bold text-slate-900">No services found</p>
-        <p className="text-slate-500">Try a different category or city</p>
+      <div className="grid justify-items-center gap-1.5 rounded-[28px] border-[1.5px] border-dashed border-ink/15 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] px-6 py-16 text-center">
+        <span className="mb-2.5 grid h-16 w-16 place-items-center rounded-full bg-ink text-volt">
+          <EmptyIcon size={26} aria-hidden="true" />
+        </span>
+        <p className="font-display text-[26px] leading-[1.1] text-ink">No services match.</p>
+        <p className="mb-3.5 text-[15px] text-muted">Try another category, city or search term.</p>
         {onClearFilters ? (
-          <div className="mt-6">
-            <Button variant="ghost" onClick={onClearFilters}>
-              Clear filters
-            </Button>
-          </div>
+          <Btn variant="ink" size="sm" onClick={onClearFilters}>
+            Clear filters
+          </Btn>
         ) : null}
       </div>
     )
@@ -92,7 +95,7 @@ export function ServiceGrid({
 
   if (viewMode === 'list') {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:gap-3.5">
         {services.map((service, index) => (
           <ServiceCard
             key={service.id}
@@ -132,7 +135,7 @@ export function ServiceGrid({
 
     if (!worthGrouping) {
       return (
-        <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={GRID}>
           {services.map((service, index) => (
             <ServiceCard
               key={service.id}
@@ -158,21 +161,21 @@ export function ServiceGrid({
                   groupIndex === 0 ? 'mt-0' : 'mt-14',
                 )}
               >
-                <span className={cn('rounded-xl p-2', group.meta.tone)}>
-                  <Icon size={20} aria-hidden="true" />
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-ink text-volt">
+                  <Icon size={19} aria-hidden="true" />
                 </span>
-                <h2 className="text-xl font-bold tracking-[-0.01em] text-slate-900">
+                <h2 className="font-display text-[26px] leading-[1.1] text-ink">
                   {group.meta.label}
                 </h2>
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 font-mono text-ui-xs font-bold tabular-nums text-slate-500">
+                <span className="rounded-full bg-white px-2.5 py-0.5 font-mono text-xs font-semibold tabular-nums text-muted ring-1 ring-ink/10">
                   {group.items.length}
                 </span>
                 {/* Carries the heading across the full width so each group
                     reads as its own band rather than a floating label. */}
-                <span aria-hidden="true" className="h-px flex-1 bg-slate-200" />
+                <span aria-hidden="true" className="h-px flex-1 bg-ink/10" />
               </div>
 
-              <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className={GRID}>
                 {group.items.map((service, index) => (
                   <ServiceCard
                     key={service.id}
@@ -190,7 +193,7 @@ export function ServiceGrid({
   }
 
   return (
-    <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={GRID}>
       {services.map((service, index) => (
         <ServiceCard
           key={service.id}

@@ -1,40 +1,32 @@
 // src/components/community/CommunitySidebar.tsx
 'use client'
 
-import { MapPin, MessageCircle, MessageSquare, TrendingUp, Users } from '@/components/ui/icons'
+import { ArrowRight, MapPin, MessageCircle, MessageSquare, TrendingUp, Users } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { btnClass } from '@/components/v2/ui'
 import type { CommunityStats } from '@/hooks/useCommunity'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import { POST_CATEGORY_META } from '@/lib/constants'
 import type { CommunityPost, EVClub } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 import { signUpHref } from './auth-links'
+import { CategoryTag } from './PostCard'
 
 export interface CommunitySidebarProps {
   clubs: EVClub[]
   topPosts: CommunityPost[]
-  /**
-   * Counted figures, passed in rather than written here.
-   *
-   * This panel used to hold its own const reading "5,000+ users / 1,200+ posts
-   * / 450+ trips / 18 cities" — a second, separately-invented copy of the four
-   * numbers the hero was also inventing, so the page could contradict itself as
-   * well as the data. Both read the same counts now.
-   */
+  /** Counted figures, the same ones the hero reads — never typed in here. */
   stats: CommunityStats
+  className?: string
 }
 
-const CLUB_TONES = [
-  'bg-blue-50 text-blue-600',
-  'bg-green-50 text-green-600',
-  'bg-purple-50 text-purple-600',
-  'bg-amber-50 text-amber-600',
-]
+/** .sbox: a white card in the sidebar. */
+const SBOX = 'rounded-[26px] border border-ink/10 bg-white px-5 pb-3 pt-5 shadow-e1'
+const SBOX_T = 'm-0 flex items-center gap-[9px] font-display text-xl leading-[1.1] text-ink'
 
-export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarProps) {
+export function CommunitySidebar({ clubs, topPosts, stats, className }: CommunitySidebarProps) {
   const { user, loading: sessionLoading } = useCurrentUser()
   const pathname = usePathname()
 
@@ -46,35 +38,43 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
   ]
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* ── What the board actually holds ──────────── */}
-      <div className="rounded-2xl bg-gradient-brand p-6 text-white">
-        <h2 className="mb-1 font-display text-lg font-bold text-white">The board so far</h2>
-        {/* white/75 rather than white/60: this panel sits on the brand
-            gradient's lighter cyan end, where the old value fell under 4.5:1. */}
-        {/* Counted from active memberships. This read "1,200 members across
-            every club" from seeded baseline totals nobody could source. */}
-        <p className="mb-5 text-ui-sm text-white/75">
+    <div className={cn('grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-1', className)}>
+      {/* ── The board so far (.board) ─────────────────────────── */}
+      <div
+        data-theme="dark"
+        className="relative isolate overflow-hidden rounded-[26px] bg-ink p-6 text-white sm:col-span-2 lg:col-span-1"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute -right-[180px] -top-[220px] -z-[1] h-[420px] w-[420px] rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.16),transparent_70%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-[1] bg-[repeating-linear-gradient(-45deg,transparent_0_22px,rgba(255,255,255,.03)_22px_23px)]"
+        />
+        <h2 className="m-0 font-display text-2xl leading-[1.1] text-white">The board so far</h2>
+        {/* Counted from active memberships, not seeded baseline totals. */}
+        <p className="mt-1.5 text-[13.5px] leading-[1.5] text-white/60">
           {stats.clubMembers === 0
             ? 'Every figure here is counted from the board itself.'
             : `${stats.clubMembers.toLocaleString('en-PK')} ${stats.clubMembers === 1 ? 'member' : 'members'} across the clubs.`}
         </p>
 
-        <dl className="grid grid-cols-2 gap-4">
+        <dl className="mt-[18px] grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
           {figures.map((figure) => {
             const Icon = figure.icon
-
             return (
-              <div key={figure.label} className="rounded-xl bg-white/[0.14] p-4 text-center">
-                <Icon size={18} className="mx-auto mb-2 text-white" aria-hidden="true" />
-                {/* dt first in the source, which is the order a definition list
-                    requires; flex-col-reverse puts the number on top where the
-                    eye wants it without lying about the structure. */}
-                <div className="flex flex-col-reverse">
-                  <dt className="mt-1 text-ui-xs uppercase tracking-[0.12em] text-white/75">
+              <div
+                key={figure.label}
+                className="grid justify-items-center gap-1 rounded-2xl border border-white/[0.09] bg-white/[0.05] px-2 pb-3.5 pt-4 transition-colors duration-300 hover:border-volt/35 hover:bg-white/[0.08]"
+              >
+                <Icon size={18} className="text-fog" aria-hidden="true" />
+                {/* dt first, as a definition list requires; reversed so the number sits on top. */}
+                <div className="flex flex-col-reverse items-center gap-1">
+                  <dt className="font-mono text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/50">
                     {figure.label}
                   </dt>
-                  <dd className="font-mono text-2xl font-bold tabular-nums text-white">
+                  <dd className="font-mono text-[30px] font-semibold leading-[1.05] tabular-nums text-white">
                     {figure.value}
                   </dd>
                 </div>
@@ -83,127 +83,106 @@ export function CommunitySidebar({ clubs, topPosts, stats }: CommunitySidebarPro
           })}
         </dl>
 
-        {/*
-          "Join free" is an invitation to people who have not joined.
-
-          It was shown to everybody, signed in or not, so a member already
-          reading the board was told to sign up for it — the same fault as the
-          post dialog, in a quieter place. Nothing is rendered while the
-          session is still being read, rather than the wrong thing for a
-          moment.
-        */}
-        {sessionLoading ? null : user ? (
-          <Link
-            href="/community/clubs"
-            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
-          >
+        {/* "Join" is an invitation to people who have not joined; nothing is
+            rendered while the session is still being read. */}
+        {sessionLoading ? (
+          <span aria-hidden="true" className="mt-3.5 block h-12" />
+        ) : user ? (
+          <Link href="/community/clubs" className={btnClass('volt', 'md', 'mt-3.5 w-full')}>
             Browse clubs
           </Link>
         ) : (
-          <Link
-            href={signUpHref(pathname)}
-            className="mt-5 flex h-11 w-full items-center justify-center rounded-xl bg-white font-bold text-plug-blue-600 transition-colors duration-150 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-blue-600"
-          >
+          <Link href={signUpHref(pathname)} className={btnClass('volt', 'md', 'mt-3.5 w-full')}>
             Join
           </Link>
         )}
       </div>
 
       {/* ── Trending ─────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
-        <h2 className="mb-5 flex items-center gap-2 font-bold text-slate-900">
-          <TrendingUp size={18} className="text-plug-blue-600" aria-hidden="true" />
+      <div className={SBOX}>
+        <h2 className={SBOX_T}>
+          <TrendingUp size={20} className="text-volt-ink" aria-hidden="true" />
           Trending
         </h2>
 
         {topPosts.length === 0 ? (
-          <p className="py-4 text-sm text-slate-400">No trending posts yet.</p>
+          <p className="py-4 text-sm text-muted">No trending posts yet.</p>
         ) : (
-          topPosts.map((post, index) => (
-            <Link
-              key={post.id}
-              href={`/community/post/${post.slug}`}
-              className={cn(
-                '-mx-2 flex items-start gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-slate-50',
-                index < topPosts.length - 1 && 'border-b border-slate-50',
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className="w-7 shrink-0 font-mono text-2xl font-bold text-slate-200"
-              >
-                {index + 1}
-              </span>
-
-              <span className="min-w-0">
-                <span className="line-clamp-2 text-sm font-semibold text-slate-900">
-                  {post.title}
-                </span>
-                <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+          <ol className="m-0 mt-2.5 list-none p-0">
+            {topPosts.map((post, index) => (
+              <li key={post.id} className={cn(index > 0 && 'border-t border-ink/10')}>
+                <Link
+                  href={`/community/post/${post.slug}`}
+                  className="group/tr grid grid-cols-[30px_1fr] gap-2.5 rounded-[14px] px-1.5 py-3 transition-colors duration-200 hover:bg-chalk"
+                >
                   <span
-                    className={cn(
-                      'rounded-full border px-2 py-0.5 text-[10px] font-semibold',
-                      POST_CATEGORY_META[post.category].badge,
-                    )}
+                    aria-hidden="true"
+                    className="font-display text-[26px] leading-none text-transparent transition-colors duration-300 [-webkit-text-stroke:1.2px_rgba(11,12,14,.3)] group-hover/tr:text-volt group-hover/tr:[-webkit-text-stroke-color:#0B0C0E]"
                   >
-                    {POST_CATEGORY_META[post.category].label}
+                    {index + 1}
                   </span>
-                  {post.commentCount} comments
-                </span>
-              </span>
-            </Link>
-          ))
+                  <span className="grid min-w-0 gap-1.5">
+                    <b className="line-clamp-2 text-sm font-semibold leading-[1.4] text-ink">{post.title}</b>
+                    <span className="flex flex-wrap items-center gap-2 font-mono text-xs font-medium text-muted">
+                      <CategoryTag category={post.category} className="h-[22px] px-2 font-sans text-[11px]" />
+                      {post.commentCount} {post.commentCount === 1 ? 'comment' : 'comments'}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
         )}
       </div>
 
       {/* ── Clubs ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="flex items-center gap-2 font-bold text-slate-900">
-            <Users size={18} className="text-plug-blue-600" aria-hidden="true" />
+      <div className={SBOX}>
+        <div className="flex items-center justify-between gap-2.5">
+          <h2 className={SBOX_T}>
+            <Users size={20} className="text-volt-ink" aria-hidden="true" />
             EV Clubs
           </h2>
-          <Link href="/community/clubs" className="text-sm text-plug-blue-600 hover:underline">
-            View all &rarr;
+          <Link
+            href="/community/clubs"
+            className="group/all inline-flex h-11 items-center gap-1.5 rounded-full pl-3 pr-1 text-[13px] font-semibold text-ink"
+          >
+            View all
+            <ArrowRight size={16} aria-hidden="true" className="transition-transform duration-300 ease-spring group-hover/all:translate-x-[3px]" />
           </Link>
         </div>
 
-        {clubs.length === 0 ? (
-          <p className="py-4 text-sm text-slate-400">No clubs are listed yet.</p>
-        ) : null}
-        {clubs.map((club, index) => (
-          <div
-            key={club.id}
-            className={cn(
-              'flex items-center justify-between gap-3 py-3',
-              index < clubs.length - 1 && 'border-b border-slate-50',
-            )}
-          >
-            <span className="flex min-w-0 items-center gap-3">
-              <span
-                className={cn(
-                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
-                  CLUB_TONES[index % CLUB_TONES.length],
-                )}
+        {clubs.length === 0 ? <p className="py-4 text-sm text-muted">No clubs are listed yet.</p> : null}
+        <ul className="m-0 mt-2 list-none p-0">
+          {clubs.map((club, index) => (
+            <li key={club.id} className={cn(index > 0 && 'border-t border-ink/10')}>
+              <Link
+                href={`/community/clubs/${club.id}`}
+                className="group/club grid grid-cols-[38px_1fr_auto] items-center gap-3 rounded-[14px] px-1.5 py-3 transition-colors duration-200 hover:bg-chalk"
               >
-                <Users size={18} aria-hidden="true" />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-semibold text-slate-900">
-                  {club.name}
+                <span
+                  aria-hidden="true"
+                  className="grid h-[38px] w-[38px] place-items-center rounded-xl bg-chalk text-ink transition-colors duration-200 group-hover/club:bg-volt"
+                >
+                  <Users size={19} />
                 </span>
-                <span className="mt-0.5 block text-xs text-slate-400">{club.city}</span>
-              </span>
-            </span>
-
-            <span className="shrink-0 text-right">
-              <span className="block text-sm font-bold text-slate-900">{club.memberCount}</span>
-              <span className="block text-xs text-slate-400">members</span>
-            </span>
-          </div>
-        ))}
+                <span className="grid min-w-0 gap-px">
+                  <b className="truncate text-sm font-semibold leading-[1.35] text-ink">{club.name}</b>
+                  <span className="font-mono text-xs font-medium text-muted">{club.city}</span>
+                  {club.description ? (
+                    <small className="mt-[3px] line-clamp-2 text-[12.5px] leading-[1.45] text-muted">
+                      {club.description}
+                    </small>
+                  ) : null}
+                </span>
+                <span className="grid justify-items-end leading-[1.2]">
+                  <b className="font-mono text-base font-semibold text-ink">{club.memberCount}</b>
+                  <span className="text-[11px] text-muted">{club.memberCount === 1 ? 'member' : 'members'}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-
     </div>
   )
 }

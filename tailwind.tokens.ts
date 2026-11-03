@@ -10,7 +10,7 @@
 //     slate-500  →  rgb(var(--c-neutral-500) / <alpha-value>)
 //
 // The plain CSS in globals.css reads the same properties, so a colour is
-// defined once, here, for both. The site has one theme, light; the pine bands
+// defined once, here, for both. The site has one theme, light; the ink bands
 // (the navbar, the heroes, the footer) are dark grounds inside it.
 
 import colors from 'tailwindcss/colors'
@@ -27,53 +27,56 @@ export function triple(value: string): string {
 /** A card: what bg-white means. */
 const SURFACE = '#FFFFFF'
 
-/* Green-tinted neutrals: the palette in tailwind.config.ts, stepped out so
-   every slate-* the site asks for has a value. */
+/* Warm neutrals, "night drive": paper, chalk and stone grounds, ink type.
+   50 is paper, 100 chalk, 200 stone, 400 fog, 500 the muted text (6.4:1 on
+   white), 900 ink. Every slate-* the site asks for lands on one of them. */
 const neutral: Steps = {
   0: SURFACE,
-  25: '#FAFBFA',
-  50: '#F1F4F3',
-  100: '#E9EEEC',
-  200: '#DCE3E0',
-  300: '#BAC2C0',
-  400: '#989FA1',
-  450: '#727C7A',
-  500: '#626D6B',
-  600: '#4A5A57',
-  700: '#345A53',
-  800: '#1A3F38',
-  900: '#0B332C',
-  950: '#05241E',
+  25: '#FCFBF9',
+  50: '#FAF9F6',
+  100: '#F2F0EA',
+  200: '#E6E3DA',
+  300: '#D2CFC5',
+  400: '#A3A7AE',
+  450: '#80848B',
+  500: '#5B5F66',
+  600: '#44484E',
+  700: '#2E3136',
+  800: '#1C1F24',
+  900: '#0B0C0E',
+  950: '#070809',
 }
 
-/* The action scale. 600 is the primary button, forest, and 700 its hover. The
-   pale steps are the tinted chips and badges. */
+/* The action scale. 600 is the primary button, ink, and 700 its hover. The
+   pale steps are the volt-tinted chips and badges; 400 and 500 are volt
+   itself, which is never text on a light ground. */
 const brand: Steps = {
-  50: '#EDFCF8',
-  100: '#C4F8EC',
-  200: '#A3EBDB',
-  300: '#6FDCC6',
-  400: '#3FD4BC',
-  500: '#26CDB2',
-  600: '#0B332C',
-  700: '#05241E',
-  800: '#041C17',
-  900: '#03140F',
-  950: '#020D0B',
+  50: '#F7FFE0',
+  100: '#F1FFD0',
+  200: '#DDF58C',
+  300: '#CBEF55',
+  400: '#D4FF3A',
+  500: '#D4FF3A',
+  600: '#0B0C0E',
+  700: '#2A2D33',
+  800: '#131519',
+  900: '#0B0C0E',
+  950: '#070809',
 }
 
-/* The accent scale, turquoise at 500. */
+/* The accent scale, volt at 400 and 500. 600 and 700 are volt ink, the
+   readable form of volt as text on light grounds (700 is 8.4:1 on white). */
 const accent: Steps = {
-  50: '#EDFCF8',
-  100: '#D8FBF2',
-  200: '#C4F8EC',
-  300: '#8EEEDA',
-  400: '#4FDCC4',
-  500: '#26CDB2',
-  600: '#159E89',
-  700: '#0F7A6A',
-  800: '#345A53',
-  900: '#0B332C',
+  50: '#F7FFE0',
+  100: '#F1FFD0',
+  200: '#E6FF9A',
+  300: '#DDFF6B',
+  400: '#D4FF3A',
+  500: '#D4FF3A',
+  600: '#556E00',
+  700: '#3F5200',
+  800: '#2E3B00',
+  900: '#1E2700',
 }
 
 /* Tailwind's own hues, used for status: red for offline and errors, amber for
@@ -129,23 +132,23 @@ function surfaceColor({ opacityValue }: { opacityValue?: string }): string {
    types only describe strings, so the function is passed through as one. */
 export const surface = surfaceColor as unknown as string
 
-/* Elevation, pine-tinted and soft: e1…e4, and the older names. */
+/* Elevation, ink-tinted and soft: e1…e4, and the older names. */
 const SHADOWS = {
-  e1: '0 1px 2px rgba(5,36,30,0.04), 0 2px 8px rgba(5,36,30,0.05)',
-  e2: '0 8px 16px rgba(5,36,30,0.06), 0 16px 32px rgba(5,36,30,0.08)',
-  e3: '0 8px 32px rgba(5,36,30,0.12)',
-  e4: '0 24px 64px rgba(5,36,30,0.20)',
-  card: '0 4px 6px rgba(5,36,30,0.05), 0 2px 4px rgba(5,36,30,0.04)',
-  'card-hover': '0 20px 25px rgba(5,36,30,0.08), 0 10px 10px rgba(5,36,30,0.04)',
-  modal: '0 25px 50px rgba(5,36,30,0.22)',
+  e1: '0 1px 2px rgba(11,12,14,0.06), 0 8px 24px -12px rgba(11,12,14,0.18)',
+  e2: '0 30px 60px -30px rgba(11,12,14,0.45), 0 12px 24px -12px rgba(11,12,14,0.2)',
+  e3: '0 24px 50px -24px rgba(11,12,14,0.35)',
+  e4: '0 40px 90px -40px rgba(11,12,14,0.45), 0 12px 30px -16px rgba(11,12,14,0.2)',
+  card: '0 1px 2px rgba(11,12,14,0.06), 0 8px 24px -12px rgba(11,12,14,0.18)',
+  'card-hover': '0 30px 60px -30px rgba(11,12,14,0.45), 0 12px 24px -12px rgba(11,12,14,0.2)',
+  modal: '0 40px 90px -30px rgba(11,12,14,0.55)',
 }
 
-/* The brand gradient: forest to mineral, under white type. */
-const GRADIENT_BRAND = 'linear-gradient(90deg, #0B332C, #345A53)'
+/* The brand gradient: ink to a lifted ink, under white type. */
+const GRADIENT_BRAND = 'linear-gradient(90deg, #0B0C0E, #2A2D33)'
 
-/* The pine bands. */
-const BANDS = { 700: '#345A53', 800: '#1A3F38', 900: '#0B332C', 950: '#05241E' }
-const HERO = 'linear-gradient(135deg, #0D1817 0%, #05241E 55%, #0B332C 100%)'
+/* The ink bands: ink, ink-2, ink-3 and a lifted step for hovers. */
+const BANDS = { 700: '#2A2D33', 800: '#1C1F24', 900: '#131519', 950: '#0B0C0E' }
+const HERO = '#0B0C0E'
 
 /** Tailwind colour values for the bands (`plug-navy-*`). */
 export const bandColors = Object.fromEntries(

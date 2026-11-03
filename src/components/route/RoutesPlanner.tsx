@@ -1,8 +1,7 @@
 // src/components/route/RoutesPlanner.tsx
 'use client'
 
-import { Bookmark, BookmarkCheck, ChevronLeft, Route as RouteIcon, Share2 } from '@/components/ui/icons'
-import Link from 'next/link'
+import { Bookmark, BookmarkCheck, Check, ChevronLeft, Route as RouteIcon, Share2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { MorphIcon } from '@/components/ui'
@@ -12,7 +11,7 @@ import { RouteHero } from '@/components/route/RouteHero'
 import { RouteHowItWorks } from '@/components/route/RouteHowItWorks'
 import { RouteInputForm } from '@/components/route/RouteInputForm'
 import { RouteResultsView } from '@/components/route/RouteResultsView'
-import { FaqSection } from '@/components/shared/FaqSection'
+import { Btn, Faq, Hl, PageHero, SectionHead, WRAP } from '@/components/v2/ui'
 import { useMyCar } from '@/hooks/useMyCar'
 import { useRoutePlanner } from '@/hooks/useRoutePlanner'
 import { saveMyRoute } from '@/lib/db/route-actions'
@@ -208,192 +207,170 @@ export function RoutesPlanner({ vehicles, stations }: RoutesPlannerProps) {
   )
 
   const showResults = planner.hasCalculated && planner.plannedRoute !== null
+  const route = planner.plannedRoute
+
+  /*
+    Saving is an account feature. Signed out, the button used to vanish, so
+    nobody knew it existed; now it is a link to sign in that brings the
+    visitor back to this same plan (it lives in the query string).
+  */
+  const saveControl = viewer ? (
+    <Btn
+      onClick={() => void handleSave()}
+      variant={planner.isSaved ? 'ink' : 'volt'}
+      size="sm"
+      aria-pressed={planner.isSaved}
+      className={planner.isSaved ? 'bg-ink text-volt hover:bg-ink hover:text-volt' : undefined}
+    >
+      <MorphIcon active={planner.isSaved} on={BookmarkCheck} off={Bookmark} size={16} />
+      {planner.isSaved ? 'Saved' : 'Save route'}
+    </Btn>
+  ) : viewer === null ? (
+    <Btn href={`/login?redirect=${encodeURIComponent(returnTo)}`} variant="volt" size="sm">
+      <Bookmark aria-hidden="true" />
+      Sign in to save this route
+    </Btn>
+  ) : null
 
   return (
     <>
-      <div className="min-h-below-nav bg-slate-50">
-        {showResults && planner.plannedRoute ? (
-          <>
-            <header className="rounded-b-[2rem] bg-plug-navy-950 pb-12 pt-10 sm:rounded-b-[2.5rem]">
-              <div className={STAGE}>
-                {/* Everything you can do to this result sits on one line: the
-                    way back on the left, what to do with it on the right. */}
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <HeaderAction onClick={planner.resetRoute}>
-                    <ChevronLeft size={15} aria-hidden="true" />
-                    Plan another route
-                  </HeaderAction>
+      {showResults && route ? (
+        <>
+          <PageHero
+            eyebrow="Your route"
+            title={
+              <>
+                {route.origin} <span className="text-white/35">→</span> <Hl dark>{route.destination}</Hl>
+              </>
+            }
+            sub={
+              <>
+                In {withArticle(vehicleName(route.vehicle))}, leaving with{' '}
+                <span className="font-mono text-white">{route.startPercent}%</span>
+              </>
+            }
+            actions={
+              <Btn onClick={planner.resetRoute} variant="ghostDark" size="sm">
+                <ChevronLeft aria-hidden="true" />
+                Plan another route
+              </Btn>
+            }
+          />
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/*
-                      Saving is an account feature. Signed out, the button
-                      used to vanish, so nobody knew it existed; now it is a
-                      link to sign in that brings the visitor back to this same
-                      plan (it lives in the query string).
-                    */}
-                    {viewer ? (
-                      <HeaderAction onClick={() => void handleSave()} active={planner.isSaved}>
-                        <MorphIcon
-                          active={planner.isSaved}
-                          on={BookmarkCheck}
-                          off={Bookmark}
-                          size={15}
-                        />
-                        {planner.isSaved ? 'Saved' : 'Save route'}
-                      </HeaderAction>
-                    ) : viewer === null ? (
-                      <Link
-                        href={`/login?redirect=${encodeURIComponent(returnTo)}`}
-                        className={HEADER_ACTION}
-                      >
-                        <Bookmark size={15} aria-hidden="true" />
-                        Sign in to save this route
-                      </Link>
-                    ) : null}
-
-                    <HeaderAction onClick={handleShare}>
-                      <Share2 size={15} aria-hidden="true" />
-                      {copied ? 'Link copied' : 'Share'}
-                    </HeaderAction>
-                  </div>
-                </div>
-
-                <h1 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] font-bold leading-tight tracking-tight text-white">
-                  {planner.plannedRoute.origin}{' '}
-                  <span className="text-plug-cyan-400">→</span>{' '}
-                  {planner.plannedRoute.destination}
-                </h1>
-                <p className="mt-2 text-ui text-white/60">
-                  In {withArticle(vehicleName(planner.plannedRoute.vehicle))}, leaving with{' '}
-                  {planner.plannedRoute.startPercent}%
+          {/* The plan and its map, lifted into the hero like the sheet on
+              the planning view. Not a <Lift>: that clips its overflow, which
+              would stop the map sticking beside a long plan. */}
+          <div data-theme="light" className="relative z-[3] -mt-[84px] sm:-mt-28">
+            <div className={WRAP}>
+              <RouteResultsView
+                trip={route}
+                stations={stations}
+                actions={
+                  <>
+                    {saveControl}
+                    <Btn onClick={handleShare} variant="ink" size="sm">
+                      {copied ? <Check aria-hidden="true" /> : <Share2 aria-hidden="true" />}
+                      {copied ? 'Link copied' : 'Copy link to this plan'}
+                    </Btn>
+                  </>
+                }
+              />
+              {saveError ? (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-2xl border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-center text-sm font-medium text-[#B42E05]"
+                >
+                  {saveError}
                 </p>
-                {saveError ? (
-                  <p role="alert" className="mt-3 text-ui-sm font-medium text-rose-300">{saveError}</p>
-                ) : null}
-              </div>
-            </header>
-
-            <div className={`${STAGE} py-10 lg:py-12`}>
-              <RouteResultsView trip={planner.plannedRoute} />
+              ) : null}
             </div>
-          </>
-        ) : (
-          <>
-            <RouteHero
-              vehicleCount={vehicles.length}
-              stationCount={stations.length}
-              cityCount={cityCount}
-            />
-
-            {/* ── Popular routes, lifted into the band ─────────────── */}
-            <div className={`relative z-10 ${CARD_LIFT} ${STAGE}`}>
-              <PopularRoutes onSelect={applyPopularRoute} />
-            </div>
-
-            {/* ── The planner ──────────────────────────────────────── */}
-            <div id="route-planner" ref={formRef} className={`${STAGE} scroll-mt-24 pt-14 lg:pt-16`}>
-              {/* Wider than a typical form column: at max-w-3xl it read as a
-                  narrow strip stranded under the full-width card above it. */}
-              <div className="mx-auto max-w-4xl">
-                <RouteInputForm
-                  origin={planner.origin}
-                  destination={planner.destination}
-                  vehicles={vehicles}
-                  selectedVehicle={planner.selectedVehicle}
-                  batteryPercent={planner.batteryPercent}
-                  isCalculating={planner.isCalculating}
-                  canCalculate={planner.canCalculate}
-                  onOriginChange={planner.setOrigin}
-                  onDestinationChange={planner.setDestination}
-                  onVehicleSelect={planner.setSelectedVehicle}
-                  onBatteryChange={planner.setBatteryPercent}
-                  onSwapLocations={planner.swapLocations}
-                  onCalculate={planner.calculateRoute}
-                />
-
-                {planner.error ? (
-                  <p
-                    role="alert"
-                    className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-center text-ui-sm font-medium text-rose-700"
-                  >
-                    {planner.error}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            {/* ── How it works ─────────────────────────────────────── */}
-            <div className={`${STAGE} py-16 lg:py-20`}>
-              <RouteHowItWorks />
-            </div>
-          </>
-        )}
-
-        {planner.isCalculating ? (
-          <div
-            role="status"
-            aria-live="polite"
-            className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 bg-white/[0.92] backdrop-blur-md"
-          >
-            <RouteIcon size={48} className="animate-pulse text-plug-blue-600" aria-hidden="true" />
-
-            <span className="h-1 w-[200px] overflow-hidden rounded-full bg-slate-100">
-              <span className="block h-full origin-left animate-grow-x rounded-full bg-gradient-accent [animation-duration:2s]" />
-            </span>
-
-            <span className="text-center">
-              <span className="block font-display text-lg font-bold text-slate-900">
-                Calculating your route…
-              </span>
-              <span className="mt-1 block text-ui-sm text-slate-500">
-                Finding the best charging stops for your EV
-              </span>
-            </span>
           </div>
-        ) : null}
-      </div>
+          <div data-theme="light" className="h-[clamp(64px,7vw,104px)] bg-chalk" />
+        </>
+      ) : (
+        <>
+          <RouteHero vehicleCount={vehicles.length} stationCount={stations.length} cityCount={cityCount} />
 
-      <FaqSection items={ROUTES_FAQS} tone="white" title="Common questions about planning" />
-    </>
-  )
-}
+          {/* ── Popular routes, lifted into the band ─────────────── */}
+          <PopularRoutes
+            onSelect={applyPopularRoute}
+            origin={planner.origin}
+            destination={planner.destination}
+          />
 
-/**
- * One control shape for the dark results header.
- *
- * Three buttons that do different things should still look like siblings; the
- * saved state is the only one that reads differently, and it earns that by
- * being a state rather than an action. Exported as a class string too, so the
- * sign-in link wears the same shape as the buttons beside it.
- */
-const HEADER_ACTION = cn(
-  'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950',
-  'border-white/15 bg-white/[0.06] text-white/75 hover:border-white/30 hover:text-white',
-)
+          {/* ── The planner ──────────────────────────────────────── */}
+          <section
+            data-theme="light"
+            aria-label="Plan your route"
+            className="bg-chalk pb-[clamp(56px,6vw,88px)] pt-[clamp(64px,7vw,104px)]"
+          >
+            <div id="route-planner" ref={formRef} className={cn(WRAP, 'scroll-mt-24')}>
+              <RouteInputForm
+                origin={planner.origin}
+                destination={planner.destination}
+                vehicles={vehicles}
+                selectedVehicle={planner.selectedVehicle}
+                batteryPercent={planner.batteryPercent}
+                isCalculating={planner.isCalculating}
+                canCalculate={planner.canCalculate}
+                onOriginChange={planner.setOrigin}
+                onDestinationChange={planner.setDestination}
+                onVehicleSelect={planner.setSelectedVehicle}
+                onBatteryChange={planner.setBatteryPercent}
+                onSwapLocations={planner.swapLocations}
+                onCalculate={planner.calculateRoute}
+              />
 
-function HeaderAction({
-  onClick,
-  active = false,
-  children,
-}: {
-  onClick: () => void
-  active?: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-ui-sm font-semibold transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950',
-        active
-          ? 'border-plug-cyan-400/60 bg-plug-cyan-400/15 text-plug-cyan-200'
-          : 'border-white/15 bg-white/[0.06] text-white/75 hover:border-white/30 hover:text-white',
+              {planner.error ? (
+                <p
+                  role="alert"
+                  className="mx-auto mt-4 max-w-[880px] rounded-2xl border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-center text-sm font-medium text-[#B42E05]"
+                >
+                  {planner.error}
+                </p>
+              ) : null}
+            </div>
+          </section>
+
+          {/* ── How it works ─────────────────────────────────────── */}
+          <RouteHowItWorks />
+        </>
       )}
-    >
-      {children}
-    </button>
+
+      {planner.isCalculating ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-6 bg-paper/[0.92] px-4 backdrop-blur-md"
+        >
+          <span className="grid h-16 w-16 place-items-center rounded-full bg-ink text-volt shadow-volt">
+            <RouteIcon size={28} className="animate-pulse" aria-hidden="true" />
+          </span>
+
+          <span className="h-1.5 w-[200px] overflow-hidden rounded-full bg-stone">
+            <span className="block h-full origin-left animate-grow-x rounded-full bg-volt [animation-duration:2s]" />
+          </span>
+
+          <span className="text-center">
+            <span className="block font-display text-2xl text-ink">Calculating your route…</span>
+            <span className="mt-1 block text-sm text-muted">Finding the best charging stops for your EV</span>
+          </span>
+        </div>
+      ) : null}
+
+      <section data-theme="light" aria-labelledby="routes-faq-heading" className="bg-paper py-[clamp(80px,9vw,128px)]">
+        <div className={WRAP}>
+          <SectionHead
+            eyebrow="FAQ"
+            title={
+              <span id="routes-faq-heading">
+                Common questions about <Hl>planning</Hl>
+              </span>
+            }
+          />
+          <Faq items={ROUTES_FAQS.map((item) => ({ q: item.question, a: item.answer }))} />
+        </div>
+      </section>
+    </>
   )
 }

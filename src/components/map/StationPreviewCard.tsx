@@ -1,14 +1,16 @@
 // src/components/map/StationPreviewCard.tsx
 'use client'
 
-import { CalendarCheck, MapPin, Navigation2, X } from '@/components/ui/icons'
+import { CalendarCheck, MapPin, Navigation2, Star, X } from '@/components/ui/icons'
 import Link from 'next/link'
 
-import { ConnectorBadgeGroup, PhotoFrame, RatingStars, SpeedBadge } from '@/components/ui'
+import { PhotoFrame } from '@/components/ui'
+import { ExampleBadge, btnClass } from '@/components/v2/ui'
+import { ConnectorTags, KwTag } from './StationList'
 import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
-import { cn, formatDistance, getMaxPower, getPortAvailability } from '@/lib/utils'
+import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 export interface StationPreviewCardProps {
   station: Station
@@ -44,23 +46,20 @@ export function StationPreviewCard({
   const example = isSampleListing(station.id)
 
   return (
-    <div className={cn('relative rounded-3xl bg-white p-5 shadow-e3', className)}>
-      <span
-        aria-hidden="true"
-        className="mx-auto mb-4 block h-1 w-10 rounded-full bg-slate-200 lg:hidden"
-      />
+    <div className={cn('relative rounded-[24px] border border-ink/10 bg-white p-4 shadow-e4 sm:p-5', className)}>
+      <span aria-hidden="true" className="mx-auto mb-3.5 block h-1 w-10 rounded-full bg-ink/15 lg:hidden" />
 
       <button
         type="button"
         onClick={onClose}
         aria-label="Close station preview"
-        className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+        className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
       >
-        <X size={16} />
+        <X size={18} />
       </button>
 
       <div className="flex items-start gap-4">
-        <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
+        <span className="relative block h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-stone">
           <PhotoFrame
             src={station.coverPhoto}
             alt={example ? `Example photo for ${station.name}` : `${station.name} charging station`}
@@ -69,78 +68,67 @@ export function StationPreviewCard({
         </span>
 
         <div className="min-w-0 flex-1 pr-8">
-          {example ? (
-            <span className="mb-1 inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
-              {SAMPLE_LISTING_LABEL}
-            </span>
-          ) : null}
-
-          <h2 className="mb-1 line-clamp-1 text-lg font-bold text-slate-900">
+          <h2 className="line-clamp-1 font-display text-[21px] leading-[1.1] text-ink">
             <Link
               href={`/station/${station.slug}`}
-              className="hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+              className="rounded-sm hover:underline hover:decoration-1 hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               {station.name}
             </Link>
           </h2>
 
-          <p className="mb-3 flex items-center gap-1 text-sm text-slate-500">
-            <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-            <span className="line-clamp-1">
-              {[station.address.area, station.address.city].filter(Boolean).join(', ')}
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-muted">
+            {station.reviewCount > 0 ? (
+              <span className="inline-flex items-center gap-1 font-mono font-semibold text-ink">
+                <Star size={13} className="fill-[#F5A524] text-[#F5A524]" aria-hidden="true" />
+                {formatRating(station.rating)}
+                <span className="font-normal text-muted">({station.reviewCount})</span>
+              </span>
+            ) : (
+              <span>No reviews yet</span>
+            )}
+            <span className="inline-flex min-w-0 items-center gap-1">
+              <MapPin size={13} className="shrink-0" aria-hidden="true" />
+              <span className="line-clamp-1">
+                {[station.address.area, station.address.city].filter(Boolean).join(', ')}
+              </span>
             </span>
             {distanceKm !== undefined ? (
-              <span className="ml-1 shrink-0 font-mono text-xs text-slate-400">
-                · {formatDistance(distanceKm)}
-              </span>
+              <span className="font-mono text-[12.5px] font-semibold text-ink">{formatDistance(distanceKm)}</span>
             ) : null}
           </p>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <ConnectorBadgeGroup connectors={station.connectors} max={3} size="sm" />
-            {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
-          </div>
-
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-            {station.reviewCount > 0 ? (
-              <RatingStars
-                rating={station.rating}
-                reviewCount={station.reviewCount}
-                size="sm"
-                showNumber
-                showCount
-              />
-            ) : (
-              <span className="text-xs text-slate-500">No reviews yet</span>
-            )}
+          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            {example ? <ExampleBadge>{SAMPLE_LISTING_LABEL}</ExampleBadge> : null}
             {ports > 0 ? (
-              <span className="font-mono text-xs text-slate-500">
+              <span className="font-mono text-[12.5px] font-medium text-muted">
                 {ports} {ports === 1 ? 'port' : 'ports'} installed
               </span>
             ) : null}
           </div>
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            <ConnectorTags station={station} max={3} />
+            {maxPower > 0 ? <KwTag kw={maxPower} /> : null}
+          </div>
         </div>
       </div>
 
-      <div className="mt-5 flex gap-3">
+      <div className="mt-4 flex gap-2">
         <button
           type="button"
           onClick={() => onNavigate(station)}
-          className="group/nav flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-plug-blue-600 font-semibold text-white transition-all duration-200 hover:bg-plug-blue-700 hover:shadow-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          className={btnClass('ink', 'sm', 'h-11 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2')}
         >
-          <Navigation2
-            size={16}
-            className="shrink-0 transition-transform duration-200 group-hover/nav:translate-x-[3px]"
-            aria-hidden="true"
-          />
           Navigate
+          <Navigation2 aria-hidden="true" />
         </button>
 
         <Link
           href={`/station/${station.slug}`}
-          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 font-medium text-slate-700 transition-colors duration-150 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          className={btnClass('ghost', 'sm', 'h-11 flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2')}
         >
-          View Details
+          View details
         </Link>
 
         {/* Signed-in only; renders nothing otherwise. */}
@@ -151,7 +139,7 @@ export function StationPreviewCard({
           it takes bookings, otherwise a note and nearby chargers that do. */}
       <Link
         href={`/station/${station.slug}#book`}
-        className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 font-semibold text-plug-blue-700 transition-colors duration-150 hover:bg-plug-blue-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+        className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-volt-edge bg-volt-tint text-sm font-semibold text-ink transition-colors duration-200 hover:bg-volt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
       >
         <CalendarCheck size={16} className="shrink-0" aria-hidden="true" />
         Book a slot

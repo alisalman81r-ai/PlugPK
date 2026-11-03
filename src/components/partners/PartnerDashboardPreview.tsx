@@ -1,158 +1,124 @@
 // src/components/partners/PartnerDashboardPreview.tsx
-import { LayoutDashboard, MapPin, TrendingUp, Zap } from '@/components/ui/icons'
+import { Eye, MapPin, MessageSquare, Navigation, Star, TrendingUp, Zap, type IconType } from '@/components/ui/icons'
 
-import { cn } from '@/lib/utils'
+import { ExampleBadge, Lift, LiftBody, LiftHead, Tag } from '@/components/v2/ui'
+
+import { PartnerTrendBars } from './PartnerTrendBars'
 
 /**
- * What a host actually sees once they are listed.
+ * What a host actually sees once they are listed — the paper sheet lifted into
+ * the hero (landing-v2's .pt-dash).
  *
- * This is the lifted card on Partner Up — the same role /map gives its filter
- * rail and /routes its popular routes: the concrete thing the page is about,
- * pulled up out of the dark band so it reads as the object rather than the next
- * section down.
- *
- * It used to be squeezed into the right half of the hero's two-column grid,
- * which at 1280px made a dashboard preview about 560px wide — a thumbnail of
- * itself, with four metric tiles stacked two-by-two and a chart the width of a
- * phone. On the full measure the four metrics fit one row, which is how a
- * dashboard is actually laid out, and the chart gets room to be a chart.
+ * On a page asking somebody to hand over their charger, the most persuasive
+ * thing is not the pitch but seeing exactly what they get back, before the
+ * plans and before the form.
  *
  * ── Every part of this is labelled as an example ──────────────────────
  *
  * The metric tiles carry no numbers and the chart has no axis, deliberately.
- * The alternative — inventing "1,284 views" and drawing a plausible curve — is
- * the single most tempting lie on this page and the hardest to walk back once a
- * real host compares it to their own dashboard. What is shown is the *shape* of
- * the page: which four things get counted, and that there is a trend line. The
- * four names are the ones BusinessDailyStat actually records, so this preview
- * cannot promise a metric the product does not collect.
+ * Inventing "1,284 views" and drawing a plausible curve is the most tempting
+ * lie on this page and the hardest to walk back once a real host compares it to
+ * their own dashboard. What is shown is the *shape* of the page: which four
+ * things get counted, and that there is a trend. The four names are the ones
+ * BusinessDailyStat actually records, so this preview cannot promise a metric
+ * the product does not collect.
  */
 
 /** The four figures the dashboard really counts. See BusinessDailyStat. */
-const METRICS = [
-  { label: 'Listing views', hint: 'per day, per visitor' },
-  { label: 'Directions taken', hint: 'drivers heading to you' },
-  { label: 'Reviews received', hint: 'from real visits' },
-  { label: 'Average rating', hint: 'out of five' },
+const METRICS: { label: string; hint: string; icon: IconType }[] = [
+  { label: 'Listing views', hint: 'per day, per visitor', icon: Eye },
+  { label: 'Directions taken', hint: 'drivers heading to you', icon: Navigation },
+  { label: 'Reviews received', hint: 'from real visits', icon: MessageSquare },
+  { label: 'Average rating', hint: 'out of five', icon: Star },
 ]
 
-/**
- * The trend line's shape.
- *
- * A rising sequence, because a listing that gets found does trend up — but no
- * axis, no numbers and no dates, so it stays an illustration of the chart
- * rather than a claim about anybody's traffic.
- */
-const TREND = [18, 26, 22, 34, 30, 44, 38, 52, 46, 60, 54, 68, 62, 78, 72, 88]
-
-export interface PartnerDashboardPreviewProps {
-  className?: string
-}
-
-export function PartnerDashboardPreview({ className }: PartnerDashboardPreviewProps) {
+export function PartnerDashboardPreview() {
   return (
-    <section
-      aria-labelledby="dashboard-preview-heading"
-      className={cn(
-        'overflow-hidden rounded-[2rem] border border-white/20 bg-white shadow-e4',
-        className,
-      )}
-    >
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6 lg:px-8 lg:py-5">
-        <div className="min-w-0">
-          <p className="mb-1.5 flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em] text-plug-blue-600">
-            <LayoutDashboard size={13} aria-hidden="true" />
-            Your dashboard
-          </p>
-          <h2
-            id="dashboard-preview-heading"
-            className="font-display text-2xl font-bold tracking-tight text-slate-900"
-          >
-            What you see once you are listed
-          </h2>
-          {/* The sample-figures note is plain text in the card's own subtitle
-              rather than a badge — still on the card itself, not in a caption
-              below it, so a screenshot of the preview keeps it. */}
-          <p className="mt-1.5 text-ui text-slate-500">
-            Counted from real visits to your page — not estimated, and not shared with
-            anyone else. The figures shown here are an example.
-          </p>
-        </div>
-      </div>
+    <Lift>
+      <section aria-labelledby="dashboard-preview-heading">
+        <LiftHead
+          className="items-start max-sm:flex-col max-sm:gap-2.5"
+          eyebrow="Your dashboard"
+          title={<span id="dashboard-preview-heading">What you see once you are listed</span>}
+          meta={
+            <span className="block max-w-[46rem]">
+              Counted from real visits to your page — not estimated, and not shared with anyone else.{' '}
+              <b>The figures shown here are an example.</b>
+            </span>
+          }
+          actions={<ExampleBadge className="max-sm:order-first">Example</ExampleBadge>}
+        />
 
-      <div className="grid grid-cols-1 gap-5 px-5 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8 lg:px-8 lg:py-8">
-        {/* ── The listing, and what gets counted about it ─────────── */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-            <span
-              aria-hidden="true"
-              className="flex h-11 w-11 shrink-0 items-center justify-center"
-            >
-              <Zap size={20} className="fill-plug-blue-600 text-plug-blue-600" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate font-display font-bold text-slate-900">Your listing</p>
-              <p className="mt-0.5 flex items-center gap-1.5 truncate text-ui-sm text-slate-500">
-                <MapPin size={12} aria-hidden="true" />
-                Your city · your chargers
-              </p>
-            </div>
-            <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-ui-xs font-bold text-emerald-700">
-              <span aria-hidden="true" className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 motion-safe:animate-ping" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <LiftBody className="grid gap-4 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div className="grid content-start gap-3">
+            {/* The listing itself */}
+            <div className="flex items-center gap-3.5 rounded-[20px] border border-ink/10 bg-white px-[18px] py-4">
+              <span aria-hidden="true" className="grid h-11 w-11 flex-none place-items-center rounded-[14px] bg-ink text-volt">
+                <Zap size={20} className="fill-current" />
               </span>
-              Live
-            </span>
+              <div className="grid min-w-0 flex-1 gap-[3px]">
+                <b className="truncate font-display text-xl font-normal leading-[1.1] text-ink pg-medium">Your listing</b>
+                <span className="inline-flex items-center gap-[5px] text-[13px] leading-snug text-muted">
+                  <MapPin size={14} aria-hidden="true" />
+                  Your city · your chargers
+                </span>
+              </div>
+              <span className="inline-flex h-7 flex-none items-center gap-[7px] rounded-full border border-[#BFEBD1] bg-[#E9F8EF] px-[11px] font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#157A45]">
+                <span aria-hidden="true" className="relative flex h-[7px] w-[7px]">
+                  <span className="absolute -inset-1 rounded-full border-[1.5px] border-[#1FA35B] motion-safe:animate-ping" />
+                  <span className="relative h-[7px] w-[7px] rounded-full bg-[#1FA35B]" />
+                </span>
+                Live
+              </span>
+            </div>
+
+            {/* What gets counted. An em dash where the number goes: it reads
+                as "this is where yours appears" and cannot be mistaken for data. */}
+            <dl className="grid grid-cols-2 gap-2.5 sm:gap-3">
+              {METRICS.map((metric) => (
+                <div
+                  key={metric.label}
+                  className="relative grid gap-0.5 rounded-[20px] border border-ink/10 bg-white p-3.5 transition-[translate,box-shadow] duration-[400ms] ease-out hover:-translate-y-[3px] hover:shadow-e1 sm:p-[18px]"
+                >
+                  <metric.icon size={18} aria-hidden="true" className="absolute right-4 top-4 text-fog" />
+                  <dd aria-hidden="true" className="mb-3 font-mono text-[26px] font-semibold leading-none text-fog sm:text-[32px]">
+                    —
+                  </dd>
+                  <dt className="text-sm font-semibold text-ink">{metric.label}</dt>
+                  <dd className="text-[12.5px] text-muted">{metric.hint}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
-            {METRICS.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-slate-200 bg-white p-4 transition-colors duration-200 hover:border-plug-blue-200"
-              >
-                {/* An em dash where the number goes, rather than a plausible
-                    figure. It reads as "this is where yours appears" and cannot
-                    be mistaken for data. */}
-                <dd
-                  aria-hidden="true"
-                  className="font-mono text-2xl font-bold leading-none text-slate-300"
-                >
-                  —
-                </dd>
-                <dt className="mt-2 text-ui-sm font-bold text-slate-900">{metric.label}</dt>
-                <p className="mt-0.5 text-ui-xs text-slate-400">{metric.hint}</p>
-              </div>
-            ))}
-          </dl>
-        </div>
+          {/* The trend */}
+          <figure className="m-0 grid min-h-full grid-rows-[auto_1fr_auto] gap-4 rounded-[22px] border border-ink/10 bg-white px-4 pb-[18px] pt-4 sm:px-[22px] sm:pt-5">
+            <figcaption className="grid gap-1">
+              <b className="inline-flex items-center gap-2 text-[15px] font-semibold text-ink">
+                <TrendingUp size={18} className="text-volt-ink" aria-hidden="true" />
+                Views per day, against the thirty before
+              </b>
+              <span className="text-[13px] text-muted">Illustration of the chart. No axis, because there is no data yet.</span>
+            </figcaption>
 
-        {/* ── The trend ───────────────────────────────────────────── */}
-        <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5">
-          <p className="flex items-center gap-2 text-ui-sm font-bold text-slate-900">
-            <TrendingUp size={15} className="text-plug-blue-600" aria-hidden="true" />
-            Views per day, against the thirty before
-          </p>
-          <p className="mt-1 text-ui-xs text-slate-400">
-            Illustration of the chart. No axis, because there is no data yet.
-          </p>
+            <PartnerTrendBars />
 
-          <span aria-hidden="true" className="mt-5 flex flex-1 items-end gap-1 sm:gap-1.5">
-            {TREND.map((height, index) => (
-              <span
-                key={index}
-                style={{ height: `${height}%` }}
-                className="min-h-[6px] flex-1 rounded-t bg-gradient-to-t from-plug-blue-200 to-plug-cyan-400"
-              />
-            ))}
-          </span>
-
-          {/* A baseline, so the bars sit on something. Without it they float in
-              the card and the chart reads as an unfinished sparkline. */}
-          <span aria-hidden="true" className="mt-1.5 block h-px w-full bg-slate-200" />
-        </div>
-      </div>
-    </section>
+            <div aria-hidden="true" className="flex flex-wrap items-center gap-x-[18px] gap-y-2 text-[12.5px] text-muted">
+              <span className="inline-flex items-center gap-[7px]">
+                <i className="h-3 w-3 rounded-[3px] bg-ink" />
+                This period
+              </span>
+              <span className="inline-flex items-center gap-[7px]">
+                <i className="h-3 w-3 rounded-[3px] bg-stone" />
+                The thirty before
+              </span>
+              <Tag mono className="text-muted sm:ml-auto">
+                Illustration
+              </Tag>
+            </div>
+          </figure>
+        </LiftBody>
+      </section>
+    </Lift>
   )
 }

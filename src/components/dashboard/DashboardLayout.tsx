@@ -1,15 +1,16 @@
 // src/components/dashboard/DashboardLayout.tsx
 'use client'
 
-import { Bookmark, Car, LayoutDashboard, Settings, type IconType } from '@/components/ui/icons'
+import { ArrowLeft, Bookmark, Car, LayoutDashboard, Settings, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { BackButton } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import {
+  DASHBOARD_NAV,
   DashboardSidebar,
+  ProfileCard,
   isDashboardItemActive,
   type DashboardStats,
 } from './DashboardSidebar'
@@ -24,7 +25,7 @@ export interface DashboardLayoutProps {
    * from a hook: this used to call useDashboard(), which returned MOCK_USER,
    * so every visitor saw the same fixture person's name and email.
    */
-  user: { name: string; email: string; city?: string; joinedAt: string }
+  user: { name: string; email: string; city?: string; joinedAt: string; avatar?: string | null }
   stats: DashboardStats
 }
 
@@ -42,45 +43,95 @@ const MOBILE_TABS: MobileTab[] = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
-export function DashboardLayout({
-  children,
-  title,
-  subtitle,
-  action,
-  user,
-  stats,
-}: DashboardLayoutProps) {
+/** The square back button beside the page title (.ahead__back). */
+function HeadBack() {
+  const router = useRouter()
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (window.history.length > 1) router.back()
+        else router.push('/dashboard')
+      }}
+      aria-label="Back"
+      title="Back"
+      className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-white text-ink transition-[border-color,translate] duration-300 ease-spring hover:-translate-x-0.5 hover:border-ink focus-visible:outline-none focus-visible:shadow-focus"
+    >
+      <ArrowLeft size={20} aria-hidden="true" />
+    </button>
+  )
+}
+
+/**
+ * The account shell (landing-v2's account-settings.html): a 290px side panel
+ * — the ink profile card, two counts, the section nav and sign out — and the
+ * page's own cards beside it, all on chalk.
+ *
+ * Below lg the side panel gives way to the profile card and a row of section
+ * chips on top, with the dashboard's four-tab bar at the foot of the screen.
+ */
+export function DashboardLayout({ children, title, subtitle, action, user, stats }: DashboardLayoutProps) {
   const pathname = usePathname()
 
   return (
-    <div className="flex min-h-below-nav bg-slate-50">
-      <div className="hidden lg:flex">
-        <DashboardSidebar user={user} stats={stats} />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white px-6 py-5 lg:px-8">
-          <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              {pathname !== '/dashboard' ? <BackButton fallbackHref="/dashboard" /> : null}
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-                {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
-              </div>
-            </div>
-          </div>
-          {action ? <div className="shrink-0">{action}</div> : null}
+    <div
+      data-theme="light"
+      className="min-h-below-nav bg-chalk px-[clamp(16px,3vw,48px)] pb-28 pt-6 sm:pt-8 lg:pb-24"
+    >
+      <div className="mx-auto grid max-w-[1320px] items-start gap-[clamp(20px,3vw,40px)] lg:grid-cols-[290px_minmax(0,1fr)]">
+        <div className="sticky top-[calc(var(--nav-h)+16px)] hidden lg:block">
+          <DashboardSidebar user={user} stats={stats} />
         </div>
 
-        {/* pb-24 on mobile clears the dashboard tab bar below. */}
-        <div className="scrollbar-hide p-6 pb-24 lg:p-8 lg:pb-8">{children}</div>
+        <div className="min-w-0">
+          {/* Phones and tablets: who is signed in, and every section a tap away. */}
+          <div className="mb-5 grid gap-3 lg:hidden">
+            <ProfileCard user={user} />
+            <nav aria-label="Dashboard sections" className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <ul className="flex w-max gap-2">
+                {DASHBOARD_NAV.map((item) => {
+                  const active = isDashboardItemActive(pathname, item)
+                  const Icon = item.icon
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? 'page' : undefined}
+                        className={cn(
+                          'inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-full border-[1.5px] px-4 text-sm font-medium transition-colors',
+                          active ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink hover:border-ink/30',
+                        )}
+                      >
+                        <Icon size={16} className={active ? 'text-volt' : 'text-muted'} aria-hidden="true" />
+                        {item.label}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+          </div>
+
+          <header className="mb-[22px] flex flex-wrap items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-[18px]">
+              {pathname !== '/dashboard' ? <HeadBack /> : null}
+              <div className="min-w-0">
+                <h1 className="m-0 font-display text-[clamp(32px,3.4vw,48px)] leading-none text-ink">{title}</h1>
+                {subtitle ? <p className="mt-2 text-muted">{subtitle}</p> : null}
+              </div>
+            </div>
+            {action ? <div className="shrink-0">{action}</div> : null}
+          </header>
+
+          {children}
+        </div>
       </div>
 
       {/* Dashboard-scoped mobile nav. The global BottomTabBar hides itself on
           /dashboard routes so the two can never stack. */}
       <nav
         aria-label="Dashboard"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-[20px] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-ink/10 bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-[20px] lg:hidden"
       >
         <div className="grid h-16 grid-cols-4">
           {MOBILE_TABS.map((tab) => {
@@ -92,29 +143,16 @@ export function DashboardLayout({
                 key={tab.href}
                 href={tab.href}
                 aria-current={active ? 'page' : undefined}
-                className="flex min-w-0 items-center justify-center px-0.5 transition-all duration-150"
+                className="flex min-w-0 items-center justify-center px-0.5"
               >
                 <span
                   className={cn(
-                    // Four tabs share a 360px screen, ~90px each: the active pill
-                    // fills its column rather than padding out past it. The grid
-                    // was six columns for four tabs, which left a blank third of
-                    // the bar on the right.
-                    'flex w-full max-w-[5.5rem] flex-col items-center justify-center gap-1 rounded-xl py-1.5 transition-all duration-150',
-                    active && 'bg-plug-blue-50',
+                    'flex w-full max-w-[5.5rem] flex-col items-center justify-center gap-1 rounded-2xl py-1.5 transition-colors duration-150',
+                    active && 'bg-ink',
                   )}
                 >
-                  <Icon
-                    size={22}
-                    className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-400')}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className={cn(
-                      'max-w-full truncate text-ui-xs font-medium',
-                      active ? 'text-plug-blue-600' : 'text-slate-500',
-                    )}
-                  >
+                  <Icon size={21} className={cn('shrink-0', active ? 'text-volt' : 'text-muted')} aria-hidden="true" />
+                  <span className={cn('max-w-full truncate text-xs font-medium', active ? 'text-white' : 'text-muted')}>
                     {tab.label}
                   </span>
                 </span>

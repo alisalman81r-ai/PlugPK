@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { PORTAL_COOKIE } from '@/components/business/portal-mode'
-import { EyebrowBadge } from '@/components/ui'
-import { Logo } from '@/components/ui/Logo'
+import { SHELL_BAR_LINK, SHELL_LEAD, SHELL_TITLE, ShellChip, StandaloneShell } from '@/components/auth/StandaloneShell'
+import { BtnArrow, Hl, btnClass } from '@/components/v2/ui'
 import { countPortalSides } from '@/lib/db/service-owner-queries'
 import { getCurrentUser } from '@/lib/db/session-actions'
+import { cn } from '@/lib/utils'
 
 /**
  * The business portal's front door — where every "Business portal" link goes.
@@ -55,50 +56,57 @@ export default async function BusinessPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-8 py-5">
-        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
-          <Logo tone="light" size="text-xl" />
+    <StandaloneShell
+      aside={
+        <Link href="/dashboard" className={SHELL_BAR_LINK}>
+          Your account
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
-        <Link href="/dashboard" className="text-sm text-plug-blue-600 hover:underline">
-          Your account &rarr;
-        </Link>
-      </header>
-
-      <div className="mx-auto max-w-[800px] px-4 py-12">
-        <div className="mb-10 text-center">
-          <EyebrowBadge color="blue">Business portal</EyebrowBadge>
-          <h1 className="mt-4 text-4xl font-black text-slate-900">What would you like to list?</h1>
-          <p className="mx-auto mt-3 max-w-xl text-lg text-slate-500">
-            Your portal opens here once you have a listing. Charger hosts and service providers both manage theirs
-            from this one portal — and if you do both, you can switch between them.
-          </p>
-        </div>
-
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {SIDES.map((side) => {
-            const Icon = side.icon
-            return (
-              <li key={side.title}>
-                <Link
-                  href={side.href}
-                  className="group flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-6 transition-all hover:border-plug-blue-300 hover:shadow-md"
-                >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-plug-blue-50 text-plug-blue-600">
-                    <Icon size={22} aria-hidden="true" />
-                  </span>
-                  <span className="mt-5 text-xl font-bold text-slate-900">{side.title}</span>
-                  <span className="mt-2 flex-1 text-ui-sm leading-relaxed text-slate-500">{side.body}</span>
-                  <span className="mt-6 inline-flex items-center gap-1.5 text-ui-sm font-semibold text-plug-blue-700">
-                    {side.cta}
-                    <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                  </span>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+      }
+    >
+      <div className="text-center">
+        <ShellChip>Business portal</ShellChip>
+        <h1 className={SHELL_TITLE}>
+          What would you like to <Hl>list?</Hl>
+        </h1>
+        <p className={SHELL_LEAD}>
+          Your portal opens here once you have a listing. Charger hosts and service providers both manage theirs
+          from this one portal — and if you do both, you can switch between them.
+        </p>
       </div>
-    </div>
+
+      <ul className="mt-14 grid gap-4 sm:grid-cols-2">
+        {SIDES.map((side, i) => {
+          const Icon = side.icon
+          const ink = i === 0
+          return (
+            <li key={side.title}>
+              <Link
+                href={side.href}
+                className={cn(
+                  'group/side relative flex h-full flex-col rounded-[28px] border p-7 transition-[translate,box-shadow] duration-[450ms] ease-out hover:-translate-y-1 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus',
+                  ink ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink shadow-e1',
+                )}
+              >
+                <span aria-hidden="true" className={cn('absolute right-[26px] top-[26px] font-mono text-[13px] font-semibold', ink ? 'text-white/35' : 'text-[#a7aab0]')}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <Icon
+                  size={40}
+                  aria-hidden="true"
+                  className={ink ? 'text-volt drop-shadow-[0_0_10px_rgba(212,255,58,.35)]' : 'text-ink'}
+                />
+                <span className="mt-[22px] font-display text-2xl leading-[1.15]">{side.title}</span>
+                <span className={cn('mt-2.5 flex-1 text-[15px] leading-[1.55]', ink ? 'text-fog' : 'text-muted')}>{side.body}</span>
+                <span className={cn(btnClass(ink ? 'volt' : 'ink', 'sm'), 'mt-7 self-start shadow-none')}>
+                  {side.cta}
+                  <BtnArrow />
+                </span>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </StandaloneShell>
   )
 }

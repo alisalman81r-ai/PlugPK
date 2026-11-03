@@ -4,21 +4,23 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 
+import { WRAP } from '@/components/v2/ui'
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import { useFavouriteCars } from '@/hooks/useFavouriteCars'
 import { filtersToParams, paramsToFilters, type CarFilterState, type CarSort } from '@/lib/cars'
 
+import { BrandMarquee } from './BrandMarquee'
 import { CarHero } from './CarHero'
 import { CarsBrowser } from './CarsBrowser'
 
 /**
  * The cars page, and the single owner of its state.
  *
- * The dark hero every directory opens with, holding the search and the brand,
+ * The ink hero with the search and the brand, the brand strip lifted into it,
  * then the toolbar and the grid. Search, filters and sort live here, because
- * the hero and the toolbar both write them, and are mirrored into the URL so a
- * filtered view
- * can be sent to somebody, bookmarked, or returned to with the back button:
+ * the hero, the strip and the toolbar all write them, and are mirrored into the
+ * URL so a filtered view can be sent to somebody, bookmarked, or returned to
+ * with the back button:
  *
  *   - Initial state is read from the query string, so a shared link opens the
  *     view it describes.
@@ -33,15 +35,9 @@ export interface CarsExplorerProps {
   brands: string[]
   categories: CarCategory[]
   connectors: ConnectorStandard[]
-  /**
-   * Rendered between the hero and the catalogue: the brand strip. A slot rather
-   * than an import, so it is built on the server from the whole catalogue and
-   * none of that work ships in the client bundle.
-   */
-  beforeResults?: React.ReactNode
 }
 
-export function CarsExplorer({ cars, brands, categories, connectors, beforeResults }: CarsExplorerProps) {
+export function CarsExplorer({ cars, brands, categories, connectors }: CarsExplorerProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -73,6 +69,18 @@ export function CarsExplorer({ cars, brands, categories, connectors, beforeResul
 
   const resultsRef = React.useRef<HTMLElement>(null)
   const heroBrand = filters.brands.length === 1 ? (filters.brands[0] ?? null) : null
+  const setBrand = (brand: string | null) =>
+    setFilters((current) => ({ ...current, brands: brand ? [brand] : [] }))
+
+  /* Down to the catalogue, unless it is already comfortably in view. */
+  const scrollToResults = () => {
+    const node = resultsRef.current
+    if (!node) return
+    const top = node.getBoundingClientRect().top
+    if (top > 80 && top < window.innerHeight * 0.5) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+  }
 
   /* The hero's figures describe the catalogue as a whole, not the filtered
      grid: the grid has its own live count right above it. */
@@ -91,18 +99,31 @@ export function CarsExplorer({ cars, brands, categories, connectors, beforeResul
         query={query}
         onQueryChange={setQuery}
         brand={heroBrand}
-        onBrandChange={(brand) => setFilters((current) => ({ ...current, brands: brand ? [brand] : [] }))}
+        onBrandChange={setBrand}
         brands={brands}
         stats={stats}
-        onSubmit={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        onSubmit={scrollToResults}
       />
 
-      {beforeResults}
+      <BrandMarquee
+        brands={brands}
+        active={heroBrand}
+        onSelect={(brand) => {
+          setBrand(brand)
+          scrollToResults()
+        }}
+      />
 
-      <section ref={resultsRef} className="scroll-mt-20 bg-slate-50 pb-20 pt-8 sm:pt-10">
-        <div className="container-plug">
+      <section
+        ref={resultsRef}
+        id="catalogue"
+        data-theme="light"
+        className="scroll-mt-[calc(var(--nav-h)+8px)] bg-chalk pb-[clamp(80px,9vw,128px)] pt-[clamp(48px,5vw,72px)]"
+      >
+        <div className={WRAP}>
           <CarsBrowser
             cars={cars}
+            brands={brands}
             categories={categories}
             connectors={connectors}
             query={query}
@@ -121,4 +142,3 @@ export function CarsExplorer({ cars, brands, categories, connectors, beforeResul
     </>
   )
 }
-

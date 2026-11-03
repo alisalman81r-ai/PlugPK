@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { ServiceCategoryTabs } from '@/components/services/ServiceCategoryTabs'
 import { ServiceFilters } from '@/components/services/ServiceFilters'
 import { ServiceGrid } from '@/components/services/ServiceGrid'
+import { WRAP } from '@/components/v2/ui'
 import { useServices } from '@/hooks/useServices'
 import type { EVService } from '@/lib/types'
 
@@ -61,7 +62,13 @@ export function ServicesDirectory({ services }: { services: EVService[] }) {
         categoryCount={categoryCount}
       />
 
-      <div id="service-results" className="container-plug">
+      <section
+        id="service-results"
+        aria-label="EV services"
+        data-theme="light"
+        className="pb-[clamp(64px,7vw,96px)] pt-8 sm:pt-12"
+      >
+        <div className={WRAP}>
         <ServiceFilters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -83,20 +90,16 @@ export function ServicesDirectory({ services }: { services: EVService[] }) {
           onClearFilters={clearFilters}
         />
 
+        {/* A status, not a button: there is no "load more" behind it. */}
         {!isLoading && filteredServices.length >= 6 ? (
-          <div className="mb-20 mt-12 text-center">
-            <button
-              type="button"
-              disabled
-              className="h-11 cursor-not-allowed rounded-xl border border-slate-200 bg-white px-6 text-sm font-semibold text-slate-400"
-            >
+          <div className="mt-9 text-center">
+            <small className="inline-flex h-9 items-center rounded-full border border-ink/10 bg-white px-4 font-mono text-[12.5px] font-medium text-muted">
               All {filteredServices.length} services shown
-            </button>
+            </small>
           </div>
-        ) : (
-          <div className="mb-20" />
-        )}
-      </div>
+        ) : null}
+        </div>
+      </section>
     </>
   )
 }

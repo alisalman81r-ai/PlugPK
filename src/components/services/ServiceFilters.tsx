@@ -4,8 +4,9 @@
 import { LayoutGrid, LayoutList, Loader2, Search } from '@/components/ui/icons'
 
 import { Skeleton } from '@/components/ui'
-import { PAKISTAN_CITIES } from '@/lib/constants'
 import { SearchSelect } from '@/components/ui/SearchSelect'
+import { SEG, segButtonClass } from '@/components/v2/ui'
+import { PAKISTAN_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 /**
@@ -28,8 +29,9 @@ export interface ServiceFiltersProps {
   onViewModeChange: (mode: ServiceViewMode) => void
 }
 
-const SELECT_CLASS =
-  'h-10 cursor-pointer rounded-xl border border-slate-200 bg-white px-3.5 text-ui font-medium text-slate-700 outline-none transition-colors hover:border-slate-300 focus-visible:border-plug-blue-500 focus-visible:ring-2 focus-visible:ring-plug-blue-500/40'
+/** The pill controls of landing-v2's toolbar (.sv-q, .sortsel). */
+const PILL =
+  'h-11 rounded-full border-[1.5px] border-ink/10 bg-white text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus'
 
 export function ServiceFilters({
   searchQuery,
@@ -44,29 +46,28 @@ export function ServiceFilters({
   onViewModeChange,
 }: ServiceFiltersProps) {
   return (
-    <div className="flex flex-col items-stretch gap-4 py-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="mb-[26px] flex flex-col items-stretch gap-4 xl:flex-row xl:items-center xl:justify-between">
       <div className="flex items-center gap-3">
         {isLoading ? (
           <>
             <Skeleton className="h-5 w-36" />
-            <Loader2 size={16} className="animate-spin text-plug-blue-600" aria-hidden="true" />
+            <Loader2 size={16} className="animate-spin text-ink" aria-hidden="true" />
           </>
         ) : (
           // The figure carries the weight, the noun stays quiet — it is the
-          // number that changes as you filter, so it is the part worth
-          // reading.
-          <p className="text-ui text-slate-500">
-            <span className="font-bold tabular-nums text-slate-900">{resultCount}</span>{' '}
+          // number that changes as you filter.
+          <p aria-live="polite" className="text-[15px] text-muted">
+            <b className="font-mono text-base font-semibold tabular-nums text-ink">{resultCount}</b>{' '}
             service{resultCount === 1 ? '' : 's'} found
           </p>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-0 flex-1 sm:flex-none">
+      <div className="grid grid-cols-2 items-center gap-2.5 sm:flex sm:flex-wrap">
+        <div className="relative col-span-2 flex items-center sm:min-w-[220px] sm:flex-1 xl:w-[230px] xl:flex-none">
           <Search
-            size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            size={17}
+            className="pointer-events-none absolute left-4 text-muted"
             aria-hidden="true"
           />
           <input
@@ -75,7 +76,8 @@ export function ServiceFilters({
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search services..."
             aria-label="Search services"
-            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-ui text-slate-700 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-300 focus-visible:border-plug-blue-500 focus-visible:ring-2 focus-visible:ring-plug-blue-500/40 sm:w-56 [&::-webkit-search-cancel-button]:appearance-none"
+            autoComplete="off"
+            className={cn(PILL, 'w-full pl-[42px] pr-4 font-normal placeholder:text-fog [&::-webkit-search-cancel-button]:appearance-none')}
           />
         </div>
 
@@ -87,35 +89,28 @@ export function ServiceFilters({
           ariaLabel="Filter by city"
           allLabel="All Cities"
           options={PAKISTAN_CITIES}
-              searchPlaceholder="Type a city"
-          className="w-full sm:w-44"
+          searchPlaceholder="Type a city"
+          className={cn(PILL, 'w-full px-[18px] focus-visible:ring-0 sm:w-44')}
         />
 
-        <select
-          value={sortBy}
-          onChange={(event) => onSortChange(event.target.value as ServiceSortOption)}
-          aria-label="Sort services"
-          className={SELECT_CLASS}
-        >
-          <option value="name">A to Z</option>
-          <option value="city">By city</option>
-        </select>
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={(event) => onSortChange(event.target.value as ServiceSortOption)}
+            aria-label="Sort services"
+            className={cn(PILL, 'w-full cursor-pointer appearance-none pl-[18px] pr-10 sm:w-auto')}
+          >
+            <option value="name">A to Z</option>
+            <option value="city">By city</option>
+          </select>
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute right-[18px] top-1/2 -mt-1.5 h-[7px] w-[7px] rotate-45 border-b-2 border-r-2 border-muted"
+          />
+        </div>
 
-        {/*
-          A labelled segmented control.
-
-          This was two 32px icon-only squares with a 4px gap and 4px of
-          padding around them — about a fifth of the control's area was dead
-          space that looks clickable and is not, and nothing said what either
-          icon did until you had already pressed one. Both buttons now carry
-          their word, fill the control's full height, and sit flush against
-          each other so there is no gap to miss through.
-        */}
-        <div
-          role="group"
-          aria-label="View mode"
-          className="flex h-10 shrink-0 items-center rounded-xl border border-slate-200 bg-white p-1"
-        >
+        {/* A labelled segmented control: both buttons carry their word. */}
+        <div role="group" aria-label="View mode" className={cn(SEG, 'col-span-2 flex sm:inline-flex')}>
           {(
             [
               { mode: 'grid', label: 'Grid', title: 'Grid view', Icon: LayoutGrid },
@@ -129,15 +124,12 @@ export function ServiceFilters({
               title={title}
               aria-label={title}
               aria-pressed={viewMode === mode}
-              className={cn(
-                'flex h-full items-center gap-1.5 rounded-lg px-3 text-ui-sm font-semibold transition-colors duration-150',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500',
-                viewMode === mode
-                  ? 'bg-plug-navy-900 text-white'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
+              className={segButtonClass(
+                viewMode === mode,
+                'flex h-10 flex-1 flex-row items-center justify-center gap-[7px] px-3.5 py-0 focus-visible:outline-none focus-visible:shadow-focus sm:h-9 sm:flex-none',
               )}
             >
-              <Icon size={15} className="shrink-0" aria-hidden="true" />
+              <Icon size={16} className="shrink-0" aria-hidden="true" />
               {label}
             </button>
           ))}

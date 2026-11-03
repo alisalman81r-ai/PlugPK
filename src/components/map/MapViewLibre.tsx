@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils'
 
 import { MAP_PALETTE, MAP_STYLE, brandMap } from './map-style'
 import { PAKISTAN_BOUNDS } from './pakistan-bounds'
+import { MapLoadingMark } from './MapLoadingMark'
 import { ClusterPin, StationPin, UserLocationPin, pinTitle } from './StationPin'
 
 export interface MapViewLibreProps {
@@ -131,9 +132,10 @@ function ControlButton({
       aria-pressed={active || undefined}
       title={label}
       className={cn(
-        'flex h-11 w-11 items-center justify-center text-slate-700 transition-colors duration-150',
-        'hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-plug-blue-500',
-        active && 'bg-plug-blue-600 text-plug-cyan-300 hover:bg-plug-blue-700',
+        'grid h-11 w-11 place-items-center rounded-[14px] border border-ink/10 font-mono text-xs font-bold shadow-e1',
+        'transition-[background-color,color,transform] duration-300 ease-spring active:scale-[0.92]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2',
+        active ? 'bg-ink text-volt' : 'bg-paper/95 text-ink hover:bg-ink hover:text-white',
       )}
     >
       {children}
@@ -382,21 +384,19 @@ export function MapViewLibre({
           over a live map is re-blurred on every frame. On a phone they sit
           under the locate button, clear of the station card that docks at the
           bottom; from md up, bottom-right. */}
-      <div className="absolute right-4 top-[8.75rem] z-10 flex flex-col gap-2 md:bottom-8 md:top-auto">
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-e3">
+      <div className="absolute bottom-10 right-3 z-10 grid gap-1.5 sm:right-4">
+        <div className="contents">
           <ControlButton label="Zoom in" onClick={() => mapRef.current?.zoomIn({ duration: 300 })}>
             <Plus size={18} aria-hidden="true" />
           </ControlButton>
-          <span aria-hidden="true" className="mx-2.5 h-px bg-slate-200" />
           <ControlButton label="Zoom out" onClick={() => mapRef.current?.zoomOut({ duration: 300 })}>
             <Minus size={18} aria-hidden="true" />
           </ControlButton>
         </div>
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-e3">
+        <div className="contents">
           <ControlButton label={tilted ? 'Flat view' : '3D view'} onClick={toggleTilt} active={tilted}>
-            <span className="text-ui-xs font-bold tracking-wide">3D</span>
+            <span>3D</span>
           </ControlButton>
-          <span aria-hidden="true" className="mx-2.5 h-px bg-slate-200" />
           <ControlButton label="Show all of Pakistan" onClick={resetView}>
             <Maximize2 size={17} aria-hidden="true" />
           </ControlButton>
@@ -404,12 +404,7 @@ export function MapViewLibre({
       </div>
 
       {!loaded ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center gap-3 rounded-full bg-white/95 px-4 py-2.5 shadow-e3">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-plug-blue-600 border-t-transparent motion-reduce:animate-none" />
-            <span className="text-ui-sm font-semibold text-slate-700">Loading the map…</span>
-          </div>
-        </div>
+        <MapLoadingMark />
       ) : null}
     </div>
   )

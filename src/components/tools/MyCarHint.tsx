@@ -26,11 +26,11 @@ export function MyCarHint({
 
   if (selected === car.slug) {
     return (
-      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ui-xs text-slate-500">
-        <Check size={13} className="shrink-0 text-emerald-600" aria-hidden="true" />
+      <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-muted">
+        <Check size={13} className="shrink-0 text-[#157A45]" aria-hidden="true" />
         <span>
           Your car, from{' '}
-          <Link href="/dashboard/vehicles" className="font-semibold text-plug-blue-600 hover:underline">
+          <Link href="/dashboard/vehicles" className="font-semibold text-ink underline decoration-volt-ink/50 underline-offset-[3px] hover:decoration-ink">
             your garage
           </Link>
         </span>
@@ -42,7 +42,7 @@ export function MyCarHint({
     <button
       type="button"
       onClick={() => onUse(car.slug)}
-      className="inline-flex items-center gap-1.5 rounded-full border border-plug-blue-200 bg-plug-blue-50 px-3 py-1 text-ui-xs font-semibold text-plug-blue-700 transition-colors hover:bg-plug-blue-100"
+      className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-volt-edge bg-volt-tint px-3 text-[13px] font-semibold text-volt-ink transition-colors hover:border-ink hover:bg-ink hover:text-volt"
     >
       <Car size={13} aria-hidden="true" />
       Use my car · {car.name}

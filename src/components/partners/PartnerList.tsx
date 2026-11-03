@@ -1,22 +1,24 @@
 // src/components/partners/PartnerList.tsx
 'use client'
 
-import { Globe, MapPin, Phone, Search, Zap } from '@/components/ui/icons'
+import { ChevronDown, Globe, MapPin, Phone, Plug, Search, Star, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { RatingStars } from '@/components/ui'
+import { Btn, BtnArrow, SEG, Tag, btnClass, segButtonClass } from '@/components/v2/ui'
 import type { PartnerRow } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
-import { FACE, FRAME } from '@/components/shared/frame'
-
 /**
- * The partner directory, with its filters.
+ * The partner directory, with its filters (landing-v2's .pt-dir).
  *
  * Filtering runs in the browser over the full list: it searches name, city and
  * address together, and a round trip per keystroke to do that would be slower
  * than this list is long for any realistic number of partners.
+ *
+ * The records are the same ones the map draws, so every card leads to a real
+ * station page; an "invitation" tile closes the grid rather than padding it out
+ * with invented logos.
  */
 
 export interface PartnerListProps {
@@ -42,13 +44,14 @@ const SORTS: { key: SortKey; label: string }[] = [
 ]
 
 const SELECT =
-  'h-11 cursor-pointer rounded-xl border-[1.5px] border-slate-200 bg-white px-3 text-ui-sm text-slate-700 outline-none transition-colors focus:border-plug-blue-500'
+  'h-12 w-full cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-4 pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus:border-ink focus:shadow-focus'
 
 export function PartnerList({ partners }: PartnerListProps) {
   const [query, setQuery] = React.useState('')
   const [city, setCity] = React.useState('all')
   const [type, setType] = React.useState('all')
   const [sortBy, setSortBy] = React.useState<SortKey>('newest')
+  const searchRef = React.useRef<HTMLInputElement>(null)
 
   // Only the cities and types actually represented. A dropdown offering
   // filters that return nothing is worse than a shorter dropdown.
@@ -56,10 +59,7 @@ export function PartnerList({ partners }: PartnerListProps) {
     () => [...new Set(partners.map((partner) => partner.city))].sort((a, b) => a.localeCompare(b)),
     [partners],
   )
-  const types = React.useMemo(
-    () => [...new Set(partners.map((partner) => partner.type))],
-    [partners],
-  )
+  const types = React.useMemo(() => [...new Set(partners.map((partner) => partner.type))], [partners])
 
   const visible = React.useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -67,10 +67,7 @@ export function PartnerList({ partners }: PartnerListProps) {
     let rows = partners
     if (needle) {
       rows = rows.filter((partner) =>
-        [partner.name, partner.city, partner.address ?? '']
-          .join(' ')
-          .toLowerCase()
-          .includes(needle),
+        [partner.name, partner.city, partner.address ?? ''].join(' ').toLowerCase().includes(needle),
       )
     }
     if (city !== 'all') rows = rows.filter((partner) => partner.city === city)
@@ -89,177 +86,222 @@ export function PartnerList({ partners }: PartnerListProps) {
     })
   }, [partners, query, city, type, sortBy])
 
+  const reset = () => {
+    setQuery('')
+    setCity('all')
+    setType('all')
+    searchRef.current?.focus()
+  }
+
+  const total = partners.length
+
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center gap-3">
-        <div className="relative min-w-[220px] flex-1">
+      <div className="mb-[18px] flex flex-wrap items-center gap-2.5">
+        <label className="relative min-w-0 flex-[1_1_320px]">
+          <span className="sr-only">Search partners</span>
           <Search
-            size={16}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            size={18}
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"
             aria-hidden="true"
           />
           <input
+            ref={searchRef}
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search partners by name, city or address"
-            aria-label="Search partners"
-            className="h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white pl-11 pr-4 text-ui text-slate-900 outline-none transition-colors focus:border-plug-blue-500"
+            autoComplete="off"
+            className="h-12 w-full rounded-full border-[1.5px] border-ink/10 bg-white pl-11 pr-4 text-[15px] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-fog focus:border-ink focus:shadow-focus"
           />
+        </label>
+
+        <div className="relative flex-1 md:flex-none">
+          <select value={city} onChange={(event) => setCity(event.target.value)} aria-label="Filter by city" className={SELECT}>
+            <option value="all">All cities</option>
+            {cities.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink" />
         </div>
 
-        <select
-          value={city}
-          onChange={(event) => setCity(event.target.value)}
-          aria-label="Filter by city"
-          className={SELECT}
-        >
-          <option value="all">All cities</option>
-          {cities.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+        <div className="relative flex-1 md:flex-none">
+          <select value={type} onChange={(event) => setType(event.target.value)} aria-label="Filter by type" className={SELECT}>
+            <option value="all">All types</option>
+            {types.map((option) => (
+              <option key={option} value={option}>
+                {TYPE_LABEL[option] ?? option}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink" />
+        </div>
 
-        <select
-          value={type}
-          onChange={(event) => setType(event.target.value)}
-          aria-label="Filter by type"
-          className={SELECT}
-        >
-          <option value="all">All types</option>
-          {types.map((option) => (
-            <option key={option} value={option}>
-              {TYPE_LABEL[option] ?? option}
-            </option>
+        <div role="group" aria-label="Sort" className={cn(SEG, 'w-full rounded-full md:w-auto')}>
+          {SORTS.map((sort) => (
+            <button
+              key={sort.key}
+              type="button"
+              onClick={() => setSortBy(sort.key)}
+              aria-pressed={sortBy === sort.key}
+              className={segButtonClass(sortBy === sort.key, 'inline-flex min-h-10 flex-1 items-center justify-center rounded-full px-4 py-0 md:flex-none')}
+            >
+              {sort.label}
+            </button>
           ))}
-        </select>
-
-        {SORTS.map((sort) => (
-          <button
-            key={sort.key}
-            type="button"
-            onClick={() => setSortBy(sort.key)}
-            aria-pressed={sortBy === sort.key}
-            className={cn(
-              'h-11 rounded-xl px-4 text-ui-sm font-medium transition-colors',
-              sortBy === sort.key
-                ? 'bg-plug-navy-900 text-white'
-                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
-            )}
-          >
-            {sort.label}
-          </button>
-        ))}
+        </div>
       </div>
 
-      {visible.length !== partners.length ? (
-        <p className="mb-4 text-ui-sm text-slate-500">
-          Showing {visible.length} of {partners.length}.
-        </p>
-      ) : null}
+      <p aria-live="polite" className="mb-[18px] text-sm text-muted">
+        <b className="font-mono font-semibold text-ink">{visible.length}</b> of {total} listing{total === 1 ? '' : 's'} shown
+      </p>
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center text-ui-sm text-slate-500">
-          No partner matches that.
-        </p>
+        <div className="grid justify-items-center gap-2 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper px-6 py-14 text-center">
+          <span aria-hidden="true" className="mb-1.5 grid h-14 w-14 place-items-center rounded-full bg-stone text-ink">
+            <Search size={22} />
+          </span>
+          <h3 className="font-display text-[26px] font-normal leading-[1.1] text-ink pg-medium">No places match that search</h3>
+          <p className="max-w-[30rem] text-muted">
+            There {total === 1 ? 'is 1 listing' : `are ${total} listings`} so far. Clear the filters to see{' '}
+            {total === 1 ? 'it' : 'them'}, or list your own charger.
+          </p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2.5">
+            <Btn variant="ink" size="sm" onClick={reset}>
+              Clear filters
+            </Btn>
+            <Btn href="/business/signup" variant="ghost" size="sm">
+              List your charger
+            </Btn>
+          </div>
+        </div>
       ) : (
-        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {visible.map((partner) => (
-            <li key={partner.id} className={FRAME}>
-              <Link href={`/station/${partner.id}`} className={cn(FACE, 'overflow-hidden')}>
-                {/* The host's charger photo when there is one, otherwise a
-                    slim brand strip: filling the same 160px with empty grey
-                    made every unphotographed partner look like a broken card
-                    rather than a plain one.
-
-                    A plain img rather than next/image — user uploads of
-                    unknown dimensions, and the optimizer earns little on a
-                    card thumbnail. */}
-                {partner.photo ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src={partner.photo} alt="" className="h-40 w-full object-cover" />
-                ) : (
-                  <span aria-hidden="true" className="block h-1.5 w-full bg-gradient-accent" />
-                )}
-
-                <div className="flex flex-1 flex-col p-5">
-                  <div className="mb-2 flex items-start justify-between gap-2">
-                    <h2 className="font-bold text-slate-900 group-hover:text-plug-blue-700">
-                      {partner.name}
-                    </h2>
-                    <span className="shrink-0 rounded-full bg-plug-blue-50 px-2.5 py-1 text-ui-xs font-semibold text-plug-blue-700">
-                      {TYPE_LABEL[partner.type] ?? partner.type}
-                    </span>
-                  </div>
-
-                  <p className="mb-3 inline-flex items-start gap-1.5 text-ui-sm text-slate-500">
-                    <MapPin
-                      size={13}
-                      className="mt-0.5 shrink-0 text-slate-400"
-                      aria-hidden="true"
-                    />
-                    <span className="line-clamp-2">
-                      {partner.address ? `${partner.address}, ` : ''}
-                      {partner.city}
-                    </span>
-                  </p>
-
-                  {partner.description ? (
-                    <p className="mb-3 line-clamp-2 text-ui-sm text-slate-600">
-                      {partner.description}
-                    </p>
-                  ) : null}
-
-                  <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2 py-1 font-mono text-ui-xs font-semibold text-slate-700">
-                      <Zap size={11} aria-hidden="true" />
-                      {partner.maxPowerKw > 0 ? `${partner.maxPowerKw}kW` : 'Power not stated'}
-                    </span>
-                    {partner.connectorTypes.map((connector) => (
-                      <span
-                        key={connector}
-                        className="rounded-lg border border-slate-200 px-2 py-1 font-mono text-ui-xs text-slate-600"
-                      >
-                        {connector}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p className="mb-4 text-ui-sm text-slate-500">
-                    {partner.chargerCount} charger{partner.chargerCount === 1 ? '' : 's'} ·{' '}
-                    {partner.portCount} port{partner.portCount === 1 ? '' : 's'}
-                  </p>
-
-                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                    {partner.reviewCount > 0 ? (
-                      <RatingStars
-                        rating={partner.rating}
-                        reviewCount={partner.reviewCount}
-                        size="sm"
-                        showNumber
-                        showCount
-                      />
-                    ) : (
-                      <span className="text-ui-xs text-slate-400">No reviews yet</span>
-                    )}
-
-                    <span className="flex items-center gap-2">
-                      {partner.phone ? (
-                        <Phone size={13} className="text-slate-300" aria-label="Phone listed" />
-                      ) : null}
-                      {partner.website ? (
-                        <Globe size={13} className="text-slate-300" aria-label="Website listed" />
-                      ) : null}
-                    </span>
-                  </div>
-                </div>
-              </Link>
+            <li key={partner.id}>
+              <PartnerCard partner={partner} />
             </li>
           ))}
+
+          {/* The invitation beside real listings. */}
+          <li>
+            <Link
+              href="/business/signup"
+              className="group grid h-full content-center justify-items-start gap-2.5 rounded-[28px] border-[1.5px] border-dashed border-ink/20 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] p-7 transition-[border-color,translate] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink focus-visible:outline-none focus-visible:shadow-focus"
+            >
+              <span aria-hidden="true" className="mb-2 grid h-[52px] w-[52px] place-items-center rounded-2xl bg-ink text-volt">
+                <Plug size={24} />
+              </span>
+              <h3 className="font-display text-2xl font-normal leading-[1.1] text-ink pg-medium">Your charger here</h3>
+              <p className="text-[14.5px] leading-[1.55] text-muted">
+                Applying takes a few minutes and costs nothing. Every listing is checked by a person before it goes
+                live.
+              </p>
+              <span className={btnClass('ink', 'sm', 'mt-2')}>
+                List your charger
+                <BtnArrow />
+              </span>
+            </Link>
+          </li>
         </ul>
       )}
     </div>
+  )
+}
+
+function PartnerCard({ partner }: { partner: PartnerRow }) {
+  const typeLabel = TYPE_LABEL[partner.type] ?? partner.type
+
+  return (
+    <Link
+      href={`/station/${partner.id}`}
+      className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-ink/10 bg-white shadow-e1 transition-[translate,box-shadow,border-color] duration-[450ms] ease-out hover:-translate-y-1 hover:border-ink/20 hover:shadow-e2 focus-visible:outline-none focus-visible:shadow-focus"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-stone">
+        {/* A plain img rather than next/image — user uploads of unknown
+            dimensions, and the optimizer earns little on a card thumbnail. */}
+        {partner.photo ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={partner.photo}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-[scale] duration-[800ms] ease-out group-hover:scale-105"
+          />
+        ) : (
+          // No photo: a plain stone panel, not a stock image standing in for
+          // somebody's charger.
+          <span
+            aria-hidden="true"
+            className="grid h-full w-full place-items-center bg-[radial-gradient(rgba(11,12,14,.08)_1px,transparent_1.5px)] bg-[length:14px_14px] text-ink/25"
+          >
+            <Zap size={40} className="fill-current" />
+          </span>
+        )}
+        <Tag className="absolute left-3 top-3 border-transparent bg-white/90 backdrop-blur">{typeLabel}</Tag>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-2.5 px-5 pb-5 pt-[18px]">
+        <div className="flex items-start justify-between gap-2.5">
+          <h3 className="font-display text-2xl font-normal leading-[1.1] text-ink pg-medium">{partner.name}</h3>
+          <span className="flex flex-none items-center gap-1.5">
+            {partner.phone ? (
+              <span role="img" aria-label="Phone listed" className="grid h-8 w-8 place-items-center rounded-full bg-chalk text-ink">
+                <Phone size={15} aria-hidden="true" />
+              </span>
+            ) : null}
+            {partner.website ? (
+              <span role="img" aria-label="Website listed" className="grid h-8 w-8 place-items-center rounded-full bg-chalk text-ink">
+                <Globe size={15} aria-hidden="true" />
+              </span>
+            ) : null}
+          </span>
+        </div>
+
+        <p className="flex items-start gap-1.5 text-sm text-muted">
+          <MapPin size={15} className="mt-0.5 flex-none" aria-hidden="true" />
+          <span className="line-clamp-2">
+            {partner.address ? `${partner.address}, ` : ''}
+            {partner.city}
+          </span>
+        </p>
+
+        {partner.description ? <p className="line-clamp-2 text-sm text-muted">{partner.description}</p> : null}
+
+        <div className="flex flex-wrap gap-1.5">
+          <span className="inline-flex h-[26px] items-center gap-1 rounded-full bg-ink px-2.5 font-mono text-xs font-semibold text-white">
+            <Zap size={12} className="fill-current text-volt" aria-hidden="true" />
+            {partner.maxPowerKw > 0 ? `${partner.maxPowerKw} kW` : 'Power not stated'}
+          </span>
+          {partner.connectorTypes.map((connector) => (
+            <Tag key={connector}>{connector}</Tag>
+          ))}
+        </div>
+
+        <div className="mt-auto flex items-center justify-between gap-2.5 border-t border-ink/10 pt-3 text-[13px] text-muted">
+          <span className="font-mono text-[12.5px] text-ink">
+            {partner.chargerCount} charger{partner.chargerCount === 1 ? '' : 's'} · {partner.portCount} port
+            {partner.portCount === 1 ? '' : 's'}
+          </span>
+          {partner.reviewCount > 0 ? (
+            <span className="inline-flex items-center gap-1">
+              <Star size={13} className="fill-current text-ink" aria-hidden="true" />
+              <span className="sr-only">Rated</span>
+              <span className="font-mono text-ink">{partner.rating.toFixed(1)}</span>
+              <span className="sr-only">out of 5</span>
+              <span>
+                · {partner.reviewCount} review{partner.reviewCount === 1 ? '' : 's'}
+              </span>
+            </span>
+          ) : (
+            <span>No reviews yet</span>
+          )}
+        </div>
+      </div>
+
+    </Link>
   )
 }

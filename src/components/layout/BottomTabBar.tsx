@@ -81,7 +81,8 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
+      data-theme="dark"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-ink pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <div className="grid h-16 grid-cols-5">
         {[...TABS, account].map((tab) => {
@@ -99,18 +100,18 @@ export function BottomTabBar() {
               <span
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-1.5 transition-all duration-150',
-                  active && 'bg-plug-blue-50',
+                  active && 'bg-white/[0.06]',
                 )}
               >
                 <Icon
                   size={22}
-                  className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-500')}
+                  className={cn('shrink-0', active ? 'text-volt' : 'text-white/45')}
                   aria-hidden="true"
                 />
                 <span
                   className={cn(
                     'text-[10px] font-medium',
-                    active ? 'text-plug-blue-600' : 'text-slate-500',
+                    active ? 'text-volt' : 'text-white/45',
                   )}
                 >
                   {tab.label}

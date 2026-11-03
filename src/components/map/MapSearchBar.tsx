@@ -141,12 +141,13 @@ export function MapSearchBar({
     <div ref={containerRef} className={cn('relative w-full', className)}>
       <div
         className={cn(
-          'flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 transition-shadow duration-200',
-          'shadow-e3',
-          'focus-within:border-plug-blue-300 focus-within:shadow-[0_4px_24px_rgba(11,51,44,0.15)]',
+          // The landing-v2 .psearch: a white pill with a volt glow beneath it.
+          'flex h-[58px] items-center gap-2 rounded-full bg-white pl-[18px] pr-[7px] text-left transition-shadow duration-200 sm:h-16 sm:pl-5',
+          'shadow-[0_24px_60px_-24px_rgba(212,255,58,.35)]',
+          'focus-within:shadow-[0_0_0_4px_rgba(212,255,58,.35),0_24px_60px_-24px_rgba(212,255,58,.35)]',
         )}
       >
-        <Search size={20} className="shrink-0 text-slate-400" aria-hidden="true" />
+        <Search size={20} className="mr-1 shrink-0 text-[#8a8e95]" aria-hidden="true" />
 
         <input
           type="text"
@@ -161,19 +162,19 @@ export function MapSearchBar({
           aria-controls={LISTBOX_ID}
           aria-autocomplete="list"
           aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
-          className="min-w-0 flex-1 border-none bg-transparent text-ui text-slate-900 outline-none placeholder:text-slate-400"
+          className="h-full min-w-0 flex-1 border-none bg-transparent text-base text-ink outline-none placeholder:text-[#8a8e95]"
         />
 
         {value.length > 0 ? (
           <>
-            <span className="mr-2 shrink-0 rounded-full bg-plug-blue-50 px-2.5 py-1 text-xs font-medium text-plug-blue-600">
+            <span className="shrink-0 rounded-full bg-chalk px-2.5 py-1 font-mono text-[11px] font-semibold text-muted">
               {resultCount} found
             </span>
             <button
               type="button"
               onClick={onClear}
               aria-label="Clear search"
-              className="shrink-0 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition-colors duration-200 hover:bg-chalk hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               <X size={18} />
             </button>
@@ -195,10 +196,10 @@ export function MapSearchBar({
           id={LISTBOX_ID}
           role="listbox"
           aria-label="Station suggestions"
-          className="absolute inset-x-0 top-full z-50 mt-2 max-h-[320px] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-e3"
+          className="absolute inset-x-0 top-full z-50 mt-2 max-h-[320px] overflow-y-auto rounded-[22px] border border-ink/10 bg-white p-1.5 text-left shadow-e4"
         >
           {suggestions.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-slate-400">
+            <p className="px-4 py-8 text-center text-sm text-muted">
               Nothing matches &ldquo;{query}&rdquo;
             </p>
           ) : (
@@ -217,11 +218,11 @@ export function MapSearchBar({
                   onClick={() => select(station)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={cn(
-                    'flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors duration-100',
-                    isActive ? 'bg-plug-blue-50' : 'hover:bg-slate-50',
+                    'flex w-full items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors duration-100',
+                    isActive ? 'bg-chalk' : 'hover:bg-paper',
                   )}
                 >
-                  <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-lg">
+                  <span className="relative block h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-stone">
                     <PhotoFrame
                       src={station.coverPhoto}
                       alt=""
@@ -230,17 +231,17 @@ export function MapSearchBar({
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-slate-900">
+                    <span className="block truncate text-sm font-semibold text-ink">
                       {before}
-                      {match ? <mark className="bg-transparent text-plug-blue-600">{match}</mark> : null}
+                      {match ? <mark className="rounded-[4px] bg-volt-tint px-0.5 text-ink">{match}</mark> : null}
                       {after}
                     </span>
                     <span className="mt-0.5 flex items-center gap-2">
-                      <span className="truncate text-xs text-slate-400">
+                      <span className="truncate text-xs text-muted">
                         {station.address.area}, {station.address.city}
                       </span>
                       {maxPower > 0 ? (
-                        <span className="shrink-0 font-mono text-xs text-slate-400">
+                        <span className="shrink-0 font-mono text-xs text-muted">
                           {maxPower} kW
                         </span>
                       ) : null}

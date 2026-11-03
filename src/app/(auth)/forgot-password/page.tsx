@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AuthHeader } from '@/components/auth/AuthHeader'
 import { authHref } from '@/components/auth/auth-links'
 import { PasswordResetFlow } from '@/components/auth/PasswordResetFlow'
+import { ABACK, ALINK } from '@/components/auth/form-ui'
 import { ArrowLeft } from '@/components/ui/icons'
 import { SITE_CONFIG } from '@/lib/constants'
 import { safeRedirect } from '@/lib/safe-redirect'
@@ -33,17 +34,17 @@ export default function ForgotPasswordPage({ searchParams }: PageProps) {
     <>
       <AuthHeader
         eyebrow="Password help"
-        title="Reset your password"
+        title="Reset your password."
         subtitle="We'll email you a 6-digit code. Enter it with a new password and you're back in."
       />
 
       <PasswordResetFlow initialEmail={email} />
 
-      <p className="mt-6 text-ui-xs leading-relaxed text-slate-500">
+      <p className="mt-6 text-[13px] leading-relaxed text-muted">
         No access to that inbox any more? Write to{' '}
         <a
           href={`mailto:${SITE_CONFIG.email}?subject=${encodeURIComponent('Password reset')}`}
-          className="font-semibold text-plug-blue-600 hover:underline"
+          className={ALINK}
         >
           {SITE_CONFIG.email}
         </a>{' '}
@@ -52,9 +53,9 @@ export default function ForgotPasswordPage({ searchParams }: PageProps) {
 
       <Link
         href={authHref('/login', redirect)}
-        className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-ui-sm font-medium text-slate-500 hover:text-slate-800"
+        className={`${ABACK} mt-4`}
       >
-        <ArrowLeft size={14} aria-hidden="true" />
+        <ArrowLeft size={16} aria-hidden="true" />
         Back to sign in
       </Link>
     </>

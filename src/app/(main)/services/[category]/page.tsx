@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 
 import { ListYourServiceBand } from '@/components/services/ListYourServiceBand'
 import { ServiceCard } from '@/components/services/ServiceCard'
+import { Btn, HeroStats, Hl, Lift, LiftBody, LiftHead, PageHero, chipClass } from '@/components/v2/ui'
 import { SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import { getServicesByCategory } from '@/lib/db/service-queries'
 import type { ServiceCategory } from '@/lib/types'
@@ -49,60 +50,87 @@ export default async function ServiceCategoryPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-hero py-16">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:28px_28px]"
-        />
-
-        <div className="container-plug relative z-10">
+      <PageHero
+        eyebrow={
           <Link
             href="/services"
-            className="group/back mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-white/70 transition-colors hover:text-white"
+            className="group/back inline-flex min-h-[44px] items-center gap-1.5 text-volt transition-colors hover:text-white"
           >
             <ChevronLeft
-              size={16}
+              size={14}
               className="transition-transform duration-150 group-hover/back:-translate-x-0.5"
               aria-hidden="true"
             />
-            All Services
+            All services
           </Link>
+        }
+        title={
+          <>
+            EV <Hl dark>{meta.label.toLowerCase()}</Hl>
+          </>
+        }
+        sub={`${meta.description}. Every listing is checked by a person before it appears.`}
+      >
+        <HeroStats
+          items={[
+            { value: services.length, label: services.length === 1 ? 'Service' : 'Services' },
+            { value: cities.size, label: cities.size === 1 ? 'City' : 'Cities' },
+          ]}
+        />
+      </PageHero>
 
-          <span className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10">
-            <Icon size={32} className="text-white" aria-hidden="true" />
-          </span>
+      <Lift id="directory">
+        <LiftHead
+          eyebrow={
+            <span className="inline-flex items-center gap-2">
+              <Icon size={14} aria-hidden="true" />
+              {meta.label}
+            </span>
+          }
+          title={
+            <>
+              <span className="font-mono font-semibold">{services.length}</span>{' '}
+              {services.length === 1 ? 'provider' : 'providers'} listed
+            </>
+          }
+          actions={
+            <nav aria-label="Other categories" className="flex flex-wrap gap-2">
+              {SERVICE_CATEGORY_KEYS.filter((key) => key !== category).map((key) => (
+                <Link key={key} href={`/services/${key}`} className={chipClass(false, 'h-11')}>
+                  {SERVICE_CATEGORY_META[key].label}
+                </Link>
+              ))}
+            </nav>
+          }
+        />
+        <LiftBody className="bg-chalk/60">
+          {services.length === 0 ? (
+            <div className="grid justify-items-center gap-1.5 rounded-[28px] border-[1.5px] border-dashed border-ink/15 bg-paper bg-[radial-gradient(rgba(11,12,14,.07)_1px,transparent_1.5px)] bg-[length:14px_14px] px-6 py-16 text-center">
+              <span className="mb-2.5 grid h-16 w-16 place-items-center rounded-full bg-ink text-volt">
+                <Icon size={26} aria-hidden="true" />
+              </span>
+              <p className="font-display text-[26px] leading-[1.1] text-ink">No providers listed here yet.</p>
+              <p className="mb-3.5 text-[15px] text-muted">Run one? Apply below and our team will check it.</p>
+              <Btn href="/services" variant="ink" size="sm">
+                Browse all services
+              </Btn>
+            </div>
+          ) : (
+            <div className="grid items-stretch gap-4 sm:grid-cols-2 sm:gap-[22px] xl:grid-cols-3">
+              {services.map((service, index) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  animationDelay={index * 80}
+                  className="animate-fade-up opacity-0"
+                />
+              ))}
+            </div>
+          )}
+        </LiftBody>
+      </Lift>
 
-          <h1 className="mb-3 text-4xl font-black text-white">{meta.label}</h1>
-
-          <p className="mb-4 max-w-xl text-lg text-white/60">{meta.description}</p>
-
-          <p className="font-mono text-sm text-white/50">
-            {services.length} service{services.length === 1 ? '' : 's'} · {cities.size} cit
-            {cities.size === 1 ? 'y' : 'ies'}
-          </p>
-        </div>
-      </section>
-
-      <div className="container-plug py-16">
-        {services.length === 0 ? (
-          <p className="py-16 text-center text-slate-500">
-            No providers listed in this category yet.
-          </p>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service, index) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                animationDelay={index * 80}
-                className="animate-fade-up opacity-0"
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <ListYourServiceBand category={SERVICE_CATEGORY_META[category].label} className="pb-16" />
+      <ListYourServiceBand category={SERVICE_CATEGORY_META[category].label} className="pt-[clamp(56px,6vw,88px)]" />
     </>
   )
 }

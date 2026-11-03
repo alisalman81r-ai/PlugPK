@@ -1,16 +1,22 @@
 // src/components/dashboard/AccountSettings.tsx
 'use client'
 
-import { AlertTriangle, Check, ImagePlus, Loader2, LogOut, Trash2 } from '@/components/ui/icons'
+import { AlertTriangle, Check, Eye, EyeOff, ImagePlus, Loader2, Lock, LogOut, Monitor, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { Avatar, Button } from '@/components/ui'
+import { MorphIcon } from '@/components/ui'
+import { ActionButton, ALINK } from '@/components/auth/form-ui'
+import { FIELD_EYE, PasswordStrength } from '@/components/auth/SignUpForm'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { changeMyPassword, signOutEverywhere, updateMyProfile } from '@/lib/db/session-actions'
 import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
 import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
+import { cn } from '@/lib/utils'
+
+import { AIN, ALABEL, PANEL, PANEL_H2, PANEL_SUB } from './dash-ui'
+import { DashAvatar } from './DashboardSidebar'
 
 /**
  * Editing the signed-in account.
@@ -161,6 +167,8 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
     }
   }
 
+  const [showCurrent, setShowCurrent] = React.useState(false)
+  const [showNew, setShowNew] = React.useState(false)
   const [confirmEverywhere, setConfirmEverywhere] = React.useState(false)
   const [signingOut, setSigningOut] = React.useState(false)
   const [signOutError, setSignOutError] = React.useState<string | null>(null)
@@ -186,16 +194,13 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-[18px]">
       {mustChange ? (
-        <div
-          role="alert"
-          className="flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4"
-        >
-          <AlertTriangle size={20} className="mt-0.5 shrink-0 text-amber-700" aria-hidden="true" />
+        <div role="alert" className="flex items-start gap-3 rounded-[22px] border border-[#FFE0A3] bg-[#FFF6E3] px-5 py-4">
+          <AlertTriangle size={20} className="mt-0.5 shrink-0 text-[#8A5300]" aria-hidden="true" />
           <div>
-            <p className="font-semibold text-amber-900">Choose a new password to finish signing in</p>
-            <p className="mt-1 text-ui-sm text-amber-900/80">
+            <p className="font-semibold text-[#5c3800]">Choose a new password to finish signing in</p>
+            <p className="mt-1 text-sm text-[#8A5300]">
               You signed in with a temporary password from the plugpk team. Enter it as your current
               password below and pick one of your own.
             </p>
@@ -203,27 +208,32 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
         </div>
       ) : null}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="mb-5 text-lg font-bold text-slate-900">Profile</h2>
+      <section className={PANEL}>
+        <h2 className={PANEL_H2}>Profile</h2>
 
         {/* ── Picture ──────────────────────────────────────── */}
-        <div className="mb-6 flex flex-wrap items-center gap-5 border-b border-slate-100 pb-6">
-          <Avatar name={user.name} src={avatar} size={80} />
+        <div className="my-6 flex flex-col items-start gap-[22px] border-b border-ink/10 pb-6 sm:flex-row sm:items-center">
+          <span className="shrink-0 rounded-full shadow-[0_0_0_6px_#F4F3EE]">
+            <DashAvatar name={user.name} src={avatar} size={96} />
+          </span>
 
           <div>
-            <p id="photo" className="scroll-mt-28 text-sm font-semibold text-slate-900">Profile picture</p>
-            <p className="mt-0.5 text-ui-sm text-slate-500">
+            <p id="photo" className="scroll-mt-28 text-[15px] font-semibold text-ink">Profile picture</p>
+            <p className="mb-3.5 mt-1.5 max-w-[520px] text-sm text-muted">
               {ACCEPTED_FORMATS}, up to 4MB. Shown in the header and on your account.
             </p>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <label
-                className={`inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl border-[1.5px] border-slate-200 px-4 text-ui-sm font-medium text-slate-700 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50 ${avatarBusy ? 'pointer-events-none opacity-60' : ''}`}
+                className={cn(
+                  'inline-flex h-[42px] cursor-pointer items-center gap-2 rounded-full border border-ink/10 bg-white px-[18px] text-sm font-semibold text-ink transition-colors focus-within:shadow-focus hover:border-ink',
+                  avatarBusy && 'pointer-events-none opacity-60',
+                )}
               >
                 {avatarBusy ? (
-                  <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
                 ) : (
-                  <ImagePlus size={15} aria-hidden="true" />
+                  <ImagePlus size={16} aria-hidden="true" />
                 )}
                 {avatarBusy ? 'Working…' : avatar ? 'Change picture' : 'Add a picture'}
                 <input
@@ -240,93 +250,105 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
               </label>
 
               {avatar ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
+                  type="button"
                   onClick={() => void clearAvatar()}
                   disabled={avatarBusy}
-                  leftIcon={<Trash2 size={15} aria-hidden="true" />}
-                  className="h-10 hover:bg-red-50 hover:text-red-600"
+                  className="inline-flex h-[42px] items-center gap-2 rounded-full px-[18px] text-sm font-semibold text-ink transition-colors hover:bg-ember/[0.08] hover:text-[#b23b0d] disabled:opacity-45"
                 >
+                  <Trash2 size={16} aria-hidden="true" />
                   Remove
-                </Button>
+                </button>
               ) : null}
             </div>
 
             {avatarError ? (
-              <p role="alert" className="mt-3 text-ui-sm text-red-600">
+              <p role="alert" className="mt-3 text-[13px] text-[#c2410c]">
                 {avatarError}
               </p>
             ) : null}
           </div>
         </div>
 
-        <div className="mb-5">
-          <label htmlFor="acct-name" className="mb-2 block text-sm font-semibold text-slate-700">
-            Name
-          </label>
-          <input
-            id="acct-name"
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            className={FIELD}
-          />
-        </div>
+        <div className="grid gap-x-5 gap-y-[18px] sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="acct-name" className={ALABEL}>
+              Name
+            </label>
+            <input
+              id="acct-name"
+              type="text"
+              value={name}
+              autoComplete="name"
+              onChange={(event) => setName(event.target.value)}
+              className={AIN}
+            />
+          </div>
 
-        <div className="mb-5 grid gap-5 sm:grid-cols-2">
           <div>
-            <label id="city" htmlFor="acct-city" className="mb-2 block scroll-mt-28 text-sm font-semibold text-slate-700">
+            <label id="city" htmlFor="acct-city" className={cn(ALABEL, 'scroll-mt-28')}>
               City
             </label>
-            <select
-              id="acct-city"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              className={`${FIELD} cursor-pointer`}
-            >
-              <option value="">Not set</option>
-              {PAKISTAN_CITIES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="acct-city"
+                value={city}
+                onChange={(event) => setCity(event.target.value)}
+                className={cn(AIN, 'cursor-pointer pr-11')}
+              >
+                <option value="">Not set</option>
+                {PAKISTAN_CITIES.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-[18px] top-[21px] h-2 w-2 rotate-45 border-b-2 border-r-2 border-fog"
+              />
+            </div>
           </div>
 
           {/* Cars are managed on their own page now — several per account,
               one primary — so this only shows the primary and links there. */}
           {showVehicle ? (
-          <div>
-            <p className="mb-2 block text-sm font-semibold text-slate-700">Vehicle</p>
-            <div className="flex h-12 items-center justify-between gap-3 rounded-xl bg-slate-50 px-4">
-              <span className="truncate text-ui text-slate-700">{user.vehicle ?? 'None saved'}</span>
-              <Link href="/dashboard/vehicles" className="shrink-0 text-ui-sm font-semibold text-plug-blue-600 hover:underline">
-                {user.vehicle ? 'Change' : 'Add'}
-              </Link>
+            <div>
+              <p className={ALABEL}>Vehicle</p>
+              <div className="flex h-[54px] items-center justify-between gap-3 rounded-[14px] bg-chalk px-4">
+                <span className={cn('truncate', user.vehicle ? 'text-ink' : 'text-muted')}>{user.vehicle ?? 'None saved'}</span>
+                <Link href="/dashboard/vehicles" className={cn(ALINK, 'shrink-0 py-1.5')}>
+                  {user.vehicle ? 'Change' : 'Add'}
+                </Link>
+              </div>
             </div>
-          </div>
           ) : null}
-        </div>
 
-        {/* Read-only: this is the address the account signs in with, and the
-            link to any business listing behind it. */}
-        <div className="rounded-xl bg-slate-50 px-4 py-3">
-          <p className="text-ui-xs font-semibold uppercase tracking-wide text-slate-500">Email</p>
-          <p className="mt-0.5 text-ui-sm text-slate-700">{user.email}</p>
+          {/* Read-only: this is the address the account signs in with, and the
+              link to any business listing behind it. */}
+          <div className="sm:col-span-2">
+            <p className={ALABEL}>Email</p>
+            <div className="flex h-[54px] items-center justify-between gap-3 rounded-[14px] bg-chalk px-4 text-ink">
+              <span className="truncate">{user.email}</span>
+              <Lock size={18} className="shrink-0 text-fog" aria-hidden="true" />
+            </div>
+            <p className="mt-2 text-[13px] text-muted">Your email is how you sign in, so it can&apos;t be changed here.</p>
+          </div>
         </div>
 
         {profileError ? (
-          <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{profileError}</p>
+          <p role="alert" className="mt-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">
+            {profileError}
+          </p>
         ) : null}
 
-        <div className="mt-6 flex items-center gap-3">
-          <Button onClick={handleProfile} isLoading={savingProfile}>
+        <div className="mt-6 flex flex-wrap items-center gap-4">
+          <ActionButton onClick={handleProfile} isLoading={savingProfile} className="max-sm:w-full">
             {savingProfile ? 'Saving' : 'Save profile'}
-          </Button>
+          </ActionButton>
           {profileSaved ? (
-            <span className="inline-flex items-center gap-1.5 text-ui-sm font-semibold text-green-600">
-              <Check size={16} aria-hidden="true" />
+            <span role="status" className="inline-flex items-center gap-2 text-sm text-[#12804a]">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#35D07F]" />
               Saved
             </span>
           ) : null}
@@ -336,62 +358,92 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
       <section
         ref={passwordSection}
         id="password"
-        className={`scroll-mt-28 rounded-2xl border bg-white p-6 ${mustChange ? 'border-amber-300 ring-2 ring-amber-200' : 'border-slate-200'}`}
+        className={cn(PANEL, 'scroll-mt-28', mustChange && 'border-[#FFB020] ring-4 ring-[#FFE0A3]')}
       >
-        <h2 className="mb-1 text-lg font-bold text-slate-900">Password</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
+        <h2 className={PANEL_H2}>Password</h2>
+        <p className={PANEL_SUB}>
           Your current password is required, so a browser left unlocked cannot be used to lock you
           out of your own account.
         </p>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="mt-[22px] grid gap-x-5 gap-y-[18px] sm:grid-cols-2">
           <div>
-            <label htmlFor="acct-current" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label htmlFor="acct-current" className={ALABEL}>
               Current password
             </label>
-            <input
-              ref={currentPasswordField}
-              id="acct-current"
-              type="password"
-              autoComplete="current-password"
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              className={FIELD}
-            />
+            <div className="relative">
+              <input
+                ref={currentPasswordField}
+                id="acct-current"
+                type={showCurrent ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
+                className={cn(AIN, 'pr-14 [&::-ms-reveal]:hidden')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent((shown) => !shown)}
+                aria-label={showCurrent ? 'Hide password' : 'Show password'}
+                aria-pressed={showCurrent}
+                className={FIELD_EYE}
+              >
+                <MorphIcon active={showCurrent} on={EyeOff} off={Eye} size={20} />
+              </button>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="acct-new" className="mb-2 block text-sm font-semibold text-slate-700">
+            <label htmlFor="acct-new" className={ALABEL}>
               New password
             </label>
-            <input
-              id="acct-new"
-              type="password"
-              autoComplete="new-password"
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-              placeholder="At least 8 characters"
-              className={FIELD}
-            />
+            <div className="relative">
+              <input
+                id="acct-new"
+                type={showNew ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                placeholder="At least 8 characters"
+                className={cn(AIN, 'pr-14 [&::-ms-reveal]:hidden')}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew((shown) => !shown)}
+                aria-label={showNew ? 'Hide password' : 'Show password'}
+                aria-pressed={showNew}
+                className={FIELD_EYE}
+              >
+                <MorphIcon active={showNew} on={EyeOff} off={Eye} size={20} />
+              </button>
+            </div>
+            {newPassword ? (
+              <PasswordStrength password={newPassword} />
+            ) : (
+              <p className="mt-2 text-[13px] text-muted">At least 8 characters.</p>
+            )}
           </div>
         </div>
 
         {passwordError ? (
-          <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{passwordError}</p>
+          <p role="alert" className="mt-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">
+            {passwordError}
+          </p>
         ) : null}
 
-        <div className="mt-6 flex items-center gap-3">
-          <Button
+        <div className="mt-6 flex flex-wrap items-center gap-4">
+          <ActionButton
             onClick={handlePassword}
             isLoading={savingPassword}
             disabled={!currentPassword || !newPassword}
+            className="disabled:opacity-45 max-sm:w-full"
           >
             {savingPassword ? 'Changing' : 'Change password'}
-          </Button>
+          </ActionButton>
         </div>
 
         {passwordSaved ? (
-          <p role="status" className="mt-4 flex items-start gap-2 rounded-xl bg-green-50 px-4 py-3 text-ui-sm text-green-800">
+          <p role="status" className="mt-4 flex items-start gap-2 rounded-[14px] border border-[#BFEBD1] bg-[#E9F8EF] px-4 py-3 text-sm text-[#157A45]">
             <Check size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
             <span>
               <span className="font-semibold">Password changed.</span> Any other phone or computer that
@@ -402,44 +454,58 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
       </section>
 
       {/* ── Sessions ─────────────────────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="mb-1 text-lg font-bold text-slate-900">Signed-in devices</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Lost a phone, or signed in on a shared computer? This ends every session on this account,
-          including this one, and you will need your password to get back in.
-        </p>
+      <section className={PANEL}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-[18px]">
+          <Monitor size={32} className="mt-0.5 shrink-0 text-ink" aria-hidden="true" />
+          <div>
+            <h2 className={PANEL_H2}>Signed-in devices</h2>
+            <p className={PANEL_SUB}>
+              Lost a phone, or signed in on a shared computer? This ends every session on this account,
+              including this one, and you will need your password to get back in.
+            </p>
+          </div>
+        </div>
 
         {signOutError ? (
-          <p role="alert" className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">
+          <p role="alert" className="mt-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">
             {signOutError}
           </p>
         ) : null}
 
         {/* Two steps rather than window.confirm, which some in-app browsers
             suppress — and then the first click would sign out everywhere. */}
-        {confirmEverywhere ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="destructive"
-              onClick={handleSignOutEverywhere}
-              isLoading={signingOut}
-              leftIcon={<LogOut size={16} aria-hidden="true" />}
+        <div className="mt-6 flex flex-wrap items-center gap-2.5">
+          {confirmEverywhere ? (
+            <>
+              <ActionButton
+                tone="danger"
+                onClick={handleSignOutEverywhere}
+                isLoading={signingOut}
+                leftIcon={<LogOut aria-hidden="true" />}
+                className="max-sm:w-full"
+              >
+                Yes, sign out everywhere
+              </ActionButton>
+              <ActionButton
+                tone="line"
+                onClick={() => setConfirmEverywhere(false)}
+                disabled={signingOut}
+                className="max-sm:w-full"
+              >
+                Cancel
+              </ActionButton>
+            </>
+          ) : (
+            <ActionButton
+              tone="line"
+              onClick={() => setConfirmEverywhere(true)}
+              leftIcon={<LogOut aria-hidden="true" />}
+              className="max-sm:w-full"
             >
-              Yes, sign out everywhere
-            </Button>
-            <Button variant="ghost" onClick={() => setConfirmEverywhere(false)} disabled={signingOut}>
-              Cancel
-            </Button>
-          </div>
-        ) : (
-          <Button
-            variant="secondary"
-            onClick={() => setConfirmEverywhere(true)}
-            leftIcon={<LogOut size={16} aria-hidden="true" />}
-          >
-            Sign out of all devices
-          </Button>
-        )}
+              Sign out of all devices
+            </ActionButton>
+          )}
+        </div>
       </section>
     </div>
   )

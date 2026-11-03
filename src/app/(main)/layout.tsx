@@ -2,7 +2,6 @@
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
-import { ScrollProgress } from '@/components/layout/ScrollProgress'
 import { CardSpotlight } from '@/components/ui/CardSpotlight'
 
 /**
@@ -34,10 +33,17 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* One delegated pointer listener for every card on the page. Renders
           nothing; see CardSpotlight for why it is not per-card. */}
       <CardSpotlight />
-      {/* How far down the page, shown only while scrolling. */}
-      <ScrollProgress />
       <Navbar />
-      <main className="min-h-screen pt-[var(--nav-h)]">{children}</main>
+      {/*
+        The page, lifted above the footer (z-2, rounded bottom) so the footer
+        is revealed from under it. The floating navbar sits over an ink strip
+        at the top, which runs straight into each page's ink hero. The
+        scroll-progress line now lives inside the navbar.
+      */}
+      <main className="relative z-[2] min-h-screen rounded-b-[32px] bg-chalk pt-[var(--nav-h)] sm:rounded-b-[48px]">
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[var(--nav-h)] bg-ink" />
+        {children}
+      </main>
       <Footer />
       <BottomTabBar />
     </>

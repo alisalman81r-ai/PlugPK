@@ -2,7 +2,10 @@
 import Link from 'next/link'
 
 import { ArrowRight, Car, Check, ImagePlus, MapPin, UserCircle } from '@/components/ui/icons'
+import { btnClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
+
+import { PANEL, PANEL_H2 } from './dash-ui'
 
 /**
  * How complete the account is, as a percentage, with the missing parts listed.
@@ -83,11 +86,11 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
 
   if (missing.length === 0) {
     return (
-      <section className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-5 py-4">
-        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
+      <section className="flex items-center gap-3 rounded-[22px] border border-[#BFEBD1] bg-[#E9F8EF] px-5 py-4">
+        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-volt">
           <Check size={18} />
         </span>
-        <p className="text-ui-sm text-green-800">
+        <p className="text-sm text-[#157A45]">
           <span className="font-semibold">Profile 100% complete.</span> Everything is filled in — thank you.
         </p>
       </section>
@@ -99,9 +102,9 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
   const C = 2 * Math.PI * R
 
   return (
-    <section aria-labelledby="profile-completion-title" className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+    <section aria-labelledby="profile-completion-title" className={PANEL}>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-4 sm:w-64 sm:shrink-0">
+        <div className="flex items-center gap-4 sm:w-72 sm:shrink-0">
           <div
             role="progressbar"
             aria-valuenow={percent}
@@ -111,7 +114,7 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
             className="relative h-[72px] w-[72px] shrink-0"
           >
             <svg viewBox="0 0 64 64" className="h-full w-full -rotate-90" aria-hidden="true">
-              <circle cx="32" cy="32" r={R} fill="none" strokeWidth="7" className="stroke-slate-100" />
+              <circle cx="32" cy="32" r={R} fill="none" strokeWidth="7" className="stroke-stone" />
               <circle
                 cx="32"
                 cy="32"
@@ -121,21 +124,18 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
                 strokeLinecap="round"
                 strokeDasharray={C}
                 strokeDashoffset={C * (1 - percent / 100)}
-                className={cn(
-                  'transition-[stroke-dashoffset] duration-700 ease-out',
-                  percent >= 75 ? 'stroke-green-500' : percent >= 50 ? 'stroke-plug-cyan-500' : 'stroke-amber-500',
-                )}
+                className="stroke-ink transition-[stroke-dashoffset] duration-700 ease-out"
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center font-display text-lg font-bold text-slate-900">
+            <span className="absolute inset-0 flex items-center justify-center font-mono text-base font-semibold tabular-nums text-ink">
               {percent}%
             </span>
           </div>
           <div>
-            <h2 id="profile-completion-title" className="text-lg font-bold text-slate-900">
+            <h2 id="profile-completion-title" className={cn(PANEL_H2, 'text-[24px]')}>
               Profile {percent}% complete
             </h2>
-            <p className="mt-0.5 text-ui-sm text-slate-500">
+            <p className="mt-1.5 text-sm text-muted">
               {missing.length === 1 ? 'One thing left to add.' : `${missing.length} things left to add.`}
             </p>
           </div>
@@ -148,15 +148,15 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
               <li
                 key={part.key}
                 className={cn(
-                  'flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-3 py-2.5 sm:flex-nowrap',
-                  part.done ? 'bg-slate-50/60' : 'border border-amber-200 bg-amber-50/60',
+                  'flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl px-3 py-2.5 sm:flex-nowrap',
+                  part.done ? 'bg-chalk/60' : 'border border-ink/10 bg-chalk',
                 )}
               >
                 <span
                   aria-hidden="true"
                   className={cn(
                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                    part.done ? 'bg-green-100 text-green-600' : 'bg-white text-amber-600',
+                    part.done ? 'bg-ink text-volt' : 'bg-white text-ink',
                   )}
                 >
                   {part.done ? <Check size={16} /> : <Icon size={16} />}
@@ -164,18 +164,18 @@ export function ProfileCompletion({ name, email, avatar, city, vehicle }: Profil
                 {/* Below sm the button takes its own line under the text: beside
                     it, the reason was squeezed to three words a line. */}
                 <span className={cn('min-w-0 flex-1', !part.done && 'basis-[calc(100%-2.75rem)] sm:basis-auto')}>
-                  <span className={cn('block text-ui-sm font-semibold', part.done ? 'text-slate-500' : 'text-slate-900')}>
+                  <span className={cn('block text-sm font-semibold', part.done ? 'text-muted' : 'text-ink')}>
                     {part.label}
                     <span className="sr-only">{part.done ? ' — done' : ' — not added yet'}</span>
                   </span>
-                  {part.done ? null : <span className="block text-ui-xs text-slate-500">{part.reason}</span>}
+                  {part.done ? null : <span className="block text-[13px] text-muted">{part.reason}</span>}
                 </span>
                 {part.done ? (
-                  <span className="shrink-0 text-ui-xs font-semibold text-green-600">Done</span>
+                  <span className="shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#157A45]">Done</span>
                 ) : (
                   <Link
                     href={part.href}
-                    className="ml-11 inline-flex shrink-0 items-center gap-1 rounded-lg bg-white px-3 py-1.5 sm:ml-0 text-ui-sm font-semibold text-plug-blue-700 ring-1 ring-plug-blue-200 transition-colors hover:bg-plug-blue-50"
+                    className={btnClass('light', 'sm', 'ml-11 h-10 shrink-0 gap-1.5 border border-ink/10 px-4 sm:ml-0 [&_svg]:h-3.5 [&_svg]:w-3.5')}
                   >
                     {part.cta}
                     <ArrowRight size={14} aria-hidden="true" />

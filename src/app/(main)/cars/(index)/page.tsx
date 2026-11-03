@@ -1,7 +1,6 @@
 // src/app/(main)/cars/page.tsx
 import type { Metadata } from 'next'
 
-import { BrandMarquee } from '@/components/cars/BrandMarquee'
 import { CarsExplorer } from '@/components/cars/CarsExplorer'
 import { getBrands, getCategories, getConnectors } from '@/lib/cars'
 import { listCars } from '@/lib/db/car-queries'
@@ -46,7 +45,6 @@ export default async function CarsPage() {
       brands={getBrands(cars)}
       categories={getCategories(cars)}
       connectors={getConnectors(cars)}
-      beforeResults={<BrandMarquee brands={getBrands(cars)} />}
     />
   )
 }

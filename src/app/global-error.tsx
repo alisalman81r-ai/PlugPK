@@ -48,7 +48,7 @@ export default function GlobalError({
           alignItems: 'center',
           justifyContent: 'center',
           background: '#F1F4F3',
-          color: '#0B332C',
+          color: '#0B0C0E',
           fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
           padding: 16,
         }}
@@ -60,7 +60,7 @@ export default function GlobalError({
               fontWeight: 700,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: '#0F7A6A',
+              color: '#3F5200',
             }}
           >
             plugpk
@@ -78,13 +78,13 @@ export default function GlobalError({
             <button
               type="button"
               onClick={reset}
-              style={{ ...button, border: 'none', background: '#0B332C', color: '#FFFFFF' }}
+              style={{ ...button, border: 'none', background: '#0B0C0E', color: '#FFFFFF' }}
             >
               Try again
             </button>
             {/* A plain <a>, not next/link: the router may be what failed. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a href="/" style={{ ...button, border: '1.5px solid #BAC2C0', background: '#FFFFFF', color: '#0B332C' }}>
+            <a href="/" style={{ ...button, border: '1.5px solid #D2CFC5', background: '#FFFFFF', color: '#0B0C0E' }}>
               Back to the home page
             </a>
           </div>

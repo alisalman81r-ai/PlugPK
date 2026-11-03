@@ -30,15 +30,13 @@ export function plateSvg(scale = SS, holder = PH) {
   const W = PW * scale, H = Math.round(holder * scale), dy = (holder - PH) / 2
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${PW} ${holder}">
   ${holder > PH ? `<rect width="${PW}" height="${holder}" rx="10" fill="#16191A"/><g transform="translate(0 ${dy})">` : '<g>'}
-  <rect x="2" y="2" width="${PW - 4}" height="${PH - 4}" rx="10" fill="#FFFFFF" stroke="#0B332C" stroke-width="4"/>
-  <rect x="9" y="9" width="${PW - 18}" height="${PH - 18}" rx="6" fill="none" stroke="#0B332C" stroke-width="1.5" opacity="0.35"/>
-  <g transform="translate(106 18) scale(0.47)">
-    <g fill="#159E89" stroke="#159E89" stroke-linejoin="round" transform="translate(-4 -6)">
-      <path stroke-width="11" d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z"/>
-      <path stroke-width="5" d="M143.5 75 L140.5 85.5 L154 85.5 L154 88.5 L138.5 88.5 L135.5 99.5 L122 101.5 Z"/>
-    </g>
+  <rect x="2" y="2" width="${PW - 4}" height="${PH - 4}" rx="10" fill="#FFFFFF" stroke="#0B0C0E" stroke-width="4"/>
+  <rect x="9" y="9" width="${PW - 18}" height="${PH - 18}" rx="6" fill="none" stroke="#0B0C0E" stroke-width="1.5" opacity="0.35"/>
+  <g transform="translate(103 22) scale(2.1)">
+    <rect width="32" height="32" rx="9" fill="#D4FF3A"/>
+    <path d="M18.6 4.5 8.5 18h6.8l-1.9 9.5L23.5 14h-6.8z" fill="#0B0C0E"/>
   </g>
-  <text x="188" y="80" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="70" letter-spacing="-2.5"><tspan fill="#0B332C">plug</tspan><tspan fill="#159E89">pk</tspan></text>
+  <text x="187" y="80" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="70" letter-spacing="-2.5"><tspan fill="#0B0C0E">plug</tspan><tspan fill="#3F5200">pk</tspan></text>
   </g>
 </svg>`
 }

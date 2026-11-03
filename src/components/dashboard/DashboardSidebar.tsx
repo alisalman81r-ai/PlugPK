@@ -53,11 +53,11 @@ export interface DashboardNavItem {
 
 export const DASHBOARD_NAV: DashboardNavItem[] = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard, exact: true },
-  { label: 'My Vehicles', href: '/dashboard/vehicles', icon: Car },
-  { label: 'Saved Stations', href: '/dashboard/saved', icon: Bookmark, badgeKey: 'totalSaved' },
-  { label: 'Saved Routes', href: '/dashboard/routes', icon: Route, badgeKey: 'totalRoutes' },
-  { label: 'My Bookings', href: '/dashboard/bookings', icon: CalendarCheck },
-  { label: 'My Clubs', href: '/dashboard/clubs', icon: Users },
+  { label: 'My vehicles', href: '/dashboard/vehicles', icon: Car },
+  { label: 'Saved stations', href: '/dashboard/saved', icon: Bookmark, badgeKey: 'totalSaved' },
+  { label: 'Saved routes', href: '/dashboard/routes', icon: Route, badgeKey: 'totalRoutes' },
+  { label: 'My bookings', href: '/dashboard/bookings', icon: CalendarCheck },
+  { label: 'My clubs', href: '/dashboard/clubs', icon: Users },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
@@ -69,56 +69,75 @@ export function isDashboardItemActive(
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
 }
 
+/** The account's initial on a volt disc, or its picture (.av of landing-v2). */
+export function DashAvatar({ name, src, size }: { name: string; src?: string | null; size: number }) {
+  return <Avatar name={name} src={src} size={size} className="!bg-none bg-volt font-semibold text-ink" />
+}
+
+/** The ink card with the account's picture, name and email (.aprof). */
+export function ProfileCard({ user }: { user: DashboardSidebarProps['user'] }) {
+  return (
+    <div className="relative isolate flex items-center gap-3.5 overflow-hidden rounded-[22px] bg-ink p-4 text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-[120px] -top-[120px] -z-10 h-60 w-60 rounded-full bg-[radial-gradient(closest-side,rgba(212,255,58,.22),transparent_70%)]"
+      />
+      <span className="relative shrink-0">
+        <DashAvatar name={user.name} src={user.avatar} size={52} />
+        <span
+          title="Signed in"
+          className="absolute bottom-0.5 right-0 h-[13px] w-[13px] rounded-full border-[2.5px] border-ink bg-[#35D07F]"
+        >
+          <span className="sr-only">Signed in</span>
+        </span>
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-display text-[21px] leading-[1.1]">{user.name}</span>
+        <span className="mt-[3px] block truncate text-[13px] text-fog">{user.email}</span>
+        {user.city ? (
+          <span className="mt-1 flex items-center gap-1 text-xs text-fog">
+            <MapPin size={11} className="shrink-0" aria-hidden="true" />
+            {user.city}
+          </span>
+        ) : null}
+      </span>
+
+      <Link
+        href="/dashboard/settings"
+        aria-label="Edit your profile"
+        className="relative z-[1] grid h-[38px] w-[38px] shrink-0 place-items-center rounded-full border border-white/[0.18] text-white transition-colors hover:bg-volt hover:text-ink focus-visible:outline-none focus-visible:shadow-focus"
+      >
+        <Pencil size={16} aria-hidden="true" />
+      </Link>
+    </div>
+  )
+}
+
 export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
   const pathname = usePathname()
 
   return (
-    <div className="scrollbar-hide sticky top-[72px] flex h-[calc(100vh-72px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
-      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <span className="relative shrink-0">
-          <Avatar name={user.name} src={user.avatar} size={48} />
-          <span
-            aria-label="Online"
-            className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500"
-          />
-        </span>
+    <aside aria-label="Your account" className="grid gap-3.5">
+      <ProfileCard user={user} />
 
-        <span className="min-w-0 flex-1">
-          <span className="line-clamp-1 block text-sm font-bold text-slate-900">{user.name}</span>
-          <span className="mt-0.5 line-clamp-1 block text-xs text-slate-400">{user.email}</span>
-          {user.city ? (
-            <span className="mt-1 flex items-center gap-1">
-              <MapPin size={10} className="shrink-0 text-slate-400" aria-hidden="true" />
-              <span className="text-ui-xs text-slate-400">{user.city}</span>
+      <div className="grid grid-cols-2 gap-2.5">
+        {[
+          { value: stats.totalSaved, label: 'Saved' },
+          { value: stats.totalReviews, label: 'Reviews' },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-2xl border border-ink/10 bg-white p-3.5 text-center">
+            <b className="block font-mono text-2xl font-semibold leading-none tabular-nums text-ink">{stat.value}</b>
+            <span className="mt-1.5 block font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+              {stat.label}
             </span>
-          ) : null}
-        </span>
-
-        <Link
-          href="/dashboard/settings"
-          aria-label="Edit profile"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 transition-colors hover:border-plug-blue-300 hover:text-plug-blue-600"
-        >
-          <Pencil size={12} />
-        </Link>
+          </div>
+        ))}
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-2">
-        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center">
-          <p className="text-xl font-black text-slate-900">{stats.totalSaved}</p>
-          <p className="mt-0.5 text-ui-xs uppercase tracking-wider text-slate-400">Saved</p>
-        </div>
-        <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center">
-          <p className="text-xl font-black text-slate-900">{stats.totalReviews}</p>
-          <p className="mt-0.5 text-ui-xs uppercase tracking-wider text-slate-400">Reviews</p>
-        </div>
-      </div>
+      <p className="mx-2 mt-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Dashboard</p>
 
-      <nav className="flex flex-1 flex-col gap-1">
-        <p className="mb-2 px-3 text-ui-xs font-semibold uppercase tracking-widest text-slate-400">
-          Dashboard
-        </p>
-
+      <nav aria-label="Dashboard" className="grid gap-0.5">
         {DASHBOARD_NAV.map((item) => {
           const active = isDashboardItemActive(pathname, item)
           const Icon = item.icon
@@ -130,31 +149,17 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
               href={item.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex h-[42px] items-center gap-3 rounded-xl transition-all duration-150',
-                active
-                  ? 'border-l-[3px] border-plug-blue-600 bg-plug-blue-50 pl-[9px] pr-3'
-                  : 'px-3 hover:bg-slate-50',
+                'flex min-h-11 items-center gap-3 rounded-xl px-3 text-[15px] transition-colors duration-200 focus-visible:outline-none focus-visible:shadow-focus',
+                active ? 'bg-ink text-white' : 'text-[#33363b] hover:bg-ink/5 hover:text-ink',
               )}
             >
-              <Icon
-                size={18}
-                className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-400')}
-                aria-hidden="true"
-              />
-              <span
-                className={cn(
-                  'text-sm',
-                  active ? 'font-semibold text-plug-blue-600' : 'font-medium text-slate-600',
-                )}
-              >
-                {item.label}
-              </span>
-
+              <Icon size={19} className={cn('shrink-0', active ? 'text-volt' : 'text-muted')} aria-hidden="true" />
+              {item.label}
               {badge > 0 ? (
                 <span
                   className={cn(
-                    'ml-auto min-w-[20px] rounded-full px-2 text-center text-xs font-bold',
-                    active ? 'bg-plug-blue-100 text-plug-blue-700' : 'bg-slate-100 text-slate-500',
+                    'ml-auto min-w-[22px] rounded-full px-[7px] py-0.5 text-center font-mono text-[11px] font-semibold',
+                    active ? 'bg-volt text-ink' : 'bg-chalk text-muted',
                   )}
                 >
                   {badge}
@@ -165,24 +170,22 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto border-t border-slate-100 pt-6">
-        <button
-          type="button"
-          onClick={async () => {
-            // This used to navigate home and leave the session cookie in
-            // place, so "Sign Out" signed nobody out — the next visit to
-            // /dashboard was still logged in.
-            await signOut()
-            window.location.assign('/')
-          }}
-          className="flex h-[42px] w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
-        >
-          <LogOut size={18} className="shrink-0 text-red-400" aria-hidden="true" />
-          Sign Out
-        </button>
+      <button
+        type="button"
+        onClick={async () => {
+          // This used to navigate home and leave the session cookie in
+          // place, so "Sign Out" signed nobody out — the next visit to
+          // /dashboard was still logged in.
+          await signOut()
+          window.location.assign('/')
+        }}
+        className="mt-1.5 flex min-h-11 w-full items-center gap-3 border-t border-ink/10 px-3 pt-2.5 text-left text-[15px] text-[#c2410c] transition-colors hover:text-ember"
+      >
+        <LogOut size={19} className="shrink-0" aria-hidden="true" />
+        Sign out
+      </button>
 
-        <p className="mt-4 text-center text-ui-xs text-slate-300">plugpk v1.0.0 · Beta</p>
-      </div>
-    </div>
+      <p className="mx-3 font-mono text-xs text-muted">plugpk v1.0.0 · Beta</p>
+    </aside>
   )
 }

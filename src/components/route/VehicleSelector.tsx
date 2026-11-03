@@ -158,42 +158,40 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         className={cn(
-          'flex h-[52px] w-full items-center gap-3 rounded-xl border-[1.5px] bg-white px-4 text-left transition-all duration-150',
-          isOpen
-            ? 'border-plug-blue-500 shadow-focus'
-            : 'border-slate-200 hover:border-slate-300',
+          'flex h-[54px] w-full items-center gap-3 rounded-[14px] border-[1.5px] bg-white px-4 text-left transition-[border-color,box-shadow] duration-200 focus-visible:border-ink focus-visible:shadow-focus focus-visible:outline-none',
+          isOpen ? 'border-ink shadow-focus' : 'border-ink/10 hover:border-ink/30',
         )}
       >
-        <Car size={20} className="shrink-0 text-slate-400" aria-hidden="true" />
+        <Car size={18} className="shrink-0 text-fog" aria-hidden="true" />
 
         <span className="min-w-0 flex-1">
           {selectedVehicle ? (
             <>
-              <span className="block truncate text-ui font-medium text-slate-900">
+              <span className="block truncate text-[15px] font-medium leading-tight text-ink">
                 {selectedVehicle.make} {selectedVehicle.model}
                 {selectedVehicle.year ? ` (${selectedVehicle.year})` : ''}
               </span>
-              <span className="block text-xs text-slate-400">
-                {selectedVehicle.rangeKm}km range
+              <span className="mt-0.5 block font-mono text-[11.5px] text-muted">
+                {selectedVehicle.rangeKm} km range
               </span>
             </>
           ) : (
-            <span className="text-ui text-slate-400">Select your EV</span>
+            <span className="text-base text-fog">Select your EV</span>
           )}
         </span>
 
-        <TurnIcon active={isOpen} className="text-slate-400">
+        <TurnIcon active={isOpen} className="text-muted">
           <ChevronDown size={18} aria-hidden="true" />
         </TurnIcon>
       </button>
 
       {isOpen ? (
-        <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-e3">
-          <div className="border-b border-slate-100 p-3">
-            {/* The input clears its own outline, so the ring lives on the
+        <div className="absolute inset-x-0 top-full z-50 mt-1.5 max-h-80 overflow-hidden rounded-[18px] border border-ink/10 bg-white shadow-e2">
+          <div className="border-b border-ink/10 p-2">
+            {/* The input clears its own outline, so the halo lives on the
                 container that visually reads as the field. */}
-            <div className="flex h-11 items-center gap-2 rounded-xl bg-slate-50 px-3 ring-plug-blue-500/40 transition-shadow focus-within:ring-2">
-              <Search size={16} className="shrink-0 text-slate-400" aria-hidden="true" />
+            <div className="flex h-11 items-center gap-2 rounded-xl bg-chalk px-3 transition-shadow focus-within:shadow-focus">
+              <Search size={16} className="shrink-0 text-muted" aria-hidden="true" />
               <input
                 type="text"
                 ref={searchRef}
@@ -207,16 +205,16 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
                 aria-expanded={isOpen}
                 aria-controls={keys.listId}
                 aria-activedescendant={keys.activeId}
-                className="w-full border-none bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                className="w-full border-none bg-transparent text-[15px] text-ink outline-none placeholder:text-fog"
               />
             </div>
           </div>
 
-          <div id={keys.listId} className="scrollbar-hide max-h-[260px] overflow-y-auto" role="listbox">
+          <div id={keys.listId} className="scrollbar-hide max-h-[260px] overflow-y-auto p-1.5" role="listbox">
             {hasResults ? (
               grouped.map(([make, vehicles], groupIndex) => (
                 <div key={make}>
-                  <p className="sticky top-0 bg-slate-50 px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                  <p className="sticky top-0 z-[1] bg-white px-3 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
                     {make}
                   </p>
 
@@ -236,21 +234,21 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
                         // follows the keyboard highlight, as the pattern expects.
                         onMouseDown={(event) => event.preventDefault()}
                         onClick={() => choose(vehicle)}
-                        className="flex w-full items-center justify-between border-b border-slate-50 px-4 py-3 text-left transition-colors duration-100 data-[active]:bg-slate-100"
+                        className="flex min-h-[46px] w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left transition-colors duration-100 hover:bg-chalk data-[active]:bg-chalk"
                       >
                         <span className="min-w-0">
-                          <span className="block truncate text-sm font-semibold text-slate-900">
+                          <span className="block truncate text-[15px] font-medium text-ink">
                             {vehicle.model}
                           </span>
-                          <span className="mt-0.5 block text-xs text-slate-400">
+                          <span className="mt-0.5 block font-mono text-[11.5px] text-muted">
                             {/* Year and plug are optional in the catalogue; show what is known. */}
-                            {[vehicle.year || null, `${vehicle.rangeKm}km`, vehicle.connectorTypes[0]].filter(Boolean).join(' · ')}
+                            {[vehicle.year || null, `${vehicle.rangeKm} km`, vehicle.connectorTypes[0]].filter(Boolean).join(' · ')}
                           </span>
                         </span>
 
                         {isSelected ? (
-                          <span className="shrink-0 rounded-full bg-plug-blue-50 p-1">
-                            <Check size={16} className="text-plug-blue-600" aria-hidden="true" />
+                          <span className="shrink-0 rounded-full bg-ink p-1">
+                            <Check size={14} className="text-volt" aria-hidden="true" />
                           </span>
                         ) : null}
                       </button>
@@ -260,8 +258,8 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
               ))
             ) : (
               <div className="p-6 text-center">
-                <Car size={32} className="mx-auto text-slate-200" aria-hidden="true" />
-                <p className="mt-2 text-sm text-slate-400">No vehicles found</p>
+                <Car size={32} className="mx-auto text-fog" aria-hidden="true" />
+                <p className="mt-2 text-sm text-muted">No vehicles found</p>
               </div>
             )}
           </div>
@@ -270,7 +268,7 @@ export function VehicleSelector({ vehicles, selectedVehicle, onSelect, className
             <button
               type="button"
               onClick={() => choose(null)}
-              className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50"
+              className="flex min-h-[46px] w-full items-center gap-2 border-t border-ink/10 px-4 py-3 text-sm font-semibold text-[#B42E05] transition-colors hover:bg-[#FFECE6]"
             >
               <X size={16} aria-hidden="true" />
               Clear selection

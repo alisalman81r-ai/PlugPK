@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 
-import { FaqSection } from '@/components/shared/FaqSection'
+import { HelpCircle } from '@/components/ui/icons'
+import { Faq, Hl, SectionHead, WRAP } from '@/components/v2/ui'
 import { COMMUNITY_FAQS } from '@/lib/faqs'
 import type { CommunityPost, EVClub } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
 import { CategoryTabs } from '@/components/community/CategoryTabs'
 import { CommunityHero } from '@/components/community/CommunityHero'
@@ -14,8 +16,10 @@ import { CreatePostForm } from '@/components/community/CreatePostForm'
 import { PostFeed } from '@/components/community/PostFeed'
 import { useCommunity, type CommunityInitialData } from '@/hooks/useCommunity'
 
-const STAGE = 'mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-10'
-const CARD_LIFT = '-mt-20 sm:-mt-24 lg:-mt-28'
+/*
+  landing-v2's community page: the ink hero, the browse sheet lifted into it,
+  the feed with its sidebar on chalk, then the FAQ.
+*/
 
 export interface CommunityPageClientProps {
   initial: CommunityInitialData
@@ -67,7 +71,7 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
 
   return (
     <>
-      <div className="min-h-below-nav bg-slate-50">
+      <div className="bg-chalk">
         <CommunityHero
           stats={stats}
           onCreatePost={() => setIsCreateOpen(true)}
@@ -81,25 +85,33 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
           }
         />
 
-        <div className={`relative z-10 ${CARD_LIFT} ${STAGE}`}>
-          <CategoryTabs
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-            categoryCount={categoryCount}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            resultCount={resultCount}
-            totalCount={totalPosts}
-          />
-        </div>
+        <CategoryTabs
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          categoryCount={categoryCount}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          resultCount={resultCount}
+          totalCount={totalPosts}
+        />
 
-        <div className={`${STAGE} pb-20 pt-10 lg:pt-12`}>
-          <div className="grid items-start gap-10 lg:grid-cols-[1fr_340px]">
+        <section
+          id="feed"
+          aria-label="Discussion feed"
+          data-theme="light"
+          className="pb-[clamp(56px,6vw,88px)] pt-[clamp(40px,4.5vw,64px)]"
+        >
+          <div
+            className={cn(
+              WRAP,
+              'grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-7',
+            )}
+          >
             <div className="min-w-0">
               {likeMessage ? (
                 <p
                   role="status"
-                  className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-ui-sm text-amber-800"
+                  className="mb-4 rounded-2xl border border-[#FFE0A3] bg-[#FFF6E3] px-4 py-3 text-sm text-[#8A5300]"
                 >
                   {likeMessage}
                 </p>
@@ -123,14 +135,36 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
                 error={loadError}
               />
             </div>
-            <aside className="hidden lg:sticky lg:top-24 lg:block">
+            <aside aria-label="About the board" className="lg:sticky lg:top-[104px]">
               <CommunitySidebar clubs={clubs.slice(0, 4)} topPosts={topPosts} stats={stats} />
             </aside>
           </div>
-        </div>
+        </section>
       </div>
 
-      <FaqSection items={COMMUNITY_FAQS} title="Common questions about the community" />
+      <section
+        aria-labelledby="community-faq"
+        data-theme="light"
+        className="bg-chalk pb-[clamp(56px,6vw,88px)] pt-[clamp(48px,6vw,88px)]"
+      >
+        <div className={WRAP}>
+          <SectionHead
+            className="mb-[clamp(32px,4vw,52px)]"
+            eyebrow={
+              <>
+                <HelpCircle size={12} aria-hidden="true" />
+                FAQ
+              </>
+            }
+            title={
+              <span id="community-faq">
+                Common questions about <Hl>the community</Hl>
+              </span>
+            }
+          />
+          <Faq items={COMMUNITY_FAQS.map((item) => ({ q: item.question, a: item.answer }))} />
+        </div>
+      </section>
       <CreatePostForm isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
     </>
   )

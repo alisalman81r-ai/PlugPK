@@ -1,22 +1,59 @@
 // src/components/map/StationList.tsx
 'use client'
 
-import { MapPin, Navigation2, SearchX, Star } from '@/components/ui/icons'
+import { MapPin, Navigation2, SearchX, Star, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { ConnectorBadgeGroup, PhotoFrame, Skeleton, SpeedBadge } from '@/components/ui'
-import { FACE, FRAME, FRAME_FEATURED } from '@/components/shared/frame'
+import { PhotoFrame, Skeleton } from '@/components/ui'
+import { CARD, CARD_HOVER, ExampleBadge, Tag, btnClass } from '@/components/v2/ui'
+import { FAST_CHARGER_KW } from '@/lib/charging'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
 import { SaveStationButton } from '@/components/station/SaveStationButton'
 import { cn, formatDistance, formatRating, getMaxPower, getPortAvailability } from '@/lib/utils'
+import { CONNECTOR_LABEL } from './filter-options'
 
 export interface StationListItemProps {
   station: Station
   isSelected: boolean
   onClick: (station: Station) => void
   distanceKm?: number
+}
+
+/**
+ * The peak-power tag (.tag--kw): ink with a volt bolt at 60 kW and up, white
+ * below — the same split the pins on the map use.
+ */
+export function KwTag({ kw, className }: { kw: number; className?: string }) {
+  const fast = kw >= FAST_CHARGER_KW
+  return (
+    <span
+      className={cn(
+        'inline-flex h-[26px] items-center gap-[5px] whitespace-nowrap rounded-full border px-2.5 font-mono text-xs font-semibold',
+        fast ? 'border-ink bg-ink text-white' : 'border-ink/30 bg-white text-ink',
+        className,
+      )}
+    >
+      <Zap aria-hidden="true" className={cn('h-3 w-3 fill-current', fast ? 'text-volt' : 'text-ink')} />
+      {kw} kW
+    </span>
+  )
+}
+
+/** The connector types at a station, each named once, with a "+n" for the rest. */
+export function ConnectorTags({ station, max = 2 }: { station: Station; max?: number }) {
+  const types = [...new Set(station.connectors.map((connector) => connector.type))]
+  return (
+    <>
+      {types.slice(0, max).map((type) => (
+        <Tag key={type}>{CONNECTOR_LABEL[type] ?? type}</Tag>
+      ))}
+      {types.length > max ? (
+        <Tag className="bg-chalk font-mono text-muted">+{types.length - max}</Tag>
+      ) : null}
+    </>
+  )
 }
 
 export function StationListItem({
@@ -40,23 +77,16 @@ export function StationListItem({
 
   return (
     /*
-     * The card treatment shared with the home page and Partner Up.
-     *
-     * These were the last cards on the site still wearing a plain slate border
-     * with a blue tint on hover, while every other card wears a graded hairline
-     * that warms to brand. Walking from the home page to the map changed what a
-     * card was for no reason a visitor could see.
-     *
-     * The selected state is FRAME_FEATURED — the same brand edge the
-     * recommended pricing plan carries — rather than a blue fill with a thick
-     * left border. A fill was the heaviest possible way to say "this one", on a
-     * page where up to a dozen of these sit in a grid, and it fought the photo
-     * and the status dot inside the card for attention.
+     * The landing-v2 station card (.scard2). The card itself is a button —
+     * clicking it puts the station on the map — so the selected state is an
+     * ink outline rather than a fill, and the one specific action inside it
+     * (Navigate) is an outlined pill that goes ink on hover.
      */
     <div
       role="button"
       tabIndex={0}
       aria-pressed={isSelected}
+      aria-label={`Show ${station.name} on the map`}
       onClick={() => onClick(station)}
       onKeyDown={(event) => {
         // Only the card itself: Enter on the name link or a button inside
@@ -68,113 +98,93 @@ export function StationListItem({
         }
       }}
       className={cn(
-        isSelected ? FRAME_FEATURED : FRAME,
-        'cursor-pointer focus-visible:outline-none focus-visible:ring-2',
-        'focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
+        CARD,
+        CARD_HOVER,
+        'grid cursor-pointer gap-3.5 rounded-[24px] p-4 sm:p-[18px]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-[3px]',
+        isSelected && 'border-ink shadow-[0_0_0_1.5px_#0B0C0E,0_18px_40px_-18px_rgba(11,12,14,.35)] hover:border-ink',
       )}
     >
-      <div className={cn(FACE, 'p-4')}>
-        {/* Thumbnail beside the text: the same photo shown on the station page,
-            so a row in the list and its pin on the map read as one place. */}
-        <div className="mb-3 flex gap-3">
-          <span className="relative block h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl">
-            <PhotoFrame
-              src={station.coverPhoto}
-              alt={`${station.name} charging station`}
-              sizes="68px"
-            />
-          </span>
+      <div className="grid grid-cols-[72px_minmax(0,1fr)] items-start gap-3.5">
+        {/* The same photo shown on the station page, so a card in the list and
+            its pin on the map read as one place. */}
+        <span className="relative block h-[72px] w-[72px] overflow-hidden rounded-2xl bg-stone">
+          <PhotoFrame src={station.coverPhoto} alt={`${station.name} charging station`} sizes="72px" />
+        </span>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              {/* A real link to the station page, so the list is crawlable and a
-                  card can be opened in a new tab. Clicking it does not also
-                  select the card — it is leaving the map. */}
-              <h3 className="line-clamp-1 flex-1 text-ui font-bold text-slate-900">
-                <Link
-                  href={`/station/${station.slug}`}
-                  onClick={(event) => event.stopPropagation()}
-                  className="hover:text-plug-blue-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                >
-                  {station.name}
-                </Link>
-              </h3>
-              {station.reviewCount > 0 ? (
-                <span className="flex shrink-0 items-center gap-1">
-                  <Star size={13} className="fill-amber-400 text-amber-400" aria-hidden="true" />
-                  <span className="text-sm font-semibold text-slate-900">
-                    {formatRating(station.rating)}
-                  </span>
-                </span>
-              ) : null}
-            </div>
-
-            <div className="mt-1 flex items-center justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-1.5">
-                <MapPin size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-                <span className="line-clamp-1 text-ui-sm text-slate-500">
-                  {station.address.area}, {station.address.city}
-                </span>
+        <div className="min-w-0">
+          <div className="flex items-start justify-between gap-2.5">
+            {/* A real link to the station page, so the list is crawlable and a
+                card can be opened in a new tab. Clicking it does not also
+                select the card — it is leaving the map. */}
+            <h3 className="mt-px line-clamp-2 font-display text-xl leading-[1.12] text-ink">
+              <Link
+                href={`/station/${station.slug}`}
+                onClick={(event) => event.stopPropagation()}
+                className="rounded-sm hover:underline hover:decoration-1 hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              >
+                {station.name}
+              </Link>
+            </h3>
+            {station.reviewCount > 0 ? (
+              <span
+                className="inline-flex shrink-0 items-center gap-1 font-mono text-[13px] font-semibold text-ink"
+                aria-label={`Rated ${formatRating(station.rating)} out of 5`}
+              >
+                <Star size={14} className="fill-[#F5A524] text-[#F5A524]" aria-hidden="true" />
+                {formatRating(station.rating)}
               </span>
-              {distanceKm !== undefined ? (
-                <span className="shrink-0 font-mono text-xs text-slate-400">
-                  {formatDistance(distanceKm)}
-                </span>
-              ) : null}
-            </div>
+            ) : null}
+          </div>
 
-            {/* No status dot: nothing reports live availability. What is
-                known is what is installed, and whether this is a sample. */}
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              {example ? (
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
-                  {SAMPLE_LISTING_LABEL}
-                </span>
-              ) : null}
-              {ports > 0 ? (
-                <span className="font-mono text-xs text-slate-500">
-                  {ports} {ports === 1 ? 'port' : 'ports'} installed
-                </span>
-              ) : null}
-            </div>
+          <div className="mt-1.5 flex items-center justify-between gap-2.5 text-[13.5px] text-muted">
+            <span className="inline-flex min-w-0 items-center gap-[5px]">
+              <MapPin size={14} className="shrink-0" aria-hidden="true" />
+              <span className="truncate">
+                {station.address.area}, {station.address.city}
+              </span>
+            </span>
+            {distanceKm !== undefined ? (
+              <span className="shrink-0 whitespace-nowrap font-mono text-[12.5px] font-semibold text-ink">
+                {formatDistance(distanceKm)}
+              </span>
+            ) : null}
+          </div>
+
+          {/* No status dot: nothing reports live availability. What is
+              known is what is installed, and whether this is a sample. */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            {example ? <ExampleBadge>{SAMPLE_LISTING_LABEL}</ExampleBadge> : null}
+            {ports > 0 ? (
+              <span className="font-mono text-[12.5px] font-medium text-muted">
+                {ports} {ports === 1 ? 'port' : 'ports'} installed
+              </span>
+            ) : null}
           </div>
         </div>
+      </div>
 
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <ConnectorBadgeGroup connectors={station.connectors} max={2} size="sm" />
-          {maxPower > 0 ? <SpeedBadge speedKw={maxPower} size="sm" /> : null}
-        </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <ConnectorTags station={station} />
+        {maxPower > 0 ? <KwTag kw={maxPower} className="ml-auto" /> : null}
+      </div>
 
-        {/*
-          Outlined at rest, brand-filled on hover.
-
-          It was a solid blue bar across the full width of every card, so a grid
-          of six put six blue slabs on the page and they, rather than the
-          stations, were what the eye landed on. There is also a nesting problem
-          a fill makes worse: the card itself is a button — clicking it puts the
-          station on the map — so a second, heavier-looking button inside it
-          left no way to tell what each one did. Outlined, the card reads as the
-          surface and this reads as the one specific action on it.
-
-          It still fills on hover and keeps its own focus ring, so it never
-          stops looking like a control.
-        */}
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={handleNavigate}
-          className="group/nav flex h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border-[1.5px] border-slate-300 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-plug-blue-600 hover:bg-plug-blue-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
+          aria-label={`Navigate to ${station.name} in Google Maps`}
+          className={btnClass(
+            'ghost',
+            'sm',
+            'h-11 min-w-0 flex-1 hover:border-ink hover:bg-ink hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 [&_svg]:!h-[15px] [&_svg]:!w-[15px]',
+          )}
         >
           Navigate
-          <Navigation2
-            size={15}
-            className="shrink-0 transition-transform duration-200 group-hover/nav:translate-x-[3px]"
-            aria-hidden="true"
-          />
+          <Navigation2 aria-hidden="true" />
         </button>
         {/* Signed-in only; renders nothing otherwise. */}
-        <SaveStationButton stationId={station.id} stationName={station.name} className="h-9" />
-        </div>
+        <SaveStationButton stationId={station.id} stationName={station.name} className="h-11" />
       </div>
     </div>
   )
@@ -188,27 +198,25 @@ export function StationListSkeleton({ count = 4 }: StationListSkeletonProps) {
   return (
     <>
       {Array.from({ length: count }, (_, index) => index).map((index) => (
-        // Mirrors the loaded row exactly — the same frame and face, so nothing
-        // changes shape or shifts the grid the moment the real cards arrive.
-        <div key={index} role="status" aria-label="Loading station" className={FRAME}>
-          <div className={cn(FACE, 'p-4')}>
-            <div className="mb-3 flex gap-3">
-              <Skeleton rounded="lg" className="h-[68px] w-[68px] shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-start justify-between gap-2">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-4 w-10" />
-                </div>
-                <Skeleton className="mt-2 h-3 w-1/2" />
-                <Skeleton className="mt-2.5 h-4 w-24" />
+        // Mirrors the loaded card, so nothing changes shape or shifts the grid
+        // the moment the real cards arrive.
+        <div key={index} role="status" aria-label="Loading station" className={cn(CARD, 'grid gap-3.5 rounded-[24px] p-[18px]')}>
+          <div className="flex gap-3.5">
+            <Skeleton rounded="lg" className="h-[72px] w-[72px] shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-4 w-10" />
               </div>
+              <Skeleton className="mt-2 h-3 w-1/2" />
+              <Skeleton className="mt-2.5 h-4 w-24" />
             </div>
-            <div className="mb-3 flex gap-2">
-              <Skeleton rounded="full" className="h-5 w-20" />
-              <Skeleton rounded="full" className="h-5 w-16" />
-            </div>
-            <Skeleton rounded="lg" className="h-9 w-full" />
           </div>
+          <div className="flex gap-2">
+            <Skeleton rounded="full" className="h-[26px] w-16" />
+            <Skeleton rounded="full" className="h-[26px] w-16" />
+          </div>
+          <Skeleton rounded="full" className="h-11 w-full" />
         </div>
       ))}
     </>
@@ -231,22 +239,16 @@ export interface StationListProps {
  */
 export function NoResults({ onClearFilters }: { onClearFilters?: () => void }) {
   return (
-    <div className="flex flex-col items-center px-6 py-14 text-center">
-      <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100">
-        <SearchX size={24} className="text-slate-400" aria-hidden="true" />
-      </span>
-      <p className="text-ui font-semibold text-slate-900">No stations match</p>
-      <p className="mt-1.5 max-w-[240px] text-ui-sm leading-relaxed text-slate-500">
-        Nothing here fits every filter you have set. Widening the connector or speed filter
-        usually brings results back.
+    <div className="grid justify-items-center gap-2 px-6 py-14 text-center">
+      <SearchX size={30} className="text-muted" aria-hidden="true" />
+      <p className="font-display text-2xl leading-[1.15] text-ink">No stations match these filters.</p>
+      <p className="max-w-[24rem] text-[15px] leading-relaxed text-muted">
+        Nothing here fits every filter you have set. Try another connector or speed, or clear the
+        filters.
       </p>
       {onClearFilters ? (
-        <button
-          type="button"
-          onClick={onClearFilters}
-          className="mt-5 inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-        >
-          Clear all filters
+        <button type="button" onClick={onClearFilters} className={btnClass('ink', 'sm', 'mt-2.5')}>
+          Clear filters
         </button>
       ) : null}
     </div>

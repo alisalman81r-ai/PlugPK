@@ -5,9 +5,12 @@ import { Bookmark, Search } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
-import { Button, RatingStars } from '@/components/ui'
+import { ActionButton } from '@/components/auth/form-ui'
+import { RatingStars } from '@/components/ui'
 import { toggleSavedStation } from '@/lib/db/session-actions'
 import type { Station } from '@/lib/types'
+
+import { EmptyPanel, ROW } from './dash-ui'
 
 /**
  * The listings this account has bookmarked.
@@ -60,19 +63,13 @@ export function SavedStations({ stations: saved }: SavedStationsProps) {
 
   if (stations.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-        <Bookmark size={26} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-        <p className="text-ui-lg font-semibold text-slate-900">Nothing saved yet</p>
-        <p className="mx-auto mt-1 max-w-sm text-ui-sm text-slate-500">
-          Open any station and press the bookmark to keep it here.
-        </p>
-        <Link
-          href="/map"
-          className="mt-6 inline-flex h-11 items-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
-        >
-          Find stations
-        </Link>
-      </div>
+      <EmptyPanel
+        icon={<Bookmark aria-hidden="true" />}
+        title="Nothing saved yet"
+        body="Open any station and press the bookmark to keep it here."
+        href="/map"
+        cta="Find stations"
+      />
     )
   }
 
@@ -82,7 +79,7 @@ export function SavedStations({ stations: saved }: SavedStationsProps) {
         <div className="relative min-w-[220px] flex-1">
           <Search
             size={16}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fog"
             aria-hidden="true"
           />
           <input
@@ -91,16 +88,16 @@ export function SavedStations({ stations: saved }: SavedStationsProps) {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search your saved stations"
             aria-label="Search saved stations"
-            className="h-11 w-full rounded-xl border-[1.5px] border-slate-200 bg-white pl-11 pr-4 text-ui text-slate-900 outline-none transition-all focus:border-plug-blue-500"
+            className="h-[54px] w-full rounded-full border-[1.5px] border-ink/10 bg-white pl-11 pr-5 text-base text-ink outline-none transition-[border-color,box-shadow] placeholder:text-fog focus:border-ink focus:shadow-focus"
           />
         </div>
 
       </div>
 
-      {error ? <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-ui-sm text-red-700">{error}</p> : null}
+      {error ? <p role="alert" className="mb-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">{error}</p> : null}
 
       {visible.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-ui-sm text-slate-500">
+        <p className="rounded-3xl border-[1.5px] border-dashed border-ink/15 bg-white/60 px-6 py-12 text-center text-[15px] text-muted">
           Nothing matches “{query}”.
         </p>
       ) : (
@@ -108,32 +105,33 @@ export function SavedStations({ stations: saved }: SavedStationsProps) {
           {visible.map((station) => (
             <li
               key={station.id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5"
+              className={`${ROW} flex flex-wrap items-center justify-between gap-4 p-5 transition-shadow hover:shadow-e1`}
             >
               <Link href={`/station/${station.slug}`} className="min-w-0 flex-1">
-                <span className="block truncate font-semibold text-slate-900">{station.name}</span>
-                <span className="mt-0.5 block truncate text-ui-sm text-slate-500">
+                <span className="block truncate font-display text-[20px] leading-tight text-ink">{station.name}</span>
+                <span className="mt-1 block truncate text-sm text-muted">
                   {station.address.street ? `${station.address.street}, ` : ''}
                   {station.address.city}
                 </span>
                 <span className="mt-1.5 flex flex-wrap items-center gap-3">
                   <RatingStars rating={station.rating} size="sm" showNumber />
-                  <span className="text-ui-xs text-slate-400">
+                  <span className="font-mono text-xs text-muted">
                     {station.connectors.length} charger
                     {station.connectors.length === 1 ? '' : 's'}
                   </span>
                 </span>
               </Link>
 
-              <Button
-                variant="secondary"
+              <ActionButton
+                tone="line"
+                size="sm"
                 onClick={() => handleUnsave(station)}
                 aria-label={`Remove ${station.name} from saved stations`}
-                leftIcon={<Bookmark size={14} className="shrink-0 fill-current" aria-hidden="true" />}
-                className="shrink-0 border-slate-200 text-ui-sm text-slate-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                leftIcon={<Bookmark className="shrink-0 fill-current" aria-hidden="true" />}
+                className="shrink-0 hover:border-[#FFCDBC] hover:bg-[#FFECE6] hover:text-[#B42E05]"
               >
                 Remove
-              </Button>
+              </ActionButton>
             </li>
           ))}
         </ul>

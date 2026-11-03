@@ -44,9 +44,9 @@ export function SaveStationButton({
     return (
       <Link
         href={signedOutHref}
-        aria-label={`Sign in to save `}
+        aria-label={`Sign in to save ${stationName}`}
         className={cn(
-          'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-600 transition-colors hover:border-plug-blue-200 hover:text-plug-blue-700',
+          'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border-[1.5px] border-ink/10 bg-white px-4 text-sm font-semibold text-ink transition-colors hover:border-ink/30',
           className,
         )}
       >
@@ -74,7 +74,7 @@ export function SaveStationButton({
         aria-label={saved ? `Remove ${stationName} from saved` : `Save ${stationName}`}
         className={cn(
           'flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-md transition-colors',
-          saved ? 'bg-white text-plug-blue-600' : 'bg-black/[0.55] text-white hover:bg-black/70',
+          saved ? 'bg-volt text-ink' : 'bg-ink/[0.55] text-white hover:bg-ink/70',
           className,
         )}
       >
@@ -90,10 +90,10 @@ export function SaveStationButton({
       aria-pressed={saved}
       aria-label={saved ? `Remove ${stationName} from saved` : `Save ${stationName}`}
       className={cn(
-        'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl border px-3 text-ui-sm font-semibold transition-colors',
+        'inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border-[1.5px] px-4 text-sm font-semibold transition-colors',
         saved
-          ? 'border-plug-blue-200 bg-plug-blue-50 text-plug-blue-700'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-plug-blue-200 hover:text-plug-blue-700',
+          ? 'border-ink bg-ink text-volt'
+          : 'border-ink/10 bg-white text-ink hover:border-ink/30',
         className,
       )}
     >

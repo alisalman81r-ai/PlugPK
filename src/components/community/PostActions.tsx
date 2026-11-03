@@ -107,7 +107,7 @@ export function PostActions({ postId, title, likeCount }: PostActionsProps) {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:px-6">
+    <div className="mt-8 border-t border-dashed border-ink/10 pt-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
@@ -116,29 +116,25 @@ export function PostActions({ postId, title, likeCount }: PostActionsProps) {
           aria-pressed={liked}
           aria-label={liked ? 'Unlike this post' : 'Like this post'}
           className={cn(
-            'flex h-11 items-center gap-2 rounded-xl px-3 font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 disabled:opacity-60',
-            liked ? 'text-red-600 hover:bg-red-50' : 'text-slate-700 hover:bg-white',
+            'inline-flex h-12 items-center gap-2 rounded-full border-[1.5px] px-4 text-[15px] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:shadow-focus disabled:opacity-60',
+            liked ? 'border-ink bg-ink text-white' : 'border-ink/10 bg-white text-ink hover:border-ink/30',
           )}
         >
-          <Heart
-            size={22}
-            className={cn(liked ? 'fill-red-500 text-red-500' : 'text-slate-400')}
-            aria-hidden="true"
-          />
+          <Heart size={19} className={cn(liked ? 'fill-ember text-ember' : 'text-muted')} aria-hidden="true" />
           <span>
-            {count} {count === 1 ? 'Like' : 'Likes'}
+            <span className="font-mono">{count}</span> {count === 1 ? 'like' : 'likes'}
           </span>
         </button>
 
         <button
           type="button"
           onClick={handleShare}
-          className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition-colors hover:border-plug-blue-200 hover:text-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          className="inline-flex h-12 items-center gap-2 rounded-full px-4 text-[15px] font-semibold text-ink transition-colors duration-200 hover:bg-chalk focus-visible:outline-none focus-visible:shadow-focus"
         >
           {copied ? (
-            <Check size={16} className="text-emerald-600" aria-hidden="true" />
+            <Check size={18} className="text-[#157A45]" aria-hidden="true" />
           ) : (
-            <Share2 size={16} aria-hidden="true" />
+            <Share2 size={18} aria-hidden="true" />
           )}
           {copied ? 'Link copied' : 'Share'}
         </button>
@@ -146,14 +142,14 @@ export function PostActions({ postId, title, likeCount }: PostActionsProps) {
 
       <p aria-live="polite" className="text-sm">
         {message === 'signin' ? (
-          <span className="mt-2 block text-slate-600">
-            <Link href={signInHref(pathname)} className="font-semibold text-plug-blue-600 hover:underline">
+          <span className="mt-2 block text-muted">
+            <Link href={signInHref(pathname)} className="font-semibold text-ink underline decoration-volt-ink/40 underline-offset-4 hover:decoration-volt-ink">
               Sign in
             </Link>{' '}
             to like posts.
           </span>
         ) : message ? (
-          <span className="mt-2 block text-red-600">{message}</span>
+          <span className="mt-2 block text-[#B42E05]">{message}</span>
         ) : null}
       </p>
     </div>

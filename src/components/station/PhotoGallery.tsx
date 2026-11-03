@@ -99,7 +99,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
   return (
     <>
       <div>
-        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 lg:aspect-video">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-stone lg:aspect-video">
           {currentPhoto ? (
             <button
               type="button"
@@ -119,9 +119,9 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
               />
             </button>
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-plug-blue-50 to-plug-cyan-50">
-              <Zap size={64} className="text-plug-blue-200" aria-hidden="true" />
-              <p className="text-sm text-slate-400">No photos yet</p>
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-ink bg-[repeating-linear-gradient(-45deg,transparent_0_14px,rgba(255,255,255,.04)_14px_15px)]">
+              <Zap size={56} className="fill-volt text-volt" aria-hidden="true" />
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-white/55">No photos yet</p>
             </div>
           )}
 
@@ -134,7 +134,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
               type="button"
               onClick={() => void reportCurrentPhoto()}
               disabled={isReporting}
-              className="absolute bottom-3 right-3 rounded-lg bg-black/60 px-3 py-1.5 text-xs font-medium text-white hover:bg-black/80 disabled:opacity-60"
+              className="absolute bottom-3 right-3 rounded-full bg-ink/70 px-3.5 py-1.5 text-xs font-semibold text-white backdrop-blur-md hover:bg-ink disabled:opacity-60"
             >
               {isReporting ? 'Reporting…' : 'Report photo'}
             </button>
@@ -143,15 +143,15 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
           {/* No "Photos verified": nothing verifies them. A sample listing's
               stock photo is labelled instead, so it is not taken for the site. */}
           {isExample && currentPhoto ? (
-            <span className="absolute left-3 top-3 rounded-lg bg-black/70 px-3 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
+            <span className="absolute left-3 top-3 inline-flex h-7 items-center rounded-full border border-[#FFE0A3] bg-[#FFF6E3] px-3 text-xs font-semibold text-[#8A5300]">
               Example photo
             </span>
           ) : null}
 
           {photos.length > 1 ? (
-            <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-md">
+            <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 backdrop-blur-md">
               <Images size={14} className="text-white" aria-hidden="true" />
-              <span className="text-xs font-medium text-white">
+              <span className="font-mono text-xs font-semibold text-white">
                 {selectedIndex + 1} / {photos.length}
               </span>
             </span>
@@ -159,7 +159,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
         </div>
 
         {photos.length > 1 ? (
-          <div className="scrollbar-hide mt-3 flex gap-2.5 overflow-x-auto">
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto px-1 pb-1 pt-2.5">
             {visibleThumbs.map((photo, index) => {
               const isLastVisible = index === MAX_THUMBS - 1 && remaining > 0
 
@@ -171,9 +171,9 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
                   aria-label={`View photo ${index + 1}`}
                   aria-current={selectedIndex === index}
                   className={cn(
-                    'relative h-16 w-[88px] shrink-0 overflow-hidden rounded-xl transition-all duration-150',
+                    'relative h-16 w-[88px] shrink-0 overflow-hidden rounded-[14px] transition-all duration-200',
                     selectedIndex === index
-                      ? 'opacity-100 ring-2 ring-plug-blue-600 ring-offset-2'
+                      ? 'opacity-100 ring-2 ring-ink ring-offset-2'
                       : 'opacity-70 hover:opacity-100',
                   )}
                 >
@@ -190,7 +190,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
         ) : null}
       </div>
 
-      {reportMessage ? <p role="status" className="mt-3 text-ui-sm text-slate-500">{reportMessage}</p> : null}
+      {reportMessage ? <p role="status" className="px-2 pb-1 pt-3 text-sm text-muted">{reportMessage}</p> : null}
 
       {isLightboxOpen && currentPhoto ? (
         <div

@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import * as React from 'react'
 import { Suspense } from 'react'
 
 import { BusinessViewTracker } from '@/components/business/BusinessViewTracker'
@@ -19,7 +20,8 @@ import { distanceKm } from '@/lib/db/business-listing'
 import { getMapStations, getStationBySlug, getStationSlugs } from '@/lib/db/queries'
 import { SAMPLE_LISTING_LABEL, isSampleListing } from '@/lib/sample-listings'
 import type { Station } from '@/lib/types'
-import { getMaxPower, getPortAvailability } from '@/lib/utils'
+import { cn, getMaxPower, getPortAvailability } from '@/lib/utils'
+import { Btn, CARD, Eyebrow, WRAP } from '@/components/v2/ui'
 
 interface PageProps {
   params: { slug: string }
@@ -101,8 +103,37 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-function Divider() {
-  return <hr className="border-slate-100" />
+/**
+ * A section of the listing: a white rounded card with a mono eyebrow over a
+ * Power Grotesk heading, the landing-v2 card language.
+ */
+function Block({
+  id,
+  eyebrow,
+  title,
+  aside,
+  children,
+  className,
+}: {
+  id?: string
+  eyebrow: string
+  title: React.ReactNode
+  aside?: React.ReactNode
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <section id={id} className={cn(CARD, 'scroll-mt-28 p-5 sm:p-8', className)}>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Eyebrow className="mb-2.5">{eyebrow}</Eyebrow>
+          <h2 className="font-display text-[clamp(26px,2.4vw,32px)] leading-[1.08] text-ink">{title}</h2>
+        </div>
+        {aside}
+      </div>
+      {children}
+    </section>
+  )
 }
 
 /** The three nearest chargers that take bookings, closest first. */
@@ -124,11 +155,11 @@ function NoBookingHere({
   nearby: (Station & { distanceKm: number })[]
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
-      <p className="font-semibold text-slate-900">
+    <div className="rounded-[22px] border border-ink/10 bg-paper p-5 sm:p-6">
+      <p className="font-semibold text-ink">
         {isExample ? 'This is a sample listing, so it cannot be booked.' : 'This station does not take bookings yet.'}
       </p>
-      <p className="mt-1 text-ui-sm text-slate-500">
+      <p className="mt-1.5 text-[15px] leading-relaxed text-muted">
         {isExample
           ? 'It shows how a listing works and is not a real site.'
           : 'You can still drive here and charge on arrival.'}{' '}
@@ -143,26 +174,26 @@ function NoBookingHere({
             <li key={other.id}>
               <Link
                 href={`/station/${other.slug}#book`}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3 transition-colors hover:border-plug-blue-300 hover:bg-plug-blue-50"
+                className="group/nb flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3 transition-[border-color,box-shadow] duration-300 hover:border-ink/25 hover:shadow-e1"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-ui-sm font-semibold text-slate-900">{other.name}</span>
-                  <span className="block text-ui-xs text-slate-500">
+                  <span className="block truncate text-sm font-semibold text-ink">{other.name}</span>
+                  <span className="block font-mono text-xs text-muted">
                     {other.address.city} · {formatNearby(other.distanceKm)}
                   </span>
                 </span>
-                <span className="text-ui-sm font-semibold text-plug-blue-700">Book →</span>
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                  Book
+                  <span aria-hidden="true" className="transition-transform duration-300 group-hover/nb:translate-x-1">→</span>
+                </span>
               </Link>
             </li>
           ))}
         </ul>
       ) : (
-        <Link
-          href="/map"
-          className="mt-4 inline-flex h-10 items-center rounded-xl border-[1.5px] border-slate-300 px-4 text-ui-sm font-semibold text-slate-800 hover:border-slate-900"
-        >
+        <Btn href="/map" variant="ghost" size="sm" className="mt-4">
           Back to the map
-        </Link>
+        </Btn>
       )}
     </div>
   )
@@ -193,114 +224,104 @@ export default async function StationDetailPage({ params }: PageProps) {
   const bookingCars = canBook ? await getBookingCars().catch(() => []) : []
 
   return (
-    <>
+    <div className="bg-chalk">
       {/* Business listings count their own visits — this is where the figures
           on the owner's analytics page come from. Stations entered by an
           operator have no businessId and are not tracked. */}
       {station.businessId ? <BusinessViewTracker businessId={station.businessId} /> : null}
 
-      {/* Extra bottom room on phones: the sticky bar now carries an action row
-          under Navigate. */}
-      <div className="container-plug pb-48 pt-8 lg:pb-20">
-        <StationHeader station={station} />
+      <StationHeader station={station} />
 
-        {isExample ? (
-          <p className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-ui-sm leading-relaxed text-amber-900">
-            <strong className="font-semibold">{SAMPLE_LISTING_LABEL}.</strong> This station is
-            sample data that shows how a listing works. Its photos, hours and reviews are
-            examples, not a real site — do not plan a trip around it.
-          </p>
-        ) : null}
+      {/* The listing, lifted into the header like the design's .lift sheets.
+          Extra bottom room on phones: the sticky bar carries the actions. */}
+      <div
+        data-theme="light"
+        className={`relative z-[3] -mt-[84px] grid items-start gap-6 pb-48 sm:-mt-28 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-8 lg:pb-[clamp(80px,9vw,128px)] ${WRAP}`}
+      >
+        <div className="grid min-w-0 gap-6">
+          <div className={cn(CARD, 'overflow-hidden p-2 shadow-e4 sm:p-2.5')}>
+            <PhotoGallery
+              photos={station.photos}
+              stationName={station.name}
+              businessId={station.businessId}
+              isExample={isExample}
+            />
+          </div>
 
-        <div className="mt-8 grid items-start gap-16 lg:grid-cols-[1fr_340px]">
-          <div className="min-w-0">
-            <div className="mb-10">
-              <PhotoGallery
-                photos={station.photos}
-                stationName={station.name}
-                businessId={station.businessId}
-                isExample={isExample}
-              />
+          {isExample ? (
+            <p className="rounded-[22px] border border-[#FFE0A3] bg-[#FFF6E3] px-5 py-4 text-sm leading-relaxed text-[#8A5300]">
+              <strong className="font-semibold">{SAMPLE_LISTING_LABEL}.</strong> This station is
+              sample data that shows how a listing works. Its photos, hours and reviews are
+              examples, not a real site — do not plan a trip around it.
+            </p>
+          ) : null}
+
+          {/* The owner writes this on their profile page. Without it rendered
+              here, that field collected text no driver would ever read. */}
+          {station.description ? (
+            <Block eyebrow="About" title="About this station">
+              <p className="whitespace-pre-line text-[16px] leading-[1.7] text-muted">{station.description}</p>
+            </Block>
+          ) : null}
+
+          <Block
+            eyebrow="Chargers"
+            title="Charger details"
+            aside={
+              station.connectors.length > 0 ? (
+                <span className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+                  {station.connectors.length} {station.connectors.length === 1 ? 'charger' : 'chargers'}
+                </span>
+              ) : null
+            }
+          >
+            <div className="flex flex-col gap-3">
+              {station.connectors.map((connector, index) => (
+                <ChargerSpecCard key={connector.id} connector={connector} index={index} />
+              ))}
             </div>
+          </Block>
 
-            <Divider />
-
-            {/* The owner writes this on their profile page. Without it rendered
-                here, that field collected text no driver would ever read. */}
-            {station.description ? (
-              <>
-                <section className="mt-10">
-                  <h2 className="mb-4 text-2xl font-bold text-slate-900">About</h2>
-                  <p className="whitespace-pre-line leading-relaxed text-slate-600">
-                    {station.description}
+          {offer?.settings.pricePerKwh ? (
+            <Block eyebrow="Pricing" title="What it costs">
+              <div className="flex flex-wrap items-end justify-between gap-4 rounded-[22px] bg-ink p-6 text-white">
+                <div>
+                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-white/55">Per unit (kWh)</p>
+                  <p className="mt-2 font-mono text-[34px] font-semibold leading-none text-white">
+                    <span className="text-volt">PKR</span> {offer.settings.pricePerKwh.toLocaleString('en-PK')}
                   </p>
-                </section>
-
-                <div className="my-10">
-                  <Divider />
                 </div>
-              </>
-            ) : null}
-
-            <section className="mt-10">
-              <h2 className="mb-6 text-2xl font-bold text-slate-900">Charger Details</h2>
-              <div className="flex flex-col gap-4">
-                {station.connectors.map((connector, index) => (
-                  <ChargerSpecCard key={connector.id} connector={connector} index={index} />
-                ))}
+                <p className="max-w-xs text-sm leading-relaxed text-white/65">
+                  {station.businessId ? 'Set by the host and paid to them at the charger.' : 'Paid at the charger.'}
+                  {canBook ? ` A booking advance of PKR ${offer.settings.bookingFee.toLocaleString('en-PK')} is deducted from your bill.` : ''}
+                </p>
               </div>
-            </section>
+            </Block>
+          ) : null}
 
-            {offer?.settings.pricePerKwh ? (
-              <section className="mt-10">
-                <h2 className="mb-4 text-2xl font-bold text-slate-900">Pricing</h2>
-                <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-6">
-                  <div>
-                    <p className="text-ui-xs font-semibold uppercase tracking-widest text-slate-400">Per unit (kWh)</p>
-                    <p className="mt-1 font-mono text-3xl font-bold text-slate-900">
-                      PKR {offer.settings.pricePerKwh.toLocaleString('en-PK')}
-                    </p>
-                  </div>
-                  <p className="max-w-xs text-ui-sm text-slate-500">
-                    {station.businessId ? 'Set by the host and paid to them at the charger.' : 'Paid at the charger.'}
-                    {canBook ? ` A booking advance of PKR ${offer.settings.bookingFee.toLocaleString('en-PK')} is deducted from your bill.` : ''}
-                  </p>
-                </div>
-              </section>
-            ) : null}
+          {/* Every station has this section, so the Book a slot button never
+              leads nowhere: the panel where the station takes bookings, and
+              otherwise an honest note with the nearest chargers that do. */}
+          <Block id="book" eyebrow="Booking" title="Book a slot">
+            {canBook && offer ? (
+              <BookingPanel
+                venue={venue}
+                stationPath={`/station/${station.slug}`}
+                listingName={station.name}
+                settings={offer.settings}
+                accounts={offer.accounts}
+                cars={bookingCars}
+              />
+            ) : (
+              <NoBookingHere isExample={isExample} nearby={nearbyBookable} />
+            )}
+          </Block>
 
-            {/* Every station has this section, so the Book a slot button never
-                leads nowhere: the panel where the station takes bookings, and
-                otherwise an honest note with the nearest chargers that do. */}
-            <section id="book" className="mt-10 scroll-mt-24">
-              <h2 className="mb-4 text-2xl font-bold text-slate-900">Book a slot</h2>
-              {canBook && offer ? (
-                <BookingPanel
-                  venue={venue}
-                  stationPath={`/station/${station.slug}`}
-                  listingName={station.name}
-                  settings={offer.settings}
-                  accounts={offer.accounts}
-                  cars={bookingCars}
-                />
-              ) : (
-                <NoBookingHere isExample={isExample} nearby={nearbyBookable} />
-              )}
-            </section>
+          <Block eyebrow="Around the charger" title="Nearby amenities">
+            <AmenitiesGrid amenities={station.amenities} />
+          </Block>
 
-            <div className="my-10">
-              <Divider />
-            </div>
-
-            <section>
-              <h2 className="mb-6 text-2xl font-bold text-slate-900">Nearby Amenities</h2>
-              <AmenitiesGrid amenities={station.amenities} />
-            </section>
-
-            <div className="my-10">
-              <Divider />
-            </div>
-
+          <div className={cn(CARD, 'p-5 sm:p-8')}>
             <ReviewsSection
               reviews={reviews}
               rating={station.rating}
@@ -313,25 +334,21 @@ export default async function StationDetailPage({ params }: PageProps) {
               // business row, not a station id that does not exist.
               target={station.businessId ? 'business' : 'station'}
             />
-
-            <div className="my-16">
-              <Divider />
-            </div>
-
-            {/* Streams in after the listing itself: a slow suggestion query
-                should never hold up the page somebody actually opened. */}
-            <Suspense fallback={<RelatedStationsSkeleton />}>
-              <RelatedStations currentStationId={station.id} city={station.address.city} />
-            </Suspense>
           </div>
-
-          <aside className="sticky top-[88px] hidden h-fit lg:block">
-            <StationSidebar station={canBook ? { ...station, bookable: true } : station} />
-          </aside>
         </div>
+
+        <aside className="sticky top-[calc(var(--nav-h,88px)+16px)] hidden h-fit lg:block">
+          <StationSidebar station={canBook ? { ...station, bookable: true } : station} />
+        </aside>
       </div>
 
+      {/* Streams in after the listing itself: a slow suggestion query should
+          never hold up the page somebody actually opened. */}
+      <Suspense fallback={<RelatedStationsSkeleton />}>
+        <RelatedStations currentStationId={station.id} city={station.address.city} />
+      </Suspense>
+
       <StationMobileBar station={canBook ? { ...station, bookable: true } : station} />
-    </>
+    </div>
   )
 }

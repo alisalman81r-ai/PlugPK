@@ -1,11 +1,12 @@
 // src/components/community/ClubJoinButton.tsx
 'use client'
 
-import { Check, UserPlus } from '@/components/ui/icons'
+import { Check, Loader2, UserPlus } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { btnClass } from '@/components/v2/ui'
 import { joinClub, leaveClub } from '@/lib/db/community-actions'
 import { cn } from '@/lib/utils'
 
@@ -61,19 +62,18 @@ export function ClubJoinButton({
     })
   }
 
-  const primary =
-    'flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-plug-blue-600 text-ui font-bold text-white transition-colors duration-150 hover:bg-plug-cyan-500 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 disabled:opacity-70'
+  const primary = btnClass('ink', 'md', 'w-full focus-visible:outline-none focus-visible:shadow-focus disabled:opacity-70')
 
   return (
     <div className={className}>
       {!signedIn ? (
         <Link href={`/login?redirect=${encodeURIComponent(signInRedirect)}`} className={primary}>
-          <UserPlus size={16} aria-hidden="true" />
+          <UserPlus aria-hidden="true" />
           Sign in to join
         </Link>
       ) : joined ? (
         <>
-          <p className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 text-ui font-bold text-green-700">
+          <p className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-[#BFEBD1] bg-[#E9F8EF] text-[15px] font-semibold text-[#157A45]">
             <Check size={16} aria-hidden="true" />
             You&apos;re a member
           </p>
@@ -81,19 +81,19 @@ export function ClubJoinButton({
             type="button"
             onClick={() => toggle(false)}
             disabled={isPending}
-            className="mt-2 w-full text-center text-ui-xs font-semibold text-slate-500 hover:text-red-600 disabled:opacity-60"
+            className="mt-1 flex h-11 w-full items-center justify-center text-xs font-semibold text-muted transition-colors hover:text-[#B42E05] disabled:opacity-60"
           >
             Leave club
           </button>
         </>
       ) : (
         <button type="button" onClick={() => toggle(true)} disabled={isPending} className={cn(primary)}>
-          <UserPlus size={16} aria-hidden="true" />
+          {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <UserPlus aria-hidden="true" />}
           Join club
         </button>
       )}
       {error ? (
-        <p role="alert" className="mt-2 text-center text-ui-xs text-red-600">
+        <p role="alert" className="mt-2 text-center text-xs text-[#B42E05]">
           {error}
         </p>
       ) : null}

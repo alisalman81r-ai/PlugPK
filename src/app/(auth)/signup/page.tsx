@@ -31,11 +31,11 @@ export default function SignUpPage({ searchParams }: PageProps) {
       {redirectTo?.startsWith('/business') ? (
         <AuthHeader
           eyebrow="Become a partner"
-          title="Create your partner account"
+          title="Create your partner account."
           subtitle="Next you will add your charger or EV service. Every listing is reviewed before it goes live."
         />
       ) : (
-        <AuthHeader eyebrow="Get started" title="Create your account" subtitle="Join the EV owners on plugpk" />
+        <AuthHeader eyebrow="Get started" title="Create your account." subtitle="Join the EV owners on plugpk" />
       )}
       <SignUpForm redirectTo={redirectTo} />
     </>

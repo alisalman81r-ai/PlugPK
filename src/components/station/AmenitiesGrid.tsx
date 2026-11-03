@@ -40,11 +40,11 @@ const AMENITY_META: Record<AmenityType, AmenityMeta> = {
 
 export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
   if (amenities.length === 0) {
-    return <p className="text-sm text-slate-400">No amenity information yet.</p>
+    return <p className="text-sm text-muted">No amenity information yet.</p>
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {amenities.map((amenity) => {
         const meta = AMENITY_META[amenity.type]
         const Icon = meta.icon
@@ -54,16 +54,16 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
             key={amenity.type}
             title={amenity.note}
             className={cn(
-              'flex flex-col items-center rounded-2xl border p-4 text-center transition-colors duration-150',
+              'flex flex-col items-center rounded-[20px] border p-4 text-center transition-[border-color,transform] duration-300 ease-out',
               amenity.available
-                ? 'border-slate-200 bg-white hover:border-plug-blue-200 hover:bg-plug-blue-50'
-                : 'border-slate-100 bg-slate-25 opacity-50',
+                ? 'border-ink/10 bg-paper hover:-translate-y-0.5 hover:border-ink/25'
+                : 'border-dashed border-ink/10 bg-transparent opacity-55',
             )}
           >
             <span
               className={cn(
-                'mb-2.5 flex h-12 w-12 items-center justify-center rounded-xl',
-                amenity.available ? meta.tone : 'bg-slate-100 text-slate-300',
+                'mb-2.5 flex h-12 w-12 items-center justify-center rounded-2xl',
+                amenity.available ? 'bg-ink text-volt' : 'bg-stone text-fog',
               )}
             >
               <AnimatedIcon motion={meta.motion}>
@@ -73,8 +73,8 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
 
             <span
               className={cn(
-                'text-xs font-semibold',
-                amenity.available ? 'text-slate-700' : 'text-slate-300',
+                'text-sm font-semibold',
+                amenity.available ? 'text-ink' : 'text-muted',
               )}
             >
               {meta.label}
@@ -82,8 +82,8 @@ export function AmenitiesGrid({ amenities }: AmenitiesGridProps) {
 
             <span
               className={cn(
-                'mt-1 text-[10px]',
-                amenity.available ? 'text-green-600' : 'text-slate-400',
+                'mt-1 font-mono text-[10.5px] uppercase tracking-[0.08em]',
+                amenity.available ? 'text-[#157A45]' : 'text-muted',
               )}
             >
               {amenity.available ? 'Available' : 'Not available'}

@@ -61,15 +61,13 @@ export default async function ServicesPage() {
       {/* useSearchParams needs a Suspense boundary during static rendering. */}
       <Suspense
         fallback={
-          <div className="container-plug py-20 text-center text-sm text-slate-400">
-            Loading services...
-          </div>
+          <div className="py-20 text-center font-mono text-sm text-muted">Loading services…</div>
         }
       >
         <ServicesDirectory services={services} />
       </Suspense>
 
-      <ListYourServiceBand className="py-12 lg:py-16" />
+      <ListYourServiceBand />
 
       <FaqSection items={SERVICES_FAQS} />
     </>

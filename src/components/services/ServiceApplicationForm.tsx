@@ -16,6 +16,7 @@ import { LocationPicker } from '@/components/business/LocationPicker'
 import { HoursFields } from '@/components/services/HoursFields'
 import { CATEGORY_ICON } from '@/components/services/ServiceCategoryTabs'
 import { Button } from '@/components/ui'
+import { btnClass } from '@/components/v2/ui'
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import { applyToListService } from '@/lib/db/service-application-actions'
 import type { ServiceCategory } from '@/lib/types'
@@ -68,9 +69,9 @@ const STEP_OF_FIELD: Record<string, number> = {
 }
 
 const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
+  'h-[54px] w-full appearance-none rounded-[14px] border-[1.5px] bg-white px-4 text-base text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-fog focus:border-ink focus:shadow-focus'
 const AREA =
-  'w-full resize-y rounded-xl border-[1.5px] bg-white p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500'
+  'w-full resize-y rounded-[14px] border-[1.5px] bg-white p-4 text-[15px] leading-[1.6] text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-fog focus:border-ink focus:shadow-focus'
 
 const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const
 
@@ -219,7 +220,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
     })
   }
 
-  const border = (field: string) => (errorField === field ? 'border-red-400' : 'border-slate-200')
+  const border = (field: string) => (errorField === field ? 'border-red-400' : 'border-ink/10')
   const clearIf = (field: string) => () => {
     if (errorField === field) {
       setError(null)
@@ -229,10 +230,12 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
   if (done) {
     return (
-      <div ref={topRef} className="scroll-mt-24 animate-scale-in rounded-3xl border border-slate-200 bg-white p-8 sm:p-10">
+      <div ref={topRef} className="scroll-mt-24 animate-scale-in rounded-[28px] border border-ink/10 bg-white p-6 shadow-e1 sm:p-10">
         <div className="text-center">
-          <CheckCircle2 size={72} className="mx-auto text-green-500" aria-hidden="true" />
-          <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">Application received</h2>
+          <span className="mx-auto grid h-[72px] w-[72px] place-items-center rounded-full bg-ink text-volt">
+            <CheckCircle2 size={34} aria-hidden="true" />
+          </span>
+          <h2 className="mb-3 mt-6 font-display text-[clamp(30px,3.6vw,44px)] leading-[1.05] text-ink">Application received</h2>
           <p className="mx-auto max-w-lg text-slate-500">{done}</p>
         </div>
 
@@ -243,7 +246,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
             { icon: CheckCircle2, title: 'You appear in the directory', body: 'Under your category, findable by drivers searching for exactly what you do.' },
           ].map((item, index) => (
             <li key={item.title} className="flex items-start gap-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-plug-blue-50 text-sm font-bold text-plug-blue-700">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-volt-tint font-mono text-sm font-semibold text-volt-ink">
                 {index + 1}
               </span>
               <div>
@@ -254,9 +257,9 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           ))}
         </ol>
 
-        <p className="mx-auto mt-8 max-w-lg rounded-xl bg-slate-50 px-4 py-3 text-center text-ui-sm text-slate-600">
+        <p className="mx-auto mt-8 max-w-lg rounded-2xl bg-chalk px-4 py-3 text-center text-ui-sm text-muted">
           Nothing appears on the services page until it has been checked. Follow it in your service portal, or ask:{' '}
-          <a href="mailto:hello@plug.pk" className="font-semibold text-plug-blue-600 hover:underline">
+          <a href="mailto:hello@plug.pk" className="font-semibold text-ink underline decoration-volt decoration-2 underline-offset-4 hover:decoration-ink">
             hello@plug.pk
           </a>
         </p>
@@ -264,13 +267,13 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Link
             href="/business/services"
-            className="inline-flex h-12 items-center justify-center rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700"
+            className={btnClass('ink', 'md')}
           >
             Open your service portal
           </Link>
           <Link
             href="/services"
-            className="inline-flex h-12 items-center justify-center rounded-xl border-[1.5px] border-slate-300 bg-white px-6 text-ui font-semibold text-slate-800 transition-colors hover:border-slate-900"
+            className={btnClass('ghost', 'md')}
           >
             Back to services
           </Link>
@@ -288,13 +291,13 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
   const navigation = (label = 'Continue') => (
     <div className="mt-8 flex gap-3">
       {step > 1 ? (
-        <Button type="button" variant="secondary" size="lg" className="h-12" onClick={() => goTo(step - 1)}>
+        <button type="button" className={btnClass('ghost', 'md')} onClick={() => goTo(step - 1)}>
           Back
-        </Button>
+        </button>
       ) : null}
-      <Button type="button" fullWidth size="lg" className="h-12 bg-gradient-brand" onClick={next}>
+      <button type="button" className={btnClass('ink', 'md', 'flex-1')} onClick={next}>
         {label} &rarr;
-      </Button>
+      </button>
     </div>
   )
 
@@ -311,21 +314,21 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
               <li className="flex flex-col items-center gap-2" aria-current={isCurrent ? 'step' : undefined}>
                 <span
                   className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-all duration-300',
-                    isDone || isCurrent ? 'bg-plug-blue-600 text-white' : 'bg-slate-100 text-slate-400',
-                    isCurrent && 'ring-4 ring-plug-blue-100',
+                    'flex h-9 w-9 items-center justify-center rounded-full font-mono text-sm font-semibold transition-all duration-300',
+                    isDone ? 'bg-ink text-volt' : isCurrent ? 'bg-volt text-ink' : 'border border-ink/10 bg-white text-fog',
+                    isCurrent && 'ring-4 ring-volt/30',
                   )}
                 >
                   {isDone ? <Check size={16} aria-hidden="true" /> : number}
                 </span>
-                <span className={cn('whitespace-nowrap text-xs font-medium', isDone || isCurrent ? 'text-slate-900' : 'text-slate-400')}>
+                <span className={cn('whitespace-nowrap font-mono text-[10.5px] font-semibold uppercase tracking-[0.1em] sm:text-[11px]', isDone || isCurrent ? 'text-ink' : 'text-fog')}>
                   {label}
                 </span>
               </li>
               {index < STEPS.length - 1 ? (
                 <span
                   aria-hidden="true"
-                  className={cn('mt-[18px] h-0.5 flex-1 transition-colors duration-500', number < step ? 'bg-plug-blue-600' : 'bg-slate-200')}
+                  className={cn('mt-[18px] h-0.5 flex-1 transition-colors duration-500', number < step ? 'bg-ink' : 'bg-ink/10')}
                 />
               ) : null}
             </React.Fragment>
@@ -341,11 +344,11 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           else next()
         }}
         noValidate
-        className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8"
+        className="rounded-[28px] border border-ink/10 bg-white p-5 shadow-e1 sm:p-9"
       >
         {/* ── Step 1 — What you offer ───────────────────────── */}
         <div hidden={step !== 1}>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">What do you offer?</h2>
+          <h2 className="mb-2 font-display text-[clamp(26px,3vw,34px)] leading-[1.1] text-ink">What do you offer?</h2>
           <p className="mb-8 text-slate-500">Choose the category drivers will find you under.</p>
 
           <fieldset className="mb-6">
@@ -365,13 +368,13 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
                       clearIf('category')()
                     }}
                     className={cn(
-                      'rounded-2xl border-[1.5px] p-4 text-left transition-all duration-150',
-                      selected ? 'border-plug-blue-500 bg-plug-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50',
+                      'rounded-[20px] border-[1.5px] p-4 text-left transition-[border-color,background-color,transform] duration-200 active:scale-[0.98]',
+                      selected ? 'border-ink bg-volt-tint' : 'border-ink/10 bg-white hover:border-ink/30',
                     )}
                   >
-                    <Icon size={20} className={cn('mb-2', selected ? 'text-plug-blue-600' : 'text-slate-400')} aria-hidden="true" />
+                    <Icon size={20} className={cn('mb-2', selected ? 'text-ink' : 'text-muted')} aria-hidden="true" />
                     <span className="block text-sm font-semibold text-slate-900">{meta.label}</span>
-                    <span className="block text-xs text-slate-400">{meta.description}</span>
+                    <span className="block text-xs text-muted">{meta.description}</span>
                   </button>
                 )
               })}
@@ -379,8 +382,8 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           </fieldset>
 
           {category ? (
-            <p className="mb-6 flex items-start gap-2 rounded-xl bg-slate-50 px-4 py-3 text-ui-sm text-slate-600">
-              <ShieldCheck size={16} className="mt-0.5 shrink-0 text-plug-blue-600" aria-hidden="true" />
+            <p className="mb-6 flex items-start gap-2 rounded-2xl bg-chalk px-4 py-3 text-ui-sm text-muted">
+              <ShieldCheck size={16} className="mt-0.5 shrink-0 text-volt-ink" aria-hidden="true" />
               Next: your business details, who we should talk to, and where you are. About five minutes.
             </p>
           ) : null}
@@ -391,16 +394,16 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
         {/* ── Step 2 — The business ─────────────────────────── */}
         <div hidden={step !== 2}>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">Your business</h2>
+          <h2 className="mb-2 font-display text-[clamp(26px,3vw,34px)] leading-[1.1] text-ink">Your business</h2>
           <p className="mb-6 text-slate-500">What drivers will see at the top of your listing</p>
 
           <div className="mb-5">
-            <label htmlFor="svc-name" className="mb-2 block text-sm font-semibold text-slate-700">Business name *</label>
+            <label htmlFor="svc-name" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">Business name *</label>
             <input id="svc-name" name="name" maxLength={120} onChange={clearIf('name')} placeholder="e.g. Volt Motors EV Care" className={cn(FIELD, border('name'))} />
           </div>
 
           <div className="mb-5">
-            <label htmlFor="svc-description" className="mb-2 block text-sm font-semibold text-slate-700">What you do *</label>
+            <label htmlFor="svc-description" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">What you do *</label>
             <textarea
               id="svc-description"
               name="description"
@@ -415,22 +418,22 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
           <div className="mb-5 grid gap-5 sm:grid-cols-2">
             <div>
-              <label htmlFor="svc-year" className="mb-2 block text-sm font-semibold text-slate-700">
-                Year you started <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-year" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Year you started <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
               <input id="svc-year" name="yearEstablished" inputMode="numeric" maxLength={4} onChange={clearIf('yearEstablished')} placeholder="e.g. 2019" className={cn(FIELD, border('yearEstablished'))} />
             </div>
             <div>
-              <label htmlFor="svc-brands" className="mb-2 block text-sm font-semibold text-slate-700">
-                EV makes you work with <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-brands" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                EV makes you work with <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
-              <input id="svc-brands" name="brands" maxLength={300} placeholder="e.g. BYD, MG, Hyundai, all makes" className={cn(FIELD, 'border-slate-200')} />
+              <input id="svc-brands" name="brands" maxLength={300} placeholder="e.g. BYD, MG, Hyundai, all makes" className={cn(FIELD, 'border-ink/10')} />
             </div>
           </div>
 
           <div className="mb-2">
-            <label htmlFor="svc-pricing" className="mb-2 block text-sm font-semibold text-slate-700">
-              Prices <span className="font-normal text-slate-400">(optional)</span>
+            <label htmlFor="svc-pricing" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+              Prices <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
             </label>
             <textarea
               id="svc-pricing"
@@ -438,7 +441,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
               rows={3}
               maxLength={600}
               placeholder={'e.g. Battery health check PKR 3,500\nHome charger installation from PKR 25,000'}
-              className={cn(AREA, 'min-h-[90px] border-slate-200')}
+              className={cn(AREA, 'min-h-[90px] border-ink/10')}
             />
           </div>
 
@@ -448,47 +451,47 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
         {/* ── Step 3 — Contact ──────────────────────────────── */}
         <div hidden={step !== 3}>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">Who we should talk to</h2>
+          <h2 className="mb-2 font-display text-[clamp(26px,3vw,34px)] leading-[1.1] text-ink">Who we should talk to</h2>
           <p className="mb-6 text-slate-500">
             The contact person is only for our team. Phone, WhatsApp, email and links appear on your listing.
           </p>
 
           <div className="mb-5 grid gap-5 sm:grid-cols-2">
             <div>
-              <label htmlFor="svc-contact" className="mb-2 block text-sm font-semibold text-slate-700">Contact person *</label>
+              <label htmlFor="svc-contact" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">Contact person *</label>
               <input id="svc-contact" name="contactName" maxLength={120} autoComplete="name" defaultValue={applicant.name} onChange={clearIf('contactName')} className={cn(FIELD, border('contactName'))} />
             </div>
             <div>
-              <label htmlFor="svc-role" className="mb-2 block text-sm font-semibold text-slate-700">
-                Their role <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-role" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Their role <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
-              <input id="svc-role" name="contactRole" maxLength={80} placeholder="Owner, manager…" className={cn(FIELD, 'border-slate-200')} />
+              <input id="svc-role" name="contactRole" maxLength={80} placeholder="Owner, manager…" className={cn(FIELD, 'border-ink/10')} />
             </div>
             <div>
-              <label htmlFor="svc-phone" className="mb-2 block text-sm font-semibold text-slate-700">Phone</label>
+              <label htmlFor="svc-phone" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">Phone</label>
               <input id="svc-phone" name="phone" type="tel" maxLength={20} autoComplete="tel" onChange={clearIf('phone')} placeholder="0300 1234567" className={cn(FIELD, border('phone'))} />
             </div>
             <div>
-              <label htmlFor="svc-whatsapp" className="mb-2 block text-sm font-semibold text-slate-700">
-                WhatsApp <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-whatsapp" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                WhatsApp <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
-              <input id="svc-whatsapp" name="whatsapp" type="tel" maxLength={20} placeholder="0300 1234567" className={cn(FIELD, 'border-slate-200')} />
+              <input id="svc-whatsapp" name="whatsapp" type="tel" maxLength={20} placeholder="0300 1234567" className={cn(FIELD, 'border-ink/10')} />
             </div>
             <div>
-              <label htmlFor="svc-email" className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+              <label htmlFor="svc-email" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">Email</label>
               <input id="svc-email" name="email" type="email" maxLength={254} autoComplete="email" defaultValue={applicant.email} onChange={clearIf('email')} className={cn(FIELD, border('email'))} />
             </div>
             <div>
-              <label htmlFor="svc-website" className="mb-2 block text-sm font-semibold text-slate-700">
-                Website <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-website" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Website <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
               <input id="svc-website" name="website" type="url" maxLength={300} onChange={clearIf('website')} placeholder="yourbusiness.pk" className={cn(FIELD, border('website'))} />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="svc-social" className="mb-2 block text-sm font-semibold text-slate-700">
-                Facebook or Instagram page <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-social" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Facebook or Instagram page <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
-              <input id="svc-social" name="socialUrl" type="url" maxLength={300} placeholder="facebook.com/yourbusiness" className={cn(FIELD, 'border-slate-200')} />
+              <input id="svc-social" name="socialUrl" type="url" maxLength={300} placeholder="facebook.com/yourbusiness" className={cn(FIELD, 'border-ink/10')} />
             </div>
           </div>
           <p className="text-ui-sm text-slate-500">Leave at least a phone number or an email so we can reach you.</p>
@@ -499,12 +502,12 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
         {/* ── Step 4 — Where and when ───────────────────────── */}
         <div hidden={step !== 4}>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">Where you are and when you are open</h2>
+          <h2 className="mb-2 font-display text-[clamp(26px,3vw,34px)] leading-[1.1] text-ink">Where you are and when you are open</h2>
           <p className="mb-6 text-slate-500">The pin drivers get directions to, and the hours on your listing</p>
 
           <div className="mb-5 grid gap-5 sm:grid-cols-2">
             <div>
-              <label htmlFor="svc-city" className="mb-2 block text-sm font-semibold text-slate-700">City *</label>
+              <label htmlFor="svc-city" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">City *</label>
               <input id="svc-city" name="city" maxLength={80} list="service-apply-cities" autoComplete="address-level2" onChange={clearIf('city')} placeholder="Start typing your city" className={cn(FIELD, border('city'))} />
               <datalist id="service-apply-cities">
                 {PAKISTAN_CITIES.map((city) => (
@@ -513,8 +516,8 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
               </datalist>
             </div>
             <div>
-              <label htmlFor="svc-area" className="mb-2 block text-sm font-semibold text-slate-700">
-                Area or neighbourhood <span className="font-normal text-slate-400">(optional)</span>
+              <label htmlFor="svc-area" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                Area or neighbourhood <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
               </label>
               <input id="svc-area" name="area" maxLength={120} onChange={clearIf('area')} placeholder="e.g. Gulberg III" className={cn(FIELD, border('area'))} />
             </div>
@@ -524,7 +527,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
             data-field="location"
             className={cn('mb-5', errorField === 'location' && 'rounded-xl ring-2 ring-red-300 ring-offset-4')}
           >
-            <p className="mb-1 text-sm font-semibold text-slate-700">Exact location *</p>
+            <p className="mb-1 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">Exact location *</p>
             <p className="mb-3 text-ui-sm text-slate-500">
               Stand at your premises and tap the current-location button, or type the coordinates.
             </p>
@@ -542,14 +545,14 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           </div>
 
           <div className="mb-8">
-            <label htmlFor="svc-street" className="mb-2 block text-sm font-semibold text-slate-700">
-              Street address <span className="font-normal text-slate-400">(optional)</span>
+            <label htmlFor="svc-street" className="mb-2 block font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+              Street address <span className="font-sans text-[11px] font-normal normal-case tracking-normal text-fog">(optional)</span>
             </label>
             <input id="svc-street" value={street} maxLength={200} onChange={(event) => setStreet(event.target.value)} className={cn(FIELD, border('street'))} />
           </div>
 
           <div className="border-t border-slate-100 pt-6">
-            <p className="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <p className="mb-1 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted">
               <Clock size={16} className="text-slate-400" aria-hidden="true" />
               Opening hours
             </p>
@@ -565,11 +568,11 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
 
         {/* ── Step 5 — Review and send ──────────────────────── */}
         <div hidden={step !== 5}>
-          <h2 className="mb-2 text-2xl font-bold text-slate-900">Review and submit</h2>
+          <h2 className="mb-2 font-display text-[clamp(26px,3vw,34px)] leading-[1.1] text-ink">Review and submit</h2>
           <p className="mb-8 text-slate-500">Check everything before it goes to the plugpk review team</p>
 
           {summary ? (
-            <div className="mb-6 divide-y divide-slate-200 rounded-2xl bg-slate-50 px-6">
+            <div className="mb-6 divide-y divide-ink/10 rounded-[22px] bg-chalk px-5 sm:px-6">
               {[
                 {
                   title: 'Business',
@@ -607,8 +610,8 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
               ].map((section) => (
                 <div key={section.title} className="py-5">
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">{section.title}</h3>
-                    <button type="button" onClick={() => goTo(section.step)} className="text-xs font-medium text-plug-blue-600 hover:underline">
+                    <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted">{section.title}</h3>
+                    <button type="button" onClick={() => goTo(section.step)} className="text-xs font-semibold text-ink underline decoration-volt decoration-2 underline-offset-4">
                       Edit
                     </button>
                   </div>
@@ -628,15 +631,15 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           <label
             data-field="agree"
             className={cn(
-              'mb-6 flex cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm text-slate-600',
-              errorField === 'agree' ? 'border-red-400 bg-red-50/50' : 'border-slate-200',
+              'mb-6 flex cursor-pointer items-start gap-3 rounded-2xl border-[1.5px] p-4 text-sm text-muted',
+              errorField === 'agree' ? 'border-red-400 bg-red-50/50' : 'border-ink/10',
             )}
           >
             <input
               type="checkbox"
               name="agree"
               onChange={clearIf('agree')}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-plug-blue-600"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-ink"
             />
             <span>
               The details above are correct and I can speak for this business. I understand the listing is checked by
@@ -647,10 +650,10 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
           {step === 5 ? errorLine : null}
 
           <div className="flex gap-3">
-            <Button type="button" variant="secondary" size="lg" className="h-14" onClick={() => goTo(4)}>
+            <button type="button" className={btnClass('ghost', 'lg')} onClick={() => goTo(4)}>
               Back
-            </Button>
-            <Button type="submit" fullWidth size="lg" className="h-14 bg-gradient-brand" isLoading={pending}>
+            </button>
+            <Button type="submit" fullWidth size="lg" className="h-[58px] rounded-full bg-volt text-base text-ink shadow-volt hover:bg-ink hover:text-white" isLoading={pending}>
               Submit for review
             </Button>
           </div>

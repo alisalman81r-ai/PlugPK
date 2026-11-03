@@ -1,9 +1,8 @@
 // src/components/services/ServiceHero.tsx
-import { ArrowRight, Search, Wrench } from '@/components/ui/icons'
-import Link from 'next/link'
+import { Search } from '@/components/ui/icons'
 
 import { SearchSelect } from '@/components/ui/SearchSelect'
-
+import { Btn, BtnArrow, HeroStats, Hl, PageHero, btnClass } from '@/components/v2/ui'
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS } from '@/lib/constants'
 
 export interface ServiceHeroProps {
@@ -18,6 +17,16 @@ export interface ServiceHeroProps {
   citiesCovered: number
 }
 
+/**
+ * The directory's ink hero (landing-v2 .phero): the title, a white search
+ * pill, the figures strip, and the way in for providers.
+ *
+ * The search is a plain GET back to /services. The page reads q and city
+ * from the URL and seeds the filter state, so this stays a server component.
+ * On a phone the pill wraps into a card — input, then city and the button —
+ * rather than hiding the city picker and the submit, which are the two
+ * controls that make it a search rather than a text box.
+ */
 export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) {
   const stats = [
     { value: totalServices.toLocaleString('en-PK'), label: 'Services' },
@@ -26,146 +35,65 @@ export function ServiceHero({ totalServices, citiesCovered }: ServiceHeroProps) 
   ]
 
   return (
-    /**
-     * slate-950 with layered light, not the flat `bg-gradient-hero` ramp.
-     *
-     * That gradient ran navy to teal across the whole block, which meant the
-     * headline sat on one colour and the stats beneath it on a noticeably
-     * different one — and the white search bar landed in the middle of the
-     * transition, where it had the least contrast to work against. A dark
-     * ground with discrete pools of colour keeps every element on a
-     * predictable backdrop, and matches the home hero and route planner
-     * rather than introducing a third treatment.
-     */
-    <section className="relative isolate overflow-hidden bg-plug-navy-950 py-20 lg:py-28">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle,rgba(255,255,255,0.045)_1px,transparent_1px)] [background-size:28px_28px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 -top-48 -z-10 h-[34rem] w-[34rem] rounded-full bg-plug-blue-600/30 blur-[130px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-56 -right-32 -z-10 h-[30rem] w-[30rem] rounded-full bg-plug-cyan-500/20 blur-[130px]"
-      />
-      {/* Catches the light along the top edge so the section reads as a
-          surface rather than a hole punched in the page. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"
-      />
+    <PageHero
+      className="pb-[clamp(120px,11vw,150px)]"
+      title={
+        <>
+          Everything your EV needs in <Hl dark>one place</Hl>
+        </>
+      }
+      sub="From dealerships to home charger installation — find every EV service across Pakistan."
+    >
+      <form
+        action="/services"
+        method="get"
+        role="search"
+        className="relative mt-[34px] flex w-full max-w-[660px] flex-wrap items-center gap-2 rounded-[26px] bg-white p-2 text-left shadow-[0_24px_60px_-24px_rgba(212,255,58,.35)] sm:h-16 sm:flex-nowrap sm:rounded-full sm:py-[7px] sm:pl-[52px] sm:pr-[7px]"
+      >
+        <Search
+          size={20}
+          aria-hidden="true"
+          className="pointer-events-none absolute left-5 top-[23px] text-fog sm:top-1/2 sm:-translate-y-1/2"
+        />
+        <input
+          type="search"
+          name="q"
+          placeholder="Search services, dealers, installers..."
+          aria-label="Search services"
+          autoComplete="off"
+          className="h-[50px] min-w-0 flex-1 basis-full border-0 bg-transparent pl-10 text-base text-ink outline-none placeholder:text-fog sm:h-full sm:basis-auto sm:pl-0 [&::-webkit-search-cancel-button]:appearance-none"
+        />
+        {/* Not a native select: with 103 cities the browser drew its list
+            the full height of the screen. This one opens within the window
+            and scrolls; its hidden input keeps the form's ?city=. */}
+        <SearchSelect
+          name="city"
+          ariaLabel="Filter by city"
+          options={PAKISTAN_CITIES}
+          searchPlaceholder="Type a city"
+          className="h-[46px] min-w-0 flex-1 rounded-full border-0 bg-chalk px-4 text-sm text-ink hover:border-0 focus-visible:ring-volt/60 sm:w-40 sm:flex-none sm:rounded-none sm:border-l sm:border-ink/10 sm:bg-transparent sm:px-3.5"
+        />
+        <button type="submit" className={btnClass('volt', 'md', 'h-[50px] shrink-0 shadow-none hover:bg-ink hover:text-white')}>
+          Search
+        </button>
+      </form>
 
-      <div className="container-plug relative z-10 text-center">
-        <h1 className="mx-auto max-w-4xl text-balance text-[clamp(2.25rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.035em] text-white">
-          Everything your EV needs in{' '}
-          <span className="bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">
-            one place
-          </span>
-        </h1>
+      <HeroStats items={stats} />
 
-        {/* white/70, not white/60 — at this size the old value sat under the
-            4.5:1 floor against the darkest part of the old gradient. */}
-        <p className="mx-auto mt-5 max-w-xl text-pretty text-lg leading-relaxed text-white/70">
-          From dealerships to home charger installation — find every EV service
-          across Pakistan.
-        </p>
-
-        {/* A plain GET back to /services. The page reads q and city from the
-            URL and seeds the filter state, so this stays a server component.
-
-            Restructured from an absolutely-positioned overlay into a real
-            flex row. The old markup pinned the city select and the submit
-            button on top of the input and hid them below 640px, which left
-            phone users with no way to choose a city and no visible way to
-            submit — the two controls that make this a search rather than a
-            text box. Now they wrap onto their own row instead of vanishing. */}
-        <form
-          action="/services"
-          method="get"
-          className="mx-auto mt-10 flex w-full max-w-3xl flex-col gap-2 rounded-3xl border border-white/15 bg-white/[0.07] p-2 shadow-e4 backdrop-blur-xl transition-colors duration-200 focus-within:border-white/30 sm:flex-row sm:items-center sm:rounded-full"
-        >
-          <div className="relative flex min-w-0 flex-1 items-center">
-            <Search
-              size={18}
-              className="pointer-events-none absolute left-4 text-white/50"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              name="q"
-              placeholder="Search services, dealers, installers..."
-              aria-label="Search services"
-              className="field-glass h-12 w-full min-w-0 rounded-full border-none bg-transparent pl-11 pr-3 text-ui text-white outline-none placeholder:text-white/50 [&::-webkit-search-cancel-button]:appearance-none"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Not a native select: with 103 cities the browser drew its list
-                the full height of the screen, up into its own tab bar. This
-                one opens within the window and scrolls. The hidden input it
-                renders keeps the form's ?city= exactly as before. */}
-            <SearchSelect
-              name="city"
-              ariaLabel="Filter by city"
-              options={PAKISTAN_CITIES}
-              searchPlaceholder="Type a city"
-              tone="dark"
-              className="min-w-0 flex-1 sm:w-44 sm:flex-none"
-            />
-
-            <button
-              type="submit"
-              className="h-12 shrink-0 rounded-full bg-white px-6 text-ui font-semibold text-slate-950 shadow-[0_0_36px_-8px_rgba(38,205,178,0.6)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-plug-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-plug-navy-950 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-            >
-              Search
-            </button>
-          </div>
-        </form>
-
-        {/* One rail with hairline dividers, rather than three numbers floating
-            in space. It gives the figures an edge to sit against, and on a
-            phone it stays a single row instead of collapsing into a column
-            that pushes the listings below the fold. */}
-        <dl className="mx-auto mt-10 grid w-full max-w-md grid-cols-3 divide-x divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm">
-          {stats.map((stat) => (
-            // dt before dd in the source, which is the order a definition
-            // list requires; flex-col-reverse puts the number on top where
-            // the eye wants it without lying about the structure.
-            <div key={stat.label} className="flex min-w-0 flex-col-reverse px-2 py-4 sm:px-4">
-              <dt className="mt-1 text-ui-xs uppercase tracking-[0.08em] text-white/60 sm:tracking-[0.12em]">
-                {stat.label}
-              </dt>
-              <dd className="text-2xl font-black tabular-nums text-white sm:text-3xl">
-                {stat.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        {/*
-          The way in for the other side of this directory.
-
-          Every service here used to be typed in by an admin, so a workshop or
-          installer had no way to ask to be listed. It sits under the figures
-          rather than beside the search: a driver looking for a mechanic is the
-          common case and keeps the top of the page, and a provider looking to
-          be listed will read this far.
-        */}
-        <div className="mt-8 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-4">
-          <span className="text-ui-sm text-white/70">Offer an EV service?</span>
-          <Link
-            href="/services/list"
-            className="inline-flex h-11 items-center gap-2 rounded-full border border-plug-cyan-300/60 bg-plug-cyan-400/10 px-5 text-ui-sm font-bold text-white transition-colors hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-cyan-400"
-          >
-            <Wrench size={16} aria-hidden="true" />
-            Apply to be listed
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-        <p className="mt-2 text-center text-ui-xs text-white/45">Checked by our team before it goes live.</p>
+      {/*
+        The way in for the other side of this directory. Under the figures
+        rather than beside the search: a driver looking for a mechanic is the
+        common case and keeps the top of the page, and a provider looking to
+        be listed will read this far.
+      */}
+      <div className="mt-[34px] flex flex-wrap items-center justify-center gap-x-3.5 gap-y-3 text-sm text-white/60">
+        <span>Offer an EV service?</span>
+        <Btn href="/services/list" variant="ghostDark" size="sm" className="h-11">
+          Apply to be listed
+          <BtnArrow />
+        </Btn>
       </div>
-    </section>
+      <p className="mt-2.5 text-[13px] text-white/45">Checked by our team before it goes live.</p>
+    </PageHero>
   )
 }

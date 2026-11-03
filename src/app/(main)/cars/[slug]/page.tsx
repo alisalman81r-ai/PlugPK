@@ -255,20 +255,14 @@ export default async function CarPage({ params }: CarPageProps) {
   }
 
   return (
-    /*
-      The page ground is the lightest grey and the panels on it a step darker,
-      so the car's panel and the spec sheets read as surfaces without borders.
-    */
-    <section className="bg-slate-50 pb-20 pt-8 lg:pt-12">
-      <div className="container-plug">
-        <CarDetails car={car} pool={pool} />
-      </div>
+    <>
+      <CarDetails car={car} pool={pool} />
 
       <script
         type="application/ld+json"
         // Serialised and escaped (see scriptJson) so no value can close the tag.
         dangerouslySetInnerHTML={{ __html: scriptJson(schema) }}
       />
-    </section>
+    </>
   )
 }

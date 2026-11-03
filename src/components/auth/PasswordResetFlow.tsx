@@ -4,15 +4,18 @@
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button, MorphIcon } from '@/components/ui'
-import { ArrowRight, Eye, EyeOff, Lock, Mail, RefreshCw } from '@/components/ui/icons'
+import { MorphIcon } from '@/components/ui'
+import { Eye, EyeOff, Lock, Mail, RefreshCw } from '@/components/ui/icons'
 import { requestPasswordReset, resetPasswordWithCode } from '@/lib/db/auth-actions'
 import { cn } from '@/lib/utils'
 
+import { ALINK, ActionButton, ArrowEnd, LABEL, Notice } from './form-ui'
 import {
   EMAIL_PATTERN,
   FIELD_CLASS,
   FIELD_ERROR,
+  FIELD_EYE,
+  FIELD_ICON,
   FIELD_OK,
   FieldError,
   PASSWORD_PATTERN,
@@ -20,20 +23,6 @@ import {
 } from './SignUpForm'
 
 const OFFLINE = 'We could not reach the server. Check your connection and try again.'
-
-function Notice({ tone, children }: { tone: 'ok' | 'error'; children: React.ReactNode }) {
-  return (
-    <p
-      role={tone === 'error' ? 'alert' : 'status'}
-      className={cn(
-        'mt-5 rounded-xl border px-4 py-3 text-sm',
-        tone === 'ok' ? 'border-green-200 bg-green-50 text-green-800' : 'border-red-200 bg-red-50 text-red-700',
-      )}
-    >
-      {children}
-    </p>
-  )
-}
 
 /**
  * Forgotten password, in two steps on one screen: the address, then the
@@ -116,40 +105,44 @@ export function PasswordResetFlow({ initialEmail = '', startAtCode = false }: { 
   if (step === 'email') {
     return (
       <form onSubmit={submitEmail} noValidate>
-        <label htmlFor="reset-email" className="mb-2 block text-sm font-semibold text-slate-700">
-          Email Address
+        <label htmlFor="reset-email" className={LABEL}>
+          Email address
         </label>
         <div className="relative">
-          <Mail size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <Mail size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
             id="reset-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="ahmed@example.com"
+            placeholder="you@example.com"
             autoComplete="email"
             aria-invalid={fieldError ? true : undefined}
             className={cn(FIELD_CLASS, fieldError ? FIELD_ERROR : FIELD_OK)}
           />
         </div>
         <FieldError message={fieldError ?? undefined} />
-        {error ? <Notice tone="error">{error}</Notice> : null}
-        <Button type="submit" size="lg" fullWidth isLoading={sending} className="mt-6">
+        {error ? (
+          <Notice tone="error" className="mt-5">
+            {error}
+          </Notice>
+        ) : null}
+        <ActionButton type="submit" size="lg" fullWidth isLoading={sending} className="mt-6">
           Email me a reset code
-          <ArrowRight size={18} aria-hidden="true" />
-        </Button>
+          {sending ? null : <ArrowEnd />}
+        </ActionButton>
       </form>
     )
   }
 
   return (
     <form onSubmit={submitReset} noValidate>
-      <p className="text-ui leading-relaxed text-slate-600">
-        Enter the 6-digit code sent to <span className="font-semibold text-slate-900">{address}</span>, then
-        choose a new password. The code expires in 10 minutes.
+      <p className="text-[15px] leading-relaxed text-muted">
+        Enter the 6-digit code sent to <span className="font-semibold text-ink">{address}</span>, then choose a new
+        password. The code expires in 10 minutes.
       </p>
 
-      <label htmlFor="reset-code" className="mb-2 mt-6 block text-sm font-semibold text-slate-700">
+      <label htmlFor="reset-code" className={`${LABEL} mt-6`}>
         Reset code
       </label>
       <input
@@ -164,11 +157,11 @@ export function PasswordResetFlow({ initialEmail = '', startAtCode = false }: { 
         className={cn(FIELD_CLASS, 'pl-4 pr-4 text-center font-mono text-2xl tracking-[0.5em]', FIELD_OK)}
       />
 
-      <label htmlFor="reset-password" className="mb-2 mt-5 block text-sm font-semibold text-slate-700">
+      <label htmlFor="reset-password" className={`${LABEL} mt-[18px]`}>
         New password
       </label>
       <div className="relative">
-        <Lock size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+        <Lock size={18} className={FIELD_ICON} aria-hidden="true" />
         <input
           id="reset-password"
           type={show ? 'text' : 'password'}
@@ -182,36 +175,44 @@ export function PasswordResetFlow({ initialEmail = '', startAtCode = false }: { 
           type="button"
           onClick={() => setShow((shown) => !shown)}
           aria-label={show ? 'Hide password' : 'Show password'}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition-colors hover:text-slate-700"
+          aria-pressed={show}
+          className={FIELD_EYE}
         >
-          <MorphIcon active={show} on={EyeOff} off={Eye} size={18} />
+          <MorphIcon active={show} on={EyeOff} off={Eye} size={20} />
         </button>
       </div>
       <PasswordStrength password={password} />
       <FieldError message={fieldError ?? undefined} />
 
-      {error ? <Notice tone="error">{error}</Notice> : null}
-      {note ? <Notice tone="ok">{note}</Notice> : null}
+      {error ? (
+        <Notice tone="error" className="mt-5">
+          {error}
+        </Notice>
+      ) : null}
+      {note ? (
+        <Notice tone="ok" className="mt-5">
+          {note}
+        </Notice>
+      ) : null}
 
-      <Button type="submit" size="lg" fullWidth isLoading={busy} className="mt-6">
+      <ActionButton type="submit" size="lg" fullWidth isLoading={busy} className="mt-6">
         Set new password
-        <ArrowRight size={18} aria-hidden="true" />
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
+        {busy ? null : <ArrowEnd />}
+      </ActionButton>
+      <ActionButton
+        tone="line"
         size="lg"
         fullWidth
         isLoading={sending}
+        leftIcon={<RefreshCw size={18} aria-hidden="true" />}
         onClick={async () => {
           if (await sendCode()) setCode('')
         }}
         className="mt-3"
       >
-        <RefreshCw size={18} aria-hidden="true" />
         Send a new code
-      </Button>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      </ActionButton>
+      <p className="mt-6 text-center text-[15px] text-muted">
         <button
           type="button"
           onClick={() => {
@@ -220,7 +221,7 @@ export function PasswordResetFlow({ initialEmail = '', startAtCode = false }: { 
             setNote(null)
             setFieldError(null)
           }}
-          className="font-semibold text-plug-blue-600 hover:underline"
+          className={`${ALINK} min-h-11`}
         >
           Use a different email
         </button>

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { VehicleOnboarding } from '@/components/auth/VehicleOnboarding'
-import { Button } from '@/components/ui'
-import { Logo } from '@/components/ui/Logo'
+import { SHELL_BAR_LINK, StandaloneShell } from '@/components/auth/StandaloneShell'
+import { ArrowRight } from '@/components/ui/icons'
 import { setPrimaryCatalogueCar } from '@/lib/db/garage-actions'
 import type { GarageCatalogueCar } from '@/lib/db/garage'
 
@@ -45,20 +45,18 @@ export function OnboardingVehicleClient({ cars }: OnboardingVehicleClientProps) 
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="flex items-center justify-between gap-4 border-b border-slate-100 px-4 py-4 sm:px-8 sm:py-6">
-        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
-          <Logo tone="light" size="text-xl" />
+    <StandaloneShell
+      width="max-w-[680px]"
+      aside={
+        <Link href="/dashboard" className={SHELL_BAR_LINK}>
+          Skip for now
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
-
-        <Button variant="ghost" size="md" href="/dashboard">
-          Skip for now &rarr;
-        </Button>
-      </header>
-
-      <div className="mx-auto w-full max-w-[600px] px-4 py-10 sm:py-16">
+      }
+    >
+      <div className="rounded-[22px] border border-ink/10 bg-white p-5 shadow-[0_1px_2px_rgba(11,12,14,.05),0_40px_80px_-40px_rgba(11,12,14,.35)] sm:rounded-[28px] sm:p-[clamp(28px,4vw,44px)]">
         <VehicleOnboarding cars={cars} onComplete={handleComplete} onSkip={() => router.push('/dashboard')} />
       </div>
-    </div>
+    </StandaloneShell>
   )
 }

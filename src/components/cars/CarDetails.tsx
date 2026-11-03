@@ -13,7 +13,7 @@ import {
   Plus,
   Route,
   Store,
-  Tag,
+  Tag as TagIcon,
   Timer,
   Users,
   Zap,
@@ -22,10 +22,12 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { PhotoFrame } from '@/components/ui'
+import { Btn, BtnArrow, CARD, Eyebrow, ExampleBadge, H2_CLASS, Hl, PageHero, WRAP, btnClass } from '@/components/v2/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { getCarFeatures } from '@/data/car-features'
 import { getImageCredit } from '@/data/carImageCredits'
 import {
+  bodyStyle,
   carDisplayName,
   carModelName,
   carSummary,
@@ -41,25 +43,20 @@ import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
 import { OnRoadPrice } from './OnRoadPrice'
+import { STAGE, priceQualifier } from './car-ui'
 
 /**
- * One car, in full.
+ * One car, in full, in the catalogue's language (landing-v2 cars.html): the
+ * ink hero with the car's name, a paper sheet lifted into it holding the car on
+ * its lit stage beside the price and the four headline figures, then the
+ * on-road price, every published figure, the key features and similar cars.
  *
- * A server component: nothing here is interactive.
- *
- * ── The layout ────────────────────────────────────────────────────────
- *
- * A showroom page: the name and a paragraph about the car, then one grey panel
- * with the car large on the left and, beside it, the trim, the price and the
- * four figures a buyer asks about first. Under it, every published figure in
- * grouped two-column sheets, and similar cars as the same cards the catalogue
- * uses.
+ * A server component: the only interactive part is the on-road calculator.
  *
  * Every figure is rendered only when it exists. Most of these cars were
  * published with a price, a battery and little else, and a sheet padded with
  * "—" reads as a car with no torque rather than a figure nobody stated. The
- * paragraph and the four headline figures follow the same rule: they are
- * built from what the row holds, and a sparse row gets fewer of them.
+ * paragraph and the headline figures follow the same rule.
  */
 
 export interface CarDetailsProps {
@@ -72,9 +69,9 @@ export interface CarDetailsProps {
 }
 
 const CATEGORY_NAME: Record<CarCategory, string> = {
-  EV: 'EV',
-  PHEV: 'PHEV',
-  REEV: 'REEV',
+  EV: 'Fully electric',
+  PHEV: 'Plug-in hybrid',
+  REEV: 'Range extender',
   Hybrid: 'Hybrid',
 }
 
@@ -87,7 +84,7 @@ const GROUP_ICON: Record<string, IconType> = {
   'Range & efficiency': Route,
   Charging: PlugZap,
   Dimensions: Maximize2,
-  'Pakistan market': Tag,
+  'Pakistan market': TagIcon,
 }
 
 interface Stat {
@@ -145,15 +142,27 @@ function panelPrice(car: Car): { label: string; amount: string } {
   return { label, amount }
 }
 
+/** A section heading in the display face, with an optional lead. */
+function SectionTitle({ title, lead, className }: { title: React.ReactNode; lead?: React.ReactNode; className?: string }) {
+  return (
+    <header className={cn('mb-7', className)}>
+      <h2 className="font-display text-[clamp(30px,3.4vw,48px)] leading-[1.04] text-ink text-balance">{title}</h2>
+      {lead ? <p className="mt-3 max-w-[46rem] text-[15px] leading-[1.6] text-muted">{lead}</p> : null}
+    </header>
+  )
+}
+
 export function CarDetails({ car, pool }: CarDetailsProps) {
   const groups = specGroups(car)
   const similar = getSimilarCars(car, pool)
   const credit = car.image ? getImageCredit(car.id) : undefined
   const stats = headlineStats(car)
   const price = panelPrice(car)
+  const qualifier = priceQualifier(car.price.display)
   const name = carDisplayName(car)
   const features = getCarFeatures(car.slug)
   const onRoad = onRoadEstimates(car)
+  const body = bodyStyle(car)
 
   const compareHref = `/cars/compare?ids=${[car.id, similar[0]?.id].filter(Boolean).join(',')}`
 
@@ -177,163 +186,159 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
   ].filter((action): action is { href: string; icon: IconType; label: string } => action !== null)
 
   return (
-    <div>
-      {/* ── Breadcrumb ──────────────────────────────────────────── */}
-      <nav aria-label="Breadcrumb" className="mb-6">
-        <ol className="flex flex-wrap items-center gap-1.5 text-ui-sm text-slate-500">
-          <li>
-            <Link href="/cars" className="font-medium transition-colors hover:text-slate-900">
-              Cars
-            </Link>
-          </li>
-          <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
-          <li>
-            <Link
-              href={`/cars?brand=${encodeURIComponent(car.brand)}`}
-              className="font-medium transition-colors hover:text-slate-900"
-            >
-              {car.brand}
-            </Link>
-          </li>
-          <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
-          <li aria-current="page" className="font-semibold text-slate-900">
-            {carModelName(car)}
-          </li>
-        </ol>
-      </nav>
-
-      {/* ── Name and introduction ───────────────────────────────── */}
-      <header className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/cars?brand=${encodeURIComponent(car.brand)}`}
-              className="text-ui-sm font-extrabold uppercase tracking-[0.14em] text-slate-900 underline decoration-2 underline-offset-[6px] transition-colors hover:text-plug-cyan-700"
-            >
-              {car.brand}
-            </Link>
-            <span className="rounded-full border-[1.5px] border-slate-900 px-2.5 py-0.5 text-ui-xs font-bold leading-tight text-slate-900">
-              {CATEGORY_NAME[car.category]}
-            </span>
-          </div>
-
-          {/* The trim lives inside the h1, on its own smaller line: the heading
-              is the page's one statement of which car this is, and a crawler
-              and a screen reader both read it as one string. */}
-          <h1 className="mt-3 font-display text-[clamp(2.5rem,6vw,4.25rem)] font-black leading-[1.02] tracking-[-0.04em] text-dark-base">
-            {car.model}
+    <>
+      {/* ── Hero ────────────────────────────────────────────────── */}
+      <PageHero
+        eyebrow={[car.brand, CATEGORY_NAME[car.category], body].filter(Boolean).join(' · ')}
+        title={
+          <>
+            {car.brand} <Hl dark>{car.model}</Hl>
+            {/* The trim lives inside the h1, on its own smaller line: the
+                heading is the page's one statement of which car this is. */}
             {car.variant ? (
-              <span className="mt-2 block text-[clamp(1.0625rem,1.8vw,1.375rem)] font-bold leading-snug tracking-[-0.01em] text-slate-500">
+              <span className="mt-3 block font-sans text-[clamp(16px,1.6vw,21px)] font-medium leading-snug tracking-normal text-white/60 [-webkit-text-stroke:0]">
                 {car.variant}
               </span>
             ) : null}
-          </h1>
+          </>
+        }
+        sub={carSummary(car)}
+        actions={
+          <>
+            <Btn
+              href={compareHref}
+              variant="light"
+              aria-label={`Compare ${carModelName(car)}${similar[0] ? ` with ${carModelName(similar[0])}` : ''}`}
+            >
+              <Plus aria-hidden="true" />
+              Compare
+            </Btn>
+            <Btn href="#specifications" variant="ghostDark">
+              Full specs
+            </Btn>
+          </>
+        }
+      />
+
+      {/* ── The sheet: the car, the price, the figures ──────────── */}
+      <div
+        data-theme="light"
+        className="relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:-mt-28 sm:rounded-[32px]"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-[linear-gradient(90deg,#F4F3EE,#fff)] px-[18px] py-4 sm:px-7">
+          <nav aria-label="Breadcrumb">
+            <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
+              <li>
+                <Link href="/cars" className="font-medium transition-colors hover:text-ink">
+                  Cars
+                </Link>
+              </li>
+              <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
+              <li>
+                <Link
+                  href={`/cars?brand=${encodeURIComponent(car.brand)}`}
+                  className="font-medium transition-colors hover:text-ink"
+                >
+                  {car.brand}
+                </Link>
+              </li>
+              <ChevronRight size={13} aria-hidden="true" className="shrink-0" />
+              <li aria-current="page" className="font-semibold text-ink">
+                {carModelName(car)}
+              </li>
+            </ol>
+          </nav>
+          <span className="inline-flex h-[26px] items-center rounded-full border border-ink bg-ink px-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-white">
+            {car.category}
+          </span>
         </div>
 
-        <Link
-          href={compareHref}
-          aria-label={`Compare ${carModelName(car)}${similar[0] ? ` with ${carModelName(similar[0])}` : ''}`}
-          className="inline-flex h-12 shrink-0 items-center gap-2 self-start rounded-full bg-dark-base px-6 text-ui font-bold text-white transition-colors hover:bg-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-        >
-          <Plus size={18} aria-hidden="true" />
-          Compare
-        </Link>
-      </header>
-
-      <p className="mt-5 max-w-4xl text-ui-lg leading-[1.75] text-slate-700">{carSummary(car)}</p>
-
-      {/* ── The panel ───────────────────────────────────────────────
-          The car on the left on a lit stage; the trim, price and headline
-          figures on the right. Stacked on a phone, car first. */}
-      <div className="mt-8 grid gap-2 rounded-[2rem] bg-slate-100 p-2 sm:p-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:gap-4">
-        {/* The stage. The cut-out is multiplied into a soft radial light, so its
-            white ground becomes the light itself and the car stands in it. */}
-        <div className="relative aspect-[16/11] overflow-hidden rounded-[1.5rem] bg-[radial-gradient(75%_70%_at_50%_42%,#FFFFFF_0%,#F3F6F5_55%,#E4EAE8_100%)] lg:aspect-auto lg:min-h-[28rem]">
-          {car.image ? (
-            <div className="absolute inset-x-[6%] inset-y-[8%]">
-              <PhotoFrame
-                src={car.image}
-                alt={name}
-                sizes="(max-width: 1024px) 100vw, 760px"
-                priority
-                className="bg-transparent"
-                imageClassName="object-contain mix-blend-multiply"
-              />
-            </div>
-          ) : (
-            <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-              <span aria-hidden="true" className="font-display text-5xl font-black tracking-tight text-slate-300">
-                {car.brand}
+        <div className="grid gap-2 p-2 sm:gap-4 sm:p-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          {/* The stage. The cut-out is multiplied into the light. */}
+          <div className={cn(STAGE, 'aspect-[16/11] rounded-[22px] lg:aspect-auto lg:min-h-[30rem]')}>
+            {car.image ? (
+              <div className="absolute inset-x-[6%] bottom-[6%] top-[8%]">
+                <PhotoFrame
+                  src={car.image}
+                  alt={name}
+                  sizes="(max-width: 1024px) 100vw, 760px"
+                  priority
+                  className="bg-transparent"
+                  imageClassName="object-contain mix-blend-multiply"
+                />
+              </div>
+            ) : (
+              <span className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                <span aria-hidden="true" className="font-display text-5xl text-ink/20">
+                  {car.brand}
+                </span>
+                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  No photograph yet
+                </span>
               </span>
-              <span className="text-ui-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-                No photograph yet
-              </span>
-            </span>
-          )}
-        </div>
-
-        <div className="flex flex-col p-4 sm:p-6 lg:py-8 lg:pl-4 lg:pr-8">
-          {/* The trim names the figures below, so it heads them — only when the
-              row declares one; otherwise the h1 above has already said it. */}
-          {car.variant ? (
-            <p className="mb-4 font-display text-[1.5rem] font-extrabold leading-tight tracking-[-0.02em] text-dark-base">
-              {car.variant}
-            </p>
-          ) : null}
-          <div>
-            <p className="text-ui-xs font-bold uppercase tracking-[0.16em] text-slate-500">{price.label}</p>
-            <p className="mt-2 flex flex-wrap items-baseline gap-x-1.5 font-display leading-none">
-              <span className="text-ui font-bold text-slate-400">PKR</span>
-              <span className="text-[clamp(1.875rem,3.2vw,2.5rem)] font-black tabular-nums tracking-[-0.03em] text-slate-900">
-                {price.amount.replace(/^PKR\s*/, '')}
-              </span>
-            </p>
+            )}
           </div>
 
-          {stats.length > 0 ? (
-            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-8 lg:mt-10">
-              {stats.map((stat) => {
-                const Icon = stat.icon
-                return (
-                  // The caption is the term and comes first in the DOM, as a
-                  // definition list needs; `order` sets the figure above it.
-                  <div key={stat.caption} className="flex flex-col">
-                    <dt className="order-2 mt-2 text-ui-sm text-slate-600">{stat.caption}</dt>
-                    <dd className="order-1">
-                      <Icon size={24} aria-hidden="true" className="text-slate-500" />
-                      <span className="mt-3 flex items-baseline gap-1 font-display leading-none">
-                        <span className="text-[clamp(2rem,3.4vw,2.625rem)] font-black tabular-nums tracking-[-0.035em] text-plug-cyan-700">
-                          {stat.value}
+          <div className="flex min-w-0 flex-col px-3 pb-4 pt-3 sm:px-4 lg:py-6 lg:pl-3 lg:pr-5">
+            {/* The trim names the figures below, so it heads them — only when
+                the row declares one. */}
+            {car.variant ? (
+              <p className="mb-5 font-display text-[clamp(22px,2vw,28px)] leading-[1.1] text-ink">{car.variant}</p>
+            ) : null}
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                {/* The badge carries the qualifier; the label stays plain. */}
+                {qualifier ? (car.price.min !== car.price.max ? 'Price range' : 'Price') : price.label}
+              </span>
+              {qualifier ? <ExampleBadge className="capitalize">{qualifier}</ExampleBadge> : null}
+            </div>
+            <p className="mt-2.5 font-mono text-[clamp(28px,2.8vw,40px)] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">
+              <small className="mr-2 align-[0.35em] text-[13px] tracking-[0.06em] text-muted">PKR</small>
+              {price.amount.replace(/^PKR\s*/, '')}
+            </p>
+
+            {stats.length > 0 ? (
+              <dl className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-3">
+                {stats.map((stat) => {
+                  const Icon = stat.icon
+                  // A span such as "510–650" is twice the width of "530": it
+                  // steps down a size rather than wrapping the unit away.
+                  const long = stat.value.length + stat.unit.length > 7
+                  return (
+                    <div key={stat.caption} className="flex min-w-0 flex-col rounded-[22px] border border-ink/10 bg-white p-4 sm:p-5">
+                      <dt className="order-2 mt-2 text-[13px] leading-snug text-muted">{stat.caption}</dt>
+                      <dd className="order-1 min-w-0">
+                        <Icon aria-hidden="true" className="h-5 w-5 text-volt-ink" />
+                        <span className="mt-3 flex items-baseline gap-1 whitespace-nowrap font-mono font-semibold leading-none tabular-nums text-ink">
+                          <span
+                            className={cn(
+                              'tracking-[-0.03em]',
+                              long ? 'text-[clamp(20px,1.8vw,26px)]' : 'text-[clamp(26px,2.4vw,34px)]',
+                            )}
+                          >
+                            {stat.value}
+                          </span>
+                          {stat.unit ? <span className="text-[13px] font-semibold text-muted">{stat.unit}</span> : null}
                         </span>
-                        {stat.unit ? <span className="text-ui-lg font-bold text-slate-400">{stat.unit}</span> : null}
-                      </span>
-                    </dd>
-                  </div>
+                      </dd>
+                    </div>
+                  )
+                })}
+              </dl>
+            ) : null}
+
+            <div className="mt-6 flex flex-wrap gap-2 lg:mt-auto lg:pt-6">
+              {actions.map((action, index) => {
+                const Icon = action.icon
+                return (
+                  <Link key={action.label} href={action.href} className={btnClass(index === 0 ? 'ink' : 'ghost', 'sm', 'h-11')}>
+                    <Icon aria-hidden="true" />
+                    {action.label}
+                  </Link>
                 )
               })}
-            </dl>
-          ) : null}
-
-          <div className="mt-8 flex flex-wrap gap-2 pt-2 lg:mt-auto">
-            {actions.map((action, index) => {
-              const Icon = action.icon
-              return (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className={cn(
-                    'inline-flex h-11 items-center gap-2 rounded-full px-5 text-ui-sm font-bold transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-                    index === 0
-                      ? 'bg-plug-cyan-500 text-plug-navy-950 hover:bg-plug-cyan-400'
-                      : 'border border-slate-300 bg-white text-slate-800 hover:border-slate-900',
-                  )}
-                >
-                  <Icon size={16} aria-hidden="true" />
-                  {action.label}
-                </Link>
-              )
-            })}
+            </div>
           </div>
         </div>
       </div>
@@ -341,162 +346,187 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
       {/* The photographer, named on the page: most of these are CC BY-SA, which
           requires attribution wherever the image appears. */}
       {credit ? (
-        <p className="px-2 pt-3 text-ui-xs leading-relaxed text-slate-500">
+        <p className={cn(WRAP, 'px-2 pt-3 text-xs leading-relaxed text-muted')}>
           Photo: {credit.author} ·{' '}
           {credit.licenceUrl ? (
-            <a href={credit.licenceUrl} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-slate-600">
+            <a href={credit.licenceUrl} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-ink">
               {credit.licence}
             </a>
           ) : (
             credit.licence
           )}{' '}
           ·{' '}
-          <a href={credit.source} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-slate-600">
+          <a href={credit.source} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-ink">
             Wikimedia Commons
           </a>
           {credit.changes ? <> · {credit.changes}</> : null}
         </p>
       ) : null}
 
-      {/* ── Price in Pakistan ─────────────────────────────────────
-          Only where at least one province has sourced rates. */}
-      {onRoad ? (
-        <OnRoadPrice
-          title={`${name} price in Pakistan`}
-          provinces={onRoadProvinces().filter((entry) => onRoad[entry.key])}
-          estimates={onRoad}
-          fiscalYear={RATES_FISCAL_YEAR}
-          checked={RATES_CHECKED}
-        />
-      ) : null}
+      <section data-theme="light" className="bg-chalk pb-[clamp(64px,7vw,104px)] pt-[clamp(48px,6vw,88px)]">
+        <div className={cn(WRAP, 'grid gap-[clamp(56px,6vw,88px)]')}>
+          {/* ── Price in Pakistan ─────────────────────────────────
+              Only where at least one province has sourced rates, and never for
+              an indicative or estimated price (onRoadEstimates decides). */}
+          {onRoad ? (
+            <OnRoadPrice
+              title={`${name} price in Pakistan`}
+              provinces={onRoadProvinces().filter((entry) => onRoad[entry.key])}
+              estimates={onRoad}
+              fiscalYear={RATES_FISCAL_YEAR}
+              checked={RATES_CHECKED}
+            />
+          ) : null}
 
-      {/* ── Every published figure ─────────────────────────────────
-          Grouped, so the charging figures sit together and a reader can find
-          them without scanning everything; an empty group is dropped, so a PHEV
-          shows an Engine sheet where an EV shows none. */}
-      <section id="specifications" className="mt-14 scroll-mt-24 lg:mt-16">
-        <h2 className="font-display text-[clamp(1.625rem,3vw,2.125rem)] font-black leading-tight tracking-[-0.03em] text-slate-900">
-          {name} specs and range
-        </h2>
-        <p className="mt-2 text-ui text-slate-600">
-          {car.variant ? `Full figures for the ${car.variant} variant, as published.` : 'Full figures, as published.'}{' '}
-          Anything absent was not stated by the manufacturer or importer — plugpk does not estimate specifications.
-        </p>
+          {/* ── Every published figure ─────────────────────────────
+              Grouped; an empty group is dropped, so a PHEV shows an Engine
+              sheet where an EV shows none. */}
+          <section id="specifications" className="scroll-mt-[calc(var(--nav-h)+16px)]">
+            <Eyebrow>Specifications</Eyebrow>
+            <SectionTitle
+              title={`${name} specs and range`}
+              lead={
+                <>
+                  {car.variant ? `Full figures for the ${car.variant} variant, as published.` : 'Full figures, as published.'}{' '}
+                  Anything absent was not stated by the manufacturer or importer — plugpk does not estimate specifications.
+                </>
+              }
+            />
 
-        <div className="mt-6 flex flex-col gap-4">
-          {groups.map((group) => {
-            const Icon = GROUP_ICON[group.title] ?? CarIcon
-            return (
-              <div key={group.title} className="rounded-[1.5rem] bg-slate-100 px-5 py-5 sm:px-7 sm:py-6">
-                <h3 className="flex items-center gap-2.5 font-display text-[1.25rem] font-extrabold tracking-[-0.02em] text-slate-900">
-                  <Icon size={20} aria-hidden="true" className="text-slate-500" />
-                  {group.title}
+            <div className="grid gap-3 lg:grid-cols-2">
+              {groups.map((group) => {
+                const Icon = GROUP_ICON[group.title] ?? CarIcon
+                return (
+                  <div key={group.title} className={cn(CARD, 'px-5 py-5 sm:px-7 sm:py-6')}>
+                    <h3 className="flex items-center gap-3 font-display text-[22px] leading-tight text-ink">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-chalk">
+                        <Icon size={18} aria-hidden="true" className="text-ink" />
+                      </span>
+                      {group.title}
+                    </h3>
+                    <dl className="mt-3">
+                      {group.rows.map((row) => (
+                        <div
+                          key={row.label}
+                          className="flex items-baseline justify-between gap-6 border-t border-ink/10 py-3"
+                        >
+                          <dt className="text-[14.5px] text-muted">{row.label}</dt>
+                          <dd
+                            className={cn(
+                              'text-right font-semibold text-ink',
+                              // Figures in mono; words (a distributor, a warranty) in the UI face.
+                              /^(?:\d|PKR\s)/.test(String(row.value))
+                                ? 'font-mono text-[14px]'
+                                : 'text-[14.5px]',
+                            )}
+                          >
+                            {row.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ── Key features ─────────────────────────────────────
+                What the Pakistan trim is equipped with, grouped. Only for a car
+                with a reviewed list in src/data/car-features.ts. Columns rather
+                than a grid, so the groups pack by height. */}
+            {features ? (
+              <div className={cn(CARD, 'mt-3 px-5 py-5 sm:px-7 sm:py-7')}>
+                <h3 className="flex flex-wrap items-center gap-3 font-display text-[22px] leading-tight text-ink">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-volt-tint">
+                    <BadgeCheck size={18} aria-hidden="true" className="text-volt-ink" />
+                  </span>
+                  Key features
+                  {features.trim ? (
+                    <span className="font-mono text-[12px] font-semibold uppercase tracking-[0.12em] text-muted [-webkit-text-stroke:0]">
+                      {features.trim}
+                    </span>
+                  ) : null}
                 </h3>
-                <dl className="mt-3 grid gap-x-12 sm:grid-cols-2">
-                  {group.rows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="flex items-baseline justify-between gap-6 border-t border-slate-300/60 py-3.5"
-                    >
-                      <dt className="text-ui text-slate-600">{row.label}</dt>
-                      <dd className="text-right text-ui font-bold text-slate-900">{row.value}</dd>
+                <div className="mt-4 border-t border-ink/10 pt-5 sm:columns-2 sm:gap-12 lg:columns-3">
+                  {features.groups.map((group) => (
+                    <div key={group.title} className="mb-6 break-inside-avoid">
+                      <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-volt-ink">{group.title}</h4>
+                      <ul className="mt-3 flex flex-col gap-2">
+                        {group.items.map((item) => (
+                          <li key={item} className="flex gap-2.5 text-[15px] leading-snug text-ink">
+                            <span aria-hidden="true" className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-ink/30" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   ))}
-                </dl>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* ── Key features ─────────────────────────────────────────
-            What the Pakistan trim is equipped with, grouped. Only for a car
-            with a reviewed list in src/data/car-features.ts; there is no
-            empty version of this section. Columns rather than a grid, so the
-            groups pack by height instead of leaving holes under short ones. */}
-        {features ? (
-          <div className="mt-4 rounded-[1.5rem] bg-slate-100 px-5 py-5 sm:px-7 sm:py-6">
-            <h3 className="flex items-center gap-2.5 font-display text-[1.25rem] font-extrabold tracking-[-0.02em] text-slate-900">
-              <BadgeCheck size={20} aria-hidden="true" className="text-slate-500" />
-              Key features
-              {features.trim ? (
-                <span className="text-ui-sm font-semibold tracking-normal text-slate-500">· {features.trim}</span>
-              ) : null}
-            </h3>
-            <div className="mt-3 border-t border-slate-300/60 pt-5 sm:columns-2 sm:gap-12 lg:columns-3">
-              {features.groups.map((group) => (
-                <div key={group.title} className="mb-6 break-inside-avoid">
-                  <h4 className="font-display text-ui-lg font-extrabold tracking-[-0.01em] text-slate-900">
-                    {group.title}
-                  </h4>
-                  <ul className="mt-2 flex flex-col gap-2">
-                    {group.items.map((item) => (
-                      <li key={item} className="flex gap-2.5 text-ui leading-snug text-slate-700">
-                        <span aria-hidden="true" className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-[1px] bg-slate-400" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
                 </div>
-              ))}
-            </div>
-            <p className="border-t border-slate-300/60 pt-4 text-ui-xs leading-relaxed text-slate-500">
-              Equipment as listed for the Pakistan model by{' '}
-              {/* One link per site: two brochures on the same site read as a
-                  repeated word otherwise. */}
-              {features.sources
-                .filter((source, index, all) => all.findIndex((other) => new URL(other).hostname === new URL(source).hostname) === index)
-                .map((source, index) => (
-                <React.Fragment key={source}>
-                  {index > 0 ? ', ' : null}
-                  <a href={source} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-slate-700">
-                    {new URL(source).hostname.replace(/^www\./, '')}
-                  </a>
-                </React.Fragment>
-              ))}
-              . Checked {features.checked}. Confirm with the dealer before you buy.
-            </p>
-          </div>
-        ) : null}
+                <p className="border-t border-ink/10 pt-4 text-xs leading-relaxed text-muted">
+                  Equipment as listed for the Pakistan model by{' '}
+                  {/* One link per site: two brochures on the same site read as a
+                      repeated word otherwise. */}
+                  {features.sources
+                    .filter((source, index, all) => all.findIndex((other) => new URL(other).hostname === new URL(source).hostname) === index)
+                    .map((source, index) => (
+                      <React.Fragment key={source}>
+                        {index > 0 ? ', ' : null}
+                        <a href={source} rel="noopener noreferrer nofollow" target="_blank" className="underline hover:text-ink">
+                          {new URL(source).hostname.replace(/^www\./, '')}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                  . Checked {features.checked}. Confirm with the dealer before you buy.
+                </p>
+              </div>
+            ) : null}
 
-        {/* The research trail — which source said what, where two disagreed.
-            Worth keeping for anyone checking the numbers, behind a disclosure
-            because it is not what a buyer came to read. */}
-        {car.notes ? (
-          <details className="group mt-4 rounded-[1.5rem] bg-slate-100">
-            <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-ui font-bold text-slate-900 sm:px-7 [&::-webkit-details-marker]:hidden">
-              Data notes
-              <span className="text-ui-sm font-medium text-slate-500">
-                <span className="group-open:hidden">Where these figures came from</span>
-                <span className="hidden group-open:inline">Hide</span>
-              </span>
-            </summary>
-            <p className="border-t border-slate-300/60 px-5 py-4 text-ui-sm leading-relaxed text-slate-600 sm:px-7">
-              {car.notes}
-            </p>
-          </details>
-        ) : null}
+            {/* The research trail — which source said what, where two
+                disagreed. Behind a disclosure: it is not what a buyer came for. */}
+            {car.notes ? (
+              <details className="group/notes mt-3 rounded-[22px] border border-ink/10 bg-white transition-shadow open:shadow-e1">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-[16px] font-semibold text-ink sm:px-7 [&::-webkit-details-marker]:hidden">
+                  Data notes
+                  <span className="text-sm font-medium text-muted">
+                    <span className="group-open/notes:hidden">Where these figures came from</span>
+                    <span className="hidden group-open/notes:inline">Hide</span>
+                  </span>
+                </summary>
+                <p className="border-t border-ink/10 px-5 py-4 text-sm leading-relaxed text-muted sm:px-7">{car.notes}</p>
+              </details>
+            ) : null}
+          </section>
+        </div>
       </section>
 
       {/* ── Similar cars ────────────────────────────────────────────
           The same cards as the catalogue, so a buyer moves between them
           without learning a second layout. */}
       {similar.length > 0 ? (
-        <section className="mt-16">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-display text-[clamp(1.625rem,3vw,2.125rem)] font-black tracking-[-0.03em] text-slate-900">
-              Similar cars
-            </h2>
-            <Link href="/cars" className="text-ui-sm font-bold text-slate-700 underline-offset-4 hover:text-slate-900 hover:underline">
-              See all cars
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-            {similar.map((other) => (
-              <CarCard key={other.id} car={other} />
-            ))}
+        <section data-theme="light" className="bg-paper py-[clamp(64px,7vw,104px)]">
+          <div className={WRAP}>
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <Eyebrow>Keep looking</Eyebrow>
+                <h2 className={cn(H2_CLASS, 'text-ink')}>
+                  Similar <Hl>cars</Hl>
+                </h2>
+              </div>
+              <Btn href="/cars" variant="ghost">
+                See all cars
+                <BtnArrow />
+              </Btn>
+            </div>
+            <ul className="grid grid-cols-1 gap-3 min-[421px]:grid-cols-2 sm:gap-[clamp(14px,1.6vw,22px)] min-[1101px]:grid-cols-3">
+              {similar.map((other) => (
+                <li key={other.id} className="min-w-0">
+                  <CarCard car={other} />
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       ) : null}
-    </div>
+    </>
   )
 }

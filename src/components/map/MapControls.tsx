@@ -40,14 +40,13 @@ export function MapControls({
         onClick={onFilterClick}
         aria-label={`Filters, ${resultCount} stations found`}
         className={cn(
-          'flex h-11 shrink-0 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-semibold shadow-lg transition-colors duration-150 hover:bg-slate-50',
-          activeFilterCount > 0 ? 'text-plug-blue-700' : 'text-slate-700',
+          'flex h-11 shrink-0 items-center gap-2 rounded-full border border-ink/10 bg-paper/95 px-4 text-sm font-semibold text-ink shadow-e1 transition-colors duration-150 hover:bg-ink hover:text-white',
         )}
       >
         <SlidersHorizontal size={18} className="shrink-0" aria-hidden="true" />
         Filters
         {activeFilterCount > 0 ? (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-plug-blue-600 text-xs font-bold text-white">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-volt font-mono text-[11px] font-semibold text-ink">
             {activeFilterCount}
           </span>
         ) : null}
@@ -58,11 +57,11 @@ export function MapControls({
         type="button"
         onClick={onLocateMe}
         aria-label="Find my location"
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-lg transition-colors duration-150 hover:bg-slate-50"
+        className="group/loc grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-ink/10 bg-paper/95 text-ink shadow-e1 backdrop-blur-[10px] transition-[background-color,color,transform] duration-300 ease-spring hover:bg-ink hover:text-white active:scale-[0.92] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
       >
         <LocateFixed
-          size={20}
-          className={cn(isLocating ? 'animate-spin-slow text-plug-blue-600' : 'text-slate-600')}
+          size={19}
+          className={cn(isLocating && 'animate-spin motion-reduce:animate-none')}
           aria-hidden="true"
         />
       </button>

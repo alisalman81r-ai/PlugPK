@@ -32,9 +32,7 @@ import { cn } from '@/lib/utils'
  *
  * ── Radius ────────────────────────────────────────────────────────────
  *
- * rounded-xl at every size. It was the most common radius on hand-written
- * action buttons (rounded-full is just as common, but almost all of those are
- * round icon buttons and filter chips, which are not this component's job).
+ * rounded-full at every size: landing-v2 makes every button a pill.
  *
  * ── Disabled ──────────────────────────────────────────────────────────
  *
@@ -44,7 +42,7 @@ import { cn } from '@/lib/utils'
  * the label still says what the button will do once it is available.
  */
 export const buttonVariants = cva(
-  'group relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+  'group relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   {
     variants: {
       variant: {

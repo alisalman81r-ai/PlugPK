@@ -1,20 +1,23 @@
 // src/components/auth/LoginForm.tsx
 'use client'
 
-import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, Mail } from '@/components/ui/icons'
+import { AlertCircle, Eye, EyeOff, Lock, Mail } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button, MorphIcon } from '@/components/ui'
+import { MorphIcon } from '@/components/ui'
 import { signIn } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 import { authHref } from './auth-links'
+import { ALINK, ActionButton, ArrowEnd, LABEL } from './form-ui'
 import { VerifyEmailForm } from './VerifyEmailForm'
 import {
   EMAIL_PATTERN,
   FIELD_CLASS,
   FIELD_ERROR,
+  FIELD_EYE,
+  FIELD_ICON,
   FIELD_OK,
   FieldError,
 } from './SignUpForm'
@@ -112,22 +115,18 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div className="mb-5">
-        <label htmlFor="login-email" className="mb-2 block text-sm font-semibold text-slate-700">
-          Email Address
+      <div className="mb-[18px]">
+        <label htmlFor="login-email" className={LABEL}>
+          Email address
         </label>
         <div className="relative">
-          <Mail
-            size={18}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-            aria-hidden="true"
-          />
+          <Mail size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
             id="login-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            placeholder="ahmed@example.com"
+            placeholder="you@example.com"
             autoComplete="email"
             aria-invalid={error ? true : undefined}
             className={cn(FIELD_CLASS, error ? FIELD_ERROR : FIELD_OK)}
@@ -136,15 +135,11 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
       </div>
 
       <div>
-        <label htmlFor="login-password" className="mb-2 block text-sm font-semibold text-slate-700">
+        <label htmlFor="login-password" className={LABEL}>
           Password
         </label>
         <div className="relative">
-          <Lock
-            size={18}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-            aria-hidden="true"
-          />
+          <Lock size={18} className={FIELD_ICON} aria-hidden="true" />
           <input
             id="login-password"
             type={showPassword ? 'text' : 'password'}
@@ -159,9 +154,10 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
             type="button"
             onClick={() => setShowPassword((shown) => !shown)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-400 transition-colors hover:text-slate-700"
+            aria-pressed={showPassword}
+            className={FIELD_EYE}
           >
-            <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={18} />
+            <MorphIcon active={showPassword} on={EyeOff} off={Eye} size={20} />
           </button>
         </div>
         <FieldError message={fieldError ?? undefined} />
@@ -172,12 +168,9 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         server, so ticking it changed nothing. Every session lasts fourteen
         days on this browser, and the line below says so instead.
       */}
-      <div className="mb-6 mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <p className="text-ui-xs text-slate-500">You stay signed in on this device for 14 days.</p>
-        <Link
-          href={authHref('/forgot-password', redirectTo)}
-          className="text-sm font-medium text-plug-blue-600 hover:underline"
-        >
+      <div className="mb-6 mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+        <p className="text-[13px] text-muted">You stay signed in on this device for 14 days.</p>
+        <Link href={authHref('/forgot-password', redirectTo)} className={cn(ALINK, 'py-2.5 text-sm')}>
           Forgot password?
         </Link>
       </div>
@@ -185,17 +178,14 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
       {error ? (
         <div
           role="alert"
-          className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3"
+          className="mb-5 flex items-start gap-3 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3"
         >
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-500" aria-hidden="true" />
-          <span className="text-sm text-red-700">
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-[#B42E05]" aria-hidden="true" />
+          <span className="text-sm text-[#B42E05]">
             {error}
             {attempts >= 3 ? (
               <span className="mt-1 block">
-                <Link
-                  href={authHref('/forgot-password', redirectTo)}
-                  className="font-medium text-plug-blue-600 hover:underline"
-                >
+                <Link href={authHref('/forgot-password', redirectTo)} className={ALINK}>
                   Forgotten it? Reset your password by email
                 </Link>
               </span>
@@ -204,21 +194,14 @@ export function LoginForm({ onSuccess, redirectTo = '/dashboard' }: LoginFormPro
         </div>
       ) : null}
 
-      <Button type="submit" size="lg" fullWidth isLoading={isLoading} className="group/submit">
-        Sign In
-        <ArrowRight
-          size={18}
-          aria-hidden="true"
-          className="transition-transform duration-200 group-hover/submit:translate-x-0.5 motion-reduce:transition-none"
-        />
-      </Button>
+      <ActionButton type="submit" size="lg" fullWidth isLoading={isLoading}>
+        {isLoading ? 'Signing you in…' : 'Sign in'}
+        {isLoading ? null : <ArrowEnd />}
+      </ActionButton>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-[15px] text-muted">
         Don&apos;t have an account?{' '}
-        <Link
-          href={authHref('/signup', redirectTo)}
-          className="font-semibold text-plug-blue-600 hover:underline"
-        >
+        <Link href={authHref('/signup', redirectTo)} className={ALINK}>
           Create one
         </Link>
       </p>

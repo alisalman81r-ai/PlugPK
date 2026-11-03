@@ -5,6 +5,7 @@ import { ArrowUpDown, BatteryCharging, Car, MapPin, Route } from '@/components/u
 import * as React from 'react'
 
 import { MyCarHint } from '@/components/tools/MyCarHint'
+import { btnClass, Eyebrow, INPUT } from '@/components/v2/ui'
 import { useListKeyboard } from '@/hooks/useListKeyboard'
 import { useMyCar } from '@/hooks/useMyCar'
 import { PAKISTAN_CITIES } from '@/lib/constants'
@@ -30,25 +31,23 @@ export interface RouteInputFormProps {
   onCalculate: () => void
 }
 
+/** The mono field label (.rt-lbl). */
+const LBL =
+  'flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-muted [&_svg]:h-4 [&_svg]:w-4'
+
+const DOT_A = 'bg-[#35D07F] shadow-[0_0_0_3px_rgba(53,208,127,.2)]'
+const DOT_B = 'bg-ember shadow-[0_0_0_3px_rgba(255,90,31,.18)]'
+
 interface CityFieldProps {
   id: string
   label: string
   dotClass: string
-  pinClass: string
   placeholder: string
   value: string
   onChange: (value: string) => void
 }
 
-function CityField({
-  id,
-  label,
-  dotClass,
-  pinClass,
-  placeholder,
-  value,
-  onChange,
-}: CityFieldProps) {
+function CityField({ id, label, dotClass, placeholder, value, onChange }: CityFieldProps) {
   const [isFocused, setIsFocused] = React.useState(false)
   const wrapperRef = React.useRef<HTMLDivElement>(null)
 
@@ -72,6 +71,7 @@ function CityField({
   }, [value])
 
   const showSuggestions = isFocused && suggestions.length > 0 && !suggestions.includes(value)
+  const isKnown = PAKISTAN_CITIES.includes(value)
 
   const pick = (city: string) => {
     onChange(city)
@@ -91,17 +91,33 @@ function CityField({
     resetKey: value,
   })
 
+  /** The typed part of a suggestion, marked with the volt highlighter. */
+  const marked = (city: string) => {
+    const q = value.trim()
+    const at = city.toLowerCase().indexOf(q.toLowerCase())
+    if (!q || at < 0) return city
+    return (
+      <>
+        {city.slice(0, at)}
+        <mark className="bg-[linear-gradient(transparent_58%,#D4FF3A_58%,#D4FF3A_92%,transparent_92%)] font-semibold text-inherit">
+          {city.slice(at, at + q.length)}
+        </mark>
+        {city.slice(at + q.length)}
+      </>
+    )
+  }
+
   return (
-    <div ref={wrapperRef}>
-      <label htmlFor={id} className="mb-2 flex items-center gap-2">
-        <span aria-hidden="true" className={cn('h-2.5 w-2.5 shrink-0 rounded-full', dotClass)} />
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-500">{label}</span>
+    <div ref={wrapperRef} className="grid gap-2">
+      <label htmlFor={id} className={LBL}>
+        <span aria-hidden="true" className={cn('h-[9px] w-[9px] shrink-0 rounded-full', dotClass)} />
+        {label}
       </label>
 
       <div className="relative">
         <MapPin
           size={18}
-          className={cn('pointer-events-none absolute left-4 top-1/2 -translate-y-1/2', pinClass)}
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fog"
           aria-hidden="true"
         />
 
@@ -118,19 +134,21 @@ function CityField({
           onKeyDown={keys.onKeyDown}
           placeholder={placeholder}
           autoComplete="off"
+          spellCheck={false}
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={showSuggestions}
           aria-controls={keys.listId}
           aria-activedescendant={showSuggestions ? keys.activeId : undefined}
-          className="h-[52px] w-full rounded-xl border-[1.5px] border-slate-200 pl-12 pr-4 text-ui text-slate-900 transition-all duration-150 placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus focus:outline-none"
+          className={cn(INPUT, 'pl-12 pr-16', isKnown && 'border-ink/30')}
         />
 
         {showSuggestions ? (
           <div
             id={keys.listId}
             role="listbox"
-            className="absolute inset-x-0 top-full z-40 mt-2 max-h-[220px] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-e3"
+            aria-label="Cities"
+            className="absolute inset-x-0 top-[calc(100%+6px)] z-40 max-h-[300px] overflow-y-auto rounded-[18px] border border-ink/10 bg-white p-1.5 shadow-e2"
           >
             {suggestions.map((city, index) => (
               <button
@@ -144,12 +162,10 @@ function CityField({
                 // does not close before the pick lands.
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => pick(city)}
-                className="flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors duration-150 last:border-b-0 data-[active]:bg-slate-100"
+                className="flex min-h-[46px] w-full items-center gap-3 rounded-xl px-3 text-left text-[15px] text-ink transition-colors duration-150 hover:bg-chalk data-[active]:bg-chalk"
               >
-                <span className="shrink-0 rounded-lg bg-plug-blue-50 p-1.5">
-                  <MapPin size={16} className="text-plug-blue-600" aria-hidden="true" />
-                </span>
-                <span className="text-sm font-medium text-slate-900">{city}</span>
+                <MapPin size={17} className="shrink-0 text-fog" aria-hidden="true" />
+                <span>{marked(city)}</span>
               </button>
             ))}
           </div>
@@ -159,6 +175,11 @@ function CityField({
   )
 }
 
+/**
+ * The planner card (landing-v2 .planner): two cities on a dashed rail with a
+ * swap button between them, then the car and the battery side by side, then
+ * the one big ink button.
+ */
 export function RouteInputForm({
   vehicles,
   origin,
@@ -189,42 +210,34 @@ export function RouteInputForm({
   if (attempted && !selectedVehicle) hints.push('Select your EV')
 
   return (
-    <div className="rounded-[2rem] border border-slate-200/80 bg-white p-6 shadow-e2 sm:p-8 lg:p-10">
-      {/* The card owns its own title. The section around it deliberately has
-          none: a page heading and a card heading stacked two lines apart say
-          the same thing twice and make the form look like a subsection of
-          something else. */}
-      <div className="mb-8">
-        <p className="mb-1.5 flex items-center gap-2 text-ui-xs font-bold uppercase tracking-[0.14em] text-plug-blue-600">
-          <Route size={13} aria-hidden="true" />
-          Or plan your own
-        </p>
-        <h2 className="font-display text-2xl font-bold tracking-tight text-slate-900">
-          Plan your route
-        </h2>
-        <p className="mt-1.5 text-ui text-slate-500">
-          Two cities, your car and its current charge — that is everything we need.
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-[880px] rounded-[26px] border border-ink/10 bg-white px-4 pb-6 pt-[22px] shadow-e2 sm:rounded-[32px] sm:p-[clamp(24px,4vw,44px)]">
+      <Eyebrow className="mb-3">
+        <Route size={15} aria-hidden="true" />
+        Or plan your own
+      </Eyebrow>
+      <h2 className="m-0 font-display text-[clamp(30px,3.2vw,42px)] leading-[1.05] text-ink">Plan your route</h2>
+      <p className="mt-2.5 text-[15px] text-muted">
+        Two cities, your car and its current charge — that is everything we need.
+      </p>
 
-      <div className="relative flex flex-col gap-5">
+      <div className="relative mt-8 grid gap-3.5">
+        {/* The dashed rail from the From dot down to the To dot. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-[76px] left-1 top-[22px] border-l-[1.5px] border-dashed border-ink/20"
+        />
+
         <CityField
           id="route-origin"
           label="From"
-          dotClass="bg-green-500"
-          pinClass="text-slate-400"
+          dotClass={DOT_A}
           placeholder="Starting location..."
           value={origin}
           onChange={onOriginChange}
         />
 
-        {/* Both fields are the same height, so the container's vertical centre
-            is always the gap between them — no pixel offsets to keep in sync. */}
-        <span
-          aria-hidden="true"
-          className="absolute left-[22px] top-1/2 h-6 -translate-y-1/2 border-l-2 border-dashed border-slate-200"
-        />
-
+        {/* Both fields are the same height, so the vertical centre is always
+            the gap between them. */}
         <button
           type="button"
           onClick={() => {
@@ -232,42 +245,35 @@ export function RouteInputForm({
             onSwapLocations()
           }}
           aria-label="Swap origin and destination"
-          className="absolute right-4 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border-[1.5px] border-slate-200 bg-white shadow-sm transition-all duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-50"
+          className={cn(
+            'absolute right-2 top-1/2 z-[4] grid h-11 w-11 -translate-y-0.5 place-items-center rounded-[14px] border-[1.5px] border-ink/10 bg-white text-ink shadow-e1 sm:right-3',
+            'transition-[background-color,border-color,color,rotate] duration-500 ease-spring hover:border-ink hover:bg-ink hover:text-volt',
+            'focus-visible:outline-none focus-visible:shadow-focus',
+            swapSpin && 'rotate-180',
+          )}
         >
-          <ArrowUpDown
-            size={16}
-            className={cn(
-              'text-slate-500 transition-transform duration-200',
-              swapSpin && 'rotate-180',
-            )}
-            aria-hidden="true"
-          />
+          <ArrowUpDown size={20} aria-hidden="true" />
         </button>
 
         <CityField
           id="route-destination"
           label="To"
-          dotClass="bg-red-500"
-          pinClass="text-plug-blue-600"
+          dotClass={DOT_B}
           placeholder="Destination..."
           value={destination}
           onChange={onDestinationChange}
         />
       </div>
 
-      <hr className="my-8 border-slate-100" />
-
-      <div className="grid gap-8 lg:grid-cols-2">
-        <div>
-          <span className="mb-2 flex items-center gap-2">
-            <Car size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-              Your EV
-            </span>
+      <div className="mt-[30px] grid gap-7 border-t border-dashed border-ink/10 pt-7 md:grid-cols-[1fr_1.15fr] md:gap-9">
+        <div className="grid content-start gap-2">
+          <span className={LBL}>
+            <Car aria-hidden="true" />
+            Your EV
           </span>
           <VehicleSelector vehicles={vehicles} selectedVehicle={selectedVehicle} onSelect={onVehicleSelect} />
           {myCar && vehicles.some((v) => v.id === myCar.slug) ? (
-            <div className="mt-2">
+            <div className="mt-1">
               <MyCarHint
                 car={myCar}
                 selected={selectedVehicle?.id ?? ''}
@@ -277,18 +283,12 @@ export function RouteInputForm({
           ) : null}
         </div>
 
-        <div>
-          <span className="mb-2 flex items-center gap-2">
-            <BatteryCharging size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-            <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-              Current Battery
-            </span>
+        <div className="grid content-start gap-2">
+          <span className={LBL}>
+            <BatteryCharging aria-hidden="true" />
+            Current battery
           </span>
-          <BatterySlider
-            value={batteryPercent}
-            onChange={onBatteryChange}
-            vehicle={selectedVehicle}
-          />
+          <BatterySlider value={batteryPercent} onChange={onBatteryChange} vehicle={selectedVehicle} />
         </div>
       </div>
 
@@ -296,11 +296,10 @@ export function RouteInputForm({
         type="button"
         onClick={handleCalculate}
         disabled={isCalculating}
+        aria-describedby={hints.length > 0 ? 'route-hints' : undefined}
         className={cn(
-          'mt-8 flex h-14 w-full items-center justify-center gap-3 rounded-2xl text-base font-bold text-white transition-all duration-200',
-          canCalculate && !isCalculating
-            ? 'bg-gradient-brand hover:-translate-y-0.5 hover:shadow-blue-lg hover:brightness-110'
-            : 'cursor-not-allowed bg-slate-300 opacity-60',
+          btnClass('ink', 'lg', 'mt-[26px] w-full'),
+          !canCalculate && !isCalculating && 'bg-stone text-[#8a8e95] shadow-none hover:bg-stone hover:text-[#8a8e95]',
         )}
       >
         {isCalculating ? (
@@ -313,14 +312,16 @@ export function RouteInputForm({
           </>
         ) : (
           <>
-            <Route size={20} aria-hidden="true" />
-            Calculate Route
+            <Route aria-hidden="true" />
+            Calculate route
           </>
         )}
       </button>
 
       {hints.length > 0 ? (
-        <p className="mt-3 text-center text-xs text-slate-400">{hints.join(' · ')}</p>
+        <p id="route-hints" aria-live="polite" className="mt-3 text-center text-[13px] text-muted">
+          {hints.join(' · ')}
+        </p>
       ) : null}
     </div>
   )

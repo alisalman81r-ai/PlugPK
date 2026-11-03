@@ -271,9 +271,9 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           out at exactly the point the eye reads as depth.
         */}
         <radialGradient id="pk-shade" cx="0.74" cy="0.86" r="0.95">
-          <stop offset="0%" stopColor="#0B332C" stopOpacity="0.14" />
-          <stop offset="45%" stopColor="#0B332C" stopOpacity="0.06" />
-          <stop offset="100%" stopColor="#0B332C" stopOpacity="0" />
+          <stop offset="0%" stopColor="#0B0C0E" stopOpacity="0.14" />
+          <stop offset="45%" stopColor="#0B0C0E" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="#0B0C0E" stopOpacity="0" />
         </radialGradient>
 
         {/*
@@ -287,7 +287,7 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
         <filter id="pk-lift" x="-20%" y="-20%" width="140%" height="145%">
           <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#020D0B" floodOpacity="0.55" />
           <feDropShadow dx="0" dy="22" stdDeviation="30" floodColor="#020D0B" floodOpacity="0.5" />
-          <feDropShadow dx="0" dy="0" stdDeviation="26" floodColor="#26CDB2" floodOpacity="0.28" />
+          <feDropShadow dx="0" dy="0" stdDeviation="26" floodColor="#D4FF3A" floodOpacity="0.28" />
         </filter>
 
         {/*
@@ -429,7 +429,7 @@ export function PakistanMap({ className, children }: PakistanMapProps) {
           <path
             d={PATH_D}
             fill="none"
-            stroke="#0B332C"
+            stroke="#0B0C0E"
             strokeWidth={16}
             strokeLinejoin="round"
             opacity={0.06}

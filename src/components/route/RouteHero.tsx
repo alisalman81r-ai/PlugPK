@@ -1,16 +1,13 @@
 // src/components/route/RouteHero.tsx
-'use client'
+import type { ReactNode } from 'react'
 
-import { Car, MapPin, Zap, type IconType } from '@/components/ui/icons'
-import * as React from 'react'
+import { Car, MapPin, Zap } from '@/components/ui/icons'
+
+import { Hl, HeroStats, PageHero } from '@/components/v2/ui'
 
 /**
- * The planner's opening band.
- *
- * Same shape as the map's hero on purpose — dark, centred, rounded off at the
- * bottom, with the next section lifted up into it — because these are the two
- * halves of one job: find a charger, or plan around several. Two different
- * arrival experiences for that would read as two different products.
+ * The planner's opening band: the landing-v2 ink hero (.phero), with the
+ * popular routes lifted up into it.
  *
  * The figures are counted from the data at render time. A route planner is
  * exactly the kind of page where a made-up "500+ stations" would be caught the
@@ -26,73 +23,43 @@ export interface RouteHeroProps {
   cityCount: number
 }
 
-export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroProps) {
+function StatValue({ icon, value }: { icon: ReactNode; value: number }) {
   return (
-    <header className="relative rounded-b-[2rem] bg-plug-navy-950 pb-28 pt-10 sm:rounded-b-[2.5rem] sm:pb-32 lg:pb-40 lg:pt-14">
-      {/* The decoration clips itself so the band does not have to. Anything
-          with a dropdown in it — the planner's city fields sit close below —
-          needs the header to keep its overflow visible. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[2rem] sm:rounded-b-[2.5rem]"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:28px_28px]" />
-        <div className="absolute -top-40 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-plug-blue-600/25 blur-[130px]" />
-        <div className="absolute -bottom-48 left-0 h-80 w-80 rounded-full bg-plug-cyan-500/20 blur-[120px]" />
-      </div>
-
-      <div className="container-plug relative">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-balance font-display text-[clamp(2rem,4.4vw,3.25rem)] font-bold leading-[1.08] tracking-tight text-white">
-            <span className="block">Plan the drive,</span>
-            <span className="block bg-gradient-to-r from-plug-cyan-300 to-plug-blue-400 bg-clip-text text-transparent">charging stops and all</span>
-          </h1>
-
-          <p className="mx-auto mt-4 max-w-2xl text-pretty text-ui leading-relaxed text-white/65 sm:text-base">
-            Pick a popular corridor below or enter your own two cities. Tell us what you drive and
-            how much charge you have, and we size the stops around your car&apos;s real range.
-          </p>
-
-          <dl className="mx-auto mt-8 grid max-w-lg grid-cols-3 items-start divide-x divide-white/10 sm:flex sm:items-center sm:justify-center">
-            <Stat icon={Car} value={vehicleCount} label="EVs supported" />
-            <Stat icon={Zap} value={stationCount} label="stations to route via" tone="cyan" />
-            <Stat icon={MapPin} value={cityCount} label={cityCount === 1 ? 'city' : 'cities'} />
-          </dl>
-        </div>
-      </div>
-    </header>
+    <span className="inline-flex items-center gap-2 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-volt">
+      {icon}
+      {value.toLocaleString('en-PK')}
+    </span>
   )
 }
 
-function Stat({
-  icon: Icon,
-  value,
-  label,
-  tone = 'plain',
-}: {
-  icon?: IconType
-  value: number
-  label: string
-  tone?: 'plain' | 'cyan'
-}) {
+export function RouteHero({ vehicleCount, stationCount, cityCount }: RouteHeroProps) {
   return (
-    <div className="px-2 py-1 text-center sm:px-5">
-      <dt className="sr-only">{label}</dt>
-      <dd>
-        <span className="flex items-center justify-center gap-1.5">
-          {Icon ? (
-            <Icon
-              size={14}
-              aria-hidden={true}
-              className={tone === 'cyan' ? 'text-plug-cyan-400' : 'text-white/40'}
-            />
-          ) : null}
-          <span className="font-mono text-lg font-bold text-white">{value}</span>
-        </span>
-        <span className="mt-0.5 block text-balance text-ui-xs uppercase leading-snug tracking-[0.12em] text-white/45">
-          {label}
-        </span>
-      </dd>
-    </div>
+    <PageHero
+      title={
+        <>
+          Plan the drive, <Hl dark>charging stops and all</Hl>
+        </>
+      }
+      sub={
+        <>
+          Pick a popular corridor below or enter your own two cities. Tell us what you drive and how
+          much charge you have, and we size the stops around your car&apos;s real range.
+        </>
+      }
+    >
+      <HeroStats
+        items={[
+          { value: <StatValue icon={<Car aria-hidden="true" />} value={vehicleCount} />, label: 'EVs supported' },
+          {
+            value: <StatValue icon={<Zap aria-hidden="true" />} value={stationCount} />,
+            label: 'Stations to route via',
+          },
+          {
+            value: <StatValue icon={<MapPin aria-hidden="true" />} value={cityCount} />,
+            label: cityCount === 1 ? 'City' : 'Cities',
+          },
+        ]}
+      />
+    </PageHero>
   )
 }

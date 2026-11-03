@@ -5,23 +5,21 @@ import plugin from 'tailwindcss/plugin'
 import { bandColors, scaleColors, surface, themeVars } from './tailwind.tokens'
 
 /*
-  ── The palette ─────────────────────────────────────────────────────────
+  ── The palette: "night drive" ──────────────────────────────────────────
 
-  Ten colours, taken from a fintech reference and applied the way it applies
-  them: a mist-grey page, deep forest green for type and primary actions, pine
-  for dark grounds, and turquoise kept for the small moments that should catch
-  the eye — hover, focus, the active item, a highlighted word.
+  Ink grounds, chalk paper, one volt accent — the landing-v2 brand.
 
-    #E9EEEC  Mist           page ground, quiet fills
-    #0B332C  Deep Forest    headings, body type, primary buttons
-    #0D1817  Ink            the darkest surface
-    #05241E  Pine           dark bands, nav menus, modals
-    #989FA1  Cool Gray      placeholders, decorative icons
-    #727C7A  Slate          borders that need to be seen, large muted type
-    #BAC2C0  Silver Sage    borders, dividers, disabled
-    #345A53  Mineral        secondary type, borders on dark
-    #C4F8EC  Aero Mint      tinted badges and chips
-    #26CDB2  Turquoise      the accent
+    #0B0C0E  Ink         dark grounds, headings, body type, primary buttons
+    #131519  Ink 2       raised dark surfaces, menus
+    #1C1F24  Ink 3       a step up again on dark
+    #FAF9F6  Paper       light section ground
+    #F2F0EA  Chalk       the page ground of inner pages
+    #E6E3DA  Stone       quiet fills, tracks, segmented controls
+    #5B5F66  Muted       secondary type
+    #A3A7AE  Fog         placeholders, decorative icons
+    #D4FF3A  Volt        the accent: one volt moment per view
+    #3F5200  Volt ink    volt as text on light grounds (AA)
+    #FF5A1F  Ember       the rare warm counterpoint
 
   ── Why the scales are redefined rather than renamed ────────────────────
 
@@ -29,19 +27,14 @@ import { bandColors, scaleColors, surface, themeVars } from './tailwind.tokens'
   times. Pointing those names at the new palette moves every page at once and
   keeps each shade doing the job it already does — slate-500 is still "muted
   text", plug-blue-600 is still "the action colour" — so no component had to
-  learn a new vocabulary to change colour.
+  learn a new vocabulary to change colour. New code uses the named colours
+  below (ink, paper, chalk, volt…) directly.
 
-  ── Contrast rules this scale is built around ───────────────────────────
+  ── Contrast rules ──────────────────────────────────────────────────────
 
-  Turquoise on white is 2.0:1 and white on turquoise is the same. So turquoise
-  is never a text colour on light grounds and never carries white text: a
-  turquoise button takes forest type (6.9:1). On forest or pine it is fine as
-  text (6.9:1 and 8.2:1).
-
-  #727C7A is 4.3:1 on white, a hair under the 4.5:1 AA needs for body-size
-  text, and 3.7:1 on Mist. It sits at slate-450, for large type and borders.
-  slate-500 — the muted-text step, asked for over 600 times — is a deeper cut
-  of the same grey at 5.4:1 on white and 4.6:1 on Mist.
+  Volt on white is 1.1:1: volt is never a text colour on light grounds — use
+  volt-ink (plug-cyan-700) there — and a volt button takes ink type. On ink,
+  volt is fine as text (16.8:1).
 */
 
 /* The scales themselves live in tailwind.tokens.ts as CSS custom properties,
@@ -90,10 +83,19 @@ const config: Config = {
         },
         ...status,
         dark: {
-          base: '#0D1817',
-          elevated: '#05241E',
-          card: '#0B332C',
+          base: '#0B0C0E',
+          elevated: '#131519',
+          card: '#1C1F24',
         },
+        /* The landing-v2 names, for new code. */
+        ink: { DEFAULT: '#0B0C0E', 2: '#131519', 3: '#1C1F24' },
+        paper: '#FAF9F6',
+        chalk: '#F2F0EA',
+        stone: '#E6E3DA',
+        muted: '#5B5F66',
+        fog: '#A3A7AE',
+        volt: { DEFAULT: '#D4FF3A', 2: '#BDEB1F', ink: '#3F5200', tint: '#F1FFD0', edge: '#DDF58C' },
+        ember: '#FF5A1F',
       },
       /* As a ground, a border or a ring, white is a surface — see surface(). */
       backgroundColor: { white: surface },
@@ -103,12 +105,8 @@ const config: Config = {
       gradientColorStops: { white: surface },
       fontFamily: {
         /*
-          Figtree everywhere, with a real fallback stack behind it.
-
-          Naming the real system faces in descending order means the fallback
-          is a decision rather than a lottery, and every one of them is a
-          grotesque near enough to Figtree that the layout does not reflow
-          noticeably while the webfont is in flight.
+          Poppins for the interface, Power Grotesk for display, JetBrains Mono
+          for numbers, units and labels — the landing-v2 type system.
         */
         sans: [
           'var(--font-sans)',
@@ -121,20 +119,11 @@ const config: Config = {
           'sans-serif',
         ],
         /*
-          `display` is the same family. It is kept as a separate key because
-          about forty places use the `font-display` class, and it leaves one
-          token to change if a display face ever comes back.
+          Power Grotesk, Regular only. Heavier weights are drawn with a text
+          stroke (the pg-medium and pg-bold utilities below) rather than the
+          browser's synthetic bold, which smears it.
         */
-        display: [
-          'var(--font-sans)',
-          'system-ui',
-          '-apple-system',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-        ],
+        display: ['var(--font-display)', 'var(--font-sans)', 'system-ui', 'sans-serif'],
         /* --font-plain-zero covers the digit 0 only (see layout.tsx), so every
            other character, and the line metrics, still come from JetBrains. */
         mono: ['var(--font-plain-zero)', 'var(--font-jetbrains)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
@@ -146,7 +135,7 @@ const config: Config = {
         weight is carried by size and by the forest colour, not by ink. About
         sixty headings and figures across the site ask for `font-black` and
         another hundred for `font-extrabold`, which in this palette read as
-        shouting. Both now resolve to bold: at display sizes Figtree 700 has all
+        shouting. Both now resolve to bold: at display sizes Poppins 700 has all
         the presence a heading needs, and the size step already separates a
         headline from a card title, so the extra weight added nothing but ink.
       */
@@ -183,49 +172,48 @@ const config: Config = {
         /*
           The display scale.
 
-          Semibold at the largest steps, as the reference sets them, with tight
-          leading and tracking. Figtree is narrower than Poppins, so the
-          negative tracking is lighter than it was: at -0.045em Figtree's round
-          letters start to touch.
+          Power Grotesk Regular at every step (the pg-medium and pg-bold
+          utilities draw heavier weights), with tight leading and the brand's
+          -0.012em tracking.
         */
         'display-2xl': [
           '4.5rem',
           {
             lineHeight: '1.02',
-            letterSpacing: '-0.035em',
-            fontWeight: '600',
+            letterSpacing: '-0.012em',
+            fontWeight: '400',
           },
         ],
         'display-xl': [
           '3.75rem',
           {
             lineHeight: '1.05',
-            letterSpacing: '-0.03em',
-            fontWeight: '600',
+            letterSpacing: '-0.012em',
+            fontWeight: '400',
           },
         ],
         'display-lg': [
           '3rem',
           {
             lineHeight: '1.1',
-            letterSpacing: '-0.025em',
-            fontWeight: '600',
+            letterSpacing: '-0.012em',
+            fontWeight: '400',
           },
         ],
         'display-md': [
           '2.25rem',
           {
             lineHeight: '1.15',
-            letterSpacing: '-0.02em',
-            fontWeight: '600',
+            letterSpacing: '-0.012em',
+            fontWeight: '400',
           },
         ],
         'display-sm': [
           '1.875rem',
           {
             lineHeight: '1.2',
-            letterSpacing: '-0.015em',
-            fontWeight: '600',
+            letterSpacing: '-0.012em',
+            fontWeight: '400',
           },
         ],
       },
@@ -246,14 +234,16 @@ const config: Config = {
         e3: 'var(--shadow-e3)',
         e4: 'var(--shadow-e4)',
 
-        /** Focus ring used by every text input: a turquoise halo. */
-        focus: '0 0 0 3px rgba(38,205,178,0.22)',
+        /** Focus ring used by every text input: a volt halo. */
+        focus: '0 0 0 4px rgba(212,255,58,0.45)',
 
         /* The "blue" names are kept so no call site had to change. They are
-           forest now, the colour of the buttons they sit under. */
-        blue: '0 8px 24px rgba(11,51,44,0.22)',
-        'blue-lg': '0 16px 40px rgba(11,51,44,0.30)',
-        cyan: '0 8px 24px rgba(38,205,178,0.28)',
+           ink now, the colour of the buttons they sit under. */
+        blue: '0 8px 24px rgba(11,12,14,0.22)',
+        'blue-lg': '0 16px 40px rgba(11,12,14,0.30)',
+        cyan: '0 10px 30px -10px rgba(212,255,58,0.55)',
+        volt: '0 10px 30px -10px rgba(212,255,58,0.55)',
+        'volt-lg': '0 20px 60px -20px rgba(212,255,58,0.35)',
         card: 'var(--shadow-card)',
         'card-hover': 'var(--shadow-card-hover)',
         nav: '0 1px 40px rgba(5,36,30,0.08)',
@@ -265,17 +255,19 @@ const config: Config = {
         'gradient-brand': 'var(--gradient-brand)',
         /* For fills with nothing on them — progress bars, rules, stripes —
            where the turquoise end can show. Never put type on this one. */
-        'gradient-accent': 'linear-gradient(90deg, #0B332C, #26CDB2)',
+        'gradient-accent': 'linear-gradient(90deg, #0B0C0E, #D4FF3A)',
         'gradient-hero': 'var(--gradient-hero)',
         'gradient-card': 'linear-gradient(180deg, rgb(var(--c-surface)) 0%, rgb(var(--c-neutral-50)) 100%)',
-        'gradient-dark': 'linear-gradient(135deg, #0D1817 0%, #05241E 100%)',
+        'gradient-dark': 'linear-gradient(135deg, #0B0C0E 0%, #131519 100%)',
       },
       borderRadius: {
         '4xl': '2rem',
         '5xl': '2.5rem',
+        '6xl': '3rem',
       },
       transitionTimingFunction: {
         spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        out: 'cubic-bezier(0.16, 1, 0.3, 1)',
         decelerate: 'cubic-bezier(0, 0, 0.2, 1)',
         accelerate: 'cubic-bezier(0.4, 0, 1, 1)',
       },
@@ -356,6 +348,8 @@ const config: Config = {
       },
       maxWidth: {
         container: '1280px',
+        /* landing-v2's .wrap measure. */
+        wrap: '1320px',
       },
       spacing: {
         // 3.25rem / 52px — the `lg` button and SearchInput height.
@@ -373,7 +367,26 @@ const config: Config = {
        form controls and scrollbars light on a device set to dark mode. */
     plugin(({ addBase }) => {
       addBase({
-        ':root': { ...themeVars(), colorScheme: 'light' },
+        ':root': { ...themeVars(), colorScheme: 'light', '--pg-medium': '.016em', '--pg-bold': '.034em' },
+      })
+    }),
+    /*
+      Power Grotesk's weights, drawn with a stroke in the text's own colour
+      (only the Regular file is licensed), and the volt highlighter: a marker
+      stroke behind one phrase per headline on light grounds.
+    */
+    plugin(({ addUtilities }) => {
+      addUtilities({
+        '.pg-medium': { '-webkit-text-stroke': 'var(--pg-medium) currentColor', letterSpacing: '0' },
+        '.pg-bold': { '-webkit-text-stroke': 'var(--pg-bold) currentColor', letterSpacing: '.012em' },
+        '.pg-none': { '-webkit-text-stroke': '0' },
+        '.hl': {
+          background: 'linear-gradient(transparent 58%, #D4FF3A 58%, #D4FF3A 92%, transparent 92%)',
+          padding: '0 .06em',
+          margin: '0 -.06em',
+          '-webkit-box-decoration-break': 'clone',
+          boxDecorationBreak: 'clone',
+        },
       })
     }),
   ],

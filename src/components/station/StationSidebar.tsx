@@ -113,9 +113,9 @@ function useStationActions(station: Station) {
 }
 
 const TILE =
-  'group/act flex h-11 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-slate-50 transition-colors duration-150 hover:border-plug-blue-200 hover:bg-plug-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500'
-const TILE_ICON = 'text-slate-500 group-hover/act:text-plug-blue-600'
-const TILE_LABEL = 'text-ui-xs font-medium text-slate-500'
+  'group/act flex h-[52px] flex-col items-center justify-center gap-1 rounded-2xl border-[1.5px] border-ink/10 bg-white transition-[border-color,background-color] duration-200 hover:border-ink/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink'
+const TILE_ICON = 'text-ink'
+const TILE_LABEL = 'text-xs font-semibold text-muted group-hover/act:text-ink'
 
 function ActionTiles({
   station,
@@ -129,7 +129,7 @@ function ActionTiles({
 }) {
   const { signedIn, saved, signInHref, onSave, saveError, onShare, shareState, reportHref } =
     useStationActions(station)
-  const tile = compact ? cn(TILE, 'w-11 shrink-0') : TILE
+  const tile = compact ? cn(TILE, 'h-11 w-11 shrink-0 rounded-full') : TILE
   const label = compact ? 'sr-only' : TILE_LABEL
 
   return (
@@ -148,16 +148,16 @@ function ActionTiles({
             // until then, so a tap cannot be lost.
             disabled={signedIn === null}
             aria-pressed={saved}
-            className={cn(tile, saved && 'border-plug-blue-200 bg-plug-blue-50', 'disabled:opacity-60')}
+            className={cn(tile, saved && 'border-ink bg-ink hover:border-ink', 'disabled:opacity-60')}
           >
             <MorphIcon
               active={saved}
               on={BookmarkCheck}
               off={Bookmark}
               size={18}
-              className={saved ? 'text-plug-blue-600' : TILE_ICON}
+              className={saved ? 'text-volt' : TILE_ICON}
             />
-            <span className={cn(label, saved && 'text-plug-blue-600')}>
+            <span className={cn(label, saved && 'text-white group-hover/act:text-white')}>
               {saved ? 'Saved' : 'Save'}
             </span>
           </button>
@@ -212,7 +212,7 @@ function ActionTiles({
  */
 export function StationMobileBar({ station }: StationSidebarProps) {
   return (
-    <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-slate-100 bg-white px-4 py-2.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] lg:hidden">
+    <div data-theme="light" className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-ink/10 bg-paper/95 px-4 py-2.5 shadow-[0_-8px_24px_-12px_rgba(11,12,14,0.18)] backdrop-blur-md lg:hidden">
       {/* One row. It was two — the name and rating over the three tiles — and
           with the tab bar beneath, the pair covered a quarter of a 360px
           screen. The name is already the page's heading. */}
@@ -224,7 +224,7 @@ export function StationMobileBar({ station }: StationSidebarProps) {
         <a
           href="#book"
           aria-label={`Book a slot at ${station.name}`}
-          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 px-3 text-ui-sm font-semibold text-plug-blue-700"
+          className="flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full border-[1.5px] border-volt-edge bg-volt-tint px-3.5 text-sm font-semibold text-ink"
         >
           <CalendarCheck size={16} aria-hidden="true" />
           Book
@@ -234,7 +234,7 @@ export function StationMobileBar({ station }: StationSidebarProps) {
           type="button"
           onClick={() => openDirections(station)}
           aria-label={`Navigate to ${station.name}`}
-          className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-brand px-4 font-semibold text-white shadow-[0_8px_20px_rgba(11,51,44,0.30)]"
+          className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-white"
         >
           Navigate
           <Navigation2 size={18} aria-hidden="true" />
@@ -339,13 +339,14 @@ export function StationSidebar({ station }: StationSidebarProps) {
   const handleNavigate = () => openDirections(station)
 
   return (
-    <div className="flex w-[340px] shrink-0 flex-col gap-5">
+    <div className="flex w-full flex-col gap-4">
       {/* ── Main action card ─────────────────────────────────── */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
+      <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-e4">
+        <p className="mb-2.5 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-volt-ink">Get there</p>
         {/* No status badge: there is no live feed from the hardware, so
             "Available" would be a claim. No "Verified" either — nothing
             verifies a station. */}
-        <h2 className="mb-1 text-xl font-bold text-slate-900">{station.name}</h2>
+        <h2 className="mb-1.5 font-display text-[24px] leading-[1.1] text-ink">{station.name}</h2>
 
         <div className="mb-4">
           {station.reviewCount > 0 ? (
@@ -357,19 +358,19 @@ export function StationSidebar({ station }: StationSidebarProps) {
               showCount
             />
           ) : (
-            <p className="text-sm text-slate-500">No reviews yet</p>
+            <p className="text-sm text-muted">No reviews yet</p>
           )}
         </div>
 
         <div className="mb-6 flex items-start gap-2">
-          <MapPin size={16} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
-          <p className="text-sm leading-relaxed text-slate-600">
+          <MapPin size={16} className="mt-0.5 shrink-0 text-muted" aria-hidden="true" />
+          <p className="text-sm leading-relaxed text-muted">
             {fullAddress}
             <button
               type="button"
               onClick={handleCopy}
               aria-label="Copy address"
-              className="ml-1.5 inline-flex translate-y-0.5 text-slate-400 transition-colors hover:text-plug-blue-600"
+              className="ml-1.5 inline-flex translate-y-0.5 text-muted transition-colors hover:text-ink"
             >
               <MorphIcon
                 active={isCopied}
@@ -382,12 +383,12 @@ export function StationSidebar({ station }: StationSidebarProps) {
           </p>
         </div>
 
-        <div className="border-t border-slate-100" />
+        <div className="border-t border-ink/10" />
 
         <HoverButton
           type="button"
           onClick={handleNavigate}
-          className="mt-6 flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-gradient-brand text-base font-bold text-white shadow-[0_12px_35px_rgba(11,51,44,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_45px_rgba(11,51,44,0.45)]"
+          className="mt-6 flex h-[58px] w-full items-center justify-center gap-3 rounded-full bg-volt text-base font-semibold text-ink shadow-volt transition-colors duration-300 hover:bg-ink hover:text-white"
         >
           Navigate
           <AnimatedIcon motion="travel">
@@ -401,7 +402,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
             bookings, otherwise a note and nearby chargers that do. */}
         <a
           href="#book"
-          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-[1.5px] border-plug-blue-500 bg-plug-blue-50 font-bold text-plug-blue-700 transition-colors hover:bg-plug-blue-100"
+          className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-white transition-colors duration-300 hover:bg-volt hover:text-ink"
         >
           <CalendarCheck size={18} aria-hidden="true" />
           Book a slot
@@ -409,17 +410,18 @@ export function StationSidebar({ station }: StationSidebarProps) {
       </div>
 
       {/* ── Hours ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5">
-        <h3 className="mb-4 flex items-center gap-2 font-semibold text-slate-900">
-          <Clock size={18} className="text-plug-blue-600" aria-hidden="true" />
-          Operating Hours
+      <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-e1">
+        <h3 className="mb-4 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-muted">
+          <Clock size={15} className="text-ink" aria-hidden="true" />
+          Operating hours
         </h3>
 
         {!hoursStated(station.operatingHours) ? (
-          <p className="text-sm text-slate-500">Opening hours have not been given for this listing.</p>
+          <p className="text-sm text-muted">Opening hours have not been given for this listing.</p>
         ) : station.operatingHours.is24Hours ? (
-          <span className="inline-flex rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700">
-            Open 24 Hours
+          <span className="inline-flex h-8 items-center gap-2 rounded-full border border-[#BFEBD1] bg-[#E9F8EF] px-3 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-[#157A45]">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#157A45]" />
+            Open 24 hours
           </span>
         ) : (
           <div className="flex flex-col gap-1">
@@ -430,14 +432,14 @@ export function StationSidebar({ station }: StationSidebarProps) {
                 <div
                   key={day}
                   className={cn(
-                    'flex items-center justify-between rounded-lg px-2 py-1',
-                    isToday && 'bg-plug-blue-50',
+                    'flex items-center justify-between rounded-xl px-2.5 py-1.5',
+                    isToday && 'bg-ink',
                   )}
                 >
                   <span
                     className={cn(
                       'text-sm font-medium',
-                      isToday ? 'text-plug-blue-700' : 'text-slate-700',
+                      isToday ? 'text-white' : 'text-ink',
                     )}
                   >
                     {DAY_LABEL[day]}
@@ -445,7 +447,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
                   <span
                     className={cn(
                       'font-mono text-sm',
-                      isToday ? 'text-plug-blue-700' : 'text-slate-500',
+                      isToday ? 'text-volt' : 'text-muted',
                     )}
                   >
                     {formatDay(station.operatingHours[day])}
@@ -459,16 +461,16 @@ export function StationSidebar({ station }: StationSidebarProps) {
 
       {/* ── Contact ──────────────────────────────────────────── */}
       {phone || website ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
-          <h3 className="mb-4 font-semibold text-slate-900">Contact</h3>
+        <div className="rounded-[28px] border border-ink/10 bg-white p-6 shadow-e1">
+          <h3 className="mb-4 font-mono text-xs font-semibold uppercase tracking-[0.16em] text-muted">Contact</h3>
 
           <div className="flex flex-col gap-3">
             {phone ? (
               <a
                 href={`tel:${phone.replace(/\s/g, '')}`}
-                className="flex items-center gap-3 text-sm text-slate-700 transition-colors hover:text-plug-blue-600"
+                className="flex items-center gap-3 font-mono text-sm text-ink transition-colors hover:underline"
               >
-                <Phone size={16} className="shrink-0 text-plug-blue-600" aria-hidden="true" />
+                <Phone size={16} className="shrink-0 text-ink" aria-hidden="true" />
                 {phone}
               </a>
             ) : null}
@@ -478,7 +480,7 @@ export function StationSidebar({ station }: StationSidebarProps) {
                 href={website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 truncate text-sm text-plug-blue-600 hover:underline"
+                className="flex items-center gap-3 truncate text-sm font-medium text-ink underline decoration-ink/25 underline-offset-4 hover:decoration-ink"
               >
                 <Globe size={16} className="shrink-0" aria-hidden="true" />
                 <span className="truncate">
