@@ -46,7 +46,7 @@ type Entry = {
 
 /** Columns a research batch may fill, and how each is stored. */
 const COLUMNS: Record<string, 'int' | 'float' | 'string'> = {
-  variant: 'string', fullName: 'string', modelYear: 'int', generation: 'string',
+  brand: 'string', variant: 'string', fullName: 'string', modelYear: 'int', generation: 'string',
   rangeStandard: 'string', electricRangeStandard: 'string',
   batteryCapacity: 'float', range: 'int', rangeMax: 'int', electricRange: 'int', electricRangeMax: 'int',
   power: 'int', acceleration: 'float', topSpeed: 'int', torque: 'int', seats: 'int',

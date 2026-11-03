@@ -1,0 +1,14 @@
+{
+  "jaecoo-j6": {
+    "corrections": {
+      "brand": { "value": "Jaecoo", "source": "https://omodajaecoo.pk/jaecoo-j6", "note": "One spelling for the brand across all Jaecoo rows (was 'JAECOO' here and 'Jaecoo' on the J5), so the brand filter shows one Jaecoo with every model." },
+      "fullName": { "value": "Jaecoo J6", "source": "https://omodajaecoo.pk/jaecoo-j6", "note": "Matches the unified brand spelling." }
+    }
+  },
+  "jaecoo-j7-phev": {
+    "corrections": {
+      "brand": { "value": "Jaecoo", "source": "https://omodajaecoo.pk/jaecoo-j7-shs-p", "note": "One spelling for the brand across all Jaecoo rows." },
+      "fullName": { "value": "Jaecoo J7 PHEV", "source": "https://omodajaecoo.pk/jaecoo-j7-shs-p", "note": "Matches the unified brand spelling." }
+    }
+  }
+}

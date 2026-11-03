@@ -156,7 +156,7 @@ export function formatCarPrice(car: Car): string {
  * surrounding context to supply the brand.
  *
  * Built from `fullName` rather than `brand + model`, so it keeps whatever the
- * authored full name says — "JAECOO J7 PHEV" is not "JAECOO" + "J7 PHEV" in
+ * authored full name says — "Jaecoo J7 PHEV" is not "Jaecoo" + "J7 PHEV" in
  * every row, and reassembling it here would quietly rename cars.
  */
 export function carDisplayName(car: Car): string {

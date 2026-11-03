@@ -435,14 +435,14 @@ export const cars: Car[] = [
     */
     id: 'jaecoo-j6',
     slug: 'jaecoo-j6',
-    brand: 'JAECOO',
+    brand: 'Jaecoo',
     model: 'J6',
     // Three variants: Comfort RWD, Luxury RWD and Premium AWD. A lineup
     // declares no variant — null asserts "declares no variant", which is what
     // keeps a variant-sensitive crawled figure from landing on a row that
     // cannot say which trim it describes.
     variant: null,
-    fullName: 'JAECOO J6',
+    fullName: 'Jaecoo J6',
     category: 'EV',
     // Comfort 8,799,000 / Luxury 9,899,000 / Premium AWD 10,799,000.
     price: { min: lakh(87.99), max: crore(1.0799), display: 'PKR 87.99 Lakh – 1.08 Cr' },
@@ -2668,12 +2668,12 @@ export const cars: Car[] = [
     */
     id: 'jaecoo-j7-phev',
     slug: 'jaecoo-j7-phev',
-    brand: 'JAECOO',
+    brand: 'Jaecoo',
     model: 'J7 PHEV',
     // Two variants, Comfort and Premium, which differ on equipment and price
     // rather than on any figure below.
     variant: null,
-    fullName: 'JAECOO J7 PHEV',
+    fullName: 'Jaecoo J7 PHEV',
     category: 'PHEV',
     // Comfort 10,499,000 / Premium 10,999,000, both post-December 2025. The
     // introductory 9,999,000 is in `notes`.
@@ -7939,10 +7939,10 @@ export const cars: Car[] = [
   {
     id: 'jaecoo-j5-shs',
     slug: 'jaecoo-j5-shs',
-    brand: 'JAECOO',
+    brand: 'Jaecoo',
     model: 'J5 SHS',
     variant: null,
-    fullName: 'JAECOO J5 SHS HEV',
+    fullName: 'Jaecoo J5 SHS HEV',
     category: 'Hybrid',
     price: { min: lakh(66.99), max: lakh(76.99), display: 'PKR 66.99–76.99 Lakh (launch price)' },
     // J5 SHS HEV Comfort, the headline trim. Other trims are in `notes`.
