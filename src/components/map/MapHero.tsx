@@ -38,7 +38,7 @@ export interface MapHeroProps {
   /**
    * Ports installed across the stations shown.
    *
-   * This was "free right now", counted from a status column. Plug.pk has no
+   * This was "free right now", counted from a status column. plugpk has no
    * live connection to any charger — the FAQ says so a scroll further down
    * this page — so the headline figure contradicted the page it sat on.
    */

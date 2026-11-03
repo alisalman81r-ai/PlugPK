@@ -27,12 +27,12 @@ export const MAP_FAQS: FaqItem[] = [
   {
     question: 'Where do the chargers on this map come from?',
     answer:
-      'Two places. Stations entered and checked by the Plug.pk team, and listings submitted by businesses and home owners that we have verified. Both appear as pins; a partner listing says so under its name, and a home charger is labelled as one so you know you are heading to a driveway rather than a forecourt.',
+      'Two places. Stations entered and checked by the plugpk team, and listings submitted by businesses and home owners that we have verified. Both appear as pins; a partner listing says so under its name, and a home charger is labelled as one so you know you are heading to a driveway rather than a forecourt.',
   },
   {
     question: 'Does the map show whether a charger is free right now?',
     answer:
-      'No, and it does not pretend to. What you see is how many ports are installed, not how many are in use — Plug.pk has no live connection to the hardware. Call ahead using the number on a listing if arriving to a free bay matters for your trip.',
+      'No, and it does not pretend to. What you see is how many ports are installed, not how many are in use — plugpk has no live connection to the hardware. Call ahead using the number on a listing if arriving to a free bay matters for your trip.',
   },
   {
     question: 'Can I filter for the connector my car uses?',
@@ -60,7 +60,7 @@ export const ROUTES_FAQS: FaqItem[] = [
   {
     question: 'Which chargers does it plan with?',
     answer:
-      'The ones on the map: the stations Plug.pk lists and partner businesses that have been checked and approved. It does not know whether a charger is in use or working right now — there is no live connection to the hardware — so call ahead using the number on a listing before you rely on a stop.',
+      'The ones on the map: the stations plugpk lists and partner businesses that have been checked and approved. It does not know whether a charger is in use or working right now — there is no live connection to the hardware — so call ahead using the number on a listing before you rely on a stop.',
   },
   {
     question: 'Why does it assume I will not charge to full?',
@@ -88,7 +88,7 @@ export const SERVICES_FAQS: FaqItem[] = [
   {
     question: 'How do I get my business listed?',
     answer:
-      'Ask us. Service entries are added by the Plug.pk team rather than through a public form, so send a meeting request from the business page and we will take the details. If what you actually have is a charger, list it yourself through Partner Up instead.',
+      'Ask us. Service entries are added by the plugpk team rather than through a public form, so send a meeting request from the business page and we will take the details. If what you actually have is a charger, list it yourself through Partner Up instead.',
   },
   {
     question: 'Do you show prices?',
@@ -129,7 +129,7 @@ export const PARTNER_FAQS: FaqItem[] = [
   {
     question: 'Do you take a cut of what drivers pay me?',
     answer:
-      'No. Plug.pk does not set your rates, process the payment or take a percentage. Whatever a driver pays to charge is between you and them, and we do not publish your prices, because a stale rate on a map is a promise you would have to honour.',
+      'No. plugpk does not set your rates, process the payment or take a percentage. Whatever a driver pays to charge is between you and them, and we do not publish your prices, because a stale rate on a map is a promise you would have to honour.',
   },
   {
     question: 'Can I list the charger at my house?',

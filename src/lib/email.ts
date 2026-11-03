@@ -14,7 +14,7 @@ import nodemailer from 'nodemailer'
  *   SMTP_PORT   587 (STARTTLS) or 465 (TLS from the first byte)
  *   SMTP_USER   the mailbox to sign in as
  *   SMTP_PASS   its password — for Gmail, a 16-character app password
- *   MAIL_FROM   sender shown to recipients, e.g. "Plug.pk <you@gmail.com>"
+ *   MAIL_FROM   sender shown to recipients, e.g. "plugpk <you@gmail.com>"
  *
  * Every variable is required in every environment. There is no "print it to
  * the console instead" fallback: a verification code in a log is a code

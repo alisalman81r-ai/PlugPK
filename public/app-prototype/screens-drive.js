@@ -1,4 +1,4 @@
-// plug.pk app prototype — route planner, car catalogue, car detail, compare, car picker.
+// plugpk app prototype — route planner, car catalogue, car detail, compare, car picker.
 'use strict'
 
 const routeCar = () => (U.route.slug ? carBySlug(U.route.slug) : myCar())
@@ -63,7 +63,7 @@ SCREENS.routes = () => {
       </section>
 
       <section class="section pad">
-        <div class="notice neutral">${ic('info', 18)}<span><b>How we plan.</b> We take ${Math.round(DERATE * 100)}% of the rated range for motorway speed with the AC on, keep a ${RESERVE}% reserve, and only plan stops at chargers plug.pk lists. Distances are estimates, not a live routing service.</span></div>
+        <div class="notice neutral">${ic('info', 18)}<span><b>How we plan.</b> We take ${Math.round(DERATE * 100)}% of the rated range for motorway speed with the AC on, keep a ${RESERVE}% reserve, and only plan stops at chargers plugpk lists. Distances are estimates, not a live routing service.</span></div>
       </section>
     </div>`,
   }
@@ -93,7 +93,7 @@ Object.assign(A, {
   },
   shareRoute: () => {
     const R = U.route
-    copyText(`${R.from} → ${R.to}, ${roadKm(R.from, R.to)} km. Planned on plug.pk`, 'Route copied')
+    copyText(`${R.from} → ${R.to}, ${roadKm(R.from, R.to)} km. Planned on plugpk`, 'Route copied')
   },
 })
 IN.routeFrom = (v) => { U.route.from = v; render() }
@@ -128,10 +128,10 @@ SCREENS.routeResult = () => {
       <button class="btn btn-sm btn-secondary mt-8" data-a="go" data-v="station" data-id="${s.id}">View station ${ic('arrowR', 14)}</button>`])
   }
   if (p.kind === 'tophome') {
-    tl.push(['charge', 'plug', `Charge to ${p.target}% before you go`, `plug.pk doesn’t list a charger in ${p.from} yet. On a 7.4 kW wall box that’s about <b class="mono">${fmtDur(p.est.minutes)}</b>.`])
+    tl.push(['charge', 'plug', `Charge to ${p.target}% before you go`, `plugpk doesn’t list a charger in ${p.from} yet. On a 7.4 kW wall box that’s about <b class="mono">${fmtDur(p.est.minutes)}</b>.`])
   }
   if (p.kind === 'gap') {
-    tl.push(['warn', 'info', `Range runs short around km ${p.reach}`, `Even from 100%, your ${esc(car.name)} reaches about <b class="mono">${p.reach} km</b> of this <b class="mono">${p.km} km</b> drive before the ${RESERVE}% reserve. plug.pk doesn’t list a charger along this corridor yet, so we can’t plan the stops honestly.`])
+    tl.push(['warn', 'info', `Range runs short around km ${p.reach}`, `Even from 100%, your ${esc(car.name)} reaches about <b class="mono">${p.reach} km</b> of this <b class="mono">${p.km} km</b> drive before the ${RESERVE}% reserve. plugpk doesn’t list a charger along this corridor yet, so we can’t plan the stops honestly.`])
   }
   if (p.kind === 'phev') {
     tl.push(['charge', 'battery', `Electric for the first ${p.elecKm} km`, `After that the engine takes over. No charging stop needed.`])
@@ -171,7 +171,7 @@ SCREENS.routeResult = () => {
         <div class="timeline mt-12">${tl.map(([cls, icon, t, b]) => `<div class="tl-item"><span class="tl-ico ${cls}">${ic(icon, 18)}</span><div style="padding-top:8px"><b class="t15">${t}</b><div class="t14 muted mt-4">${b}</div></div></div>`).join('')}</div>
         ${p.kind === 'gap' ? `<button class="btn btn-secondary btn-block" data-a="tripReports">${ic('chat', 18)}Read trip reports from drivers</button>` : ''}
         ${p.dest?.length ? `<h2 class="t20 mt-24">Chargers in ${p.to}</h2><div class="stack gap-12 mt-12">${p.dest.map(stationRow).join('')}</div>` : ''}
-        <div class="notice neutral mt-24">${ic('info', 18)}<span>Range taken at ${Math.round(DERATE * 100)}% of the ${car?.rangeStd || 'rated'} figure for motorway driving with the AC on. Charge times use plug.pk’s charging model and are estimates.</span></div>
+        <div class="notice neutral mt-24">${ic('info', 18)}<span>Range taken at ${Math.round(DERATE * 100)}% of the ${car?.rangeStd || 'rated'} figure for motorway driving with the AC on. Charge times use plugpk’s charging model and are estimates.</span></div>
       </div>
       <div class="bottom-bar">
         <button class="btn btn-secondary btn-icon" data-a="shareRoute" aria-label="Copy route">${ic('share', 18)}</button>

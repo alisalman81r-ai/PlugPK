@@ -1,6 +1,6 @@
 // scripts/car-plates.mjs
 //
-// Puts a plug.pk number plate on every catalogue photograph.
+// Puts a plugpk number plate on every catalogue photograph.
 //
 // The plate is drawn as SVG and warped onto each car by the four corners in
 // scripts/car-plate-corners.json — [top-left, top-right, bottom-right,
@@ -27,13 +27,13 @@ export function plateSvg(scale = SS, holder = PH) {
   ${holder > PH ? `<rect width="${PW}" height="${holder}" rx="10" fill="#16191A"/><g transform="translate(0 ${dy})">` : '<g>'}
   <rect x="2" y="2" width="${PW - 4}" height="${PH - 4}" rx="10" fill="#FFFFFF" stroke="#0B332C" stroke-width="4"/>
   <rect x="9" y="9" width="${PW - 18}" height="${PH - 18}" rx="6" fill="none" stroke="#0B332C" stroke-width="1.5" opacity="0.35"/>
-  <g transform="translate(78 18) scale(0.47)">
+  <g transform="translate(106 18) scale(0.47)">
     <g fill="#159E89" stroke="#159E89" stroke-linejoin="round" transform="translate(-4 -6)">
       <path stroke-width="11" d="M99 18 L88 66 L130 69 L57 152 L61 107 L14 102 Z"/>
       <path stroke-width="5" d="M143.5 75 L140.5 85.5 L154 85.5 L154 88.5 L138.5 88.5 L135.5 99.5 L122 101.5 Z"/>
     </g>
   </g>
-  <text x="160" y="80" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="70" letter-spacing="-2.5"><tspan fill="#0B332C">plug</tspan><tspan fill="#159E89">.pk</tspan></text>
+  <text x="188" y="80" font-family="Segoe UI, Arial, sans-serif" font-weight="700" font-size="70" letter-spacing="-2.5"><tspan fill="#0B332C">plug</tspan><tspan fill="#159E89">pk</tspan></text>
   </g>
 </svg>`
 }

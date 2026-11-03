@@ -112,7 +112,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           <Link
             href="/"
             className="flex items-center gap-2 rounded-lg transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-            aria-label="Plug.pk home"
+            aria-label="plugpk home"
           >
             <Logo tone="light" size="text-xl" />
           </Link>

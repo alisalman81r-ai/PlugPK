@@ -1,6 +1,6 @@
 // src/lib/mock-data.ts
 // ═══════════════════════════════════════════════════
-// PLUG.PK — MOCK DATA
+// plugpk — MOCK DATA
 // Development fixtures. Replace with API calls in a later phase.
 // ═══════════════════════════════════════════════════
 
@@ -1576,7 +1576,7 @@ export const MOCK_CLUBS: EVClub[] = [
     city: 'Quetta',
     memberCount: 29,
     description:
-      'The newest club on Plug.pk. Small but determined, and the best source of information on charging in Balochistan.',
+      'The newest club on plugpk. Small but determined, and the best source of information on charging in Balochistan.',
     isJoined: false,
   },
 ]

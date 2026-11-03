@@ -89,7 +89,7 @@ export function PartnerPricing() {
           eyebrow="Plans"
           icon={<Tag size={13} aria-hidden="true" />}
           title="One price to list. Growing is optional."
-          lead="You keep what drivers pay you on every plan — Plug.pk never takes a cut of your charging revenue."
+          lead="You keep what drivers pay you on every plan — plugpk never takes a cut of your charging revenue."
           className="mb-16"
         />
 

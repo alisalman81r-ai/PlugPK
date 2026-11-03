@@ -1,4 +1,4 @@
-// plug.pk app prototype — onboarding, sign-in, home, search, notifications.
+// plugpk app prototype — onboarding, sign-in, home, search, notifications.
 'use strict'
 
 const POPULAR_SLUGS = ['byd-atto-3-advanced', 'mg-zs-ev', 'byd-seal', 'byd-atto-2', 'mg-4-urban', 'honri-ve-2', 'dfsk-seres-3', 'deepal-s07', 'deepal-l07', 'kia-ev5', 'gwm-ora-03', 'byd-sealion-7-advanced'].filter(carBySlug)
@@ -269,7 +269,7 @@ function authScreen() {
         <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">${up ? 'Create account' : 'Sign in'} ${ic('arrowR', 18)}</button>
         <div class="row" style="gap:12px;color:var(--faint);font-size:13px;margin:-2px 0"><span class="grow" style="height:1px;background:var(--line)"></span>or<span class="grow" style="height:1px;background:var(--line)"></span></div>
         <button class="btn btn-secondary btn-block" type="button" data-a="guest">${ic('user', 18)}Continue as guest</button>
-        <p class="t12 faint" style="text-align:center;line-height:1.6">By continuing you agree to plug.pk’s <a class="accent-text" href="https://plug.pk/terms" target="_blank" rel="noopener">Terms</a> and <a class="accent-text" href="https://plug.pk/privacy" target="_blank" rel="noopener">Privacy policy</a>. Prototype: accounts stay on this device.</p>
+        <p class="t12 faint" style="text-align:center;line-height:1.6">By continuing you agree to plugpk’s <a class="accent-text" href="https://plug.pk/terms" target="_blank" rel="noopener">Terms</a> and <a class="accent-text" href="https://plug.pk/privacy" target="_blank" rel="noopener">Privacy policy</a>. Prototype: accounts stay on this device.</p>
       </form>
     </div></div>`,
   }
@@ -361,7 +361,7 @@ Object.assign(A, {
     U.authBusy = true
     const btn = f.querySelector('[type="submit"]')
     if (btn) { btn.disabled = true; btn.dataset.label = btn.innerHTML; btn.innerHTML = up ? 'Creating your account…' : 'Signing in…' }
-    // The website's own accounts: the same email and password work on plug.pk.
+    // The website's own accounts: the same email and password work on plugpk.
     signInRemote(up ? 'signup' : 'signin', v).then((error) => {
       U.authBusy = false
       if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.label }
@@ -396,7 +396,7 @@ Object.assign(A, {
     U.stack = [{ s: 'home' }]
     U.dir = 'fade'
     render()
-    toast(S.user ? `Welcome, ${firstName()}` : 'Welcome to plug.pk', 'bolt')
+    toast(S.user ? `Welcome, ${firstName()}` : 'Welcome to plugpk', 'bolt')
   },
 })
 IN.pickQ = (v) => { U.pickQ = v; render() }
@@ -519,7 +519,7 @@ SCREENS.home = () => {
       </section>` : ''}
 
       <section class="section pad">
-        <h2 class="t20" style="margin-bottom:12px">More from plug.pk</h2>
+        <h2 class="t20" style="margin-bottom:12px">More from plugpk</h2>
         <div class="list">
           ${listRow('compare', 'Compare cars', 'Prices, range and charging side by side', 'compare')}
           ${listRow('users', 'EV clubs', `Meet drivers in ${new Set(D.clubs.map((c) => c.city)).size} cities`, 'clubs')}
@@ -621,7 +621,7 @@ A.searchFill = (v) => { U.search = v; render() }
 SCREENS.notifications = () => {
   if (!S.seenNotif) { S.seenNotif = true; save() }
   const items = [
-    { i: 'bolt', t: 'Welcome to plug.pk', b: 'Find chargers on the map, plan a drive or work out a charge time. Everything you save stays on this device.', d: 'Today' },
+    { i: 'bolt', t: 'Welcome to plugpk', b: 'Find chargers on the map, plan a drive or work out a charge time. Everything you save stays on this device.', d: 'Today' },
     { i: 'flag', t: 'Six example stations', b: 'The stations you see are sample listings while operators join. They’re marked “Example listing”.', d: 'Today' },
     { i: 'users', t: 'Clubs in 8 cities', b: 'Meet other drivers near you. Join a club from the Community tab.', d: 'This week' },
   ]

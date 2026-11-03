@@ -29,7 +29,7 @@ export function ListYourServiceBand({ category, className }: { category?: string
             For EV businesses{category ? ` · ${category}` : ''}
           </p>
           <h2 id="list-your-service" className="mt-3 text-balance text-2xl font-black tracking-tight text-white sm:text-3xl">
-            Run an EV service? Get listed on Plug.pk.
+            Run an EV service? Get listed on plugpk.
           </h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-3 sm:gap-4">
             {points.map(({ icon: Icon, text }) => (

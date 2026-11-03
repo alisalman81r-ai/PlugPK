@@ -1,4 +1,4 @@
-// plug.pk app prototype — community, clubs, services, tools, profile, settings, partners.
+// plugpk app prototype — community, clubs, services, tools, profile, settings, partners.
 'use strict'
 
 function needSignIn(why) {
@@ -368,7 +368,7 @@ SCREENS.profile = () => {
       <div class="pad">
         <p class="group-label">Your stuff</p>
         <div class="list">
-          ${canInstall() ? `<button class="list-row" data-a="installApp"><span class="ico">${ic('plusSq', 18)}</span><span class="grow"><b class="t15">Install the app</b><br><span class="t13 muted">Add plug.pk to your home screen</span></span>${ic('chevR', 18)}</button>` : ''}
+          ${canInstall() ? `<button class="list-row" data-a="installApp"><span class="ico">${ic('plusSq', 18)}</span><span class="grow"><b class="t15">Install the app</b><br><span class="t13 muted">Add plugpk to your home screen</span></span>${ic('chevR', 18)}</button>` : ''}
           ${listRow('car', 'My garage', `${S.garage.length} car${S.garage.length === 1 ? '' : 's'}${myCar() ? ` · ${esc(myCar().model)} is main` : ''}`, 'vehicles')}
           ${listRow('bookmark', 'Saved stations', `${S.saved.length} saved`, 'saved')}
           ${listRow('route', 'Saved routes', `${S.routes.length} saved`, 'savedRoutes')}
@@ -383,14 +383,14 @@ SCREENS.profile = () => {
           ${listRow('gauge', 'Range converter', 'EPA, WLTP, NEDC, CLTC', 'range')}
           ${listRow('wrench', 'EV services', 'Dealers, workshops, installers', 'services')}
         </div>
-        <p class="group-label">plug.pk</p>
+        <p class="group-label">plugpk</p>
         <div class="list">
           ${listRow('handshake', 'Partner Up', 'List your charger or business', 'partners')}
           ${listRow('gear', 'Settings', 'Notifications, account, data', 'settings')}
           <button class="list-row" data-a="sheet" data-v="about"><span class="ico">${ic('help', 18)}</span><span class="grow"><b class="t15">About this prototype</b></span><span class="chev">${ic('chevR', 18)}</span></button>
         </div>
         ${u ? `<button class="btn btn-secondary btn-block mt-24" data-a="signOut">${ic('logout', 18)}Sign out</button>` : ''}
-        <p class="t12 faint mt-16" style="text-align:center;padding-bottom:32px">plug.pk app prototype · data ${D.builtAt}</p>
+        <p class="t12 faint mt-16" style="text-align:center;padding-bottom:32px">plugpk app prototype · data ${D.builtAt}</p>
       </div>
     </div>`,
   }
@@ -405,7 +405,7 @@ Object.assign(A, {
 SHEETS.about = () => ({
   title: 'About this prototype',
   body: `<div class="stack gap-12 t15" style="color:var(--fg-2)">
-    <p>This is a working prototype of the plug.pk app. It uses the website’s real catalogue of <b>${D.cars.length} cars</b>, its services and community posts, and the same charging, range and route maths.</p>
+    <p>This is a working prototype of the plugpk app. It uses the website’s real catalogue of <b>${D.cars.length} cars</b>, its services and community posts, and the same charging, range and route maths.</p>
     <p>The <b>${D.stations.length} stations</b> are the website’s example listings. There’s no live availability yet, so nothing claims a charger is free.</p>
     <p>Anything you save, post or review stays in this browser. Nothing is sent anywhere.</p>
     <p>The map is drawn for the prototype. The real app would use a map provider and your location.</p>
@@ -510,7 +510,7 @@ SCREENS.partners = () => {
         <button class="icon-btn" data-a="back" aria-label="Back" style="position:relative">${ic('arrowL', 22)}</button>
         <div class="eyebrow mt-12" style="position:relative">${ic('handshake', 13)} Partner Up</div>
         <h1 class="band-title mt-8" style="position:relative">Put your charger <span class="hl">on the map</span></h1>
-        <p class="t14 mt-8" style="color:rgba(255,255,255,.65);position:relative">Drivers open plug.pk when they need a charge now. Be where they look.</p>
+        <p class="t14 mt-8" style="color:rgba(255,255,255,.65);position:relative">Drivers open plugpk when they need a charge now. Be where they look.</p>
       </header>
       <div class="pad lifted stack gap-12">
         ${[['pin', 'List what you have', 'A hotel forecourt, an office car park or the one charger on your driveway. Same form, same few minutes.'], ['shield', 'We check the details', 'We confirm the address, the pin and the charger specs before publishing, so drivers who set off actually arrive.'], ['nav', 'Drivers find you', 'Your listing appears on the map and in search, filterable by plug and speed, with directions one tap away.']].map(([i, t, b], n) => `<div class="frame"><div class="face row" style="gap:14px;align-items:flex-start;padding:18px">
@@ -539,7 +539,7 @@ SCREENS.partners = () => {
           <span class="accent-text">${ic('wrench', 22)}</span>
           <div class="grow"><b class="t15">Run an EV service instead?</b><p class="t13 muted">Dealers, workshops, installers and insurers — list in Services.</p></div>
           ${ic('chevR', 18)}</div></button>
-        <div class="notice neutral">${ic('info', 18)}<span>You set the price and you keep it. plug.pk doesn’t set your rates, take the payment or take a cut.</span></div>
+        <div class="notice neutral">${ic('info', 18)}<span>You set the price and you keep it. plugpk doesn’t set your rates, take the payment or take a cut.</span></div>
       </section>
       <section class="section pad" style="padding-bottom:40px">
         <h2 class="t20">Arrange a meeting</h2>
@@ -572,7 +572,7 @@ A.meeting = (_, f) => {
 }
 // ─── List a business ───────────────────────────────────────────────
 // The website's two listing forms, in the app: chargers at a venue (Partner
-// Up, needs an account, the listing is managed on plug.pk) and an EV service
+// Up, needs an account, the listing is managed on plugpk) and an EV service
 // in the directory (dealer, workshop, installer…, no account needed). Both go
 // through the website's own server actions and land in the admin's review
 // queue; nothing is published until a person approves it.

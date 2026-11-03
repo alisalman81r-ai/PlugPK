@@ -26,7 +26,7 @@ export function HostSettingsForm({
 }: {
   /** A partner listing, saved by its owner… */
   businessId?: string
-  /** …or an operator station, saved by the Plug.pk team. */
+  /** …or an operator station, saved by the plugpk team. */
   stationId?: string
   initial: HostSettingsView
   hasPayoutAccount: boolean
@@ -65,7 +65,7 @@ export function HostSettingsForm({
       setMessage({ tone: 'ok', text: stationId ? 'Saved. The station page shows the new details.' : 'Saved. Your listing shows the new details.' })
       router.refresh()
     } catch {
-      setMessage({ tone: 'error', text: 'Could not reach Plug.pk. Check your connection and try again.' })
+      setMessage({ tone: 'error', text: 'Could not reach plugpk. Check your connection and try again.' })
     } finally {
       setBusy(false)
     }
@@ -97,7 +97,7 @@ export function HostSettingsForm({
             <span className="block text-sm font-semibold text-slate-900">Take bookings</span>
             <span className="mt-0.5 block text-ui-sm text-slate-500">
               {stationId
-                ? 'Drivers reserve a time by paying an advance to Plug.pk. Your team confirms each booking under Admin › Bookings.'
+                ? 'Drivers reserve a time by paying an advance to plugpk. Your team confirms each booking under Admin › Bookings.'
                 : 'Drivers reserve a time slot by paying an advance to your payout account.'}
             </span>
           </span>
@@ -112,7 +112,7 @@ export function HostSettingsForm({
         {enabled && !hasPayoutAccount ? (
           <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-ui-sm text-amber-800">
             {stationId
-              ? 'No Plug.pk payment account is set (PAYMENT_* in the environment), so drivers would have nowhere to pay the advance.'
+              ? 'No plugpk payment account is set (PAYMENT_* in the environment), so drivers would have nowhere to pay the advance.'
               : 'Add a payout account under Payout accounts first — that is where drivers send the advance.'}
           </p>
         ) : null}

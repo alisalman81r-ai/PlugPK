@@ -100,7 +100,7 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeocodeR
       signal: controller.signal,
       headers: {
         // Nominatim's usage policy requires identifying the application.
-        'User-Agent': 'PlugPK/1.0 (EV charging directory; contact via plug.pk)',
+        'User-Agent': 'PlugPK/1.0 (EV charging directory; contact via plugpk)',
         'Accept-Language': 'en',
       },
       // The address of a given point does not change; caching keeps repeated

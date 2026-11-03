@@ -6,7 +6,7 @@ import { LegalPage, type LegalSection } from '@/components/shared/LegalPage'
 
 export const metadata: Metadata = {
   title: 'Terms of Service',
-  description: 'The terms for using Plug.pk as a driver or as a partner listing a charger or an EV service.',
+  description: 'The terms for using plugpk as a driver or as a partner listing a charger or an EV service.',
 }
 
 /*
@@ -17,10 +17,10 @@ export const metadata: Metadata = {
 const SECTIONS: LegalSection[] = [
   {
     id: 'about',
-    title: 'About Plug.pk',
+    title: 'About plugpk',
     body: (
       <p>
-        Plug.pk is a guide to electric driving in Pakistan: a map of charging stations, a route planner, a car
+        plugpk is a guide to electric driving in Pakistan: a map of charging stations, a route planner, a car
         catalogue with prices and specifications, EV services, and a community for drivers. By using the site you
         agree to these terms. If you do not agree, please do not use it.
       </p>
@@ -51,10 +51,10 @@ const SECTIONS: LegalSection[] = [
         <p>
           We work to keep station details, car prices and specifications accurate, but they come from manufacturers,
           dealers, station operators and public sources, and they change. Prices marked “indicative”, “promo” or
-          “launch price” are not offers from Plug.pk. Range and charging-time figures are estimates.
+          “launch price” are not offers from plugpk. Range and charging-time figures are estimates.
         </p>
         <p>
-          Always confirm a price with the dealer and check a charger before you rely on it for a journey. Plug.pk does
+          Always confirm a price with the dealer and check a charger before you rely on it for a journey. plugpk does
           not sell cars or charging and is not responsible for a third party’s prices, service or equipment.
         </p>
       </>
@@ -73,7 +73,7 @@ const SECTIONS: LegalSection[] = [
           <li>anything that infringes someone else’s rights.</li>
         </ul>
         <p>
-          You keep ownership of what you post and give Plug.pk permission to show it on the site. We may remove
+          You keep ownership of what you post and give plugpk permission to show it on the site. We may remove
           content, or suspend an account, that breaks these rules.
         </p>
       </>
@@ -117,7 +117,7 @@ const SECTIONS: LegalSection[] = [
     title: 'Liability',
     body: (
       <p>
-        The site is provided as it is. To the extent the law allows, Plug.pk is not liable for loss caused by relying
+        The site is provided as it is. To the extent the law allows, plugpk is not liable for loss caused by relying
         on information on the site — for example a charger that is out of service, a price that has changed or a
         journey that took longer than estimated. Nothing in these terms limits rights you have under Pakistani law
         that cannot be limited.
@@ -151,7 +151,7 @@ export default function TermsPage() {
     <LegalPage
       eyebrow="Legal"
       title="Terms of Service"
-      intro="The rules for using Plug.pk — as a driver finding chargers and comparing cars, and as a partner listing a charger or an EV service."
+      intro="The rules for using plugpk — as a driver finding chargers and comparing cars, and as a partner listing a charger or an EV service."
       updated="2 October 2026"
       sections={SECTIONS}
     />

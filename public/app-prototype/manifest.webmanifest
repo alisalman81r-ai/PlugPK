@@ -1,6 +1,6 @@
 {
-  "name": "plug.pk — EV charging, routes and cars",
-  "short_name": "plug.pk",
+  "name": "plugpk — EV charging, routes and cars",
+  "short_name": "plugpk",
   "description": "Find EV chargers across Pakistan, plan trips around your car's real range, compare cars and talk to other drivers.",
   "id": "/app-prototype/",
   "start_url": "/app-prototype/index.html",

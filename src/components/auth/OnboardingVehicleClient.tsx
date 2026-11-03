@@ -47,7 +47,7 @@ export function OnboardingVehicleClient({ cars }: OnboardingVehicleClientProps) 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <header className="flex items-center justify-between gap-4 border-b border-slate-100 px-4 py-4 sm:px-8 sm:py-6">
-        <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
+        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
           <Logo tone="light" size="text-xl" />
         </Link>
 

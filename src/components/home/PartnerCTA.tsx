@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
  * The copy states the one published price — PKR 4,999 a month, the figure on
  * Partner Up and in its FAQ. It said "free to list" while Partner Up said
  * 4,999; one of the two had to be wrong. It does not promise "no cost, no maintenance":
- * plug.pk lists chargers, it does not install or service them.
+ * plugpk lists chargers, it does not install or service them.
  */
 export function PartnerCTA() {
   // No top padding: the community band above is white and already ends in
@@ -61,7 +61,7 @@ export function PartnerCTA() {
           </h2>
 
           <p className="mx-auto mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-white/80 sm:text-xl">
-            Host a charger and give EV drivers a reason to stop at yours. Listing on plug.pk is
+            Host a charger and give EV drivers a reason to stop at yours. Listing on plugpk is
             PKR 4,999 a month, and every listing is checked before it goes live.
           </p>
 

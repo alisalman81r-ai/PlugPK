@@ -5,7 +5,7 @@ import { AdminShell } from '@/components/admin/AdminShell'
 import { hasAccountSession, isRequestAdmin } from '@/lib/db/admin-access'
 import { getAdminQueueState } from '@/lib/db/admin-badges'
 
-export const metadata = { title: { absolute: 'Plug.pk admin' } }
+export const metadata = { title: { absolute: 'plugpk admin' } }
 
 /**
  * Reads a cookie on every request, so it can never be statically rendered or

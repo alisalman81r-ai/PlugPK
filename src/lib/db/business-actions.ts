@@ -33,7 +33,7 @@ import { discard } from './upload-store'
  * Applications from businesses wanting their chargers listed.
  *
  * The sign-up form used to await a 2.5 second timer and then announce
- * "You're Live on Plug.pk!" — it wrote nothing, sent nothing, and every
+ * "You're Live on plugpk!" — it wrote nothing, sent nothing, and every
  * application disappeared on refresh. Applying needs an account (the identity
  * comes from the session, never from the form); reading and changing other
  * people's applications is the operator's job, and each privileged action

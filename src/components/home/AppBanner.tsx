@@ -67,11 +67,11 @@ export function AppBanner() {
             </span>
 
             <h2 className="mt-6 text-balance text-[clamp(2.25rem,5vw,3.75rem)] font-black leading-[1.02] tracking-[-0.035em] text-slate-900">
-              Get the <span className="text-plug-cyan-600">plug.pk</span> app
+              Get the <span className="text-plug-cyan-600">plugpk</span> app
             </h2>
 
             <p className="mt-5 max-w-lg text-pretty text-ui-lg leading-relaxed text-slate-500">
-              Plug.pk is building apps for iOS and Android.
+              plugpk is building apps for iOS and Android.
               <br className="hidden sm:block" /> The map, the route planner and the connectors, in your pocket.
             </p>
 
@@ -99,7 +99,7 @@ export function AppBanner() {
                   <LogoMark className="h-7 w-7" />
                   <span className="mt-1 text-[13px] font-bold leading-none tracking-[-0.03em]">
                     <span className="text-white">plug</span>
-                    <span className="text-[#6FE8B6]">.pk</span>
+                    <span className="text-[#6FE8B6]">pk</span>
                   </span>
                 </span>
 

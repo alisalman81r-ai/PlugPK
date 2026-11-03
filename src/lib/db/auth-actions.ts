@@ -277,7 +277,7 @@ export async function requestPasswordReset(rawEmail: string): Promise<ResendResu
 
   return {
     ok: true,
-    message: `If ${email.value} has a Plug.pk account, we sent a 6-digit code to it. It expires in 10 minutes.`,
+    message: `If ${email.value} has a plugpk account, we sent a 6-digit code to it. It expires in 10 minutes.`,
   }
 }
 

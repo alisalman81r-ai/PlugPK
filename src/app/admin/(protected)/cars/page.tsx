@@ -33,7 +33,7 @@ import { cn } from '@/lib/utils'
  * with what is missing rather than with a count of what is there.
  */
 
-export const metadata = { title: { absolute: 'Cars · Plug.pk admin' } }
+export const metadata = { title: { absolute: 'Cars · plugpk admin' } }
 
 /** An admin page reading live rows must never be served from a cache. */
 export const dynamic = 'force-dynamic'

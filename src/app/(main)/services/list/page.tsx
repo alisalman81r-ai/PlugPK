@@ -30,7 +30,7 @@ const RETURN = encodeURIComponent('/services/list')
 export const metadata: Metadata = {
   title: 'List your EV service',
   description:
-    'Workshops, home charger installers, dealers and roadside assistance — apply to be listed in the Plug.pk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
+    'Workshops, home charger installers, dealers and roadside assistance — apply to be listed in the plugpk EV services directory. PKR 4,999 a month to list, checked before it goes live.',
   alternates: { canonical: '/services/list' },
 }
 
@@ -67,7 +67,7 @@ export default async function ListServicePage() {
       <div className="mx-auto max-w-[800px] px-4 py-12">
         <div className="mb-12 text-center">
           <EyebrowBadge color="blue">Service Registration</EyebrowBadge>
-          <h1 className="mt-4 text-4xl font-black text-slate-900">List Your Service on Plug.pk</h1>
+          <h1 className="mt-4 text-4xl font-black text-slate-900">List Your Service on plugpk</h1>
           <p className="mt-3 text-lg text-slate-500">
             Workshops, home charger installers, dealers and roadside assistance
           </p>
@@ -98,7 +98,7 @@ export default async function ListServicePage() {
             <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-8 text-center">
               <h2 className="text-xl font-bold text-slate-900">Create a free account to apply</h2>
               <p className="mx-auto mt-2 max-w-md text-ui leading-relaxed text-slate-500">
-                Your application belongs to your Plug.pk account, so our team knows who sent it. It takes a minute, and
+                Your application belongs to your plugpk account, so our team knows who sent it. It takes a minute, and
                 you come straight back here afterwards.
               </p>
               <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">

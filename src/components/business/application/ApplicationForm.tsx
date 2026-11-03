@@ -116,7 +116,7 @@ export function ApplicationForm({
       else setEditingPayment(false)
       router.refresh()
     } catch {
-      setMessage({ part, tone: 'error', text: 'Could not reach Plug.pk. Check your connection and try again.' })
+      setMessage({ part, tone: 'error', text: 'Could not reach plugpk. Check your connection and try again.' })
     } finally {
       setBusy(null)
       setProgressText(null)

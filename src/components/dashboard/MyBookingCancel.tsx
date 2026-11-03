@@ -21,7 +21,7 @@ export function MyBookingCancel({ bookingId }: { bookingId: string }) {
           if (!window.confirm('Cancel this booking? Any refund of the advance is arranged with the host.')) return
           setBusy(true)
           setError(null)
-          const result = await cancelMyBooking(bookingId).catch(() => ({ ok: false, message: 'Could not reach Plug.pk.' }))
+          const result = await cancelMyBooking(bookingId).catch(() => ({ ok: false, message: 'Could not reach plugpk.' }))
           setBusy(false)
           if (!result.ok) setError(result.message ?? 'Could not cancel.')
           else router.refresh()

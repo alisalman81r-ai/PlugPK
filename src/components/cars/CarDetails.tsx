@@ -380,7 +380,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
         </h2>
         <p className="mt-2 text-ui text-slate-600">
           {car.variant ? `Full figures for the ${car.variant} variant, as published.` : 'Full figures, as published.'}{' '}
-          Anything absent was not stated by the manufacturer or importer — Plug.pk does not estimate specifications.
+          Anything absent was not stated by the manufacturer or importer — plugpk does not estimate specifications.
         </p>
 
         <div className="mt-6 flex flex-col gap-4">

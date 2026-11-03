@@ -135,7 +135,7 @@ export function RouteResultsView({ trip }: RouteResultsViewProps) {
               car&apos;s rated range ({plan.usableRangeKm} km from a full battery) for motorway
               speeds and air-conditioning, keeping {RESERVE_PERCENT}% in reserve and charging to{' '}
               {TARGET_PERCENT}% unless more is needed. Only listed chargers your car can plug into
-              are used. Plug.pk has no live view of whether a charger is free or working.
+              are used. plugpk has no live view of whether a charger is free or working.
             </span>
           </p>
         </div>

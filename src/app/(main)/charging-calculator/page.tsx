@@ -57,7 +57,7 @@ export default async function ChargingCalculatorPage() {
     <div className="min-h-below-nav bg-slate-50 pb-20 lg:pb-28">
       {/*
         The site's own band — the dark ground /community, /map and the clubs
-        page open with — so this reads as one more part of Plug.pk rather than
+        page open with — so this reads as one more part of plugpk rather than
         a tool dropped into it. The calculator card is lifted up into it, the
         same way the clubs directory is.
       */}

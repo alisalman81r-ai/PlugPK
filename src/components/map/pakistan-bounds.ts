@@ -13,7 +13,7 @@
  * the Line of Control is up to each provider, not this file. OpenStreetMap's
  * tiles (MapLibre engine) show the de facto line as a disputed boundary; Google
  * localises its borders by `region`, which MapViewGoogle sets to PK. Both
- * should be reviewed by someone at Plug.pk for how they read to a Pakistani
+ * should be reviewed by someone at plugpk for how they read to a Pakistani
  * audience before the map is promoted heavily — it is a sensitivity a code
  * change cannot settle on its own.
  */

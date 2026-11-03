@@ -31,7 +31,7 @@ export interface ServiceCardProps {
   No ratings on service cards.
 
   Each row carries a rating and a review count, but they were seeded figures:
-  Plug.pk has no review table for services and no way for anyone to leave one.
+  plugpk has no review table for services and no way for anyone to leave one.
   A star score with nothing behind it is an invented claim, so the card says
   "No reviews yet" until reviews exist to count.
 

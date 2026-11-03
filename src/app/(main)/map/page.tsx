@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: '/map',
-    title: 'EV Charging Map of Pakistan — Plug.pk',
+    title: 'EV Charging Map of Pakistan — plugpk',
     description:
       'Every listed EV charger in Pakistan on one map, with connector types, charging speeds and directions.',
   },

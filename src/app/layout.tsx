@@ -95,13 +95,13 @@ const plainZero = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Plug.pk — Pakistan's EV Ecosystem Platform",
-    template: '%s | Plug.pk',
+    default: "plugpk — Pakistan's EV Ecosystem Platform",
+    template: '%s | plugpk',
   },
   description:
     'Find EV charging stations, plan long-distance routes, and connect with EV owners across Pakistan.',
   // Resolves every relative image and canonical path — including the generated
-  // opengraph-image — to plug.pk rather than localhost:3000.
+  // opengraph-image — to plugpk rather than localhost:3000.
   metadataBase: new URL(SITE_CONFIG.url),
   keywords: [
     'EV charging Pakistan',
@@ -126,12 +126,12 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_PK',
     siteName: SITE_CONFIG.name,
-    title: "Plug.pk — Pakistan's EV Ecosystem Platform",
+    title: "plugpk — Pakistan's EV Ecosystem Platform",
     description: 'Find EV charging stations and plan EV routes across Pakistan.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Plug.pk — Pakistan's EV Ecosystem Platform",
+    title: "plugpk — Pakistan's EV Ecosystem Platform",
     description: 'Find EV charging stations and plan EV routes across Pakistan.',
   },
   robots: {

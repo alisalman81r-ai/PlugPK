@@ -101,8 +101,8 @@ export function PartnerVenueTypes({ counts }: PartnerVenueTypesProps) {
             </h2>
             <p className="mt-4 text-ui leading-relaxed text-slate-500">
               {listed > 0
-                ? `Seven kinds of place can list on Plug.pk, and ${listed} of them already have.`
-                : 'Seven kinds of place can list on Plug.pk. Pick the one that sounds like yours.'}
+                ? `Seven kinds of place can list on plugpk, and ${listed} of them already have.`
+                : 'Seven kinds of place can list on plugpk. Pick the one that sounds like yours.'}
             </p>
         </div>
 

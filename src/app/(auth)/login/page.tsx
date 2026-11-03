@@ -9,7 +9,7 @@ import { safeRedirect } from '@/lib/safe-redirect'
 
 export const metadata: Metadata = {
   title: 'Sign In',
-  description: 'Sign in to your Plug.pk account.',
+  description: 'Sign in to your plugpk account.',
 }
 
 interface PageProps {
@@ -50,7 +50,7 @@ export default function LoginPage({ searchParams }: PageProps) {
         <AuthHeader
           eyebrow="Business account"
           title="Sign in to your business"
-          subtitle="For partners who list a charger or an EV service on Plug.pk."
+          subtitle="For partners who list a charger or an EV service on plugpk."
         />
         <LoginForm redirectTo={redirectTo} />
 
@@ -84,7 +84,7 @@ export default function LoginPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <AuthHeader eyebrow="Sign in" title="Welcome back" subtitle="Sign in to your Plug.pk account" />
+      <AuthHeader eyebrow="Sign in" title="Welcome back" subtitle="Sign in to your plugpk account" />
       <LoginForm redirectTo={redirectTo} />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">

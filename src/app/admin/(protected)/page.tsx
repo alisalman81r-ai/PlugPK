@@ -210,7 +210,7 @@ export default async function AdminOverviewPage() {
             tone="neutral"
             help={
               <>
-                <b>People with a Plug.pk account.</b> Counted from the members table, so
+                <b>People with a plugpk account.</b> Counted from the members table, so
                 it rises the moment someone signs up. Click to see and manage them.
               </>
             }

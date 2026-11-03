@@ -19,7 +19,7 @@ import { listCars } from '@/lib/db/car-queries'
  * page offers it — which is also the order the form's own copy promises.
  */
 
-export const metadata = { title: { absolute: 'Add a car · Plug.pk admin' } }
+export const metadata = { title: { absolute: 'Add a car · plugpk admin' } }
 export const dynamic = 'force-dynamic'
 
 export default async function NewCarPage() {

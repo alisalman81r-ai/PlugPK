@@ -54,7 +54,7 @@ export default function OpengraphImage() {
           </svg>
           <div style={{ display: 'flex', fontSize: 128, fontWeight: 700, letterSpacing: '-0.04em' }}>
             <span>plug</span>
-            <span style={{ color: '#6FE8B6' }}>.pk</span>
+            <span style={{ color: '#6FE8B6' }}>pk</span>
           </div>
         </div>
         <div style={{ marginTop: 40, fontSize: 48, fontWeight: 600, color: '#FFFFFF' }}>

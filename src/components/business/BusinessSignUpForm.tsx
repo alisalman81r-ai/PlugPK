@@ -354,7 +354,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
       // A dropped connection rejects the action's promise rather than
       // returning a result. Whatever got as far as the server is kept.
       setError(
-        `Could not reach Plug.pk. Check your connection and press Submit again.${draftId.current ? ' Nothing will be listed twice.' : ''}`,
+        `Could not reach plugpk. Check your connection and press Submit again.${draftId.current ? ' Nothing will be listed twice.' : ''}`,
       )
     } finally {
       setIsLoading(false)
@@ -371,7 +371,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
               is shown where it really appears: on the dashboard. */}
           <h2 className="mb-3 mt-6 text-3xl font-black text-slate-900">Application submitted</h2>
           <p className="mx-auto max-w-lg text-slate-500">
-            Thank you. Your listing, verification documents and payment details have reached the Plug.pk team.
+            Thank you. Your listing, verification documents and payment details have reached the plugpk team.
           </p>
         </div>
 
@@ -555,7 +555,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
                   <p className="text-sm font-semibold text-amber-900">This puts your home on a public map</p>
                   <p className="mt-1 text-sm leading-relaxed text-amber-800">
                     Your <strong>address</strong>, <strong>exact location</strong> and <strong>phone number</strong>{' '}
-                    will be visible to anyone using Plug.pk once your listing is approved. Only list a home charger you
+                    will be visible to anyone using plugpk once your listing is approved. Only list a home charger you
                     are happy for strangers to drive to.
                   </p>
                 </div>
@@ -866,7 +866,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
         {currentStep === 5 ? (
           <>
             <h2 className="mb-2 text-2xl font-bold text-slate-900">Review and submit</h2>
-            <p className="mb-8 text-slate-500">Check everything before it goes to the Plug.pk review team</p>
+            <p className="mb-8 text-slate-500">Check everything before it goes to the plugpk review team</p>
 
             <div className="mb-6 divide-y divide-slate-200 rounded-2xl bg-slate-50 px-6">
               {[
@@ -941,7 +941,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
                 <ShieldAlert size={18} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
                 <p className="text-sm leading-relaxed text-amber-800">
                   Once approved, <strong>{data.address || 'your address'}</strong>, its exact coordinates and{' '}
-                  <strong>{data.phone || 'your phone number'}</strong> will be visible to everyone on the Plug.pk map.
+                  <strong>{data.phone || 'your phone number'}</strong> will be visible to everyone on the plugpk map.
                   Your CNIC is never shown.
                 </p>
               </div>
@@ -952,7 +952,7 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
               <span className="text-sm text-slate-600">
                 I agree to the{' '}
                 <a href="/terms#partners" target="_blank" rel="noopener" className="font-semibold text-plug-blue-600 hover:underline">
-                  Plug.pk Business Terms
+                  plugpk Business Terms
                 </a>
                 , confirm my information and documents are genuine
                 {isHome ? ', and understand my home address and phone number will be shown publicly' : ''}.

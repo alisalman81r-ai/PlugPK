@@ -38,9 +38,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = describe(post.content)
 
   return {
-    // `absolute` bypasses the root layout's '%s | Plug.pk' template, which
-    // would otherwise render "... | Plug.pk Community | Plug.pk".
-    title: { absolute: `${post.title} | Plug.pk Community` },
+    // `absolute` bypasses the root layout's '%s | plugpk' template, which
+    // would otherwise render "... | plugpk Community | plugpk".
+    title: { absolute: `${post.title} | plugpk Community` },
     description,
     alternates: { canonical: path },
     openGraph: {

@@ -207,7 +207,7 @@ export function Navbar() {
           <Link
             href="/"
             className="flex min-h-11 items-center gap-2 transition-opacity duration-150 hover:opacity-90"
-            aria-label="Plug.pk home"
+            aria-label="plugpk home"
           >
             <Logo tone="dark" size="text-2xl" />
           </Link>

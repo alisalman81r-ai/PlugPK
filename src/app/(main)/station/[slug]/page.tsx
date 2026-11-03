@@ -180,7 +180,7 @@ export default async function StationDetailPage({ params }: PageProps) {
   const reviews = station.reviews ?? []
   const isExample = isSampleListing(station.id)
   // Price and booking terms: a partner listing's from its host, an operator
-  // station's from the Plug.pk team. Null for a listing that is not live and
+  // station's from the plugpk team. Null for a listing that is not live and
   // for the sample listings.
   const offer = station.businessId
     ? await getPublicHostOffer(station.businessId)

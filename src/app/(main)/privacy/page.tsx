@@ -5,7 +5,7 @@ import { LegalPage, type LegalSection } from '@/components/shared/LegalPage'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'What Plug.pk collects, why, who it is shared with, and how to have it changed or deleted.',
+  description: 'What plugpk collects, why, who it is shared with, and how to have it changed or deleted.',
 }
 
 /*
@@ -23,7 +23,7 @@ const SECTIONS: LegalSection[] = [
       <ul>
         <li>We collect what you give us to run your account, and a little about how listings are used.</li>
         <li>We do not sell your information and we do not show advertising.</li>
-        <li>Your password is stored only as a one-way hash — nobody at Plug.pk can read it.</li>
+        <li>Your password is stored only as a one-way hash — nobody at plugpk can read it.</li>
         <li>You can ask us to correct or delete your information at any time.</li>
       </ul>
     ),
@@ -157,7 +157,7 @@ export default function PrivacyPage() {
     <LegalPage
       eyebrow="Legal"
       title="Privacy Policy"
-      intro="What Plug.pk collects, why, who it is shared with, and how to have it changed or deleted."
+      intro="What plugpk collects, why, who it is shared with, and how to have it changed or deleted."
       updated="2 October 2026"
       sections={SECTIONS}
     />

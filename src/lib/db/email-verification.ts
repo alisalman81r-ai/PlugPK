@@ -62,31 +62,31 @@ const wrap = (inner: string) =>
 
 const EMAILS: Record<Purpose, CodeEmail> = {
   'verify-code': {
-    subject: (code) => `${code} is your Plug.pk verification code`,
+    subject: (code) => `${code} is your plugpk verification code`,
     text: (first, code) =>
-      `Hi ${first},\n\nYour Plug.pk verification code is:\n\n    ${code}\n\n` +
+      `Hi ${first},\n\nYour plugpk verification code is:\n\n    ${code}\n\n` +
       `Enter it on the sign-up screen to confirm this email address. It expires in 10 minutes ` +
-      `and works once.\n\nIf you did not create a Plug.pk account, ignore this email — ` +
-      `no account will be activated.\n\n— Plug.pk`,
+      `and works once.\n\nIf you did not create a plugpk account, ignore this email — ` +
+      `no account will be activated.\n\n— plugpk`,
     html: (first, code) =>
       wrap(`
   <p>Hi ${escapeHtml(first)},</p>
-  <p>Your Plug.pk verification code is:</p>
+  <p>Your plugpk verification code is:</p>
   ${codeBlock(code)}
   <p>Enter it on the sign-up screen to confirm this email address. It expires in 10 minutes and works once.</p>
-  <p style="color:#64748b;font-size:13px">If you did not create a Plug.pk account, ignore this email — no account will be activated.</p>`),
+  <p style="color:#64748b;font-size:13px">If you did not create a plugpk account, ignore this email — no account will be activated.</p>`),
   },
   'reset-code': {
-    subject: (code) => `${code} is your Plug.pk password reset code`,
+    subject: (code) => `${code} is your plugpk password reset code`,
     text: (first, code) =>
-      `Hi ${first},\n\nSomeone asked to reset the password on your Plug.pk account. Your code is:\n\n    ${code}\n\n` +
+      `Hi ${first},\n\nSomeone asked to reset the password on your plugpk account. Your code is:\n\n    ${code}\n\n` +
       `Enter it on the reset screen with your new password. It expires in 10 minutes and works once.\n\n` +
       `If this was not you, ignore this email: your password stays as it is, and nobody can ` +
-      `change it without this code.\n\n— Plug.pk`,
+      `change it without this code.\n\n— plugpk`,
     html: (first, code) =>
       wrap(`
   <p>Hi ${escapeHtml(first)},</p>
-  <p>Someone asked to reset the password on your Plug.pk account. Your code is:</p>
+  <p>Someone asked to reset the password on your plugpk account. Your code is:</p>
   ${codeBlock(code)}
   <p>Enter it on the reset screen with your new password. It expires in 10 minutes and works once.</p>
   <p style="color:#64748b;font-size:13px">If this was not you, ignore this email: your password stays as it is, and nobody can change it without this code.</p>`),

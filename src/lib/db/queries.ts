@@ -139,8 +139,8 @@ export async function getMapStations(): Promise<Station[]> {
  * lookup marks none bookable rather than taking the map down.
  */
 /**
- * Operator stations the Plug.pk team takes bookings for: switched on, with an
- * advance, a real site (never a sample listing), and a Plug.pk account set to
+ * Operator stations the plugpk team takes bookings for: switched on, with an
+ * advance, a real site (never a sample listing), and a plugpk account set to
  * be paid into.
  */
 async function getBookableStationIds(): Promise<Set<string>> {

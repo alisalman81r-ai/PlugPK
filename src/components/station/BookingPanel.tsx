@@ -323,7 +323,7 @@ export function BookingPanel({
       }
       setDone({ start: chosen.start, end: chosen.end })
     } catch {
-      setError('Could not reach Plug.pk. Check your connection and try again.')
+      setError('Could not reach plugpk. Check your connection and try again.')
     } finally {
       setBusy(false)
     }

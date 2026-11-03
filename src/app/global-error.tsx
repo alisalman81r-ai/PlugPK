@@ -63,7 +63,7 @@ export default function GlobalError({
               color: '#0F7A6A',
             }}
           >
-            Plug.pk
+            plugpk
           </p>
           <h1 style={{ fontSize: 30, lineHeight: 1.15, margin: '12px 0 0' }}>Something went wrong</h1>
           <p style={{ fontSize: 15, lineHeight: 1.6, color: '#626D6B', marginTop: 12 }}>

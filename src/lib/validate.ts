@@ -15,7 +15,7 @@ export type Checked<T> = { ok: true; value: T } | { ok: false; message: string }
  *
  * Only http and https survive. Anything else — `javascript:`, `data:` — would
  * run script in the visitor's browser (or an operator's, in the admin portal)
- * when the link is clicked. A bare domain gets https:// so "plug.pk" works.
+ * when the link is clicked. A bare domain gets https:// so "plugpk" works.
  * Blank is fine and returns null.
  */
 export function checkWebsite(raw: unknown): Checked<string | null> {

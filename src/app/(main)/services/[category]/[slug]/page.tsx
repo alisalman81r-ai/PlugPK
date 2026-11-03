@@ -102,7 +102,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // the listing actually is instead.
   return {
     title: `${service.name} — ${meta.label}`,
-    description: `${service.name}, ${meta.label.toLowerCase()} in ${service.address.city}. Contact details, location and opening hours on Plug.pk.`,
+    description: `${service.name}, ${meta.label.toLowerCase()} in ${service.address.city}. Contact details, location and opening hours on plugpk.`,
     alternates: { canonical: `/services/${service.category}/${service.slug}` },
   }
 }
@@ -210,7 +210,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           <div className="mb-6 flex flex-wrap items-center gap-5">
             {/* No star rating. The rating and review count on a service row
                 were seeded figures with no reviews behind them — services
-                cannot be reviewed on Plug.pk — so showing them would be
+                cannot be reviewed on plugpk — so showing them would be
                 presenting an invented score as drivers' opinion. */}
             <span className="text-sm text-white/60">No reviews yet</span>
             <span className="flex items-center gap-1.5 text-sm text-white/60">
@@ -314,7 +314,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 <MessageSquare size={20} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
                 <p className="text-sm leading-relaxed text-slate-600">
                   <span className="block font-semibold text-slate-900">No reviews yet</span>
-                  Plug.pk does not collect reviews for services yet, so there is no rating to show.
+                  plugpk does not collect reviews for services yet, so there is no rating to show.
                 </p>
               </div>
             </section>
@@ -476,7 +476,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 <span>
                   <span className="block font-bold text-plug-blue-900">Verified Business</span>
                   <span className="block text-sm text-plug-blue-700">
-                    Marked as verified by the Plug.pk team.
+                    Marked as verified by the plugpk team.
                   </span>
                 </span>
               </div>

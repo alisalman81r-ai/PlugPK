@@ -259,7 +259,7 @@ export function FilterRail({
         <Group label="Show only">
           <div className="flex flex-wrap gap-2">
             {/* No "Available now" chip. It filtered on a status column that only
-                changes when someone edits it — Plug.pk has no live connection to
+                changes when someone edits it — plugpk has no live connection to
                 the hardware — so it hid stations on a guess. */}
             {/* A rating floor rather than an opening-hours claim: nothing in
                 the data records 24/7 opening, so a "24/7" chip would be a

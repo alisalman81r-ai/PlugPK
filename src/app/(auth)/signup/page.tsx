@@ -7,7 +7,7 @@ import { safeRedirect } from '@/lib/safe-redirect'
 
 export const metadata: Metadata = {
   title: 'Create Account',
-  description: "Join Plug.pk — Pakistan's EV community.",
+  description: "Join plugpk — Pakistan's EV community.",
 }
 
 interface PageProps {
@@ -35,7 +35,7 @@ export default function SignUpPage({ searchParams }: PageProps) {
           subtitle="Next you will add your charger or EV service. Every listing is reviewed before it goes live."
         />
       ) : (
-        <AuthHeader eyebrow="Get started" title="Create your account" subtitle="Join the EV owners on Plug.pk" />
+        <AuthHeader eyebrow="Get started" title="Create your account" subtitle="Join the EV owners on plugpk" />
       )}
       <SignUpForm redirectTo={redirectTo} />
     </>

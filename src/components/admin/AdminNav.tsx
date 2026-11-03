@@ -163,12 +163,12 @@ function NavContent({
           href="/admin"
           onClick={onNavigate}
           className="flex items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-          title={collapsed ? 'plug.pk admin' : undefined}
+          title={collapsed ? 'plugpk admin' : undefined}
         >
           {collapsed ? (
             <>
               <LogoMark color="#159E89" className="h-5 w-5 shrink-0" />
-              <span className="sr-only">plug.pk admin</span>
+              <span className="sr-only">plugpk admin</span>
             </>
           ) : (
             <>

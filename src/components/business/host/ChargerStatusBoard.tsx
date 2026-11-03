@@ -53,7 +53,7 @@ export function ChargerStatusBoard({ businessId, chargers }: { businessId: strin
       router.refresh()
     } catch {
       setLocal((current) => ({ ...current, [chargerId]: before }))
-      setError({ id: chargerId, text: 'Could not reach Plug.pk. Check your connection.' })
+      setError({ id: chargerId, text: 'Could not reach plugpk. Check your connection.' })
     } finally {
       setSaving(null)
     }

@@ -71,7 +71,7 @@ export function BusinessDashboardLayout({
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
+        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
           <Logo tone="light" size="text-lg" />
           <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             Business

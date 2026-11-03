@@ -113,7 +113,7 @@ export function PaymentFields({ fee, accounts, value, onChange, receiptOnFile, i
           <p className="text-3xl font-black tracking-tight text-slate-900">{formatPkr(fee)}</p>
         </div>
         <ul className="mt-4 grid gap-1.5 border-t border-plug-blue-100 pt-4 text-ui-sm text-slate-600 sm:grid-cols-2">
-          {['Your chargers on the Plug.pk map', 'Photos and charger details', 'Driver reviews', 'Views and directions dashboard'].map(
+          {['Your chargers on the plugpk map', 'Photos and charger details', 'Driver reviews', 'Views and directions dashboard'].map(
             (item) => (
               <li key={item} className="flex items-center gap-2">
                 <Check size={14} className="shrink-0 text-plug-blue-600" aria-hidden="true" />

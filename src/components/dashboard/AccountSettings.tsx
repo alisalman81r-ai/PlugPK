@@ -196,7 +196,7 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
           <div>
             <p className="font-semibold text-amber-900">Choose a new password to finish signing in</p>
             <p className="mt-1 text-ui-sm text-amber-900/80">
-              You signed in with a temporary password from the Plug.pk team. Enter it as your current
+              You signed in with a temporary password from the plugpk team. Enter it as your current
               password below and pick one of your own.
             </p>
           </div>

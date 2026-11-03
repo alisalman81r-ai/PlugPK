@@ -57,7 +57,7 @@ export default async function BusinessPortalPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-8 py-5">
-        <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
+        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
           <Logo tone="light" size="text-xl" />
         </Link>
         <Link href="/dashboard" className="text-sm text-plug-blue-600 hover:underline">

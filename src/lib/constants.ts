@@ -1,12 +1,12 @@
 // src/lib/constants.ts
 // ═══════════════════════════════════════════════════
-// PLUG.PK — CONSTANTS
+// plugpk — CONSTANTS
 // ═══════════════════════════════════════════════════
 
 import type { NavLink, ConnectorType, AmenityType, ServiceCategory, PostCategory } from './types'
 
 export const SITE_CONFIG = {
-  name: 'Plug.pk',
+  name: 'plugpk',
   tagline: "Pakistan's EV Ecosystem Platform",
   description: 'Find charging stations, plan routes, and connect with EV owners across Pakistan.',
   url: 'https://plug.pk',

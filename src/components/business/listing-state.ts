@@ -22,7 +22,7 @@ export const LISTING_STATE = {
     dot: 'bg-amber-500',
   },
   approved: {
-    label: 'Live on Plug.pk',
+    label: 'Live on plugpk',
     pill: 'border-green-200 bg-green-50 text-green-700',
     dot: 'bg-green-500',
   },

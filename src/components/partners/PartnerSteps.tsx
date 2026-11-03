@@ -69,7 +69,7 @@ const BENEFITS: Card[] = [
     icon: Banknote,
     motion: 'lift',
     title: 'You set the price, you keep it',
-    body: 'Plug.pk does not set your rates, process the payment or take a percentage. Whatever you charge is between you and the driver.',
+    body: 'plugpk does not set your rates, process the payment or take a percentage. Whatever you charge is between you and the driver.',
   },
   {
     icon: BarChart3,

@@ -12,7 +12,7 @@ import { cn, getMaxPower } from '@/lib/utils'
 
   Pins used to be blue, amber or grey for available / limited / offline, with
   a pulse ring on the "available" ones and a legend promising what each colour
-  meant. Plug.pk has no live connection to any charger — the FAQ says so — and
+  meant. plugpk has no live connection to any charger — the FAQ says so — and
   the status column only changes when somebody edits it, so the colours were a
   live-availability claim nothing stood behind.
 

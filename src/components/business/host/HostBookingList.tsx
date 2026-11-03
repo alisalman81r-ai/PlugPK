@@ -31,7 +31,7 @@ function BookingCard({ booking }: { booking: ListedBooking }) {
   const decide = async (decision: 'confirmed' | 'declined') => {
     setBusy(true)
     setError(null)
-    const result = await decideBooking(booking.id, decision, note).catch(() => ({ ok: false, message: 'Could not reach Plug.pk.' }))
+    const result = await decideBooking(booking.id, decision, note).catch(() => ({ ok: false, message: 'Could not reach plugpk.' }))
     setBusy(false)
     if (!result.ok) setError(result.message ?? 'Could not update the booking.')
     else {

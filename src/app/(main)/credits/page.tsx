@@ -37,7 +37,7 @@ import { DATA_SOURCE_CREDITS } from '@/data/dataSources'
 export const metadata: Metadata = {
   title: 'Data and image credits',
   description:
-    'The open datasets, photographers and contributors whose work appears on Plug.pk, and the licences their work is used under.',
+    'The open datasets, photographers and contributors whose work appears on plugpk, and the licences their work is used under.',
 }
 
 /** Photographers, deduplicated and sorted, with the files they shot. */

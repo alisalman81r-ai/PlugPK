@@ -1,6 +1,6 @@
 // src/lib/utils.ts
 // ═══════════════════════════════════════════════════
-// PLUG.PK — UTILITY FUNCTIONS
+// plugpk — UTILITY FUNCTIONS
 // ═══════════════════════════════════════════════════
 
 import { type ClassValue, clsx } from 'clsx'

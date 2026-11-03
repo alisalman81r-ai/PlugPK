@@ -8,7 +8,7 @@ import { ArrowLeft } from '@/components/ui/icons'
 
 export const metadata: Metadata = {
   title: 'Reset Password',
-  description: 'Enter the code from your email and choose a new Plug.pk password.',
+  description: 'Enter the code from your email and choose a new plugpk password.',
 }
 
 interface PageProps {

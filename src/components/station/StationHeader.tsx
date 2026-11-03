@@ -40,7 +40,7 @@ export function StationHeader({ station }: StationHeaderProps) {
         </h1>
 
         {/*
-          No "Verified" badge: Plug.pk has no process that verifies a station, so
+          No "Verified" badge: plugpk has no process that verifies a station, so
           the badge was a claim nothing stood behind. What IS worth flagging is
           a sample listing, so a driver does not set off for it.
         */}

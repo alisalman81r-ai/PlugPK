@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   if (!club) return { title: 'Club not found' }
   return {
     title: `${club.name} — EV club in ${club.city}`,
-    description: club.description || `The ${club.city} EV owners' club on Plug.pk.`,
+    description: club.description || `The ${club.city} EV owners' club on plugpk.`,
     alternates: { canonical: `/community/clubs/${club.id}` },
   }
 }

@@ -14,14 +14,14 @@ import { NAV_TOOLS, POPULAR_CITIES, SITE_CONFIG } from '@/lib/constants'
  * link columns on the left, contact and the app on the right, and a small row
  * at its foot. Its bottom-right corner is one large curve.
  *
- * Behind it, on the hero's dark green (#10362C), the legal line and "plug.pk"
+ * Behind it, on the hero's dark green (#10362C), the legal line and "plugpk"
  * set in solid white, edge to edge. That layer is `position: sticky; bottom:
  * 0`, so it pins itself to the bottom of the viewport as soon as the footer
  * arrives and waits there, hidden under the panel. The panel scrolls up and
  * uncovers it like a curtain lifting — nothing is animated by script, so
  * reduced-motion needs no special case.
  *
- * There used to be a floating "The plug.pk app / Coming soon" card pinned
+ * There used to be a floating "The plugpk app / Coming soon" card pinned
  * over the wordmark's last letters, where the reference puts its QR code. On
  * desktop it sat on top of the wordmark it was meant to decorate, for an app
  * that does not exist. The app's status is one plain line in the right rail.
@@ -66,7 +66,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     ],
   },
   {
-    heading: 'We are Plug.pk',
+    heading: 'We are plugpk',
     links: [
       { label: 'Plan a route', href: '/routes' },
       { label: 'Cars', href: '/cars' },
@@ -191,7 +191,7 @@ export function Footer() {
 
         <div aria-hidden="true" className="relative overflow-hidden">
           <p className="select-none whitespace-nowrap px-[0.5vw] pb-[0.14em] pt-2 text-center font-black leading-[0.9] tracking-[-0.06em] text-white text-[clamp(5rem,26vw,36rem)]">
-            plug.pk
+            plugpk
           </p>
         </div>
       </div>

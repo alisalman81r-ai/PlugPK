@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 
 /**
- * The plug.pk logo: the bolt-and-plug mark, the wordmark, and optionally the
+ * The plugpk logo: the bolt-and-plug mark, the wordmark, and optionally the
  * line under it.
  *
  * ── The mark ──────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ export function Logo({ tone = 'dark', size = 'text-2xl', tagline = false, classN
         <LogoMark color={accent} className="h-[1.18em] w-[1.18em] shrink-0 translate-y-[0.04em]" />
         <span className="font-bold leading-none tracking-[-0.035em]">
           <span className={tone === 'dark' ? 'text-white' : 'text-slate-900'}>plug</span>
-          <span style={{ color: accent }}>.pk</span>
+          <span style={{ color: accent }}>pk</span>
         </span>
       </span>
       {/*

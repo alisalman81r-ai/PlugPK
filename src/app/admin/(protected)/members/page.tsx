@@ -10,7 +10,7 @@ import { flattenParams, pick } from '@/components/admin/list-params'
 import { listMembersPage, toPage, toQuery, type MemberFilter, type MemberSort } from '@/lib/db/admin-queries'
 
 /**
- * Everyone registered on Plug.pk, one page at a time.
+ * Everyone registered on plugpk, one page at a time.
  *
  * Search, filter, sort and page are URL parameters read here, so the database
  * returns twenty-five rows rather than the browser receiving every account's

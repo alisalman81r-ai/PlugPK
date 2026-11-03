@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // live, but nothing in the application verifies a business beyond that.
   return {
     title: `${meta.label} — EV Services`,
-    description: `${meta.description}. Browse ${meta.label.toLowerCase()} across Pakistan, each checked by a person before it is listed on Plug.pk.`,
+    description: `${meta.description}. Browse ${meta.label.toLowerCase()} across Pakistan, each checked by a person before it is listed on plugpk.`,
     alternates: { canonical: `/services/${category}` },
   }
 }

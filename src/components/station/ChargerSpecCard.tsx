@@ -22,7 +22,7 @@ export interface ChargerSpecCardProps {
 }
 
 /*
-  No "Available" / "In use" pill and no "1/2 free". Plug.pk has no live
+  No "Available" / "In use" pill and no "1/2 free". plugpk has no live
   connection to the charging hardware (the FAQ says so), so a port count
   that changes only when somebody edits it in the admin portal is not
   availability — it is a guess presented as a reading. What is installed is a

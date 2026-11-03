@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     'Questions, trip reports and charging notes from EV drivers in Pakistan. Read without an account; sign in to post, comment and like.',
   alternates: { canonical: '/community' },
   openGraph: {
-    title: 'Plug.pk EV Community',
+    title: 'plugpk EV Community',
     description: 'Questions, trip reports and charging notes from EV drivers in Pakistan.',
     url: '/community',
     type: 'website',

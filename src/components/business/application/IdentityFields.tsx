@@ -90,8 +90,8 @@ export function IdentityFields({ idType, value, onChange, onFile = [], idPrefix 
       <p className="mt-1 flex items-start gap-1.5 text-ui-sm text-slate-500">
         <Lock size={14} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
         {idType === 'cnic'
-          ? 'Your CNIC is used only to confirm who owns this charger. It is never shown on your listing and only the Plug.pk review team can see it.'
-          : 'Used only to confirm the business is real. It is never shown on your listing and only the Plug.pk review team can see it.'}
+          ? 'Your CNIC is used only to confirm who owns this charger. It is never shown on your listing and only the plugpk review team can see it.'
+          : 'Used only to confirm the business is real. It is never shown on your listing and only the plugpk review team can see it.'}
       </p>
 
       <div className="mt-5 grid gap-5">
@@ -110,7 +110,7 @@ export function IdentityFields({ idType, value, onChange, onFile = [], idPrefix 
                 placeholder="35202-1234567-1"
                 className={cn(FIELD, 'font-mono tracking-wide')}
               />
-              <p className="mt-1.5 text-ui-sm text-slate-500">As printed on your card. The name on it should match your Plug.pk account.</p>
+              <p className="mt-1.5 text-ui-sm text-slate-500">As printed on your card. The name on it should match your plugpk account.</p>
             </div>
             {addressField}
             <div className="grid gap-4 sm:grid-cols-2">

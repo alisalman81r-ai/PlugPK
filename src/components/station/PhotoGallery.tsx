@@ -74,7 +74,7 @@ export function PhotoGallery({ photos, stationName, businessId, isExample = fals
     if (!businessId || !currentPhoto || isReporting) return
     setIsReporting(true)
     const result = await reportBusinessPhoto(businessId, currentPhoto, 'Incorrect, blurry, or misleading photo')
-    setReportMessage(result.ok ? 'Report sent to the Plug.pk team.' : result.message ?? 'Could not send report.')
+    setReportMessage(result.ok ? 'Report sent to the plugpk team.' : result.message ?? 'Could not send report.')
     setIsReporting(false)
   }
 

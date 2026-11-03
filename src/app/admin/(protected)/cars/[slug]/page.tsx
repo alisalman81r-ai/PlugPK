@@ -35,7 +35,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const car = await getCarBySlugFromDb(params.slug)
-  return { title: { absolute: car ? `${car.fullName} · Plug.pk admin` : 'Car not found' } }
+  return { title: { absolute: car ? `${car.fullName} · plugpk admin` : 'Car not found' } }
 }
 
 export default async function AdminCarDetailPage({ params }: PageProps) {

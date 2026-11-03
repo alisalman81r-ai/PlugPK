@@ -303,7 +303,7 @@ export async function decideBooking(
   })
   if (!booking) return { ok: false, message: 'That booking no longer exists.' }
   // A partner listing's owner decides its bookings; a station's are decided by
-  // the Plug.pk team, re-checked as an operator here.
+  // the plugpk team, re-checked as an operator here.
   const actor = booking.stationId ? await getAdminActor() : null
   const allowed = booking.stationId ? actor !== null : booking.business?.userId === userId
   if (!allowed) return { ok: false, message: 'That booking is not yours to decide.' }
@@ -330,9 +330,9 @@ export async function decideBooking(
 // ─── Operator: booking rules for a station ──────────────
 
 /**
- * The Plug.pk team turns bookings on for one of its own stations and sets the
+ * The plugpk team turns bookings on for one of its own stations and sets the
  * price, advance and hours. Same rules as a host's, except the advance is paid
- * to Plug.pk's accounts, so at least one must be configured.
+ * to plugpk's accounts, so at least one must be configured.
  */
 export async function saveStationBookingSettings(
   stationId: string,
@@ -349,7 +349,7 @@ export async function saveStationBookingSettings(
   const checked = checkBookingRules(input)
   if (!checked.ok) return checked
   if (checked.value.bookingEnabled && getPaymentAccounts().length === 0) {
-    return { ok: false, message: 'Set a Plug.pk payment account (PAYMENT_* in the environment) before taking bookings.' }
+    return { ok: false, message: 'Set a plugpk payment account (PAYMENT_* in the environment) before taking bookings.' }
   }
 
   await prisma.stationBookingSettings.upsert({
@@ -405,7 +405,7 @@ type HeldInterval = { start: number; end: number }
 
 /**
  * Where a booking is made: a partner listing (hosted by its owner) or an
- * operator station (hosted by the Plug.pk team). Sent from the browser as
+ * operator station (hosted by the plugpk team). Sent from the browser as
  * "business:<id>" or "station:<id>"; a bare id is a partner listing.
  */
 type Venue = { kind: 'business' | 'station'; id: string }
@@ -418,7 +418,7 @@ function parseVenue(raw: unknown): Venue | null {
 }
 
 /**
- * Plug.pk's own accounts (PAYMENT_* in the environment — the same ones the
+ * plugpk's own accounts (PAYMENT_* in the environment — the same ones the
  * listing fee is paid into), in the shape the booking panel shows. Stations
  * are hosted by the team, so their advances go here.
  */
@@ -439,7 +439,7 @@ const venueWhere = (venue: Venue) => (venue.kind === 'station' ? { stationId: ve
 
 interface BookableVenue {
   name: string
-  /** The host's account; null for a station, which Plug.pk hosts. */
+  /** The host's account; null for a station, which plugpk hosts. */
   ownerUserId: string | null
   settings: HostSettingsView
   chargers: BookableCharger[]
@@ -449,7 +449,7 @@ interface BookableVenue {
 /**
  * A venue's bookable chargers and where its advance is paid, or null when it
  * takes no bookings. A station is bookable only when the team has turned
- * bookings on, it is a real site (not a sample listing), and Plug.pk has an
+ * bookings on, it is a real site (not a sample listing), and plugpk has an
  * account configured to be paid into.
  */
 async function loadBookableVenue(venue: Venue): Promise<BookableVenue | null> {

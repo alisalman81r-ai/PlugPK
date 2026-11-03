@@ -52,7 +52,7 @@ export function PayoutAccountsManager({ businessId, accounts }: { businessId: st
       setDraft(EMPTY_PAYOUT)
       router.refresh()
     } catch {
-      setError('Could not reach Plug.pk. Check your connection and try again.')
+      setError('Could not reach plugpk. Check your connection and try again.')
     } finally {
       setBusy(false)
     }
@@ -62,7 +62,7 @@ export function PayoutAccountsManager({ businessId, accounts }: { businessId: st
     if (!window.confirm('Remove this payout account?')) return
     setBusy(true)
     setError(null)
-    const result = await deletePayoutAccount(businessId, id).catch(() => ({ ok: false, message: 'Could not reach Plug.pk.' }))
+    const result = await deletePayoutAccount(businessId, id).catch(() => ({ ok: false, message: 'Could not reach plugpk.' }))
     setBusy(false)
     if (!result.ok) setError(result.message ?? 'Could not remove the account.')
     else router.refresh()

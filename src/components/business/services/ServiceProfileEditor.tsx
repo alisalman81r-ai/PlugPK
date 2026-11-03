@@ -76,7 +76,7 @@ export function ServiceProfileEditor({ service }: { service: OwnerService }) {
       })
       router.refresh()
     } catch {
-      setMessage({ tone: 'error', text: 'Could not reach Plug.pk. Check your connection and try again.' })
+      setMessage({ tone: 'error', text: 'Could not reach plugpk. Check your connection and try again.' })
     } finally {
       setBusy(false)
       window.scrollTo({ top: 0, behavior: 'smooth' })

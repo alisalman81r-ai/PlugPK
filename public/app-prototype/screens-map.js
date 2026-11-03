@@ -1,4 +1,4 @@
-// plug.pk app prototype — the charger map, station detail, reviews and reports.
+// plugpk app prototype — the charger map, station detail, reviews and reports.
 'use strict'
 
 // ─── Map geometry ──────────────────────────────────────────────────
@@ -903,13 +903,13 @@ SCREENS.station = ({ id }) => {
           <button class="btn btn-secondary btn-icon" data-a="sheet" data-v="report" data-id="${s.id}" aria-label="Report a problem">${ic('flag', 18)}</button>
         </div>
 
-        <div class="notice amber mt-16">${ic('info', 18)}<span><b>Example listing.</b> This station is sample data that shows how plug.pk lists a charger. Its photos, reviews and contact details aren’t real.</span></div>
+        <div class="notice amber mt-16">${ic('info', 18)}<span><b>Example listing.</b> This station is sample data that shows how plugpk lists a charger. Its photos, reviews and contact details aren’t real.</span></div>
 
         <section class="section">
           <h2 class="t20">Chargers</h2>
           ${car ? `<p class="t13 muted mt-4">Estimates for your ${esc(car.name)}, charging 20→80% at Rs 50 per kWh.</p>` : ''}
           <div class="stack gap-12 mt-12">${s.connectors.map((c, i) => chargerBlock(c, i, car)).join('')}</div>
-          <p class="t12 faint mt-12">plug.pk doesn’t have live availability yet, so we show what’s installed, not what’s free.</p>
+          <p class="t12 faint mt-12">plugpk doesn’t have live availability yet, so we show what’s installed, not what’s free.</p>
         </section>
 
         <section class="section">

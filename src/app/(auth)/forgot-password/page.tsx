@@ -11,7 +11,7 @@ import { safeRedirect } from '@/lib/safe-redirect'
 
 export const metadata: Metadata = {
   title: 'Forgot Password',
-  description: 'Reset your Plug.pk password with a code sent to your email.',
+  description: 'Reset your plugpk password with a code sent to your email.',
 }
 
 interface PageProps {

@@ -6,13 +6,13 @@ import type { Metadata } from 'next'
   index. The root layout says `index: true` for the whole site, and without
   this every page under here inherited it.
 
-  The title template gives each page "Saved Stations · Dashboard | Plug.pk"
+  The title template gives each page "Saved Stations · Dashboard | plugpk"
   rather than the site default; the root template still adds the brand.
 */
 export const metadata: Metadata = {
   title: {
     default: 'Dashboard',
-    template: '%s · Dashboard | Plug.pk',
+    template: '%s · Dashboard | plugpk',
   },
   robots: { index: false, follow: false },
 }

@@ -30,13 +30,13 @@ const FreedomBand = dynamic(() => import('@/components/home/FreedomBand').then((
 const HowItWorks = dynamic(() => import('@/components/home/HowItWorks').then((m) => m.HowItWorks))
 
 export const metadata: Metadata = {
-  // `absolute`: the root template would make this "… | Plug.pk | Plug.pk".
-  title: { absolute: "Plug.pk — EV chargers, route planning and cars in Pakistan" },
+  // `absolute`: the root template would make this "… | plugpk | plugpk".
+  title: { absolute: "plugpk — EV chargers, route planning and cars in Pakistan" },
   description:
     'Find EV charging stations across Pakistan, plan long drives around your car’s real range, compare electric cars and ask other EV drivers.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'Plug.pk — EV chargers, route planning and cars in Pakistan',
+    title: 'plugpk — EV chargers, route planning and cars in Pakistan',
     description:
       'Find EV charging stations across Pakistan, plan long drives around your car’s real range, and compare electric cars.',
     url: '/',

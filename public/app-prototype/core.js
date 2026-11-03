@@ -1,4 +1,4 @@
-// plug.pk app prototype — core: data, icons, maths, state and the render loop.
+// plugpk app prototype — core: data, icons, maths, state and the render loop.
 // Plain JavaScript, no build step. Screens live in screens-*.js.
 'use strict'
 
@@ -44,7 +44,7 @@ function logoMark(size = 24, color = '#6FE8B6') {
 }
 function logo(size = 22, dark = true) {
   const accent = dark ? '#6FE8B6' : '#159E89'
-  return `<span class="row" style="gap:.22em;font:700 ${size}px/1 var(--font);letter-spacing:-0.035em;color:${dark ? '#fff' : 'var(--fg)'}">${logoMark(size * 1.18, accent)}<span>plug<span style="color:${accent}">.pk</span></span></span>`
+  return `<span class="row" style="gap:.22em;font:700 ${size}px/1 var(--font);letter-spacing:-0.035em;color:${dark ? '#fff' : 'var(--fg)'}">${logoMark(size * 1.18, accent)}<span>plug<span style="color:${accent}">pk</span></span></span>`
 }
 
 // ─── Connectors, speed, stations ───────────────────────────────────
@@ -749,7 +749,7 @@ window.addEventListener('appinstalled', () => {
   U.installEvt = null
   S.installDismissed = true
   save()
-  toast('plug.pk is on your home screen')
+  toast('plugpk is on your home screen')
   render()
 })
 const canInstall = () => !isStandalone() && (U.installEvt || isIos())
@@ -758,7 +758,7 @@ function installCard() {
   if (!canInstall() || S.installDismissed) return ''
   return `<div class="install-card">
     <img src="icons/icon-192.png" alt="" width="44" height="44">
-    <div class="grow"><b>Install plug.pk</b><span>Full screen and works offline</span></div>
+    <div class="grow"><b>Install plugpk</b><span>Full screen and works offline</span></div>
     <button class="btn btn-sm btn-primary" data-a="installApp">Install</button>
     <button class="icon-btn sm" data-a="dismissInstall" aria-label="Not now">${ic('x', 16)}</button>
   </div>`
@@ -848,10 +848,10 @@ Object.assign(A, {
 })
 
 SHEETS.installIos = () => ({
-  title: 'Add plug.pk to your Home Screen',
+  title: 'Add plugpk to your Home Screen',
   body: `<ol class="install-steps">
       <li><span class="n">1</span><span>Tap ${ic('share', 18)} <b>Share</b> in Safari’s toolbar.</span></li>
       <li><span class="n">2</span><span>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</span></li>
     </ol>
-    <p class="t13 muted mt-12">plug.pk then opens full screen from its own icon, like any other app.</p>`,
+    <p class="t13 muted mt-12">plugpk then opens full screen from its own icon, like any other app.</p>`,
 })

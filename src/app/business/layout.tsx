@@ -15,10 +15,10 @@ import type { Metadata } from 'next'
  */
 export const metadata: Metadata = {
   title: {
-    // The root layout's '%s | Plug.pk' is applied to this default, so it
+    // The root layout's '%s | plugpk' is applied to this default, so it
     // carries no suffix of its own.
     default: 'Business portal',
-    template: '%s · Business portal | Plug.pk',
+    template: '%s · Business portal | plugpk',
   },
   robots: { index: false, follow: false },
 }

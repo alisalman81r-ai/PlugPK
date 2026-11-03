@@ -5378,7 +5378,7 @@ export const cars: Car[] = [
      Photographs are Wikimedia Commons files cut out onto white to match the
      rest of the catalogue, credited in carImageCredits.ts. Nora and the Honri
      VE have no Commons photograph; theirs were supplied by the site owner,
-     set on the same frame with the plug.pk plate, and carry no credit line.
+     set on the same frame with the plugpk plate, and carry no credit line.
   */
   {
     id: 'mercedes-eqa',

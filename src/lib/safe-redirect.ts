@@ -6,7 +6,7 @@
  * Auth pages carry the page you were trying to reach so you land back there
  * after signing in. That value comes from the URL, so anybody can choose it —
  * and an off-site value would turn the login page into a way of bouncing people
- * elsewhere under Plug.pk's name.
+ * elsewhere under plugpk's name.
  *
  * Prefix checks alone were not enough: URL parsers strip tabs and newlines, so
  * `/\t/evil.com` passed a "no second slash" test and still resolved to

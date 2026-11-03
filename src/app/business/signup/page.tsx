@@ -64,7 +64,7 @@ function whatYouNeed(fee: number) {
 function Header({ signedIn }: { signedIn: boolean }) {
   return (
     <header className="flex items-center justify-between gap-4 border-b border-slate-100 bg-white px-8 py-5">
-      <Link href="/" className="flex items-center gap-2" aria-label="Plug.pk home">
+      <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
         <Logo tone="light" size="text-xl" />
       </Link>
 
@@ -89,10 +89,10 @@ export default async function BusinessSignUpPage() {
         <div className="mx-auto max-w-[720px] px-4 py-12">
           <div className="text-center">
             <EyebrowBadge color="blue">List your charger</EyebrowBadge>
-            <h1 className="mt-4 text-4xl font-black text-slate-900">Put your charger on the Plug.pk map</h1>
+            <h1 className="mt-4 text-4xl font-black text-slate-900">Put your charger on the plugpk map</h1>
             <p className="mx-auto mt-3 max-w-xl text-lg text-slate-500">
               Hotels, restaurants, offices, dealerships and homes can list the chargers they have.
-              You need a free Plug.pk account first — the listing belongs to it, and it is where you
+              You need a free plugpk account first — the listing belongs to it, and it is where you
               will manage the listing and see the outcome of its review.
             </p>
           </div>
@@ -148,7 +148,7 @@ export default async function BusinessSignUpPage() {
       <div className="mx-auto max-w-[800px] px-4 py-12">
         <div className="mb-12 text-center">
           <EyebrowBadge color="blue">Business Registration</EyebrowBadge>
-          <h1 className="mt-4 text-4xl font-black text-slate-900">List Your Business on Plug.pk</h1>
+          <h1 className="mt-4 text-4xl font-black text-slate-900">List Your Business on plugpk</h1>
           <p className="mt-3 text-lg text-slate-500">Get discovered by EV owners across Pakistan</p>
         </div>
 

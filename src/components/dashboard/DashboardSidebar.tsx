@@ -181,7 +181,7 @@ export function DashboardSidebar({ user, stats }: DashboardSidebarProps) {
           Sign Out
         </button>
 
-        <p className="mt-4 text-center text-ui-xs text-slate-300">Plug.pk v1.0.0 · Beta</p>
+        <p className="mt-4 text-center text-ui-xs text-slate-300">plugpk v1.0.0 · Beta</p>
       </div>
     </div>
   )

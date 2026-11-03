@@ -207,7 +207,7 @@ async function finishSignIn(mustChangePassword) {
   SYNC.ready = true
   await loadFeed()
   push()
-  if (mustChangePassword) toast('Set a new password on plug.pk before anything else', 'lock')
+  if (mustChangePassword) toast('Set a new password on plugpk before anything else', 'lock')
   return null
 }
 

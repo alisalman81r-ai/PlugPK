@@ -247,9 +247,9 @@ export async function getStationBookingSettings(stationId: string): Promise<Host
 }
 
 /**
- * The public booking offer for an operator station: its rules and Plug.pk's
+ * The public booking offer for an operator station: its rules and plugpk's
  * own payment accounts. Null when it takes no bookings — off, a sample
- * listing, or no Plug.pk account configured. Never throws: the station page
+ * listing, or no plugpk account configured. Never throws: the station page
  * still renders without it.
  */
 export async function getPublicStationOffer(stationId: string): Promise<{

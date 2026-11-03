@@ -656,7 +656,7 @@ export function carSeo(car: Car): {
 
   const description = `${name} price in Pakistan: ${car.price.display}. ${
     facts.length > 0 ? `${facts.join(', ')}. ` : ''
-  }Full ${kind} specifications, charging and range on Plug.pk.`
+  }Full ${kind} specifications, charging and range on plugpk.`
 
   return {
     title: `${name} Price in Pakistan | ${

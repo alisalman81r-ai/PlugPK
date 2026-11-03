@@ -1,4 +1,4 @@
-// plug.pk app prototype — the community: a discussion feed with photos and polls,
+// plugpk app prototype — the community: a discussion feed with photos and polls,
 // and one Create sheet for a question, a photo post or a poll.
 'use strict'
 

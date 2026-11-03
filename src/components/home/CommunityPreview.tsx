@@ -212,8 +212,8 @@ function StatsPicture({ counts }: { counts: CommunityPreviewCounts }) {
   ]
   return (
     <div className={cn(PIECE, 'absolute left-[9%] right-[8%] top-5 origin-top-right rotate-[1.4deg] px-5 pb-3 pt-4')}>
-      {/* Totals to date. This said "This month on plug.pk" over all-time figures. */}
-      <p className="text-[13px] font-bold text-slate-900">On plug.pk so far</p>
+      {/* Totals to date. This said "This month on plugpk" over all-time figures. */}
+      <p className="text-[13px] font-bold text-slate-900">On plugpk so far</p>
       <ul className="mt-2">
         {rows.map(({ icon: Icon, label, value }) => (
           <li key={label} className="flex items-center justify-between border-t border-slate-100 py-2.5 first:border-t-0">

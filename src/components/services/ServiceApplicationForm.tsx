@@ -214,7 +214,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
         setDone(result.message ?? 'Thanks — your application is with our team.')
         topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       } catch {
-        setError('Could not reach Plug.pk. Check your connection and try again.')
+        setError('Could not reach plugpk. Check your connection and try again.')
       }
     })
   }
@@ -566,7 +566,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
         {/* ── Step 5 — Review and send ──────────────────────── */}
         <div hidden={step !== 5}>
           <h2 className="mb-2 text-2xl font-bold text-slate-900">Review and submit</h2>
-          <p className="mb-8 text-slate-500">Check everything before it goes to the Plug.pk review team</p>
+          <p className="mb-8 text-slate-500">Check everything before it goes to the plugpk review team</p>
 
           {summary ? (
             <div className="mb-6 divide-y divide-slate-200 rounded-2xl bg-slate-50 px-6">
@@ -640,7 +640,7 @@ export function ServiceApplicationForm({ applicant }: { applicant: Applicant }) 
             />
             <span>
               The details above are correct and I can speak for this business. I understand the listing is checked by
-              the Plug.pk team before it is published, and that listing costs PKR 4,999 a month once approved.
+              the plugpk team before it is published, and that listing costs PKR 4,999 a month once approved.
             </span>
           </label>
 
