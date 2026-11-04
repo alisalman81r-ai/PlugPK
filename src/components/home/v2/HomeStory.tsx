@@ -96,7 +96,7 @@ export function Statement() {
       <div className="statement__pin relative grid h-screen min-h-[560px] place-items-center overflow-hidden sm:min-h-[640px]">
         <figure className="statement__media absolute inset-0 m-0 overflow-hidden [backface-visibility:hidden] [transform:translate3d(0,28%,0)_scale(.18,.24)] will-change-transform group-[.is-full]/st:[transform:none] motion-reduce:[transform:none]">
           <Image
-            src="/images/home/v2/open-road.jpg"
+            src="/images/home/v2/open-road-ev.jpg"
             alt="An electric car parked on an open mountain road"
             fill
             sizes="100vw"
