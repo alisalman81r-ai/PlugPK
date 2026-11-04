@@ -42,6 +42,7 @@ import { RATES_CHECKED, RATES_FISCAL_YEAR, onRoadEstimates, onRoadProvinces } fr
 import { cn } from '@/lib/utils'
 
 import { CarCard } from './CarCard'
+import { CarStickyBar } from './CarStickyBar'
 import { CarGrid, CarPhoto } from './car-motion'
 import { OnRoadPrice } from './OnRoadPrice'
 import { CAR_ENTRANCE_ITEM, STAGE, priceQualifier } from './car-ui'
@@ -188,8 +189,31 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
     { href: '/services/dealership', icon: Store, label: 'Find a dealer' },
   ].filter((action): action is { href: string; icon: IconType; label: string } => action !== null)
 
+  /* The sticky bar's tabs: only the sections this car's page actually has. */
+  const sections = [
+    { id: 'overview', label: 'Overview' },
+    onRoad ? { id: 'price', label: 'Price' } : null,
+    { id: 'specifications', label: 'Specs' },
+    features ? { id: 'features', label: 'Features' } : null,
+    car.notes ? { id: 'notes', label: 'Data notes' } : null,
+    similar.length > 0 ? { id: 'alternatives', label: 'Alternatives' } : null,
+  ].filter((s): s is { id: string; label: string } => s !== null)
+  const chips = [
+    car.range ? `${car.range}${car.rangeMax && car.rangeMax !== car.range ? `–${car.rangeMax}` : ''} km range` : null,
+    car.batteryCapacity ? `${car.batteryCapacity} kWh` : null,
+  ].filter((c): c is string => c !== null)
+
   return (
     <>
+      <CarStickyBar
+        name={name}
+        image={car.image}
+        chips={chips}
+        priceLabel={qualifier ? `Price · ${qualifier}` : price.label}
+        price={price.amount.startsWith('PKR') ? price.amount : `PKR ${price.amount}`}
+        sections={sections}
+      />
+
       {/* ── Hero ────────────────────────────────────────────────── */}
       <PageHero
         eyebrow={[car.brand, CATEGORY_NAME[car.category], body].filter(Boolean).join(' · ')}
@@ -225,9 +249,10 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
 
       {/* ── The sheet: the car, the price, the figures ──────────── */}
       <div
+        id="overview"
         data-theme="light"
         data-lift=""
-        className="relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:-mt-28 sm:rounded-[32px]"
+        className="scroll-mt-[calc(var(--nav-h)+120px)] relative z-[3] mx-auto -mt-[84px] w-[min(1320px,calc(100%-2*clamp(16px,4vw,64px)))] overflow-hidden rounded-3xl border border-white/60 bg-paper shadow-e4 sm:-mt-28 sm:rounded-[32px]"
       >
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 bg-[linear-gradient(90deg,#F4F3EE,#fff)] px-[18px] py-4 sm:px-7">
           <nav aria-label="Breadcrumb">
@@ -376,6 +401,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               Only where at least one province has sourced rates, and never for
               an indicative or estimated price (onRoadEstimates decides). */}
           {onRoad ? (
+            <div id="price" className="scroll-mt-[calc(var(--nav-h)+120px)]">
             <OnRoadPrice
               title={`${name} price in Pakistan`}
               provinces={onRoadProvinces().filter((entry) => onRoad[entry.key])}
@@ -383,12 +409,13 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
               fiscalYear={RATES_FISCAL_YEAR}
               checked={RATES_CHECKED}
             />
+            </div>
           ) : null}
 
           {/* ── Every published figure ─────────────────────────────
               Grouped; an empty group is dropped, so a PHEV shows an Engine
               sheet where an EV shows none. */}
-          <section id="specifications" className="scroll-mt-[calc(var(--nav-h)+16px)]">
+          <section id="specifications" className="scroll-mt-[calc(var(--nav-h)+120px)]">
             <Eyebrow>Specifications</Eyebrow>
             <SectionTitle
               title={`${name} specs and range`}
@@ -442,7 +469,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
                 with a reviewed list in src/data/car-features.ts. Columns rather
                 than a grid, so the groups pack by height. */}
             {features ? (
-              <div data-reveal="" className={cn(CARD, 'mt-3 px-5 py-5 sm:px-7 sm:py-7')}>
+              <div id="features" data-reveal="" className={cn(CARD, 'scroll-mt-[calc(var(--nav-h)+120px)] mt-3 px-5 py-5 sm:px-7 sm:py-7')}>
                 <h3 className="flex flex-wrap items-center gap-3 font-display text-[22px] leading-tight text-ink">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-volt-tint">
                     <BadgeCheck size={18} aria-hidden="true" className="text-volt-ink" />
@@ -491,7 +518,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
             {/* The research trail — which source said what, where two
                 disagreed. Behind a disclosure: it is not what a buyer came for. */}
             {car.notes ? (
-              <details data-reveal="" className="group/notes mt-3 rounded-[22px] border border-ink/10 bg-white transition-shadow open:shadow-e1">
+              <details id="notes" data-reveal="" className="group/notes scroll-mt-[calc(var(--nav-h)+120px)] mt-3 rounded-[22px] border border-ink/10 bg-white transition-shadow open:shadow-e1">
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-[16px] font-semibold text-ink sm:px-7 [&::-webkit-details-marker]:hidden">
                   Data notes
                   <span className="text-sm font-medium text-muted">
@@ -510,7 +537,7 @@ export function CarDetails({ car, pool }: CarDetailsProps) {
           The same cards as the catalogue, so a buyer moves between them
           without learning a second layout. */}
       {similar.length > 0 ? (
-        <section data-theme="light" className="bg-paper py-[clamp(64px,7vw,104px)]">
+        <section id="alternatives" data-theme="light" className="scroll-mt-[calc(var(--nav-h)+120px)] bg-paper py-[clamp(64px,7vw,104px)]">
           <div className={WRAP}>
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
               <div>
