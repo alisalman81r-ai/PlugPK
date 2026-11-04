@@ -1,10 +1,11 @@
 // src/components/cars/CarsBrowser.tsx
 'use client'
 
-import { ChevronDown, GitCompareArrows, X } from '@/components/ui/icons'
+import { GitCompareArrows, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { Btn, ChipCount, btnClass, chipClass } from '@/components/v2/ui'
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import { gsap, prefersReduced } from '@/lib/gsap'
@@ -342,28 +343,16 @@ export function CarsBrowser({
           <div className="hidden flex-1 md:block" />
         )}
 
-        <label className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5">
           <span className="hidden font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted md:inline">Sort by</span>
-          <span className="relative">
-            <select
-              value={sort}
-              onChange={(event) => onSortChange(event.target.value as CarSort)}
-              aria-label="Sort cars"
-              className="h-11 cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-[18px] pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus"
-            >
-              {(Object.keys(SORT_LABELS) as CarSort[]).map((option) => (
-                <option key={option} value={option}>
-                  {SORT_LABELS[option]}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={15}
-              aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted"
-            />
-          </span>
-        </label>
+          <ThemedSelect
+            value={sort}
+            onChange={(value) => onSortChange(value as CarSort)}
+            aria-label="Sort cars"
+            align="right"
+            options={(Object.keys(SORT_LABELS) as CarSort[]).map((option) => ({ value: option, label: SORT_LABELS[option] }))}
+          />
+        </div>
       </div>
 
       {/* ── Grid ───────────────────────────────────────────────── */}

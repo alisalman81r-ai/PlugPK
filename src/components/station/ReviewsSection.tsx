@@ -5,6 +5,7 @@ import { Car, MessageSquare, ThumbsUp } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { RatingStars } from '@/components/ui'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { btnClass } from '@/components/v2/ui'
 import type { Review } from '@/lib/types'
 import { cn, formatRelativeTime } from '@/lib/utils'
@@ -151,17 +152,19 @@ export function ReviewsSection({
           <h2 className="font-display text-[clamp(26px,2.4vw,32px)] leading-[1.08] text-ink">Reviews and ratings</h2>
         </div>
 
-        <select
+        <ThemedSelect
           value={sortBy}
-          onChange={(event) => setSortBy(event.target.value as SortKey)}
+          onChange={(value) => setSortBy(value as SortKey)}
           aria-label="Sort reviews"
-          className="h-11 cursor-pointer rounded-full border-[1.5px] border-ink/10 bg-white pl-4 pr-3 text-sm font-medium text-ink outline-none transition-colors hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus"
-        >
-          <option value="recent">Most Recent</option>
-          <option value="helpful">Most Helpful</option>
-          <option value="highest">Highest First</option>
-          <option value="lowest">Lowest First</option>
-        </select>
+          align="right"
+          className="pl-4"
+          options={[
+            { value: 'recent', label: 'Most Recent' },
+            { value: 'helpful', label: 'Most Helpful' },
+            { value: 'highest', label: 'Highest First' },
+            { value: 'lowest', label: 'Lowest First' },
+          ]}
+        />
       </div>
 
       {isExample && reviews.length > 0 ? (

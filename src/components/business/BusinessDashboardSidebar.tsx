@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { AdmIcon, AdmMark, type AdmIconName } from '@/components/admin/admin-icons'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
@@ -161,19 +162,20 @@ export function ListingSwitcher({
   if (listings.length < 2) return null
 
   return (
-    <label className={cn('biz-pick', className)}>
-      <span>Showing listing</span>
-      <select
-        value={currentId}
-        onChange={(event) => router.push(`${pathname}?listing=${encodeURIComponent(event.target.value)}`)}
-      >
-        {listings.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.name} · {listingState(item.status).label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className={cn('mt-3 block', className)}>
+      <span aria-hidden="true" className="mb-1.5 block font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white/[.38]">
+        Showing listing
+      </span>
+      <ThemedSelect
+        tone="dark"
+        aria-label="Showing listing"
+        value={currentId ?? ''}
+        onChange={(id) => router.push(`${pathname}?listing=${encodeURIComponent(id)}`)}
+        className="h-[38px] rounded-[10px] border pl-2.5 pr-2.5 text-[13px]"
+        wrapperClassName="w-full"
+        options={listings.map((item) => ({ value: item.id, label: `${item.name} · ${listingState(item.status).label}` }))}
+      />
+    </div>
   )
 }
 

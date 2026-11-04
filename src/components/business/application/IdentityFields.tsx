@@ -12,6 +12,7 @@ import {
   type DocumentKind,
   type IdType,
 } from '@/lib/listing-application'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { cn } from '@/lib/utils'
 
 import { DocumentPicker } from './DocumentPicker'
@@ -139,19 +140,17 @@ export function IdentityFields({ idType, value, onChange, onFile = [], idPrefix 
                 <label htmlFor={`${idPrefix}-licence-kind`} className="mb-2 block text-sm font-semibold text-slate-700">
                   Document type *
                 </label>
-                <select
+                <ThemedSelect
                   id={`${idPrefix}-licence-kind`}
                   value={value.idDetail}
-                  onChange={(e) => onChange({ ...value, idDetail: e.target.value })}
-                  className={cn(FIELD, 'cursor-pointer')}
-                >
-                  <option value="">Choose one</option>
-                  {LICENCE_KINDS.map((kind) => (
-                    <option key={kind.value} value={kind.value}>
-                      {kind.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(idDetail) => onChange({ ...value, idDetail })}
+                  className="h-12 rounded-xl border-slate-200 px-4 text-ui font-normal text-slate-900"
+                  wrapperClassName="w-full"
+                  options={[
+                    { value: '', label: 'Choose one' },
+                    ...LICENCE_KINDS.map((kind) => ({ value: kind.value, label: kind.label })),
+                  ]}
+                />
               </div>
               <div>
                 <label htmlFor={`${idPrefix}-licence-number`} className="mb-2 block text-sm font-semibold text-slate-700">

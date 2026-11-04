@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { changeMyPassword, signOutEverywhere, updateMyProfile } from '@/lib/db/session-actions'
 import { removeMyAvatar, uploadMyAvatar } from '@/lib/db/upload-actions'
@@ -29,7 +30,6 @@ import {
   PANEL_H2,
   PANEL_SUB,
   SavedNote,
-  SelChevron,
 } from './dash-ui'
 import { DashAvatar } from './DashboardSidebar'
 
@@ -374,17 +374,14 @@ export function AccountSettings({ user, mustChangePassword = false, showVehicle 
             <label id="city" htmlFor="acct-city" className={cn(ALABEL, 'scroll-mt-28')}>
               City
             </label>
-            <div className="relative">
-              <select id="acct-city" value={city} onChange={(event) => setCity(event.target.value)} className={cn(AIN, 'cursor-pointer pr-11')}>
-                <option value="">Not set</option>
-                {PAKISTAN_CITIES.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <SelChevron />
-            </div>
+            <ThemedSelect
+              id="acct-city"
+              value={city}
+              onChange={setCity}
+              className="h-[54px] rounded-[14px] px-4 text-base font-normal"
+              wrapperClassName="w-full"
+              options={[{ value: '', label: 'Not set' }, ...PAKISTAN_CITIES.map((option) => ({ value: option, label: option }))]}
+            />
           </div>
 
           {/* Cars live on their own page (several per account, one primary): this shows the primary and links there. */}

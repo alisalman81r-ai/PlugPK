@@ -335,31 +335,8 @@ export function ChipLinks({
   )
 }
 
-/** .selw: a native select with the design's chevron. */
-export function Select({
-  className,
-  wrapClassName,
-  children,
-  ...rest
-}: React.SelectHTMLAttributes<HTMLSelectElement> & { wrapClassName?: string }) {
-  return (
-    <span className={cn('relative inline-flex items-center', wrapClassName)}>
-      <select
-        {...rest}
-        className={cn(
-          'h-12 w-full cursor-pointer appearance-none rounded-[14px] border border-ink/[.09] bg-paper pl-3.5 pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] focus:border-ink focus:shadow-focus',
-          className,
-        )}
-      >
-        {children}
-      </select>
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute right-4 top-1/2 -mt-[5px] h-[7px] w-[7px] rotate-45 border-b-2 border-r-2 border-fog"
-      />
-    </span>
-  )
-}
+/** .selw: the filter-bar select, drawn in the site's colours (select-kit). */
+export { Select } from './select-kit'
 
 /* ── Pills ───────────────────────────────────────────────────────────── */
 
@@ -531,23 +508,8 @@ export const COUNT = 'mb-3 ml-1 text-sm text-muted'
 export const IN =
   'h-[52px] w-full rounded-[14px] border-[1.5px] border-ink/[.09] bg-white px-4 font-sans text-base text-ink outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-fog focus:border-ink focus:shadow-focus disabled:cursor-not-allowed disabled:bg-paper aria-[invalid=true]:border-ember'
 export const TEXTAREA = cn(IN, 'h-auto min-h-[140px] resize-y py-3.5 leading-[1.6]')
-/** A select styled as .in; pair with <FieldSelect>. */
-export const IN_SELECT = cn(IN, 'cursor-pointer appearance-none pr-11')
-
-/** A form select with the chevron. */
-export function FieldSelect({ className, children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <span className="relative block">
-      <select {...rest} className={cn(IN_SELECT, className)}>
-        {children}
-      </select>
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[18px] top-1/2 -mt-[5px] h-[7px] w-[7px] rotate-45 border-b-2 border-r-2 border-fog"
-      />
-    </span>
-  )
-}
+/** A form select in the shape of .in, drawn in the site's colours (select-kit). */
+export { FieldSelect } from './select-kit'
 
 /** .fld: label over control, with an optional hint (and an "optional" note). */
 export function Fld({

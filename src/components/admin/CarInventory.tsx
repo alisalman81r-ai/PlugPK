@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import type { CarAudit } from '@/lib/car-admin'
 import { electricDistance, electricDistanceMax } from '@/lib/cars'
 
@@ -63,23 +64,25 @@ export function CarInventory({ audits, total, counts, lens, sort, query }: CarIn
             <AdminSearch placeholder="Search by name, brand or slug" label="Search the catalogue" />
           </div>
 
-          <label className={s.selw}>
-            <span>Sort</span>
-            <select
+          <div className="inline-flex items-center gap-2.5 text-[13px] text-muted max-[640px]:w-full">
+            <span aria-hidden="true">Sort</span>
+            <ThemedSelect
+              aria-label="Sort"
               value={sort}
-              onChange={(event) =>
-                router.push(
-                  buildHref(pathname, params, { sort: event.target.value === 'name' ? undefined : event.target.value }),
-                  { scroll: false },
-                )
+              onChange={(next) =>
+                router.push(buildHref(pathname, params, { sort: next === 'name' ? undefined : next }), { scroll: false })
               }
-            >
-              <option value="name">Name</option>
-              <option value="category">Powertrain</option>
-              <option value="price">Price, low to high</option>
-              <option value="completeness">Least complete first</option>
-            </select>
-          </label>
+              align="right"
+              className="h-12 rounded-[14px] border border-ink/[.09] bg-paper pl-3.5"
+              wrapperClassName="max-[640px]:w-full"
+              options={[
+                { value: 'name', label: 'Name' },
+                { value: 'category', label: 'Powertrain' },
+                { value: 'price', label: 'Price, low to high' },
+                { value: 'completeness', label: 'Least complete first' },
+              ]}
+            />
+          </div>
         </div>
 
         {/*

@@ -7,6 +7,7 @@ import { LayoutGrid, LayoutList, Loader2, Search } from '@/components/ui/icons'
 
 import { Skeleton } from '@/components/ui'
 import { SearchSelect } from '@/components/ui/SearchSelect'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { SEG, segButtonClass } from '@/components/v2/ui'
 import { PAKISTAN_CITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -138,22 +139,17 @@ export function ServiceFilters({
           className={cn(PILL, 'w-full px-[18px] hover:border-ink/10 focus-visible:ring-0 sm:w-44')}
         />
 
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(event) => onSortChange(event.target.value as ServiceSortOption)}
-            aria-label="Sort services"
-            className={cn(PILL, 'w-full cursor-pointer appearance-none pl-[18px] pr-10 sm:w-auto')}
-          >
-            <option value="name">A to Z</option>
-            <option value="za">Z to A</option>
-            <option value="city">By city</option>
-          </select>
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute right-[18px] top-1/2 -mt-1.5 h-[7px] w-[7px] rotate-45 border-b-2 border-r-2 border-muted"
-          />
-        </div>
+        <ThemedSelect
+          value={sortBy}
+          onChange={(value) => onSortChange(value as ServiceSortOption)}
+          aria-label="Sort services"
+          wrapperClassName="w-full sm:w-auto"
+          options={[
+            { value: 'name', label: 'A to Z' },
+            { value: 'za', label: 'Z to A' },
+            { value: 'city', label: 'By city' },
+          ]}
+        />
 
         {/* A labelled segmented control: both buttons carry their word. */}
         <div role="group" aria-label="View mode" className={cn(SEG, 'col-span-2 flex sm:inline-flex')}>

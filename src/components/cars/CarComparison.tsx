@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { PhotoFrame } from '@/components/ui'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { CARD, Tag, type TagTone, btnClass } from '@/components/v2/ui'
 import type { Car, CarCategory } from '@/data/cars'
 import { carDisplayName, dcWindow, formatPkr, formatSpan } from '@/lib/cars'
@@ -291,6 +292,12 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
   const [adding, setAdding] = React.useState(false)
   const [onlyDifferences, setOnlyDifferences] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
+  const addRef = React.useRef<HTMLDivElement>(null)
+
+  // The picker takes focus as it replaces the "Add a car" button.
+  React.useEffect(() => {
+    if (adding) addRef.current?.querySelector<HTMLButtonElement>('button[role="combobox"]')?.focus()
+  }, [adding])
 
   const go = (ids: string[]) => {
     setAdding(false)
@@ -524,25 +531,19 @@ export function CarComparison({ cars, available, max }: CarComparisonProps) {
         */}
         {canAdd ? (
           adding ? (
-            <div className="flex min-w-0 items-center gap-2">
-              <select
-                autoFocus
-                defaultValue=""
+            <div ref={addRef} className="flex min-w-0 items-center gap-2">
+              <ThemedSelect
+                value=""
+                placeholder="Choose a car…"
                 aria-label="Add a car to the comparison"
-                onChange={(event) =>
-                  event.target.value && go([...cars.map((car) => car.id), event.target.value])
-                }
-                className="h-11 min-w-0 max-w-[16rem] cursor-pointer rounded-full border-[1.5px] border-ink/10 bg-white px-4 text-sm font-medium text-ink outline-none focus:border-ink focus:shadow-focus"
-              >
-                <option value="" disabled>
-                  Choose a car…
-                </option>
-                {available.map((car) => (
-                  <option key={car.id} value={car.id}>
-                    {carDisplayName(car)} — {car.price.display}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => value && go([...cars.map((car) => car.id), value])}
+                className="px-4"
+                wrapperClassName="min-w-0 max-w-[16rem]"
+                options={available.map((car) => ({
+                  value: car.id,
+                  label: `${carDisplayName(car)} — ${car.price.display}`,
+                }))}
+              />
               <button
                 type="button"
                 onClick={() => setAdding(false)}

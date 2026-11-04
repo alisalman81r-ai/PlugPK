@@ -1,10 +1,11 @@
 // src/components/partners/PartnerList.tsx
 'use client'
 
-import { ChevronDown, Globe, MapPin, Phone, Plug, Search, Star, Zap } from '@/components/ui/icons'
+import { Globe, MapPin, Phone, Plug, Search, Star, Zap } from '@/components/ui/icons'
 import Link from 'next/link'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { Btn, BtnArrow, SEG, Tag, btnClass, segButtonClass } from '@/components/v2/ui'
 import type { PartnerRow } from '@/lib/db/queries'
 import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
@@ -51,8 +52,7 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'rating', label: 'Best rated' },
 ]
 
-const SELECT =
-  'h-12 w-full cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-4 pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus:border-ink focus:shadow-focus'
+const SELECT = 'h-12 pl-4'
 
 export function PartnerList({ partners }: PartnerListProps) {
   const [query, setQuery] = React.useState('')
@@ -179,27 +179,25 @@ export function PartnerList({ partners }: PartnerListProps) {
         </label>
 
         <div className="relative flex-1 md:flex-none">
-          <select value={city} onChange={(event) => setCity(event.target.value)} aria-label="Filter by city" className={SELECT}>
-            <option value="all">All cities</option>
-            {cities.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink" />
+          <ThemedSelect
+            value={city}
+            onChange={setCity}
+            aria-label="Filter by city"
+            className={SELECT}
+            wrapperClassName="w-full"
+            options={[{ value: 'all', label: 'All cities' }, ...cities.map((option) => ({ value: option, label: option }))]}
+          />
         </div>
 
         <div className="relative flex-1 md:flex-none">
-          <select value={type} onChange={(event) => setType(event.target.value)} aria-label="Filter by type" className={SELECT}>
-            <option value="all">All types</option>
-            {types.map((option) => (
-              <option key={option} value={option}>
-                {TYPE_LABEL[option] ?? option}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={16} aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink" />
+          <ThemedSelect
+            value={type}
+            onChange={setType}
+            aria-label="Filter by type"
+            className={SELECT}
+            wrapperClassName="w-full"
+            options={[{ value: 'all', label: 'All types' }, ...types.map((option) => ({ value: option, label: TYPE_LABEL[option] ?? option }))]}
+          />
         </div>
 
         <div role="group" aria-label="Sort" className={cn(SEG, 'w-full rounded-full md:w-auto')}>

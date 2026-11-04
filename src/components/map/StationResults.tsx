@@ -4,6 +4,7 @@
 import { ChevronDown, List } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { gsap, prefersReduced, ScrollTrigger } from '@/lib/gsap'
 import type { Station } from '@/lib/types'
 import { Eyebrow, btnClass } from '@/components/v2/ui'
@@ -177,28 +178,16 @@ export function StationResults({
           </p>
         </div>
 
-        {/* A real select rather than a menu of buttons: three options is
-            exactly the case the native control was made for, and it comes with
-            keyboard and screen-reader behaviour already correct. */}
-        <label className="relative shrink-0">
-          <span className="sr-only">Sort stations</span>
-          <select
-            value={sortBy}
-            onChange={(event) => changeSort(event.target.value as SortKey)}
-            className="h-11 cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-[18px] pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] duration-200 hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={16}
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink"
-          />
-        </label>
+        {/* A select rather than a row of buttons — drawn by us so the open
+            list stays in the site's colours, with the same keyboard handling. */}
+        <ThemedSelect
+          value={sortBy}
+          onChange={(value) => changeSort(value as SortKey)}
+          aria-label="Sort stations"
+          align="right"
+          wrapperClassName="shrink-0"
+          options={SORT_OPTIONS}
+        />
       </div>
 
       {/* ── Grid ─────────────────────────────────────────────────── */}

@@ -8,6 +8,7 @@ import * as React from 'react'
 import { DocumentPicker } from '@/components/business/application/DocumentPicker'
 import { MyCarHint } from '@/components/tools/MyCarHint'
 import { Button } from '@/components/ui'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import {
   bookableDates,
   formatClock,
@@ -361,21 +362,19 @@ export function BookingPanel({
         {/* ── 1. Car ─────────────────────────── */}
         <Step number={1} title="Your car">
           <div className="relative">
-            <Car size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
-            <select
+            <Car size={18} className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+            <ThemedSelect
               aria-label="Your car"
               value={carSlug}
-              onChange={(e) => chooseCar(e.target.value)}
-              className={cn(FIELD, 'cursor-pointer pl-11')}
-            >
-              <option value="">Choose your car</option>
-              {cars.map((item) => (
-                <option key={item.slug} value={item.slug}>
-                  {item.name} · {item.batteryKwh} kWh
-                </option>
-              ))}
-              <option value={CUSTOM}>My car is not listed</option>
-            </select>
+              onChange={chooseCar}
+              className="h-12 rounded-xl border-slate-200 pl-11 text-ui font-normal text-slate-900"
+              wrapperClassName="w-full"
+              options={[
+                { value: '', label: 'Choose your car' },
+                ...cars.map((item) => ({ value: item.slug, label: `${item.name} · ${item.batteryKwh} kWh` })),
+                { value: CUSTOM, label: 'My car is not listed' },
+              ]}
+            />
           </div>
           {myCar && cars.some((item) => item.slug === myCar.slug) ? (
             <div className="mt-2">

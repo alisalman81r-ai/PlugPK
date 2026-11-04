@@ -7,10 +7,11 @@ import * as React from 'react'
 
 import type { GarageCar, GarageCatalogueCar } from '@/lib/db/garage'
 import { addMyCar, makePrimaryCar, removeMyCar, replaceMyCar } from '@/lib/db/garage-actions'
+import { ThemedSelect, type ThemedSelectOption } from '@/components/ui/ThemedSelect'
 import { cn } from '@/lib/utils'
 
 import { IPlus, IStar, ITrash } from './acct-icons'
-import { abtn, AIN, ErrorNote, FHINT, PANEL, PANEL_H2, PANEL_SUB, SelChevron } from './dash-ui'
+import { abtn, ErrorNote, FHINT, PANEL, PANEL_H2, PANEL_SUB } from './dash-ui'
 
 /**
  * The cars on the signed-in account (account-vehicles.html of the design).
@@ -46,25 +47,18 @@ export interface VehicleManagerProps {
 }
 
 /** The brand-grouped options of the design's #carPick. */
-function CarOptions({ groups, exclude }: { groups: [string, VehicleCatalogueCar[]][]; exclude?: Set<string> }) {
-  return (
-    <>
-      {groups.map(([brand, list]) => {
-        const shown = exclude ? list.filter((car) => !exclude.has(car.id)) : list
-        if (shown.length === 0) return null
-        return (
-          <optgroup key={brand} label={brand}>
-            {shown.map((car) => (
-              <option key={car.id} value={car.id}>
-                {brand} {car.model}
-              </option>
-            ))}
-          </optgroup>
-        )
-      })}
-    </>
+function carOptions(groups: [string, VehicleCatalogueCar[]][], exclude?: Set<string>): ThemedSelectOption[] {
+  return groups.flatMap(([brand, list]) =>
+    (exclude ? list.filter((car) => !exclude.has(car.id)) : list).map((car) => ({
+      value: car.id,
+      label: `${brand} ${car.model}`,
+      group: brand,
+    })),
   )
 }
+
+/** The picker's trigger in the shape of the dashboard's inputs (AIN). */
+const PICK = 'h-[54px] rounded-[14px] px-4 text-base font-normal disabled:cursor-wait'
 
 export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
   const [garage, setGarage] = React.useState(saved)
@@ -73,7 +67,13 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
   const [error, setError] = React.useState<string | null>(null)
   const [notice, setNotice] = React.useState<string | null>(null)
   const [adding, setAdding] = React.useState(false)
-  const pickRef = React.useRef<HTMLSelectElement>(null)
+  const pickRef = React.useRef<HTMLDivElement>(null)
+  const addRef = React.useRef<HTMLDivElement>(null)
+
+  // The add picker takes focus as it opens, as the native one did (autoFocus).
+  React.useEffect(() => {
+    if (adding) addRef.current?.querySelector('button')?.focus()
+  }, [adding])
 
   const groups = React.useMemo(() => {
     const sorted = [...cars].sort((a, b) => a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model))
@@ -158,24 +158,21 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
         <label htmlFor="carPick" className="text-[15px] font-semibold text-ink">
           Which car do you drive?
         </label>
-        <div className={ASEL}>
-          <select
-            ref={pickRef}
+        <div ref={pickRef} className={ASEL}>
+          <ThemedSelect
             id="carPick"
             value={primary?.carId ?? ''}
+            placeholder="Choose a car"
             disabled={busy !== null}
-            onChange={(event) => {
-              const id = event.target.value
+            onChange={(id) => {
               if (!id) return
               if (primary) swap(primary, id)
               else add(id)
             }}
-            className={cn(AIN, 'cursor-pointer pr-11 disabled:cursor-wait')}
-          >
-            <option value="">Choose a car</option>
-            <CarOptions groups={groups} />
-          </select>
-          <SelChevron />
+            className={PICK}
+            wrapperClassName="w-full"
+            options={carOptions(groups)}
+          />
         </div>
       </div>
 
@@ -244,19 +241,16 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
                       <IStar />
                       <span>Make primary</span>
                     </button>
-                    <span className="relative">
-                      <select
-                        aria-label={`Change ${row.name}`}
-                        value=""
-                        disabled={busy !== null}
-                        onChange={(event) => swap(row, event.target.value)}
-                        className="h-[42px] cursor-pointer appearance-none rounded-full border border-white/25 bg-transparent pl-[18px] pr-10 text-sm font-semibold text-white outline-none transition-colors hover:border-volt focus-visible:shadow-focus disabled:opacity-45 [&_option]:text-ink [&_optgroup]:text-ink"
-                      >
-                        <option value="">Change car</option>
-                        <CarOptions groups={groups} exclude={owned} />
-                      </select>
-                      <span aria-hidden="true" className="pointer-events-none absolute right-4 top-[15px] h-2 w-2 rotate-45 border-b-2 border-r-2 border-fog" />
-                    </span>
+                    <ThemedSelect
+                      tone="dark"
+                      aria-label={`Change ${row.name}`}
+                      value=""
+                      placeholder="Change car"
+                      disabled={busy !== null}
+                      onChange={(id) => swap(row, id)}
+                      className="h-[42px] border border-white/25 bg-transparent font-semibold hover:border-volt disabled:opacity-45 [&>span]:text-white"
+                      options={carOptions(groups, owned)}
+                    />
                   </>
                 ) : null}
                 <button
@@ -264,7 +258,7 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
                   disabled={busy !== null}
                   onClick={() => {
                     remove(row)
-                    pickRef.current?.focus()
+                    pickRef.current?.querySelector('button')?.focus()
                   }}
                   aria-label={`Remove ${row.name}`}
                   className={abtn('plainDark', 'sm')}
@@ -286,19 +280,17 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
               Add another car
             </label>
             <div className="flex min-w-[240px] max-w-[520px] flex-1 items-center gap-2 max-[640px]:max-w-none">
-              <div className="relative flex-1">
-                <select
+              <div ref={addRef} className="relative flex-1">
+                <ThemedSelect
                   id="carAdd"
                   value=""
-                  autoFocus
+                  placeholder="Choose a car"
                   disabled={busy !== null}
-                  onChange={(event) => add(event.target.value)}
-                  className={cn(AIN, 'cursor-pointer pr-11')}
-                >
-                  <option value="">Choose a car</option>
-                  <CarOptions groups={groups} exclude={owned} />
-                </select>
-                <SelChevron />
+                  onChange={(id) => add(id)}
+                  className={PICK}
+                  wrapperClassName="w-full"
+                  options={carOptions(groups, owned)}
+                />
               </div>
               <button type="button" onClick={() => setAdding(false)} className={abtn('line', 'sm')}>
                 Cancel

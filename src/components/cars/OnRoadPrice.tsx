@@ -1,9 +1,9 @@
 // src/components/cars/OnRoadPrice.tsx
 'use client'
 
-import { ChevronDown } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import type { OnRoadEstimate, Province, TaxStatus } from '@/lib/onroad'
 import { CARD, Eyebrow, SEG, segButtonClass } from '@/components/v2/ui'
 import { cn } from '@/lib/utils'
@@ -49,25 +49,13 @@ export function OnRoadPrice({ title, provinces, estimates, fiscalYear, checked }
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-nowrap">
-          <label className="relative">
-            <span className="sr-only">Province of registration</span>
-            <select
-              value={province}
-              onChange={(event) => setProvince(event.target.value as Province)}
-              className="h-12 cursor-pointer appearance-none rounded-full border-[1.5px] border-ink/10 bg-white pl-5 pr-10 text-sm font-medium text-ink outline-none transition-[border-color,box-shadow] hover:border-ink/30 focus-visible:border-ink focus-visible:shadow-focus"
-            >
-              {provinces.map((entry) => (
-                <option key={entry.key} value={entry.key}>
-                  {entry.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={16}
-              aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted"
-            />
-          </label>
+          <ThemedSelect
+            value={province}
+            onChange={(value) => setProvince(value as Province)}
+            aria-label="Province of registration"
+            className="h-12 pl-5"
+            options={provinces.map((entry) => ({ value: entry.key, label: entry.name }))}
+          />
 
           <div role="radiogroup" aria-label="Tax status" className={cn(SEG, 'rounded-full')}>
             {(['filer', 'nonFiler'] as const).map((option) => (

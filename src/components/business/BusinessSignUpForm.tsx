@@ -26,6 +26,7 @@ import Link from 'next/link'
 import * as React from 'react'
 
 import { Button } from '@/components/ui'
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { LocationPicker } from './LocationPicker'
 import { EMPTY_IDENTITY, IdentityFields, identityProblem, type IdentityDraft } from './application/IdentityFields'
 import {
@@ -104,6 +105,9 @@ const TYPE_OPTIONS: { value: BusinessType; label: string; icon: IconType; note: 
 ]
 
 const TYPE_LABEL = Object.fromEntries(TYPE_OPTIONS.map((option) => [option.value, option.label]))
+
+/** A ThemedSelect trigger in the shape of FIELD. */
+const FIELD_PICK = 'h-12 rounded-xl border-slate-200 px-4 text-ui font-normal text-slate-900'
 
 const FIELD =
   'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
@@ -660,12 +664,14 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
 
               <div className="mb-5">
                 <label htmlFor="biz-city-signup" className="mb-2 block text-sm font-semibold text-slate-700">City *</label>
-                <select id="biz-city-signup" value={data.city} onChange={(e) => update('city', e.target.value)} className={cn(FIELD, 'cursor-pointer sm:max-w-sm')}>
-                  <option value="">Select the city</option>
-                  {PAKISTAN_CITIES.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
+                <ThemedSelect
+                  id="biz-city-signup"
+                  value={data.city}
+                  onChange={(city) => update('city', city)}
+                  className={FIELD_PICK}
+                  wrapperClassName="w-full sm:max-w-sm"
+                  options={[{ value: '', label: 'Select the city' }, ...PAKISTAN_CITIES.map((option) => ({ value: option, label: option }))]}
+                />
               </div>
 
               <div className="mb-5">
@@ -724,20 +730,21 @@ export function BusinessSignUpForm({ account, fee, accounts }: BusinessSignUpFor
                   <p className="mb-3 text-sm font-bold text-slate-900">Charger {index + 1}</p>
 
                   <div className="grid gap-3 sm:grid-cols-3">
-                    <label className="block">
-                      <span className="mb-1.5 block text-xs text-slate-500">Connector</span>
-                      <select
+                    <div className="block">
+                      <span aria-hidden="true" className="mb-1.5 block text-xs text-slate-500">Connector</span>
+                      <ThemedSelect
+                        aria-label={`Charger ${index + 1} connector`}
                         value={charger.connectorType}
-                        onChange={(e) => {
+                        onChange={(type) => {
                           const next = [...data.chargers]
-                          next[index] = { ...charger, connectorType: e.target.value as ConnectorType }
+                          next[index] = { ...charger, connectorType: type as ConnectorType }
                           update('chargers', next)
                         }}
-                        className="h-10 w-full cursor-pointer rounded-xl border border-slate-200 px-3 text-sm"
-                      >
-                        {CONNECTOR_TYPES.map((type) => (<option key={type} value={type}>{type}</option>))}
-                      </select>
-                    </label>
+                        className="h-10 rounded-xl border border-slate-200 px-3 text-sm font-normal"
+                        wrapperClassName="w-full"
+                        options={CONNECTOR_TYPES.map((type) => ({ value: type, label: type }))}
+                      />
+                    </div>
 
                     <label className="block">
                       <span className="mb-1.5 block text-xs text-slate-500">Power (kW)</span>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { ThemedSelect } from '@/components/ui/ThemedSelect'
 import { cn } from '@/lib/utils'
 
 import { AdmIcon } from './admin-icons'
@@ -233,18 +234,14 @@ export function AdminTopbar({
           <label htmlFor="admin-search-section" className="top__scope-lab">
             Search in
           </label>
-          <select
+          <ThemedSelect
             id="admin-search-section"
             value={section}
-            onChange={(event) => setSection(event.target.value)}
-            className="top__scope-sel"
-          >
-            {DESTINATIONS.map((item) => (
-              <option key={item.href} value={item.href}>
-                {item.label}
-              </option>
-            ))}
-          </select>
+            onChange={setSection}
+            className="h-10 rounded-[10px] border border-ink/10 bg-paper pl-3 pr-3"
+            wrapperClassName="w-full"
+            options={DESTINATIONS.map((item) => ({ value: item.href, label: item.label }))}
+          />
           <p className="top__scope-note">Press Enter to search {sectionLabel.toLowerCase()}.</p>
         </div>
       </form>
