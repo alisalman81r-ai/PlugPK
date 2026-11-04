@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 import { BusinessSignUpForm } from '@/components/business/BusinessSignUpForm'
-import { getListingFee, getPaymentAccounts } from '@/lib/db/listing-fee'
+import { getListingFee, getListingPaymentAccounts } from '@/lib/db/listing-fee'
 import { getCurrentProfile } from '@/lib/db/session-actions'
 import { formatPkr } from '@/lib/listing-application'
 import {
@@ -172,7 +172,7 @@ export default async function BusinessSignUpPage() {
         <BusinessSignUpForm
           account={{ name: profile.name, email: profile.email, phone: null }}
           fee={fee}
-          accounts={getPaymentAccounts()}
+          accounts={getListingPaymentAccounts()}
         />
       </div>
     </StandaloneShell>

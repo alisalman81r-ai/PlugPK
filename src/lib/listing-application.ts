@@ -19,11 +19,15 @@
 
 export type IdType = 'cnic' | 'licence'
 export type DocumentKind = 'cnic-front' | 'cnic-back' | 'licence' | 'payment-receipt'
-export type PaymentMethod = 'bank' | 'jazzcash' | 'easypaisa'
+/** 'demo' is the test-only payment (code 0000), on only with DEMO_PAYMENT_ENABLED=true. */
+export type PaymentMethod = 'bank' | 'jazzcash' | 'easypaisa' | 'demo'
 export type PaymentStatus = 'submitted' | 'verified' | 'rejected'
 
 export const DOCUMENT_KINDS: DocumentKind[] = ['cnic-front', 'cnic-back', 'licence', 'payment-receipt']
-export const PAYMENT_METHODS: PaymentMethod[] = ['bank', 'jazzcash', 'easypaisa']
+export const PAYMENT_METHODS: PaymentMethod[] = ['bank', 'jazzcash', 'easypaisa', 'demo']
+
+/** The code a tester types to pass the demo payment. */
+export const DEMO_PAYMENT_CODE = '0000'
 
 export const DOCUMENT_LABEL: Record<DocumentKind, string> = {
   'cnic-front': 'CNIC — front',
@@ -36,6 +40,7 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
   bank: 'Bank transfer',
   jazzcash: 'JazzCash',
   easypaisa: 'Easypaisa',
+  demo: 'Test payment',
 }
 
 /** What a business can show as proof that it exists. */

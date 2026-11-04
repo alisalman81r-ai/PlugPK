@@ -16,6 +16,7 @@ import {
   normalizeLicenceNumber,
   normalizeReference,
   checkPaidOn,
+  DEMO_PAYMENT_CODE,
   PAYMENT_METHOD_LABEL,
   PAYMENT_METHODS,
   REQUIRED_DOCUMENTS,
@@ -28,7 +29,7 @@ import { getAdminActor } from './admin-access'
 import { logAdminAction } from './audit'
 import { prisma } from './client'
 import { readDocument } from './document-store'
-import { getListingFee, getPaymentAccounts } from './listing-fee'
+import { getListingFee, getListingPaymentAccounts } from './listing-fee'
 import { checkLimits, retryMessage } from './rate-limit'
 import { getSessionUserId } from './session'
 import { recordSiteEvent } from './site-events'
@@ -267,9 +268,10 @@ export async function submitListingPayment(
 
   const method = input?.method as PaymentMethod
   if (!PAYMENT_METHODS.includes(method)) return { ok: false, message: 'Choose how you paid.' }
-  if (!getPaymentAccounts().some((account) => account.method === method)) {
+  if (!getListingPaymentAccounts().some((account) => account.method === method)) {
     return { ok: false, message: `${PAYMENT_METHOD_LABEL[method]} is not available. Choose another way to pay.` }
   }
+  if (method === 'demo') return submitDemoPayment(business, input?.reference)
 
   const payerName = checkText(input?.payerName, 'the name on the account you paid from', { max: 120, required: true })
   if (!payerName.ok) return { ok: false, message: payerName.message }
@@ -331,6 +333,47 @@ export async function submitListingPayment(
     summary: (who) =>
       `${who} sent ${formatPkr(amount)} by ${PAYMENT_METHOD_LABEL[method]} for ${business.businessName}`,
   })
+  refreshViews()
+  return { ok: true }
+}
+
+/**
+ * The test-only payment: the code 0000 stands in for a real transfer. No
+ * receipt is needed and it is confirmed at once, marked as a test so an
+ * operator can never mistake it for money. Reachable only while
+ * DEMO_PAYMENT_ENABLED=true (checked by the caller via the account list).
+ */
+async function submitDemoPayment(
+  business: NonNullable<Awaited<ReturnType<typeof loadOwnedApplication>>>,
+  code: unknown,
+): Promise<ApplicationResult> {
+  if (String(code ?? '').trim() !== DEMO_PAYMENT_CODE) {
+    return { ok: false, message: 'Wrong test code. Enter 0000 to continue.' }
+  }
+  const latest = await prisma.listingPayment.findFirst({
+    where: { businessId: business.id },
+    orderBy: { createdAt: 'desc' },
+  })
+  if (latest?.status === 'verified') return { ok: true }
+
+  const fields = {
+    amount: getListingFee(),
+    currency: 'PKR',
+    method: 'demo',
+    payerName: 'Test payment',
+    reference: `DEMO-${DEMO_PAYMENT_CODE}`,
+    paidOn: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Karachi' }).format(new Date()),
+    status: 'verified',
+    reviewNote: 'Test payment (code 0000) — no money was received.',
+    reviewedAt: new Date(),
+    reviewedBy: 'demo',
+  }
+  if (latest?.status === 'submitted') {
+    await prisma.listingPayment.update({ where: { id: latest.id }, data: fields })
+  } else {
+    await prisma.listingPayment.create({ data: { id: randomUUID(), businessId: business.id, ...fields } })
+  }
+  await markSubmittedIfComplete(business.id, business.businessType)
   refreshViews()
   return { ok: true }
 }

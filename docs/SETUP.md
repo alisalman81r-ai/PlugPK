@@ -106,6 +106,7 @@ Optional, all documented in `.env.example`:
 | `OPENCHARGEMAP_API_KEY` | lets `npm run import:stations` pull real stations |
 | `BLOB_READ_WRITE_TOKEN` | uploads go to Vercel Blob instead of `public/uploads` |
 | `LISTING_FEE_PKR`, `PAYMENT_*` | the partner listing fee and the bank / JazzCash / Easypaisa details shown at payment |
+| `DEMO_PAYMENT_ENABLED` | `true` adds a test-only payment: code **0000** passes the listing-fee step (no money taken). Testing only, until Stripe is connected — leave empty in production |
 
 **Never put a value behind `NEXT_PUBLIC_` unless it is safe to publish** — those
 are sent to every browser.

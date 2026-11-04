@@ -6,7 +6,7 @@ import { BusinessDashboardLayout } from '@/components/business/BusinessDashboard
 import { ApplicationForm } from '@/components/business/application/ApplicationForm'
 import { portalListings, requireOwnerPortal } from '@/lib/db/business-queries'
 import { getApplication } from '@/lib/db/listing-application-queries'
-import { getListingFee, getPaymentAccounts } from '@/lib/db/listing-fee'
+import { getListingFee, getListingPaymentAccounts } from '@/lib/db/listing-fee'
 import { applicationProgress, idTypeFor, licenceKindLabel, maskCnic } from '@/lib/listing-application'
 
 /**
@@ -53,7 +53,7 @@ export default async function BusinessApplicationPage({
           onFile={application.documents}
           payment={application.paymentRecords[0] ?? null}
           fee={getListingFee()}
-          accounts={getPaymentAccounts()}
+          accounts={getListingPaymentAccounts()}
         />
       ) : (
         <section className="card narrow">

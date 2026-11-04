@@ -24,8 +24,8 @@ import type { PaymentMethod } from '@/lib/listing-application'
 
 const DEFAULT_FEE_PKR = 4999
 
-export interface PaymentAccount {
-  method: PaymentMethod
+export interface PaymentAccount<M extends PaymentMethod = PaymentMethod> {
+  method: M
   /** Bank name, or the wallet's name. */
   provider: string
   accountTitle: string
@@ -40,8 +40,8 @@ export function getListingFee(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : DEFAULT_FEE_PKR
 }
 
-export function getPaymentAccounts(): PaymentAccount[] {
-  const accounts: PaymentAccount[] = []
+export function getPaymentAccounts(): PaymentAccount<Exclude<PaymentMethod, 'demo'>>[] {
+  const accounts: PaymentAccount<Exclude<PaymentMethod, 'demo'>>[] = []
 
   const bankNumber = env('PAYMENT_BANK_ACCOUNT_NUMBER')
   const bankTitle = env('PAYMENT_BANK_ACCOUNT_TITLE')
@@ -66,5 +66,23 @@ export function getPaymentAccounts(): PaymentAccount[] {
     }
   }
 
+  return accounts
+}
+
+/** True when the test-only demo payment is switched on (DEMO_PAYMENT_ENABLED=true). */
+export function isDemoPaymentEnabled(): boolean {
+  return env('DEMO_PAYMENT_ENABLED') === 'true'
+}
+
+/**
+ * Where a listing fee can be paid: the real accounts, plus the demo payment
+ * while DEMO_PAYMENT_ENABLED=true. For testing only, until a card gateway is
+ * connected — never switch it on in production.
+ */
+export function getListingPaymentAccounts(): PaymentAccount[] {
+  const accounts: PaymentAccount[] = [...getPaymentAccounts()]
+  if (isDemoPaymentEnabled()) {
+    accounts.push({ method: 'demo', provider: 'Test mode', accountTitle: 'plugpk test', accountNumber: '0000', iban: null })
+  }
   return accounts
 }
