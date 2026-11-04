@@ -1,0 +1,12 @@
+{
+  "bmw-ix3": {
+    "corrections": {
+      "image": {
+        "value": "/images/cars/bmw-ix3.jpg",
+        "source": "https://plug.pk/images/cars/bmw-ix3.jpg",
+        "note": "Back to the white-background cut-out of the same Neue Klasse iX3, so the card matches the rest of the catalogue; the outdoor photo with scenery stood out on its own."
+      }
+    },
+    "conflicts": []
+  }
+}
