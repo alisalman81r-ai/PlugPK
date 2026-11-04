@@ -1,4 +1,4 @@
-# Plug.pk
+# plugpk
 
 Pakistan's EV ecosystem platform — a charging map, a route planner with charging
 stops, an electrified car catalogue, an owners' community, and a directory of
@@ -18,17 +18,17 @@ npm run dev
 ```
 
 `npm run db:local` downloads a Postgres server into `.localdb/` on first run,
-creates a UTF8 cluster, applies the migration and imports all 155 rows from
+creates a UTF8 cluster, applies the migrations and imports everything in
 `data/db-export/`. Later runs just start it. Ctrl-C stops it and keeps the data.
 
 Prefer a hosted database (Neon, Supabase)? Point `DATABASE_URL` at it and run:
 
 ```bash
 npx prisma migrate deploy
-npx tsx scripts/import-db.ts      # -> 155 rows imported in 1 pass
+npx tsx scripts/import-db.ts      # loads data/db-export/
 ```
 
-**[docs/SETUP.md](docs/SETUP.md) is the full version**, including why `/admin`
+**[docs/SETUP.md](docs/SETUP.md) is the full setup guide** — a new computer, the project zip, changing the database / file storage / host, and troubleshooting. It also covers why `/admin`
 returns 404 on a fresh clone and how to turn it on.
 
 **Deploying to Vercel?** [docs/VERCEL.md](docs/VERCEL.md) is the runbook, and

@@ -1,221 +1,360 @@
-# Running Plug.pk on another machine
+# plugpk — setup guide
 
-A fresh clone will not show the admin portal, and `/admin` will return **404**
-rather than a login page. That is deliberate, not a bug: the portal is switched
-off unless an environment variable turns it on, and `.env` is not in the repo.
+How to get plugpk running on a new computer, and how to move it to a different
+backend (database, file storage or host). Follow the parts in order the first
+time; each one ends with a check so you know it worked before moving on.
 
-Two things a clone is missing, both on purpose:
+| Part | When you need it |
+| --- | --- |
+| [1. What you need](#1-what-you-need) | always |
+| [2. Get the code](#2-get-the-code) | always — from GitHub or from the project zip |
+| [3. Create `.env`](#3-create-env) | always |
+| [4. Build the database](#4-build-the-database) | always |
+| [5. Run it](#5-run-it) | always |
+| [6. Become an admin](#6-become-an-admin) | to use `/admin` |
+| [7. Change the backend](#7-change-the-backend) | moving to another database, file store or host |
+| [8. Troubleshooting](#8-troubleshooting) | when something does not start |
 
-| Missing | Why | Fix |
+**The stack, in one line:** Next.js 14 (App Router) and TypeScript, one app that
+is both the frontend and the backend (pages, API routes and server actions live
+together in `src/`), Prisma on PostgreSQL, Tailwind CSS, GSAP and Lenis for
+motion.
+
+---
+
+## 1. What you need
+
+| Tool | Version | Notes |
 | --- | --- | --- |
-| `.env` | holds the database URL, the admin switch and the session secret | create it, step 2 |
-| a database | it holds real data, so neither the file nor a dump is committed | rebuild it, step 3 |
+| Node.js | 18.17 or newer (developed on 24) | includes `npm` |
+| Git | any recent | only if you clone from GitHub |
+| PostgreSQL | any 14+ | **not needed locally** — `npm run db:local` downloads its own |
+| An SMTP mailbox | — | sign-up emails a 6-digit code; Gmail with an app password works |
 
-Since the move off SQLite the engine is **PostgreSQL**, with no fallback —
-`contains` is case-insensitive on Postgres and was case-sensitive on a hosted
-one, which is exactly the class of bug that only shows up in production.
+Windows, macOS and Linux all work. Commands below are for a terminal in the
+project folder (Git Bash, PowerShell, or a macOS/Linux shell).
 
-## 1. Install
+---
+
+## 2. Get the code
+
+**From GitHub:**
 
 ```bash
-git clone https://github.com/alisalman81r-ai/PlugPK.git
-cd PlugPK
+git clone https://github.com/alisalman81r-ai/PlugPK.git plugpk
+cd plugpk
 npm install
 ```
 
-## 2. Create `.env`
+**From the project zip** (`plugpk-project.zip`): unzip it, open the `plug.pk`
+folder in a terminal, then still run:
 
-Copy the template and fill it in:
+```bash
+npm install
+```
+
+The zip already carries `node_modules`, `.env` and `.env.local`, but some
+packages (Prisma's engine, the image library `sharp`, the local Postgres binary)
+are built for the computer they were installed on. `npm install` repairs them for
+the new one and regenerates the Prisma client (`postinstall` runs
+`prisma generate`). It is quick when `node_modules` is already there.
+
+**Check:** `npx next --version` prints `Next.js v14.x`.
+
+---
+
+## 3. Create `.env`
+
+`.env` holds the secrets and switches. It is never committed. (The zip has the
+owner's copy — keep that zip private.)
 
 ```bash
 cp .env.example .env
 ```
 
-`.env.example` documents every variable. The four that matter locally:
+`.env.example` documents every variable in detail. Fill in at least these:
 
 ```ini
-# Printed by `npm run db:local` in step 3, or from Neon / Supabase.
+# ── Database ─────────────────────────────────────────────────────
+# Local: printed by `npm run db:local` (step 4). Hosted: from Neon / Supabase.
 DATABASE_URL="postgresql://plugpk:plugpk@127.0.0.1:55432/plugpk"
+# The unpooled URL, used only for migrations. Locally, the same value.
+DIRECT_URL="postgresql://plugpk:plugpk@127.0.0.1:55432/plugpk"
 
-# Without this, /admin returns 404 — the portal is not merely hidden, the
-# routes refuse to resolve. This is what keeps it out of a production build.
-ENABLE_ADMIN=true
-
-# Signs every sign-in cookie, members and admins alike. Generate a fresh one:
+# ── Sign-in ──────────────────────────────────────────────────────
+# Signs every login cookie. Generate one:
 #   node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
-# Required in production: without it nobody can sign in (it fails closed rather
-# than signing cookies with a guessable key).
 SESSION_SECRET=paste-the-generated-value-here
 
-# Optional, local development only. If SESSION_SECRET is unset on your own
-# machine, this is used as the signing key instead. It is NOT a password for
-# anything any more, and it is ignored in production.
-# ADMIN_PASSWORD=
+# ── Email (sign-up codes) ─ required, or sign-up refuses ──────────
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASS=your-16-character-app-password
+MAIL_FROM="plugpk <you@gmail.com>"
+
+# ── Admin portal ─────────────────────────────────────────────────
+# Exactly `true`, or every /admin URL is a 404.
+ENABLE_ADMIN=true
 ```
 
-## 3. Build the database
+Optional, all documented in `.env.example`:
 
-Two ways. The first needs no account and no configuration.
+| Variable | What it does if set |
+| --- | --- |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Google basemap; without them the map uses MapLibre + OpenFreeMap |
+| `OPENCHARGEMAP_API_KEY` | lets `npm run import:stations` pull real stations |
+| `BLOB_READ_WRITE_TOKEN` | uploads go to Vercel Blob instead of `public/uploads` |
+| `LISTING_FEE_PKR`, `PAYMENT_*` | the partner listing fee and the bank / JazzCash / Easypaisa details shown at payment |
 
-**A local Postgres, one command.** In its own terminal:
+**Never put a value behind `NEXT_PUBLIC_` unless it is safe to publish** — those
+are sent to every browser.
+
+---
+
+## 4. Build the database
+
+Pick one way.
+
+### A. Local Postgres, one command (recommended for a computer)
+
+In its own terminal:
 
 ```bash
 npm run db:local
 ```
 
-First run downloads a Postgres server into `.localdb/` (gitignored), creates a
-UTF8 cluster, applies the migration and imports all 155 rows from
-`data/db-export/`. Later runs just start it, and it prints the `DATABASE_URL` to
-paste into `.env`. Ctrl-C stops it; the data stays.
+The first run downloads a real PostgreSQL server into `.localdb/`, creates a
+UTF8 database on port **55432**, applies every migration in `prisma/migrations/`
+and imports all the data in `data/db-export/`. Later runs just start it. It
+prints the `DATABASE_URL` for `.env`. Ctrl-C stops it; the data stays.
 
-It is a real PostgreSQL, not an emulation, so `contains`, collation and
-constraints behave exactly as they will in production.
+You rarely need to run it by hand: `npm run dev` starts it in the background when
+it is not already running (log in `.localdb/server.log`).
 
-**Or a hosted database.** Point `DATABASE_URL` at Neon or Supabase and run:
+### B. A hosted Postgres (Neon, Supabase, your own server)
+
+Put its URLs in `.env` (pooled in `DATABASE_URL`, direct in `DIRECT_URL` — see
+[7.1](#71-move-to-another-database)), then:
+
+```bash
+npx prisma migrate deploy        # creates every table
+npx tsx scripts/import-db.ts     # loads data/db-export/
+```
+
+`import-db.ts` refuses to run on a database that already has rows, so it can
+never load twice.
+
+### C. Seeds instead of the export (sample content)
 
 ```bash
 npx prisma migrate deploy
-npx tsx scripts/import-db.ts      # -> 155 rows imported in 1 pass
+npm run db:seed                  # stations, services, community, clubs
+npx tsx scripts/seed-cars.ts     # the car catalogue — db:seed does NOT do cars
 ```
 
-`import-db.ts` refuses to run against a database that already has rows, so it
-cannot double up. It works out insert order by retrying rows whose parents are
-not in yet.
+### What the data folder holds
 
-**Or the seeds, if you want empty-ish content rather than the export:**
+`data/db-export/` is every row of every table as JSON, one file per table plus
+`_manifest.json`. The committed copy is the catalogue and community content with
+**no user accounts**. An export you take yourself (as in the project zip) includes
+the accounts on that database too — keep such a copy private.
+
+**Check:**
 
 ```bash
-npx prisma migrate deploy
-npx prisma generate
-npm run db:seed                # stations, services, community, clubs
-npx tsx scripts/seed-cars.ts   # the car catalogue
+npx tsx scripts/verify-cars.ts   # prints ALL CHECKS PASSED
 ```
 
-**Both seeds are needed** if you take this route. `db:seed` does not touch the
-`Car` table — cars live in their own seed, loaded from `src/data/cars.ts`. Run
-only the first and the site comes up with an entirely empty `/cars`, which looks
-like a broken build rather than a missing command.
+---
 
-### Check it worked
+## 5. Run it
 
 ```bash
-npx tsx scripts/verify-cars.ts
+npm run dev                      # http://localhost:3000
 ```
 
-Prints `ALL CHECKS PASSED` and exercises the catalogue's filters, sorts and
-price formatting against whatever is actually in the table. If the car seed did
-not run, this is where you find out.
+`npm run dev` runs a preflight first and stops with a clear message if the port
+is taken, the database URL answers nothing, or `.env` still points at SQLite.
 
-**Restart the dev server after loading data.** Next caches rendered routes, so a
-server that was running while the table was empty keeps serving a 404 for
-`/cars` afterwards — which looks exactly like a seed that failed. It was
-verified here: `/cars` returned 404 against a freshly populated database until
-the server was restarted, then 200.
-
-## 4. Run
+The first page can take 20–40 s to compile in development; later pages are
+faster. For a realistic speed check, run the production build:
 
 ```bash
-npm run dev
+npm run build
+npm start                        # http://localhost:3000
 ```
 
-`npm run dev` runs a preflight check first and refuses to start on a state that
-would fail confusingly later: a port already serving, a SQLite URL left in
-`.env`, or a database URL nothing answers on. Each says what is wrong and what
-to run.
+**Check:** the home page shows the loading screen, then the hero; `/cars`,
+`/map` and `/community` load. If `/cars` was empty when the server started,
+restart it after loading data — Next caches rendered pages.
 
-### Becoming an admin
+---
 
-There is no admin password and no separate admin login. Admin access is a flag
-on an ordinary account, and it takes two things:
+## 6. Become an admin
 
-1. `ENABLE_ADMIN=true` in `.env` (above), so the `/admin` routes exist; and
-2. an account with `isAdmin` set. Sign up at **http://localhost:3000/signup**
-   like any member, then promote that account from a terminal:
+Admin access is a flag on an ordinary account; there is no shared admin
+password.
+
+1. `ENABLE_ADMIN=true` in `.env`, then restart the server.
+2. Sign up at **/signup** (enter the emailed code), then from a terminal:
 
    ```bash
    npx tsx scripts/promote-admin.ts you@example.com
    ```
 
-Sign out and back in at **/login** and you land on **/admin**. The portal covers
-stations, connectors, services, community, reviews, businesses, meetings,
-members and cars.
+3. Sign out and back in at **/login** — you land on **/admin**.
 
-The script is only needed for the **first** admin (and for recovery if every
-admin is locked out). After that, an admin grants or revokes the role from the
-member's page in the portal — **Members → open someone → Role**. The portal
-refuses to change your own role and refuses to remove the last admin. Revoking
-signs that person out everywhere immediately. `--revoke` on the script does the
-same from the command line.
+The script is only needed for the first admin. After that, grant or revoke the
+role from **Admin → Members → (person) → Role**. Every admin change is recorded
+at **/admin/activity**. `--revoke` on the script removes the role.
 
-### What the portal records and limits
+The **business portal** (`/business`) opens for any account that owns a charger
+or service listing; there is no separate switch.
 
-- **Activity log, at /admin/activity.** Every change an admin makes — editing a
-  station, approving a business, resetting a password, deleting a review — is
-  written to the `AdminAuditLog` table after it succeeds, with the operator's
-  account and a one-line summary. Member and business pages show their own
-  recent activity. The log is read-only in the portal. Changes made with
-  `scripts/promote-admin.ts` are not logged, because there is no signed-in
-  operator to attribute them to.
-- **Sessions are revocable.** A password reset by an admin, a revoked role or an
-  anonymised account ends every session that account has open, on its next
-  request.
-- **Rate limits.** Sign-in, sign-up, uploads and the public forms (reviews,
-  posts, business and service applications, meeting requests) are throttled per
-  client in the `RateLimit` table, so they work across serverless instances. If
-  the table cannot be reached the request is allowed rather than locking
-  everyone out.
+---
 
-## If /admin still 404s
+## 7. Change the backend
 
-The gate is a single check in `src/middleware.ts`. In order of likelihood:
+The app is one Next.js project, so "the backend" is three separable pieces. Each
+can move on its own.
 
-1. `ENABLE_ADMIN` is missing, or set to something other than the exact string
-   `true` — `TRUE` and `1` will not work.
-2. `.env` was created after the dev server started. Next reads it at boot;
-   restart the server.
-3. The file is named `.env.local` and something else is overriding it, or it
-   sits outside the project root.
+| Piece | Where it is set | Default |
+| --- | --- | --- |
+| Database | `DATABASE_URL`, `DIRECT_URL` | local Postgres on :55432 |
+| Uploaded files | `BLOB_READ_WRITE_TOKEN` | `public/uploads/` on disk |
+| Host (where the app runs) | wherever you deploy | `npm run dev` / `npm start` |
 
-Check what the server actually loaded:
+### 7.1 Move to another database
+
+Works for local → hosted, hosted → hosted, or one computer → another.
+
+**1. Export everything from the old database.** With `.env` pointing at the OLD
+database:
 
 ```bash
-node -e "require('dotenv').config(); console.log('ENABLE_ADMIN =', JSON.stringify(process.env.ENABLE_ADMIN))"
+npx tsx scripts/export-db.ts     # every table -> data/db-export/
 ```
 
-## 5. Optional: screenshots
+**2. Create the new database** (Neon, Supabase, RDS, your own Postgres). Note two
+connection strings:
 
-Not needed to run the site.
+- **Pooled** → `DATABASE_URL`. Used by every request. Behind a pooler (Supabase
+  port 6543, Neon `-pooler` host) it **must end with `pgbouncer=true`**, or you
+  get random `prepared statement "s0" already exists` errors under load.
+- **Direct** → `DIRECT_URL`. Used only by migrations (Supabase port 5432).
 
-`@playwright/test` is in `package.json`, but the browser it drives is roughly
-115 MB and is not — and should never be — committed:
+On a plain Postgres with no pooler, both are the same URL.
+
+```ini
+DATABASE_URL="postgresql://USER:PASS@HOST:6543/DB?sslmode=require&pgbouncer=true"
+DIRECT_URL="postgresql://USER:PASS@HOST:5432/DB?sslmode=require"
+```
+
+**3. Point `.env` at the NEW database, then build and load it:**
 
 ```bash
-npx playwright install chromium
-node scripts/shoot.mjs login          # writes to .screenshots/
+npx prisma migrate deploy        # creates the tables
+npx tsx scripts/import-db.ts     # loads the export from step 1
 ```
 
-## Who changed what
+**4. Check, then restart the app:**
 
-Admin access used to be one shared password, and nothing could say which person
-made a change. It is now per-account: every operator signs in as themselves, and
-every admin write is recorded in `/admin/activity` against that account.
+```bash
+npx tsx scripts/verify-cars.ts   # ALL CHECKS PASSED
+```
 
-Rows written before the change — such as `CarChangeHistory.approvedBy = 'admin'`
-from the old crawler review queue — still say `admin`, because that is all that
-was known at the time. No name has been back-filled into them.
+Sign in with an existing account to confirm users came across. Every login
+cookie keeps working as long as `SESSION_SECRET` is unchanged; change it and
+everyone is signed out (safe, just inconvenient).
 
-## Three things that do not travel
+**Keep the schema in step.** Every later change to `prisma/schema.prisma` ships
+as a folder in `prisma/migrations/`. Apply new ones to any database with
+`npx prisma migrate deploy`. On Vercel this runs automatically on each
+production build when `DIRECT_URL` is set (`scripts/deploy-migrate.mjs`).
 
-**Uploaded images.** Charger photos, car photographs and profile pictures are
-written to `public/uploads` locally, or to Vercel Blob once
-`BLOB_READ_WRITE_TOKEN` is set. Neither directory is in the repo, so a clone
-starts with none and any listing that referenced one shows its fallback
-instead.
+> **Never run `npm run db:reset` against a hosted database.** It drops every
+> table. It is for the local database only.
 
-**Accounts.** The database is rebuilt from the migration and the export, and the
-export contains no users — it is the catalogue and the community content, not
-anyone's credentials. Sign up on the new machine.
+### 7.2 Applying catalogue updates to a database
 
-**Uploads over 4 MB.** The cap is below Vercel's 4.5 MB serverless request-body
-limit on purpose; a larger file would be refused by the platform before the
-action could explain why. See `src/lib/db/upload-actions.ts`.
+Car data corrections live as reviewed JSON files in `data/research/` and are
+written to a database with:
+
+```bash
+npx tsx scripts/apply-car-research.ts data/research/<file>.json          # preview
+npx tsx scripts/apply-car-research.ts data/research/<file>.json --apply  # write
+```
+
+Each write is recorded in the `CarChangeHistory` table. Run the files against a
+new or live database to bring its catalogue up to date. Running one twice is
+harmless: values already set are skipped.
+
+### 7.3 Move uploaded files
+
+Locally, uploads are written to `public/uploads/` (not in Git). To keep them:
+
+- **Another computer:** copy `public/uploads/` across with the project.
+- **To Vercel Blob:** attach a Blob store to the Vercel project (it sets
+  `BLOB_READ_WRITE_TOKEN`). New uploads go there. Existing local files are not
+  moved automatically; re-upload them, or put their paths into the repository's
+  `public/images/` and point the database rows at them.
+
+Car photos shown on the site are already in the repository at
+`public/images/cars/`, so they travel with the code.
+
+### 7.4 Move the host
+
+- **Vercel:** follow [docs/VERCEL.md](VERCEL.md). Set every variable from
+  [section 3](#3-create-env) in the Vercel project, with the hosted
+  database URLs. `ENABLE_ADMIN=true` only if the portal should exist there.
+- **Any Node server (VPS, Docker):**
+
+  ```bash
+  npm ci
+  npx prisma migrate deploy
+  npm run build
+  npm start                      # set PORT=... to change the port
+  ```
+
+  Put it behind HTTPS (nginx, Caddy, a cloud load balancer); login cookies are
+  marked `secure` in production and will not be sent over plain HTTP.
+
+**Check after any move:** `/`, `/cars`, `/map`, `/community` load; sign-up sends
+an email; sign-in works; an admin can open `/admin`; an image upload in the
+admin portal appears.
+
+---
+
+## 8. Troubleshooting
+
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| `/admin` is a 404 | `ENABLE_ADMIN` is not exactly `true`, or set after the server started | set it, restart |
+| `npm run dev` says the port is in use | another dev server is running | stop it, or use that one |
+| `npm run db:local` says `postmaster.pid already exists` | a Postgres from an earlier run is still running | it is fine — that database is up; or end the old `postgres` process |
+| Sign-up says email is not configured | `SMTP_*` / `MAIL_FROM` missing | fill them in (section 3) |
+| Nobody can sign in in production | `SESSION_SECRET` missing | set it |
+| `prepared statement "s0" already exists` | pooled URL without `pgbouncer=true` | add it to `DATABASE_URL` |
+| Migrations hang or fail on a hosted DB | migrating through the pooler | set `DIRECT_URL` to the direct URL |
+| `/cars` empty or 404 after loading data | the server started before the data was there | restart the server |
+| Prisma: "client not generated" / engine errors after copying the project | `node_modules` built on another computer | `npm install` (or `npx prisma generate`) |
+| `sharp` fails to load | same | `npm install` |
+| Pages slow on first open | development compiles on demand | normal; use `npm run build && npm start` to judge speed |
+| Uploaded images missing on a new machine | `public/uploads/` is not in Git | copy it across (section 7.3) |
+
+### Useful scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | dev server (starts the local database if needed) |
+| `npm run build` / `npm start` | production build / serve it |
+| `npm run type-check` / `npm run lint` | TypeScript / ESLint |
+| `npm run db:local` | start (or create) the local Postgres |
+| `npx tsx scripts/export-db.ts` | every table → `data/db-export/` |
+| `npx tsx scripts/import-db.ts` | `data/db-export/` → an empty database |
+| `npx prisma migrate deploy` | apply pending schema migrations |
+| `npx tsx scripts/promote-admin.ts you@x.com` | make an account an admin |
+| `npx tsx scripts/verify-cars.ts` | check the car catalogue end to end |
+| `npx tsx scripts/apply-car-research.ts <file> --apply` | apply a catalogue correction file |
+| `npm run import:stations` | import real stations (needs `OPENCHARGEMAP_API_KEY`) |
