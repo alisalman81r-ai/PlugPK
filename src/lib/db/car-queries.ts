@@ -3,6 +3,8 @@ import 'server-only'
 
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 
+import { tidyPriceDisplay } from '@/lib/cars'
+
 import { prisma } from './client'
 
 /**
@@ -101,7 +103,8 @@ function carPhotoSrc(path: string | null): string | null {
   return path?.startsWith('/images/cars/') ? `${path}?v=${CAR_PHOTO_EDITION}` : path
 }
 
-export function rowToCar(row: CarRow): Car {
+/** `raw` keeps the stored price string untouched, for the admin editor. */
+export function rowToCar(row: CarRow, raw = false): Car {
   const connectors = row.connectors
     .split(',')
     .map((entry) => entry.trim())
@@ -118,7 +121,8 @@ export function rowToCar(row: CarRow): Car {
     variant: row.variant,
     fullName: row.fullName,
     category: row.category as CarCategory,
-    price: { min: row.priceMin, max: row.priceMax, display: row.priceDisplay },
+    // Crore figures shown to two places; the column keeps the published precision.
+    price: { min: row.priceMin, max: row.priceMax, display: raw ? row.priceDisplay : tidyPriceDisplay(row.priceDisplay) },
     batteryCapacity: row.batteryCapacity,
     batteryUnit: 'kWh',
     range: row.range,
@@ -179,12 +183,12 @@ export function rowToCar(row: CarRow): Car {
  */
 export async function listCars(): Promise<Car[]> {
   const rows = await prisma.car.findMany({ orderBy: { priceMin: 'asc' } })
-  return rows.map(rowToCar)
+  return rows.map((row) => rowToCar(row))
 }
 
-export async function getCarBySlugFromDb(slug: string): Promise<Car | null> {
+export async function getCarBySlugFromDb(slug: string, opts: { raw?: boolean } = {}): Promise<Car | null> {
   const row = await prisma.car.findUnique({ where: { slug } })
-  return row ? rowToCar(row) : null
+  return row ? rowToCar(row, opts.raw) : null
 }
 
 export async function getCarByIdFromDb(id: string): Promise<Car | null> {

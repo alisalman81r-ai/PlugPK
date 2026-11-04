@@ -70,9 +70,8 @@ export function getPriceBounds(): { min: number; max: number } {
  *
  * Not Intl.NumberFormat: 'en-PK' groups in the Western thousands pattern, so
  * 15,000,000 comes out "15,000,000" rather than the "1.5 Cr" a buyer here
- * reads. Trailing zeros are trimmed so 1.50 Cr prints as "1.5 Cr" but 1.0649
- * keeps its precision — the figure was published to four places and rounding it
- * would quietly change the price.
+ * reads. Crore is shown to two places (1.0649 Cr reads as "1.06 Cr"), the way
+ * buyers here quote it; trailing zeros are trimmed so 1.50 Cr prints "1.5 Cr".
  */
 export function formatPkr(rupees: number): string {
   const trim = (value: number, places: number) =>
@@ -89,7 +88,7 @@ export function formatPkr(rupees: number): string {
   */
   if (rupees >= 100_000) {
     const lakh = Number((rupees / 100_000).toFixed(2))
-    if (lakh >= 100) return `PKR ${trim(rupees / 10_000_000, 4)} Cr`
+    if (lakh >= 100) return `PKR ${trim(rupees / 10_000_000, 2)} Cr`
     return `PKR ${trim(lakh, 2)} Lakh`
   }
   return `PKR ${rupees.toLocaleString('en-PK')}`
@@ -121,6 +120,17 @@ export function formatSpan(
  * Prefers the published wording over anything derived, so "PKR 1.33–1.70 Cr"
  * appears exactly as quoted rather than being reassembled from two integers.
  */
+/**
+ * A published price string with its crore figures at two places:
+ * "PKR 1.0649 Cr" → "PKR 1.06 Cr", "PKR 1.0761–1.199 Cr" → "PKR 1.08–1.2 Cr".
+ * Lakh figures and everything else in the string are left as written. The
+ * stored string keeps the full published precision; this is for display.
+ */
+export function tidyPriceDisplay(display: string): string {
+  if (!/Cr/i.test(display)) return display
+  return display.replace(/d+.d{3,}/g, (n) => Number(Number(n).toFixed(2)).toString())
+}
+
 export function formatCarPrice(car: Car): string {
   return car.price.display
 }

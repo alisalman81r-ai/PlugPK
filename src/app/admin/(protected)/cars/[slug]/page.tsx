@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function AdminCarDetailPage({ params }: PageProps) {
-  const car = await getCarBySlugFromDb(params.slug)
+  const car = await getCarBySlugFromDb(params.slug, { raw: true }) // the editor saves the full published price
   if (!car) notFound()
 
   const all = await listCars()
