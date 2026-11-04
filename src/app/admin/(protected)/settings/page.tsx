@@ -26,7 +26,7 @@ export default async function AdminSettingsPage({ searchParams }: { searchParams
   return (
     <>
       <AdminHeader title="Account settings" description="Your profile, password and signed-in devices." />
-      <div className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
+      <div className="max-w-3xl" data-in>
         <AccountSettings
           user={{
             name: profile.name,

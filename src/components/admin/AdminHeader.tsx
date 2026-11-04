@@ -1,32 +1,70 @@
 // src/components/admin/AdminHeader.tsx
 import type * as React from 'react'
 
-import { InfoHint } from '@/components/admin/InfoHint'
-import { BackButton } from '@/components/ui'
+import { cn } from '@/lib/utils'
+
+import { AdminBackButton } from './AdminBackButton'
+import { InfoHint } from './InfoHint'
 
 export interface AdminHeaderProps {
-  title: string
-  description?: string
-  /** Plain-language answer to "what is this page for?". See InfoHint. */
+  title: React.ReactNode
+  /** The line under the title. */
+  description?: React.ReactNode
+  /** Plain-language answer to "what is this page for?", behind the design's `?`. See InfoHint. */
   help?: React.ReactNode
-  /** Primary action for the page, rendered right-aligned. */
+  /** The page's actions, right-aligned (`.phead__actions`). Pass several in a fragment. */
   action?: React.ReactNode
-  /** Parent route for detail and create pages. */
+  /** Parent route for detail and create pages: shows the design's `.backbtn`. */
   backHref?: string
+  /** Anything under the title and description — the dashboard's live status pill. */
+  children?: React.ReactNode
+  /** Accessible name for the help button when the title is not plain text. */
+  helpLabel?: string
+  className?: string
 }
 
-export function AdminHeader({ title, description, help, action, backHref }: AdminHeaderProps) {
+/**
+ * The design's page head (`.phead`): Power Grotesk title, optional `?`, a
+ * muted line, and the page's buttons on the right. Not sticky — the top bar
+ * above it is — and not padded: the shell's `.page` already is.
+ */
+export function AdminHeader({
+  title,
+  description,
+  help,
+  action,
+  backHref,
+  children,
+  helpLabel,
+  className,
+}: AdminHeaderProps) {
+  const text = (
+    <div className="min-w-0">
+      <h1>
+        {title}
+        {help ? (
+          <>
+            {' '}
+            <InfoHint label={helpLabel ?? (typeof title === 'string' ? title : 'this page')}>{help}</InfoHint>
+          </>
+        ) : null}
+      </h1>
+      {description ? <p>{description}</p> : null}
+      {children}
+    </div>
+  )
+
   return (
-    <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur-md sm:px-8 sm:py-5">
-      <div className="min-w-0">
-        <div className="flex items-center gap-3">
-          {backHref ? <BackButton fallbackHref={backHref} /> : null}
-          <h1 className="text-xl font-bold text-slate-900">{title}</h1>
-          {help ? <InfoHint label={title}>{help}</InfoHint> : null}
+    <div className={cn('phead', className)} data-in>
+      {backHref ? (
+        <div className="phead__row">
+          <AdminBackButton fallbackHref={backHref} />
+          {text}
         </div>
-        {description ? <p className="mt-0.5 text-ui-sm text-slate-500">{description}</p> : null}
-      </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
-    </header>
+      ) : (
+        text
+      )}
+      {action ? <div className="phead__actions">{action}</div> : null}
+    </div>
   )
 }

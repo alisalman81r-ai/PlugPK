@@ -1,13 +1,13 @@
 // src/components/admin/MemberRoleCard.tsx
 'use client'
 
-import { Loader2, Shield, ShieldCheck } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { setMemberAdmin } from '@/lib/db/member-actions'
 
 import { useAdminToast } from './AdminToast'
+import { Ico, Spinner, k, rise, s } from './people/kit'
 import { runAction } from './run-action'
 
 /**
@@ -61,64 +61,50 @@ export function MemberRoleCard({
     })
   }
 
+  const r = rise(2)
+
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6">
-      <h2 className="flex items-center gap-2 text-ui-lg font-bold text-slate-900">
-        {isAdmin ? (
-          <ShieldCheck size={18} className="text-plug-blue-600" aria-hidden="true" />
-        ) : (
-          <Shield size={18} className="text-slate-400" aria-hidden="true" />
-        )}
+    <section className={k('card', 'panel', r.className)} style={r.style}>
+      <h2>
+        <Ico n={isAdmin ? 'shield' : 'user'} />
         Role
       </h2>
-      <p className="mt-1 text-ui-sm text-slate-500">
+      <p>
         {isAdmin
           ? `${name} is an admin and can use this portal, including everything on this page.`
           : `${name} is a member. Admins can use this portal and change any record in it.`}
       </p>
 
       {blocked ? (
-        <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-600">{blocked}</p>
+        <p className={s.box}>{blocked}</p>
       ) : confirming ? (
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <p className="text-ui-sm font-semibold text-amber-900">
+        <div className={k('box', 'box--warn')}>
+          <b>
             {isAdmin
               ? `Remove admin from ${name}? They are signed out everywhere straight away.`
               : `Make ${name} an admin? They will be able to edit, approve and delete anything in the portal.`}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={apply}
-              disabled={isPending}
-              className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-plug-navy-900 px-4 text-ui-sm font-semibold text-white hover:bg-plug-navy-800 disabled:opacity-60"
-            >
-              {isPending ? <Loader2 size={15} className="animate-spin" aria-hidden="true" /> : null}
+          </b>
+          <div className={s.panel__acts} style={{ marginTop: 12 }}>
+            <button type="button" onClick={apply} disabled={isPending} className={k('btn', 'btn--ink', 'btn--sm')}>
+              {isPending ? <Spinner /> : <Ico n="check" />}
               {isAdmin ? 'Yes, remove admin' : 'Yes, make admin'}
             </button>
-            <button
-              type="button"
-              onClick={() => setConfirming(false)}
-              disabled={isPending}
-              className="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-ui-sm font-semibold text-slate-600 hover:bg-slate-50"
-            >
+            <button type="button" onClick={() => setConfirming(false)} disabled={isPending} className={k('btn', 'btn--line', 'btn--sm')}>
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          {isAdmin ? <Shield size={15} aria-hidden="true" /> : <ShieldCheck size={15} aria-hidden="true" />}
-          {isAdmin ? 'Remove admin role' : 'Make admin'}
-        </button>
+        <div className={s.panel__acts}>
+          <button type="button" onClick={() => setConfirming(true)} className={k('btn', 'btn--line', 'btn--sm')}>
+            <Ico n={isAdmin ? 'shieldOff' : 'shield'} />
+            {isAdmin ? 'Remove admin role' : 'Make admin'}
+          </button>
+        </div>
       )}
 
       {error ? (
-        <p role="alert" className="mt-3 text-ui-sm text-red-600">
+        <p role="alert" className={s.ferr} style={{ marginTop: 10 }}>
           {error}
         </p>
       ) : null}

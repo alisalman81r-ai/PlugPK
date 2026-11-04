@@ -1,12 +1,12 @@
 // src/components/admin/DeleteButton.tsx
 'use client'
 
-import { Loader2, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { AdmIcon } from './admin-icons'
 import { useAdminToast } from './AdminToast'
 import { runAction } from './run-action'
 
@@ -16,102 +16,108 @@ export interface DeleteButtonProps {
   /** Named in the confirmation, so nobody deletes the wrong row. */
   label: string
   /**
-   * What goes with the record, shown while the button is armed — "and its 3
-   * connectors and 12 reviews". Several deletes here cascade in the schema,
-   * and a two-click confirm that does not say so is confirming the wrong
-   * question.
+   * What goes with the record — "its 3 connectors and 12 reviews". Several
+   * deletes cascade in the schema, and a confirmation that does not say so is
+   * confirming the wrong question.
    */
   consequence?: string
   className?: string
+  /**
+   * `icon` — the design's trash icon button (`.acts .del` / `.ib`).
+   * `button` — a line button with a word, as on a member card ("Remove").
+   */
+  variant?: 'icon' | 'button'
+  /** The word on the `button` variant and on the dialog's confirm. Default "Delete". */
+  verb?: string
 }
 
 /**
- * Two-step delete. The first click arms it and the second confirms, which
- * beats window.confirm: it cannot be suppressed by the browser, it is
- * keyboard reachable, and the armed state is visible in the row itself.
+ * Delete, confirmed in the design's dialog (`.dlg`): "Delete this …?", what
+ * goes with it, "This can't be undone.", Cancel or the ember confirm.
  *
- * Arming resets after a few seconds so a forgotten click cannot sit primed
- * on the page waiting for an accidental second one — longer when there is a
- * consequence to read.
- *
- * Every outcome is reported. A rejected action (network, expired deployment)
- * used to leave the spinner turning, and a success said nothing at all.
+ * A native <dialog>: focus moves into it, Escape and the backdrop cancel, and
+ * it cannot be suppressed the way window.confirm can. Every outcome is
+ * reported — a failure stays in the dialog with its message and as a toast; a
+ * success closes it, says so, and refreshes the page.
  */
-export function DeleteButton({ action, label, consequence, className }: DeleteButtonProps) {
+export function DeleteButton({ action, label, consequence, className, variant = 'icon', verb = 'Delete' }: DeleteButtonProps) {
   const router = useRouter()
   const toast = useAdminToast()
-  const [armed, setArmed] = React.useState(false)
+  const dialogRef = React.useRef<HTMLDialogElement>(null)
   const [isPending, startTransition] = React.useTransition()
   const [error, setError] = React.useState<string | null>(null)
-  const noteId = React.useId()
+  const titleId = React.useId()
 
-  React.useEffect(() => {
-    if (!armed) return
-    const timer = setTimeout(() => setArmed(false), consequence ? 8000 : 4000)
-    return () => clearTimeout(timer)
-  }, [armed, consequence])
+  const open = () => {
+    setError(null)
+    const dialog = dialogRef.current
+    if (dialog?.showModal) dialog.showModal()
+    else if (window.confirm(`${verb} ${label}?`)) confirm()
+  }
 
-  const handleClick = () => {
-    if (!armed) {
-      setArmed(true)
-      setError(null)
-      return
-    }
+  const close = () => dialogRef.current?.close()
+
+  const confirm = () => {
     setError(null)
     startTransition(async () => {
       const result = await runAction(action)
-      setArmed(false)
       if (!result.ok) {
-        const message = result.message ?? 'Could not delete.'
+        const message = result.message ?? `Could not ${verb.toLowerCase()}.`
         setError(message)
         toast.error(message)
         return
       }
-      toast.success(result.message ?? `Deleted ${label}.`)
+      close()
+      toast.success(result.message ?? `${verb === 'Delete' ? 'Deleted' : `${verb}d`} ${label}.`)
       router.refresh()
     })
   }
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
+    <>
       <button
         type="button"
-        onClick={handleClick}
+        onClick={open}
         disabled={isPending}
-        aria-label={armed ? `Confirm deleting ${label}` : `Delete ${label}`}
-        aria-describedby={armed && consequence ? noteId : undefined}
-        className={cn(
-          'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-ui-sm font-medium transition-colors duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:opacity-60',
-          armed
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'text-slate-400 hover:bg-red-50 hover:text-red-600',
-          className,
-        )}
+        aria-label={variant === 'icon' ? `${verb} ${label}` : undefined}
+        aria-haspopup="dialog"
+        className={cn(variant === 'icon' ? 'ib del' : 'btn btn--line btn--sm del', className)}
       >
-        {isPending ? (
-          <Loader2 size={15} className="shrink-0 animate-spin" aria-hidden="true" />
-        ) : (
-          <Trash2 size={15} className="shrink-0" aria-hidden="true" />
-        )}
-        {armed ? 'Confirm' : null}
+        <AdmIcon name={isPending ? 'loader' : 'trash'} className={isPending ? 'spin' : undefined} />
+        {variant === 'button' ? verb : null}
       </button>
 
-      {armed && consequence ? (
-        <span
-          id={noteId}
-          role="note"
-          className="max-w-[16rem] text-right text-ui-xs font-medium leading-snug text-red-700"
-        >
-          Also deletes {consequence}.
-        </span>
-      ) : null}
-
-      {error ? (
-        <span role="alert" className="max-w-[16rem] text-right text-ui-xs text-red-600">
-          {error}
-        </span>
-      ) : null}
-    </span>
+      <dialog
+        ref={dialogRef}
+        className="dlg"
+        aria-labelledby={titleId}
+        data-lenis-prevent
+        onClick={(event) => {
+          // A click on the backdrop lands on the dialog itself.
+          if (event.target === event.currentTarget && !isPending) close()
+        }}
+      >
+        <h2 id={titleId}>
+          {verb} {label}?
+        </h2>
+        <p>
+          {consequence ? `This also removes ${consequence}. ` : ''}This can&apos;t be undone.
+        </p>
+        {error ? (
+          <p className="ferr" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <div className="dlg__btns">
+          <button className="btn btn--line" type="button" onClick={close} disabled={isPending}>
+            Cancel
+          </button>
+          <button className="btn btn--danger" type="button" onClick={confirm} disabled={isPending}>
+            {isPending ? <AdmIcon name="loader" className="spin" /> : null}
+            {verb}
+          </button>
+        </div>
+      </dialog>
+    </>
   )
 }

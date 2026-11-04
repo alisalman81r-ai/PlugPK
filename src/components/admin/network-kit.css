@@ -1,0 +1,33 @@
+/* src/components/admin/network-kit.css
+   The admin design's keyframes (landing-v2/admin/admin.css) for the network
+   and listing screens. Everything else is Tailwind, in network-kit.tsx. */
+
+/* [data-in]: each block rises 16px into place, staggered by --i. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-adm-in] {
+    animation: adm-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  /* .empty__ico: a dashed ring that turns slowly round the icon. */
+  .adm-empty-ico::before {
+    animation: adm-spin 18s linear infinite;
+  }
+}
+@keyframes adm-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+@keyframes adm-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+.adm-empty-ico::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 1px dashed rgba(18, 128, 74, 0.3);
+}

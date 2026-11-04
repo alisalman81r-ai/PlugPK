@@ -1,93 +1,101 @@
 // src/components/admin/DashboardPanel.tsx
 import Link from 'next/link'
 import type { IconType } from '@/components/ui/icons'
+import type * as React from 'react'
 
-import { InfoHint } from '@/components/admin/InfoHint'
 import { cn } from '@/lib/utils'
 
+import { AdmIcon, type AdmIconName } from './admin-icons'
+import { InfoHint } from './InfoHint'
+
 /**
- * The card every section of the operations dashboard sits in.
- *
- * Shared rather than copied, because the moment two panels disagree about
- * their radius, border or header spacing the page stops reading as one
- * console and starts reading as a stack of widgets.
+ * The card every dashboard section sits in — the design's `.card` with its
+ * `.chead` (a Power Grotesk title, a `?`, a muted line, and a link or control
+ * on the right). Shared so no two panels disagree about radius or spacing.
  */
 export interface DashboardPanelProps {
   title: string
-  description?: string
-  /**
-   * Plain-language answer to "what is this panel for?", shown behind a ? beside
-   * the title. Say what it lists, where it comes from, and what to do with it.
-   * See InfoHint.
-   */
+  description?: React.ReactNode
+  /** Plain-language answer to "what is this panel for?", behind the design's `?`. */
   help?: React.ReactNode
-  /** Filters, a link, a menu — anything right-aligned in the header. */
+  /** A link, a toggle — anything right-aligned in the header. */
   action?: React.ReactNode
+  /** A hairline (`.hr`) between the header and the body. */
+  divided?: boolean
+  /** The ink card (`.card.ink`). */
+  ink?: boolean
+  /** Position on the page, for the design's staggered entrance. */
+  index?: number
   className?: string
   children: React.ReactNode
 }
+
+const slug = (text: string) => `p-${text.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
 
 export function DashboardPanel({
   title,
   description,
   help,
   action,
+  divided = false,
+  ink = false,
+  index = 0,
   className,
   children,
 }: DashboardPanelProps) {
+  const id = slug(title)
   return (
     <section
-      className={cn(
-        'rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(11,12,14,0.04)]',
-        className,
-      )}
+      className={cn('card', ink && 'ink', className)}
+      data-in
+      style={{ '--i': index } as React.CSSProperties}
+      aria-labelledby={id}
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+      <div className="chead">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <h2 className="text-ui font-bold text-slate-900">{title}</h2>
+          <h2 id={id}>
+            {title}
             {help ? <InfoHint label={title}>{help}</InfoHint> : null}
-          </div>
-          {description ? (
-            <p className="mt-0.5 text-ui-xs text-slate-500">{description}</p>
-          ) : null}
+          </h2>
+          {description ? <p>{description}</p> : null}
         </div>
-        {action ? <div className="shrink-0">{action}</div> : null}
-      </header>
+        {action}
+      </div>
+      {divided ? <div className="hr" /> : null}
       {children}
     </section>
   )
 }
 
 /**
- * What a panel shows when the product cannot fill it yet.
- *
- * Deliberately states the reason rather than saying "no data". An operator
- * seeing an empty chart needs to know whether the network was quiet or whether
- * nothing is being recorded — those are opposite situations and only one of
- * them is a problem with the product.
+ * What a panel shows when there is nothing to list — the design's `.empty`: a
+ * green disc with a slowly turning dashed ring, a Power Grotesk line and the
+ * reason. It states the reason rather than "no data", so a quiet network and
+ * an unrecorded one are never confused.
  */
 export function PanelEmpty({
-  icon: Icon,
+  icon,
   title,
   reason,
   action,
+  className,
 }: {
-  icon: IconType
+  icon: AdmIconName | IconType
   title: string
-  reason: string
+  reason: React.ReactNode
   action?: { label: string; href: string }
+  className?: string
 }) {
+  const Icon = typeof icon === 'string' ? null : icon
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-      <Icon size={28} aria-hidden="true" className="text-slate-400" />
-      <p className="mt-3 text-ui-sm font-semibold text-slate-700">{title}</p>
-      <p className="mt-1 max-w-sm text-ui-xs leading-relaxed text-slate-500">{reason}</p>
+    <div className={cn('empty', className)}>
+      <span className="empty__ico">
+        {Icon ? <Icon size={30} aria-hidden="true" /> : <AdmIcon name={icon as AdmIconName} />}
+      </span>
+      <b>{title}</b>
+      <p>{reason}</p>
       {action ? (
-        <Link
-          href={action.href}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-ui-xs font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-plug-blue-600"
-        >
+        <Link href={action.href} className="btn btn--line btn--sm" style={{ marginTop: 14 }}>
           {action.label}
         </Link>
       ) : null}

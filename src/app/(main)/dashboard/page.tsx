@@ -39,7 +39,7 @@ export default async function Page() {
 
   return (
     <DashboardLayout
-      title="Overview"
+      title="Overview."
       subtitle={`${isNew ? 'Welcome' : 'Welcome back'}, ${profile.name}`}
       user={shell.user}
       stats={shell.stats}

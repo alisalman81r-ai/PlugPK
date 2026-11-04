@@ -1,7 +1,6 @@
 // src/components/admin/CarImageManager.tsx
 'use client'
 
-import { AlertTriangle, Check, ImageOff, Loader2, Trash2, Upload } from '@/components/ui/icons'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -10,8 +9,8 @@ import type { ImageCredit } from '@/data/carImageCredits'
 import { setCarImage } from '@/lib/db/car-actions'
 import { uploadCarPhoto } from '@/lib/db/upload-actions'
 import { ACCEPTED_FORMATS, IMAGE_ACCEPT } from '@/lib/upload-urls'
-import { cn } from '@/lib/utils'
 
+import { Ico, Spinner, k, rise, s } from './people/kit'
 import { runAction } from './run-action'
 
 /**
@@ -133,90 +132,68 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
 
   const shown = preview ?? image
 
+  const r = rise(1)
+
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <section className={k('card', r.className)} style={r.style}>
       {shown ? (
-        <div className="relative aspect-[16/10] bg-slate-100">
+        <div className={s.photo}>
           {/* The preview is a blob URL, which next/image cannot optimise, so it
               renders as a plain img — the alternative is no preview at all. */}
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={preview} alt="" />
           ) : (
-            <Image
-              src={shown}
-              alt={`${carName} — the photograph used on the live site`}
-              fill
-              sizes="(max-width: 1280px) 100vw, 360px"
-              className="object-cover"
-            />
+            <Image src={shown} alt={`${carName} — the photograph used on the live site`} fill sizes="(max-width: 1280px) 100vw, 380px" />
           )}
 
           {busy ? (
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-plug-navy-900/55 text-ui-sm font-semibold text-white">
-              <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+            <div className={s.photo__busy}>
+              <Spinner />
               {status.label}
             </div>
           ) : null}
         </div>
       ) : (
-        <div className="flex aspect-[16/10] flex-col items-center justify-center gap-2 border-b border-dashed border-slate-300 bg-slate-50 text-slate-400">
+        <div className={k('photo', 'photo--none')}>
           {busy ? (
             <>
-              <Loader2 size={22} className="animate-spin" aria-hidden="true" />
-              <p className="text-ui-sm font-semibold">{status.label}</p>
+              <Spinner />
+              <b>{status.label}</b>
             </>
           ) : (
             <>
-              <ImageOff size={26} aria-hidden="true" />
-              <p className="text-ui-sm font-semibold">No photograph</p>
-              <p className="px-6 text-center text-ui-xs">The live card shows a placeholder.</p>
+              <Ico n="img" />
+              <b>No photograph</b>
+              <small>The live card shows a placeholder.</small>
             </>
           )}
         </div>
       )}
 
-      <div className="p-5">
-        <h2 className="text-ui-sm font-bold uppercase tracking-[0.1em] text-slate-500">
-          Photograph
-        </h2>
+      <div className={s.panel}>
+        <h2>Photograph</h2>
 
         {status.kind === 'done' || status.kind === 'error' ? (
-          <p
-            role="status"
-            aria-live="polite"
-            className={cn(
-              'mt-3 flex items-start gap-2 rounded-lg border p-2.5 text-ui-xs',
-              status.kind === 'done'
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                : 'border-red-200 bg-red-50 text-red-800',
-            )}
-          >
-            {status.kind === 'done' ? (
-              <Check size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-            ) : (
-              <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-            )}
+          <p role="status" aria-live="polite" className={k('box', status.kind === 'done' ? 'box--ok' : 'box--bad')}>
             {status.message}
           </p>
         ) : null}
 
         {image ? (
-          <dl className="mt-3 flex flex-col gap-2 text-ui-sm">
+          <dl className={s.dl}>
             <div>
-              <dt className="text-slate-500">Current file</dt>
-              <dd className="mt-0.5 break-all font-mono text-ui-xs text-slate-700">{image.split('?')[0]}</dd>
+              <dt>Current file</dt>
+              <dd className={s.mono}>{image.split('?')[0]}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Source</dt>
-              <dd className="mt-0.5 font-medium text-slate-900">
-                {seeded ? 'Repository asset, from the seed' : 'Uploaded through this portal'}
-              </dd>
+              <dt>Source</dt>
+              <dd>{seeded ? 'Repository asset, from the seed' : 'Uploaded through this portal'}</dd>
             </div>
             {credit ? (
               <div>
-                <dt className="text-slate-500">Credit</dt>
-                <dd className="mt-0.5 text-slate-900">
+                <dt>Credit</dt>
+                <dd>
                   {credit.author} · {credit.licence}
                 </dd>
               </div>
@@ -231,53 +208,31 @@ export function CarImageManager({ carId, carName, image, credit }: CarImageManag
           licence problem rather than an untidy one.
         */}
         {seeded && credit ? (
-          <p className="mt-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-ui-xs leading-relaxed text-amber-800">
-            <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <span>
-              This file is credited to <strong>{credit.author}</strong> under {credit.licence}.
-              Replacing it here leaves that credit attached to a photograph that is no longer shown
-              — remove the entry from <code className="font-mono">carImageCredits.ts</code>, or
-              re-run the fetch script, if you do.
-            </span>
+          <p className={k('box', 'box--warn')}>
+            This file is credited to <b>{credit.author}</b> under {credit.licence}. Replacing it here leaves that credit
+            attached to a photograph that is no longer shown — remove the entry from <code className={s.mono}>carImageCredits.ts</code>,
+            or re-run the fetch script, if you do.
           </p>
         ) : null}
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          <input
-            ref={inputRef}
-            type="file"
-            accept={IMAGE_ACCEPT}
-            onChange={onFile}
-            disabled={busy}
-            className="hidden"
-          />
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={busy}
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-plug-navy-900 px-4 text-ui font-semibold text-white transition-colors hover:bg-plug-navy-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
-          >
-            <Upload size={15} aria-hidden="true" />
+        <div className={s.panel__acts}>
+          <input ref={inputRef} type="file" accept={IMAGE_ACCEPT} onChange={onFile} disabled={busy} hidden />
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={busy} className={k('btn', 'btn--ink', 'btn--sm')}>
+            <Ico n="upload" />
             {image ? 'Replace' : 'Upload'}
           </button>
 
           {image ? (
-            <button
-              type="button"
-              onClick={onRemove}
-              disabled={busy}
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-4 text-ui font-semibold text-slate-700 transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-            >
-              <Trash2 size={15} aria-hidden="true" />
+            <button type="button" onClick={onRemove} disabled={busy} className={k('btn', 'btn--line', 'btn--sm', 'del')}>
+              <Ico n="trash" />
               Remove
             </button>
           ) : null}
         </div>
 
-        <p className="mt-3 text-ui-xs leading-relaxed text-slate-500">
-          {ACCEPTED_FORMATS}, up to {MAX_MB}MB. Landscape suits the cards, which crop to 16:10. The
-          file type is checked from the file&apos;s own first bytes, not its name, and it is stored
-          under a generated filename.
+        <p className={s.panel__p}>
+          {ACCEPTED_FORMATS}, up to {MAX_MB}MB. Landscape suits the cards, which crop to 16:10. The file type is checked
+          from the file&apos;s own first bytes, not its name, and it is stored under a generated filename.
         </p>
       </div>
     </section>

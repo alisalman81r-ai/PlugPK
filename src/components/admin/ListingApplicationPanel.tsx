@@ -1,5 +1,5 @@
 // src/components/admin/ListingApplicationPanel.tsx
-import { Banknote, ExternalLink, ShieldCheck } from '@/components/ui/icons'
+import type * as React from 'react'
 
 import type { ApplicationDetail } from '@/lib/db/listing-application-queries'
 import { reviewListingPayment } from '@/lib/db/listing-application-actions'
@@ -16,36 +16,50 @@ import {
 } from '@/lib/listing-application'
 import { cn, formatRelativeTime } from '@/lib/utils'
 
+import { Ico, PANEL, Pill, type PillTone } from './network-kit'
 import { PaymentReviewControl } from './PaymentReviewControl'
 
-const PAYMENT_BADGE: Record<string, { label: string; tone: string }> = {
-  submitted: { label: 'To confirm', tone: 'bg-amber-50 text-amber-800 border-amber-200' },
-  verified: { label: 'Confirmed', tone: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
-  rejected: { label: 'Not received', tone: 'bg-red-50 text-red-800 border-red-200' },
+const PAYMENT_BADGE: Record<string, { label: string; tone: PillTone }> = {
+  submitted: { label: 'To confirm', tone: 'warn' },
+  verified: { label: 'Confirmed', tone: 'ok' },
+  rejected: { label: 'Not received', tone: 'bad' },
 }
 
 function DocumentLink({ id, kind, mimeType }: { id: string; kind: string; mimeType: string }) {
   const isImage = mimeType.startsWith('image/')
+  const label = DOCUMENT_LABEL[kind as DocumentKind] ?? kind
   return (
     <a
       href={`/api/business-documents/${id}`}
       target="_blank"
       rel="noreferrer"
-      className="group block overflow-hidden rounded-lg border border-slate-200 bg-white transition-colors hover:border-plug-blue-300"
+      className="group block overflow-hidden rounded-xl border border-ink/[.09] bg-white no-underline transition-colors duration-200 hover:border-ink"
     >
       {isImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={`/api/business-documents/${id}`} alt={DOCUMENT_LABEL[kind as DocumentKind] ?? kind} className="aspect-[16/10] w-full object-cover" />
+        <img src={`/api/business-documents/${id}`} alt={label} loading="lazy" className="block aspect-[16/10] w-full object-cover" />
       ) : (
-        <span className="flex aspect-[16/10] w-full items-center justify-center bg-slate-50 text-ui-sm font-bold text-slate-500">PDF</span>
+        <span className="grid aspect-[16/10] w-full place-items-center bg-chalk font-mono text-sm font-semibold text-muted">PDF</span>
       )}
-      <span className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[11px] font-medium text-slate-600 group-hover:text-plug-blue-700">
-        {DOCUMENT_LABEL[kind as DocumentKind] ?? kind}
-        <ExternalLink size={11} aria-hidden="true" />
+      <span className="flex items-center justify-between gap-2 px-2.5 py-2 text-xs text-muted transition-colors group-hover:text-ink">
+        {label}
+        <Ico name="ext" className="h-3.5 w-3.5" />
       </span>
     </a>
   )
 }
+
+/** A label and its value, on one line (the panel's dl rows). */
+function Row({ label, children, mono }: { label: string; children: React.ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex justify-between gap-3 border-t border-ink/[.06] py-1.5 first:border-t-0">
+      <dt className="shrink-0 text-muted">{label}</dt>
+      <dd className={cn('m-0 text-right text-ink', mono ? 'font-mono font-semibold' : 'font-medium')}>{children}</dd>
+    </div>
+  )
+}
+
+const HEAD = 'inline-flex items-center gap-2 text-[15px] font-semibold text-ink [&_svg]:h-[17px] [&_svg]:w-[17px]'
 
 /**
  * The private half of an application, for the reviewer: who the owner says
@@ -70,37 +84,28 @@ export function ListingApplicationPanel({
   const badge = payment ? PAYMENT_BADGE[payment.status] ?? PAYMENT_BADGE.submitted : null
 
   return (
-    <div className="mt-4 grid gap-3 lg:grid-cols-2">
+    <div className="mt-3.5 grid gap-3.5 lg:grid-cols-2">
       {/* Verification */}
-      <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-        <p className="mb-3 inline-flex items-center gap-1.5 text-ui-sm font-bold text-slate-800">
-          <ShieldCheck size={14} className="text-plug-blue-600" aria-hidden="true" />
+      <section className={PANEL}>
+        <p className={cn(HEAD, 'mb-3 mt-0')}>
+          <Ico name="shield" />
           {idType === 'cnic' ? 'Owner identity (CNIC)' : 'Business verification'}
         </p>
         {application.idNumber && application.idType === idType ? (
-          <dl className="mb-3 text-ui-sm">
-            {idType === 'licence' ? (
-              <div className="flex justify-between gap-3 py-0.5">
-                <dt className="text-slate-500">Document</dt>
-                <dd className="text-right font-medium text-slate-900">{licenceKindLabel(application.idDetail)}</dd>
-              </div>
-            ) : null}
-            <div className="flex justify-between gap-3 py-0.5">
-              <dt className="text-slate-500">Number</dt>
-              <dd className="font-mono font-semibold text-slate-900">{application.idNumber}</dd>
-            </div>
+          <dl className="mb-3 mt-0 text-sm">
+            {idType === 'licence' ? <Row label="Document">{licenceKindLabel(application.idDetail)}</Row> : null}
+            <Row label="Number" mono>
+              {application.idNumber}
+            </Row>
             {/* To check against the scan. Not where the chargers are — that is
                 the listing's own address above. */}
-            <div className="flex justify-between gap-3 py-0.5">
-              <dt className="shrink-0 text-slate-500">{idType === 'cnic' ? 'Address on CNIC' : 'Registered address'}</dt>
-              <dd className="text-right font-medium text-slate-900">{application.idAddress ?? '—'}</dd>
-            </div>
+            <Row label={idType === 'cnic' ? 'Address on CNIC' : 'Registered address'}>{application.idAddress ?? '—'}</Row>
           </dl>
         ) : (
-          <p className="mb-3 text-ui-sm font-semibold text-amber-700">Not supplied yet.</p>
+          <p className="mb-3 mt-0 text-sm font-medium text-[#8a5a00]">Not supplied yet.</p>
         )}
         {identityDocs.length > 0 ? (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             {identityDocs.map((doc) => (
               <DocumentLink key={doc.id} id={doc.id} kind={doc.kind} mimeType={doc.mimeType} />
             ))}
@@ -109,38 +114,31 @@ export function ListingApplicationPanel({
       </section>
 
       {/* Payment */}
-      <section className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+      <section className={PANEL}>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="inline-flex items-center gap-1.5 text-ui-sm font-bold text-slate-800">
-            <Banknote size={14} className="text-plug-blue-600" aria-hidden="true" />
+          <p className={cn(HEAD, 'm-0')}>
+            <Ico name="cash" />
             Listing fee
           </p>
-          {badge ? (
-            <span className={cn('rounded-full border px-2 py-0.5 text-[11px] font-semibold', badge.tone)}>{badge.label}</span>
-          ) : null}
+          {badge ? <Pill tone={badge.tone}>{badge.label}</Pill> : null}
         </div>
 
         {payment ? (
           <>
-            <dl className="text-ui-sm">
-              {[
-                ['Amount', formatPkr(payment.amount)],
-                ['Method', PAYMENT_METHOD_LABEL[payment.method as PaymentMethod] ?? payment.method],
-                ['Paid by', payment.payerName],
-                ['Transaction ID', payment.reference],
-                ['Paid on', payment.paidOn],
-              ].map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-3 py-0.5">
-                  <dt className="text-slate-500">{label}</dt>
-                  <dd className={cn('text-right text-slate-900', label === 'Transaction ID' ? 'font-mono font-semibold' : 'font-medium')}>
-                    {value}
-                  </dd>
-                </div>
-              ))}
+            <dl className="m-0 text-sm">
+              <Row label="Amount" mono>
+                {formatPkr(payment.amount)}
+              </Row>
+              <Row label="Method">{PAYMENT_METHOD_LABEL[payment.method as PaymentMethod] ?? payment.method}</Row>
+              <Row label="Paid by">{payment.payerName}</Row>
+              <Row label="Transaction ID" mono>
+                {payment.reference}
+              </Row>
+              <Row label="Paid on">{payment.paidOn}</Row>
             </dl>
             {payment.status === 'rejected' && payment.reviewNote ? (
-              <p className="mt-2 rounded-lg border border-red-100 bg-red-50/70 px-3 py-2 text-ui-xs text-red-900">
-                <span className="font-semibold">Told the owner:</span> {payment.reviewNote}
+              <p className="mb-0 mt-2.5 rounded-xl border border-[rgba(255,90,31,.2)] bg-[rgba(255,90,31,.06)] px-3 py-2 text-[13px] text-[#8f2f0a]">
+                <b className="font-semibold">Told the owner:</b> {payment.reviewNote}
               </p>
             ) : null}
             {receipt ? (
@@ -149,7 +147,7 @@ export function ListingApplicationPanel({
               </div>
             ) : null}
             {listingStatus !== 'approved' ? (
-              <div className="mt-3">
+              <div className="mt-3.5">
                 <PaymentReviewControl
                   status={payment.status}
                   action={async (decision: 'verified' | 'rejected', note?: string) => {
@@ -160,14 +158,14 @@ export function ListingApplicationPanel({
               </div>
             ) : null}
             {earlier.length > 0 ? (
-              <p className="mt-3 text-[11px] text-slate-400">
+              <p className="mb-0 mt-3 text-xs text-fog">
                 {earlier.length} earlier attempt{earlier.length === 1 ? '' : 's'}, last refused{' '}
                 {earlier[0]?.reviewedAt ? formatRelativeTime(earlier[0].reviewedAt) : ''}.
               </p>
             ) : null}
           </>
         ) : (
-          <p className="text-ui-sm font-semibold text-amber-700">
+          <p className="m-0 text-sm font-medium text-[#8a5a00]">
             {progress.identity === 'done' ? 'No payment submitted yet.' : 'Waiting for the owner to finish the application.'}
           </p>
         )}

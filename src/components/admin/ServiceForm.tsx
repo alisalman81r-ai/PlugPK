@@ -5,13 +5,13 @@ import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { AdminField, FIELD_CLASS, TEXTAREA_CLASS } from '@/components/admin/AdminField'
 import { HoursFields } from '@/components/services/HoursFields'
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { EVService } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 import { useAdminToast } from './AdminToast'
+import { FGRID, FieldSelect, Fld, FORM_ACTS, FORM_COL, FormCard, FormError, IN, Ico, TEXTAREA, btnClass } from './network-kit'
 import { runAction } from './run-action'
 import { useUnsavedChanges } from './useUnsavedChanges'
 
@@ -52,35 +52,28 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Business</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Appears in the services directory and on the business&apos;s own page.
-        </p>
+    <form ref={formRef} onSubmit={handleSubmit} className={FORM_COL}>
+      <FormCard title="Business" sub={<>Appears in the services directory and on the business&apos;s own page.</>}>
+        <div className={FGRID}>
+          <Fld label="Name" htmlFor="name" required full>
+            <input id="name" name="name" required defaultValue={service?.name} className={IN} />
+          </Fld>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Name" htmlFor="name" required className="sm:col-span-2">
-            <input id="name" name="name" required defaultValue={service?.name} className={FIELD_CLASS} />
-          </AdminField>
-
-          <AdminField label="Category" htmlFor="category" required>
-            <select
+          <Fld label="Category" htmlFor="category" required>
+            <FieldSelect
               id="category"
               name="category"
               required
-              defaultValue={service?.category ?? SERVICE_CATEGORY_KEYS[0]}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+              defaultValue={service?.category ?? SERVICE_CATEGORY_KEYS[0]}>
               {SERVICE_CATEGORY_KEYS.map((key) => (
                 <option key={key} value={key}>
                   {SERVICE_CATEGORY_META[key].label}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField
+          <Fld
             label="URL slug"
             htmlFor="slug"
             hint="Leave blank to generate from the name."
@@ -89,9 +82,9 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
               id="slug"
               name="slug"
               defaultValue={service?.slug}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
 
           {/*
             Status is chosen here rather than left to the schema default.
@@ -100,60 +93,51 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
             in the review queue, invisible on the directory, as though a
             stranger had submitted it.
           */}
-          <AdminField
+          <Fld
             label="Status"
             htmlFor="status"
             required
             hint="Approved services appear in the public directory."
           >
-            <select
+            <FieldSelect
               id="status"
               name="status"
-              defaultValue={status ?? 'approved'}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+              defaultValue={status ?? 'approved'}>
               <option value="approved">Approved — listed publicly</option>
               <option value="pending">Pending — in the review queue</option>
               <option value="rejected">Rejected — hidden</option>
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField label="Description" htmlFor="description" className="sm:col-span-2">
+          <Fld label="Description" htmlFor="description" full>
             <textarea
               id="description"
               name="description"
               rows={3}
               defaultValue={service?.description}
-              className={TEXTAREA_CLASS}
+              className={TEXTAREA}
             />
-          </AdminField>
+          </Fld>
         </div>
-      </section>
+      </FormCard>
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Location</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Coordinates place the business on the directory map.
-        </p>
+      <FormCard title="Location" sub={<>Coordinates place the business on the directory map.</>} i={1}>
+        <div className={FGRID}>
+          <Fld label="Street" htmlFor="street" full>
+            <input id="street" name="street" defaultValue={service?.address.street} className={IN} />
+          </Fld>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Street" htmlFor="street" className="sm:col-span-2">
-            <input id="street" name="street" defaultValue={service?.address.street} className={FIELD_CLASS} />
-          </AdminField>
+          <Fld label="Area" htmlFor="area">
+            <input id="area" name="area" defaultValue={service?.address.area} className={IN} />
+          </Fld>
 
-          <AdminField label="Area" htmlFor="area">
-            <input id="area" name="area" defaultValue={service?.address.area} className={FIELD_CLASS} />
-          </AdminField>
-
-          <AdminField label="City" htmlFor="city" required>
-            <select
+          <Fld label="City" htmlFor="city" required>
+            <FieldSelect
               id="city"
               name="city"
               required
               // Deliberately unset — see the same note in StationForm.
-              defaultValue={service?.address.city ?? ''}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+              defaultValue={service?.address.city ?? ''}>
               <option value="" disabled>
                 Select a city
               </option>
@@ -162,23 +146,23 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
                   {city}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField label="Province" htmlFor="province">
-            <input id="province" name="province" defaultValue={service?.address.province} className={FIELD_CLASS} />
-          </AdminField>
+          <Fld label="Province" htmlFor="province">
+            <input id="province" name="province" defaultValue={service?.address.province} className={IN} />
+          </Fld>
 
-          <AdminField label="Country" htmlFor="country">
+          <Fld label="Country" htmlFor="country">
             <input
               id="country"
               name="country"
               defaultValue={service?.address.country ?? 'Pakistan'}
-              className={FIELD_CLASS}
+              className={IN}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Latitude" htmlFor="lat" hint="Decimal degrees inside Pakistan, e.g. 24.8607">
+          <Fld label="Latitude" htmlFor="lat" hint="Decimal degrees inside Pakistan, e.g. 24.8607">
             <input
               id="lat"
               name="lat"
@@ -186,11 +170,11 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
               step="any"
               required
               defaultValue={service?.coordinates.lat}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Longitude" htmlFor="lng" hint="Decimal degrees, e.g. 67.0011">
+          <Fld label="Longitude" htmlFor="lng" hint="Decimal degrees, e.g. 67.0011">
             <input
               id="lng"
               name="lng"
@@ -198,83 +182,71 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
               step="any"
               required
               defaultValue={service?.coordinates.lng}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
         </div>
-      </section>
+      </FormCard>
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-5 font-semibold text-slate-900">Contact and presentation</h2>
+      <FormCard title="Contact and presentation" i={2}>
+        <div className={FGRID}>
+          <Fld label="Phone" htmlFor="phone" required>
+            <input id="phone" name="phone" required defaultValue={service?.phone} className={IN} />
+          </Fld>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Phone" htmlFor="phone" required>
-            <input id="phone" name="phone" required defaultValue={service?.phone} className={FIELD_CLASS} />
-          </AdminField>
+          <Fld label="Email" htmlFor="email">
+            <input id="email" name="email" type="email" defaultValue={service?.email} className={IN} />
+          </Fld>
 
-          <AdminField label="Email" htmlFor="email">
-            <input id="email" name="email" type="email" defaultValue={service?.email} className={FIELD_CLASS} />
-          </AdminField>
+          <Fld label="Website" htmlFor="website" full>
+            <input id="website" name="website" type="url" defaultValue={service?.website} className={IN} />
+          </Fld>
 
-          <AdminField label="Website" htmlFor="website" className="sm:col-span-2">
-            <input id="website" name="website" type="url" defaultValue={service?.website} className={FIELD_CLASS} />
-          </AdminField>
-
-          <AdminField
+          <Fld
             label="Cover photo path"
             htmlFor="coverPhoto"
             hint="Path under /public, e.g. /images/services/name.jpg"
-            className="sm:col-span-2"
+            full
           >
             <input
               id="coverPhoto"
               name="coverPhoto"
               defaultValue={service?.coverPhoto}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
 
           {/* No rating field. Services have no review table, so any figure
               typed here would be a score no customer gave. */}
-          <div className="flex flex-col justify-end gap-1">
-            <label className="flex cursor-pointer items-center gap-3 text-ui text-slate-700">
-              <input
-                type="checkbox"
-                name="isVerified"
-                defaultChecked={service?.isVerified}
-                className="h-5 w-5 cursor-pointer rounded border-slate-300 text-plug-blue-600 focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-              />
+          <div className="col-span-full grid gap-2">
+            <label className="flex cursor-pointer items-center gap-3 rounded-[14px] border-[1.5px] border-ink/[.09] bg-paper px-4 py-3.5 text-[15px] text-ink transition-colors hover:border-ink/30">
+              <input type="checkbox" name="isVerified" defaultChecked={service?.isVerified} className="h-5 w-5 cursor-pointer rounded accent-ink" />
+              <Ico name="shield" className="h-[18px] w-[18px] text-[#12804a]" />
               Verified business
             </label>
-            <p className="text-ui-xs text-slate-500">
+            <p className="m-0 text-[13px] text-muted">
               Your own assertion that you have checked this business exists — shown publicly as a badge.
             </p>
           </div>
         </div>
-      </section>
+      </FormCard>
 
       {/*
         What the applicant told us. Editable, because a reviewer often fixes a
         typo before approving; the contact person never appears publicly.
       */}
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Applicant and details</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          The contact person is for the team only. WhatsApp, social page, year, makes, prices and
-          hours appear on the public listing once it is approved.
-        </p>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Contact person" htmlFor="contactName">
-            <input id="contactName" name="contactName" maxLength={120} defaultValue={service?.contactName} className={FIELD_CLASS} />
-          </AdminField>
-          <AdminField label="Their role" htmlFor="contactRole" hint="Owner, manager…">
-            <input id="contactRole" name="contactRole" maxLength={80} defaultValue={service?.contactRole} className={FIELD_CLASS} />
-          </AdminField>
-          <AdminField label="WhatsApp" htmlFor="whatsapp">
-            <input id="whatsapp" name="whatsapp" type="tel" maxLength={20} defaultValue={service?.whatsapp} className={FIELD_CLASS} />
-          </AdminField>
-          <AdminField label="Year established" htmlFor="yearEstablished">
+      <FormCard title="Applicant and details" sub={<>The contact person is for the team only. WhatsApp, social page, year, makes, prices and hours appear on the public listing once it is approved.</>} i={3}>
+        <div className={FGRID}>
+          <Fld label="Contact person" htmlFor="contactName">
+            <input id="contactName" name="contactName" maxLength={120} defaultValue={service?.contactName} className={IN} />
+          </Fld>
+          <Fld label="Their role" htmlFor="contactRole" hint="Owner, manager…">
+            <input id="contactRole" name="contactRole" maxLength={80} defaultValue={service?.contactRole} className={IN} />
+          </Fld>
+          <Fld label="WhatsApp" htmlFor="whatsapp">
+            <input id="whatsapp" name="whatsapp" type="tel" maxLength={20} defaultValue={service?.whatsapp} className={IN} />
+          </Fld>
+          <Fld label="Year established" htmlFor="yearEstablished">
             <input
               id="yearEstablished"
               name="yearEstablished"
@@ -282,50 +254,38 @@ export function ServiceForm({ service, status, action }: ServiceFormProps) {
               min={1947}
               max={new Date().getFullYear()}
               defaultValue={service?.yearEstablished}
-              className={FIELD_CLASS}
+              className={IN}
             />
-          </AdminField>
-          <AdminField label="Facebook or Instagram page" htmlFor="socialUrl" className="sm:col-span-2">
-            <input id="socialUrl" name="socialUrl" type="url" maxLength={300} defaultValue={service?.socialUrl} className={FIELD_CLASS} />
-          </AdminField>
-          <AdminField label="EV makes they work with" htmlFor="brands" className="sm:col-span-2">
-            <input id="brands" name="brands" maxLength={300} defaultValue={service?.brands} className={FIELD_CLASS} />
-          </AdminField>
-          <AdminField label="Prices" htmlFor="pricing" className="sm:col-span-2">
-            <textarea id="pricing" name="pricing" rows={3} maxLength={600} defaultValue={service?.pricing} className={TEXTAREA_CLASS} />
-          </AdminField>
-          <div className="sm:col-span-2">
-            <p className="mb-3 text-ui-sm font-semibold text-slate-900">Opening hours</p>
+          </Fld>
+          <Fld label="Facebook or Instagram page" htmlFor="socialUrl" full>
+            <input id="socialUrl" name="socialUrl" type="url" maxLength={300} defaultValue={service?.socialUrl} className={IN} />
+          </Fld>
+          <Fld label="EV makes they work with" htmlFor="brands" full>
+            <input id="brands" name="brands" maxLength={300} defaultValue={service?.brands} className={IN} />
+          </Fld>
+          <Fld label="Prices" htmlFor="pricing" full>
+            <textarea id="pricing" name="pricing" rows={3} maxLength={600} defaultValue={service?.pricing} className={TEXTAREA} />
+          </Fld>
+          <div className="col-span-full grid gap-2">
+            <p className="m-0 text-sm font-medium text-ink">Opening hours</p>
             <HoursFields initial={service?.operatingHours} />
           </div>
         </div>
-      </section>
+      </FormCard>
 
-      {error ? (
-        <p
-          role="alert"
-          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-ui-sm text-red-700"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 disabled:opacity-60"
-        >
-          {isPending ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+      <div className={FORM_ACTS}>
+        <button type="submit" disabled={isPending} className={btnClass('ink')}>
+          {isPending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="check" />}
           {service ? 'Save changes' : 'Create service'}
         </button>
-
         <button
           type="button"
           onClick={() => {
             if (confirmLeave()) router.push('/admin/services')
           }}
-          className="inline-flex h-11 items-center rounded-lg border border-slate-200 bg-white px-5 text-ui font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          className={btnClass('line')}
         >
           Cancel
         </button>

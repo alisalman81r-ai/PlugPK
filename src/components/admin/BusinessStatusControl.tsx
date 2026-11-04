@@ -1,13 +1,14 @@
 // src/components/admin/BusinessStatusControl.tsx
 'use client'
 
-import { Check, Loader2, Undo2, X } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
 import { useAdminToast } from './AdminToast'
+import { Ico, NOTE_BOX, NOTE_TEXTAREA, btnClass } from './network-kit'
 import { runAction } from './run-action'
 
 export type BusinessStatus = 'pending' | 'approved' | 'rejected'
@@ -23,9 +24,6 @@ export interface BusinessStatusControlProps {
    */
   approveBlockedReason?: string | null
 }
-
-const BUTTON =
-  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-ui-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60'
 
 const NOTE_MAX = 500
 
@@ -66,12 +64,12 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
     })
   }
 
-  const spinner = <Loader2 size={14} className="shrink-0 animate-spin" aria-hidden="true" />
+  const spinner = <Loader2 size={18} className="shrink-0 animate-spin" aria-hidden="true" />
   const trimmed = note.trim()
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
-      <span className="inline-flex items-center gap-2">
+    <span className="inline-flex flex-col items-end gap-1.5">
+      <span className="inline-flex flex-wrap items-center gap-2">
         {status === 'pending' ? (
           <>
             <button
@@ -79,12 +77,9 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
               onClick={() => move('approved')}
               disabled={isPending || Boolean(approveBlockedReason)}
               title={approveBlockedReason ?? undefined}
-              className={cn(
-                BUTTON,
-                'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500',
-              )}
+              className={btnClass('ink', 'sm')}
             >
-              {isPending && !rejecting ? spinner : <Check size={14} className="shrink-0" aria-hidden="true" />}
+              {isPending && !rejecting ? spinner : <Ico name="okc" />}
               Approve
             </button>
 
@@ -94,35 +89,22 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
               disabled={isPending}
               aria-expanded={rejecting}
               aria-controls={noteId}
-              className={cn(
-                BUTTON,
-                rejecting
-                  ? 'border border-red-300 bg-red-50 text-red-700 focus-visible:ring-red-400'
-                  : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:ring-slate-400',
-              )}
+              className={cn(btnClass('line', 'sm'), rejecting && 'border-[#e2a48c] text-[#b23b0d]')}
             >
-              <X size={14} className="shrink-0" aria-hidden="true" />
+              <Ico name="x" />
               Reject
             </button>
           </>
         ) : (
-          <button
-            type="button"
-            onClick={() => move('pending')}
-            disabled={isPending}
-            className={cn(
-              BUTTON,
-              'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:ring-slate-400',
-            )}
-          >
-            {isPending ? spinner : <Undo2 size={14} className="shrink-0" aria-hidden="true" />}
+          <button type="button" onClick={() => move('pending')} disabled={isPending} className={btnClass('line', 'sm')}>
+            {isPending ? spinner : <Ico name="undo" />}
             Reopen
           </button>
         )}
       </span>
 
       {status === 'pending' && approveBlockedReason ? (
-        <span className="max-w-[18rem] text-right text-ui-xs text-amber-800">{approveBlockedReason}</span>
+        <span className="max-w-[18rem] text-right text-xs leading-snug text-[#8a5a00]">{approveBlockedReason}</span>
       ) : null}
 
       {rejecting && status === 'pending' ? (
@@ -132,10 +114,10 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
             event.preventDefault()
             if (trimmed) move('rejected', trimmed)
           }}
-          className="mt-1 w-72 max-w-full rounded-lg border border-red-200 bg-red-50/60 p-3"
+          className={cn(NOTE_BOX, 'w-80')}
         >
-          <label htmlFor={`${noteId}-note`} className="block text-ui-xs font-semibold text-red-900">
-            Reason for rejecting <span aria-hidden="true">*</span>
+          <label htmlFor={`${noteId}-note`} className="block text-[13px] font-medium text-ink">
+            Reason for rejecting <span aria-hidden="true" className="text-[#c2410c]">*</span>
           </label>
           <textarea
             id={`${noteId}-note`}
@@ -146,25 +128,17 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
             maxLength={NOTE_MAX}
             autoFocus
             placeholder="e.g. Charger photos show a domestic socket, not an EV charger."
-            className="mt-1.5 w-full resize-y rounded-md border border-red-200 bg-white p-2 text-ui-sm text-slate-900 outline-none focus-visible:border-red-400"
+            className={NOTE_TEXTAREA}
           />
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <span className="text-[11px] tabular-nums text-red-900/60">
-              {note.length}/{NOTE_MAX}
+          <div className="mt-2.5 flex items-center justify-between gap-2">
+            <span className="font-mono text-xs tabular-nums text-fog">
+              {note.length} / {NOTE_MAX}
             </span>
             <span className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setRejecting(false)}
-                className="h-8 rounded-md px-2.5 text-ui-xs font-medium text-slate-600 hover:bg-white"
-              >
+              <button type="button" onClick={() => setRejecting(false)} className={btnClass('line', 'sm')}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={!trimmed || isPending}
-                className="inline-flex h-8 items-center gap-1 rounded-md bg-red-600 px-3 text-ui-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <button type="submit" disabled={!trimmed || isPending} className={btnClass('danger', 'sm')}>
                 {isPending ? spinner : null}
                 Reject application
               </button>
@@ -174,7 +148,7 @@ export function BusinessStatusControl({ status, action, approveBlockedReason }: 
       ) : null}
 
       {error ? (
-        <span role="alert" className="max-w-[18rem] text-right text-ui-xs text-red-600">
+        <span role="alert" className="max-w-[18rem] text-right text-xs text-[#c2410c]">
           {error}
         </span>
       ) : null}

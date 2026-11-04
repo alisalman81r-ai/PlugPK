@@ -1,7 +1,6 @@
 // src/components/admin/MarkCommunityPostReviewed.tsx
 'use client'
 
-import { Check } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
@@ -9,6 +8,7 @@ import { markCommunityPostReviewed } from '@/lib/db/actions'
 
 import { useAdminToast } from './AdminToast'
 import { useReviewState } from './ReviewQueue'
+import { Ico } from './people/kit'
 import { runAction } from './run-action'
 
 /**
@@ -53,9 +53,9 @@ export function MarkCommunityPostReviewed({
       onClick={() => void markReviewed()}
       aria-label="Mark post as reviewed"
       title="Mark as reviewed"
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-emerald-600 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+      style={{ color: '#12804a' }}
     >
-      <Check size={16} aria-hidden="true" />
+      <Ico n="okc" />
     </button>
   )
 }

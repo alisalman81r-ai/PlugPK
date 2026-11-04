@@ -31,7 +31,7 @@ export default async function Page() {
 
   return (
     <DashboardLayout
-      title="Saved Routes"
+      title="Saved routes."
       subtitle="Journeys you have kept"
       user={shell.user}
       stats={shell.stats}

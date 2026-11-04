@@ -3,8 +3,9 @@
 
 import * as React from 'react'
 
-import { Check, Copy, Lock, Loader2 } from '@/components/ui/icons'
 import { setTemporaryPassword } from '@/lib/db/member-actions'
+
+import { Ico, Spinner, k, rise, s } from './people/kit'
 
 /**
  * Reset a member's password by hand, for someone who has written in from the
@@ -64,76 +65,64 @@ export function MemberPasswordCard({
     }
   }
 
+  const r = rise(3)
+
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6">
-      <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-        <Lock size={18} className="text-slate-500" aria-hidden="true" />
+    <section className={k('card', 'panel', r.className)} style={r.style}>
+      <h2>
+        <Ico n="lock" />
         Password
       </h2>
-      <p className="mt-1 text-ui-sm text-slate-500">
-        For a member who is locked out and has written in from <span className="font-medium text-slate-700">{email}</span>.
-        Their current password stops working, every device they are signed in on is signed out, and they
-        must choose a new password the next time they sign in.
+      <p>
+        For a member who is locked out and has written in from <b style={{ color: '#0B0C0E' }}>{email}</b>. Their current
+        password stops working, every device they are signed in on is signed out, and they must choose a new password
+        the next time they sign in.
       </p>
 
       {isSelf || isAdmin ? (
-        <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-600">
+        <p className={s.box}>
           {isSelf
             ? 'This is your account — change your password under Settings → Password.'
             : `${name} is an admin. Ask them to change it under Settings → Password, or reset it with the server CLI.`}
         </p>
       ) : password ? (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-ui-sm font-semibold text-emerald-900">Temporary password for {name}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <code className="rounded-lg bg-white px-3 py-2 font-mono text-base tracking-wider text-slate-900 ring-1 ring-emerald-200">
-              {password}
-            </code>
-            <button
-              type="button"
-              onClick={() => void copy()}
-              className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 text-ui-sm font-semibold text-emerald-800 hover:bg-emerald-100"
-            >
-              {copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
+        <div className={k('box', 'box--ok')}>
+          <b>Temporary password for {name}</b>
+          <div className={s.panel__acts} style={{ marginTop: 10, alignItems: 'center' }}>
+            <code className={s.code}>{password}</code>
+            <button type="button" onClick={() => void copy()} className={k('btn', 'btn--line', 'btn--sm')}>
+              <Ico n={copied ? 'check' : 'copy'} />
               {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
-          <p className="mt-3 text-ui-xs text-emerald-800">
+          <p style={{ margin: '10px 0 0', fontSize: 13 }}>
             Shown only now. Send it to {email}; they will be asked to replace it when they sign in.
           </p>
         </div>
       ) : confirming ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => void generate()}
-            disabled={busy}
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-plug-blue-600 px-4 text-ui-sm font-semibold text-white hover:bg-plug-blue-700 disabled:opacity-60"
-          >
-            {busy ? <Loader2 size={15} className="animate-spin" aria-hidden="true" /> : null}
+        <div className={s.panel__acts}>
+          <button type="button" onClick={() => void generate()} disabled={busy} className={k('btn', 'btn--ink', 'btn--sm')}>
+            {busy ? <Spinner /> : <Ico n="lock" />}
             Yes, set a new password
           </button>
-          <button
-            type="button"
-            onClick={() => setConfirming(false)}
-            disabled={busy}
-            className="inline-flex h-10 items-center rounded-xl border border-slate-200 px-4 text-ui-sm font-semibold text-slate-600 hover:bg-slate-50"
-          >
+          <button type="button" onClick={() => setConfirming(false)} disabled={busy} className={k('btn', 'btn--line', 'btn--sm')}>
             Cancel
           </button>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="mt-4 inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-4 text-ui-sm font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          <Lock size={15} aria-hidden="true" />
-          Set a temporary password
-        </button>
+        <div className={s.panel__acts}>
+          <button type="button" onClick={() => setConfirming(true)} className={k('btn', 'btn--line', 'btn--sm')}>
+            <Ico n="lock" />
+            Set a temporary password
+          </button>
+        </div>
       )}
 
-      {error ? <p role="alert" className="mt-3 text-ui-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className={s.ferr} style={{ marginTop: 10 }}>
+          {error}
+        </p>
+      ) : null}
     </section>
   )
 }

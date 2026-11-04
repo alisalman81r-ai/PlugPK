@@ -1,21 +1,26 @@
 // src/app/admin/(protected)/connectors/page.tsx
-import { Pencil, Plus } from '@/components/ui/icons'
-import Link from 'next/link'
-
-import { AdminFilterChips } from '@/components/admin/AdminFilterChips'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { AdminPagination } from '@/components/admin/AdminPagination'
 import { AdminSearch } from '@/components/admin/AdminSearch'
-import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge'
-import { DeleteButton } from '@/components/admin/DeleteButton'
-import { PortStepper } from '@/components/admin/PortStepper'
-import { flattenParams, pick } from '@/components/admin/list-params'
-import { deleteConnector, setConnectorAvailability } from '@/lib/db/actions'
+import { buildHref, flattenParams, pick } from '@/components/admin/list-params'
+import { AddLink, Empty, SegLinks, Strip, StripCell, T, TOOLS, TOOLS_ROW, rise } from '@/components/admin/network-kit'
 import { listConnectorsPage, toPage, toQuery } from '@/lib/db/admin-queries'
+import { getNetworkHealth } from '@/lib/db/network-health'
+import { cn } from '@/lib/utils'
+
+import { ConnectorRow } from './ConnectorRow'
+
 
 export const dynamic = 'force-dynamic'
 
 const PATH = '/admin/connectors'
+
+const STATUSES = [
+  { value: 'all', label: 'All' },
+  { value: 'available', label: 'Available' },
+  { value: 'in-use', label: 'In use' },
+  { value: 'offline', label: 'Offline' },
+] as const
 
 export default async function AdminConnectorsPage({
   searchParams,
@@ -24,218 +29,112 @@ export default async function AdminConnectorsPage({
 }) {
   const params = flattenParams(searchParams)
   const q = toQuery(params.q)
-  const status = pick(params.status, ['all', 'available', 'in-use', 'offline'] as const, 'all')
+  const status = pick(params.status, STATUSES.map((option) => option.value), 'all')
   const page = toPage(params.page)
 
-  const listing = await listConnectorsPage({ q, status, page })
+  // The strip and the filter tallies read the same grouped counts the
+  // dashboard does; the port totals come from the listing's own sums.
+  const [listing, health] = await Promise.all([listConnectorsPage({ q, status, page }), getNetworkHealth()])
   const rows = listing.rows
   const { ports: totalPorts, free: freePorts, connectors: connectorCount } = listing.totals
+  const byStatus: Record<string, number> = {
+    all: connectorCount,
+    available: health.connectors.available,
+    'in-use': health.connectors.inUse,
+    offline: health.connectors.offline,
+  }
+  const pct = totalPorts > 0 ? (freePorts / totalPorts) * 100 : null
 
   return (
     <>
       <AdminHeader
         title="Connectors"
-          help={
-            <>
-              <b>The individual plugs on each station.</b> A station is a location; a
-              connector is one physical socket with a type (CCS2, Type 2, CHAdeMO), a
-              power rating and a port count. The free-ports figure drivers see is added
-              up from these rows.
-            </>
-          }
-        description={`${freePorts} of ${totalPorts} ports free across ${connectorCount} connectors.`}
-        action={
-          <Link
-            href="/admin/connectors/new"
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-plug-blue-600 px-4 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-          >
-            <Plus size={16} aria-hidden="true" />
-            Add connector
-          </Link>
+        help={
+          <>
+            <b>The individual plugs on each station.</b> A station is a location; a
+            connector is one physical socket with a type (CCS2, Type 2, CHAdeMO), a
+            power rating and a port count. The free-ports figure drivers see is added
+            up from these rows.
+          </>
         }
+        description={`${freePorts} of ${totalPorts} ports free across ${connectorCount} connectors.`}
+        action={<AddLink href="/admin/connectors/new">Add connector</AddLink>}
       />
 
-      <div className="px-4 py-6 sm:px-8 sm:py-8">
-        <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 lg:flex-row lg:items-center">
+      <Strip label="Connector figures" cells={5}>
+        <StripCell
+          label="Connectors"
+          value={connectorCount}
+          count={connectorCount}
+          sub={`across ${health.stations.total} station${health.stations.total === 1 ? '' : 's'}`}
+        />
+        <StripCell label="Available" dot="ok" value={byStatus.available} count={byStatus.available} sub="ready to charge" />
+        <StripCell label="In use" dot="warn" value={byStatus['in-use']} count={byStatus['in-use']} sub="a car is plugged in" />
+        <StripCell label="Offline" dot="bad" value={byStatus.offline} count={byStatus.offline} sub="nobody can charge" />
+        <StripCell
+          lit
+          label="Ports free"
+          value={`${freePorts} / ${totalPorts}`}
+          sub={pct === null ? 'none recorded' : `${pct.toFixed(1)}% available`}
+        />
+      </Strip>
+
+      <div {...rise(1)} className={TOOLS}>
+        <div className={TOOLS_ROW}>
           <AdminSearch placeholder="Search station, city or connector type" label="Search connectors" />
-          <AdminFilterChips
+          <SegLinks
             label="Filter by status"
-            param="status"
             current={status}
-            path={PATH}
-            params={params}
-            options={[
-              { value: 'all', label: 'All' },
-              { value: 'available', label: 'Available' },
-              { value: 'in-use', label: 'In use' },
-              { value: 'offline', label: 'Offline' },
-            ]}
+            options={STATUSES.map((option) => ({
+              value: option.value,
+              label: option.label,
+              count: byStatus[option.value],
+              href: buildHref(PATH, params, { status: option.value }),
+            }))}
           />
         </div>
-
-        {rows.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-            <p className="text-ui font-semibold text-slate-900">
-              {connectorCount === 0 ? 'No connectors yet' : 'No connector matches that'}
-            </p>
-            <p className="mt-1 text-ui-sm text-slate-500">
-              {connectorCount === 0 ? 'Add one to publish it to a station.' : 'Try another search or status.'}
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop: a table, because comparing power and price down a
-                column is the whole job. */}
-            <div className="relative hidden overflow-x-auto rounded-xl border border-slate-200 bg-white lg:block">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-ui-xs uppercase tracking-wider text-slate-500">
-                    <th scope="col" className="px-5 py-3 font-semibold">Station</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Type</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Power</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Status</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Ports free</th>
-                    <th scope="col" className="px-5 py-3 text-right font-semibold">
-                      <span className="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(({ connector, stationId, stationName, city }) => (
-                    <tr
-                      key={connector.id}
-                      className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/70"
-                    >
-                      <td className="px-5 py-3.5">
-                        <Link
-                          href={`/admin/stations/${stationId}`}
-                          className="font-medium text-slate-900 hover:text-plug-blue-600"
-                        >
-                          {stationName}
-                        </Link>
-                        <p className="mt-0.5 text-ui-xs text-slate-500">{city}</p>
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm text-slate-700">
-                        {connector.type}
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
-                        {connector.maxPowerKw} kW
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <AdminStatusBadge status={connector.status} />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <PortStepper
-                          available={connector.availablePorts}
-                          total={connector.ports}
-                          label={`${stationName} ${connector.type}`}
-                          action={async (next: number) => {
-                            'use server'
-                            return setConnectorAvailability(connector.id, next)
-                          }}
-                        />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-end gap-1">
-                          <Link
-                            href={`/admin/connectors/${connector.id}`}
-                            aria-label={`Edit the ${connector.type} connector at ${stationName}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-plug-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                          >
-                            <Pencil size={15} />
-                          </Link>
-                          <DeleteButton
-                            label={`the ${connector.type} connector at ${stationName}`}
-                            action={async () => {
-                              'use server'
-                              return deleteConnector(connector.id)
-                            }}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile: cards. Seven columns squeezed into 320px is unreadable,
-                and a horizontal scroll would hide the port control that is the
-                reason for opening this screen at all. */}
-            <ul className="flex flex-col gap-3 lg:hidden">
-              {rows.map(({ connector, stationId, stationName, city }) => (
-                <li key={connector.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/admin/stations/${stationId}`}
-                        className="block truncate font-semibold text-slate-900"
-                      >
-                        {stationName}
-                      </Link>
-                      <p className="mt-0.5 text-ui-xs text-slate-500">{city}</p>
-                    </div>
-                    <AdminStatusBadge status={connector.status} />
-                  </div>
-
-                  <dl className="mb-4 grid grid-cols-2 gap-3 border-y border-slate-100 py-3">
-                    <div>
-                      <dt className="text-ui-xs text-slate-500">Type</dt>
-                      <dd className="mt-0.5 font-mono text-ui-sm text-slate-900">
-                        {connector.type}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-ui-xs text-slate-500">Power</dt>
-                      <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
-                        {connector.maxPowerKw} kW
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="mb-3">
-                    <PortStepper
-                      available={connector.availablePorts}
-                      total={connector.ports}
-                      label={`${stationName} ${connector.type}`}
-                      action={async (next: number) => {
-                        'use server'
-                        return setConnectorAvailability(connector.id, next)
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/admin/connectors/${connector.id}`}
-                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
-                    >
-                      <Pencil size={14} aria-hidden="true" />
-                      Edit
-                    </Link>
-                    <DeleteButton
-                      label={`the ${connector.type} connector at ${stationName}`}
-                      action={async () => {
-                        'use server'
-                        return deleteConnector(connector.id)
-                      }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-
-        <AdminPagination
-          path={PATH}
-          params={params}
-          page={page}
-          pageSize={listing.pageSize}
-          total={listing.total}
-          noun={['connector', 'connectors']}
-        />
       </div>
+
+      <div {...rise(2)} className={T.wrap}>
+        <table className={T.table}>
+          <thead className={T.thead}>
+            <tr>
+              <th scope="col" className={T.th}>Station</th>
+              <th scope="col" className={T.th}>Type</th>
+              <th scope="col" className={T.th}>Power</th>
+              <th scope="col" className={T.th}>Status</th>
+              <th scope="col" className={T.th}>Ports free</th>
+              <th scope="col" className={T.th}>
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className={T.tbody}>
+            {rows.length === 0 ? (
+              <tr className={T.tr}>
+                <td colSpan={6} className={cn(T.td, T.full, 'max-[760px]:before:hidden')}>
+                  <Empty
+                    icon={connectorCount === 0 ? 'plug' : 'search'}
+                    title={connectorCount === 0 ? 'No connectors yet.' : 'No connector matches.'}
+                    text={connectorCount === 0 ? 'Add one to publish it to a station.' : 'Try another search, or clear the filter.'}
+                  />
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => <ConnectorRow key={row.connector.id} {...row} />)
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <AdminPagination
+        path={PATH}
+        params={params}
+        page={page}
+        pageSize={listing.pageSize}
+        total={listing.total}
+        noun={['connector', 'connectors']}
+      />
     </>
   )
 }

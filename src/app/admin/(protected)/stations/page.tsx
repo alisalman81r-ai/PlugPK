@@ -1,13 +1,10 @@
 // src/app/admin/(protected)/stations/page.tsx
-import { Plus } from '@/components/ui/icons'
-import Link from 'next/link'
-
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { AdminPagination } from '@/components/admin/AdminPagination'
-import { NetworkSummary } from '@/components/admin/NetworkSummary'
 import { StationTable } from '@/components/admin/StationTable'
 import { STATUS_FILTERS, VENUE_FILTERS, type StatusFilter, type VenueFilter } from '@/components/admin/station-filters'
 import { flattenParams, pick } from '@/components/admin/list-params'
+import { AddLink, Strip, StripCell } from '@/components/admin/network-kit'
 import { deleteStation } from '@/lib/db/actions'
 import { listStationsPage, toPage, toQuery } from '@/lib/db/admin-queries'
 import { getNetworkHealth } from '@/lib/db/network-health'
@@ -28,7 +25,7 @@ export default async function AdminStationsPage({
   const page = toPage(params.page)
 
   /*
-    The listing is one filtered page from the database; the summary is
+    The listing is one filtered page from the database; the strip is
     getNetworkHealth(), what the dashboard's Live Network panel reads — so this
     page is a third view of one network rather than a fourth copy of it.
   */
@@ -47,6 +44,8 @@ export default async function AdminStationsPage({
     return deleteStation(id)
   }
 
+  const { stations, connectors, ports } = health
+
   return (
     <>
       <AdminHeader
@@ -60,41 +59,46 @@ export default async function AdminStationsPage({
           </>
         }
         description={`${listing.counts.all} published on the live site.`}
-        action={
-          <Link
-            href="/admin/stations/new"
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-plug-blue-600 px-4 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-          >
-            <Plus size={16} aria-hidden="true" />
-            Add station
-          </Link>
-        }
+        action={<AddLink href="/admin/stations/new">Add station</AddLink>}
       />
 
-      <div className="space-y-6 px-4 py-6 sm:px-8 sm:py-8">
-        {/* Same figures as the dashboard, from the same query. Counting them
-            again here is how two screens come to report different totals for
-            one network. */}
-        <NetworkSummary health={health} />
-        <div>
-          <StationTable
-            stations={listing.rows}
-            total={listing.total}
-            counts={listing.counts}
-            status={status}
-            venue={venue}
-            onDelete={removeStation}
-          />
-          <AdminPagination
-            path="/admin/stations"
-            params={params}
-            page={page}
-            pageSize={listing.pageSize}
-            total={listing.total}
-            noun={['station', 'stations']}
-          />
-        </div>
-      </div>
+      {/* Same figures as the dashboard, from the same query. No utilisation,
+          uptime or revenue: nothing records them. */}
+      <Strip label="Network figures" cells={6}>
+        <StripCell label="Stations" value={stations.total} count={stations.total} sub="on the live site" />
+        <StripCell label="Online" dot="ok" value={stations.online} count={stations.online} sub="fully available" />
+        <StripCell label="Limited" dot="blue" value={stations.limited} count={stations.limited} sub="partly usable" />
+        <StripCell label="Offline" dot="bad" value={stations.offline} count={stations.offline} sub="nobody can charge" />
+        <StripCell
+          label="Connectors"
+          value={connectors.total}
+          count={connectors.total}
+          sub={`${connectors.inUse} in use · ${connectors.offline} offline`}
+        />
+        <StripCell
+          lit
+          label="Ports free"
+          value={`${ports.available} / ${ports.total}`}
+          sub={ports.availablePct === null ? 'none recorded' : `${ports.availablePct.toFixed(1)}% available`}
+        />
+      </Strip>
+
+      <StationTable
+        stations={listing.rows}
+        total={listing.total}
+        counts={listing.counts}
+        status={status}
+        venue={venue}
+        onDelete={removeStation}
+      />
+      <AdminPagination
+        path="/admin/stations"
+        params={params}
+        page={page}
+        pageSize={listing.pageSize}
+        total={listing.total}
+        noun={['station', 'stations']}
+      />
     </>
   )
 }

@@ -25,7 +25,7 @@ export default async function Page({ searchParams }: { searchParams: { changePas
 
   return (
     <DashboardLayout
-      title="Account Settings"
+      title="Account settings."
       subtitle="Your details and password"
       user={shell.user}
       stats={shell.stats}

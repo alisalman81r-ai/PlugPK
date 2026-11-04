@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout'
-import { EmptyPanel, PANEL } from '@/components/dashboard/dash-ui'
+import { ICal, IPin } from '@/components/dashboard/acct-icons'
+import { EmptyPanel, GROUP_LABEL, PANEL } from '@/components/dashboard/dash-ui'
 import { MyBookingCancel } from '@/components/dashboard/MyBookingCancel'
 import { Tag, type TagTone } from '@/components/v2/ui'
-import { CalendarCheck, MapPin } from '@/components/ui/icons'
 import { BOOKING_STATUS_LABEL, formatClock, formatDateLabel, karachiNow, slotHasStarted } from '@/lib/charger-host'
 import { getMyBookings } from '@/lib/db/host-queries'
 import { getDashboardShell } from '@/lib/db/queries'
@@ -46,11 +46,11 @@ export default async function Page() {
     <li key={booking.id} className={PANEL}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <Link href={booking.listingHref} className="font-display text-[22px] leading-tight text-ink hover:underline hover:decoration-volt hover:decoration-2 hover:underline-offset-4">
+          <Link href={booking.listingHref} className="font-display text-[26px] leading-[1.1] text-ink decoration-volt decoration-2 underline-offset-4 hover:underline">
             {booking.listingName}
           </Link>
-          <p className="mt-1 flex items-center gap-1 text-sm text-muted">
-            <MapPin size={13} aria-hidden="true" /> {booking.listingCity}
+          <p className="mt-1 flex items-center gap-[5px] text-[13px] text-muted">
+            <IPin size={14} /> {booking.listingCity}
           </p>
         </div>
         <Tag tone={TONE[booking.status] ?? 'plain'} mono>
@@ -72,7 +72,7 @@ export default async function Page() {
         {booking.pricePerKwh ? ` · ${formatPkr(booking.pricePerKwh)}/unit, advance deducted from the bill` : ''}
       </p>
       {booking.status === 'declined' && booking.hostNote ? (
-        <p className="mt-3 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-3.5 py-2.5 text-sm text-[#B42E05]">
+        <p className="mt-3 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">
           <span className="font-semibold">Host:</span> {booking.hostNote}
         </p>
       ) : null}
@@ -89,31 +89,31 @@ export default async function Page() {
 
   return (
     <DashboardLayout
-      title="My Bookings"
+      title="My bookings."
       subtitle={upcoming.length > 0 ? `${upcoming.length} upcoming` : 'Charging slots you have booked'}
       user={shell.user}
       stats={shell.stats}
     >
       {bookings.length === 0 ? (
         <EmptyPanel
-          icon={<CalendarCheck aria-hidden="true" />}
-          title="No bookings yet"
+          icon={<ICal />}
+          title="No bookings yet."
           body="Partner chargers that take bookings show a “Book a slot” section on their page."
           href="/map"
           cta="Find a charger"
         />
       ) : (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-[18px]">
           {upcoming.length > 0 ? (
             <section>
-              <h2 className="mb-3 ml-1 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Upcoming</h2>
-              <ul className="grid gap-4 lg:grid-cols-2">{upcoming.map((booking) => card(booking, true))}</ul>
+              <h2 className={`${GROUP_LABEL} mb-3 mt-2.5`}>Upcoming</h2>
+              <ul className="m-0 grid list-none gap-[18px] p-0 min-[1101px]:grid-cols-2">{upcoming.map((booking) => card(booking, true))}</ul>
             </section>
           ) : null}
           {earlier.length > 0 ? (
             <section>
-              <h2 className="mb-3 ml-1 font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">Earlier</h2>
-              <ul className="grid gap-4 lg:grid-cols-2">{earlier.map((booking) => card(booking, false))}</ul>
+              <h2 className={`${GROUP_LABEL} mb-3 mt-2.5`}>Earlier</h2>
+              <ul className="m-0 grid list-none gap-[18px] p-0 min-[1101px]:grid-cols-2">{earlier.map((booking) => card(booking, false))}</ul>
             </section>
           ) : null}
         </div>

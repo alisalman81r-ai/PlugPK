@@ -1,6 +1,7 @@
 // src/app/(main)/layout.tsx
 import { BottomTabBar } from '@/components/layout/BottomTabBar'
 import { Footer } from '@/components/layout/Footer'
+import { HideOn } from '@/components/layout/HideOn'
 import { Navbar } from '@/components/layout/Navbar'
 import { CardSpotlight } from '@/components/ui/CardSpotlight'
 
@@ -44,7 +45,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-[var(--nav-h)] bg-ink" />
         {children}
       </main>
-      <Footer />
+      <HideOn prefixes={['/dashboard']}>
+        <Footer />
+      </HideOn>
       <BottomTabBar />
     </>
   )

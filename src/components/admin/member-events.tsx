@@ -1,20 +1,10 @@
 // src/components/admin/member-events.tsx
 import Link from 'next/link'
 
-import {
-  Activity,
-  Bookmark,
-  Building2,
-  ExternalLink,
-  Globe,
-  MessageSquare,
-  Smartphone,
-  Star,
-  Users,
-  type IconType,
-} from '@/components/ui/icons'
+import { Bookmark, Building2, MessageSquare, Star, Users, type IconType } from '@/components/ui/icons'
 import type { AppEventKind } from '@/lib/db/app-admin-queries'
-import { cn } from '@/lib/utils'
+
+import { Ico, k, s, type IcoName } from './people/kit'
 
 /**
  * How a member's action (an AppEvent row, from the app or the website) is
@@ -123,28 +113,43 @@ function dayHeading(key: string): string {
   return new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${key}T00:00:00Z`))
 }
 
-/** "Website" or "App", so the admin can tell where something was done. */
+/** "Website" or "App", so the admin can tell where something was done (the design's .src). */
 export function SourceBadge({ source }: { source: string }) {
   const web = source === 'web'
-  const Icon = web ? Globe : Smartphone
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-md border px-1.5 py-px text-[11px] font-semibold',
-        web ? 'border-slate-200 bg-slate-50 text-slate-600' : 'border-plug-blue-200 bg-plug-blue-50 text-plug-blue-700',
-      )}
-    >
-      <Icon size={11} aria-hidden="true" />
+    <span className={k('v', 'src')}>
+      <Ico n={web ? 'globe' : 'phone'} />
       {web ? 'Website' : 'App'}
     </span>
   )
 }
 
+const ICON: Record<Exclude<AppEventKind, 'all'>, IcoName> = {
+  accounts: 'user',
+  community: 'chat',
+  saved: 'bookmark',
+  reviews: 'star',
+  partners: 'building',
+}
+
+const timeOf = (iso: string) =>
+  new Intl.DateTimeFormat('en-PK', { timeZone: 'Asia/Karachi', hour: 'numeric', minute: '2-digit' }).format(new Date(iso))
+
 /**
- * Actions grouped under a day heading each, newest first. `showPerson` names
- * who did it on every row (off on a member's own page, where it is always them).
+ * Actions grouped under a day heading each, newest first — the design's
+ * activity log (.day, .feed, .ev). `showPerson` names who did it on every row
+ * (off on a member's own page, where it is always them). `flat` drops the card
+ * around each day, for a feed that already sits in one.
  */
-export function MemberEventFeed({ rows, showPerson = true }: { rows: MemberEventRow[]; showPerson?: boolean }) {
+export function MemberEventFeed({
+  rows,
+  showPerson = true,
+  flat = false,
+}: {
+  rows: MemberEventRow[]
+  showPerson?: boolean
+  flat?: boolean
+}) {
   const groups: { key: string; rows: MemberEventRow[] }[] = []
   for (const row of rows) {
     const key = dayKey(row.createdAt)
@@ -154,65 +159,48 @@ export function MemberEventFeed({ rows, showPerson = true }: { rows: MemberEvent
   }
 
   return (
-    <div className="space-y-5">
+    <div className={k('v', 'feedwrap')}>
       {groups.map((group) => (
         <section key={group.key} aria-label={dayHeading(group.key)}>
-          <h3 className="mb-2 flex items-center gap-2 text-ui-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h3 className={s.day} style={flat ? { padding: '0 24px' } : undefined}>
             {dayHeading(group.key)}
-            <span className="font-normal normal-case tracking-normal text-slate-400">
+            <span>
               {group.rows.length} action{group.rows.length === 1 ? '' : 's'}
             </span>
           </h3>
-          <ul className="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <ul className={k(!flat && 'card', 'feed', flat && 'feed--flat')}>
             {group.rows.map((row) => {
               const href = eventHref(row)
               const kind = eventKind(row.type)
-              const meta = kind ? EVENT_KIND_META[kind] : null
-              const Icon = meta?.icon ?? Activity
               return (
-                <li key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5">
-                  <span
-                    className={cn(
-                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border',
-                      meta?.tone ?? 'border-slate-200 bg-slate-50 text-slate-600',
-                    )}
-                    aria-hidden="true"
-                  >
-                    <Icon size={15} />
+                <li key={row.id} className={k('ev', kind ? `ev--${kind}` : null)}>
+                  <span className={s.ev__ico}>
+                    <Ico n={kind ? ICON[kind] : 'pulse'} />
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-ui-sm font-medium text-slate-900">{row.summary ?? row.type}</p>
-                    <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-ui-xs text-slate-500">
-                      <span className="font-semibold text-slate-600">{EVENT_TYPE_LABEL[row.type] ?? row.type}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <div className={s.ev__t}>{row.summary ?? row.type}</div>
+                    <div className={s.ev__m}>
+                      <span className={s.ktag}>{EVENT_TYPE_LABEL[row.type] ?? row.type}</span>
                       <SourceBadge source={row.source} />
                       {showPerson ? (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          {row.userId ? (
-                            <Link href={`/admin/members/${row.userId}`} className="text-plug-blue-600 hover:underline">
-                              {row.userName ?? row.userEmail ?? 'Member'}
-                            </Link>
-                          ) : (
-                            <span>{row.userEmail ?? 'Not signed in'}</span>
-                          )}
-                          {row.userId && row.userName && row.userEmail ? (
-                            <span className="text-slate-400">{row.userEmail}</span>
-                          ) : null}
-                        </>
+                        row.userId ? (
+                          <>
+                            <Link href={`/admin/members/${row.userId}`}>{row.userName ?? row.userEmail ?? 'Member'}</Link>
+                            {row.userName && row.userEmail ? <span className={s.em}>{row.userEmail}</span> : null}
+                          </>
+                        ) : (
+                          <span>{row.userEmail ?? 'Not signed in'}</span>
+                        )
                       ) : null}
-                      <span aria-hidden="true">·</span>
-                      <time dateTime={row.createdAt} title={formatEventDate(row.createdAt)}>
-                        {new Intl.DateTimeFormat('en-PK', { timeZone: 'Asia/Karachi', hour: 'numeric', minute: '2-digit' }).format(new Date(row.createdAt))}
+                      <time className={s.mono} dateTime={row.createdAt} title={formatEventDate(row.createdAt)} suppressHydrationWarning>
+                        {timeOf(row.createdAt)}
                       </time>
-                    </p>
+                    </div>
                   </div>
                   {href ? (
-                    <Link
-                      href={href}
-                      className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-ui-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    >
+                    <Link href={href} className={k('btn', 'btn--line', 'btn--sm')}>
                       Open
-                      <ExternalLink size={12} aria-hidden="true" />
+                      <Ico n="ext" />
                     </Link>
                   ) : null}
                 </li>

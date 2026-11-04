@@ -1,13 +1,14 @@
 // src/components/admin/PaymentReviewControl.tsx
 'use client'
 
-import { Check, Loader2, X } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
 import { useAdminToast } from './AdminToast'
+import { Ico, NOTE_BOX, NOTE_TEXTAREA, btnClass } from './network-kit'
 import { runAction } from './run-action'
 
 export interface PaymentReviewControlProps {
@@ -15,9 +16,6 @@ export interface PaymentReviewControlProps {
   /** Bound to the payment by the page. `note` is sent with a refusal. */
   action: (decision: 'verified' | 'rejected', note?: string) => Promise<{ ok: boolean; message?: string }>
 }
-
-const BUTTON =
-  'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-ui-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60'
 
 const NOTE_MAX = 500
 
@@ -53,20 +51,15 @@ export function PaymentReviewControl({ status, action }: PaymentReviewControlPro
     })
   }
 
-  const spinner = <Loader2 size={14} className="shrink-0 animate-spin" aria-hidden="true" />
+  const spinner = <Loader2 size={18} className="shrink-0 animate-spin" aria-hidden="true" />
   const trimmed = note.trim()
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
         {status !== 'verified' ? (
-          <button
-            type="button"
-            onClick={() => decide('verified')}
-            disabled={isPending}
-            className={cn(BUTTON, 'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500')}
-          >
-            {isPending && !refusing ? spinner : <Check size={14} className="shrink-0" aria-hidden="true" />}
+          <button type="button" onClick={() => decide('verified')} disabled={isPending} className={btnClass('ink', 'sm')}>
+            {isPending && !refusing ? spinner : <Ico name="okc" />}
             Confirm payment received
           </button>
         ) : null}
@@ -77,14 +70,9 @@ export function PaymentReviewControl({ status, action }: PaymentReviewControlPro
             disabled={isPending}
             aria-expanded={refusing}
             aria-controls={noteId}
-            className={cn(
-              BUTTON,
-              refusing
-                ? 'border border-red-300 bg-red-50 text-red-700 focus-visible:ring-red-400'
-                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:ring-slate-400',
-            )}
+            className={cn(btnClass('line', 'sm'), refusing && 'border-[#e2a48c] text-[#b23b0d]')}
           >
-            <X size={14} className="shrink-0" aria-hidden="true" />
+            <Ico name="x" />
             {status === 'verified' ? 'Undo — not received' : 'Not received'}
           </button>
         ) : null}
@@ -97,10 +85,10 @@ export function PaymentReviewControl({ status, action }: PaymentReviewControlPro
             event.preventDefault()
             if (trimmed) decide('rejected', trimmed)
           }}
-          className="w-full max-w-md rounded-lg border border-red-200 bg-red-50/60 p-3"
+          className={cn(NOTE_BOX, 'w-full max-w-md')}
         >
-          <label htmlFor={`${noteId}-note`} className="block text-ui-xs font-semibold text-red-900">
-            What the owner should fix <span aria-hidden="true">*</span>
+          <label htmlFor={`${noteId}-note`} className="block text-[13px] font-medium text-ink">
+            What the owner should fix <span aria-hidden="true" className="text-[#c2410c]">*</span>
           </label>
           <textarea
             id={`${noteId}-note`}
@@ -111,25 +99,17 @@ export function PaymentReviewControl({ status, action }: PaymentReviewControlPro
             maxLength={NOTE_MAX}
             autoFocus
             placeholder="e.g. No transfer with this transaction ID reached our account. Check the ID on your receipt."
-            className="mt-1.5 w-full resize-y rounded-md border border-red-200 bg-white p-2 text-ui-sm text-slate-900 outline-none focus-visible:border-red-400"
+            className={NOTE_TEXTAREA}
           />
-          <div className="mt-2 flex items-center justify-between gap-2">
-            <span className="text-[11px] tabular-nums text-red-900/60">
-              {note.length}/{NOTE_MAX}
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+            <span className="font-mono text-xs tabular-nums text-fog">
+              {note.length} / {NOTE_MAX}
             </span>
             <span className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setRefusing(false)}
-                className="h-8 rounded-md px-2.5 text-ui-xs font-medium text-slate-600 hover:bg-white"
-              >
+              <button type="button" onClick={() => setRefusing(false)} className={btnClass('line', 'sm')}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={!trimmed || isPending}
-                className="inline-flex h-8 items-center gap-1 rounded-md bg-red-600 px-3 text-ui-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <button type="submit" disabled={!trimmed || isPending} className={btnClass('danger', 'sm')}>
                 {isPending ? spinner : null}
                 Mark not received
               </button>
@@ -139,7 +119,7 @@ export function PaymentReviewControl({ status, action }: PaymentReviewControlPro
       ) : null}
 
       {error ? (
-        <span role="alert" className="text-ui-xs text-red-600">
+        <span role="alert" className="text-xs text-[#c2410c]">
           {error}
         </span>
       ) : null}

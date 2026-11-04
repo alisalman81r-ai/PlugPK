@@ -5,12 +5,12 @@ import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { AdminField, FIELD_CLASS } from '@/components/admin/AdminField'
 import { CONNECTOR_TYPES } from '@/lib/constants'
 import type { Connector } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 import { useAdminToast } from './AdminToast'
+import { FGRID, FieldSelect, Fld, FORM_ACTS, FORM_COL, FormCard, FormError, IN, Ico, btnClass } from './network-kit'
 import { runAction } from './run-action'
 import { useUnsavedChanges } from './useUnsavedChanges'
 
@@ -35,6 +35,12 @@ export interface ConnectorFormProps {
  * filter and no alert, so it sat in the table looking healthy.
  */
 const STATUSES = ['available', 'in-use', 'offline'] as const
+
+const STATUS_LABEL: Record<(typeof STATUSES)[number], string> = {
+  available: 'Available',
+  'in-use': 'In use',
+  offline: 'Offline',
+}
 
 export function ConnectorForm({ connector, stationId, stations, action }: ConnectorFormProps) {
   const router = useRouter()
@@ -79,69 +85,51 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="max-w-2xl px-4 py-6 sm:px-8 sm:py-8">
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Placement</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Which station this connector physically sits at.
-        </p>
-
-        <AdminField label="Station" htmlFor="stationId" required>
-          {connector ? (
-            // Reassigning hardware to a different site is a physical move, not
-            // an edit, so the field is shown but locked on an existing record.
-            <>
+    <form ref={formRef} onSubmit={handleSubmit} className={cn(FORM_COL, 'max-w-[860px]')}>
+      <FormCard title="Placement" sub="Which station this connector physically sits at.">
+        <div className={FGRID}>
+          <Fld
+            label="Station"
+            htmlFor="stationId"
+            required
+            full
+            hint={connector ? 'To move this connector, delete it and add it at the other station.' : undefined}
+          >
+            {connector ? (
+              // Reassigning hardware to a different site is a physical move, not
+              // an edit, so the field is shown but locked on an existing record.
               <input
                 id="stationId"
                 readOnly
                 value={stations.find((s) => s.id === selectedStation)?.name ?? ''}
-                className={cn(FIELD_CLASS, 'cursor-not-allowed bg-slate-50 text-slate-600')}
+                className={cn(IN, 'cursor-not-allowed bg-paper text-muted')}
               />
-              <p className="mt-1.5 text-ui-xs text-slate-500">
-                To move this connector, delete it and add it at the other station.
-              </p>
-            </>
-          ) : (
-            <select
-              id="stationId"
-              value={selectedStation}
-              onChange={(event) => setSelectedStation(event.target.value)}
-              required
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
-              {stations.map((station) => (
-                <option key={station.id} value={station.id}>
-                  {station.name} — {station.city}
-                </option>
-              ))}
-            </select>
-          )}
-        </AdminField>
-      </section>
+            ) : (
+              <FieldSelect id="stationId" value={selectedStation} onChange={(event) => setSelectedStation(event.target.value)} required>
+                {stations.map((station) => (
+                  <option key={station.id} value={station.id}>
+                    {station.name} — {station.city}
+                  </option>
+                ))}
+              </FieldSelect>
+            )}
+          </Fld>
+        </div>
+      </FormCard>
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Hardware</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Peak power and connector type as shown on the public map.
-        </p>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Connector type" htmlFor="type" required>
-            <select
-              id="type"
-              name="type"
-              defaultValue={connector?.type ?? CONNECTOR_TYPES[0]}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+      <FormCard title="Hardware" sub="Peak power and connector type as shown on the public map." i={1}>
+        <div className={FGRID}>
+          <Fld label="Connector type" htmlFor="type" required>
+            <FieldSelect id="type" name="type" defaultValue={connector?.type ?? CONNECTOR_TYPES[0]}>
               {CONNECTOR_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField label="Peak power" htmlFor="maxPowerKw" required hint="Kilowatts, e.g. 150">
+          <Fld label="Peak power" htmlFor="maxPowerKw" required hint="Kilowatts, e.g. 150">
             <input
               id="maxPowerKw"
               name="maxPowerKw"
@@ -150,11 +138,11 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
               step="any"
               required
               defaultValue={connector?.maxPowerKw ?? 50}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Total ports" htmlFor="ports" required hint="Physical plugs on this unit.">
+          <Fld label="Total ports" htmlFor="ports" required hint="Physical plugs on this unit.">
             <input
               id="ports"
               name="ports"
@@ -163,16 +151,11 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
               required
               value={ports}
               onChange={(event) => setPorts(Math.max(1, Number(event.target.value) || 1))}
-              className={cn(FIELD_CLASS, 'font-mono')}
+              className={cn(IN, 'font-mono')}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField
-            label="Ports free now"
-            htmlFor="availablePorts"
-            required
-            hint="Can be adjusted later from the connectors list."
-          >
+          <Fld label="Ports free now" htmlFor="availablePorts" required hint="Can be adjusted later from the connectors list.">
             <input
               id="availablePorts"
               name="availablePorts"
@@ -183,61 +166,40 @@ export function ConnectorForm({ connector, stationId, stations, action }: Connec
               onChange={(event) => setAvailablePorts(Math.max(0, Number(event.target.value) || 0))}
               aria-invalid={portsExceeded}
               aria-describedby={portsExceeded ? 'ports-error' : undefined}
-              className={cn(
-                FIELD_CLASS,
-                'font-mono',
-                portsExceeded && 'border-red-400 focus-visible:border-red-500',
-              )}
+              className={cn(IN, 'font-mono')}
             />
             {portsExceeded ? (
-              <p id="ports-error" role="alert" className="mt-1.5 text-ui-xs font-medium text-red-600">
+              <p id="ports-error" role="alert" className="m-0 text-[13px] text-[#c2410c]">
                 Cannot exceed {ports} total port{ports === 1 ? '' : 's'}. It will be capped on save.
               </p>
             ) : null}
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Status" htmlFor="status" required>
-            <select
-              id="status"
-              name="status"
-              defaultValue={connector?.status ?? 'available'}
-              className={cn(FIELD_CLASS, 'cursor-pointer capitalize')}
-            >
+          <Fld label="Status" htmlFor="status" required>
+            <FieldSelect id="status" name="status" defaultValue={connector?.status ?? 'available'}>
               {STATUSES.map((status) => (
-                <option key={status} value={status} className="capitalize">
-                  {status.replace('-', ' ')}
+                <option key={status} value={status}>
+                  {STATUS_LABEL[status]}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
         </div>
-      </section>
+      </FormCard>
 
-      {error ? (
-        <p
-          role="alert"
-          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-ui-sm text-red-700"
-        >
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex h-11 items-center gap-2 rounded-lg bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 disabled:opacity-60"
-        >
-          {isPending ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+      <div className={FORM_ACTS}>
+        <button type="submit" disabled={isPending} className={btnClass('ink')}>
+          {isPending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name={connector ? 'check' : 'plus'} />}
           {connector ? 'Save changes' : 'Add connector'}
         </button>
-
         <button
           type="button"
           onClick={() => {
             if (confirmLeave()) router.push('/admin/connectors')
           }}
-          className="inline-flex h-11 items-center rounded-lg border border-slate-200 bg-white px-5 text-ui font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          className={btnClass('line')}
         >
           Cancel
         </button>

@@ -1,8 +1,5 @@
 // src/components/admin/AdminPagination.tsx
-import { ChevronLeft, ChevronRight } from '@/components/ui/icons'
 import Link from 'next/link'
-
-import { cn } from '@/lib/utils'
 
 import { buildHref, type ListParams } from './list-params'
 
@@ -16,79 +13,67 @@ export interface AdminPaginationProps {
   total: number
   /** Singular and plural noun for the summary line. */
   noun?: [string, string]
+  /** A note after the count, e.g. "Reviewer names hidden". */
+  note?: string
 }
 
-const STEP =
-  'inline-flex h-9 items-center gap-1 rounded-lg border px-3 text-ui-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500'
-
 /**
- * Previous / next, with where you are in words.
+ * The design's `.pager`: where you are in words on the left, Previous / Page
+ * x of y / Next on the right.
  *
  * Links rather than buttons: a page of results is a URL, so it can be opened
- * in a new tab or shared, and it works before any JavaScript has loaded.
- * Numbered pages are left out on purpose — an operator works a queue from the
- * top, and a row of twenty page numbers is a control nobody uses.
+ * in a new tab or shared, and it works before any JavaScript has loaded. The
+ * end that does not exist is a disabled-looking span, not a dead link.
  */
-export function AdminPagination({ path, params, page, pageSize, total, noun = ['result', 'results'] }: AdminPaginationProps) {
+export function AdminPagination({ path, params, page, pageSize, total, noun = ['result', 'results'], note }: AdminPaginationProps) {
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const first = total === 0 ? 0 : (page - 1) * pageSize + 1
   const last = Math.min(total, page * pageSize)
   const word = total === 1 ? noun[0] : noun[1]
+  const shown = Math.min(page, pages)
 
   return (
-    <nav aria-label="Pagination" className="mt-5 flex flex-wrap items-center justify-between gap-3">
-      <p className="text-ui-sm text-slate-500" aria-live="polite">
+    <nav aria-label="Pagination" className="pager">
+      <span aria-live="polite">
         {total === 0 ? (
           `No ${noun[1]}`
         ) : page > pages ? (
           `Page ${page} is past the end — there ${total === 1 ? 'is' : 'are'} ${total} ${word}.`
         ) : (
           <>
-            Showing <span className="font-semibold text-slate-700">{first}–{last}</span> of{' '}
-            <span className="font-semibold text-slate-700">{total.toLocaleString('en-PK')}</span> {word}
+            Showing{' '}
+            <b>
+              {first}–{last}
+            </b>{' '}
+            of <b>{total.toLocaleString('en-PK')}</b> {word}
           </>
         )}
-      </p>
+        {note ? ` · ${note}` : null}
+      </span>
 
-      {pages > 1 ? (
-        <div className="flex items-center gap-2">
-          {page > 1 ? (
-            <Link
-              href={buildHref(path, params, { page: String(Math.min(page - 1, pages)) })}
-              className={cn(STEP, 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}
-              rel="prev"
-            >
-              <ChevronLeft size={14} aria-hidden="true" />
-              Previous
-            </Link>
-          ) : (
-            <span aria-disabled="true" className={cn(STEP, 'cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300')}>
-              <ChevronLeft size={14} aria-hidden="true" />
-              Previous
-            </span>
-          )}
-
-          <span className="text-ui-xs tabular-nums text-slate-500">
-            Page {Math.min(page, pages)} of {pages}
+      <div className="pager__btns">
+        {page > 1 ? (
+          <Link href={buildHref(path, params, { page: String(Math.min(page - 1, pages)) })} className="btn btn--line btn--sm" rel="prev">
+            Previous
+          </Link>
+        ) : (
+          <span className="btn btn--line btn--sm" aria-disabled="true">
+            Previous
           </span>
-
-          {page < pages ? (
-            <Link
-              href={buildHref(path, params, { page: String(page + 1) })}
-              className={cn(STEP, 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50')}
-              rel="next"
-            >
-              Next
-              <ChevronRight size={14} aria-hidden="true" />
-            </Link>
-          ) : (
-            <span aria-disabled="true" className={cn(STEP, 'cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300')}>
-              Next
-              <ChevronRight size={14} aria-hidden="true" />
-            </span>
-          )}
-        </div>
-      ) : null}
+        )}
+        <span>
+          Page {shown} of {pages}
+        </span>
+        {page < pages ? (
+          <Link href={buildHref(path, params, { page: String(page + 1) })} className="btn btn--line btn--sm" rel="next">
+            Next
+          </Link>
+        ) : (
+          <span className="btn btn--line btn--sm" aria-disabled="true">
+            Next
+          </span>
+        )}
+      </div>
     </nav>
   )
 }

@@ -1,6 +1,5 @@
 'use client'
 
-import { ExternalLink, Filter, Pencil, ShieldCheck } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
@@ -12,25 +11,23 @@ import { cn } from '@/lib/utils'
 
 import { AdminSearch } from './AdminSearch'
 import { buildHref, flattenParams } from './list-params'
+import { ACT, CARD, EmptyCard, Ico, type IcoName, Pill, SNAME, SSUB, Select, TOOLS, TOOLS_ROW, rise } from './network-kit'
 
-const STATUS_CHIP: Record<string, string> = {
-  approved: 'border-emerald-300 bg-emerald-50 text-emerald-700',
-  rejected: 'border-red-200 bg-red-50 text-red-700',
+/** Each service type's colour (.sgroup --accent) and the icon its rows carry. */
+const CATEGORY_STYLE: Record<string, { accent: string; icon: IcoName }> = {
+  dealership: { accent: '#4C8DFF', icon: 'building' },
+  'home-charger-installer': { accent: '#FFB020', icon: 'plug' },
+  'roadside-assistance': { accent: '#FF5A1F', icon: 'alert' },
+  'service-center': { accent: '#35D07F', icon: 'wrench' },
 }
 
-const CATEGORY_ACCENT: Record<string, string> = {
-  dealership: 'from-blue-500 to-cyan-400',
-  'service-center': 'from-emerald-500 to-teal-400',
-  'home-charger-installer': 'from-amber-500 to-orange-400',
-  'roadside-assistance': 'from-rose-500 to-red-400',
-}
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
 
 /**
- * The decided services, one page at a time.
+ * The decided services, one page at a time, grouped by type.
  *
- * The filters used to run over the whole directory in the browser. They now
- * write to the URL and the server reads one filtered page, so the selects
- * below only navigate.
+ * The filters write to the URL and the server reads one filtered page, so the
+ * selects below only navigate.
  */
 export function AdminServicesDirectory({
   services,
@@ -54,11 +51,9 @@ export function AdminServicesDirectory({
   const go = (patch: Record<string, string>) =>
     router.push(buildHref(pathname, flattenParams(Object.fromEntries(searchParams.entries())), patch), { scroll: false })
 
-  const filtered = services
-
   const grouped = React.useMemo(() => {
     const groups = new Map<string, AdminServiceListRow[]>()
-    for (const service of filtered) {
+    for (const service of services) {
       const group = groups.get(service.category)
       if (group) group.push(service)
       else groups.set(service.category, [service])
@@ -68,109 +63,133 @@ export function AdminServicesDirectory({
       const secondLabel = SERVICE_CATEGORY_META[second as keyof typeof SERVICE_CATEGORY_META]?.label ?? second
       return firstLabel.localeCompare(secondLabel)
     })
-  }, [filtered])
+  }, [services])
 
   return (
     <div>
-      <div className="mb-8 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_24px_-20px_rgba(11,12,14,0.35)]">
-        <div className="flex flex-wrap items-center gap-2.5 p-1.5">
-          <span className="mr-1 inline-flex items-center gap-2 px-2 text-ui-sm font-bold text-slate-800">
-            <Filter size={18} aria-hidden="true" className="text-plug-cyan-700" />
+      <div {...rise(1)} className={TOOLS}>
+        <div className={TOOLS_ROW}>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-ink max-[640px]:hidden [&_svg]:h-[18px] [&_svg]:w-[18px]">
+            <Ico name="filter" />
             Browse directory
           </span>
-          <select
+          <Select
             value={category}
             onChange={(event) => go({ category: event.target.value })}
             aria-label="Filter by service type"
-            className="h-10 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 hover:bg-white focus-visible:border-plug-blue-500 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-plug-blue-500/30"
+            wrapClassName="max-[640px]:w-full"
           >
             <option value="all">All service types</option>
             {Object.entries(SERVICE_CATEGORY_META).map(([key, meta]) => (
-              <option key={key} value={key}>{meta.label}</option>
+              <option key={key} value={key}>
+                {meta.label}
+              </option>
             ))}
-          </select>
-          <select
+          </Select>
+          <Select
             value={city}
             onChange={(event) => go({ city: event.target.value })}
             aria-label="Filter by city"
-            className="h-10 cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-ui-sm font-semibold text-slate-700 outline-none transition-colors hover:border-slate-300 hover:bg-white focus-visible:border-plug-blue-500 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-plug-blue-500/30"
+            wrapClassName="max-[640px]:w-full"
           >
             <option value="all">All cities</option>
-            {cities.map((option) => <option key={option} value={option}>{option}</option>)}
-          </select>
+            {cities.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </Select>
           <AdminSearch placeholder="Search name, slug, city or contact" label="Search the services directory" />
-          <span className="rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-500">
-            <strong className="text-slate-900">{total}</strong> service{total === 1 ? '' : 's'} match
+          <span
+            aria-live="polite"
+            className="inline-flex h-[34px] items-center gap-1.5 whitespace-nowrap rounded-full border border-ink/[.09] bg-white px-3 text-[13px] text-muted"
+          >
+            <b className="font-semibold text-ink">{total}</b> {total === 1 ? 'service matches' : 'services match'}
           </span>
         </div>
       </div>
 
       {grouped.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center text-ui-sm text-slate-500">
-          No services match these filters.
-        </div>
+        <EmptyCard title="No service matches." text="Try another search, or clear the filters." />
       ) : (
-        <div className="flex flex-col gap-8">
-          {grouped.map(([categoryKey, rows]) => {
+        <div className="grid content-start gap-3.5">
+          {grouped.map(([categoryKey, rows], index) => {
             const label = SERVICE_CATEGORY_META[categoryKey as keyof typeof SERVICE_CATEGORY_META]?.label ?? categoryKey
+            const style = CATEGORY_STYLE[categoryKey] ?? { accent: '#A3A7AE', icon: 'wrench' as IcoName }
             return (
-              <section key={categoryKey} className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_10px_30px_-26px_rgba(11,12,14,0.55)]">
-                <div className="flex items-center justify-between border-b border-slate-200/80 bg-gradient-to-r from-slate-50 to-white px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <span className={`h-8 w-1 rounded-full bg-gradient-to-b ${CATEGORY_ACCENT[categoryKey] ?? 'from-plug-blue-500 to-cyan-400'}`} aria-hidden="true" />
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Service type</p>
-                      <h2 className="mt-0.5 text-lg font-black tracking-tight text-slate-900">{label}</h2>
-                    </div>
+              <section key={categoryKey} {...rise(index + 2)} aria-label={label} className={cn(CARD, 'overflow-hidden')}>
+                <header
+                  className="flex items-center justify-between gap-3 border-b border-l-4 border-b-ink/[.09] bg-paper px-6 py-[18px] max-[760px]:px-4"
+                  style={{ borderLeftColor: style.accent }}
+                >
+                  <div>
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Service type</span>
+                    <h2 className="m-0 mt-1 font-display text-2xl font-normal leading-[1.1] text-ink">{label}</h2>
                   </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 font-mono text-ui-xs font-semibold text-slate-500 ring-1 ring-slate-200">
-                    {rows.length} service{rows.length === 1 ? '' : 's'}
+                  <span className="inline-flex h-[34px] items-center whitespace-nowrap rounded-full border border-ink/[.09] bg-white px-3 font-mono text-[13px] text-muted">
+                    {plural(rows.length, 'service')}
                   </span>
-                </div>
-                <div className="relative overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/50 text-ui-xs uppercase tracking-wider text-slate-400">
-                        <th className="px-5 py-3 font-semibold">Business</th>
-                        <th className="px-5 py-3 font-semibold">City</th>
-                        <th className="px-5 py-3 font-semibold">Status</th>
-                        <th className="px-5 py-3 text-right font-semibold">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((row) => (
-                        <tr key={row.id} className="border-b border-slate-50 transition-colors last:border-0 hover:bg-slate-50/60">
-                          <td className="px-5 py-4">
-                            <p className="flex items-center gap-1.5 font-semibold text-slate-900">
-                              {row.name}
-                              {row.isVerified ? <ShieldCheck size={14} className="text-plug-blue-600" aria-label="Verified" /> : null}
-                            </p>
-                            <p className="mt-0.5 font-mono text-ui-xs text-slate-400">{row.slug}</p>
-                          </td>
-                          <td className="px-5 py-4 text-ui-sm text-slate-600">{row.city}</td>
-                          <td className="px-5 py-4">
-                            <span className={cn('inline-flex rounded-full border px-2.5 py-0.5 text-ui-xs font-semibold capitalize', STATUS_CHIP[row.status] ?? STATUS_CHIP.rejected)}>
-                              {row.status}
+                </header>
+                <ul className="m-0 list-none p-0">
+                  {rows.map((row) => (
+                    <li
+                      key={row.id}
+                      className="grid grid-cols-[64px_minmax(0,1fr)_140px_110px_auto] items-center gap-4 border-t border-ink/[.09] px-6 py-3.5 transition-colors duration-200 first:border-t-0 hover:bg-paper max-[760px]:grid-cols-[56px_minmax(0,1fr)_auto] max-[760px]:px-4"
+                    >
+                      {/* The row's type, where the design shows a photo: the list
+                          query carries no cover image, and a stock one would be
+                          a picture of somebody else's business. */}
+                      <span
+                        aria-hidden="true"
+                        className="grid h-11 w-16 place-items-center rounded-[10px] max-[760px]:w-14 [&_svg]:h-5 [&_svg]:w-5"
+                        style={{ backgroundColor: `${style.accent}1f`, color: style.accent }}
+                      >
+                        <Ico name={style.icon} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className={cn(SNAME, 'whitespace-normal')}>
+                          {row.name}
+                          {row.isVerified ? (
+                            <span title="Verified" className="inline-grid text-[#12804a]">
+                              <Ico name="shield" label="Verified" className="h-[17px] w-[17px]" />
                             </span>
-                          </td>
-                          <td className="px-5 py-4">
-                            <div className="flex items-center justify-end gap-1">
-                              {row.status === 'approved' ? (
-                                <Link href={`/services/${row.category}/${row.slug}`} target="_blank" rel="noopener noreferrer" aria-label={`View ${row.name} on the live site`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-400 transition-colors hover:border-slate-200 hover:bg-white hover:text-slate-700">
-                                  <ExternalLink size={15} />
-                                </Link>
-                              ) : null}
-                              <Link href={`/admin/services/${row.id}`} aria-label={`Edit ${row.name}`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-400 transition-colors hover:border-plug-blue-100 hover:bg-plug-blue-50 hover:text-plug-blue-600">
-                                <Pencil size={15} />
-                              </Link>
-                              <DeleteButton label={row.name} action={() => onDelete(row.id)} />
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          ) : null}
+                        </div>
+                        <div className={SSUB}>{row.slug}</div>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 text-sm text-muted max-[760px]:col-start-2 [&_svg]:h-[15px] [&_svg]:w-[15px]">
+                        <Ico name="pinl" />
+                        {row.city}
+                      </span>
+                      <span className="max-[760px]:col-start-2">
+                        {row.status === 'approved' ? (
+                          <Pill tone="ok">Approved</Pill>
+                        ) : row.status === 'rejected' ? (
+                          <Pill tone="bad">Rejected</Pill>
+                        ) : (
+                          <Pill tone="warn">Pending</Pill>
+                        )}
+                      </span>
+                      <div className="flex min-w-[116px] items-start justify-end gap-1 max-[760px]:col-start-3 max-[760px]:row-start-1">
+                        {row.status === 'approved' ? (
+                          <Link
+                            href={`/services/${row.category}/${row.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View ${row.name} on the live site`}
+                            className={ACT}
+                          >
+                            <Ico name="ext" />
+                          </Link>
+                        ) : null}
+                        <Link href={`/admin/services/${row.id}`} aria-label={`Edit ${row.name}`} className={ACT}>
+                          <Ico name="pen" />
+                        </Link>
+                        <DeleteButton label={row.name} action={() => onDelete(row.id)} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </section>
             )
           })}

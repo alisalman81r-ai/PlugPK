@@ -65,7 +65,7 @@ export function BottomTabBar() {
     }
   }, [pathname, signedIn])
 
-  // The dashboard ships its own mobile tab bar; two fixed bars would stack.
+  // The account pages have none: their stacked side nav reaches every section (as in the design).
   if (pathname === '/dashboard' || pathname.startsWith('/dashboard/')) return null
 
   const onAuthPage = pathname === '/login' || pathname === '/signup'

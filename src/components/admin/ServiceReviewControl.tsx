@@ -1,7 +1,7 @@
 // src/components/admin/ServiceReviewControl.tsx
 'use client'
 
-import { AlertTriangle, Check, Loader2, X } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { isInPakistan } from '@/lib/validate'
 
 import { useAdminToast } from './AdminToast'
+import { Ico, NOTE_BOX, NOTE_TEXTAREA, btnClass } from './network-kit'
 import { runAction } from './run-action'
 
 const NOTE_MAX = 500
@@ -72,24 +73,16 @@ export function ServiceReviewControl({
 
   return (
     <span className="flex flex-col items-end gap-1.5">
-      <span className="flex items-center justify-end gap-1.5">
+      <span className="flex flex-wrap items-center justify-end gap-2">
         <button
           type="button"
           disabled={pending || !placeable}
           onClick={() => review('approved')}
           aria-label={`Approve ${name}`}
           title={placeable ? undefined : 'Fix the coordinates before approving'}
-          className={cn(
-            'inline-flex h-9 items-center gap-1.5 rounded-lg bg-plug-blue-600 px-3 text-ui-sm font-semibold text-white',
-            'transition-colors hover:bg-plug-blue-700 disabled:cursor-not-allowed disabled:opacity-50',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-          )}
+          className={btnClass('ink', 'sm')}
         >
-          {pending && !rejecting ? (
-            <Loader2 size={14} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Check size={14} aria-hidden="true" />
-          )}
+          {pending && !rejecting ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="okc" />}
           Approve
         </button>
 
@@ -99,26 +92,20 @@ export function ServiceReviewControl({
           onClick={() => setRejecting((value) => !value)}
           aria-expanded={rejecting}
           aria-label={`Reject ${name}`}
-          className={cn(
-            'inline-flex h-9 items-center gap-1.5 rounded-lg border-[1.5px] px-3 text-ui-sm font-semibold',
-            rejecting ? 'border-red-300 bg-red-50 text-red-700' : 'border-slate-300 text-slate-700',
-            'transition-colors hover:border-red-300 hover:bg-red-50 hover:text-red-700',
-            'disabled:cursor-not-allowed disabled:opacity-60',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2',
-          )}
+          className={cn(btnClass('line', 'sm'), 'hover:border-[#e2a48c] hover:text-[#b23b0d]', rejecting && 'border-[#e2a48c] text-[#b23b0d]')}
         >
-          <X size={14} aria-hidden="true" />
+          <Ico name="x" />
           Reject
         </button>
       </span>
 
       {!placeable ? (
-        <span className="inline-flex max-w-xs items-start gap-1.5 text-right text-ui-xs text-amber-800">
-          <AlertTriangle size={13} className="mt-px shrink-0" aria-hidden="true" />
+        <span className="inline-flex max-w-xs items-start gap-1.5 text-right text-xs leading-snug text-[#8a5a00] [&_svg]:h-[14px] [&_svg]:w-[14px]">
+          <Ico name="alert" className="mt-px" />
           <span>
             {lat === 0 && lng === 0 ? 'No coordinates' : 'Coordinates are outside Pakistan'} — it would not appear in
             the right place.{' '}
-            <Link href={`/admin/services/${id}`} className="font-semibold underline">
+            <Link href={`/admin/services/${id}`} className="font-semibold text-[#8a5a00] underline">
               Fix the location
             </Link>{' '}
             to approve.
@@ -132,10 +119,10 @@ export function ServiceReviewControl({
             event.preventDefault()
             review('rejected')
           }}
-          className="w-72 max-w-full rounded-lg border border-red-200 bg-red-50/60 p-3"
+          className={cn(NOTE_BOX, 'w-80')}
         >
-          <label htmlFor={`reject-${id}`} className="block text-ui-xs font-semibold text-red-900">
-            Reason <span className="font-normal text-red-900/60">(stored with the application)</span>
+          <label htmlFor={`reject-${id}`} className="block text-[13px] font-medium text-ink">
+            Reason <span className="font-normal text-muted">(stored with the application)</span>
           </label>
           <textarea
             id={`reject-${id}`}
@@ -144,29 +131,25 @@ export function ServiceReviewControl({
             rows={2}
             maxLength={NOTE_MAX}
             autoFocus
-            className="mt-1.5 w-full resize-y rounded-md border border-red-200 bg-white p-2 text-ui-sm text-slate-900 outline-none focus-visible:border-red-400"
+            className={NOTE_TEXTAREA}
           />
-          <div className="mt-2 flex justify-end gap-1.5">
-            <button
-              type="button"
-              onClick={() => setRejecting(false)}
-              className="h-8 rounded-md px-2.5 text-ui-xs font-medium text-slate-600 hover:bg-white"
-            >
+          <div className="mt-2.5 flex justify-end gap-1.5">
+            <button type="button" onClick={() => setRejecting(false)} className={btnClass('line', 'sm')}>
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={pending}
-              className="inline-flex h-8 items-center gap-1 rounded-md bg-red-600 px-3 text-ui-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-            >
-              {pending ? <Loader2 size={13} className="animate-spin" aria-hidden="true" /> : null}
+            <button type="submit" disabled={pending} className={btnClass('danger', 'sm')}>
+              {pending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
               Reject application
             </button>
           </div>
         </form>
       ) : null}
 
-      {error ? <span role="alert" className="text-ui-xs text-red-600">{error}</span> : null}
+      {error ? (
+        <span role="alert" className="text-xs text-[#c2410c]">
+          {error}
+        </span>
+      ) : null}
     </span>
   )
 }

@@ -1,40 +1,31 @@
 // src/components/admin/AdminTopbar.tsx
 'use client'
 
-import { Bell, ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, Search, Settings, User } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
+import { AdmIcon } from './admin-icons'
+
 /**
- * Global chrome for the portal: where you are, and who you are.
+ * The design's `.top`: where you are, search, notifications and who you are.
  *
- * ── Three controls, and what each one is actually allowed to do ───────
+ * SEARCH hands the words to a list. Every admin list searches the database
+ * through its own ?q=, so the box sends the query to the section you are
+ * standing in, and the "Search in" menu under it lets you pick another. Ctrl K
+ * (Cmd K) focuses it, as in the design.
  *
- * SEARCH hands the words to a list. Every admin list now searches the
- * database through its own ?q= parameter, so this asks which list and sends
- * the query there — Members, Stations, Businesses and the rest each search
- * the columns that make sense for them. There is still no single index across
- * every table, and the panel does not pretend there is: it says which section
- * it will search.
+ * NOTIFICATIONS has no backend, so the bell carries no count and its panel says
+ * so, pointing at the dashboard's alerts, which are real.
  *
- * NOTIFICATIONS has no backend either, and the temptation here is a red "3".
- * There is no notification table, nothing writes one, and a hardcoded count is
- * a lie that never resolves — the badge would still read 3 after everything was
- * dealt with. So the bell carries no count and its panel says nothing is wired,
- * pointing at the alerts panel on the dashboard, which is real and derived from
- * station and connector rows.
- *
- * PROFILE is real. The account comes from /api/me, the same endpoint the public
- * navbar uses, and sign-out posts to the existing /api/admin/signout. There is
- * no admin profile or settings route in this application, so neither is in the
- * menu.
+ * PROFILE is real: the account comes from /api/me (read by AdminShell) and
+ * sign-out posts to /api/admin/signout.
  */
 
 /** The account, as /api/me reports it. */
-type AdminUser = { name: string; email: string; avatar?: string | null }
+export type AdminUser = { name: string; email: string; avatar?: string | null }
 
 /** The lists that accept ?q=, in the order an operator most often wants them. */
 const DESTINATIONS = [
@@ -47,52 +38,93 @@ const DESTINATIONS = [
   { label: 'Meetings', href: '/admin/meetings' },
   { label: 'Community', href: '/admin/community' },
   { label: 'Reviews', href: '/admin/reviews' },
+  { label: 'Activity', href: '/admin/activity' },
 ]
 
-/** The section you are in is the one you most likely mean to search. */
 function defaultSection(pathname: string): string {
   return DESTINATIONS.find((item) => pathname.startsWith(item.href))?.href ?? '/admin/members'
 }
 
-/**
- * The page name, from the URL.
- *
- * Derived rather than passed down, so a new admin route gets a correct title
- * without anyone remembering to register it here.
- */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const SEGMENT_LABEL: Record<string, string> = { settings: 'Account settings', new: 'New' }
 
-/** Segments whose page title is not their URL word. */
-const SEGMENT_LABEL: Record<string, string> = { app: 'Mobile app', releases: 'App updates', settings: 'Account settings' }
-
+/**
+ * "Admin / Stations / Details", from the URL, so a new route gets a correct
+ * trail without being registered. The mobile app's two pages sit under
+ * "Mobile app", as in the design.
+ */
 function useCrumbs() {
   const pathname = usePathname()
   return React.useMemo(() => {
     const parts = pathname.split('/').filter(Boolean).slice(1)
-    if (parts.length === 0) return [{ label: 'Dashboard', href: '/admin' }]
-
-    return parts.map((part, index) => ({
-      // Ids and slugs read better with their hyphens opened out. A UUID does
-      // not: opened out it was 36 characters of nothing, wider than a phone.
-      label:
-        SEGMENT_LABEL[part] ??
-        (UUID.test(part) ? 'Details' : part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase())),
-      href: `/admin/${parts.slice(0, index + 1).join('/')}`,
-    }))
+    if (parts[0] === 'app') {
+      const root = { label: 'Mobile app', href: '/admin/app' }
+      return parts[1] === 'releases'
+        ? [root, { label: 'App updates', href: '/admin/app/releases' }]
+        : [root, { label: 'App activity', href: '/admin/app' }]
+    }
+    const root = { label: 'Admin', href: '/admin' }
+    if (parts.length === 0) return [root, { label: 'Dashboard', href: '/admin' }]
+    return [
+      root,
+      ...parts.map((part, index) => ({
+        label:
+          SEGMENT_LABEL[part] ??
+          (UUID.test(part) ? 'Details' : part.replace(/-/g, ' ').replace(/^\w/, (c) => c.toUpperCase())),
+        href: `/admin/${parts.slice(0, index + 1).join('/')}`,
+      })),
+    ]
   }, [pathname])
 }
 
-/** Closes a popover on outside pointer and on Escape. */
-function useDismiss(open: boolean, close: () => void) {
-  const ref = React.useRef<HTMLDivElement>(null)
+type Panel = 'scope' | 'bell' | 'profile' | null
 
+export interface AdminTopbarProps {
+  collapsed: boolean
+  onToggleCollapse: () => void
+  /** Opens the mobile drawer. */
+  onOpenMenu?: () => void
+  menuOpen?: boolean
+  /** Everything waiting across the queues, carried on the mobile menu button. */
+  waiting?: number
+  user?: AdminUser | null
+}
+
+export function AdminTopbar({
+  collapsed,
+  onToggleCollapse,
+  onOpenMenu,
+  menuOpen = false,
+  waiting = 0,
+  user = null,
+}: AdminTopbarProps) {
+  const crumbs = useCrumbs()
+  const router = useRouter()
+  const pathname = usePathname()
+  const rootRef = React.useRef<HTMLElement>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null)
+
+  const [panel, setPanel] = React.useState<Panel>(null)
+  const [searching, setSearching] = React.useState(false)
+  const [query, setQuery] = React.useState('')
+  const [section, setSection] = React.useState('/admin/members')
+
+  React.useEffect(() => setSection(defaultSection(pathname)), [pathname])
+
+  // Outside pointer and Escape close whatever is open.
   React.useEffect(() => {
-    if (!open) return
+    if (!panel && !searching) return
     const onPointer = (event: PointerEvent) => {
-      if (!ref.current?.contains(event.target as Node)) close()
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setPanel(null)
+        setSearching(false)
+      }
     }
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') close()
+      if (event.key === 'Escape') {
+        setPanel(null)
+        setSearching(false)
+      }
     }
     document.addEventListener('pointerdown', onPointer)
     document.addEventListener('keydown', onKey)
@@ -100,258 +132,204 @@ function useDismiss(open: boolean, close: () => void) {
       document.removeEventListener('pointerdown', onPointer)
       document.removeEventListener('keydown', onKey)
     }
-  }, [open, close])
+  }, [panel, searching])
 
-  return ref
-}
-
-const POPOVER =
-  'absolute right-0 z-40 mt-1.5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_12px_32px_-12px_rgba(11,12,14,0.22)]'
-
-export interface AdminTopbarProps {
-  collapsed: boolean
-  onToggleCollapse: () => void
-}
-
-export function AdminTopbar({ collapsed, onToggleCollapse }: AdminTopbarProps) {
-  const crumbs = useCrumbs()
-  const router = useRouter()
-  const pathname = usePathname()
-
-  const [openPanel, setOpenPanel] = React.useState<'search' | 'bell' | 'profile' | null>(null)
-  const close = React.useCallback(() => setOpenPanel(null), [])
-  const shell = useDismiss(openPanel !== null, close)
-
-  const [query, setQuery] = React.useState('')
-  const [section, setSection] = React.useState('/admin/members')
-
-  // Opening the panel picks the section you are standing in.
+  // Ctrl K / Cmd K focuses the search, as in the design.
   React.useEffect(() => {
-    if (openPanel === 'search') setSection(defaultSection(pathname))
-  }, [openPanel, pathname])
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearching(true)
+        inputRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const search = (event: React.FormEvent) => {
     event.preventDefault()
     const words = query.trim().slice(0, 100)
     router.push(words ? `${section}?q=${encodeURIComponent(words)}` : section)
     setQuery('')
-    close()
+    setPanel(null)
+    setSearching(false)
+    inputRef.current?.blur()
   }
-  const [user, setUser] = React.useState<AdminUser | null>(null)
 
-  React.useEffect(() => {
-    const abort = new AbortController()
-    fetch('/api/me', { signal: abort.signal, cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : { user: null }))
-      .then((data) => setUser(data.user ?? null))
-      .catch(() => {})
-    return () => abort.abort()
-  }, [])
+  const toggle = (next: Exclude<Panel, null>) => setPanel((value) => (value === next ? null : next))
+  const name = user?.name ?? 'Admin'
+  const initial = name.slice(0, 1).toUpperCase()
+  const sectionLabel = DESTINATIONS.find((d) => d.href === section)?.label ?? 'Members'
 
   return (
-    <div
-      ref={shell}
-      className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur-sm sm:px-6"
-    >
-      {/* Collapse lives here rather than in the sidebar so it keeps its place
-          when the sidebar is only icons wide. Hidden below lg, where the
-          sidebar is a drawer and has nothing to collapse. */}
+    <header ref={rootRef} className={cn('top', searching && 'is-searching')}>
       <button
+        className="top__menu"
+        type="button"
+        onClick={onOpenMenu}
+        aria-label={waiting > 0 ? `Open menu, ${waiting} awaiting review` : 'Open menu'}
+        aria-expanded={menuOpen}
+        aria-controls="admin-nav"
+      >
+        <AdmIcon name="menu" />
+        {waiting > 0 ? (
+          <span className="top__count" aria-hidden="true">
+            {waiting > 99 ? '99+' : waiting}
+          </span>
+        ) : null}
+      </button>
+
+      <button
+        className="ibtn top__collapse"
         type="button"
         onClick={onToggleCollapse}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className="hidden shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 lg:block"
       >
-        {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+        <AdmIcon name="sidebar" />
       </button>
 
-      {/* ── Breadcrumb ─────────────────────────────────────────────── */}
-      <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
-        <ol className="flex items-center gap-1.5 truncate">
-          {crumbs.map((crumb, index) => {
-            const last = index === crumbs.length - 1
-            return (
-              <li
-                key={crumb.href}
-                // The current page may shrink and truncate; the trail before it
-                // keeps its width.
-                className={cn('flex items-center gap-1.5', last ? 'min-w-0' : 'shrink-0')}
-              >
-                {index > 0 ? (
-                  <span aria-hidden="true" className="text-slate-300">
-                    /
-                  </span>
-                ) : null}
-                {last ? (
-                  <span aria-current="page" className="truncate text-ui-sm font-semibold text-slate-900">
-                    {crumb.label}
-                  </span>
-                ) : (
-                  <Link
-                    href={crumb.href}
-                    className="text-ui-sm text-slate-500 transition-colors hover:text-plug-blue-600"
-                  >
-                    {crumb.label}
-                  </Link>
-                )}
-              </li>
-            )
-          })}
-        </ol>
+      <nav className="crumb" aria-label="Breadcrumb">
+        {crumbs.map((crumb, index) => {
+          const last = index === crumbs.length - 1
+          return (
+            <React.Fragment key={`${crumb.href}-${index}`}>
+              {index > 0 ? <span aria-hidden="true">/</span> : null}
+              {last ? (
+                <b aria-current="page">{crumb.label}</b>
+              ) : (
+                <Link href={crumb.href}>{crumb.label}</Link>
+              )}
+            </React.Fragment>
+          )
+        })}
       </nav>
 
-      {/* ── Search ─────────────────────────────────────────────────── */}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setOpenPanel(openPanel === 'search' ? null : 'search')}
-          aria-expanded={openPanel === 'search'}
-          aria-haspopup="dialog"
-          className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 text-slate-400 transition-colors hover:border-slate-300 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 sm:w-56 sm:justify-start"
-        >
-          <Search size={15} aria-hidden="true" />
-          <span className="hidden text-ui-sm sm:inline">Search…</span>
-        </button>
-
-        {openPanel === 'search' ? (
-          <form
-            onSubmit={search}
-            role="search"
-            aria-label="Search the portal"
-            className={cn(POPOVER, 'w-[min(20rem,calc(100vw-2rem))] p-3')}
+      {/* ── Search ───────────────────────────────────────────────────── */}
+      <form
+        className={cn('menu top__find', panel === 'scope' && 'is-open')}
+        role="search"
+        aria-label="Search the portal"
+        onSubmit={search}
+      >
+        <label className="top__search">
+          <AdmIcon name="search" />
+          <span className="sr">Search {sectionLabel}</span>
+          <input
+            ref={inputRef}
+            id="gsearch"
+            type="search"
+            value={query}
+            maxLength={100}
+            onChange={(event) => setQuery(event.target.value)}
+            onFocus={() => setPanel('scope')}
+            placeholder="Search stations, members, posts"
+            autoComplete="off"
+          />
+          <kbd>Ctrl K</kbd>
+        </label>
+        <div className="menu__list top__scope">
+          <label htmlFor="admin-search-section" className="top__scope-lab">
+            Search in
+          </label>
+          <select
+            id="admin-search-section"
+            value={section}
+            onChange={(event) => setSection(event.target.value)}
+            className="top__scope-sel"
           >
-            <label htmlFor="admin-search-section" className="mb-1 block text-ui-xs font-semibold text-slate-500">
-              Search in
-            </label>
-            <select
-              id="admin-search-section"
-              value={section}
-              onChange={(event) => setSection(event.target.value)}
-              className="mb-2 h-9 w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-ui-sm text-slate-700 outline-none focus:border-plug-blue-400"
-            >
-              {DESTINATIONS.map((item) => (
-                <option key={item.href} value={item.href}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Name, email, city…"
-                aria-label="Search for"
-                maxLength={100}
-                className="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 px-2.5 text-ui-sm outline-none focus:border-plug-blue-400"
-              />
-              <button
-                type="submit"
-                className="h-9 shrink-0 rounded-lg bg-plug-blue-600 px-3 text-ui-sm font-semibold text-white hover:bg-plug-blue-700"
-              >
-                Go
-              </button>
-            </div>
-          </form>
-        ) : null}
-      </div>
+            {DESTINATIONS.map((item) => (
+              <option key={item.href} value={item.href}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+          <p className="top__scope-note">Press Enter to search {sectionLabel.toLowerCase()}.</p>
+        </div>
+      </form>
 
-      {/* ── Notifications ──────────────────────────────────────────── */}
-      <div className="relative shrink-0">
+      <button
+        className="ibtn top__findbtn"
+        type="button"
+        aria-label="Search the portal"
+        aria-expanded={searching}
+        onClick={() => {
+          setSearching((value) => !value)
+          setPanel('scope')
+          requestAnimationFrame(() => inputRef.current?.focus())
+        }}
+      >
+        <AdmIcon name="search" />
+      </button>
+
+      {/* ── Notifications ────────────────────────────────────────────── */}
+      <div className={cn('menu', panel === 'bell' && 'is-open')}>
         <button
+          className="ibtn"
           type="button"
-          onClick={() => setOpenPanel(openPanel === 'bell' ? null : 'bell')}
-          aria-expanded={openPanel === 'bell'}
+          aria-label="Notifications, none new"
+          aria-expanded={panel === 'bell'}
           aria-haspopup="dialog"
-          aria-label="Notifications"
-          title="Notifications"
-          className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          onClick={() => toggle('bell')}
         >
-          <Bell size={17} aria-hidden="true" />
+          <AdmIcon name="bell" />
         </button>
-
-        {openPanel === 'bell' ? (
-          <div className={cn(POPOVER, 'w-64 p-4')} role="dialog" aria-label="Notifications">
-            <p className="text-ui-sm font-semibold text-slate-800">No new notifications</p>
-            <p className="mt-1 text-ui-xs leading-relaxed text-slate-500">
-              Nothing writes notifications yet. Live faults appear under Active alerts on the
-              dashboard.
-            </p>
-            <Link
-              href="/admin"
-              onClick={close}
-              className="mt-3 inline-block text-ui-xs font-semibold text-plug-blue-600 hover:text-plug-blue-700"
-            >
-              Open dashboard
-            </Link>
-          </div>
-        ) : null}
+        <div className="menu__list top__bell" role="dialog" aria-label="Notifications">
+          <b>No new notifications.</b>
+          <p>Nothing writes notifications yet. Live faults appear under Active alerts on the dashboard.</p>
+          <Link className="link" href="/admin" onClick={() => setPanel(null)}>
+            Open dashboard
+            <AdmIcon name="arrow" />
+          </Link>
+        </div>
       </div>
 
-      {/* ── Profile ────────────────────────────────────────────────── */}
-      <div className="relative shrink-0">
+      {/* ── Profile ──────────────────────────────────────────────────── */}
+      <div className={cn('menu pmenu', panel === 'profile' && 'is-open')}>
         <button
+          className="top__me"
           type="button"
-          onClick={() => setOpenPanel(openPanel === 'profile' ? null : 'profile')}
-          aria-expanded={openPanel === 'profile'}
-          aria-haspopup="menu"
-          className="flex items-center gap-1.5 rounded-lg p-1 pr-1.5 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+          aria-haspopup="true"
+          aria-expanded={panel === 'profile'}
+          onClick={() => toggle('profile')}
         >
-          {user ? (
-            <span
-              aria-hidden="true"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-plug-navy-900 text-ui-xs font-bold text-white"
-            >
-              {user.name.slice(0, 1).toUpperCase()}
-            </span>
-          ) : (
-            <User size={20} aria-hidden="true" className="text-slate-600" />
-          )}
-          <span className="hidden max-w-[8rem] truncate text-ui-sm font-medium text-slate-700 sm:inline">
-            {user?.name ?? 'Admin'}
+          <span className="av" aria-hidden="true">
+            {initial}
           </span>
-          <ChevronDown size={14} aria-hidden="true" className="text-slate-400" />
+          <span>{name.split(' ')[0]}</span>
+          <AdmIcon name="down" />
         </button>
-
-        {openPanel === 'profile' ? (
-          <div className={cn(POPOVER, 'w-56')} role="menu">
-            <div className="border-b border-slate-100 px-3 py-2.5">
-              <p className="truncate text-ui-sm font-semibold text-slate-900">
-                {user?.name ?? 'Admin'}
-              </p>
-              <p className="truncate text-ui-xs text-slate-500">
-                {/* Every operator signs in with their own account now; the
-                    address only goes missing while /api/me is loading. */}
-                {user?.email ?? ''}
-              </p>
+        <div className="menu__list" role="menu">
+          <div className="pmenu__me">
+            <span className="av" aria-hidden="true">
+              {initial}
+            </span>
+            <div>
+              <b>{name}</b>
+              <span>{user?.email ?? ''}</span>
             </div>
-
-            {/* The operator's own account, without leaving the portal. */}
-            <Link
-              href="/admin/settings"
-              role="menuitem"
-              onClick={() => setOpenPanel(null)}
-              className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-ui-sm text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              <Settings size={15} aria-hidden="true" className="text-slate-400" />
-              Account settings
+          </div>
+          <nav>
+            <Link href="/admin" role="menuitem" onClick={() => setPanel(null)}>
+              <AdmIcon name="grid" />
+              Admin dashboard
             </Link>
-
-            <form action="/api/admin/signout" method="post" className="border-t border-slate-100">
-              <button
-                type="submit"
-                role="menuitem"
-                className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-ui-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-red-600"
-              >
-                <LogOut size={15} aria-hidden="true" className="text-slate-400" />
+            <Link href="/admin/settings" role="menuitem" onClick={() => setPanel(null)}>
+              <AdmIcon name="gear" />
+              Settings
+            </Link>
+          </nav>
+          <nav>
+            <form action="/api/admin/signout" method="post">
+              <button type="submit" className="out" role="menuitem">
+                <AdmIcon name="out" />
                 Sign out
               </button>
             </form>
-          </div>
-        ) : null}
+          </nav>
+        </div>
       </div>
-    </div>
+    </header>
   )
 }

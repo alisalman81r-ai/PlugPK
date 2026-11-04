@@ -1,17 +1,34 @@
 // src/components/admin/StationTable.tsx
 'use client'
 
-import { AlertTriangle, ExternalLink, Pencil, SearchX, X } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 
-import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import type { Station } from '@/lib/types'
 import { cn, getMaxPower, getPortAvailability } from '@/lib/utils'
 
 import { AdminSearch } from './AdminSearch'
 import { buildHref, flattenParams } from './list-params'
+import {
+  ACT,
+  ChipLinks,
+  CON_TAG,
+  COUNT,
+  Empty,
+  Ico,
+  Kw,
+  PortBar,
+  SegLinks,
+  SNAME,
+  SSUB,
+  StatusPill,
+  T,
+  TOOLS,
+  TOOLS_ROW,
+  VTAG,
+  rise,
+} from './network-kit'
 import { STATUS_FILTERS, VENUE_FILTERS, type StatusFilter, type VenueFilter } from './station-filters'
 
 export interface StationTableProps {
@@ -37,336 +54,210 @@ function connectorTypes(station: Station): string[] {
   return [...new Set(station.connectors.map((connector) => connector.type))]
 }
 
-const CHIP =
-  'group/chip inline-flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 text-ui-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500'
+/** A venue slug as the chips name it, singular: "service-center" → "Service centre". */
+function venueLabel(venue: string): string {
+  const option = VENUE_FILTERS.find((item) => item.value === venue)
+  if (!option) return venue.replace(/-/g, ' ')
+  return option.label.replace(/s$/, '')
+}
 
 /**
- * Filtering now happens in the database: search, status and venue are URL
+ * Filtering happens in the database: search, status and venue are URL
  * parameters the stations page reads, and this table renders the page it was
- * given. The chips are links, and each carries its count across the whole
- * network so a tally never moves when an unrelated chip is pressed.
+ * given. The filters are links, and each carries its count across the whole
+ * network so a tally never moves when an unrelated filter is pressed.
+ *
+ * One table at every width: below 760px each row folds into a labelled card
+ * (see T in network-kit), so the edit and delete controls are never scrolled
+ * off-screen.
  */
 export function StationTable({ stations, total, counts, status, venue, onDelete }: StationTableProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const params = flattenParams(Object.fromEntries(searchParams.entries()))
   const q = params.q ?? ''
-
-  const filtered = stations
   const isFiltered = q.trim().length > 0 || status !== 'all' || venue !== 'all'
-
-  const chip = (on: boolean) => cn(CHIP, on ? 'bg-plug-navy-900 text-white' : 'text-slate-800 hover:bg-slate-100')
-  const tally = (on: boolean, n: number) =>
-    cn(
-      'rounded px-1 text-[11px] tabular-nums',
-      on ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover/chip:bg-slate-200',
-      !on && n === 0 && 'bg-slate-100/70 text-slate-400',
-    )
+  const unset = counts.venue.other ?? 0
 
   return (
     <div>
-      <div className="mb-4 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_1px_2px_rgba(11,12,14,0.04)]">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+      <div {...rise(1)} className={TOOLS}>
+        <div className={TOOLS_ROW}>
           <AdminSearch placeholder="Search name, city, area, network or connector" label="Search stations" />
-
-          <div role="group" aria-label="Filter by status" className="flex min-w-0 flex-wrap items-center gap-1">
-            {STATUS_FILTERS.map((option) => {
-              const n = option.value === 'all' ? counts.all : (counts.status[option.value] ?? 0)
-              const on = status === option.value
-              return (
-                <Link
-                  key={option.value}
-                  href={buildHref(pathname, params, { status: option.value })}
-                  scroll={false}
-                  aria-current={on ? 'true' : undefined}
-                  className={chip(on)}
-                >
-                  {option.label}
-                  <span className={tally(on, n)}>{n}</span>
-                </Link>
-              )
-            })}
-          </div>
+          <SegLinks
+            label="Filter by status"
+            current={status}
+            options={STATUS_FILTERS.map((option) => ({
+              value: option.value,
+              label: option.label,
+              count: option.value === 'all' ? counts.all : (counts.status[option.value] ?? 0),
+              href: buildHref(pathname, params, { status: option.value, page: undefined }),
+            }))}
+          />
         </div>
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 lg:flex-row lg:items-start">
-          <span className="inline-flex h-8 shrink-0 items-center text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-900">
-            Venue
-          </span>
-
-          <div role="group" aria-label="Filter by venue" className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-            {VENUE_FILTERS.map((option) => {
-              const n = option.value === 'all' ? counts.all : (counts.venue[option.value] ?? 0)
-              const on = venue === option.value
-              return (
-                <Link
-                  key={option.value}
-                  href={buildHref(pathname, params, { venue: option.value })}
-                  scroll={false}
-                  aria-current={on ? 'true' : undefined}
-                  className={chip(on)}
-                >
-                  {option.label}
-                  <span className={tally(on, n)}>{n}</span>
-                </Link>
-              )
-            })}
-          </div>
-
+        <ChipLinks
+          label="Filter by venue"
+          lab="Venue"
+          current={venue}
+          options={VENUE_FILTERS.map((option) => ({
+            value: option.value,
+            label: option.label,
+            count: option.value === 'all' ? counts.all : (counts.venue[option.value] ?? 0),
+            href: buildHref(pathname, params, { venue: option.value, page: undefined }),
+          }))}
+        >
           {/*
             Unset, pulled out and given weight: it is the work outstanding, not
             a venue. Amber because that is what the rest of this portal paints
             amber — not broken, waiting on somebody. It disappears at zero.
           */}
-          {(counts.venue.other ?? 0) > 0 ? (
+          {unset > 0 ? (
             <Link
-              href={buildHref(pathname, params, { venue: venue === 'other' ? 'all' : 'other' })}
+              href={buildHref(pathname, params, { venue: venue === 'other' ? 'all' : 'other', page: undefined })}
               scroll={false}
               aria-current={venue === 'other' ? 'true' : undefined}
               className={cn(
-                'inline-flex h-8 shrink-0 items-center gap-2 self-start whitespace-nowrap rounded-lg border px-2.5 text-ui-sm font-semibold transition-colors lg:self-auto',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500',
+                'inline-flex h-9 items-center gap-2 whitespace-nowrap rounded-full border px-3 text-[13px] font-medium no-underline transition-colors duration-200 [&_svg]:h-[15px] [&_svg]:w-[15px]',
                 venue === 'other'
-                  ? 'border-amber-500 bg-amber-500 text-white'
-                  : 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100',
+                  ? 'border-[#8a5a00] bg-[#8a5a00] text-white'
+                  : 'border-[rgba(255,176,32,.45)] bg-[rgba(255,176,32,.12)] text-[#8a5a00] hover:border-[#8a5a00]',
               )}
             >
-              <AlertTriangle size={13} aria-hidden="true" />
+              <Ico name="alert" />
               Venue not set
               <span
                 className={cn(
-                  'rounded px-1 text-[11px] tabular-nums',
-                  venue === 'other' ? 'bg-white/25 text-white' : 'bg-amber-200/70 text-amber-900',
+                  'min-w-[22px] rounded-md px-1.5 py-0.5 text-center font-mono text-[11px] font-semibold leading-[1.3]',
+                  venue === 'other' ? 'bg-volt text-ink' : 'bg-[rgba(255,176,32,.25)]',
                 )}
               >
-                {counts.venue.other}
+                {unset}
               </span>
             </Link>
           ) : null}
-        </div>
+        </ChipLinks>
       </div>
 
       {/* Result count and reset, announced so the change is not silent. */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <p aria-live="polite" className="text-ui-sm text-slate-600">
+      <div className="flex flex-wrap items-center gap-3">
+        <p aria-live="polite" className={COUNT}>
           {total} of {counts.all} station{counts.all === 1 ? '' : 's'}
         </p>
         {isFiltered ? (
           <Link
             href={pathname}
             scroll={false}
-            className="inline-flex h-7 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 text-ui-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
+            className="-mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink no-underline transition-colors hover:text-volt-ink [&_svg]:h-4 [&_svg]:w-4"
           >
-            <X size={12} aria-hidden="true" />
+            <Ico name="x" />
             Clear filters
           </Link>
         ) : null}
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-          <SearchX size={24} className="mx-auto mb-3 text-slate-400" aria-hidden="true" />
-          <p className="text-ui font-semibold text-slate-900">No stations match</p>
-          <p className="mt-1 text-ui-sm text-slate-500">
-            {stations.length === 0
-              ? 'Add a station to publish it to the map.'
-              : 'Try a different search or clear the status filter.'}
-          </p>
-        </div>
-      ) : (
-        <>
-          {/*
-            Desktop table.
+      <div {...rise(2)} className={T.wrap}>
+        <table className={T.table}>
+          <thead className={T.thead}>
+            <tr>
+              <th scope="col" className={T.th}>Station</th>
+              <th scope="col" className={T.th}>Venue</th>
+              <th scope="col" className={T.th}>Status</th>
+              <th scope="col" className={T.th}>Connectors</th>
+              <th scope="col" className={T.th}>Ports free</th>
+              <th scope="col" className={T.th}>Peak</th>
+              <th scope="col" className={T.th}>
+                <span className="sr-only">Actions</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className={T.tbody}>
+            {stations.length === 0 ? (
+              <tr className={T.tr}>
+                <td colSpan={7} className={cn(T.td, T.full, 'max-[760px]:before:hidden')}>
+                  <Empty
+                    title={counts.all === 0 ? 'No stations yet.' : 'No station matches.'}
+                    text={counts.all === 0 ? 'Add a station to publish it to the map.' : 'Try another search, or clear the filters.'}
+                  />
+                </td>
+              </tr>
+            ) : (
+              stations.map((station) => {
+                const ports = getPortAvailability(station)
+                const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
+                const types = connectorTypes(station)
+                const consequence = `its ${station.connectors.length} connector${station.connectors.length === 1 ? '' : 's'}, its reviews and any member bookmarks`
 
-            overflow-x-auto, not overflow-hidden. Eight columns need 886px and
-            the content column is 710 at 1024, so `hidden` was silently cutting
-            off Peak and the edit and delete buttons with no way to reach them —
-            the row was there, the controls were not. Scrolling shows an edge;
-            clipping shows a lie.
-          */}
-          <div className="relative hidden overflow-x-auto rounded-xl border border-slate-200 bg-white lg:block">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-ui-xs uppercase tracking-wider text-slate-500">
-                  <th scope="col" className="px-5 py-3 font-semibold">Station</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">City</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Venue</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Status</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Connectors</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Ports</th>
-                  <th scope="col" className="px-5 py-3 font-semibold">Peak</th>
-                  <th scope="col" className="px-5 py-3 text-right font-semibold">
-                    <span className="sr-only">Actions</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((station) => {
-                  const ports = getPortAvailability(station)
-                  const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
-
-                  return (
-                    <tr
-                      key={station.id}
-                      className="border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/70"
-                    >
-                      <td className="px-5 py-3.5">
-                        <p className="font-medium text-slate-900">{station.name}</p>
-                        <p className="mt-0.5 font-mono text-ui-xs text-slate-500">{station.slug}</p>
-                      </td>
-                      <td className="px-5 py-3.5 text-ui-sm text-slate-700">
-                        {station.address.city}
-                      </td>
-                      <td className="px-5 py-3.5 text-ui-sm">
-                        {/* `Unset` rather than a blank cell or a guess: six real
-                            stations sit here, and the operator needs to see
-                            which ones still need a venue chosen. */}
-                        {station.venueType && station.venueType !== 'other' ? (
-                          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-ui-xs font-medium capitalize text-slate-700">
-                            {station.venueType.replace('-', ' ')}
-                          </span>
-                        ) : (
-                          <span className="text-ui-xs text-slate-400">Unset</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <AdminStatusBadge status={station.status} />
-                      </td>
-                      <td className="px-5 py-3.5">
-                        {station.connectors.length === 0 ? (
-                          <span className="text-ui-xs text-slate-400">None</span>
-                        ) : (
-                          <div className="flex flex-wrap items-center gap-1">
-                            {connectorTypes(station).map((type) => (
-                              <span
-                                key={type}
-                                className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-700"
-                              >
-                                {type}
-                              </span>
-                            ))}
-                            <span className="ml-0.5 text-ui-xs tabular-nums text-slate-400">
-                              ({station.connectors.length})
+                return (
+                  <tr key={station.id} className={cn(T.tr, 'group/row')}>
+                    <td data-label="Station" className={cn(T.td, T.lead)}>
+                      <Link
+                        href={`/station/${station.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="View on the live site"
+                        className={SNAME}
+                      >
+                        {station.name}
+                        <Ico
+                          name="ext"
+                          className="h-[15px] w-[15px] text-fog opacity-0 transition-[opacity,translate] duration-300 ease-out [translate:-4px_0] group-hover/row:[translate:0_0] group-hover/row:opacity-100"
+                        />
+                        <span className="sr-only"> (opens the live page)</span>
+                      </Link>
+                      <div className={SSUB}>
+                        <span className="font-sans text-[13px] font-medium text-muted">{station.address.city}</span> · {station.slug}
+                      </div>
+                    </td>
+                    <td data-label="Venue" className={T.td}>
+                      {/* `Unset` rather than a blank cell or a guess: the
+                          operator needs to see which ones still need a venue. */}
+                      {station.venueType && station.venueType !== 'other' ? (
+                        <span className={VTAG}>{venueLabel(station.venueType)}</span>
+                      ) : (
+                        <span className={cn(VTAG, 'bg-transparent px-0 text-fog')}>Unset</span>
+                      )}
+                    </td>
+                    <td data-label="Status" className={T.td}>
+                      <StatusPill status={station.status} />
+                    </td>
+                    <td data-label="Connectors" className={cn(T.td, T.full)}>
+                      {types.length === 0 ? (
+                        <span className="text-[13px] text-fog">None</span>
+                      ) : (
+                        <div className="flex flex-nowrap items-center gap-1.5 max-[760px]:flex-wrap">
+                          {types.map((type) => (
+                            <span key={type} className={CON_TAG}>
+                              {type.replace(/\s/g, '')}
                             </span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
-                        {ports.available}/{ports.total}
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-ui-sm tabular-nums text-slate-700">
-                        {maxPower > 0 ? `${maxPower} kW` : '—'}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center justify-end gap-1">
-                          <Link
-                            href={`/station/${station.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`View ${station.name} on the live site`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                          >
-                            <ExternalLink size={15} />
-                          </Link>
-                          <Link
-                            href={`/admin/stations/${station.id}`}
-                            aria-label={`Edit ${station.name}`}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-plug-blue-50 hover:text-plug-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                          >
-                            <Pencil size={15} />
-                          </Link>
-                          <DeleteButton
-                            label={station.name}
-                            consequence={`its ${station.connectors.length} connector${station.connectors.length === 1 ? '' : 's'}, its reviews and any member bookmarks`}
-                            action={async () => onDelete(station.id)}
-                          />
+                          ))}
+                          {station.connectors.length > types.length ? (
+                            <span className="font-mono text-xs text-fog">×{station.connectors.length}</span>
+                          ) : null}
                         </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards — six columns do not fit 320px, and a horizontal
-              scroll buries the actions off-screen. */}
-          <ul className="flex flex-col gap-3 lg:hidden">
-            {filtered.map((station) => {
-              const ports = getPortAvailability(station)
-              const maxPower = station.connectors.length > 0 ? getMaxPower(station) : 0
-
-              return (
-                <li key={station.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-slate-900">{station.name}</p>
-                      <p className="mt-0.5 text-ui-xs text-slate-500">{station.address.city}</p>
-                    </div>
-                    <AdminStatusBadge status={station.status} />
-                  </div>
-
-                  <dl className="mb-4 grid grid-cols-2 gap-3 border-y border-slate-100 py-3">
-                    <div>
-                      <dt className="text-ui-xs text-slate-500">Ports free</dt>
-                      <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
-                        {ports.available}/{ports.total}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-ui-xs text-slate-500">Peak power</dt>
-                      <dd className="mt-0.5 font-mono text-ui-sm tabular-nums text-slate-900">
-                        {maxPower > 0 ? `${maxPower} kW` : '—'}
-                      </dd>
-                    </div>
-                    <div className="col-span-2">
-                      <dt className="text-ui-xs text-slate-500">Connectors</dt>
-                      <dd className="mt-1 flex flex-wrap items-center gap-1">
-                        {station.connectors.length === 0 ? (
-                          <span className="text-ui-xs text-slate-400">None</span>
-                        ) : (
-                          connectorTypes(station).map((type) => (
-                            <span
-                              key={type}
-                              className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-700"
-                            >
-                              {type}
-                            </span>
-                          ))
-                        )}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={`/admin/stations/${station.id}`}
-                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-plug-navy-900 px-3 text-ui-sm font-semibold text-white transition-colors hover:bg-plug-navy-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
-                    >
-                      <Pencil size={14} aria-hidden="true" />
-                      Edit
-                    </Link>
-                    <Link
-                      href={`/station/${station.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`View ${station.name} on the live site`}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500"
-                    >
-                      <ExternalLink size={15} />
-                    </Link>
-                    <DeleteButton
-                      label={station.name}
-                      consequence={`its ${station.connectors.length} connector${station.connectors.length === 1 ? '' : 's'}, its reviews and any member bookmarks`}
-                      action={async () => onDelete(station.id)}
-                    />
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </>
-      )}
+                      )}
+                    </td>
+                    <td data-label="Ports free" className={T.td}>
+                      <PortBar free={ports.available} total={ports.total} />
+                    </td>
+                    <td data-label="Peak" className={T.td}>
+                      <Kw kw={maxPower} />
+                    </td>
+                    <td data-label="Actions" className={cn(T.td, T.acts)}>
+                      <div className="flex items-start justify-end gap-1">
+                        <Link href={`/admin/stations/${station.id}`} aria-label={`Edit ${station.name}`} className={ACT}>
+                          <Ico name="pen" />
+                        </Link>
+                        <DeleteButton label={station.name} consequence={consequence} action={async () => onDelete(station.id)} />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

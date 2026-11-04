@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { ConnectorForm } from '@/components/admin/ConnectorForm'
+import { StatusPill } from '@/components/admin/network-kit'
 import { saveConnector } from '@/lib/db/actions'
 import { getConnectorById, getStationOptions } from '@/lib/db/queries'
 
@@ -25,7 +26,13 @@ export default async function EditConnectorPage({ params }: { params: { id: stri
     <>
       <AdminHeader
         title={`${detail.connector.type} · ${detail.connector.maxPowerKw} kW`}
-        description={`At ${detail.stationName}.`}
+        backHref="/admin/connectors"
+        description={
+          <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-2">
+            At {detail.stationName}.
+            <StatusPill status={detail.connector.status} />
+          </span>
+        }
       />
       <ConnectorForm
         connector={detail.connector}

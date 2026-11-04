@@ -27,7 +27,7 @@ export default async function Page() {
 
   return (
     <DashboardLayout
-      title="My Reviews"
+      title="My reviews."
       subtitle={`${reviews.length} review${reviews.length === 1 ? '' : 's'} written`}
       user={shell.user}
       stats={shell.stats}

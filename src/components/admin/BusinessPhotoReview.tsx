@@ -1,10 +1,12 @@
 'use client'
 
-import { Check, ImageOff, Loader2 } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import * as React from 'react'
 
 import { reviewBusinessPhoto } from '@/lib/db/business-actions'
 import type { BusinessPhotoReportRow } from '@/lib/db/queries'
+
+import { CARD, Ico, btnClass, rise } from './network-kit'
 
 export function BusinessPhotoReview({ reports }: { reports: BusinessPhotoReportRow[] }) {
   const [pending, startTransition] = React.useTransition()
@@ -21,33 +23,48 @@ export function BusinessPhotoReview({ reports }: { reports: BusinessPhotoReportR
   }
 
   return (
-    <section className="mb-6 rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <ImageOff size={18} className="text-amber-700" aria-hidden="true" />
-        <h2 className="font-bold text-slate-900">Photo reports needing review</h2>
-      </div>
-      <div className="flex flex-col gap-3">
+    <section {...rise()} aria-labelledby="photo-reports" className={`${CARD} mb-[18px] overflow-hidden`}>
+      <header className="flex items-center justify-between gap-3 border-b border-l-4 border-b-ink/[.09] border-l-[#FFB020] bg-paper px-6 py-[18px] max-[640px]:px-4">
+        <div>
+          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Needs review</span>
+          <h2 id="photo-reports" className="m-0 mt-1 font-display text-2xl font-normal leading-[1.1] text-ink">
+            Photo reports
+          </h2>
+        </div>
+        <span className="inline-flex h-[34px] items-center whitespace-nowrap rounded-full border border-ink/[.09] bg-white px-3 font-mono text-[13px] text-muted">
+          {reports.length} report{reports.length === 1 ? '' : 's'}
+        </span>
+      </header>
+      <ul className="m-0 list-none p-0">
         {reports.map((report) => (
-          <article key={report.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-amber-200 bg-white p-3">
+          <li
+            key={report.id}
+            className="flex flex-wrap items-center gap-4 border-t border-ink/[.09] px-6 py-3.5 transition-colors duration-200 first:border-t-0 hover:bg-paper max-[640px]:px-4"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={report.photoUrl} alt="Reported charger" className="h-20 w-28 rounded-lg object-cover" />
+            <img src={report.photoUrl} alt="Reported charger" className="h-[60px] w-[88px] shrink-0 rounded-[10px] object-cover" />
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-slate-900">{report.businessName}</p>
-              <p className="mt-1 text-ui-sm text-slate-500">{report.reason}</p>
+              <p className="m-0 font-display text-lg leading-[1.2] text-ink">{report.businessName}</p>
+              <p className="mb-0 mt-1 text-sm text-muted">{report.reason}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <button type="button" disabled={pending} onClick={() => review(report, 'approved')} className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-ui-sm font-semibold text-white disabled:opacity-60">
-                {pending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" disabled={pending} onClick={() => review(report, 'approved')} className={btnClass('ink', 'sm')}>
+                {pending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="okc" />}
                 Keep photo
               </button>
-              <button type="button" disabled={pending} onClick={() => review(report, 'needs-better-photo')} className="inline-flex h-9 items-center rounded-lg border border-slate-300 px-3 text-ui-sm font-semibold text-slate-700 disabled:opacity-60">
+              <button type="button" disabled={pending} onClick={() => review(report, 'needs-better-photo')} className={btnClass('line', 'sm')}>
+                <Ico name="img" />
                 Request replacement
               </button>
             </div>
-          </article>
+          </li>
         ))}
-      </div>
-      {error ? <p role="alert" className="mt-3 text-ui-sm text-red-700">{error}</p> : null}
+      </ul>
+      {error ? (
+        <p role="alert" className="m-0 border-t border-ink/[.09] px-6 py-3 text-sm text-[#c2410c]">
+          {error}
+        </p>
+      ) : null}
     </section>
   )
 }

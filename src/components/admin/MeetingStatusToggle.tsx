@@ -1,13 +1,11 @@
 // src/components/admin/MeetingStatusToggle.tsx
 'use client'
 
-import { Check, Loader2, Undo2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
-
 import { useAdminToast } from './AdminToast'
+import { Ico, Spinner, k, s } from './people/kit'
 import { runAction } from './run-action'
 
 export interface MeetingStatusToggleProps {
@@ -41,31 +39,14 @@ export function MeetingStatusToggle({ isHandled, action }: MeetingStatusTogglePr
   }
 
   return (
-    <span className="inline-flex flex-col items-end gap-1">
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={isPending}
-        className={cn(
-          'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-ui-sm font-semibold transition-colors duration-150',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60',
-          isHandled
-            ? 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-visible:ring-slate-400'
-            : 'bg-emerald-600 text-white hover:bg-emerald-700 focus-visible:ring-emerald-500',
-        )}
-      >
-        {isPending ? (
-          <Loader2 size={14} className="shrink-0 animate-spin" aria-hidden="true" />
-        ) : isHandled ? (
-          <Undo2 size={14} className="shrink-0" aria-hidden="true" />
-        ) : (
-          <Check size={14} className="shrink-0" aria-hidden="true" />
-        )}
+    <span className={s.colend}>
+      <button type="button" onClick={toggle} disabled={isPending} className={k('btn', 'btn--sm', isHandled ? 'btn--line' : 'btn--ink')}>
+        {isPending ? <Spinner /> : <Ico n={isHandled ? 'undo' : 'okc'} />}
         {isHandled ? 'Reopen' : 'Mark handled'}
       </button>
 
       {error ? (
-        <span role="alert" className="text-ui-xs text-red-600">
+        <span role="alert" className={s.errline}>
           {error}
         </span>
       ) : null}

@@ -19,8 +19,9 @@
 
   .d05 { animation-delay: 0.05s; }
   /* #password, #devices */
-  .d16 { animation-delay: 0.16s; }
-  .d22 { animation-delay: 0.22s; }
+  /* Doubled so they outrank .panel:nth-of-type(1), as the design's ids do. */
+  .d16.d16.d16 { animation-delay: 0.16s; }
+  .d22.d22.d22 { animation-delay: 0.22s; }
 }
 
 @keyframes acc-rise {

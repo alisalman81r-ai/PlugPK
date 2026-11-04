@@ -5,7 +5,7 @@ import { ActivityPanel } from '@/components/admin/ActivityPanel'
 import { AdminHeader } from '@/components/admin/AdminHeader'
 import { BusinessForm } from '@/components/admin/BusinessForm'
 import { ListingApplicationPanel } from '@/components/admin/ListingApplicationPanel'
-import { ReviewStatusBadge } from '@/components/admin/ReviewStatusBadge'
+import { FORM_COL, FormCard, Note, ReviewPill } from '@/components/admin/network-kit'
 import { getAdminBusiness } from '@/lib/db/admin-queries'
 import { saveBusiness } from '@/lib/db/business-actions'
 import { getApplication } from '@/lib/db/listing-application-queries'
@@ -31,32 +31,34 @@ export default async function EditBusinessPage({ params }: { params: { id: strin
         description={`Submitted by ${business.ownerName} · ${business.email}`}
       />
 
-      <div className="max-w-3xl px-4 pt-6 sm:px-8 sm:pt-8">
-        <p className="flex flex-wrap items-center gap-2 text-ui-sm text-slate-600">
-          Status <ReviewStatusBadge status={business.status} />
-          {business.reviewedAt ? (
-            <span className="text-ui-xs text-slate-400">decided {formatRelativeTime(business.reviewedAt)}</span>
-          ) : null}
-        </p>
-        {/* Shown back so the reason for a rejection travels with the record. */}
-        {business.reviewNote ? (
-          <p className="mt-2 rounded-lg border border-red-100 bg-red-50/60 px-3 py-2 text-ui-sm text-red-900">
-            <span className="font-semibold">Review note:</span> {business.reviewNote}
-          </p>
-        ) : null}
-        {application ? (
-          <ListingApplicationPanel
-            application={application}
-            businessType={business.businessType}
-            listingStatus={business.status}
-          />
-        ) : null}
-      </div>
+      <div className="grid gap-3.5">
+        <div className={FORM_COL}>
+          <FormCard
+            title="Review"
+            sub={
+              <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-2">
+                <ReviewPill status={business.status} />
+                {business.reviewedAt ? <span className="text-sm text-fog">decided {formatRelativeTime(business.reviewedAt)}</span> : null}
+              </span>
+            }
+          >
+            {/* Shown back so the reason for a rejection travels with the record. */}
+            {business.reviewNote ? (
+              <Note>
+                <b className="font-semibold">Review note:</b> {business.reviewNote}
+              </Note>
+            ) : null}
+            {application ? (
+              <ListingApplicationPanel application={application} businessType={business.businessType} listingStatus={business.status} />
+            ) : null}
+          </FormCard>
+        </div>
 
-      <BusinessForm business={business} action={update} />
+        <BusinessForm business={business} action={update} />
 
-      <div className="max-w-3xl px-4 pb-8 sm:px-8">
-        <ActivityPanel targetType="business" targetId={business.id} />
+        <div className={FORM_COL}>
+          <ActivityPanel targetType="business" targetId={business.id} />
+        </div>
       </div>
     </>
   )

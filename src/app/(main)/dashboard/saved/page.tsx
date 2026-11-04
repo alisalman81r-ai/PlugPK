@@ -27,7 +27,7 @@ export default async function Page() {
 
   return (
     <DashboardLayout
-      title="Saved Stations"
+      title="Saved stations."
       subtitle={`${saved.length} station${saved.length === 1 ? '' : 's'} saved`}
       user={shell.user}
       stats={shell.stats}

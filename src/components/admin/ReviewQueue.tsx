@@ -58,13 +58,9 @@ export function ReviewQueueItem({
   )
 }
 
-/** The amber "Not reviewed" pill, gone the moment the tick is pressed. */
+/** The design's amber "Not reviewed" pill, gone the moment the tick is pressed. */
 export function NotReviewedBadge() {
   const state = useReviewState()
   if (state?.reviewed) return null
-  return (
-    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-      Not reviewed
-    </span>
-  )
+  return <span className="pill pill--warn">Not reviewed</span>
 }

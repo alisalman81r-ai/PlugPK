@@ -1,17 +1,17 @@
 // src/components/admin/BusinessForm.tsx
 'use client'
 
-import { Loader2, Plus, Trash2 } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { AdminField, FIELD_CLASS, TEXTAREA_CLASS } from '@/components/admin/AdminField'
 import { LocationPicker } from '@/components/business/LocationPicker'
 import { CONNECTOR_TYPES, PAKISTAN_CITIES } from '@/lib/constants'
 import type { BusinessRow } from '@/lib/db/queries'
 import { cn } from '@/lib/utils'
 
 import { useAdminToast } from './AdminToast'
+import { FGRID, FieldSelect, Fld, FORM_ACTS, FORM_COL, FormCard, FormError, IN, Ico, PANEL, TEXTAREA, btnClass } from './network-kit'
 import { runAction } from './run-action'
 import { useUnsavedChanges } from './useUnsavedChanges'
 
@@ -24,11 +24,11 @@ export interface BusinessFormProps {
 const TYPES = [
   { value: 'hotel', label: 'Hotel' },
   { value: 'restaurant', label: 'Restaurant' },
-  { value: 'mall', label: 'Shopping Mall' },
+  { value: 'mall', label: 'Shopping mall' },
   { value: 'office', label: 'Office' },
   { value: 'dealership', label: 'Dealership' },
-  { value: 'service-center', label: 'Service Center' },
-  { value: 'home', label: 'Home Charger' },
+  { value: 'service-center', label: 'Service centre' },
+  { value: 'home', label: 'Home charger' },
 ]
 
 interface DraftCharger {
@@ -104,28 +104,16 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl px-4 py-6 sm:px-8 sm:py-8">
+    <form ref={formRef} onSubmit={handleSubmit} className={FORM_COL}>
       {business ? <input type="hidden" name="id" value={business.id} /> : null}
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Owner</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          Who submitted the listing. Used to get back to them about it.
-        </p>
+      <FormCard title="Owner" sub="Who submitted the listing. Used to get back to them about it.">
+        <div className={FGRID}>
+          <Fld label="Full name" htmlFor="ownerName" required>
+            <input id="ownerName" name="ownerName" required defaultValue={business?.ownerName} placeholder="Ahmed Khan" className={IN} />
+          </Fld>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Full name" htmlFor="ownerName" required>
-            <input
-              id="ownerName"
-              name="ownerName"
-              required
-              defaultValue={business?.ownerName}
-              placeholder="Ahmed Khan"
-              className={FIELD_CLASS}
-            />
-          </AdminField>
-
-          <AdminField label="Email" htmlFor="email" required>
+          <Fld label="Email" htmlFor="email" required>
             <input
               id="email"
               name="email"
@@ -133,62 +121,39 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
               required
               defaultValue={business?.email}
               placeholder="info@yourbusiness.pk"
-              className={FIELD_CLASS}
+              className={IN}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Phone" htmlFor="phone">
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              defaultValue={business?.phone ?? ''}
-              placeholder="0300-1234567"
-              className={FIELD_CLASS}
-            />
-          </AdminField>
+          <Fld label="Phone" htmlFor="phone" optional>
+            <input id="phone" name="phone" type="tel" defaultValue={business?.phone ?? ''} placeholder="0300-1234567" className={IN} />
+          </Fld>
 
-          <AdminField label="Status" htmlFor="status" required>
-            <select
-              id="status"
-              name="status"
-              defaultValue={business?.status ?? 'pending'}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+          <Fld label="Status" htmlFor="status" required>
+            <FieldSelect id="status" name="status" defaultValue={business?.status ?? 'pending'}>
               <option value="pending">Pending</option>
               <option value="approved">Approved — shows on the map</option>
               <option value="rejected">Rejected</option>
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
         </div>
-      </section>
+      </FormCard>
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Business</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          What EV drivers see on the map once this is approved.
-        </p>
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <AdminField label="Business name" htmlFor="businessName" required>
+      <FormCard title="Business" sub="What EV drivers see on the map once this is approved." i={1}>
+        <div className={FGRID}>
+          <Fld label="Business name" htmlFor="businessName" required>
             <input
               id="businessName"
               name="businessName"
               required
               defaultValue={business?.businessName}
               placeholder="Serena Hotel Islamabad"
-              className={FIELD_CLASS}
+              className={IN}
             />
-          </AdminField>
+          </Fld>
 
-          <AdminField label="Type" htmlFor="businessType" required>
-            <select
-              id="businessType"
-              name="businessType"
-              required
-              defaultValue={business?.businessType ?? ''}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+          <Fld label="Type" htmlFor="businessType" required>
+            <FieldSelect id="businessType" name="businessType" required defaultValue={business?.businessType ?? ''}>
               <option value="" disabled>
                 Select a type
               </option>
@@ -197,17 +162,11 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
                   {type.label}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField label="City" htmlFor="city" required>
-            <select
-              id="city"
-              name="city"
-              required
-              defaultValue={business?.city ?? ''}
-              className={cn(FIELD_CLASS, 'cursor-pointer')}
-            >
+          <Fld label="City" htmlFor="city" required>
+            <FieldSelect id="city" name="city" required defaultValue={business?.city ?? ''}>
               <option value="" disabled>
                 Select a city
               </option>
@@ -216,129 +175,110 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
                   {city}
                 </option>
               ))}
-            </select>
-          </AdminField>
+            </FieldSelect>
+          </Fld>
 
-          <AdminField label="Website" htmlFor="website">
+          <Fld label="Website" htmlFor="website" optional>
             <input
               id="website"
               name="website"
               type="url"
               defaultValue={business?.website ?? ''}
               placeholder="https://yourbusiness.pk"
-              className={FIELD_CLASS}
+              className={IN}
             />
-          </AdminField>
-        </div>
+          </Fld>
 
-        <div className="mt-5">
-          <AdminField label="Address" htmlFor="address">
+          <Fld label="Address" htmlFor="address" optional full>
             <textarea
               id="address"
               name="address"
               defaultValue={business?.address ?? ''}
               placeholder="24 Mall Road, Gulberg"
-              className={TEXTAREA_CLASS}
+              className={cn(TEXTAREA, 'min-h-[96px]')}
             />
-          </AdminField>
+          </Fld>
         </div>
-      </section>
+      </FormCard>
 
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <h2 className="mb-1 font-semibold text-slate-900">Location</h2>
-        <p className="mb-5 text-ui-sm text-slate-500">
-          The exact pin drivers navigate to. Required before this can be approved — an
-          approved business without coordinates would not appear anywhere.
-        </p>
+      <FormCard
+        title="Location"
+        sub="The exact pin drivers navigate to. Required before this can be approved — an approved business without coordinates would not appear anywhere."
+        i={2}
+      >
+        <div className="mt-[22px]" data-lenis-prevent>
+          <LocationPicker
+            idPrefix="admin-biz"
+            lat={lat}
+            lng={lng}
+            onChange={(next) => {
+              setLat(next.lat)
+              setLng(next.lng)
+              setError(null)
+            }}
+          />
+        </div>
+      </FormCard>
 
-        <LocationPicker
-          idPrefix="admin-biz"
-          lat={lat}
-          lng={lng}
-          onChange={(next) => {
-            setLat(next.lat)
-            setLng(next.lng)
-            setError(null)
-          }}
-        />
-      </section>
-
-      <section className="mb-6 rounded-xl border border-slate-200 bg-white p-5 lg:p-6">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="mb-1 font-semibold text-slate-900">Chargers</h2>
-            <p className="text-ui-sm text-slate-500">
-              What is actually installed at this location.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={addCharger}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-ui-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-          >
-            <Plus size={14} className="shrink-0" aria-hidden="true" />
+      <FormCard
+        title="Chargers"
+        sub="What is actually installed at this location."
+        i={3}
+        action={
+          <button type="button" onClick={addCharger} className={btnClass('line', 'sm')}>
+            <Ico name="plus" />
             Add charger
           </button>
-        </div>
-
+        }
+      >
         {chargers.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 px-4 py-6 text-center text-ui-sm text-slate-500">
+          <div className="mt-[22px] rounded-2xl border-[1.5px] border-dashed border-ink/15 bg-paper px-4 py-7 text-center text-sm text-muted">
             No chargers listed yet.
-          </p>
+          </div>
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="m-0 mt-[22px] grid list-none gap-3 p-0">
             {chargers.map((charger, index) => (
-              <li
-                key={index}
-                className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-slate-50/60 p-3"
-              >
-                <span className="min-w-[9rem] flex-1">
-                  <span className="mb-1 block text-ui-xs font-semibold text-slate-600">
-                    Connector
-                  </span>
-                  <select
+              <li key={index} className={cn(PANEL, 'flex flex-wrap items-end gap-3 p-3.5')}>
+                <span className="mr-1 grid h-[52px] place-items-center self-end font-display text-lg text-ink">
+                  {index + 1}
+                </span>
+                <span className="grid min-w-[9rem] flex-1 gap-2">
+                  <span className="text-[13px] font-medium text-muted">Connector</span>
+                  <FieldSelect
                     value={charger.connectorType}
-                    onChange={(event) =>
-                      updateCharger(index, { connectorType: event.target.value })
-                    }
+                    onChange={(event) => updateCharger(index, { connectorType: event.target.value })}
                     aria-label={`Charger ${index + 1} connector type`}
-                    className={cn(FIELD_CLASS, 'cursor-pointer')}
                   >
                     {CONNECTOR_TYPES.map((type) => (
                       <option key={type} value={type}>
                         {type}
                       </option>
                     ))}
-                  </select>
+                  </FieldSelect>
                 </span>
 
-                <span className="w-28">
-                  <span className="mb-1 block text-ui-xs font-semibold text-slate-600">kW</span>
+                <span className="grid w-28 gap-2">
+                  <span className="text-[13px] font-medium text-muted">kW</span>
                   <input
                     type="number"
                     min={0}
                     step="any"
                     value={charger.maxPowerKw}
-                    onChange={(event) =>
-                      updateCharger(index, { maxPowerKw: Number(event.target.value) || 0 })
-                    }
+                    onChange={(event) => updateCharger(index, { maxPowerKw: Number(event.target.value) || 0 })}
                     aria-label={`Charger ${index + 1} max power`}
-                    className={FIELD_CLASS}
+                    className={cn(IN, 'font-mono')}
                   />
                 </span>
 
-                <span className="w-24">
-                  <span className="mb-1 block text-ui-xs font-semibold text-slate-600">Ports</span>
+                <span className="grid w-24 gap-2">
+                  <span className="text-[13px] font-medium text-muted">Ports</span>
                   <input
                     type="number"
                     min={1}
                     value={charger.ports}
-                    onChange={(event) =>
-                      updateCharger(index, { ports: Math.max(1, Number(event.target.value) || 1) })
-                    }
+                    onChange={(event) => updateCharger(index, { ports: Math.max(1, Number(event.target.value) || 1) })}
                     aria-label={`Charger ${index + 1} port count`}
-                    className={FIELD_CLASS}
+                    className={cn(IN, 'font-mono')}
                   />
                 </span>
 
@@ -346,40 +286,29 @@ export function BusinessForm({ business, action }: BusinessFormProps) {
                   type="button"
                   onClick={() => removeCharger(index)}
                   aria-label={`Remove charger ${index + 1}`}
-                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                  className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-[14px] border-[1.5px] border-ink/[.09] bg-white text-muted transition-colors duration-200 hover:border-[#e2a48c] hover:bg-[rgba(255,90,31,.08)] hover:text-[#b23b0d] [&_svg]:h-[18px] [&_svg]:w-[18px]"
                 >
-                  <Trash2 size={15} aria-hidden="true" />
+                  <Ico name="trash" />
                 </button>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </FormCard>
 
-      {error ? (
-        <p role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-ui-sm text-red-700">
-          {error}
-        </p>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex h-11 items-center gap-2 rounded-xl bg-plug-blue-600 px-6 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2 disabled:opacity-60"
-        >
-          {isPending ? (
-            <Loader2 size={15} className="shrink-0 animate-spin" aria-hidden="true" />
-          ) : null}
+      <div className={FORM_ACTS}>
+        <button type="submit" disabled={isPending} className={btnClass('ink')}>
+          {isPending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name={business ? 'check' : 'plus'} />}
           {business ? 'Save changes' : 'Add business'}
         </button>
-
         <button
           type="button"
           onClick={() => {
             if (confirmLeave()) router.push('/admin/businesses')
           }}
-          className="inline-flex h-11 items-center rounded-xl border border-slate-200 bg-white px-5 text-ui font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2"
+          className={btnClass('line')}
         >
           Cancel
         </button>

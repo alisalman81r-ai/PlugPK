@@ -1,67 +1,91 @@
 // src/components/dashboard/VehicleManager.tsx
 'use client'
 
-import { Car, Check, Loader2, Plus, Star, Trash2 } from '@/components/ui/icons'
+import Image from 'next/image'
+import Link from 'next/link'
 import * as React from 'react'
 
-import { ActionButton } from '@/components/auth/form-ui'
-import { SearchSelect } from '@/components/ui/SearchSelect'
-import type { GarageCar, GarageCatalogueCar as CatalogueCar } from '@/lib/db/garage'
+import type { GarageCar, GarageCatalogueCar } from '@/lib/db/garage'
 import { addMyCar, makePrimaryCar, removeMyCar, replaceMyCar } from '@/lib/db/garage-actions'
 import { cn } from '@/lib/utils'
 
-import { PANEL, PanelHead } from './dash-ui'
+import { IPlus, IStar, ITrash } from './acct-icons'
+import { abtn, AIN, ErrorNote, FHINT, PANEL, PANEL_H2, PANEL_SUB, SelChevron } from './dash-ui'
 
 /**
- * The cars on the signed-in account.
+ * The cars on the signed-in account (account-vehicles.html of the design).
  *
- * Each car is a row with its own dropdown on the right: open it, scroll (or
- * type) to another model, pick it, and that car is swapped in place. More than
- * one car is the "Add a car" button under the list; the first is primary, and
- * the primary is the one the rest of the site uses to suggest chargers.
+ * "Which car do you drive?" is a dashed strip with one dropdown of every car,
+ * grouped by brand: it shows the primary car, and choosing another swaps it
+ * (or adds the first). Each saved car is then an ink card — its photo, its
+ * powertrain, the four headline figures, and the way on to planning a route
+ * or working out a charge with it.
  *
- * The old page was a text box with the catalogue as a long accordion beneath
- * it and a Save button under all of that, which read as having no way to change
- * the car at all.
+ * More than one car is the app's own addition, kept: "Add another car" opens
+ * a second strip, and a car that is not primary can be made primary or
+ * swapped from its card. The primary is the one the site uses to suggest
+ * chargers.
+ *
+ * Each change shows at once and saves behind it — a save is several writes to
+ * a database a region away — and the server's list puts it right if it fails.
  */
+
+/** The catalogue, with the figures and photo the car card shows. */
+export interface VehicleCatalogueCar extends GarageCatalogueCar {
+  slug?: string
+  image?: string | null
+  batteryKwh?: number | null
+  powerKw?: number | null
+  powerHp?: number | null
+  priceDisplay?: string | null
+}
 
 export interface VehicleManagerProps {
   garage: GarageCar[]
-  cars: CatalogueCar[]
+  cars: VehicleCatalogueCar[]
+}
+
+/** The brand-grouped options of the design's #carPick. */
+function CarOptions({ groups, exclude }: { groups: [string, VehicleCatalogueCar[]][]; exclude?: Set<string> }) {
+  return (
+    <>
+      {groups.map(([brand, list]) => {
+        const shown = exclude ? list.filter((car) => !exclude.has(car.id)) : list
+        if (shown.length === 0) return null
+        return (
+          <optgroup key={brand} label={brand}>
+            {shown.map((car) => (
+              <option key={car.id} value={car.id}>
+                {brand} {car.model}
+              </option>
+            ))}
+          </optgroup>
+        )
+      })}
+    </>
+  )
 }
 
 export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
-  /*
-    Shown at once, saved behind it. Each change is several writes to a
-    database in another region plus a page refresh — seven seconds or more —
-    and a list that sat unchanged that long read as the pick not working.
-    The server's list replaces this one whenever it arrives; a failed save
-    puts the server's list back.
-  */
   const [garage, setGarage] = React.useState(saved)
   React.useEffect(() => setGarage(saved), [saved])
   const [busy, setBusy] = React.useState<string | null>(null)
   const [error, setError] = React.useState<string | null>(null)
   const [notice, setNotice] = React.useState<string | null>(null)
-  const [adding, setAdding] = React.useState(saved.length === 0)
+  const [adding, setAdding] = React.useState(false)
+  const pickRef = React.useRef<HTMLSelectElement>(null)
 
-  /** Dropdown labels, unique, catalogue order: brand then model. */
-  const { options, byLabel, labelOf } = React.useMemo(() => {
+  const groups = React.useMemo(() => {
     const sorted = [...cars].sort((a, b) => a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model))
-    const counts = new Map<string, number>()
-    for (const car of sorted) counts.set(`${car.brand} ${car.model}`, (counts.get(`${car.brand} ${car.model}`) ?? 0) + 1)
-    const labelOf = new Map<string, string>()
-    const byLabel = new Map<string, CatalogueCar>()
-    for (const car of sorted) {
-      const short = `${car.brand} ${car.model}`
-      const label = (counts.get(short) ?? 0) > 1 ? car.fullName : short
-      labelOf.set(car.id, label)
-      byLabel.set(label, car)
-    }
-    return { options: [...byLabel.keys()], byLabel, labelOf }
+    const map = new Map<string, VehicleCatalogueCar[]>()
+    for (const car of sorted) map.set(car.brand, [...(map.get(car.brand) ?? []), car])
+    return [...map.entries()]
   }, [cars])
-
   const carById = React.useMemo(() => new Map(cars.map((car) => [car.id, car])), [cars])
+  const owned = React.useMemo(() => new Set(garage.map((row) => row.carId).filter(Boolean) as string[]), [garage])
+
+  const primary = garage.find((row) => row.isPrimary) ?? garage[0]
+  const many = garage.length > 1
 
   const run = async (
     key: string,
@@ -73,7 +97,7 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
     setError(null)
     setNotice(null)
     setGarage((list) => optimistic(list))
-    const result = await action()
+    const result = await action().catch(() => ({ ok: false, message: 'We could not reach the server. Try again.' }) as { ok: boolean; message?: string; id?: string })
     setBusy(null)
     if (!result.ok) {
       setGarage(saved)
@@ -81,176 +105,217 @@ export function VehicleManager({ garage: saved, cars }: VehicleManagerProps) {
       return false
     }
     // The list on screen is already right; an add only needs its real id.
-    // No router.refresh(): re-rendering this page re-reads the whole
-    // catalogue, seconds of waiting for nothing new.
     if (result.id) setGarage((list) => list.map((r) => (r.id.startsWith('pending-') ? { ...r, id: result.id as string } : r)))
     setNotice(message)
-    setTimeout(() => setNotice(null), 3000)
+    setTimeout(() => setNotice(null), 4000)
     return true
   }
 
-  const specsOf = (car: CatalogueCar | undefined) =>
-    car
-      ? [car.category, car.range ? `${car.range} km range` : null, car.connector?.length ? car.connector.join(', ') : null]
-          .filter(Boolean)
-          .join(' · ')
-      : 'Not in our catalogue'
+  const nameOf = (car: VehicleCatalogueCar) => `${car.brand} ${car.model}`
+
+  const add = (carId: string) => {
+    const pick = carById.get(carId)
+    if (!pick) return
+    setAdding(false)
+    void run('add', () => addMyCar(pick.id), `${nameOf(pick)} added.`, (list) => [
+      ...list,
+      { id: `pending-${pick.id}`, carId: pick.id, name: nameOf(pick), isPrimary: list.length === 0 },
+    ])
+  }
+
+  const swap = (row: GarageCar, carId: string) => {
+    const pick = carById.get(carId)
+    if (!pick || pick.id === row.carId) return
+    void run(`${row.id}:swap`, () => replaceMyCar(row.id, pick.id), `Changed to ${nameOf(pick)}.`, (list) =>
+      list.map((r) => (r.id === row.id ? { ...r, carId: pick.id, name: nameOf(pick) } : r)),
+    )
+  }
+
+  const remove = (row: GarageCar) =>
+    void run(`${row.id}:remove`, () => removeMyCar(row.id), `${row.name} removed.`, (list) => {
+      const rest = list.filter((r) => r.id !== row.id)
+      return row.isPrimary && rest[0] ? [{ ...rest[0], isPrimary: true }, ...rest.slice(1)] : rest
+    })
+
+  const makePrimary = (row: GarageCar) =>
+    void run(`${row.id}:primary`, () => makePrimaryCar(row.id), `${row.name} is now your primary car.`, (list) =>
+      list.map((r) => ({ ...r, isPrimary: r.id === row.id })).sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)),
+    )
+
+  const APICK =
+    'mt-[22px] flex flex-wrap items-center justify-between gap-4 rounded-[18px] border-[1.5px] border-dashed border-ink/[0.14] bg-paper px-5 py-[18px]'
+  const ASEL = 'relative min-w-[240px] max-w-[420px] flex-1 max-[640px]:max-w-none'
 
   return (
-    <section className={PANEL}>
-      <PanelHead
-        title={garage.length > 1 ? 'Your vehicles' : 'Your vehicle'}
-        sub={`Used to suggest chargers that fit your connector.${garage.length > 1 ? ' The primary car is the one we use.' : ''}`}
-        aside={
-        <p aria-live="polite" className="pt-1 text-sm font-semibold text-[#12804a] empty:hidden">
-          {busy ? (
-            <span className="inline-flex items-center gap-1.5 text-muted">
-              <Loader2 size={15} className="animate-spin" aria-hidden="true" />
-              Saving…
-            </span>
-          ) : notice ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Check size={16} aria-hidden="true" />
-              {notice}
-            </span>
-          ) : null}
-        </p>
-        }
-      />
+    <section id="vehicle" className={PANEL}>
+      <h2 className={PANEL_H2}>{many ? 'Your vehicles' : 'Your vehicle'}</h2>
+      <p className={PANEL_SUB}>
+        Used to suggest chargers that fit your connector.{many ? ' The primary car is the one we use.' : ''}
+      </p>
 
-      {error ? <p role="alert" className="mb-4 rounded-[14px] border border-[#FFCDBC] bg-[#FFECE6] px-4 py-3 text-sm text-[#B42E05]">{error}</p> : null}
+      {/* .apick — the car you drive */}
+      <div className={APICK}>
+        <label htmlFor="carPick" className="text-[15px] font-semibold text-ink">
+          Which car do you drive?
+        </label>
+        <div className={ASEL}>
+          <select
+            ref={pickRef}
+            id="carPick"
+            value={primary?.carId ?? ''}
+            disabled={busy !== null}
+            onChange={(event) => {
+              const id = event.target.value
+              if (!id) return
+              if (primary) swap(primary, id)
+              else add(id)
+            }}
+            className={cn(AIN, 'cursor-pointer pr-11 disabled:cursor-wait')}
+          >
+            <option value="">Choose a car</option>
+            <CarOptions groups={groups} />
+          </select>
+          <SelChevron />
+        </div>
+      </div>
 
-      <ul className="flex flex-col gap-3">
-        {garage.map((row) => {
-          const car = row.carId ? carById.get(row.carId) : undefined
-          const label = row.carId ? labelOf.get(row.carId) : undefined
-          const isBusy = busy?.startsWith(row.id) ?? false
+      {error ? <ErrorNote className="mt-4">{error}</ErrorNote> : null}
 
-          return (
-            <li
-              key={row.id}
-              className={cn(
-                'flex flex-col gap-4 rounded-[18px] border p-4 sm:flex-row sm:items-center',
-                row.isPrimary ? 'border-ink/20 bg-chalk' : 'border-ink/10 bg-white',
+      {garage.map((row) => {
+        const car = row.carId ? carById.get(row.carId) : undefined
+        const isBusy = busy?.startsWith(row.id) ?? false
+        const power = car?.powerKw ? `${car.powerKw} kW` : car?.powerHp ? `${car.powerHp} hp` : '—'
+        const routeHref = row.carId ? `/routes?car=${encodeURIComponent(row.carId)}` : '/routes'
+        const calcHref = car?.slug ? `/charging-calculator?car=${encodeURIComponent(car.slug)}` : '/charging-calculator'
+
+        return (
+          <article
+            key={row.id}
+            aria-busy={isBusy || undefined}
+            className={cn(
+              'mt-[18px] grid grid-cols-[minmax(0,320px)_minmax(0,1fr)] items-center gap-6 rounded-[20px] bg-ink p-[18px] text-white transition-opacity max-[760px]:grid-cols-1',
+              isBusy && 'opacity-70',
+            )}
+          >
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[14px] bg-[#1c1f24]">
+              {car?.image ? (
+                <Image src={car.image} alt="" fill sizes="(max-width: 760px) 92vw, 320px" className="object-cover" />
+              ) : (
+                <span className="absolute inset-0 grid place-items-center font-display text-[28px] text-white/20">{car?.brand ?? row.name}</span>
               )}
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-ink">
-                  {isBusy ? (
-                    <Loader2 size={20} className="animate-spin text-volt" />
-                  ) : (
-                    <Car size={22} className="text-volt" />
-                  )}
-                </span>
-                <div className="min-w-0">
-                  <p className="flex flex-wrap items-center gap-2">
-                    <span className="truncate font-display text-[20px] leading-tight text-ink">{row.name}</span>
-                    {row.isPrimary && garage.length > 1 ? (
-                      <span className="rounded-full bg-ink px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-volt">Primary</span>
-                    ) : null}
-                  </p>
-                  <p className="mt-1 truncate font-mono text-xs text-muted">{specsOf(car)}</p>
-                  {/* Under the name rather than beside the dropdown, so every
-                      row's dropdown sits in the same place. */}
-                  {!row.isPrimary ? (
-                    <button
-                      type="button"
-                      disabled={busy !== null}
-                      onClick={() =>
-                        void run(`${row.id}:primary`, () => makePrimaryCar(row.id), `${row.name} is now primary`, (list) =>
-                          [...list.map((r) => ({ ...r, isPrimary: r.id === row.id }))].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary)),
-                        )
-                      }
-                      className="-mx-2 mt-1 inline-flex min-h-9 items-center gap-1 rounded-full px-2 text-sm font-semibold text-ink hover:bg-volt disabled:opacity-50"
-                    >
-                      <Star size={13} aria-hidden="true" />
-                      Make primary
-                    </button>
-                  ) : null}
-                </div>
-              </div>
+            </div>
 
-              <div className="flex shrink-0 items-center gap-2">
-                {/* The change control: a scrolling, searchable list of every car. */}
-                <SearchSelect
-                  ariaLabel={`Change ${row.name}`}
-                  options={options}
-                  value={label ?? ''}
-                  allValue=""
-                  allLabel="Change car"
-                  searchPlaceholder="Type a make or model"
-                  onChange={(next) => {
-                    const pick = byLabel.get(next)
-                    if (!pick || pick.id === row.carId) return
-                    void run(`${row.id}:swap`, () => replaceMyCar(row.id, pick.id), `Changed to ${next}`, (list) =>
-                      list.map((r) => (r.id === row.id ? { ...r, carId: pick.id, name: `${pick.brand} ${pick.model}` } : r)),
-                    )
-                  }}
-                  className="min-w-0 flex-1 sm:w-64 sm:flex-none"
-                />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                {car?.category ? (
+                  <span className="inline-flex h-[26px] items-center rounded-full bg-volt px-2.5 font-mono text-xs font-semibold text-ink">{car.category}</span>
+                ) : null}
+                {row.isPrimary && many ? (
+                  <span className="inline-flex h-[26px] items-center rounded-full border border-white/25 px-2.5 font-mono text-xs font-semibold text-white">Primary</span>
+                ) : null}
+              </div>
+              <h3 className="mt-2.5 font-display text-[30px] font-normal leading-[1.1]">{row.name}</h3>
+              {!car ? <p className="mt-1 text-sm text-fog">Not in our catalogue</p> : null}
+
+              <dl className="mt-[18px] grid grid-cols-4 gap-3 max-[760px]:grid-cols-2">
+                {[
+                  { dt: 'Battery', dd: car?.batteryKwh ? `${car.batteryKwh} kWh` : '—', mono: true },
+                  { dt: 'Range', dd: car?.range ? `${car.range} km` : '—', mono: true },
+                  { dt: 'Power', dd: power, mono: true },
+                  { dt: 'Price', dd: car?.priceDisplay || '—', mono: false },
+                ].map((spec) => (
+                  <div key={spec.dt}>
+                    <dt className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-fog">{spec.dt}</dt>
+                    <dd className={cn('mt-1.5 text-lg font-semibold', spec.mono && 'font-mono tracking-[-0.01em] tabular-nums')}>{spec.dd}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link href={routeHref} className={abtn('volt', 'sm')}>
+                  <span>Plan a route with it</span>
+                </Link>
+                <Link href={calcHref} className={abtn('lineDark', 'sm')}>
+                  <span>Charging calculator</span>
+                </Link>
+                {!row.isPrimary ? (
+                  <>
+                    <button type="button" disabled={busy !== null} onClick={() => makePrimary(row)} className={abtn('lineDark', 'sm')}>
+                      <IStar />
+                      <span>Make primary</span>
+                    </button>
+                    <span className="relative">
+                      <select
+                        aria-label={`Change ${row.name}`}
+                        value=""
+                        disabled={busy !== null}
+                        onChange={(event) => swap(row, event.target.value)}
+                        className="h-[42px] cursor-pointer appearance-none rounded-full border border-white/25 bg-transparent pl-[18px] pr-10 text-sm font-semibold text-white outline-none transition-colors hover:border-volt focus-visible:shadow-focus disabled:opacity-45 [&_option]:text-ink [&_optgroup]:text-ink"
+                      >
+                        <option value="">Change car</option>
+                        <CarOptions groups={groups} exclude={owned} />
+                      </select>
+                      <span aria-hidden="true" className="pointer-events-none absolute right-4 top-[15px] h-2 w-2 rotate-45 border-b-2 border-r-2 border-fog" />
+                    </span>
+                  </>
+                ) : null}
                 <button
                   type="button"
-                  aria-label={`Remove ${row.name}`}
                   disabled={busy !== null}
-                  onClick={() =>
-                    void run(`${row.id}:remove`, () => removeMyCar(row.id), `${row.name} removed`, (list) => {
-                      const rest = list.filter((r) => r.id !== row.id)
-                      return row.isPrimary && rest[0] ? [{ ...rest[0], isPrimary: true }, ...rest.slice(1)] : rest
-                    })
-                  }
-                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-ink/10 bg-white text-muted transition-colors hover:border-[#FFCDBC] hover:bg-[#FFECE6] hover:text-[#B42E05] disabled:opacity-50"
+                  onClick={() => {
+                    remove(row)
+                    pickRef.current?.focus()
+                  }}
+                  aria-label={`Remove ${row.name}`}
+                  className={abtn('plainDark', 'sm')}
                 >
-                  <Trash2 size={17} aria-hidden="true" />
+                  <ITrash />
+                  <span>Remove</span>
                 </button>
               </div>
-            </li>
-          )
-        })}
-      </ul>
+            </div>
+          </article>
+        )
+      })}
 
-      {garage.length === 0 && !adding ? (
-        <p className="rounded-[18px] border-[1.5px] border-dashed border-ink/15 px-4 py-6 text-center text-sm text-muted">
-          No car saved yet.
-        </p>
-      ) : null}
-
-      {/* ── Add a car ───────────────────────────────────────────── */}
-      <div className="mt-4">
-        {adding ? (
-          <div className="flex flex-col gap-3 rounded-[18px] border-[1.5px] border-dashed border-ink/20 bg-chalk p-4 sm:flex-row sm:items-center">
-            <p className="flex-1 text-sm font-semibold text-ink">
-              {garage.length === 0 ? 'Which car do you drive?' : 'Pick the car to add'}
-            </p>
-            <SearchSelect
-              ariaLabel="Add a car"
-              options={options.filter((option) => !garage.some((row) => row.carId && labelOf.get(row.carId) === option))}
-              value=""
-              allValue=""
-              allLabel="Choose a car"
-              searchPlaceholder="Type a make or model"
-              onChange={(next) => {
-                const pick = byLabel.get(next)
-                if (!pick) return
-                setAdding(false)
-                void run('add', () => addMyCar(pick.id), `${next} added`, (list) => [
-                  ...list,
-                  { id: `pending-${pick.id}`, carId: pick.id, name: `${pick.brand} ${pick.model}`, isPrimary: list.length === 0 },
-                ]).then((ok) => !ok && setAdding(true))
-              }}
-              className="w-full sm:w-72"
-            />
-            {garage.length > 0 ? (
-              <ActionButton size="sm" tone="line" onClick={() => setAdding(false)} disabled={busy !== null}>
+      {/* More than one car: the app's own addition, in the design's strip. */}
+      {garage.length > 0 ? (
+        adding ? (
+          <div className={APICK}>
+            <label htmlFor="carAdd" className="text-[15px] font-semibold text-ink">
+              Add another car
+            </label>
+            <div className="flex min-w-[240px] max-w-[520px] flex-1 items-center gap-2 max-[640px]:max-w-none">
+              <div className="relative flex-1">
+                <select
+                  id="carAdd"
+                  value=""
+                  autoFocus
+                  disabled={busy !== null}
+                  onChange={(event) => add(event.target.value)}
+                  className={cn(AIN, 'cursor-pointer pr-11')}
+                >
+                  <option value="">Choose a car</option>
+                  <CarOptions groups={groups} exclude={owned} />
+                </select>
+                <SelChevron />
+              </div>
+              <button type="button" onClick={() => setAdding(false)} className={abtn('line', 'sm')}>
                 Cancel
-              </ActionButton>
-            ) : null}
+              </button>
+            </div>
           </div>
         ) : (
-          <ActionButton tone="line" onClick={() => setAdding(true)} disabled={busy !== null} leftIcon={<Plus aria-hidden="true" />}>
-            Add a car
-          </ActionButton>
-        )}
-      </div>
+          <button type="button" disabled={busy !== null} onClick={() => setAdding(true)} className={abtn('line', 'sm', 'mt-[18px]')}>
+            <IPlus />
+            <span>Add another car</span>
+          </button>
+        )
+      ) : null}
+
+      <p aria-live="polite" className={cn(FHINT, 'mt-3.5', notice && 'text-[#12804a]')}>
+        {busy ? 'Saving…' : notice ?? 'Saved to your account as soon as you choose.'}
+      </p>
     </section>
   )
 }

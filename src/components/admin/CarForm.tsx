@@ -1,16 +1,14 @@
 // src/components/admin/CarForm.tsx
 'use client'
 
-import { AlertTriangle, Check, Loader2, Save } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
 import type { Car, CarCategory, ConnectorStandard } from '@/data/cars'
 import { createCar, updateCar, type CarActionResult } from '@/lib/db/car-actions'
-import { cn } from '@/lib/utils'
 
-import { AdminField, FIELD_CLASS, TEXTAREA_CLASS } from './AdminField'
 import { useAdminToast } from './AdminToast'
+import { Ico, Spinner, k, rise, s } from './people/kit'
 import { runAction } from './run-action'
 import { useUnsavedChanges } from './useUnsavedChanges'
 
@@ -124,43 +122,22 @@ export function CarForm({ car, brands }: CarFormProps) {
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="flex flex-col gap-5">
+    <form ref={formRef} onSubmit={onSubmit} className={s.stack18}>
       {result?.message ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className={cn(
-            'flex items-start gap-2.5 rounded-xl border p-4 text-ui-sm',
-            result.ok
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-              : 'border-red-200 bg-red-50 text-red-800',
-          )}
-        >
-          {result.ok ? (
-            <Check size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-          ) : (
-            <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-          )}
+        <div role="status" aria-live="polite" className={k('notice', result.ok ? 'notice--ok' : 'notice--bad')} style={{ margin: 0 }}>
+          <Ico n={result.ok ? 'okc' : 'alert'} />
           <div>
-            <p className="font-semibold">{result.message}</p>
-            {!result.ok && result.errors ? (
-              <p className="mt-0.5">Scroll down for the fields marked in red.</p>
-            ) : null}
+            <b>{result.message}</b>
+            {!result.ok && result.errors ? <span>Scroll down for the fields marked in red.</span> : null}
           </div>
         </div>
       ) : null}
 
       {/* ── Identity ─────────────────────────────────────────────── */}
-      <Group title="Identity">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Brand" htmlFor="brand" required>
-            <input
-              id="brand"
-              name="brand"
-              list="car-brands"
-              defaultValue={car?.brand ?? ''}
-              className={cn(FIELD_CLASS, errors.brand && 'border-red-400')}
-            />
+      <Group title="Identity" sub="What the car is called, and where its public page lives." i={0}>
+        <div className={s.fgrid}>
+          <Field label="Brand" htmlFor="brand" required error={errors.brand}>
+            <input id="brand" name="brand" list="car-brands" defaultValue={car?.brand ?? ''} className={k('in', errors.brand && 'bad')} />
             {/* Existing brands offered, not enforced: a new brand arriving in
                 Pakistan must not need a code change to be listed. */}
             <datalist id="car-brands">
@@ -168,79 +145,53 @@ export function CarForm({ car, brands }: CarFormProps) {
                 <option key={brand} value={brand} />
               ))}
             </datalist>
-            <FieldError message={errors.brand} />
-          </AdminField>
+          </Field>
 
-          <AdminField label="Model" htmlFor="model" required>
-            <input
-              id="model"
-              name="model"
-              defaultValue={car?.model ?? ''}
-              className={cn(FIELD_CLASS, errors.model && 'border-red-400')}
-            />
-            <FieldError message={errors.model} />
-          </AdminField>
+          <Field label="Model" htmlFor="model" required error={errors.model}>
+            <input id="model" name="model" defaultValue={car?.model ?? ''} className={k('in', errors.model && 'bad')} />
+          </Field>
 
-          <AdminField
-            label="Full name"
-            htmlFor="fullName"
-            hint="Shown as the heading. Left blank, it becomes brand + model."
-          >
-            <input
-              id="fullName"
-              name="fullName"
-              defaultValue={car?.fullName ?? ''}
-              className={FIELD_CLASS}
-            />
-          </AdminField>
+          <Field label="Full name" htmlFor="fullName" hint="Shown as the heading. Left blank, it becomes brand + model.">
+            <input id="fullName" name="fullName" defaultValue={car?.fullName ?? ''} className={s.in} />
+          </Field>
 
-          <AdminField
+          <Field
             label="Slug"
             htmlFor="slug"
             required
+            error={errors.slug}
             hint={
               isNew
                 ? 'The public URL. Left blank, it is made from brand and model.'
                 : 'Changing this changes the public URL, and any existing link to it stops working.'
             }
           >
-            <input
-              id="slug"
-              name="slug"
-              defaultValue={car?.slug ?? ''}
-              className={cn(FIELD_CLASS, 'font-mono text-ui-sm', errors.slug && 'border-red-400')}
-            />
-            <FieldError message={errors.slug} />
-          </AdminField>
+            <input id="slug" name="slug" defaultValue={car?.slug ?? ''} className={k('in', 'mono', errors.slug && 'bad')} />
+          </Field>
         </div>
 
-        <fieldset className="mt-4">
-          <legend className="mb-1.5 text-ui-sm font-medium text-slate-700">
-            Powertrain <span className="text-red-500">*</span>
+        <fieldset className={s.fieldset}>
+          <legend className={s.flegend}>
+            Powertrain{' '}
+            <span className={s.req} aria-hidden="true">
+              *
+            </span>
           </legend>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={s.radios}>
             {CATEGORIES.map((entry) => (
-              <label
-                key={entry.value}
-                className={cn(
-                  'flex cursor-pointer flex-col gap-0.5 rounded-lg border p-3 transition-colors',
-                  category === entry.value
-                    ? 'border-plug-blue-500 bg-plug-blue-50/60'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
-                )}
-              >
-                <span className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="category"
-                    value={entry.value}
-                    checked={category === entry.value}
-                    onChange={() => setCategory(entry.value)}
-                    className="h-4 w-4 accent-plug-blue-600"
-                  />
-                  <span className="font-semibold text-slate-900">{entry.label}</span>
-                </span>
-                <span className="pl-6 text-ui-xs leading-relaxed text-slate-500">{entry.hint}</span>
+              <label key={entry.value} className={k('radio', category === entry.value && 'on')}>
+                <input
+                  type="radio"
+                  name="category"
+                  value={entry.value}
+                  checked={category === entry.value}
+                  onChange={() => setCategory(entry.value)}
+                />
+                <b>
+                  {entry.label}
+                  <i aria-hidden="true" />
+                </b>
+                <span>{entry.hint}</span>
               </label>
             ))}
           </div>
@@ -251,61 +202,48 @@ export function CarForm({ car, brands }: CarFormProps) {
       {/* ── Price ────────────────────────────────────────────────── */}
       <Group
         title="Price"
-        note="Stored in rupees as integers so the catalogue can sort on them, and as the published string so nothing is recomputed. If a price is an estimate rather than a dealer figure, put “(indicative)” in the display text — the admin catalogue counts those, and the marker is printed on every card."
+        i={1}
+        sub="Stored in rupees as integers so the catalogue can sort on them, and as the published string so nothing is recomputed. If a price is an estimate rather than a dealer figure, put “(indicative)” in the display text — the admin catalogue counts those, and the marker is printed on every card."
       >
-        <div className="grid gap-4 sm:grid-cols-3">
-          <AdminField label="Lower price (PKR)" htmlFor="priceMin" required>
+        <div className={k('fgrid', 'fgrid--3')}>
+          <Field label="Lower price (PKR)" htmlFor="priceMin" required error={errors.priceMin}>
             <input
               id="priceMin"
               name="priceMin"
               inputMode="numeric"
               defaultValue={car ? String(car.price.min) : ''}
               placeholder="7290000"
-              className={cn(FIELD_CLASS, 'font-mono', errors.priceMin && 'border-red-400')}
+              className={k('in', 'mono', errors.priceMin && 'bad')}
             />
-            <FieldError message={errors.priceMin} />
-          </AdminField>
+          </Field>
 
-          <AdminField
-            label="Upper price (PKR)"
-            htmlFor="priceMax"
-            hint="Same as the lower price for a single figure."
-          >
+          <Field label="Upper price (PKR)" htmlFor="priceMax" hint="Same as the lower price for a single figure." error={errors.priceMax}>
             <input
               id="priceMax"
               name="priceMax"
               inputMode="numeric"
               defaultValue={car ? String(car.price.max) : ''}
               placeholder="same as lower"
-              className={cn(FIELD_CLASS, 'font-mono', errors.priceMax && 'border-red-400')}
+              className={k('in', 'mono', errors.priceMax && 'bad')}
             />
-            <FieldError message={errors.priceMax} />
-          </AdminField>
+          </Field>
 
-          <AdminField label="Displayed as" htmlFor="priceDisplay" required>
+          <Field label="Displayed as" htmlFor="priceDisplay" required error={errors.priceDisplay}>
             <input
               id="priceDisplay"
               name="priceDisplay"
               defaultValue={car?.price.display ?? ''}
               placeholder="PKR 72.9 Lakh"
-              className={cn(FIELD_CLASS, errors.priceDisplay && 'border-red-400')}
+              className={k('in', errors.priceDisplay && 'bad')}
             />
-            <FieldError message={errors.priceDisplay} />
-          </AdminField>
+          </Field>
         </div>
       </Group>
 
       {/* ── Battery and range ────────────────────────────────────── */}
-      <Group title="Battery and range">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <Numeric
-            name="batteryCapacity"
-            label="Battery capacity"
-            unit="kWh"
-            value={car?.batteryCapacity}
-            error={errors.batteryCapacity}
-            enabled={can.battery}
-          />
+      <Group title="Battery and range" i={2}>
+        <div className={k('fgrid', 'fgrid--3')}>
+          <Numeric name="batteryCapacity" label="Battery capacity" unit="kWh" value={car?.batteryCapacity} error={errors.batteryCapacity} enabled={can.battery} />
           <Numeric
             name="range"
             label="Range"
@@ -331,11 +269,7 @@ export function CarForm({ car, brands }: CarFormProps) {
             value={car?.electricRange}
             error={errors.electricRange}
             enabled={can.electricRange}
-            disabledNote={
-              category === 'EV'
-                ? 'An EV is electric-only — use Range.'
-                : 'A full hybrid has no meaningful electric-only range.'
-            }
+            disabledNote={category === 'EV' ? 'An EV is electric-only — use Range.' : 'A full hybrid has no meaningful electric-only range.'}
           />
           <Numeric
             name="electricRangeMax"
@@ -349,23 +283,10 @@ export function CarForm({ car, brands }: CarFormProps) {
       </Group>
 
       {/* ── Performance ──────────────────────────────────────────── */}
-      <Group title="Performance">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <Numeric
-            name="power"
-            label="Power"
-            unit="hp"
-            value={car?.power}
-            error={errors.power}
-            hint={can.engine ? 'Combined system output.' : undefined}
-          />
-          <Numeric
-            name="acceleration"
-            label="0–100 km/h"
-            unit="sec"
-            value={car?.acceleration}
-            error={errors.acceleration}
-          />
+      <Group title="Performance" i={3}>
+        <div className={k('fgrid', 'fgrid--3')}>
+          <Numeric name="power" label="Power" unit="hp" value={car?.power} error={errors.power} hint={can.engine ? 'Combined system output.' : undefined} />
+          <Numeric name="acceleration" label="0–100 km/h" unit="sec" value={car?.acceleration} error={errors.acceleration} />
           <Numeric
             name="engineCapacity"
             label="Engine capacity"
@@ -376,13 +297,7 @@ export function CarForm({ car, brands }: CarFormProps) {
             disabledNote="An EV has no engine."
           />
           <Numeric name="torque" label="Torque" unit="Nm" value={car?.torque} error={errors.torque} />
-          <Numeric
-            name="topSpeed"
-            label="Top speed"
-            unit="km/h"
-            value={car?.topSpeed}
-            error={errors.topSpeed}
-          />
+          <Numeric name="topSpeed" label="Top speed" unit="km/h" value={car?.topSpeed} error={errors.topSpeed} />
           <Numeric name="seats" label="Seats" value={car?.seats} error={errors.seats} />
         </div>
       </Group>
@@ -390,54 +305,26 @@ export function CarForm({ car, brands }: CarFormProps) {
       {/* ── Charging ─────────────────────────────────────────────── */}
       <Group
         title="Charging"
-        note={
+        i={4}
+        sub={
           can.charging
             ? undefined
             : 'A full hybrid charges its own battery from the engine and braking, and has no charging port — so these stay empty. The server rejects them too.'
         }
       >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Numeric
-            name="dcCharging"
-            label="DC charging"
-            unit="kW"
-            value={car?.dcCharging}
-            error={errors.dcCharging}
-            enabled={can.charging}
-          />
-          <Numeric
-            name="acCharging"
-            label="AC charging"
-            unit="kW"
-            value={car?.acCharging}
-            error={errors.acCharging}
-            enabled={can.charging}
-          />
+        <div className={s.fgrid}>
+          <Numeric name="dcCharging" label="DC charging" unit="kW" value={car?.dcCharging} error={errors.dcCharging} enabled={can.charging} />
+          <Numeric name="acCharging" label="AC charging" unit="kW" value={car?.acCharging} error={errors.acCharging} enabled={can.charging} />
         </div>
 
-        <fieldset className="mt-4" disabled={!can.connectors}>
-          <legend className="mb-1.5 text-ui-sm font-medium text-slate-700">Connectors</legend>
-          <p className="mb-2 text-ui-xs text-slate-500">
-            Leave all unticked when the source did not state a standard — that is different from
-            stating it has none.
-          </p>
-          <div className="flex flex-wrap gap-2">
+        <fieldset className={s.fieldset} disabled={!can.connectors}>
+          <legend className={s.flegend}>Connectors</legend>
+          <p className={s.fhint}>Leave all unticked when the source did not state a standard — that is different from stating it has none.</p>
+          <div className={s.checks}>
             {CONNECTORS.map((connector) => (
-              <label
-                key={connector}
-                className={cn(
-                  'inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-ui-sm transition-colors hover:bg-slate-50',
-                  !can.connectors && 'cursor-not-allowed opacity-50',
-                )}
-              >
-                <input
-                  type="checkbox"
-                  name="connectors"
-                  value={connector}
-                  defaultChecked={car?.connector?.includes(connector) ?? false}
-                  className="h-4 w-4 rounded accent-plug-blue-600"
-                />
-                <span className="font-mono">{connector}</span>
+              <label key={connector} className={s.check}>
+                <input type="checkbox" name="connectors" value={connector} defaultChecked={car?.connector?.includes(connector) ?? false} />
+                {connector}
               </label>
             ))}
           </div>
@@ -448,35 +335,24 @@ export function CarForm({ car, brands }: CarFormProps) {
       {/* ── Notes ────────────────────────────────────────────────── */}
       <Group
         title="Notes"
-        note="Printed under the specifications on the public page. The place for a qualifier a number alone would lose — “90+ km”, an assembler’s name, or why a figure is missing."
+        i={5}
+        sub="Printed under the specifications on the public page. The place for a qualifier a number alone would lose — “90+ km”, an assembler’s name, or why a figure is missing."
       >
-        <AdminField label="Notes" htmlFor="notes">
-          <textarea
-            id="notes"
-            name="notes"
-            rows={3}
-            defaultValue={car?.notes ?? ''}
-            className={TEXTAREA_CLASS}
-          />
-        </AdminField>
+        <div className={s.fgrid}>
+          <Field label="Notes" htmlFor="notes" full>
+            <textarea id="notes" name="notes" rows={3} defaultValue={car?.notes ?? ''} className={s.in} />
+          </Field>
+        </div>
       </Group>
 
       {/* Sticky, because this form is taller than any screen and a save button
           at the bottom of it is a save button nobody finds. */}
-      <div className="sticky bottom-0 -mx-1 flex items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-1 py-4 backdrop-blur">
-        <p className="text-ui-xs text-slate-500">
-          A blank numeric field is saved as <strong>not published</strong>, not as zero.
+      <div className={s.savebar}>
+        <p>
+          A blank numeric field is saved as <b>not published</b>, not as zero.
         </p>
-        <button
-          type="submit"
-          disabled={pending}
-          className="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg bg-plug-blue-600 px-5 text-ui font-semibold text-white transition-colors hover:bg-plug-blue-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2"
-        >
-          {pending ? (
-            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-          ) : (
-            <Save size={16} aria-hidden="true" />
-          )}
+        <button type="submit" disabled={pending} className={k('btn', 'btn--ink')}>
+          {pending ? <Spinner /> : <Ico n="save" />}
           {pending ? 'Saving…' : isNew ? 'Create car' : 'Save changes'}
         </button>
       </div>
@@ -484,33 +360,66 @@ export function CarForm({ car, brands }: CarFormProps) {
   )
 }
 
-function Group({
-  title,
-  note,
+/** One section of the form (.formc): a Power Grotesk title, its note, then the fields. */
+function Group({ title, sub, i = 0, children }: { title: string; sub?: string; i?: number; children: React.ReactNode }) {
+  const r = rise(i)
+  return (
+    <section className={k('card', 'formc', r.className)} style={r.style}>
+      <h2>{title}</h2>
+      {sub ? <p className={s.formc__sub}>{sub}</p> : null}
+      {children}
+    </section>
+  )
+}
+
+/**
+ * A labelled field (.fld). Every control has a real <label> tied by id, and
+ * required is said in text as well as with an asterisk.
+ */
+function Field({
+  label,
+  htmlFor,
+  required = false,
+  hint,
+  error,
+  full = false,
   children,
 }: {
-  title: string
-  note?: string
+  label: string
+  htmlFor: string
+  required?: boolean
+  hint?: string
+  error?: string
+  full?: boolean
   children: React.ReactNode
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 bg-slate-50/70 px-5 py-3">
-        <h2 className="text-ui-sm font-bold uppercase tracking-[0.1em] text-slate-500">{title}</h2>
-        {note ? (
-          <p className="mt-1.5 max-w-3xl text-ui-xs leading-relaxed text-slate-500">{note}</p>
-        ) : null}
-      </div>
-      <div className="p-5">{children}</div>
-    </section>
+    <div className={k('fld', full && 'fld--full', error && 'is-bad')}>
+      <label htmlFor={htmlFor}>
+        {label}
+        {required ? (
+          <>
+            <span className={s.req} aria-hidden="true">
+              *
+            </span>
+            <span className={s.sr}>(required)</span>
+          </>
+        ) : (
+          <span className={s.fnote}>optional</span>
+        )}
+      </label>
+      {children}
+      <FieldError message={error} />
+      {hint ? <p className={s.fhint}>{hint}</p> : null}
+    </div>
   )
 }
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
   return (
-    <p role="alert" className="mt-1.5 flex items-center gap-1.5 text-ui-xs font-medium text-red-600">
-      <AlertTriangle size={12} aria-hidden="true" />
+    <p role="alert" className={s.ferr}>
+      <Ico n="alert" />
       {message}
     </p>
   )
@@ -545,11 +454,7 @@ function Numeric({
   disabledNote?: string
 }) {
   return (
-    <AdminField
-      label={unit ? `${label} (${unit})` : label}
-      htmlFor={name}
-      hint={enabled ? hint : (disabledNote ?? 'Not applicable to this powertrain.')}
-    >
+    <Field label={unit ? `${label} (${unit})` : label} htmlFor={name} error={error} hint={enabled ? hint : (disabledNote ?? 'Not applicable to this powertrain.')}>
       <input
         id={name}
         name={name}
@@ -557,9 +462,8 @@ function Numeric({
         disabled={!enabled}
         defaultValue={value !== null && value !== undefined ? String(value) : ''}
         placeholder={enabled ? 'not published' : 'not applicable'}
-        className={cn(FIELD_CLASS, 'font-mono', error && 'border-red-400')}
+        className={k('in', 'mono', error && 'bad')}
       />
-      <FieldError message={error} />
-    </AdminField>
+    </Field>
   )
 }

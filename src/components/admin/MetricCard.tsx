@@ -1,41 +1,47 @@
 // src/components/admin/MetricCard.tsx
 import type { IconType } from '@/components/ui/icons'
 import Link from 'next/link'
+import type * as React from 'react'
 
-import { InfoHint } from '@/components/admin/InfoHint'
 import { cn } from '@/lib/utils'
 
+import { AdmIcon, type AdmIconName } from './admin-icons'
+import { CountUp, KpiRing } from './admin-motion'
+import { InfoHint } from './InfoHint'
+
 /**
- * One figure on the operations dashboard.
+ * One figure: the design's KPI tile (`.card.kpi`) — an icon, a mono label, a
+ * big JetBrains figure that counts up, and a note with a status dot. The first
+ * tile of a row is usually `lit` (ink, volt icon and ring).
  *
  * ── Why a metric can have no value ────────────────────────────────────
  *
- * `value` is nullable, and that is the point of this component rather than an
- * oversight in it. Three of the six figures an operator asked for — sessions,
- * revenue, uptime — have no source in this product: there is no session table,
- * no pricing on a connector and no heartbeat history. A card that filled those
- * with a plausible number would be indistinguishable from one reading a real
- * meter, which is the one failure mode a control room cannot tolerate.
+ * `value` is nullable on purpose. A figure the product has no source for
+ * renders as "—" with the reason underneath rather than a plausible number,
+ * which would be indistinguishable from a real reading. The tile keeps its
+ * place, so the gap is visible.
  *
- * So a null value renders as an explicit "Not tracked yet" with the reason
- * underneath. The card keeps its place in the grid, so the layout is finished
- * and the gap is visible — and when a source lands, only the query changes.
+ * ── Value ─────────────────────────────────────────────────────────────
+ *
+ * A whole number ("1,204") counts up. "5 / 6" is drawn as the design draws it:
+ * the 5 counts up and " / 6" sits after it, small and fog. Anything else is
+ * shown as given.
  */
 
 export type MetricTone = 'neutral' | 'good' | 'warn' | 'critical'
 
-const TONE_DOT: Record<MetricTone, string> = {
-  neutral: 'bg-slate-300',
-  good: 'bg-green-500',
-  warn: 'bg-amber-500',
-  critical: 'bg-red-500',
+const TONE_DOT: Record<MetricTone, string | null> = {
+  neutral: null,
+  good: 'dot--ok',
+  warn: 'dot--warn',
+  critical: 'dot--bad',
 }
 
-const TONE_TEXT: Record<MetricTone, string> = {
-  neutral: 'text-slate-500',
-  good: 'text-green-700',
-  warn: 'text-amber-700',
-  critical: 'text-red-700',
+const TONE_TEXT: Record<MetricTone, string | undefined> = {
+  neutral: undefined,
+  good: 'ok',
+  warn: 'warn',
+  critical: 'bad',
 }
 
 export interface MetricCardProps {
@@ -43,20 +49,40 @@ export interface MetricCardProps {
   /** Null when the product has no source for this figure yet. */
   value: string | null
   /** The line under the number — what it means, not what it is. */
-  detail?: string
+  detail?: React.ReactNode
   /** Why there is no value. Only read when `value` is null. */
   unavailableReason?: string
-  icon: IconType
+  /** A design icon name ('bolt', 'plug', 'users'…) or a component. */
+  icon: AdmIconName | IconType
   tone?: MetricTone
-  /** Makes the whole card a link to where the figure can be acted on. */
+  /** Makes the whole tile a link to where the figure can be acted on. */
   href?: string
-  /**
-   * Plain-language answer to "what is this card for?", shown behind a ? in the
-   * corner. Say what it counts, where the number comes from, and what to do
-   * about it — a hint that restates the label adds a control and answers
-   * nothing. See InfoHint.
-   */
+  /** Plain-language answer to "what is this tile for?", behind the design's `?`. */
   help?: React.ReactNode
+  /** The ink tile (`.kpi.is-lit`): volt icon and ring. */
+  lit?: boolean
+  /** The amber tile (`.kpi--warn`). */
+  warn?: boolean
+  /** Draws the corner ring to this fraction (0–1). */
+  ring?: number | null
+  /** Small text after the figure, e.g. "%" or " / 6". */
+  suffix?: string
+  /** Position in its row, for the design's staggered entrance. */
+  index?: number
+  className?: string
+}
+
+function Figure({ value, suffix }: { value: string; suffix?: string }) {
+  const split = /^\s*([\d,]+)\s*\/\s*(.+)$/.exec(value)
+  const main = split?.[1] ?? value
+  const tail = split ? ` / ${split[2]}` : suffix
+  const n = /^\d[\d,]*$/.test(main) ? Number(main.replace(/,/g, '')) : null
+  return (
+    <p className="kpi__val">
+      {n !== null ? <CountUp value={n} /> : main}
+      {tail ? <small>{tail}</small> : null}
+    </p>
+  )
 }
 
 export function MetricCard({
@@ -64,51 +90,52 @@ export function MetricCard({
   value,
   detail,
   unavailableReason,
-  icon: Icon,
+  icon,
   tone = 'neutral',
   href,
   help,
+  lit = false,
+  warn = false,
+  ring,
+  suffix,
+  index = 0,
+  className,
 }: MetricCardProps) {
   const unavailable = value === null
+  const Icon = typeof icon === 'string' ? null : icon
+  const dot = TONE_DOT[tone]
+  const hasRing = typeof ring === 'number' && !unavailable
+
+  /*
+    The help button sits outside the link, never inside it: a <button> in an
+    <a> is invalid and navigates instead of opening. With a ring in the corner
+    it moves beside the label instead.
+  */
+  const hint = help ? (
+    <InfoHint label={label} align="left">
+      {help}
+    </InfoHint>
+  ) : null
 
   const body = (
     <>
-      {/* The glyph on its own — no tile behind it. */}
-      <Icon
-        size={22}
-        aria-hidden="true"
-        className={cn('shrink-0', unavailable ? 'text-slate-400' : 'text-plug-cyan-700')}
-      />
-
-      <p className="mt-4 text-ui-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
-        {label}
-      </p>
-
+      <div className="kpi__top">
+        {Icon ? <Icon size={24} className="kpi__ico" aria-hidden="true" /> : <AdmIcon name={icon as AdmIconName} className="kpi__ico" />}
+      </div>
+      {hasRing ? <KpiRing fraction={ring} /> : null}
+      <p className="kpi__lab">{label}</p>
       {unavailable ? (
         <>
-          <p className="mt-1.5 text-[1.375rem] font-bold leading-none text-slate-300">—</p>
-          <p className="mt-2 text-ui-xs leading-snug text-slate-400">
-            {unavailableReason ?? 'Not tracked yet.'}
-          </p>
+          <p className="kpi__val kpi__val--none">—</p>
+          <p className="kpi__note">{unavailableReason ?? 'Not tracked yet.'}</p>
         </>
       ) : (
         <>
-          <p className="mt-1.5 text-[1.75rem] font-black leading-none tracking-[-0.02em] tabular-nums text-slate-900">
-            {value}
-          </p>
+          <Figure value={value} suffix={suffix} />
           {detail ? (
-            <p className={cn('mt-2 flex items-center gap-2 text-ui-xs leading-snug', TONE_TEXT[tone])}>
-              {/*
-                The status dot, a solid circle at the start of the status line.
-                It sat in the card's top-right corner, which is also where the ?
-                help button is placed, and the two overlapped into what looked
-                like a broken ring. Here it has a place of its own, and reads
-                with the words it summarises.
-              */}
-              {tone !== 'neutral' ? (
-                <span aria-hidden="true" className={cn('h-2.5 w-2.5 shrink-0 rounded-full', TONE_DOT[tone])} />
-              ) : null}
-              {detail}
+            <p className="kpi__note">
+              {dot ? <i className={cn('dot', dot)} aria-hidden="true" /> : null}
+              <span className={TONE_TEXT[tone]}>{detail}</span>
             </p>
           ) : null}
         </>
@@ -116,44 +143,18 @@ export function MetricCard({
     </>
   )
 
-  const shell = cn(
-    'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(11,12,14,0.04)]',
-    // Hover is a border and a shadow, never a transform: six cards lifting on a
-    // grid is motion for its own sake, and this page is read at a glance.
-    href &&
-      'transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-[0_4px_16px_-4px_rgba(11,12,14,0.10)]',
-    unavailable && 'bg-slate-50/60',
-  )
-
-  /*
-    The hint sits outside the card, not inside it.
-
-    A card with an href is a Link, and a <button> inside an <a> is invalid
-    markup that navigates instead of opening. Positioning it over the corner
-    keeps one control per job: the card goes somewhere, the ? explains.
-  */
-  const card =
-    href && !unavailable ? (
-      <Link
-        href={href}
-        className={cn(shell, 'block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500')}
-      >
-        {body}
-      </Link>
-    ) : (
-      <div className={shell}>{body}</div>
-    )
-
-  if (!help) return card
+  const shell = cn('card kpi', lit && 'is-lit', warn && 'kpi--warn', unavailable && 'kpi--none', className)
+  const style = { '--i': index } as React.CSSProperties
 
   return (
-    <div className="relative">
-      {card}
-      <span className="absolute right-3.5 top-3.5">
-        <InfoHint label={label} align="left">
-          {help}
-        </InfoHint>
-      </span>
-    </div>
+    <article className={cn(shell, href && !unavailable && 'kpi--link')} data-in style={style}>
+      {href && !unavailable ? (
+        <Link href={href} className="kpi__hit" aria-label={`${label}: ${value}`}>
+          <span className="sr">Open</span>
+        </Link>
+      ) : null}
+      {body}
+      {hint ? <span className={cn('kpi__help', hasRing && 'kpi__help--ring')}>{hint}</span> : null}
+    </article>
   )
 }
