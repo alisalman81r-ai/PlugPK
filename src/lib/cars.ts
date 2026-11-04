@@ -127,8 +127,8 @@ export function formatSpan(
  * stored string keeps the full published precision; this is for display.
  */
 export function tidyPriceDisplay(display: string): string {
-  if (!/Cr/i.test(display)) return display
-  return display.replace(/d+.d{3,}/g, (n) => Number(Number(n).toFixed(2)).toString())
+  if (!/\bCr\b/i.test(display)) return display
+  return display.replace(/\d+\.\d{3,}/g, (n) => Number(Number(n).toFixed(2)).toString())
 }
 
 export function formatCarPrice(car: Car): string {
