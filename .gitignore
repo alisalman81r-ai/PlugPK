@@ -58,3 +58,6 @@ playwright-report/
 .localdb/
 .vercel
 .env*
+
+# Project archives (e.g. plugpk-project*.zip) are never committed: they hold .env secrets and database exports.
+*.zip
