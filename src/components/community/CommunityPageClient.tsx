@@ -13,6 +13,7 @@ import { CommunityHero } from '@/components/community/CommunityHero'
 import { CommunitySearchBar } from '@/components/community/CommunitySearchBar'
 import { CommunitySidebar } from '@/components/community/CommunitySidebar'
 import { CreatePostForm } from '@/components/community/CreatePostForm'
+import { MyProfileBar } from '@/components/community/MyProfileBar'
 import { PostFeed } from '@/components/community/PostFeed'
 import { useCommunity, type CommunityInitialData } from '@/hooks/useCommunity'
 
@@ -125,6 +126,8 @@ export function CommunityPageClient({ initial, topPosts, clubs }: CommunityPageC
           data-theme="light"
           className="pb-[clamp(56px,6vw,88px)] pt-[clamp(40px,4.5vw,64px)]"
         >
+          {/* Signed-in members only: renders nothing for a guest. */}
+          <MyProfileBar className={cn(WRAP, 'mb-6')} />
           <div
             className={cn(
               WRAP,

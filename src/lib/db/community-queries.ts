@@ -465,3 +465,37 @@ export async function getClubIds(): Promise<string[]> {
   const rows = await prisma.club.findMany({ select: { id: true } })
   return rows.map((row) => row.id)
 }
+
+/** One member's own corner of the board: what they posted and what they replied. */
+export interface MyCommunityActivity {
+  posts: CommunityPost[]
+  replies: { id: string; content: string; createdAt: string; post: { slug: string; title: string } }[]
+  /** Likes on every post they wrote. */
+  likesReceived: number
+}
+
+export async function getMyCommunityActivity(userId: string): Promise<MyCommunityActivity> {
+  const [posts, replies] = await Promise.all([
+    prisma.communityPost.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+    prisma.comment.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, content: true, createdAt: true, post: { select: { slug: true, title: true } } },
+    }),
+  ])
+  return {
+    posts: posts.map((row) => toPost(row)),
+    replies: replies.map((r) => ({ id: r.id, content: r.content, createdAt: r.createdAt.toISOString(), post: r.post })),
+    likesReceived: posts.reduce((sum, p) => sum + p.likeCount, 0),
+  }
+}
+
+/** Just the counts, for the community page's "My profile" bar. */
+export async function getMyCommunityCounts(userId: string): Promise<{ posts: number; replies: number; likes: number }> {
+  const [posts, replies, likes] = await Promise.all([
+    prisma.communityPost.count({ where: { userId } }),
+    prisma.comment.count({ where: { userId } }),
+    prisma.communityPost.aggregate({ where: { userId }, _sum: { likeCount: true } }),
+  ])
+  return { posts, replies, likes: likes._sum.likeCount ?? 0 }
+}
