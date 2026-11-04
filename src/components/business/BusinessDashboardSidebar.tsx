@@ -1,24 +1,16 @@
 // src/components/business/BusinessDashboardSidebar.tsx
 'use client'
 
-import {
-  Banknote,
-  BarChart2,
-  Building2,
-  CalendarCheck,
-  LayoutDashboard,
-  Plus,
-  ShieldCheck,
-  Star,
-  Wrench,
-  Zap,
-  type IconType,
-} from '@/components/ui/icons'
+import { Banknote, type IconType } from '@/components/ui/icons'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import * as React from 'react'
 
+import { AdmIcon, AdmMark, type AdmIconName } from '@/components/admin/admin-icons'
+import { signOut } from '@/lib/db/session-actions'
 import { cn } from '@/lib/utils'
 
+import { useGlide } from './biz-motion'
 // Three states (under review / live / not approved) and the ?listing= links.
 import { listingHref, listingState } from './listing-state'
 import { PORTAL_COOKIE, type PortalMode } from './portal-mode'
@@ -31,14 +23,14 @@ export interface PortalListingSummary {
   status: string
 }
 
+/** The account, as /api/me reports it. */
+export type PortalUser = { name: string; email: string }
+
 export interface BusinessDashboardSidebarProps {
   /**
    * The listing the portal is showing, or undefined when the account has
-   * none.
-   *
-   * The mock business and mock analytics props that used to sit here are gone:
-   * every page in the portal now reads the database, so there is nothing left
-   * to fall back to and nothing invented to show.
+   * none. Every page in the portal reads the database; nothing here is a
+   * fixture, and there are no quick-stats — nothing measured them.
    */
   listing?: {
     id?: string
@@ -50,47 +42,47 @@ export interface BusinessDashboardSidebarProps {
   /**
    * Every listing on the account. With more than one, the sidebar offers a
    * switcher and every link carries `?listing=` so the choice survives moving
-   * between pages — the portal used to manage only the newest listing.
+   * between pages.
    */
   listings?: PortalListingSummary[]
   /** Which side of the portal is showing: charger listings or service listings. */
   mode?: PortalMode
   /** The account lists both, so the Chargers | Services switch is shown. */
   canSwitch?: boolean
+  /** Closes the mobile drawer after a link is followed. */
+  onNavigate?: () => void
+  /** Icon-only desktop mode, owned by the shell. */
+  collapsed?: boolean
+  /** The signed-in account, for the footer. */
+  user?: PortalUser | null
 }
 
 export function rememberPortal(mode: PortalMode): void {
   document.cookie = `${PORTAL_COOKIE}=${mode}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`
 }
 
-/** The Chargers | Services switch, for an account that lists both. */
+/** The Chargers | Services switch, for an account that lists both. A volt pill slides between the two. */
 export function PortalSwitch({ mode, className }: { mode: PortalMode; className?: string }) {
   return (
-    <div role="tablist" aria-label="Portal" className={cn('grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1', className)}>
+    <div role="tablist" aria-label="Portal" className={cn('biz-switch', className)} data-on={mode}>
+      <span className="biz-switch__pill" aria-hidden="true" />
       {(
         [
-          { value: 'chargers', label: 'Chargers', href: '/business/dashboard', icon: Zap },
-          { value: 'services', label: 'Services', href: '/business/services', icon: Wrench },
+          { value: 'chargers', label: 'Chargers', href: '/business/dashboard', icon: 'bolt' },
+          { value: 'services', label: 'Services', href: '/business/services', icon: 'wrench' },
         ] as const
-      ).map((side) => {
-        const on = side.value === mode
-        return (
-          <Link
-            key={side.value}
-            href={side.href}
-            role="tab"
-            aria-selected={on}
-            onClick={() => rememberPortal(side.value)}
-            className={cn(
-              'flex h-9 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold transition-colors',
-              on ? 'bg-white text-plug-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-800',
-            )}
-          >
-            <side.icon size={15} aria-hidden="true" />
-            {side.label}
-          </Link>
-        )
-      })}
+      ).map((side) => (
+        <Link
+          key={side.value}
+          href={side.href}
+          role="tab"
+          aria-selected={side.value === mode}
+          onClick={() => rememberPortal(side.value)}
+        >
+          <AdmIcon name={side.icon} />
+          {side.label}
+        </Link>
+      ))}
     </div>
   )
 }
@@ -98,37 +90,57 @@ export function PortalSwitch({ mode, className }: { mode: PortalMode; className?
 interface BusinessNavItem {
   label: string
   href: string
-  icon: IconType
+  icon: AdmIconName | IconType
   exact?: boolean
 }
 
 export const BUSINESS_NAV: BusinessNavItem[] = [
-  { label: 'Overview', href: '/business/dashboard', icon: LayoutDashboard, exact: true },
-  { label: 'Profile', href: '/business/profile', icon: Building2 },
-  { label: 'Chargers', href: '/business/chargers', icon: Zap },
-  { label: 'Bookings', href: '/business/bookings', icon: CalendarCheck },
+  { label: 'Overview', href: '/business/dashboard', icon: 'grid', exact: true },
+  { label: 'Profile', href: '/business/profile', icon: 'building' },
+  { label: 'Chargers', href: '/business/chargers', icon: 'bolt' },
+  { label: 'Bookings', href: '/business/bookings', icon: 'calok' },
   { label: 'Payout accounts', href: '/business/payouts', icon: Banknote },
-  { label: 'Application', href: '/business/application', icon: ShieldCheck },
-  { label: 'Reviews', href: '/business/reviews', icon: Star },
-  { label: 'Analytics', href: '/business/analytics', icon: BarChart2 },
+  { label: 'Application', href: '/business/application', icon: 'shield' },
+  { label: 'Reviews', href: '/business/reviews', icon: 'star' },
+  { label: 'Analytics', href: '/business/analytics', icon: 'trend' },
 ]
 
 /** The services side: where an application stands, and the listing itself. */
 export const SERVICE_NAV: BusinessNavItem[] = [
-  { label: 'Overview', href: '/business/services', icon: LayoutDashboard, exact: true },
-  { label: 'Profile', href: '/business/services/profile', icon: Building2 },
+  { label: 'Overview', href: '/business/services', icon: 'grid', exact: true },
+  { label: 'Profile', href: '/business/services/profile', icon: 'building' },
 ]
 
 export function navFor(mode: PortalMode): BusinessNavItem[] {
   return mode === 'services' ? SERVICE_NAV : BUSINESS_NAV
 }
 
-export function isBusinessItemActive(
-  pathname: string,
-  item: Pick<BusinessNavItem, 'href' | 'exact'>,
-): boolean {
+export function isBusinessItemActive(pathname: string, item: Pick<BusinessNavItem, 'href' | 'exact'>): boolean {
   if (item.exact) return pathname === item.href
   return pathname === item.href || pathname.startsWith(`${item.href}/`)
+}
+
+export function NavIcon({ icon }: { icon: AdmIconName | IconType }) {
+  if (typeof icon === 'string') return <AdmIcon name={icon} />
+  const Icon = icon
+  return <Icon size={20} aria-hidden="true" />
+}
+
+const PILL: Record<string, { pill: string; dot: string }> = {
+  pending: { pill: 'pill--warn', dot: 'dot--warn' },
+  approved: { pill: 'pill--ok', dot: 'dot--ok' },
+  rejected: { pill: 'pill--bad', dot: 'dot--bad' },
+}
+
+/** The design's pill for a listing's review state. */
+export function ListingStatePill({ status, className }: { status: string | undefined; className?: string }) {
+  const tone = PILL[status ?? 'pending'] ?? { pill: 'pill--warn', dot: 'dot--warn' }
+  return (
+    <span className={cn('pill', tone.pill, className)}>
+      <i className={cn('dot', tone.dot)} aria-hidden="true" />
+      {listingState(status).label}
+    </span>
+  )
 }
 
 /**
@@ -149,16 +161,11 @@ export function ListingSwitcher({
   if (listings.length < 2) return null
 
   return (
-    <label className={cn('block', className)}>
-      <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-        Showing listing
-      </span>
+    <label className={cn('biz-pick', className)}>
+      <span>Showing listing</span>
       <select
         value={currentId}
-        onChange={(event) =>
-          router.push(`${pathname}?listing=${encodeURIComponent(event.target.value)}`)
-        }
-        className="h-10 w-full cursor-pointer rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus-visible:border-plug-blue-500"
+        onChange={(event) => router.push(`${pathname}?listing=${encodeURIComponent(event.target.value)}`)}
       >
         {listings.map((item) => (
           <option key={item.id} value={item.id}>
@@ -170,93 +177,119 @@ export function ListingSwitcher({
   )
 }
 
-export function BusinessDashboardSidebar({ listing, listings = [], mode = 'chargers', canSwitch = false }: BusinessDashboardSidebarProps) {
+/**
+ * The portal's ink sidebar — the admin design's `.side`, with the owner's
+ * listing card, the Chargers | Services switch, and one volt indicator that
+ * glides to the page you are on.
+ */
+export function BusinessDashboardSidebar({
+  listing,
+  listings = [],
+  mode = 'chargers',
+  canSwitch = false,
+  onNavigate,
+  collapsed = false,
+  user = null,
+}: BusinessDashboardSidebarProps) {
   const pathname = usePathname()
+  const navRef = React.useRef<HTMLElement>(null)
+  const indRef = React.useRef<HTMLSpanElement>(null)
+  const nav = navFor(mode)
+  useGlide(navRef, indRef, '.side__link[aria-current="page"]', 'y', [pathname, mode, collapsed])
 
-  const name = listing?.name ?? 'No listing yet'
-  const type = (listing?.type ?? '').replace('-', ' ')
-  const city = listing?.city ?? ''
-  const state = listingState(listing?.status)
+  const name = user?.name ?? 'Owner'
+  const add = mode === 'services' ? 'List another service' : 'List another location'
 
   return (
-    <div className="scrollbar-hide sticky top-[64px] flex h-[calc(100vh-64px)] w-[280px] shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white p-5">
-      {canSwitch ? <PortalSwitch mode={mode} className="mb-4" /> : null}
+    <>
+      <Link
+        className="side__brand"
+        href={nav[0]?.href ?? '/business'}
+        aria-label="plugpk business portal home"
+        title={collapsed ? 'plugpk business' : undefined}
+        onClick={onNavigate}
+      >
+        <AdmMark />
+        <span className="side__word">
+          plug<b>pk</b>
+        </span>
+        <span className="side__chip">BUSINESS</span>
+      </Link>
 
-      <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        <p className="truncate font-bold text-slate-900">{name}</p>
-        <p className="mt-0.5 text-xs capitalize text-slate-400">
-          {type} · {city}
-        </p>
-
-        {listing ? (
-          <span className={cn('mt-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1', state.pill)}>
-            <span aria-hidden="true" className={cn('h-1.5 w-1.5 rounded-full', state.dot)} />
-            <span className="text-[10px] font-semibold">{state.label}</span>
-          </span>
-        ) : null}
-
-        <ListingSwitcher listings={listings} currentId={listing?.id} className="mt-4" />
+      <div className="biz-side__block">
+        {canSwitch ? <PortalSwitch mode={mode} /> : null}
+        <div className="biz-card">
+          <p className="biz-card__name">{listing?.name ?? 'No listing yet'}</p>
+          {listing ? (
+            <>
+              <p className="biz-card__sub">
+                {[listing.type.replace('-', ' '), listing.city].filter(Boolean).join(' · ')}
+              </p>
+              <ListingStatePill status={listing.status} />
+            </>
+          ) : null}
+          <ListingSwitcher listings={listings} currentId={listing?.id} />
+        </div>
       </div>
 
-      {/* The quick-stats block is gone.
-          It printed 1,240 views, 89 clicks and a 4.8 rating from mock data —
-          this application records no page views, no navigate clicks and no
-          reviews for a business, so those were four invented numbers sitting
-          above the owner's real listing. They can return when something
-          measures them. */}
-
-      <nav className="flex flex-1 flex-col gap-1">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-          {mode === 'services' ? 'Service portal' : 'Business Portal'}
-        </p>
-
-        {navFor(mode).map((item) => {
+      <nav ref={navRef} className="side__nav" aria-label="Business portal" data-lenis-prevent>
+        <span ref={indRef} className="biz-ind" aria-hidden="true" />
+        <p className="side__group">{mode === 'services' ? 'Service portal' : 'Business portal'}</p>
+        {nav.map((item) => {
           const active = isBusinessItemActive(pathname, item)
-          const Icon = item.icon
-
           return (
             <Link
               key={item.href}
+              className="side__link"
               href={listingHref(item.href, listing?.id, listings.length)}
               aria-current={active ? 'page' : undefined}
-              className={cn(
-                'flex h-[42px] items-center gap-3 rounded-xl transition-all duration-150',
-                active
-                  ? 'border-l-[3px] border-plug-blue-600 bg-plug-blue-50 pl-[9px] pr-3'
-                  : 'px-3 hover:bg-slate-50',
-              )}
+              title={collapsed ? item.label : undefined}
+              onClick={onNavigate}
             >
-              <Icon
-                size={18}
-                className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-400')}
-                aria-hidden="true"
-              />
-              <span
-                className={cn(
-                  'text-sm',
-                  active ? 'font-semibold text-plug-blue-600' : 'font-medium text-slate-600',
-                )}
-              >
-                {item.label}
-              </span>
+              <NavIcon icon={item.icon} />
+              <span className="side__label">{item.label}</span>
             </Link>
           )
         })}
+        <p className="side__group">Grow</p>
+        <Link
+          className="side__link side__link--add"
+          href={mode === 'services' ? '/services/list' : '/business/signup'}
+          title={collapsed ? add : undefined}
+          onClick={onNavigate}
+        >
+          <AdmIcon name="plus" />
+          <span className="side__label">{add}</span>
+        </Link>
       </nav>
 
-      <Link
-        href={mode === 'services' ? '/services/list' : '/business/signup'}
-        className="mt-4 flex h-[42px] items-center gap-3 rounded-xl px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-      >
-        <Plus size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
-        {mode === 'services' ? 'List another service' : 'List another location'}
-      </Link>
-
-      {/* The "Go Premium — get priority listing and analytics" card is gone.
-          Its button pointed at /business/upgrade, which does not exist, and the
-          pricing page it referenced was removed when plans were replaced with
-          meeting requests. It offered analytics that every owner now gets, in
-          exchange for a payment there was no way to make. */}
-    </div>
+      <div className="side__foot">
+        <div className="side__me">
+          <span className="av" aria-hidden="true">
+            {name.slice(0, 1).toUpperCase()}
+          </span>
+          <div>
+            <b>{name}</b>
+            <span>{user?.email ?? ''}</span>
+          </div>
+        </div>
+        <Link className="side__link" href="/dashboard" title={collapsed ? 'Driver dashboard' : undefined} onClick={onNavigate}>
+          <AdmIcon name="user" />
+          <span className="side__label">Driver dashboard</span>
+        </Link>
+        <button
+          type="button"
+          className="side__link"
+          title={collapsed ? 'Sign out' : undefined}
+          onClick={async () => {
+            await signOut().catch(() => null)
+            window.location.assign('/')
+          }}
+        >
+          <AdmIcon name="out" />
+          <span className="side__label">Sign out</span>
+        </button>
+      </div>
+    </>
   )
 }

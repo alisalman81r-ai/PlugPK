@@ -1,24 +1,27 @@
-// src/components/business/BusinessAnalytics.tsx
 'use client'
 
-import { Eye, MessageSquare, Navigation2, Star, TrendingDown, TrendingUp, type IconType } from '@/components/ui/icons'
+import { TrendingDown, TrendingUp } from '@/components/ui/icons'
 import * as React from 'react'
 
 import type { BusinessAnalyticsData } from '@/lib/db/queries'
+import { gsap, prefersReduced } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
+
+import { AdmIcon } from '@/components/admin/admin-icons'
+
+import { BizKpi } from './BizKpi'
+import { useGlide } from './biz-motion'
 
 /**
  * What the owner's listing actually did.
  *
  * Every figure here comes from BusinessDailyStat and Review — rows written when
- * a real visitor opened the listing or pressed its directions button. Before,
- * this page read a fixed array: 1,240 views and 89 clicks that never moved,
- * shown to any owner regardless of whether their listing was even approved.
+ * a real visitor opened the listing or pressed its directions button. There is
+ * no premium gate and no fixture: a quiet listing shows zeros and says why.
  *
- * The premium gate is gone too. It blurred these numbers behind an "Upgrade to
- * Premium" button pointing at /business/upgrade, which does not exist, and a
- * pricing page that was removed — so the owner's own data sat behind a door
- * with nothing on the other side.
+ * Drawn in the admin design's language: KPI tiles that count up, a segmented
+ * range picker whose ink pill glides, and a bar chart (views) with a line
+ * (directions) that draw in when the range changes.
  */
 
 export interface BusinessAnalyticsProps {
@@ -40,170 +43,216 @@ function percentChange(current: number, previous: number): number | null {
 
 function Delta({ current, previous }: { current: number; previous: number }) {
   const change = percentChange(current, previous)
-  if (change === null || change === 0) return null
-
+  if (change === null || change === 0) return <span>Same as last month</span>
   const up = change > 0
   const Icon = up ? TrendingUp : TrendingDown
-
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 text-ui-xs font-semibold',
-        up ? 'text-green-600' : 'text-slate-500',
-      )}
-    >
-      <Icon size={12} aria-hidden="true" />
-      {up ? '+' : ''}
-      {change}%
-    </span>
+    <>
+      <span className={cn('kpi__delta', up ? 'up' : 'down')}>
+        <Icon aria-hidden="true" />
+        {up ? '+' : ''}
+        {change}%
+      </span>
+      <span>vs last 30 days</span>
+    </>
   )
+}
+
+function shortDate(iso: string | undefined) {
+  if (!iso) return ''
+  const d = new Date(`${iso}T00:00:00`)
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
 export function BusinessAnalytics({ analytics, isLive }: BusinessAnalyticsProps) {
   const [range, setRange] = React.useState<RangeKey>(30)
+  const [hover, setHover] = React.useState<number | null>(null)
+  const segRef = React.useRef<HTMLDivElement>(null)
+  const pillRef = React.useRef<HTMLSpanElement>(null)
+  const chartRef = React.useRef<SVGSVGElement>(null)
+  const [segReady, setSegReady] = React.useState(false)
 
-  const points = React.useMemo(
-    () => analytics.chartData.slice(-range),
-    [analytics.chartData, range],
-  )
+  useGlide(segRef, pillRef, 'button[aria-pressed="true"]', 'x', [range])
+  React.useEffect(() => setSegReady(true), [])
 
-  // At least 1, so a quiet listing draws a flat baseline instead of dividing
-  // every bar by zero.
-  const maxViews = React.useMemo(
-    () => Math.max(...points.map((point) => point.views), 1),
-    [points],
-  )
+  const points = React.useMemo(() => analytics.chartData.slice(-range), [analytics.chartData, range])
 
+  // At least 1, so a quiet listing draws a flat baseline instead of dividing by zero.
+  const max = React.useMemo(() => Math.max(...points.map((p) => Math.max(p.views, p.clicks)), 1), [points])
   const hasAnyActivity = analytics.chartData.some((point) => point.views > 0 || point.clicks > 0)
 
-  const stats: {
-    icon: IconType
-    tone: string
-    value: string
-    label: string
-    current: number
-    previous: number
-  }[] = [
-    {
-      icon: Eye,
-      tone: 'bg-plug-blue-50 text-plug-blue-600',
-      value: analytics.thisMonth.profileViews.toLocaleString('en-PK'),
-      label: 'Listing views',
-      current: analytics.thisMonth.profileViews,
-      previous: analytics.lastMonth.profileViews,
-    },
-    {
-      icon: Navigation2,
-      tone: 'bg-green-50 text-green-600',
-      value: analytics.thisMonth.navigateClicks.toLocaleString('en-PK'),
-      label: 'Directions taken',
-      current: analytics.thisMonth.navigateClicks,
-      previous: analytics.lastMonth.navigateClicks,
-    },
-    {
-      icon: Star,
-      tone: 'bg-amber-50 text-amber-600',
-      value:
-        analytics.thisMonth.avgRating === 0 ? '—' : analytics.thisMonth.avgRating.toFixed(1),
-      label: 'Average rating',
-      current: analytics.thisMonth.avgRating,
-      previous: analytics.lastMonth.avgRating,
-    },
-    {
-      icon: MessageSquare,
-      tone: 'bg-purple-50 text-purple-600',
-      value: String(analytics.thisMonth.reviewsReceived),
-      label: 'Reviews received',
-      current: analytics.thisMonth.reviewsReceived,
-      previous: analytics.lastMonth.reviewsReceived,
-    },
-  ]
+  const W = points.length * 10
+  const H = 100
+
+  // Bars rise and the directions line wipes in whenever the range changes.
+  React.useLayoutEffect(() => {
+    const svg = chartRef.current
+    if (!svg || prefersReduced()) return
+    const ctx = gsap.context(() => {
+      gsap.from(svg.querySelectorAll('.bar'), {
+        scaleY: 0,
+        transformOrigin: '50% 100%',
+        duration: 0.8,
+        ease: 'expo.out',
+        stagger: { amount: 0.35 },
+      })
+      gsap.fromTo(svg.querySelector('#biz-reveal rect'), { attr: { width: 0 } }, { attr: { width: W }, duration: 1.2, ease: 'power2.inOut', delay: 0.15 })
+    }, svg)
+    return () => ctx.revert()
+  }, [range, hasAnyActivity, W])
+
+  const y = (v: number) => H - (v / max) * (H - 6)
+  const line = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${i * 10 + 5},${y(p.clicks).toFixed(2)}`).join(' ')
+  const tip = hover !== null ? points[hover] : null
+
+  const t = analytics.thisMonth
+  const l = analytics.lastMonth
 
   return (
-    <div>
+    <>
       {!isLive ? (
-        <p className="mb-6 rounded-xl bg-amber-50 px-4 py-3 text-ui-sm text-amber-800">
-          This listing is not approved yet, so drivers cannot open it. Figures start once it is
-          live.
+        <p className="note note--warn">
+          <AdmIcon name="alert" />
+          <span>
+            <b>Not live yet</b>
+            This listing is not approved yet, so drivers cannot open it. Figures start once it is live.
+          </span>
         </p>
       ) : null}
 
-      <div className="mb-8 flex gap-2">
-        {RANGES.map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setRange(option)}
-            aria-pressed={range === option}
-            className={cn(
-              'h-9 rounded-full px-4 text-sm font-medium transition-all duration-150',
-              range === option
-                ? 'bg-plug-blue-600 text-white'
-                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
-            )}
-          >
-            {option} days
-          </button>
-        ))}
+      <div className="biz-kpis">
+        <BizKpi
+          lit
+          icon="globe"
+          label="Listing views"
+          value={t.profileViews}
+          note={<Delta current={t.profileViews} previous={l.profileViews} />}
+        />
+        <BizKpi
+          icon="pinl"
+          label="Directions taken"
+          value={t.navigateClicks}
+          note={<Delta current={t.navigateClicks} previous={l.navigateClicks} />}
+        />
+        <BizKpi
+          icon="star"
+          label="Average rating"
+          value={t.avgRating === 0 ? null : t.avgRating}
+          decimals={1}
+          suffix=" / 5"
+          note={t.avgRating === 0 ? 'No ratings this month' : <Delta current={t.avgRating} previous={l.avgRating} />}
+        />
+        <BizKpi
+          icon="chat"
+          label="Reviews received"
+          value={t.reviewsReceived}
+          note={<Delta current={t.reviewsReceived} previous={l.reviewsReceived} />}
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-5">
-            <span
-              className={cn(
-                'mb-4 flex h-11 w-11 items-center justify-center rounded-xl',
-                stat.tone,
-              )}
-            >
-              <stat.icon size={20} aria-hidden="true" />
-            </span>
-            <p className="font-mono text-3xl font-black text-slate-900">{stat.value}</p>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <p className="text-sm text-slate-500">{stat.label}</p>
-              <Delta current={stat.current} previous={stat.previous} />
-            </div>
+      <section className="card" aria-labelledby="views-per-day">
+        <div className="chead">
+          <div className="min-w-0">
+            <h2 id="views-per-day">Views per day</h2>
+            <p>Views count once per visitor per day. Figures are compared with the 30 days before.</p>
           </div>
-        ))}
-      </div>
-
-      <p className="mt-3 text-ui-xs text-slate-400">
-        Compared with the 30 days before. Views count once per visitor per day.
-      </p>
-
-      <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="mb-5 text-lg font-bold text-slate-900">Views per day</h2>
+          <div ref={segRef} className={cn('seg biz-seg', segReady && 'is-ready')} role="group" aria-label="Range">
+            <span ref={pillRef} className="biz-seg__pill" aria-hidden="true" />
+            {RANGES.map((option) => (
+              <button key={option} type="button" onClick={() => setRange(option)} aria-pressed={range === option}>
+                {option} days
+              </button>
+            ))}
+          </div>
+        </div>
 
         {hasAnyActivity ? (
-          <>
-            <div className="flex h-[200px] items-end gap-1" role="img" aria-label="Daily views">
-              {points.map((point) => (
-                <span
-                  key={point.date}
-                  title={`${point.date}: ${point.views} view${point.views === 1 ? '' : 's'}, ${point.clicks} directions`}
-                  className="flex-1 rounded-t-sm bg-gradient-accent"
-                  // A day with no views still draws a hairline, so the bar chart
-                  // reads as "a day with nothing" rather than a gap in the axis.
-                  style={{ height: `${Math.max((point.views / maxViews) * 100, 1.5)}%` }}
-                />
-              ))}
+          <div className="bchart" onMouseLeave={() => setHover(null)}>
+            <div className="bchart__legend">
+              <span>
+                <i aria-hidden="true" />
+                Views
+              </span>
+              <span>
+                <i className="l" aria-hidden="true" />
+                Directions
+              </span>
             </div>
-            <div className="mt-2 flex justify-between text-ui-xs text-slate-400">
-              <span>{points[0]?.date}</span>
-              <span>{points[points.length - 1]?.date}</span>
+            <div className="chart__wrap">
+              {tip ? (
+                <div
+                  className="chart__tip"
+                  style={{ left: `clamp(0px, calc(${((hover! + 0.5) / points.length) * 100}% - 70px), calc(100% - 150px))` }}
+                >
+                  <b>{shortDate(tip.date)}</b>
+                  <span>
+                    <b>{tip.views}</b> view{tip.views === 1 ? '' : 's'}
+                  </span>
+                  <span>
+                    <b>{tip.clicks}</b> direction{tip.clicks === 1 ? '' : 's'}
+                  </span>
+                </div>
+              ) : null}
+              <svg
+                ref={chartRef}
+                viewBox={`0 0 ${W} ${H}`}
+                preserveAspectRatio="none"
+                role="img"
+                aria-label={`Daily views and directions over the last ${range} days`}
+              >
+                <defs>
+                  <clipPath id="biz-reveal">
+                    <rect x="0" y="-10" width={W} height={H + 20} />
+                  </clipPath>
+                </defs>
+                <g className="grid" aria-hidden="true">
+                  {[0.25, 0.5, 0.75].map((f) => (
+                    <line key={f} x1="0" x2={W} y1={H * f} y2={H * f} vectorEffect="non-scaling-stroke" />
+                  ))}
+                </g>
+                {points.map((p, i) => {
+                  const h = Math.max((p.views / max) * (H - 6), 1.2)
+                  return (
+                    <g
+                      key={p.date}
+                      className={cn('col', hover !== null && hover !== i && 'is-dim')}
+                      tabIndex={0}
+                      onMouseEnter={() => setHover(i)}
+                      onFocus={() => setHover(i)}
+                      onBlur={() => setHover(null)}
+                      aria-label={`${p.date}: ${p.views} views, ${p.clicks} directions`}
+                    >
+                      <rect className="hit" x={i * 10} y="0" width="10" height={H} />
+                      <rect className={cn('bar', p.views === 0 && 'is-zero')} x={i * 10 + 1.6} y={H - h} width="6.8" height={h} rx="1.4" />
+                    </g>
+                  )
+                })}
+                <g clipPath="url(#biz-reveal)" pointerEvents="none">
+                  <path className="line-halo" d={line} />
+                  <path className="line" d={line} />
+                </g>
+              </svg>
             </div>
-          </>
+            <div className="bchart__axis" aria-hidden="true">
+              <span>{shortDate(points[0]?.date)}</span>
+              <span>Peak {max.toLocaleString('en-PK')}</span>
+              <span>{shortDate(points[points.length - 1]?.date)}</span>
+            </div>
+          </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-300 px-6 py-12 text-center">
-            <Eye size={22} className="mx-auto mb-2 text-slate-400" aria-hidden="true" />
-            <p className="text-ui-sm text-slate-500">
+          <div className={cn('empty', !isLive && 'empty--wait')}>
+            <span className="empty__ico">
+              <AdmIcon name={isLive ? 'trend' : 'alert'} />
+            </span>
+            <b>{isLive ? 'No visits recorded yet' : 'Nothing to chart yet'}</b>
+            <p>
               {isLive
-                ? 'No visits recorded yet. This fills in as drivers open your listing.'
+                ? 'This fills in as drivers open your listing.'
                 : 'Nothing to chart until the listing is live.'}
             </p>
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </>
   )
 }

@@ -1,9 +1,10 @@
 // src/app/business/services/page.tsx
-import { CheckCircle2, Clock, ExternalLink, Globe, Mail, MapPin, MessageCircle, Phone, XCircle } from '@/components/ui/icons'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { btnClass, CARD, Ico, META, Pill } from '@/components/admin/network-kit'
 import { BusinessDashboardLayout } from '@/components/business/BusinessDashboardLayout'
+import { BizMotion, BizStat, BizStrip, LIFT } from '@/components/business/host/biz-kit'
 import { listingHref } from '@/components/business/listing-state'
 import { SERVICE_CATEGORY_META } from '@/lib/constants'
 import { requireServicePortal, type OwnerService } from '@/lib/db/service-owner-queries'
@@ -27,20 +28,20 @@ const STATUS = {
   pending: {
     label: 'Under review',
     note: 'Submitted and waiting to be checked by a person. It is not in the directory yet — the outcome will appear here.',
-    chip: 'bg-amber-100 text-amber-800',
-    Icon: Clock,
+    tone: 'warn',
+    icon: 'clock',
   },
   approved: {
     label: 'Live in the directory',
     note: 'Approved and listed under your category, where drivers searching for what you do can find you.',
-    chip: 'bg-emerald-100 text-emerald-800',
-    Icon: CheckCircle2,
+    tone: 'ok',
+    icon: 'okc',
   },
   rejected: {
     label: 'Not approved',
     note: 'This listing was not approved. Editing it sends it back for another review.',
-    chip: 'bg-red-100 text-red-800',
-    Icon: XCircle,
+    tone: 'bad',
+    icon: 'x',
   },
 } as const
 
@@ -71,6 +72,10 @@ export default async function ServicePortalOverview({
   const { services, service: selected } = portal
   const ordered = [selected, ...services.filter((item) => item.id !== selected.id)]
 
+  const live = services.filter((item) => item.status === 'approved').length
+  const review = services.filter((item) => item.status === 'pending').length
+  const refused = services.filter((item) => item.status === 'rejected').length
+
   return (
     <BusinessDashboardLayout
       title="Your services"
@@ -81,134 +86,143 @@ export default async function ServicePortalOverview({
       listings={services.map((item) => ({ id: item.id, name: item.name, status: item.status }))}
       publicHref={selected.status === 'approved' ? `/services/${selected.category}/${selected.slug}` : undefined}
     >
-      <ul className="flex flex-col gap-4">
-        {ordered.map((service) => {
-          const state = STATUS[service.status as keyof typeof STATUS] ?? STATUS.pending
-          const edit = listingHref('/business/services/profile', service.id, services.length)
-          const website = safeHref(service.website)
-          const social = safeHref(service.socialUrl)
-          const address = [service.street, service.area, service.city].filter(Boolean).join(', ')
+      <BizMotion className="max-w-[1100px]">
+        <BizStrip label="Your services at a glance" cells={4}>
+          <BizStat label="Listings" value={services.length} sub="On this account" lit />
+          <BizStat label="Live" dot="ok" value={live} sub="In the directory" />
+          <BizStat label="Under review" dot={review ? 'warn' : 'none'} value={review} sub="Checked by a person" />
+          <BizStat label="Not approved" dot={refused ? 'bad' : 'none'} value={refused} sub={refused ? 'Edit to resubmit' : 'Nothing refused'} />
+        </BizStrip>
 
-          return (
-            <li
-              key={service.id}
-              className={cn(
-                'rounded-2xl border bg-white p-6',
-                service.id === selected.id && services.length > 1 ? 'border-plug-blue-200' : 'border-slate-200',
-              )}
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-ui-xs font-semibold uppercase tracking-wide text-plug-blue-700">{categoryLabel(service.category)}</p>
-                  <h2 className="mt-1 text-xl font-bold text-slate-900">{service.name}</h2>
-                  <p className="mt-1 inline-flex items-center gap-1.5 text-ui-sm text-slate-600">
-                    <MapPin size={14} className="shrink-0 text-slate-400" aria-hidden="true" />
-                    {address}
-                  </p>
-                </div>
-                <span className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-ui-sm font-semibold', state.chip)}>
-                  <state.Icon size={14} className="shrink-0" aria-hidden="true" />
-                  {state.label}
-                </span>
-              </div>
+        <ul className="m-0 grid list-none gap-3.5 p-0">
+          {ordered.map((service) => {
+            const state = STATUS[service.status as keyof typeof STATUS] ?? STATUS.pending
+            const edit = listingHref('/business/services/profile', service.id, services.length)
+            const website = safeHref(service.website)
+            const social = safeHref(service.socialUrl)
+            const address = [service.street, service.area, service.city].filter(Boolean).join(', ')
+            const current = service.id === selected.id && services.length > 1
 
-              <p className="mt-3 text-ui-sm text-slate-500">{state.note}</p>
-
-              {service.status === 'rejected' ? (
-                <div role="note" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-                  <p className="text-ui-sm font-semibold text-red-900">Reason given by the reviewer</p>
-                  <p className="mt-1 whitespace-pre-line text-ui-sm leading-relaxed text-red-800">
-                    {service.reviewNote ?? 'No reason was recorded.'}
-                  </p>
-                  <p className="mt-3 text-ui-sm text-red-800">
-                    <Link href={edit} className="font-semibold underline">
-                      Fix the details
-                    </Link>{' '}
-                    and save, or write to{' '}
-                    <a
-                      href={`mailto:${SUPPORT}?subject=${encodeURIComponent(`Service: ${service.name}`)}`}
-                      className="inline-flex items-center gap-1 font-semibold underline"
-                    >
-                      <Mail size={13} aria-hidden="true" />
-                      {SUPPORT}
-                    </a>{' '}
-                    if you think this is wrong.
-                  </p>
-                </div>
-              ) : null}
-
-              <p className="mt-5 border-t border-slate-100 pt-5 text-ui-sm leading-relaxed text-slate-700">{service.description}</p>
-
-              <dl className="mt-5 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <dt className="text-ui-xs font-semibold uppercase tracking-wide text-slate-400">Contact</dt>
-                  <dd className="mt-1 flex flex-col gap-1 text-ui-sm text-slate-700">
-                    {service.phone ? (
+            return (
+              <li key={service.id} data-biz-in="" className={cn(CARD, LIFT, 'p-6 max-[640px]:p-[18px]', current && 'border-ink/30')}>
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                      {categoryLabel(service.category)}
+                      {current ? <span className="ml-2 rounded-md bg-volt px-1.5 py-0.5 text-ink">Selected</span> : null}
+                    </span>
+                    <h2 className="m-0 mt-1.5 font-display text-2xl font-normal leading-[1.2] text-ink">{service.name}</h2>
+                    <div className={META}>
                       <span className="inline-flex items-center gap-1.5">
-                        <Phone size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-                        {service.phone}
+                        <Ico name="pinl" />
+                        {address}
                       </span>
-                    ) : null}
-                    {service.whatsapp ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <MessageCircle size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-                        {service.whatsapp}
+                        <Ico name="clock" />
+                        Applied {formatRelativeTime(service.createdAt)}
                       </span>
-                    ) : null}
-                    {service.email ? (
-                      <span className="inline-flex items-center gap-1.5">
-                        <Mail size={13} className="shrink-0 text-slate-400" aria-hidden="true" />
-                        {service.email}
-                      </span>
-                    ) : null}
-                    {website || social ? (
-                      <span className="flex flex-wrap gap-x-3">
-                        {website ? (
-                          <a href={website} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1.5 text-plug-blue-600 hover:underline">
-                            <Globe size={13} className="shrink-0" aria-hidden="true" />
-                            Website
-                          </a>
-                        ) : null}
-                        {social ? (
-                          <a href={social} target="_blank" rel="noreferrer noopener" className="text-plug-blue-600 hover:underline">
-                            Social page
-                          </a>
-                        ) : null}
-                      </span>
-                    ) : null}
-                  </dd>
+                    </div>
+                  </div>
+                  <Pill tone={state.tone} icon={state.icon}>
+                    {state.label}
+                  </Pill>
                 </div>
-                <div>
-                  <dt className="text-ui-xs font-semibold uppercase tracking-wide text-slate-400">Opening hours</dt>
-                  <dd className="mt-1 text-ui-sm text-slate-700">{describeHours(service.operatingHours)}</dd>
-                  {service.pricing ? (
-                    <>
-                      <dt className="mt-3 text-ui-xs font-semibold uppercase tracking-wide text-slate-400">Prices</dt>
-                      <dd className="mt-1 whitespace-pre-line text-ui-sm text-slate-700">{service.pricing}</dd>
-                    </>
+
+                <p className="mb-0 mt-3 text-sm text-muted">{state.note}</p>
+
+                {service.status === 'rejected' ? (
+                  <div role="note" className="mt-4 rounded-2xl border border-[rgba(255,90,31,.25)] bg-[rgba(255,90,31,.06)] p-4">
+                    <p className="m-0 flex items-center gap-2 text-sm font-semibold text-[#8f2f0a] [&_svg]:h-4 [&_svg]:w-4">
+                      <Ico name="alert" />
+                      Reason given by the reviewer
+                    </p>
+                    <p className="mb-0 mt-1.5 whitespace-pre-line text-sm leading-relaxed text-[#8f2f0a]">
+                      {service.reviewNote ?? 'No reason was recorded.'}
+                    </p>
+                    <p className="mb-0 mt-3 text-sm text-[#8f2f0a]">
+                      <Link href={edit} className="font-semibold underline">
+                        Fix the details
+                      </Link>{' '}
+                      and save, or write to{' '}
+                      <a href={`mailto:${SUPPORT}?subject=${encodeURIComponent(`Service: ${service.name}`)}`} className="font-semibold underline">
+                        {SUPPORT}
+                      </a>{' '}
+                      if you think this is wrong.
+                    </p>
+                  </div>
+                ) : null}
+
+                <p className="mb-0 mt-5 border-t border-ink/[.09] pt-5 text-[15px] leading-relaxed text-[#2c2f34]">{service.description}</p>
+
+                <dl className="m-0 mt-5 grid gap-3.5 rounded-[18px] border border-ink/[.09] bg-paper p-[18px] sm:grid-cols-2">
+                  <div className="min-w-0">
+                    <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-fog">Contact</dt>
+                    <dd className="m-0 mt-2 flex flex-col gap-1.5 text-sm text-ink [&_svg]:h-[15px] [&_svg]:w-[15px] [&_svg]:text-fog">
+                      {service.phone ? (
+                        <span className="inline-flex items-center gap-2 font-mono">
+                          <Ico name="phone" />
+                          {service.phone}
+                        </span>
+                      ) : null}
+                      {service.whatsapp ? (
+                        <span className="inline-flex items-center gap-2 font-mono">
+                          <Ico name="phone" />
+                          {service.whatsapp} <span className="font-sans text-xs text-muted">WhatsApp</span>
+                        </span>
+                      ) : null}
+                      {service.email ? (
+                        <span className="inline-flex min-w-0 items-center gap-2 break-all">
+                          <Ico name="mail" />
+                          {service.email}
+                        </span>
+                      ) : null}
+                      {website || social ? (
+                        <span className="flex flex-wrap gap-x-4">
+                          {website ? (
+                            <a href={website} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 font-semibold text-ink underline-offset-2 hover:underline">
+                              <Ico name="globe" />
+                              Website
+                            </a>
+                          ) : null}
+                          {social ? (
+                            <a href={social} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-2 font-semibold text-ink underline-offset-2 hover:underline">
+                              <Ico name="ext" />
+                              Social page
+                            </a>
+                          ) : null}
+                        </span>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-fog">Opening hours</dt>
+                    <dd className="m-0 mt-2 text-sm text-ink">{describeHours(service.operatingHours)}</dd>
+                    {service.pricing ? (
+                      <>
+                        <dt className="mt-3.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-fog">Prices</dt>
+                        <dd className="m-0 mt-2 whitespace-pre-line text-sm text-ink">{service.pricing}</dd>
+                      </>
+                    ) : null}
+                  </div>
+                </dl>
+
+                <div className="mt-5 flex flex-wrap items-center gap-2.5">
+                  <Link href={edit} className={btnClass('ink', 'sm')}>
+                    <Ico name="pen" />
+                    Edit details
+                  </Link>
+                  {service.status === 'approved' ? (
+                    <Link href={`/services/${service.category}/${service.slug}`} className={btnClass('line', 'sm')}>
+                      <Ico name="ext" />
+                      View in the directory
+                    </Link>
                   ) : null}
                 </div>
-              </dl>
-
-              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-slate-100 pt-5 text-ui-sm">
-                <Link href={edit} className="font-semibold text-plug-blue-600 hover:underline">
-                  Edit details
-                </Link>
-                {service.status === 'approved' ? (
-                  <Link
-                    href={`/services/${service.category}/${service.slug}`}
-                    className="inline-flex items-center gap-1 font-semibold text-plug-blue-600 hover:underline"
-                  >
-                    View in the directory
-                    <ExternalLink size={12} aria-hidden="true" />
-                  </Link>
-                ) : null}
-                <span className="ml-auto text-ui-xs text-slate-400">Applied {formatRelativeTime(service.createdAt)}</span>
-              </div>
-            </li>
-          )
-        })}
-      </ul>
+              </li>
+            )
+          })}
+        </ul>
+      </BizMotion>
     </BusinessDashboardLayout>
   )
 }

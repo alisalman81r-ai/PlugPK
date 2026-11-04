@@ -1,11 +1,11 @@
 // src/components/business/application/ApplicationForm.tsx
 'use client'
 
-import { AlertTriangle, CheckCircle2, Clock, ShieldCheck } from '@/components/ui/icons'
+import { AlertTriangle, Check, CheckCircle2, Clock, ShieldCheck } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { AdmIcon } from '@/components/admin/admin-icons'
 import type { ApplicationPayment } from '@/lib/db/listing-application-queries'
 import {
   formatPkr,
@@ -33,26 +33,64 @@ export interface ApplicationFormProps {
   accounts: PaymentAccountView[]
 }
 
-function StepHeader({ number, title, state }: { number: number; title: string; state: 'done' | 'waiting' | 'todo' | 'refused' }) {
-  const badge = {
-    done: { label: 'Complete', tone: 'bg-emerald-100 text-emerald-800', Icon: CheckCircle2 },
-    waiting: { label: 'Being checked', tone: 'bg-amber-100 text-amber-800', Icon: Clock },
-    todo: { label: 'Action needed', tone: 'bg-plug-blue-100 text-plug-blue-800', Icon: AlertTriangle },
-    refused: { label: 'Not accepted', tone: 'bg-red-100 text-red-800', Icon: AlertTriangle },
-  }[state]
+const STEP_BADGE = {
+  done: { label: 'Complete', pill: 'pill--ok', Icon: CheckCircle2 },
+  waiting: { label: 'Being checked', pill: 'pill--warn', Icon: Clock },
+  todo: { label: 'Action needed', pill: 'pill--warn', Icon: AlertTriangle },
+  refused: { label: 'Not accepted', pill: 'pill--bad', Icon: AlertTriangle },
+} as const
+
+function StepHeader({
+  id,
+  number,
+  title,
+  state,
+}: {
+  id: string
+  number: number
+  title: string
+  state: keyof typeof STEP_BADGE
+}) {
+  const badge = STEP_BADGE[state]
   return (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <h2 className="flex items-center gap-3 text-lg font-bold text-slate-900">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-600">
-          {number}
+    <div className="chead">
+      <h2 id={id}>
+        <span className={cn('stepn', state === 'done' && 'is-done')} aria-hidden="true">
+          {state === 'done' ? <Check size={15} /> : number}
         </span>
         {title}
       </h2>
-      <span className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-ui-xs font-semibold', badge.tone)}>
-        <badge.Icon size={13} aria-hidden="true" />
+      <span className={cn('pill', badge.pill)}>
+        <badge.Icon aria-hidden="true" />
         {badge.label}
       </span>
     </div>
+  )
+}
+
+/** The design's ink button, with the spinner it shows while sending. */
+function SaveButton({
+  busy,
+  disabled,
+  onClick,
+  children,
+}: {
+  busy: boolean
+  disabled: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      className={cn('btn btn--ink', busy && 'is-busy')}
+      disabled={disabled}
+      aria-busy={busy || undefined}
+      onClick={onClick}
+    >
+      {busy ? <AdmIcon name="loader" className="spin" /> : <AdmIcon name="check" />}
+      {children}
+    </button>
   )
 }
 
@@ -125,8 +163,9 @@ export function ApplicationForm({
 
   const note = (part: 'identity' | 'payment') =>
     message?.part === part ? (
-      <p role={message.tone === 'error' ? 'alert' : 'status'} className={cn('mt-4 text-sm', message.tone === 'error' ? 'text-red-600' : 'text-emerald-700')}>
-        {message.text}
+      <p role={message.tone === 'error' ? 'alert' : 'status'} className={cn('note', message.tone === 'error' ? 'note--bad' : 'note--ok')} style={{ marginTop: 16 }}>
+        <AdmIcon name={message.tone === 'error' ? 'alert' : 'okc'} />
+        <span>{message.text}</span>
       </p>
     ) : null
 
@@ -134,113 +173,138 @@ export function ApplicationForm({
     progress.payment === 'done' ? 'done' : progress.payment === 'waiting' ? 'waiting' : progress.payment === 'refused' ? 'refused' : 'todo'
 
   return (
-    <div className="flex max-w-3xl flex-col gap-6">
+    <>
       {!progress.needsOwner ? (
-        <p className="flex items-start gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-ui-sm text-emerald-900">
-          <ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
-          {progress.payment === 'done'
-            ? approved
-              ? 'Your application is complete and your listing is live.'
-              : 'Your payment is confirmed. The review team is checking the rest of your listing.'
-            : 'Everything is in. We are confirming your payment — nothing else is needed from you.'}
+        <p className="note note--ok narrow">
+          <ShieldCheck aria-hidden="true" />
+          <span>
+            {progress.payment === 'done'
+              ? approved
+                ? 'Your application is complete and your listing is live.'
+                : 'Your payment is confirmed. The review team is checking the rest of your listing.'
+              : 'Everything is in. We are confirming your payment — nothing else is needed from you.'}
+          </span>
         </p>
       ) : null}
 
       {/* ── 1. Verification ─────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <StepHeader number={1} title={idType === 'cnic' ? 'Identity' : 'Business verification'} state={progress.identity === 'done' ? 'done' : 'todo'} />
-
-        {!editingIdentity && identitySummary ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3">
-            <p className="font-mono text-ui-sm text-slate-800">{identitySummary}</p>
-            {!approved ? (
-              <button type="button" onClick={() => setEditingIdentity(true)} className="text-ui-sm font-semibold text-plug-blue-600 hover:underline">
-                Replace
-              </button>
-            ) : null}
-          </div>
-        ) : (
-          <>
-            <IdentityFields idPrefix="application" idType={idType} value={identity} onChange={setIdentity} onFile={onFile} />
-            <div className="mt-5 flex gap-3">
-              {identitySummary ? (
-                <Button variant="secondary" onClick={() => setEditingIdentity(false)}>
-                  Cancel
-                </Button>
-              ) : null}
-              <Button isLoading={busy === 'identity'} disabled={busy !== null} onClick={() => save('identity')}>
-                Save verification
-              </Button>
-            </div>
-          </>
-        )}
-        {busy === 'identity' && progressText ? <p aria-live="polite" className="mt-3 text-sm text-slate-500">{progressText}</p> : null}
-        {note('identity')}
+      <section className="card narrow" aria-labelledby="step-identity">
+        <StepHeader
+          id="step-identity"
+          number={1}
+          title={idType === 'cnic' ? 'Identity' : 'Business verification'}
+          state={progress.identity === 'done' ? 'done' : 'todo'}
+        />
+        <div className="cbody">
+          {!editingIdentity && identitySummary ? (
+            <dl className="kv">
+              <div>
+                <dt>On record</dt>
+                <dd className="flex items-center gap-3">
+                  {identitySummary}
+                  {!approved ? (
+                    <button type="button" onClick={() => setEditingIdentity(true)} className="link">
+                      Replace
+                    </button>
+                  ) : null}
+                </dd>
+              </div>
+            </dl>
+          ) : (
+            <>
+              <IdentityFields idPrefix="application" idType={idType} value={identity} onChange={setIdentity} onFile={onFile} />
+              <div className="formc__acts">
+                {identitySummary ? (
+                  <button type="button" className="btn btn--line" onClick={() => setEditingIdentity(false)}>
+                    Cancel
+                  </button>
+                ) : null}
+                <SaveButton busy={busy === 'identity'} disabled={busy !== null} onClick={() => save('identity')}>
+                  Save verification
+                </SaveButton>
+              </div>
+            </>
+          )}
+          {busy === 'identity' && progressText ? (
+            <p aria-live="polite" className="fhint" style={{ marginTop: 12 }}>
+              {progressText}
+            </p>
+          ) : null}
+          {note('identity')}
+        </div>
       </section>
 
       {/* ── 2. Payment ──────────────────────────────── */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-6">
-        <StepHeader number={2} title="Listing fee" state={paymentState} />
+      <section className="card narrow" aria-labelledby="step-payment">
+        <StepHeader id="step-payment" number={2} title="Listing fee" state={paymentState} />
+        <div className="cbody">
+          {progress.payment === 'refused' ? (
+            <div role="note" className="note note--bad" style={{ marginBottom: 18 }}>
+              <AlertTriangle aria-hidden="true" />
+              <span>
+                <b>Why the last payment was not accepted</b>
+                <span className="biz-pre">{progress.paymentNote ?? 'No reason was recorded.'}</span>
+                <span className="biz-block">Check the details and send them again below.</span>
+              </span>
+            </div>
+          ) : null}
 
-        {progress.payment === 'refused' ? (
-          <div role="note" className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4">
-            <p className="text-ui-sm font-semibold text-red-900">Why the last payment was not accepted</p>
-            <p className="mt-1 whitespace-pre-line text-ui-sm text-red-800">{progress.paymentNote ?? 'No reason was recorded.'}</p>
-            <p className="mt-2 text-ui-sm text-red-800">Check the details and send them again below.</p>
-          </div>
-        ) : null}
-
-        {payment && !editingPayment ? (
-          <>
-            <dl className="divide-y divide-slate-100 rounded-xl bg-slate-50 px-4">
-              {[
-                ['Amount', formatPkr(payment.amount)],
-                ['Method', PAYMENT_METHOD_LABEL[payment.method as PaymentMethod] ?? payment.method],
-                ['Transaction ID', payment.reference],
-                ['Paid on', payment.paidOn],
-              ].map(([label, value]) => (
-                <div key={label} className="flex justify-between gap-4 py-2.5">
-                  <dt className="text-ui-sm text-slate-500">{label}</dt>
-                  <dd className="font-mono text-ui-sm font-medium text-slate-900">{value}</dd>
+          {payment && !editingPayment ? (
+            <>
+              <dl className="kv">
+                {[
+                  ['Amount', formatPkr(payment.amount)],
+                  ['Method', PAYMENT_METHOD_LABEL[payment.method as PaymentMethod] ?? payment.method],
+                  ['Transaction ID', payment.reference],
+                  ['Paid on', payment.paidOn],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              {progress.payment === 'waiting' ? (
+                <p className="fhint" style={{ marginTop: 14 }}>
+                  Typed something wrong?{' '}
+                  <button type="button" onClick={() => setEditingPayment(true)} className="link">
+                    Correct the payment details
+                  </button>
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <PaymentFields
+                idPrefix="application"
+                fee={fee}
+                accounts={accounts}
+                value={paymentDraft}
+                onChange={setPaymentDraft}
+                receiptOnFile={receiptReusable}
+              />
+              {accounts.length > 0 ? (
+                <div className="formc__acts">
+                  {payment && progress.payment === 'waiting' ? (
+                    <button type="button" className="btn btn--line" onClick={() => setEditingPayment(false)}>
+                      Cancel
+                    </button>
+                  ) : null}
+                  <SaveButton busy={busy === 'payment'} disabled={busy !== null} onClick={() => save('payment')}>
+                    Send payment details
+                  </SaveButton>
                 </div>
-              ))}
-            </dl>
-            {progress.payment === 'waiting' ? (
-              <p className="mt-4 text-ui-sm text-slate-500">
-                Typed something wrong?{' '}
-                <button type="button" onClick={() => setEditingPayment(true)} className="font-semibold text-plug-blue-600 hover:underline">
-                  Correct the payment details
-                </button>
-              </p>
-            ) : null}
-          </>
-        ) : (
-          <>
-            <PaymentFields
-              idPrefix="application"
-              fee={fee}
-              accounts={accounts}
-              value={paymentDraft}
-              onChange={setPaymentDraft}
-              receiptOnFile={receiptReusable}
-            />
-            {accounts.length > 0 ? (
-              <div className="mt-6 flex gap-3">
-                {payment && progress.payment === 'waiting' ? (
-                  <Button variant="secondary" onClick={() => setEditingPayment(false)}>
-                    Cancel
-                  </Button>
-                ) : null}
-                <Button isLoading={busy === 'payment'} disabled={busy !== null} onClick={() => save('payment')}>
-                  Send payment details
-                </Button>
-              </div>
-            ) : null}
-          </>
-        )}
-        {busy === 'payment' && progressText ? <p aria-live="polite" className="mt-3 text-sm text-slate-500">{progressText}</p> : null}
-        {note('payment')}
+              ) : null}
+            </>
+          )}
+          {busy === 'payment' && progressText ? (
+            <p aria-live="polite" className="fhint" style={{ marginTop: 12 }}>
+              {progressText}
+            </p>
+          ) : null}
+          {note('payment')}
+        </div>
       </section>
-    </div>
+    </>
   )
 }

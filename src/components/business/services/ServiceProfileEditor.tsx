@@ -1,33 +1,20 @@
 // src/components/business/services/ServiceProfileEditor.tsx
 'use client'
 
-import { AlertTriangle, CheckCircle2, Clock, Package } from '@/components/ui/icons'
+import { Loader2, Package } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { btnClass, FGRID, Fld, FormCard, FormError, Ico, IN, TEXTAREA } from '@/components/admin/network-kit'
 import { LocationPicker } from '@/components/business/LocationPicker'
 import { HoursFields } from '@/components/services/HoursFields'
 import { CATEGORY_ICON } from '@/components/services/ServiceCategoryTabs'
-import { Button } from '@/components/ui'
 import { PAKISTAN_CITIES, SERVICE_CATEGORY_KEYS, SERVICE_CATEGORY_META } from '@/lib/constants'
 import type { OwnerService } from '@/lib/db/service-owner-queries'
 import { updateMyService } from '@/lib/db/service-owner-actions'
 import { cn } from '@/lib/utils'
 
-const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
-const AREA =
-  'w-full resize-y rounded-xl border-[1.5px] bg-white p-4 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500'
-
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6">
-      <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-      {hint ? <p className="mt-1 text-ui-sm text-slate-500">{hint}</p> : null}
-      <div className="mt-5">{children}</div>
-    </section>
-  )
-}
+import { FormOk, LIFT, Notice, Reveal, SaveBar } from '../host/biz-kit'
 
 /**
  * The owner's own service listing, editable in place. The same sections and
@@ -83,7 +70,8 @@ export function ServiceProfileEditor({ service }: { service: OwnerService }) {
     }
   }
 
-  const border = (field: string) => (message?.field === field ? 'border-red-400' : 'border-slate-200')
+  /** Marks the field the server named, which .in draws in ember. */
+  const bad = (field: string) => (message?.field === field ? true : undefined)
 
   return (
     <form
@@ -93,30 +81,20 @@ export function ServiceProfileEditor({ service }: { service: OwnerService }) {
         event.preventDefault()
         void save()
       }}
-      className="flex max-w-3xl flex-col gap-6"
+      className="grid max-w-[920px] gap-[18px]"
     >
       {message ? (
-        <p
-          role={message.tone === 'error' ? 'alert' : 'status'}
-          className={cn(
-            'flex items-start gap-2 rounded-xl px-4 py-3 text-ui-sm',
-            message.tone === 'error' ? 'border border-red-200 bg-red-50 text-red-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-800',
-          )}
-        >
-          {message.tone === 'ok' ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> : null}
-          {message.text}
-        </p>
+        <Reveal key={message.text}>{message.tone === 'error' ? <FormError>{message.text}</FormError> : <FormOk>{message.text}</FormOk>}</Reveal>
       ) : null}
 
       {service.status === 'approved' ? (
-        <p className="flex items-start gap-2 rounded-xl bg-slate-100 px-4 py-3 text-ui-sm text-slate-600">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-600" aria-hidden="true" />
-          Your listing is live. Changing its category or moving its pin more than 1 km sends it back for review.
-        </p>
+        <Notice title="Your listing is live." tone="info" className="mb-0">
+          Changing its category or moving its pin more than 1 km sends it back for review.
+        </Notice>
       ) : null}
 
-      <Section title="What you offer">
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <FormCard i={0} title="What you offer" sub="The category drivers find you under.">
+        <div role="group" aria-label="Category" className="mt-[22px] grid grid-cols-3 gap-3 max-[900px]:grid-cols-2">
           {SERVICE_CATEGORY_KEYS.map((key) => {
             const meta = SERVICE_CATEGORY_META[key]
             const Icon = CATEGORY_ICON[meta.icon] ?? Package
@@ -128,97 +106,94 @@ export function ServiceProfileEditor({ service }: { service: OwnerService }) {
                 aria-pressed={selected}
                 onClick={() => setCategory(key)}
                 className={cn(
-                  'rounded-2xl border-[1.5px] p-4 text-left transition-all',
-                  selected ? 'border-plug-blue-500 bg-plug-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50',
+                  'relative flex min-h-[92px] flex-col items-start justify-between gap-3 rounded-[18px] border p-4 text-left',
+                  LIFT,
+                  selected
+                    ? 'border-ink bg-ink text-white shadow-[0_20px_40px_-24px_rgba(11,12,14,.6)]'
+                    : 'border-ink/[.09] bg-paper text-ink hover:border-ink/30',
                 )}
               >
-                <Icon size={20} className={cn('mb-2', selected ? 'text-plug-blue-600' : 'text-slate-400')} aria-hidden="true" />
-                <span className="block text-sm font-semibold text-slate-900">{meta.label}</span>
+                <Icon size={22} className={selected ? 'text-volt' : 'text-muted'} aria-hidden="true" />
+                <span className="block text-sm font-semibold">{meta.label}</span>
+                {selected ? (
+                  <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full bg-volt text-ink [&_svg]:h-3.5 [&_svg]:w-3.5">
+                    <Ico name="check" />
+                  </span>
+                ) : null}
               </button>
             )
           })}
         </div>
-      </Section>
+      </FormCard>
 
-      <Section title="Your business" hint="What drivers see at the top of your listing.">
-        <div className="grid gap-5">
-          <div>
-            <label htmlFor="sp-name" className="mb-2 block text-sm font-semibold text-slate-700">Business name *</label>
-            <input id="sp-name" name="name" maxLength={120} defaultValue={service.name} className={cn(FIELD, border('name'))} />
-          </div>
-          <div>
-            <label htmlFor="sp-description" className="mb-2 block text-sm font-semibold text-slate-700">What you do *</label>
-            <textarea id="sp-description" name="description" rows={4} maxLength={1000} defaultValue={service.description} className={cn(AREA, 'min-h-[110px]', border('description'))} />
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor="sp-year" className="mb-2 block text-sm font-semibold text-slate-700">Year you started</label>
-              <input id="sp-year" name="yearEstablished" inputMode="numeric" maxLength={4} defaultValue={service.yearEstablished ?? ''} className={cn(FIELD, border('yearEstablished'))} />
-            </div>
-            <div>
-              <label htmlFor="sp-brands" className="mb-2 block text-sm font-semibold text-slate-700">EV makes you work with</label>
-              <input id="sp-brands" name="brands" maxLength={300} defaultValue={service.brands ?? ''} className={cn(FIELD, 'border-slate-200')} />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="sp-pricing" className="mb-2 block text-sm font-semibold text-slate-700">Prices</label>
-            <textarea id="sp-pricing" name="pricing" rows={3} maxLength={600} defaultValue={service.pricing ?? ''} className={cn(AREA, 'min-h-[90px] border-slate-200')} />
-          </div>
+      <FormCard i={1} title="Your business" sub="What drivers see at the top of your listing.">
+        <div className={FGRID}>
+          <Fld label="Business name" htmlFor="sp-name" required full>
+            <input id="sp-name" name="name" maxLength={120} defaultValue={service.name} aria-invalid={bad('name')} className={IN} />
+          </Fld>
+          <Fld label="What you do" htmlFor="sp-description" required full>
+            <textarea id="sp-description" name="description" rows={4} maxLength={1000} defaultValue={service.description} aria-invalid={bad('description')} className={cn(TEXTAREA, 'min-h-[120px]')} />
+          </Fld>
+          <Fld label="Year you started" htmlFor="sp-year" optional>
+            <input id="sp-year" name="yearEstablished" inputMode="numeric" maxLength={4} defaultValue={service.yearEstablished ?? ''} aria-invalid={bad('yearEstablished')} className={cn(IN, 'font-mono')} />
+          </Fld>
+          <Fld label="EV makes you work with" htmlFor="sp-brands" optional>
+            <input id="sp-brands" name="brands" maxLength={300} defaultValue={service.brands ?? ''} className={IN} />
+          </Fld>
+          <Fld label="Prices" htmlFor="sp-pricing" optional full>
+            <textarea id="sp-pricing" name="pricing" rows={3} maxLength={600} defaultValue={service.pricing ?? ''} className={cn(TEXTAREA, 'min-h-[96px]')} />
+          </Fld>
         </div>
-      </Section>
+      </FormCard>
 
-      <Section title="Contact" hint="The contact person is only for our team. Phone, WhatsApp, email and links appear on your listing.">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label htmlFor="sp-contact" className="mb-2 block text-sm font-semibold text-slate-700">Contact person *</label>
-            <input id="sp-contact" name="contactName" maxLength={120} defaultValue={service.contactName ?? ''} className={cn(FIELD, border('contactName'))} />
-          </div>
-          <div>
-            <label htmlFor="sp-role" className="mb-2 block text-sm font-semibold text-slate-700">Their role</label>
-            <input id="sp-role" name="contactRole" maxLength={80} defaultValue={service.contactRole ?? ''} className={cn(FIELD, 'border-slate-200')} />
-          </div>
-          <div>
-            <label htmlFor="sp-phone" className="mb-2 block text-sm font-semibold text-slate-700">Phone</label>
-            <input id="sp-phone" name="phone" type="tel" maxLength={20} defaultValue={service.phone} className={cn(FIELD, border('phone'))} />
-          </div>
-          <div>
-            <label htmlFor="sp-whatsapp" className="mb-2 block text-sm font-semibold text-slate-700">WhatsApp</label>
-            <input id="sp-whatsapp" name="whatsapp" type="tel" maxLength={20} defaultValue={service.whatsapp ?? ''} className={cn(FIELD, 'border-slate-200')} />
-          </div>
-          <div>
-            <label htmlFor="sp-email" className="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-            <input id="sp-email" name="email" type="email" maxLength={254} defaultValue={service.email ?? ''} className={cn(FIELD, border('email'))} />
-          </div>
-          <div>
-            <label htmlFor="sp-website" className="mb-2 block text-sm font-semibold text-slate-700">Website</label>
-            <input id="sp-website" name="website" type="url" maxLength={300} defaultValue={service.website ?? ''} className={cn(FIELD, border('website'))} />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="sp-social" className="mb-2 block text-sm font-semibold text-slate-700">Facebook or Instagram page</label>
-            <input id="sp-social" name="socialUrl" type="url" maxLength={300} defaultValue={service.socialUrl ?? ''} className={cn(FIELD, 'border-slate-200')} />
-          </div>
+      <FormCard i={2} title="Contact" sub="The contact person is only for our team. Phone, WhatsApp, email and links appear on your listing.">
+        <div className={FGRID}>
+          <Fld label="Contact person" htmlFor="sp-contact" required>
+            <input id="sp-contact" name="contactName" maxLength={120} defaultValue={service.contactName ?? ''} aria-invalid={bad('contactName')} className={IN} />
+          </Fld>
+          <Fld label="Their role" htmlFor="sp-role" optional>
+            <input id="sp-role" name="contactRole" maxLength={80} defaultValue={service.contactRole ?? ''} className={IN} />
+          </Fld>
+          <Fld label="Phone" htmlFor="sp-phone">
+            <input id="sp-phone" name="phone" type="tel" maxLength={20} defaultValue={service.phone} aria-invalid={bad('phone')} className={cn(IN, 'font-mono')} />
+          </Fld>
+          <Fld label="WhatsApp" htmlFor="sp-whatsapp" optional>
+            <input id="sp-whatsapp" name="whatsapp" type="tel" maxLength={20} defaultValue={service.whatsapp ?? ''} className={cn(IN, 'font-mono')} />
+          </Fld>
+          <Fld label="Email" htmlFor="sp-email" optional>
+            <input id="sp-email" name="email" type="email" maxLength={254} defaultValue={service.email ?? ''} aria-invalid={bad('email')} className={IN} />
+          </Fld>
+          <Fld label="Website" htmlFor="sp-website" optional>
+            <input id="sp-website" name="website" type="url" maxLength={300} defaultValue={service.website ?? ''} aria-invalid={bad('website')} className={IN} />
+          </Fld>
+          <Fld label="Facebook or Instagram page" htmlFor="sp-social" optional full>
+            <input id="sp-social" name="socialUrl" type="url" maxLength={300} defaultValue={service.socialUrl ?? ''} className={IN} />
+          </Fld>
         </div>
-      </Section>
+      </FormCard>
 
-      <Section title="Where you are" hint="The pin drivers get directions to.">
-        <div className="grid gap-5">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label htmlFor="sp-city" className="mb-2 block text-sm font-semibold text-slate-700">City *</label>
-              <input id="sp-city" name="city" maxLength={80} list="sp-cities" defaultValue={service.city} className={cn(FIELD, border('city'))} />
-              <datalist id="sp-cities">
-                {PAKISTAN_CITIES.map((city) => (
-                  <option key={city} value={city} />
-                ))}
-              </datalist>
-            </div>
-            <div>
-              <label htmlFor="sp-area" className="mb-2 block text-sm font-semibold text-slate-700">Area or neighbourhood</label>
-              <input id="sp-area" name="area" maxLength={120} defaultValue={service.area} className={cn(FIELD, border('area'))} />
-            </div>
-          </div>
-          <div className={cn(message?.field === 'location' && 'rounded-xl ring-2 ring-red-300 ring-offset-4')}>
-            <p className="mb-3 text-sm font-semibold text-slate-700">Exact location *</p>
+      <FormCard i={3} title="Where you are" sub="The pin drivers get directions to.">
+        <div className={FGRID}>
+          <Fld label="City" htmlFor="sp-city" required>
+            <input id="sp-city" name="city" maxLength={80} list="sp-cities" defaultValue={service.city} aria-invalid={bad('city')} className={IN} />
+            <datalist id="sp-cities">
+              {PAKISTAN_CITIES.map((city) => (
+                <option key={city} value={city} />
+              ))}
+            </datalist>
+          </Fld>
+          <Fld label="Area or neighbourhood" htmlFor="sp-area" optional>
+            <input id="sp-area" name="area" maxLength={120} defaultValue={service.area} aria-invalid={bad('area')} className={IN} />
+          </Fld>
+          <div
+            className={cn(
+              'col-span-full grid gap-2 rounded-[18px] border border-ink/[.09] bg-paper p-[18px] transition-[border-color,box-shadow]',
+              message?.field === 'location' && 'border-ember shadow-[0_0_0_4px_rgba(255,90,31,.15)]',
+            )}
+          >
+            <p className="m-0 text-sm font-medium text-ink">
+              Exact location<span className="ml-1 text-[#c2410c]" aria-hidden="true">*</span>
+            </p>
             <LocationPicker
               idPrefix="service-profile"
               lat={position.lat}
@@ -228,42 +203,46 @@ export function ServiceProfileEditor({ service }: { service: OwnerService }) {
               onAddressFound={({ address }) => setStreet(address)}
             />
           </div>
-          <div>
-            <label htmlFor="sp-street" className="mb-2 block text-sm font-semibold text-slate-700">Street address</label>
-            <input id="sp-street" value={street} maxLength={200} onChange={(event) => setStreet(event.target.value)} className={cn(FIELD, border('street'))} />
-          </div>
+          <Fld label="Street address" htmlFor="sp-street" full>
+            <input id="sp-street" value={street} maxLength={200} onChange={(event) => setStreet(event.target.value)} aria-invalid={bad('street')} className={IN} />
+          </Fld>
         </div>
-      </Section>
+      </FormCard>
 
-      <Section title="Opening hours" hint="Shown on your listing, so drivers do not arrive to a closed shutter.">
-        <div className="flex items-start gap-2">
-          <Clock size={16} className="mt-3 shrink-0 text-slate-300" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <HoursFields initial={service.operatingHours ?? undefined} invalid={message?.field === 'hours'} />
-          </div>
+      <FormCard i={4} title="Opening hours" sub="Shown on your listing, so drivers do not arrive to a closed shutter.">
+        <div className="mt-[22px]">
+          <HoursFields initial={service.operatingHours ?? undefined} invalid={message?.field === 'hours'} />
         </div>
-      </Section>
+      </FormCard>
 
       {confirming ? (
-        <div role="alert" className="rounded-2xl border border-amber-300 bg-amber-50 p-5">
-          <p className="text-ui-sm font-semibold text-amber-900">This sends your listing back for review</p>
-          <p className="mt-1 text-ui-sm text-amber-800">{confirming}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button type="button" onClick={() => void save(true)} isLoading={busy}>
-              Save and send for review
-            </Button>
-            <Button type="button" variant="secondary" onClick={() => setConfirming(null)} disabled={busy}>
-              Keep editing
-            </Button>
+        <Reveal role="alert">
+          <div className="rounded-[20px] border border-[rgba(255,176,32,.45)] bg-[#FFF8E8] p-5">
+            <p className="m-0 flex items-center gap-2.5 font-display text-lg font-normal text-ink [&_svg]:h-5 [&_svg]:w-5 [&_svg]:text-[#8a5a00]">
+              <Ico name="alert" />
+              This sends your listing back for review
+            </p>
+            <p className="mb-0 mt-1.5 text-sm text-[#6b4b00]">{confirming}</p>
+            <div className="mt-4 flex flex-wrap gap-2.5">
+              <button type="button" onClick={() => void save(true)} disabled={busy} className={btnClass('ink')}>
+                {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
+                Save and send for review
+              </button>
+              <button type="button" onClick={() => setConfirming(null)} disabled={busy} className={btnClass('line')}>
+                Keep editing
+              </button>
+            </div>
           </div>
-        </div>
+        </Reveal>
       ) : null}
 
-      <div className="sticky bottom-20 z-10 lg:bottom-4">
-        <Button type="submit" size="lg" className="h-12 bg-gradient-brand shadow-lg" isLoading={busy}>
-          Save changes
-        </Button>
-      </div>
+      <SaveBar>
+        <button type="submit" disabled={busy} className={btnClass('ink')}>
+          {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="check" />}
+          {busy ? 'Saving' : 'Save changes'}
+        </button>
+        <span className="text-[13px] text-muted">Fields marked * are required.</span>
+      </SaveBar>
     </form>
   )
 }

@@ -1,17 +1,29 @@
 // src/components/business/host/HostSettingsForm.tsx
 'use client'
 
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { btnClass, FieldSelect, Fld, FormError, Ico, IN } from '@/components/admin/network-kit'
 import { formatClock, START_STEPS, startStep, startTimes, type HostSettingsView } from '@/lib/charger-host'
 import { saveHostSettings, saveStationBookingSettings } from '@/lib/db/host-actions'
 import { formatPkr } from '@/lib/listing-application'
 import { cn } from '@/lib/utils'
 
-const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
+import { Collapse, FormOk, Reveal, Toggle } from './biz-kit'
+
+/** An .in with a PKR prefix. */
+function MoneyInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <span className="relative block">
+      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-xs font-semibold text-muted">
+        PKR
+      </span>
+      <input {...props} className={cn(IN, 'pl-[52px] font-mono')} />
+    </span>
+  )
+}
 
 /**
  * What the host charges and when they take bookings. The preview line under
@@ -72,113 +84,111 @@ export function HostSettingsForm({
   }
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <label htmlFor="host-price" className="mb-2 block text-sm font-semibold text-slate-700">
-          Price per unit (kWh)
-        </label>
-        <div className="relative max-w-xs">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ui-sm font-semibold text-slate-400">PKR</span>
-          <input
-            id="host-price"
-            inputMode="numeric"
-            value={price}
-            onChange={(e) => setPrice(e.target.value.replace(/\D/g, '').slice(0, 3))}
-            placeholder="70"
-            className={cn(FIELD, 'pl-14 font-mono')}
-          />
-        </div>
-        <p className="mt-1.5 text-ui-sm text-slate-500">Shown on your listing. Leave empty to not publish a price.</p>
-      </div>
+    <div className="grid gap-[18px]">
+      <Fld label="Price per unit (kWh)" htmlFor="host-price" hint="Shown on your listing. Leave empty to not publish a price.">
+        <MoneyInput
+          id="host-price"
+          inputMode="numeric"
+          value={price}
+          onChange={(e) => setPrice(e.target.value.replace(/\D/g, '').slice(0, 3))}
+          placeholder="70"
+        />
+      </Fld>
 
-      <div className="rounded-2xl border border-slate-200 p-5">
-        <label className="flex cursor-pointer items-start justify-between gap-4">
-          <span>
-            <span className="block text-sm font-semibold text-slate-900">Take bookings</span>
-            <span className="mt-0.5 block text-ui-sm text-slate-500">
+      <div
+        className={cn(
+          'rounded-[18px] border p-[18px] transition-[background-color,border-color] duration-300',
+          enabled ? 'border-ink/[.09] bg-paper' : 'border-dashed border-ink/[.12] bg-transparent',
+        )}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <label htmlFor="host-enabled" className="min-w-0 cursor-pointer">
+            <span className="block font-display text-lg font-normal leading-tight text-ink">Take bookings</span>
+            <span className="mt-1 block text-[13px] leading-snug text-muted">
               {stationId
                 ? 'Drivers reserve a time by paying an advance to plugpk. Your team confirms each booking under Admin › Bookings.'
                 : 'Drivers reserve a time slot by paying an advance to your payout account.'}
             </span>
-          </span>
-          <input
-            type="checkbox"
-            checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
-            className="mt-1 h-5 w-5 shrink-0 accent-plug-blue-600"
-          />
-        </label>
+          </label>
+          <Toggle id="host-enabled" checked={enabled} onChange={setEnabled} label="Take bookings" />
+        </div>
 
         {enabled && !hasPayoutAccount ? (
-          <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-ui-sm text-amber-800">
-            {stationId
-              ? 'No plugpk payment account is set (PAYMENT_* in the environment), so drivers would have nowhere to pay the advance.'
-              : 'Add a payout account under Payout accounts first — that is where drivers send the advance.'}
-          </p>
+          <Reveal>
+            <p className="mb-0 mt-4 flex items-start gap-2 rounded-xl border border-[rgba(255,176,32,.35)] bg-[rgba(255,176,32,.13)] px-3.5 py-2.5 text-[13px] text-[#6b4b00] [&_svg]:mt-px [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-[#8a5a00]">
+              <Ico name="alert" />
+              {stationId
+                ? 'No plugpk payment account is set (PAYMENT_* in the environment), so drivers would have nowhere to pay the advance.'
+                : 'Add a payout account under Payout accounts first — that is where drivers send the advance.'}
+            </p>
+          </Reveal>
         ) : null}
 
-        <div className={cn('mt-5 grid gap-5', !enabled && 'pointer-events-none opacity-50')} aria-disabled={!enabled}>
-          <div>
-            <label htmlFor="host-fee" className="mb-2 block text-ui-sm font-medium text-slate-600">
-              Booking advance
-            </label>
-            <div className="relative">
-              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ui-sm font-semibold text-slate-400">PKR</span>
-              <input
+        <Collapse open={enabled}>
+          <div className="mt-[18px] grid gap-[18px]">
+            <Fld label="Booking advance" htmlFor="host-fee" hint="Paid to book, then deducted from the charging bill.">
+              <MoneyInput
                 id="host-fee"
                 inputMode="numeric"
                 value={fee}
                 onChange={(e) => setFee(e.target.value.replace(/\D/g, '').slice(0, 5))}
                 placeholder="500"
-                className={cn(FIELD, 'pl-14 font-mono')}
               />
+            </Fld>
+            <Fld label="Bookings can start every" htmlFor="host-slot">
+              <FieldSelect id="host-slot" value={slotMinutes} onChange={(e) => setSlotMinutes(Number(e.target.value))}>
+                {START_STEPS.map((minutes) => (
+                  <option key={minutes} value={minutes}>
+                    {minutes < 60 ? `${minutes} minutes` : '1 hour'}
+                  </option>
+                ))}
+              </FieldSelect>
+            </Fld>
+            <div className="grid grid-cols-2 gap-3.5">
+              <Fld label="Open from" htmlFor="host-open">
+                <input id="host-open" type="time" step={1800} value={openTime} onChange={(e) => setOpenTime(e.target.value)} className={cn(IN, 'px-3 font-mono')} />
+              </Fld>
+              <Fld label="Last car leaves by" htmlFor="host-close">
+                <input id="host-close" type="time" step={1800} value={closeTime} onChange={(e) => setCloseTime(e.target.value)} className={cn(IN, 'px-3 font-mono')} />
+              </Fld>
             </div>
-            <p className="mt-1.5 text-ui-xs text-slate-500">Paid to book, then deducted from the charging bill.</p>
-          </div>
-          <div>
-            <label htmlFor="host-slot" className="mb-2 block text-ui-sm font-medium text-slate-600">
-              Bookings can start every
-            </label>
-            <select id="host-slot" value={slotMinutes} onChange={(e) => setSlotMinutes(Number(e.target.value))} className={cn(FIELD, 'cursor-pointer')}>
-              {START_STEPS.map((minutes) => (
-                <option key={minutes} value={minutes}>
-                  {minutes < 60 ? `${minutes} minutes` : '1 hour'}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="host-open" className="mb-2 block text-ui-sm font-medium text-slate-600">
-              Open from
-            </label>
-            <input id="host-open" type="time" step={1800} value={openTime} onChange={(e) => setOpenTime(e.target.value)} className={FIELD} />
-          </div>
-          <div>
-            <label htmlFor="host-close" className="mb-2 block text-ui-sm font-medium text-slate-600">
-              Last car leaves by
-            </label>
-            <input id="host-close" type="time" step={1800} value={closeTime} onChange={(e) => setCloseTime(e.target.value)} className={FIELD} />
-          </div>
-        </div>
 
-        {enabled ? (
-          <p className="mt-4 rounded-lg bg-slate-50 px-3 py-2 text-ui-sm text-slate-600">
-            {starts.length > 0
-              ? `Drivers choose their car and charge level, and each booking lasts as long as that charge needs. They can start from ${formatClock(openTime)}, every ${slotMinutes} minutes, and must finish by ${formatClock(closeTime)}${fee ? `, with a ${formatPkr(Number(fee))} advance` : ''}.`
-              : 'Closing time must be after opening time.'}
-          </p>
-        ) : null}
+            {/* The listing as a driver will read it. */}
+            <p
+              className={cn(
+                'm-0 rounded-[14px] px-4 py-3 text-[13px] leading-relaxed',
+                starts.length > 0 ? 'bg-ink text-white/80' : 'border border-[rgba(255,90,31,.25)] bg-[rgba(255,90,31,.06)] text-[#b23b0d]',
+              )}
+            >
+              {starts.length > 0 ? (
+                <>
+                  <span className="mb-1 block font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-volt">
+                    What drivers see · {starts.length} start time{starts.length === 1 ? '' : 's'} a day
+                  </span>
+                  Drivers choose their car and charge level, and each booking lasts as long as that charge needs. They can start from{' '}
+                  <b className="font-mono text-white">{formatClock(openTime)}</b>, every {slotMinutes} minutes, and must finish by{' '}
+                  <b className="font-mono text-white">{formatClock(closeTime)}</b>
+                  {fee ? (
+                    <>
+                      , with a <b className="font-mono text-white">{formatPkr(Number(fee))}</b> advance
+                    </>
+                  ) : null}
+                  .
+                </>
+              ) : (
+                'Closing time must be after opening time.'
+              )}
+            </p>
+          </div>
+        </Collapse>
       </div>
 
-      {message ? (
-        <p role={message.tone === 'error' ? 'alert' : 'status'} className={cn('text-sm', message.tone === 'error' ? 'text-red-600' : 'text-emerald-700')}>
-          {message.text}
-        </p>
-      ) : null}
+      {message ? message.tone === 'error' ? <FormError>{message.text}</FormError> : <FormOk>{message.text}</FormOk> : null}
       <div>
-        <Button onClick={save} isLoading={busy}>
+        <button type="button" onClick={save} disabled={busy} className={btnClass('ink')}>
+          {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="check" />}
           Save pricing and bookings
-        </Button>
+        </button>
       </div>
     </div>
   )

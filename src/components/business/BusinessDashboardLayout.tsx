@@ -1,25 +1,26 @@
 // src/components/business/BusinessDashboardLayout.tsx
 'use client'
 
-import { ExternalLink } from '@/components/ui/icons'
+import '@/components/admin/admin.css'
+import './business.css'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
+import { AdminBackButton } from '@/components/admin/AdminBackButton'
+import { AdmIcon } from '@/components/admin/admin-icons'
 import { cn } from '@/lib/utils'
-import { BackButton } from '@/components/ui'
+
+import { usePageEntrance } from './biz-motion'
 import {
   BusinessDashboardSidebar,
-  isBusinessItemActive,
-  ListingSwitcher,
   navFor,
-  PortalSwitch,
   rememberPortal,
   type PortalListingSummary,
   type PortalMode,
+  type PortalUser,
 } from './BusinessDashboardSidebar'
-import { listingHref } from './listing-state'
-import { Logo } from '@/components/ui/Logo'
 
 export interface BusinessDashboardLayoutProps {
   children: React.ReactNode
@@ -41,9 +42,20 @@ export interface BusinessDashboardLayoutProps {
   publicHref?: string
 }
 
+const STORAGE_KEY = 'plugpk.business.sidebar.collapsed'
+
 /**
- * The business portal sits outside the (main) route group, so it renders no
- * consumer navbar or footer and supplies its own 64px top bar instead.
+ * The business portal's chrome, in the admin portal's design: the ink sidebar
+ * (`.side`), the chalk workspace with its sticky glass top bar (`.top`), and
+ * the page head (`.phead`). admin.css supplies the design and is scoped to
+ * `.adm`; business.css adds the owner's pieces under `.biz`.
+ *
+ * Pages render their content as children. It lands in `.biz-body`, a grid
+ * with the design's 18px gap, and every direct child rises in on a stagger
+ * when the page opens. The design's classes — card, chead, kpi, pill, btn,
+ * seg, chips, t (tables), empty, note — are available to every page.
+ *
+ * Below 980px the sidebar is a drawer, opened from the top bar.
  */
 export function BusinessDashboardLayout({
   children,
@@ -58,115 +70,161 @@ export function BusinessDashboardLayout({
 }: BusinessDashboardLayoutProps) {
   const pathname = usePathname()
   const nav = navFor(mode)
+  const pageRef = React.useRef<HTMLElement>(null)
+  const sideRef = React.useRef<HTMLElement>(null)
+  const [collapsed, setCollapsed] = React.useState(false)
+  const [navOpen, setNavOpen] = React.useState(false)
+  const [drawer, setDrawer] = React.useState(false)
+  const [user, setUser] = React.useState<PortalUser | null>(null)
+
+  usePageEntrance(pageRef, `${pathname}|${listing?.id ?? ''}`)
 
   // The side last opened is where /business reopens.
   React.useEffect(() => {
     if (canSwitch) rememberPortal(mode)
   }, [canSwitch, mode])
-  // Only an approved listing has a public page to open. This link used to
-  // point at a mock station slug that was never the owner's, and linking a
-  // pending listing would send them to a 404.
-  const viewHref = publicHref ?? (mode === 'chargers' && listing && listing.status === 'approved' ? `/station/${listing.id}` : undefined)
+
+  React.useEffect(() => {
+    try {
+      setCollapsed(window.localStorage.getItem(STORAGE_KEY) === '1')
+    } catch {
+      // No stored preference is the same as not having one.
+    }
+    const query = window.matchMedia('(max-width: 980px)')
+    const update = () => setDrawer(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  React.useEffect(() => {
+    const abort = new AbortController()
+    fetch('/api/me', { signal: abort.signal, cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : { user: null }))
+      .then((data) => setUser(data.user ? { name: data.user.name, email: data.user.email } : null))
+      .catch(() => {})
+    return () => abort.abort()
+  }, [])
+
+  // A route change closes the drawer.
+  React.useEffect(() => setNavOpen(false), [pathname])
+
+  // A closed drawer is off screen: out of the tab order and the a11y tree too.
+  React.useEffect(() => {
+    const side = sideRef.current
+    if (!side) return
+    if (drawer && !navOpen) side.setAttribute('inert', '')
+    else side.removeAttribute('inert')
+  }, [drawer, navOpen])
+
+  // While the drawer is open: Escape closes it and the page stops scrolling.
+  React.useEffect(() => {
+    if (!navOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNavOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = previous
+    }
+  }, [navOpen])
+
+  const toggleCollapse = () =>
+    setCollapsed((value) => {
+      const next = !value
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next ? '1' : '0')
+      } catch {
+        // Still collapses; just not remembered.
+      }
+      return next
+    })
+
+  // Only an approved listing has a public page to open; a pending one would 404.
+  const viewHref =
+    publicHref ?? (mode === 'chargers' && listing && listing.status === 'approved' ? `/station/${listing.id}` : undefined)
+  const iconOnly = collapsed && !drawer
+  const home = nav[0]?.href ?? '/business'
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2" aria-label="plugpk home">
-          <Logo tone="light" size="text-lg" />
-          <span className="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Business
-          </span>
-        </Link>
+    <div className={cn('adm biz', navOpen && 'nav-open', collapsed && 'is-collapsed')}>
+      <aside ref={sideRef} className="side" aria-label="Business navigation" id="business-nav">
+        <BusinessDashboardSidebar
+          listing={listing}
+          listings={listings}
+          mode={mode}
+          canSwitch={canSwitch}
+          collapsed={iconOnly}
+          onNavigate={() => setNavOpen(false)}
+          user={user}
+        />
+      </aside>
+      <div className="scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
 
-        <div className="flex items-center gap-3">
-          {viewHref ? (
-            <Link
-              href={viewHref}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
-            >
-              View Listing
-              <ExternalLink size={14} aria-hidden="true" />
-            </Link>
-          ) : null}
-        </div>
-      </header>
+      <div className="main">
+        <header className="top">
+          <button
+            className="top__menu"
+            type="button"
+            onClick={() => setNavOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={navOpen}
+            aria-controls="business-nav"
+          >
+            <AdmIcon name="menu" />
+          </button>
+          <button
+            className="ibtn top__collapse"
+            type="button"
+            onClick={toggleCollapse}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <AdmIcon name="sidebar" />
+          </button>
 
-      <div className="flex">
-        <div className="hidden lg:flex">
-          <BusinessDashboardSidebar listing={listing} listings={listings} mode={mode} canSwitch={canSwitch} />
-        </div>
+          <nav className="crumb" aria-label="Breadcrumb">
+            <span className="biz-crumb__tag">{mode === 'services' ? 'SERVICES' : 'BUSINESS'}</span>
+            {listing ? (
+              <span className="biz-crumb__root">
+                <Link href={home}>{listing.name}</Link>
+              </span>
+            ) : null}
+            {listing ? (
+              <span className="biz-crumb__root" aria-hidden="true">
+                /
+              </span>
+            ) : null}
+            <b aria-current="page">{title}</b>
+          </nav>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 bg-white px-6 py-5 lg:px-8">
-            <div className="min-w-0">
-              <div className="flex items-center gap-3">
-                <BackButton
-                  fallbackHref={pathname === nav[0]?.href ? '/dashboard' : (nav[0]?.href ?? '/business')}
-                  label="Back"
-                />
-                <div>
-                  <h1 className="text-2xl font-black tracking-tight text-slate-900">{title}</h1>
-                  {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
-                </div>
+          <div className="top__acts">
+            {viewHref ? (
+              <Link href={viewHref} className="btn btn--line btn--sm top__view" aria-label="View your public listing">
+                <AdmIcon name="ext" />
+                <span>View listing</span>
+              </Link>
+            ) : null}
+          </div>
+        </header>
+
+        <main ref={pageRef} className="page" id="business-main">
+          <div className="phead">
+            <div className="phead__row">
+              <AdminBackButton fallbackHref={pathname === home ? '/dashboard' : home} />
+              <div className="min-w-0">
+                <h1>{title}</h1>
+                {subtitle ? <p>{subtitle}</p> : null}
               </div>
             </div>
-            {action ? <div className="shrink-0">{action}</div> : null}
+            {action ? <div className="phead__actions">{action}</div> : null}
           </div>
-
-          {/* The sidebar holds the switcher on wide screens; below lg it is
-              hidden, so the same control sits at the top of the content. */}
-          {canSwitch || listings.length > 1 ? (
-            <div className="flex flex-col gap-3 border-b border-slate-100 bg-white px-6 py-3 lg:hidden">
-              {canSwitch ? <PortalSwitch mode={mode} /> : null}
-              <ListingSwitcher listings={listings} currentId={listing?.id} />
-            </div>
-          ) : null}
-
-          <div className="p-6 pb-24 lg:p-8 lg:pb-8">{children}</div>
-        </div>
+          <div className="biz-body">{children}</div>
+        </main>
       </div>
-
-      <nav
-        aria-label="Business portal"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-[20px] lg:hidden"
-      >
-        <div className="scrollbar-hide flex h-16 overflow-x-auto">
-          {nav.map((item) => {
-            const active = isBusinessItemActive(pathname, item)
-            const Icon = item.icon
-
-            return (
-              <Link
-                key={item.href}
-                href={listingHref(item.href, listing?.id, listings.length)}
-                aria-current={active ? 'page' : undefined}
-                className="flex min-w-[72px] flex-1 items-center justify-center"
-              >
-                <span
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-1.5',
-                    active && 'bg-plug-blue-50',
-                  )}
-                >
-                  <Icon
-                    size={20}
-                    className={cn('shrink-0', active ? 'text-plug-blue-600' : 'text-slate-400')}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className={cn(
-                      'whitespace-nowrap text-[10px] font-medium',
-                      active ? 'text-plug-blue-600' : 'text-slate-400',
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-      </nav>
     </div>
   )
 }

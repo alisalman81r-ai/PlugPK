@@ -1,11 +1,11 @@
 // src/components/business/host/PayoutAccountsManager.tsx
 'use client'
 
-import { Pencil, Plus, Trash2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
-import { Button } from '@/components/ui'
+import { btnClass, Ico } from '@/components/admin/network-kit'
+import { Loader2 } from '@/components/ui/icons'
 import { MAX_PAYOUT_ACCOUNTS, PAYOUT_METHOD_LABEL, type PayoutAccountView } from '@/lib/charger-host'
 import { deletePayoutAccount, savePayoutAccount } from '@/lib/db/host-actions'
 
@@ -74,25 +74,25 @@ export function PayoutAccountsManager({ businessId, accounts }: { businessId: st
     <div className="flex flex-col gap-3">
       {accounts.map((account) =>
         editing === account.id ? null : (
-          <div key={account.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 bg-white p-4">
+          <div key={account.id} className="flex flex-wrap items-center gap-4 rounded-[18px] border border-ink/[.09] bg-white p-4 shadow-[0_1px_2px_rgba(11,12,14,.05),0_8px_24px_-14px_rgba(11,12,14,.16)] transition-[translate,box-shadow] duration-500 ease-out hover:[translate:0_-2px]">
             {account.hasQr ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={`/api/payout-qr/${account.id}`} alt="Payment QR code" className="h-16 w-16 rounded-lg border border-slate-200 object-contain" />
+              <img src={`/api/payout-qr/${account.id}`} alt="Payment QR code" className="h-16 w-16 rounded-xl border border-ink/[.09] object-contain" />
             ) : null}
             <div className="min-w-0 flex-1">
-              <p className="text-ui-sm font-semibold text-slate-900">
+              <p className="m-0 font-display text-lg font-normal text-ink">
                 {account.method === 'bank' ? account.provider : PAYOUT_METHOD_LABEL[account.method]}
               </p>
-              <p className="text-ui-sm text-slate-600">{account.accountTitle}</p>
-              <p className="font-mono text-ui-sm text-slate-800">{account.accountNumber}</p>
-              {account.iban ? <p className="font-mono text-ui-xs text-slate-500">{account.iban}</p> : null}
+              <p className="m-0 text-sm text-muted">{account.accountTitle}</p>
+              <p className="m-0 mt-1 font-mono text-sm font-semibold text-ink">{account.accountNumber}</p>
+              {account.iban ? <p className="m-0 font-mono text-xs text-fog">{account.iban}</p> : null}
             </div>
             <div className="flex gap-1">
-              <button type="button" onClick={() => startEdit(account)} disabled={busy} aria-label="Edit account" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
-                <Pencil size={16} />
+              <button type="button" onClick={() => startEdit(account)} disabled={busy} aria-label="Edit account" className="grid h-9 w-9 place-items-center rounded-[10px] text-muted transition-colors hover:bg-chalk hover:text-ink [&_svg]:h-[18px] [&_svg]:w-[18px]">
+                <Ico name="pen" />
               </button>
-              <button type="button" onClick={() => remove(account.id)} disabled={busy} aria-label="Remove account" className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600">
-                <Trash2 size={16} />
+              <button type="button" onClick={() => remove(account.id)} disabled={busy} aria-label="Remove account" className="grid h-9 w-9 place-items-center rounded-[10px] text-muted transition-colors hover:bg-[rgba(255,90,31,.1)] hover:text-[#b23b0d] [&_svg]:h-[18px] [&_svg]:w-[18px]">
+                <Ico name="trash" />
               </button>
             </div>
           </div>
@@ -100,31 +100,32 @@ export function PayoutAccountsManager({ businessId, accounts }: { businessId: st
       )}
 
       {editing ? (
-        <div className="rounded-xl border-[1.5px] border-plug-blue-200 bg-plug-blue-50/40 p-4">
+        <div className="rounded-[18px] border border-ink/[.09] bg-paper p-[18px]">
           <PayoutAccountFields idPrefix="payout-edit" value={draft} onChange={setDraft} qrOnFile={editingAccount?.hasQr} />
-          {error ? <p role="alert" className="mt-3 text-ui-sm text-red-600">{error}</p> : null}
+          {error ? <p role="alert" className="mb-0 mt-3 text-sm text-[#b23b0d]">{error}</p> : null}
           <div className="mt-4 flex gap-2">
             {accounts.length > 0 ? (
-              <Button variant="secondary" onClick={() => { setEditing(null); setError(null) }} disabled={busy}>
+              <button type="button" className={btnClass('line')} onClick={() => { setEditing(null); setError(null) }} disabled={busy}>
                 Cancel
-              </Button>
+              </button>
             ) : null}
-            <Button onClick={save} isLoading={busy}>
+            <button type="button" className={btnClass('ink')} onClick={save} disabled={busy}>
+              {busy ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Ico name="check" />}
               Save account
-            </Button>
+            </button>
           </div>
         </div>
       ) : accounts.length < MAX_PAYOUT_ACCOUNTS ? (
         <button
           type="button"
           onClick={() => { setDraft(EMPTY_PAYOUT); setEditing('new'); setError(null) }}
-          className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 py-4 text-ui-sm font-semibold text-slate-500 hover:border-plug-blue-300 hover:bg-plug-blue-50"
+          className="flex items-center justify-center gap-2 rounded-[18px] border-[1.5px] border-dashed border-ink/[.15] bg-white/60 py-4 text-sm font-semibold text-muted transition-colors duration-200 hover:border-ink/40 hover:bg-white hover:text-ink [&_svg]:h-[18px] [&_svg]:w-[18px]"
         >
-          <Plus size={16} aria-hidden="true" />
+          <Ico name="plus" />
           Add a payout account
         </button>
       ) : null}
-      {!editing && error ? <p role="alert" className="text-ui-sm text-red-600">{error}</p> : null}
+      {!editing && error ? <p role="alert" className="m-0 text-sm text-[#b23b0d]">{error}</p> : null}
     </div>
   )
 }

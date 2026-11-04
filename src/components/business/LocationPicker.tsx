@@ -1,11 +1,14 @@
 // src/components/business/LocationPicker.tsx
 'use client'
 
-import { Check, Crosshair, Loader2, MapPin, Undo2 } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import * as React from 'react'
 
+import { btnClass, Ico, IN } from '@/components/admin/network-kit'
 import { reverseGeocode } from '@/lib/geocode-actions'
 import { cn } from '@/lib/utils'
+
+import { Reveal } from './host/biz-kit'
 
 export interface LocationPickerProps {
   lat: number | null
@@ -29,9 +32,6 @@ export interface LocationPickerProps {
 
 /** Roughly the bounding box of Pakistan, used only to catch obvious mistakes. */
 const BOUNDS = { minLat: 23.5, maxLat: 37.2, minLng: 60.8, maxLng: 77.9 }
-
-const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500'
 
 /**
  * Captures the position of a business, either from the device or by hand.
@@ -178,32 +178,18 @@ export function LocationPicker({
   }
 
   return (
-    <div className={cn('flex flex-col gap-3', className)}>
-      <button
-        type="button"
-        onClick={useCurrentLocation}
-        disabled={isLocating}
-        className={cn(
-          'inline-flex h-12 items-center justify-center gap-2 rounded-xl border-[1.5px] border-plug-blue-200 bg-plug-blue-50 px-5 text-ui font-semibold text-plug-blue-700',
-          'transition-colors duration-150 hover:border-plug-blue-300 hover:bg-plug-blue-100',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plug-blue-500 focus-visible:ring-offset-2',
-          'disabled:opacity-60',
-        )}
-      >
-        {isLocating ? (
-          <Loader2 size={16} className="shrink-0 animate-spin" aria-hidden="true" />
-        ) : (
-          <Crosshair size={16} className="shrink-0" aria-hidden="true" />
-        )}
-        {isLocating ? 'Getting your location…' : 'Use my current location'}
-      </button>
+    <div className={cn('flex flex-col gap-3.5', className)}>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" onClick={useCurrentLocation} disabled={isLocating} className={btnClass('ink')}>
+          {isLocating ? <Loader2 size={18} className="shrink-0 animate-spin" aria-hidden="true" /> : <Ico name="pinl" />}
+          {isLocating ? 'Getting your location…' : 'Use my current location'}
+        </button>
+        <span className="text-[13px] text-muted">or type the coordinates.</span>
+      </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor={`${idPrefix}-lat`}
-            className="mb-1.5 block text-ui-sm font-semibold text-slate-700"
-          >
+      <div className="grid gap-3.5 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <label htmlFor={`${idPrefix}-lat`} className="text-sm font-medium text-ink">
             Latitude
           </label>
           <input
@@ -214,15 +200,12 @@ export function LocationPicker({
             value={lat ?? ''}
             onChange={(event) => setPart('lat', event.target.value)}
             placeholder="33.684422"
-            className={FIELD}
+            className={cn(IN, 'font-mono')}
           />
         </div>
 
-        <div>
-          <label
-            htmlFor={`${idPrefix}-lng`}
-            className="mb-1.5 block text-ui-sm font-semibold text-slate-700"
-          >
+        <div className="grid gap-2">
+          <label htmlFor={`${idPrefix}-lng`} className="text-sm font-medium text-ink">
             Longitude
           </label>
           <input
@@ -233,13 +216,13 @@ export function LocationPicker({
             value={lng ?? ''}
             onChange={(event) => setPart('lng', event.target.value)}
             placeholder="73.047882"
-            className={FIELD}
+            className={cn(IN, 'font-mono')}
           />
         </div>
       </div>
 
       {isLookingUp ? (
-        <p className="inline-flex items-center gap-1.5 text-ui-sm text-slate-500">
+        <p className="m-0 inline-flex items-center gap-1.5 text-[13px] text-muted">
           <Loader2 size={14} className="shrink-0 animate-spin" aria-hidden="true" />
           Looking up your address…
         </p>
@@ -254,68 +237,55 @@ export function LocationPicker({
         often lands on the housing society rather than the house.
       */}
       {filled && !isLookingUp ? (
-        <div
-          role="status"
-          className="rounded-xl border-[1.5px] border-emerald-200 bg-emerald-50 p-4"
-        >
-          <p className="flex items-start gap-2 text-ui-sm font-semibold text-emerald-900">
-            <Check size={15} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden="true" />
-            We filled your address from your location
-          </p>
+        <Reveal role="status">
+          <div className="rounded-[18px] border border-[rgba(63,82,0,.15)] bg-[linear-gradient(120deg,rgba(212,255,58,.3),rgba(212,255,58,.08))] p-4">
+            <p className="m-0 flex items-start gap-2 text-sm font-semibold text-ink [&_svg]:mt-px [&_svg]:h-[18px] [&_svg]:w-[18px] [&_svg]:text-volt-ink">
+              <Ico name="okc" />
+              We filled your address from your location
+            </p>
 
-          <p className="mt-2 rounded-lg bg-white px-3 py-2 text-ui-sm text-slate-700">
-            {filled.address}
-          </p>
+            <p className="mb-0 mt-2.5 rounded-xl border border-ink/[.09] bg-white px-3.5 py-2.5 text-sm text-ink">{filled.address}</p>
 
-          <p className="mt-2.5 text-ui-sm text-emerald-900/80">
-            Keep it if that is right, or undo and write it yourself — the address field stays
-            editable either way.
-          </p>
+            <p className="mb-0 mt-2.5 text-[13px] text-muted">
+              Keep it if that is right, or undo and write it yourself — the address field stays editable either way.
+            </p>
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setFilled(null)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-4 text-ui-sm font-semibold text-white transition-colors hover:bg-emerald-700"
-            >
-              <Check size={14} aria-hidden="true" />
-              Keep this address
-            </button>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => setFilled(null)} className={btnClass('ink', 'sm')}>
+                <Ico name="check" />
+                Keep this address
+              </button>
 
-            <button
-              type="button"
-              onClick={undoFill}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 text-ui-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
-            >
-              <Undo2 size={14} aria-hidden="true" />
-              Undo, I&apos;ll type it
-            </button>
+              <button type="button" onClick={undoFill} className={btnClass('line', 'sm')}>
+                <Ico name="undo" />
+                Undo, I&apos;ll type it
+              </button>
+            </div>
           </div>
-        </div>
+        </Reveal>
       ) : null}
 
       {lookupNote && !isLookingUp ? (
-        <p role="status" className="text-ui-sm text-slate-500">
+        <p role="status" className="m-0 text-[13px] text-muted">
           {lookupNote}
         </p>
       ) : null}
 
       {lat !== null && lng !== null && !outOfBounds ? (
-        <p className="inline-flex items-center gap-1.5 text-ui-sm text-emerald-700">
-          <MapPin size={14} className="shrink-0" aria-hidden="true" />
+        <p className="m-0 inline-flex items-center gap-2 self-start rounded-full bg-[rgba(53,208,127,.12)] px-3 py-1.5 font-mono text-xs font-semibold text-[#12804a] [&_svg]:h-3.5 [&_svg]:w-3.5">
+          <Ico name="pinl" />
           Pin set at {lat.toFixed(5)}, {lng.toFixed(5)}
         </p>
       ) : null}
 
       {outOfBounds ? (
-        <p role="alert" className="text-ui-sm text-amber-700">
-          Those coordinates are outside Pakistan. Check they are the right way round —
-          latitude first, then longitude.
+        <p role="alert" className="m-0 rounded-xl border border-[rgba(255,176,32,.3)] bg-[rgba(255,176,32,.1)] px-3.5 py-2.5 text-sm text-[#6b4600]">
+          Those coordinates are outside Pakistan. Check they are the right way round — latitude first, then longitude.
         </p>
       ) : null}
 
       {error ? (
-        <p role="alert" className="text-ui-sm text-red-600">
+        <p role="alert" className="m-0 rounded-xl border border-[rgba(255,90,31,.25)] bg-[rgba(255,90,31,.06)] px-3.5 py-2.5 text-sm text-[#b23b0d]">
           {error}
         </p>
       ) : null}

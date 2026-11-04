@@ -1,21 +1,24 @@
 // src/components/business/host/HostBookingList.tsx
 'use client'
 
-import { Check, ExternalLink, Loader2, X } from '@/components/ui/icons'
+import { Loader2 } from '@/components/ui/icons'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 
+import { btnClass, CARD, EmptyCard, FormError, Ico, NOTE_TEXTAREA, Pill, type PillTone } from '@/components/admin/network-kit'
 import { BOOKING_STATUS_LABEL, formatClock, formatDateLabel, formatSpan, PAYOUT_METHOD_LABEL, type PayoutMethod } from '@/lib/charger-host'
 import { decideBooking } from '@/lib/db/host-actions'
 import type { HostBookingView } from '@/lib/db/host-queries'
 import { formatPkr } from '@/lib/listing-application'
 import { cn } from '@/lib/utils'
 
-const STATUS_TONE: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-emerald-100 text-emerald-800',
-  declined: 'bg-red-100 text-red-800',
-  cancelled: 'bg-slate-100 text-slate-600',
+import { LIFT, Reveal, useBizEntrance } from './biz-kit'
+
+const STATUS_TONE: Record<string, { tone: PillTone; icon: 'clock' | 'okc' | 'x' | 'undo' }> = {
+  pending: { tone: 'warn', icon: 'clock' },
+  confirmed: { tone: 'ok', icon: 'okc' },
+  declined: { tone: 'bad', icon: 'x' },
+  cancelled: { tone: 'unk', icon: 'undo' },
 }
 
 /** `stationName` is set on the admin page, where bookings from every station share one list. */
@@ -40,129 +43,181 @@ function BookingCard({ booking }: { booking: ListedBooking }) {
     }
   }
 
+  const pending = booking.status === 'pending'
+  const status = STATUS_TONE[booking.status] ?? STATUS_TONE.cancelled!
+  const facts: [string, React.ReactNode, boolean?][] = [
+    ['Driver', <>{booking.driver.name} <span className="text-muted">· {booking.driver.email}</span></>],
+    ['Car', booking.vehicle ?? '—'],
+    [
+      'Charge',
+      booking.fromPct !== null && booking.toPct !== null
+        ? `${booking.fromPct}% → ${booking.toPct}%${booking.energyKwh ? ` · ~${booking.energyKwh} kWh` : ''}${booking.durationMinutes ? ` · ${formatSpan(booking.durationMinutes)}` : ''}`
+        : '—',
+    ],
+    ['Advance', `${formatPkr(booking.fee)} via ${PAYOUT_METHOD_LABEL[booking.payMethod as PayoutMethod] ?? booking.payMethod}`],
+    ['Paid by', booking.payerName],
+    ['Transaction ID', booking.reference, true],
+  ]
+
   return (
-    <li className={cn('rounded-xl border bg-white p-4', booking.status === 'pending' ? 'border-amber-300' : 'border-slate-200')}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-mono text-ui font-bold text-slate-900">
-            {formatClock(booking.startTime)} – {formatClock(booking.endTime)}
-          </p>
-          {booking.stationName ? <p className="text-ui-sm font-semibold text-slate-800">{booking.stationName}</p> : null}
-          <p className="text-ui-sm text-slate-600">{booking.chargerLabel}</p>
+    <li
+      data-biz-in=""
+      className={cn(
+        CARD,
+        LIFT,
+        'grid grid-cols-[168px_minmax(0,1fr)] overflow-hidden max-[760px]:grid-cols-1',
+        pending && 'border-[rgba(255,176,32,.55)]',
+      )}
+    >
+      {/* The slot: the one thing a host scans for. */}
+      <div
+        className={cn(
+          'flex flex-col justify-between gap-3 border-r border-ink/[.09] p-5 max-[760px]:flex-row max-[760px]:items-center max-[760px]:border-b max-[760px]:border-r-0',
+          pending ? 'bg-[rgba(255,176,32,.1)]' : 'bg-paper',
+        )}
+      >
+        <div>
+          <b className="block whitespace-nowrap font-mono text-[24px] font-semibold leading-none tracking-[-0.02em] tabular-nums text-ink">
+            {formatClock(booking.startTime)}
+          </b>
+          <span className="mt-1.5 block font-mono text-xs font-medium text-muted">to {formatClock(booking.endTime)}</span>
         </div>
-        <span className={cn('rounded-full px-2.5 py-1 text-ui-xs font-semibold', STATUS_TONE[booking.status])}>
+        <Pill tone={status.tone} icon={status.icon} className="self-start max-[760px]:self-center">
           {BOOKING_STATUS_LABEL[booking.status]}
-        </span>
+        </Pill>
       </div>
 
-      <dl className="mt-3 grid gap-x-6 gap-y-1 text-ui-sm sm:grid-cols-2">
-        {[
-          ['Driver', `${booking.driver.name} · ${booking.driver.email}`],
-          ['Car', booking.vehicle ?? '—'],
-          [
-            'Charge',
-            booking.fromPct !== null && booking.toPct !== null
-              ? `${booking.fromPct}% → ${booking.toPct}%${booking.energyKwh ? ` · ~${booking.energyKwh} kWh` : ''}${booking.durationMinutes ? ` · ${formatSpan(booking.durationMinutes)}` : ''}`
-              : '—',
-          ],
-          ['Advance', `${formatPkr(booking.fee)} via ${PAYOUT_METHOD_LABEL[booking.payMethod as PayoutMethod] ?? booking.payMethod}`],
-          ['Paid by', booking.payerName],
-          ['Transaction ID', booking.reference],
-        ].map(([label, value]) => (
-          <div key={label} className="flex justify-between gap-3 sm:justify-start">
-            <dt className="text-slate-500 sm:w-28 sm:shrink-0">{label}</dt>
-            <dd className={cn('min-w-0 break-words text-slate-900', label === 'Transaction ID' && 'font-mono font-semibold')}>{value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <a
-          href={`/api/booking-receipts/${booking.id}`}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-ui-sm font-semibold text-plug-blue-600 hover:underline"
-        >
-          View receipt <ExternalLink size={12} aria-hidden="true" />
-        </a>
-        {booking.status === 'pending' ? (
-          <span className="ml-auto flex gap-2">
-            <button
-              type="button"
-              onClick={() => decide('confirmed')}
-              disabled={busy}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-3 text-ui-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
-            >
-              {busy && !declining ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-              Confirm
-            </button>
-            <button
-              type="button"
-              onClick={() => setDeclining((value) => !value)}
-              disabled={busy}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-ui-sm font-semibold text-slate-600 hover:bg-slate-50"
-            >
-              <X size={14} />
-              Decline
-            </button>
+      <div className="min-w-0 p-5">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          {booking.stationName ? (
+            <b className="font-display text-lg font-normal leading-tight text-ink">{booking.stationName}</b>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-muted">
+            <Ico name="plug" />
+            {booking.chargerLabel}
           </span>
+        </div>
+
+        <dl className="m-0 mt-3.5 grid grid-cols-2 gap-x-6 gap-y-3 max-[560px]:grid-cols-1">
+          {facts.map(([label, value, mono]) => (
+            <div key={label} className="min-w-0">
+              <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-fog">{label}</dt>
+              <dd className={cn('m-0 mt-1 break-words text-sm text-ink', mono && 'font-mono font-semibold')}>{value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2.5 border-t border-ink/[.09] pt-4">
+          <a
+            href={`/api/booking-receipts/${booking.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-ink no-underline [&_svg]:h-4 [&_svg]:w-4"
+          >
+            View receipt
+            <Ico name="ext" className="transition-[translate] duration-300 ease-spring group-hover:[translate:3px_-1px]" />
+          </a>
+          {pending ? (
+            <span className="ml-auto flex flex-wrap gap-2">
+              <button type="button" onClick={() => decide('confirmed')} disabled={busy} className={btnClass('ink', 'sm')}>
+                {busy && !declining ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Ico name="check" />}
+                Confirm
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeclining((value) => !value)}
+                disabled={busy}
+                aria-expanded={declining}
+                className={cn(btnClass('line', 'sm'), declining && 'border-ink')}
+              >
+                <Ico name="x" />
+                Decline
+              </button>
+            </span>
+          ) : null}
+        </div>
+
+        {declining ? (
+          <Reveal>
+            <div className="mt-3.5 rounded-2xl border border-[rgba(255,90,31,.25)] bg-[rgba(255,90,31,.05)] p-3.5">
+              <label htmlFor={`decline-${booking.id}`} className="block text-sm font-medium text-[#8f2f0a]">
+                Reason the driver will see <span aria-hidden="true">*</span>
+              </label>
+              <textarea
+                id={`decline-${booking.id}`}
+                rows={2}
+                maxLength={300}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="e.g. The advance has not reached my account."
+                className={NOTE_TEXTAREA}
+              />
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                <button type="button" onClick={() => decide('declined')} disabled={busy || !note.trim()} className={btnClass('danger', 'sm')}>
+                  {busy ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
+                  Decline booking
+                </button>
+                <button type="button" onClick={() => setDeclining(false)} disabled={busy} className={btnClass('line', 'sm')}>
+                  Keep it
+                </button>
+              </div>
+            </div>
+          </Reveal>
+        ) : null}
+        {booking.hostNote && booking.status === 'declined' ? (
+          <p className="mb-0 mt-3 text-[13px] text-muted">You told the driver: {booking.hostNote}</p>
+        ) : null}
+        {error ? (
+          <div className="mt-3">
+            <FormError>{error}</FormError>
+          </div>
         ) : null}
       </div>
-
-      {declining ? (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50/60 p-3">
-          <label htmlFor={`decline-${booking.id}`} className="block text-ui-xs font-semibold text-red-900">
-            Reason the driver will see *
-          </label>
-          <textarea
-            id={`decline-${booking.id}`}
-            rows={2}
-            maxLength={300}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g. The advance has not reached my account."
-            className="mt-1.5 w-full rounded-md border border-red-200 bg-white p-2 text-ui-sm outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => decide('declined')}
-            disabled={busy || !note.trim()}
-            className="mt-2 h-8 rounded-md bg-red-600 px-3 text-ui-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-          >
-            Decline booking
-          </button>
-        </div>
-      ) : null}
-      {booking.hostNote && booking.status === 'declined' ? (
-        <p className="mt-2 text-ui-xs text-slate-500">You told the driver: {booking.hostNote}</p>
-      ) : null}
-      {error ? <p role="alert" className="mt-2 text-ui-sm text-red-600">{error}</p> : null}
     </li>
   )
 }
 
 /** Upcoming bookings by day. Ones still waiting on the host stand out. */
 export function HostBookingList({ bookings }: { bookings: ListedBooking[] }) {
+  const root = React.useRef<HTMLDivElement>(null)
+  useBizEntrance(root)
+
   if (bookings.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-10 text-center text-ui-sm text-slate-500">
-        No upcoming bookings yet. They appear here as soon as a driver books a slot.
-      </p>
+      <EmptyCard
+        icon="inbox"
+        title="No upcoming bookings yet"
+        text="They appear here as soon as a driver books a slot."
+      />
     )
   }
   const days = [...new Set(bookings.map((booking) => booking.date))]
   return (
-    <div className="flex flex-col gap-6">
-      {days.map((day) => (
-        <section key={day}>
-          <h3 className="mb-2 text-ui-sm font-bold uppercase tracking-wide text-slate-400">{formatDateLabel(day)}</h3>
-          <ul className="flex flex-col gap-3">
-            {bookings.filter((booking) => booking.date === day).map((booking) => (
-              <BookingCard key={booking.id} booking={booking} />
-            ))}
-          </ul>
-        </section>
-      ))}
+    <div ref={root} className="grid gap-2">
+      {days.map((day) => {
+        const list = bookings.filter((booking) => booking.date === day)
+        const waiting = list.filter((booking) => booking.status === 'pending').length
+        return (
+          <section key={day} aria-label={formatDateLabel(day)}>
+            <h3
+              data-biz-in=""
+              className="m-0 mb-2.5 mt-4 flex items-center gap-2.5 px-1 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-ink first:mt-0"
+            >
+              {formatDateLabel(day)}
+              <span className="font-sans text-[13px] font-medium normal-case tracking-normal text-muted">
+                {list.length} booking{list.length === 1 ? '' : 's'}
+                {waiting ? ` · ${waiting} to confirm` : ''}
+              </span>
+              <i aria-hidden="true" className="h-px flex-1 bg-ink/[.09]" />
+            </h3>
+            <ul className="m-0 grid list-none gap-3 p-0">
+              {list.map((booking) => (
+                <BookingCard key={booking.id} booking={booking} />
+              ))}
+            </ul>
+          </section>
+        )
+      })}
     </div>
   )
 }

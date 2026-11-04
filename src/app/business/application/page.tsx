@@ -56,16 +56,18 @@ export default async function BusinessApplicationPage({
           accounts={getPaymentAccounts()}
         />
       ) : (
-        <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-6">
-          <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden="true" />
-          <div>
-            <p className="font-semibold text-slate-900">Nothing to do here</p>
-            <p className="mt-1 text-ui-sm text-slate-500">
+        <section className="card narrow">
+          <div className="empty">
+            <span className="empty__ico">
+              <CheckCircle2 aria-hidden="true" />
+            </span>
+            <b>Nothing to do here</b>
+            <p>
               {listing.businessName} was listed before verification and payment were introduced, so it does not need
               either.
             </p>
           </div>
-        </div>
+        </section>
       )}
     </BusinessDashboardLayout>
   )

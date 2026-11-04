@@ -4,6 +4,7 @@
 import { Banknote, Smartphone } from '@/components/ui/icons'
 
 import { PAYOUT_METHOD_LABEL, PAYOUT_METHODS, type PayoutMethod } from '@/lib/charger-host'
+import { IN } from '@/components/admin/network-kit'
 import { cn } from '@/lib/utils'
 
 import { DocumentPicker } from '../application/DocumentPicker'
@@ -19,8 +20,7 @@ export interface PayoutDraft {
 
 export const EMPTY_PAYOUT: PayoutDraft = { method: 'jazzcash', provider: '', accountTitle: '', accountNumber: '', iban: '' }
 
-const FIELD =
-  'h-12 w-full rounded-xl border-[1.5px] border-slate-200 bg-white px-4 text-ui text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-plug-blue-500 focus:shadow-focus'
+const FIELD = IN
 
 /** The form's own check, matching the server's. */
 export function payoutProblem(value: PayoutDraft): string | null {
@@ -80,8 +80,8 @@ export function PayoutAccountFields({
               aria-checked={on}
               onClick={() => set('method', method)}
               className={cn(
-                'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border-[1.5px] px-2 text-ui-sm font-semibold transition-colors',
-                on ? 'border-plug-blue-500 bg-plug-blue-50 text-plug-blue-800' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
+                'flex min-h-12 items-center justify-center gap-1.5 rounded-[14px] border-[1.5px] px-2 text-[13px] font-semibold transition-colors duration-200',
+                on ? 'border-ink bg-ink text-white [&_svg]:text-volt' : 'border-ink/[.09] bg-white text-muted hover:border-ink/30 hover:text-ink',
               )}
             >
               <Icon size={15} aria-hidden="true" />
@@ -94,20 +94,20 @@ export function PayoutAccountFields({
       <div className="grid gap-4 sm:grid-cols-2">
         {isBank ? (
           <div>
-            <label htmlFor={`${idPrefix}-provider`} className="mb-2 block text-ui-sm font-medium text-slate-600">
+            <label htmlFor={`${idPrefix}-provider`} className="mb-2 block text-sm font-medium text-ink">
               Bank name
             </label>
             <input id={`${idPrefix}-provider`} maxLength={80} value={value.provider} onChange={(e) => set('provider', e.target.value)} placeholder="e.g. Meezan Bank" className={FIELD} />
           </div>
         ) : null}
         <div>
-          <label htmlFor={`${idPrefix}-title`} className="mb-2 block text-ui-sm font-medium text-slate-600">
+          <label htmlFor={`${idPrefix}-title`} className="mb-2 block text-sm font-medium text-ink">
             Account title
           </label>
           <input id={`${idPrefix}-title`} maxLength={120} value={value.accountTitle} onChange={(e) => set('accountTitle', e.target.value)} placeholder="Name on the account" className={FIELD} />
         </div>
         <div>
-          <label htmlFor={`${idPrefix}-number`} className="mb-2 block text-ui-sm font-medium text-slate-600">
+          <label htmlFor={`${idPrefix}-number`} className="mb-2 block text-sm font-medium text-ink">
             {isBank ? 'Account number' : `${PAYOUT_METHOD_LABEL[value.method]} number`}
           </label>
           <input
@@ -122,7 +122,7 @@ export function PayoutAccountFields({
         </div>
         {isBank ? (
           <div>
-            <label htmlFor={`${idPrefix}-iban`} className="mb-2 block text-ui-sm font-medium text-slate-600">
+            <label htmlFor={`${idPrefix}-iban`} className="mb-2 block text-sm font-medium text-ink">
               IBAN (optional)
             </label>
             <input id={`${idPrefix}-iban`} maxLength={34} value={value.iban} onChange={(e) => set('iban', e.target.value.toUpperCase())} placeholder="PK36SCBL0000001123456702" className={cn(FIELD, 'font-mono')} />

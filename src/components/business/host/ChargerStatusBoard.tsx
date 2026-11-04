@@ -17,9 +17,9 @@ export interface StatusBoardCharger {
 }
 
 const STYLE: Record<ChargerCondition, { icon: IconType; on: string; dot: string }> = {
-  working: { icon: CheckCircle2, on: 'border-emerald-500 bg-emerald-50 text-emerald-800', dot: 'bg-emerald-500' },
-  maintenance: { icon: Wrench, on: 'border-amber-500 bg-amber-50 text-amber-800', dot: 'bg-amber-500' },
-  'not-working': { icon: XCircle, on: 'border-red-500 bg-red-50 text-red-800', dot: 'bg-red-500' },
+  working: { icon: CheckCircle2, on: 'border-[#35D07F] bg-[rgba(53,208,127,.12)] text-[#12804a]', dot: 'bg-[#35D07F]' },
+  maintenance: { icon: Wrench, on: 'border-[#FFB020] bg-[rgba(255,176,32,.16)] text-[#8a5a00]', dot: 'bg-[#FFB020]' },
+  'not-working': { icon: XCircle, on: 'border-ember bg-[rgba(255,90,31,.12)] text-[#b23b0d]', dot: 'bg-ember' },
 }
 
 /**
@@ -59,23 +59,23 @@ export function ChargerStatusBoard({ businessId, chargers }: { businessId: strin
     }
   }
 
-  if (chargers.length === 0) return <p className="text-ui-sm text-slate-500">Add a charger first.</p>
+  if (chargers.length === 0) return <p className="m-0 text-sm text-muted">Add a charger first.</p>
 
   return (
     <ul className="flex flex-col gap-3">
       {chargers.map((charger) => {
         const current = local[charger.id] ?? null
         return (
-          <li key={charger.id} className="rounded-xl border border-slate-200 bg-white p-4">
+          <li key={charger.id} className="rounded-[18px] border border-ink/[.09] bg-paper p-4 transition-[translate,box-shadow] duration-500 ease-out hover:[translate:0_-2px] hover:shadow-[0_20px_40px_-28px_rgba(11,12,14,.4)]">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="flex items-center gap-2 text-ui-sm font-semibold text-slate-900">
+              <p className="flex items-center gap-2 font-display text-base font-normal text-ink">
                 <span
                   aria-hidden="true"
-                  className={cn('h-2.5 w-2.5 rounded-full', current ? STYLE[current].dot : 'bg-slate-300')}
+                  className={cn('h-2.5 w-2.5 rounded-full', current ? STYLE[current].dot : 'bg-fog')}
                 />
                 {charger.label}
               </p>
-              <span className="flex items-center gap-1.5 text-ui-xs text-slate-400">
+              <span className="flex items-center gap-1.5 font-mono text-[11px] text-fog">
                 {saving === charger.id ? <Loader2 size={12} className="animate-spin" aria-hidden="true" /> : null}
                 {current
                   ? charger.conditionAt && current === charger.condition
@@ -97,8 +97,8 @@ export function ChargerStatusBoard({ businessId, chargers }: { businessId: strin
                     disabled={saving === charger.id}
                     onClick={() => choose(charger.id, condition)}
                     className={cn(
-                      'flex min-h-11 items-center justify-center gap-1.5 rounded-lg border-[1.5px] px-2 text-ui-sm font-semibold transition-colors',
-                      on ? STYLE[condition].on : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50',
+                      'flex min-h-11 items-center justify-center gap-1.5 rounded-xl border-[1.5px] px-2 text-[13px] font-semibold transition-[background-color,border-color,color,scale] duration-200 active:scale-[.97]',
+                      on ? STYLE[condition].on : 'border-ink/[.09] bg-white text-muted hover:border-ink/30 hover:text-ink',
                     )}
                   >
                     <Icon size={15} className="shrink-0" aria-hidden="true" />
@@ -108,7 +108,7 @@ export function ChargerStatusBoard({ businessId, chargers }: { businessId: strin
               })}
             </div>
             {error?.id === charger.id ? (
-              <p role="alert" className="mt-2 text-ui-sm text-red-600">
+              <p role="alert" className="mb-0 mt-2 text-[13px] text-[#b23b0d]">
                 {error.text}
               </p>
             ) : null}

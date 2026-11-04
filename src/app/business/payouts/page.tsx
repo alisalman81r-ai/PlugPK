@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 
+import { AdmIcon } from '@/components/admin/admin-icons'
 import { BusinessDashboardLayout } from '@/components/business/BusinessDashboardLayout'
 import { PayoutAccountsManager } from '@/components/business/host/PayoutAccountsManager'
 import { listingHref } from '@/components/business/listing-state'
@@ -34,32 +35,39 @@ export default async function BusinessPayoutsPage({
       subtitle="Where drivers send the advance when they book"
       {...portalListings(portal)}
     >
-      <div className="max-w-3xl">
-        <section aria-labelledby="payouts" className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 id="payouts" className="text-lg font-bold text-slate-900">
-            Your accounts
-          </h2>
-          <p className="mb-5 mt-1 text-ui-sm text-slate-500">
-            Bank, JazzCash or Easypaisa — up to three. A driver sees them only while booking a slot, and pays the advance
-            straight to you.
-          </p>
+      <section aria-labelledby="payouts" className="card narrow">
+        <div className="chead">
+          <div className="min-w-0">
+            <h2 id="payouts">Your accounts</h2>
+            <p>
+              Bank, JazzCash or Easypaisa — up to three. A driver sees them only while booking a slot, and pays the
+              advance straight to you.
+            </p>
+          </div>
+          <span className="pill pill--unk">
+            <AdmIcon name="shield" />
+            Private until booking
+          </span>
+        </div>
+        <div className="cbody">
           <PayoutAccountsManager key={listing.id} businessId={listing.id} accounts={accounts} />
-        </section>
+        </div>
+      </section>
 
-        {/* Accounts on their own take no bookings: say what turns them on. */}
-        {!settings.bookingEnabled ? (
-          <p className="mt-4 rounded-xl bg-slate-100 px-4 py-3 text-ui-sm text-slate-600">
-            Bookings are off for this listing.{' '}
-            <Link
-              href={listingHref('/business/bookings', listing.id, listings.length)}
-              className="font-semibold text-plug-blue-600 hover:underline"
-            >
-              Set your price and turn bookings on
-            </Link>{' '}
-            once an account is added.
-          </p>
-        ) : null}
-      </div>
+      {/* Accounts on their own take no bookings: say what turns them on. */}
+      {!settings.bookingEnabled ? (
+        <div className="note note--act narrow">
+          <AdmIcon name="calok" />
+          <span className="biz-grow">
+            <b>Bookings are off for this listing</b>
+            Set your price and turn bookings on once an account is added.
+          </span>
+          <Link href={listingHref('/business/bookings', listing.id, listings.length)} className="btn btn--volt btn--sm">
+            Open bookings
+            <AdmIcon name="arrow" />
+          </Link>
+        </div>
+      ) : null}
     </BusinessDashboardLayout>
   )
 }
